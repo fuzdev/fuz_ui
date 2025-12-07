@@ -1,4 +1,4 @@
-import type {ModuleJson} from '@ryanatkn/belt/source_json.js';
+import type {ModuleJson} from '@fuzdev/fuz_util/source_json.js';
 
 import {Declaration} from './declaration.svelte.js';
 import type {Library} from './library.svelte.js';

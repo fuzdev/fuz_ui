@@ -1,7 +1,7 @@
 <script lang="ts">
 	import type {SvelteHTMLElements} from 'svelte/elements';
 	import type {Snippet} from 'svelte';
-	import {default_variables} from '@ryanatkn/moss/variables.js';
+	import {default_variables} from '@fuzdev/fuz_css/variables.js';
 
 	import {selected_variable_context} from '$routes/style_variable_helpers.svelte.js';
 

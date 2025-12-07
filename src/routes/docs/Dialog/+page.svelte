@@ -1,6 +1,6 @@
 <script lang="ts">
 	import {slide} from 'svelte/transition';
-	import Code from '@ryanatkn/fuz_code/Code.svelte';
+	import Code from '@fuzdev/fuz_code/Code.svelte';
 
 	import Alert from '$lib/Alert.svelte';
 	import TomeContent from '$lib/TomeContent.svelte';

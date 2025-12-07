@@ -1,6 +1,6 @@
 import {test, assert, describe, beforeAll} from 'vitest';
 import ts from 'typescript';
-import type {DeclarationJson} from '@ryanatkn/belt/source_json.js';
+import type {DeclarationJson} from '@fuzdev/fuz_util/source_json.js';
 
 import {ts_analyze_module_exports} from '$lib/ts_helpers.js';
 import {

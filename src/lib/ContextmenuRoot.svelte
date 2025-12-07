@@ -16,7 +16,7 @@
 	 * instead. That version implements custom touch handlers and longpress detection at the
 	 * cost of significantly more complexity and no vibrate support.
 	 */
-	import {swallow} from '@ryanatkn/belt/dom.js';
+	import {swallow} from '@fuzdev/fuz_util/dom.js';
 	import {DEV} from 'esm-env';
 	import type {ComponentProps, Snippet} from 'svelte';
 

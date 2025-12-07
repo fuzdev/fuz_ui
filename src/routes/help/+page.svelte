@@ -6,7 +6,7 @@
 <div class="width_upto_md m_auto">
 	<Alert status="help">todo</Alert>
 	<div>
-		<GithubLink path="ryanatkn/fuz/issues" />
+		<GithubLink path="fuzdev/fuz_ui/issues" />
 	</div>
 </div>
 

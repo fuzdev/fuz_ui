@@ -1,6 +1,6 @@
 <script lang="ts">
 	import {resolve} from '$app/paths';
-	import Code from '@ryanatkn/fuz_code/Code.svelte';
+	import Code from '@fuzdev/fuz_code/Code.svelte';
 
 	import {get_tome_by_name} from '$lib/tome.js';
 	import Card from '$lib/Card.svelte';
@@ -21,7 +21,7 @@
 	</section>
 	<section>
 		<!-- TODO make this a generic data-driven helper -->
-		<Code content={`import Card from '@ryanatkn/fuz/Card.svelte';`} lang="ts" />
+		<Code content={`import Card from '@fuzdev/fuz_ui/Card.svelte';`} lang="ts" />
 		<Code
 			content={`<Card>
   just<br />

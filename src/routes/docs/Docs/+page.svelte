@@ -11,8 +11,8 @@
 	<section>
 		The <code>Docs</code> is the component behind these docs. Its docs are unfinished - for now see
 		usage in
-		<GithubLink path="ryanatkn/fuz/blob/main/src/routes/docs/%2Blayout.svelte">Fuz</GithubLink>
+		<GithubLink path="fuzdev/fuz_ui/blob/main/src/routes/docs/%2Blayout.svelte">Fuz</GithubLink>
 		or
-		<GithubLink path="ryanatkn/moss/blob/main/src/routes/docs/%2Blayout.svelte">Moss</GithubLink>.
+		<GithubLink path="fuzdev/fuz_css/blob/main/src/routes/docs/%2Blayout.svelte">Moss</GithubLink>.
 	</section>
 </TomeContent>

@@ -1,9 +1,9 @@
 <script lang="ts">
-	import {parse_path_pieces} from '@ryanatkn/belt/path.js';
+	import {parse_path_pieces} from '@fuzdev/fuz_util/path.js';
 	import {resolve} from '$app/paths';
 	import {page} from '$app/state';
 	import type {Snippet} from 'svelte';
-	import {strip_start, ensure_end} from '@ryanatkn/belt/string.js';
+	import {strip_start, ensure_end} from '@fuzdev/fuz_util/string.js';
 
 	const {
 		path,

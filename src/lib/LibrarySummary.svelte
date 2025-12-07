@@ -1,7 +1,7 @@
 <script lang="ts">
 	import {page} from '$app/state';
 	import type {Snippet} from 'svelte';
-	import {format_url} from '@ryanatkn/belt/url.js';
+	import {format_url} from '@fuzdev/fuz_util/url.js';
 
 	import type {Library} from './library.svelte.js';
 	import ImgOrSvg from './ImgOrSvg.svelte';

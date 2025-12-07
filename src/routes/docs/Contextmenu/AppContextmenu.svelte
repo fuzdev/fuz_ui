@@ -12,7 +12,7 @@
 	} = $props();
 </script>
 
-<ContextmenuLinkEntry href="https://github.com/ryanatkn/fuz">
+<ContextmenuLinkEntry href="https://github.com/fuzdev/fuz_ui">
 	{#snippet icon()}<Svg data={github_logo} size="var(--icon_size_xs)" />{/snippet}
 	Source code
 </ContextmenuLinkEntry>

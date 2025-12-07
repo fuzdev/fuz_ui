@@ -1,6 +1,6 @@
 <script lang="ts">
-	import {swallow} from '@ryanatkn/belt/dom.js';
-	import {color_schemes, type ColorScheme} from '@ryanatkn/moss/theme.js';
+	import {swallow} from '@fuzdev/fuz_util/dom.js';
+	import {color_schemes, type ColorScheme} from '@fuzdev/fuz_css/theme.js';
 
 	import {themer_context} from './themer.svelte.js';
 

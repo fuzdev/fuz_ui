@@ -4,7 +4,7 @@ import {getContext, setContext} from 'svelte';
 // It could be implemented internally with a class like `SvelteContext`
 // but this is less code and seems a bit simpler.
 // The memory gains of a class appear minimal given the expected usage patterns.
-// See https://github.com/ryanatkn/fuz/pull/56 for more.
+// See https://github.com/fuzdev/fuz_ui/pull/56 for more.
 
 // TODO maybe remove `error_message`?
 

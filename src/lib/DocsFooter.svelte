@@ -1,5 +1,5 @@
 <script lang="ts">
-	import {format_url, type Url} from '@ryanatkn/belt/url.js';
+	import {format_url, type Url} from '@fuzdev/fuz_util/url.js';
 	import type {Snippet} from 'svelte';
 
 	import type {Library} from './library.svelte.js';

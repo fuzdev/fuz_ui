@@ -1,6 +1,6 @@
 <script lang="ts">
-	import {strip_start} from '@ryanatkn/belt/string.js';
-	import {swallow} from '@ryanatkn/belt/dom.js';
+	import {strip_start} from '@fuzdev/fuz_util/string.js';
+	import {swallow} from '@fuzdev/fuz_util/dom.js';
 	import type {Snippet} from 'svelte';
 	import {page} from '$app/state';
 

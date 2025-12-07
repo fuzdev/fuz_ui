@@ -1,4 +1,4 @@
-import type {DeclarationJson} from '@ryanatkn/belt/source_json.js';
+import type {DeclarationJson} from '@fuzdev/fuz_util/source_json.js';
 
 import {load_fixtures_generic} from '../../test_helpers.js';
 

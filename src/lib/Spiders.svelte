@@ -6,8 +6,8 @@
 </script>
 
 <script lang="ts">
-	import {random_int, shuffle} from '@ryanatkn/belt/random.js';
-	import {create_random_alea} from '@ryanatkn/belt/random_alea.js';
+	import {random_int, shuffle} from '@fuzdev/fuz_util/random.js';
+	import {create_random_alea} from '@fuzdev/fuz_util/random_alea.js';
 
 	import Svg from './Svg.svelte';
 	import {fuz_logo} from './logos.js';

@@ -1,5 +1,5 @@
 <script lang="ts">
-	import type {OmitStrict} from '@ryanatkn/belt/types.js';
+	import type {OmitStrict} from '@fuzdev/fuz_util/types.js';
 	import type {Snippet} from 'svelte';
 	import type {SvelteHTMLElements} from 'svelte/elements';
 	import {scale, slide} from 'svelte/transition';

@@ -1,5 +1,5 @@
 <script lang="ts">
-	import Code from '@ryanatkn/fuz_code/Code.svelte';
+	import Code from '@fuzdev/fuz_code/Code.svelte';
 	import {get_tome_by_name} from '$lib/tome.js';
 	import TomeContent from '$lib/TomeContent.svelte';
 	import TomeLink from '$lib/TomeLink.svelte';
@@ -48,13 +48,11 @@
 				<Code content={`<Svg data={zzz_logo} />`} />
 			</li>
 			<li>
-				<a href="https://moss.ryanatkn.com/"><Svg data={moss_logo} size="var(--icon_size_xl3)" /></a
-				>
+				<a href="https://css.fuz.dev/"><Svg data={moss_logo} size="var(--icon_size_xl3)" /></a>
 				<Code content={`<Svg data={moss_logo} />`} />
 			</li>
 			<li>
-				<a href="https://belt.ryanatkn.com/"><Svg data={belt_logo} size="var(--icon_size_xl3)" /></a
-				>
+				<a href="https://util.fuz.dev/"><Svg data={belt_logo} size="var(--icon_size_xl3)" /></a>
 				<Code content={`<Svg data={belt_logo} />`} />
 			</li>
 			<li>
@@ -62,7 +60,7 @@
 				<Code content={`<Svg data={gro_logo} />`} />
 			</li>
 			<li>
-				<a href="https://www.fuz.dev/"><Svg data={fuz_logo} size="var(--icon_size_xl3)" /></a>
+				<a href="https://ui.fuz.dev/"><Svg data={fuz_logo} size="var(--icon_size_xl3)" /></a>
 				<Code content={`<Svg data={fuz_logo} />`} />
 			</li>
 			<li>

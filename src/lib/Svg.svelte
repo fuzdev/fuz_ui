@@ -1,5 +1,5 @@
 <script lang="ts" module>
-	import {ensure_end} from '@ryanatkn/belt/string.js';
+	import {ensure_end} from '@fuzdev/fuz_util/string.js';
 	import type {SvelteHTMLElements} from 'svelte/elements';
 
 	export interface SvgData {

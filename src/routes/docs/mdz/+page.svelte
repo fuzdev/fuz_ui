@@ -1,5 +1,5 @@
 <script lang="ts">
-	import Code from '@ryanatkn/fuz_code/Code.svelte';
+	import Code from '@fuzdev/fuz_code/Code.svelte';
 	import {resolve} from '$app/paths';
 
 	import {get_tome_by_name} from '$lib/tome.js';
@@ -78,7 +78,7 @@
 	<TomeSection>
 		<TomeSectionHeader text="Usage" />
 		<Mdz content="import `Mdz` from `mdz.ts`:" class="mb_lg" />
-		<Code content="import Mdz from '@ryanatkn/fuz/Mdz.svelte';" lang="ts" />
+		<Code content="import Mdz from '@fuzdev/fuz_ui/Mdz.svelte';" lang="ts" />
 	</TomeSection>
 
 	<TomeSection>
@@ -183,7 +183,7 @@
 		<Mdz content={element_marquee_example} class="mb_xl5" />
 		<p>Elements must be registered:</p>
 		<Code
-			content={`import {mdz_elements_context} from '@ryanatkn/fuz/mdz_components.js';
+			content={`import {mdz_elements_context} from '@fuzdev/fuz_ui/mdz_components.js';
 
 mdz_elements_context.set(new Map([
 	['code', true],
@@ -208,8 +208,8 @@ mdz_elements_context.set(new Map([
 		<Mdz content={component_example} class="mb_xl5" />
 		<p>Components must be registered:</p>
 		<Code
-			content={`import {mdz_components_context} from '@ryanatkn/fuz/mdz_components.js';
-import Alert from '@ryanatkn/fuz/Alert.svelte';
+			content={`import {mdz_components_context} from '@fuzdev/fuz_ui/mdz_components.js';
+import Alert from '@fuzdev/fuz_ui/Alert.svelte';
 
 mdz_components_context.set(new Map([
 	['Alert', Alert],
@@ -234,8 +234,8 @@ mdz_components_context.set(new Map([
 			/>:
 		</p>
 		<Code
-			content={`import {mdz_parse} from '@ryanatkn/fuz/mdz.js';
-import MdzNodeView from '@ryanatkn/fuz/MdzNodeView.svelte';
+			content={`import {mdz_parse} from '@fuzdev/fuz_ui/mdz.js';
+import MdzNodeView from '@fuzdev/fuz_ui/MdzNodeView.svelte';
 
 const nodes = mdz_parse(content);`}
 			lang="ts"

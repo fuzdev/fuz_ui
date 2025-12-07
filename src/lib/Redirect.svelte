@@ -1,6 +1,6 @@
 <script lang="ts">
 	import {page} from '$app/state';
-	import {strip_start} from '@ryanatkn/belt/string.js';
+	import {strip_start} from '@fuzdev/fuz_util/string.js';
 	import {goto} from '$app/navigation';
 	import type {Snippet} from 'svelte';
 	import {BROWSER} from 'esm-env';

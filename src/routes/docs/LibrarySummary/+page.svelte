@@ -1,5 +1,5 @@
 <script lang="ts">
-	import Code from '@ryanatkn/fuz_code/Code.svelte';
+	import Code from '@fuzdev/fuz_code/Code.svelte';
 
 	import {get_tome_by_name} from '$lib/tome.js';
 	import LibrarySummary from '$lib/LibrarySummary.svelte';
@@ -22,7 +22,10 @@
 				>Gro's public packages</a
 			> features.
 		</p>
-		<Code content={`import LibrarySummary from '@ryanatkn/fuz/LibrarySummary.svelte';`} lang="ts" />
+		<Code
+			content={`import LibrarySummary from '@fuzdev/fuz_ui/LibrarySummary.svelte';`}
+			lang="ts"
+		/>
 		<Code content={`<LibrarySummary {library} />`} />
 	</section>
 	<section>

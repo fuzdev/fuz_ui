@@ -1,5 +1,5 @@
 <script lang="ts">
-	import Code from '@ryanatkn/fuz_code/Code.svelte';
+	import Code from '@fuzdev/fuz_code/Code.svelte';
 
 	import TomeSectionHeader from '$lib/TomeSectionHeader.svelte';
 	import TomeSection from '$lib/TomeSection.svelte';
@@ -16,13 +16,13 @@
 		<div class="panel p_md">
 			<Code
 				content={`<${root_component_name} scoped>
-  ...<a href="https://www.fuz.dev/">
+  ...<a href="https://ui.fuz.dev/">
     a link like this one
   </a>...
 </${root_component_name}>`}
 			/>
 			<p>
-				Opening the contextmenu on <a href="https://www.fuz.dev/">a link like this one</a> has
+				Opening the contextmenu on <a href="https://ui.fuz.dev/">a link like this one</a> has
 				special behavior by default. To accesss your browser's normal contextmenu, open the
 				contextmenu on the link inside the contextmenu itself or hold <code>Shift</code>.
 			</p>

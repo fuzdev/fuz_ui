@@ -1,5 +1,5 @@
 <script lang="ts">
-	import Code from '@ryanatkn/fuz_code/Code.svelte';
+	import Code from '@fuzdev/fuz_code/Code.svelte';
 
 	import {get_tome_by_name} from '$lib/tome.js';
 	import Breadcrumb from '$lib/Breadcrumb.svelte';
@@ -17,7 +17,7 @@
 <TomeContent {tome}>
 	<section>
 		<!-- TODO make this a generic data-driven helper -->
-		<Code content={`import Breadcrumb from '@ryanatkn/fuz/Breadcrumb.svelte';`} lang="ts" />
+		<Code content={`import Breadcrumb from '@fuzdev/fuz_ui/Breadcrumb.svelte';`} lang="ts" />
 		<Code content={`<Breadcrumb />`} />
 		<Breadcrumb />
 	</section>

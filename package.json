@@ -1,5 +1,5 @@
 {
-  "name": "@ryanatkn/fuz",
+  "name": "@fuzdev/fuz_ui",
   "version": "0.168.0",
   "description": "Svelte UI library",
   "motto": "friendly user zystem",
@@ -8,7 +8,7 @@
   "logo_alt": "a friendly brown spider facing you",
   "public": true,
   "license": "MIT",
-  "homepage": "https://www.fuz.dev/",
+  "homepage": "https://ui.fuz.dev/",
   "author": {
     "name": "Ryan Atkinson",
     "email": "mail@ryanatkn.com",
@@ -16,9 +16,9 @@
   },
   "repository": {
     "type": "git",
-    "url": "git+https://github.com/ryanatkn/fuz.git"
+    "url": "git+https://github.com/fuzdev/fuz_ui.git"
   },
-  "bugs": "https://github.com/ryanatkn/fuz/issues",
+  "bugs": "https://github.com/fuzdev/fuz_ui/issues",
   "funding": "https://www.ryanatkn.com/funding",
   "scripts": {
     "start": "gro dev",
@@ -34,10 +34,10 @@
     "node": ">=22.15"
   },
   "peerDependencies": {
-    "@ryanatkn/belt": ">=0.41.1",
-    "@ryanatkn/fuz_code": ">=0.36.0",
+    "@fuzdev/fuz_util": ">=0.41.1",
+    "@fuzdev/fuz_code": ">=0.36.0",
     "@ryanatkn/gro": ">=0.180.0",
-    "@ryanatkn/moss": ">=0.39.0",
+    "@fuzdev/fuz_css": ">=0.39.0",
     "@sveltejs/kit": "^2.47.3",
     "esm-env": "^1",
     "svelte": "^5",
@@ -45,7 +45,7 @@
     "zod": "^4.1.12"
   },
   "peerDependenciesMeta": {
-    "@ryanatkn/fuz_code": {
+    "@fuzdev/fuz_code": {
       "optional": true
     },
     "@ryanatkn/gro": {
@@ -57,11 +57,11 @@
   },
   "devDependencies": {
     "@changesets/changelog-git": "^0.2.1",
-    "@ryanatkn/belt": "^0.41.1",
+    "@fuzdev/fuz_util": "^0.41.1",
     "@ryanatkn/eslint-config": "^0.9.0",
-    "@ryanatkn/fuz_code": "^0.36.0",
+    "@fuzdev/fuz_code": "^0.36.0",
     "@ryanatkn/gro": "^0.180.0",
-    "@ryanatkn/moss": "^0.39.0",
+    "@fuzdev/fuz_css": "^0.39.0",
     "@sveltejs/adapter-static": "^3.0.10",
     "@sveltejs/kit": "^2.49.0",
     "@sveltejs/package": "^2.5.7",

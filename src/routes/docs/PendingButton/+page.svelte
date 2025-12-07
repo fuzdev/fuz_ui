@@ -1,5 +1,5 @@
 <script lang="ts">
-	import Code from '@ryanatkn/fuz_code/Code.svelte';
+	import Code from '@fuzdev/fuz_code/Code.svelte';
 
 	import {get_tome_by_name} from '$lib/tome.js';
 	import PendingButton from '$lib/PendingButton.svelte';
@@ -21,7 +21,7 @@
 			<p>This component may be replaced with an action in the future or otherwise change.</p>
 		</aside>
 		<!-- TODO make this a generic data-driven helper -->
-		<Code content={`import PendingButton from '@ryanatkn/fuz/PendingButton.svelte';`} lang="ts" />
+		<Code content={`import PendingButton from '@fuzdev/fuz_ui/PendingButton.svelte';`} lang="ts" />
 		<p>
 			<button
 				type="button"

@@ -1,5 +1,5 @@
 <script lang="ts">
-	import Code from '@ryanatkn/fuz_code/Code.svelte';
+	import Code from '@fuzdev/fuz_code/Code.svelte';
 
 	import {get_tome_by_name} from '$lib/tome.js';
 	import Alert from '$lib/Alert.svelte';
@@ -23,7 +23,7 @@
 	</section>
 	<section>
 		<!-- TODO make this a generic data-driven helper -->
-		<Code content={`import Alert from '@ryanatkn/fuz/Alert.svelte';`} lang="ts" />
+		<Code content={`import Alert from '@fuzdev/fuz_ui/Alert.svelte';`} lang="ts" />
 		<Code content={`<Alert>info</Alert>`} />
 		<Alert>info</Alert>
 	</section>
@@ -70,7 +70,7 @@
 			icon and color.
 		</p>
 		<Code
-			content="// @ryanatkn/fuz/alert.js
+			content="// @fuzdev/fuz_ui/alert.js
 export type AlertStatus = 'inform' | 'help' | 'error';"
 			lang="ts"
 		/>

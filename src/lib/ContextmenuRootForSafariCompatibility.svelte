@@ -17,7 +17,7 @@
 	 * Otherwise, use the default `ContextmenuRoot.svelte` which is much simpler
 	 * and relies on the standard `contextmenu` event.
 	 */
-	import {swallow} from '@ryanatkn/belt/dom.js';
+	import {swallow} from '@fuzdev/fuz_util/dom.js';
 	import {DEV} from 'esm-env';
 	import {on} from 'svelte/events';
 	import type {ComponentProps, Snippet} from 'svelte';

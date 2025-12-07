@@ -1,6 +1,6 @@
 <script lang="ts">
 	import type {Snippet} from 'svelte';
-	import {swallow} from '@ryanatkn/belt/dom.js';
+	import {swallow} from '@fuzdev/fuz_util/dom.js';
 
 	import PendingAnimation from './PendingAnimation.svelte';
 	import {contextmenu_context, type ContextmenuRun} from './contextmenu_state.svelte.js';

@@ -1,5 +1,5 @@
 <script lang="ts">
-	import Code from '@ryanatkn/fuz_code/Code.svelte';
+	import Code from '@fuzdev/fuz_code/Code.svelte';
 
 	import TomeContent from '$lib/TomeContent.svelte';
 	import Details from '$lib/Details.svelte';

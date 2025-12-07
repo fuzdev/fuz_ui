@@ -2,7 +2,7 @@
 	import {flip} from 'svelte/animate';
 	import {crossfade} from 'svelte/transition';
 	import {quintOut} from 'svelte/easing';
-	import Code from '@ryanatkn/fuz_code/Code.svelte';
+	import Code from '@fuzdev/fuz_code/Code.svelte';
 
 	import Contextmenu from '$lib/Contextmenu.svelte';
 	import Details from '$lib/Details.svelte';
@@ -212,10 +212,10 @@
 				<h1>About Fuz</h1>
 				<blockquote>Svelte UI library</blockquote>
 				<blockquote>
-					free and open source at<br /><GithubLink path="ryanatkn/fuz" />
+					free and open source at<br /><GithubLink path="fuzdev/fuz_ui" />
 				</blockquote>
 				<code class="display_block p_md mb_lg"
-					>npm i -D <a href="https://www.npmjs.com/package/@ryanatkn/fuz">@ryanatkn/fuz</a></code
+					>npm i -D <a href="https://www.npmjs.com/package/@fuzdev/fuz_ui">@fuzdev/fuz_ui</a></code
 				>
 				<div class="p_xl box">
 					<h2>Color scheme</h2>

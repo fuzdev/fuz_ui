@@ -1,7 +1,7 @@
 <script lang="ts">
 	import type {Snippet} from 'svelte';
-	import {is_editable, swallow} from '@ryanatkn/belt/dom.js';
-	import {wait} from '@ryanatkn/belt/async.js';
+	import {is_editable, swallow} from '@fuzdev/fuz_util/dom.js';
+	import {wait} from '@fuzdev/fuz_util/async.js';
 
 	import Teleport from './Teleport.svelte';
 	import type {DialogLayout} from './dialog.js';

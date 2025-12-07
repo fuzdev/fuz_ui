@@ -1,6 +1,6 @@
 import {resolve} from '$app/paths';
 import {SvelteMap, SvelteSet} from 'svelte/reactivity';
-import {ensure_end, ensure_start} from '@ryanatkn/belt/string.js';
+import {ensure_end, ensure_start} from '@fuzdev/fuz_util/string.js';
 
 import {create_context} from './context_helpers.js';
 

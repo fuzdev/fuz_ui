@@ -9,7 +9,7 @@ import type {
 	DeclarationJson,
 	GenericParamInfo,
 	DeclarationKind,
-} from '@ryanatkn/belt/source_json.js';
+} from '@fuzdev/fuz_util/source_json.js';
 
 import {tsdoc_parse, tsdoc_apply_to_declaration} from './tsdoc_helpers.js';
 import {module_extract_path, module_matches_source} from './module_helpers.js';

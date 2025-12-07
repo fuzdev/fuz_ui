@@ -33,7 +33,7 @@
 
 	// prettier-ignore
 	const project_items: Array<ProjectItem> = [ 
-		{name: 'moss', url: 'https://moss.ryanatkn.com/', logo: moss_logo, description: 'CSS framework and design system', glyph: '🌿'},
+		{name: 'moss', url: 'https://css.fuz.dev/', logo: moss_logo, description: 'CSS framework and design system', glyph: '🌿'},
 		{name: 'gro', url: 'https://gro.ryanatkn.com/', logo: gro_logo, description: 'task runner and toolkit extending SvelteKit', glyph: '🌰'},
 		{name: 'fuz_template', url: 'https://template.fuz.dev/', logo: fuz_template_logo, description: 'a static web app and Node library template with TypeScript, Svelte, SvelteKit, Vite, esbuild, Fuz, and Gro', glyph: '❄'},
 		{name: 'fuz_blog', url: 'https://blog.fuz.dev/', logo: fuz_blog_logo, description: 'blog software from scratch with SvelteKit', glyph: '🖊️'},
@@ -52,13 +52,13 @@
 			<div class="mb_lg p_xs2 shadow_md border_radius_sm">
 				<div class="width_upto_sm panel p_lg shadow_inset_xs bg">
 					<p>
-						Fuz is a Svelte UI library with components and helpers for making modern websites. It
-						builds on my CSS framework <a href="https://moss.ryanatkn.com/">Moss</a>, which is based
-						on CSS custom properties, and Fuz continues those patterns. It's in early alpha and will
+						Fuz UI is a Svelte UI library with components and helpers for making modern websites. It
+						builds on my CSS framework <a href="https://css.fuz.dev/">Moss</a>, which is based on
+						CSS custom properties, and Fuz continues those patterns. It's in early alpha and will
 						have many breaking changes.
 					</p>
 					<p>
-						Fuz is being made to support <a href="https://www.zzz.software/">Zzz</a> and
+						Fuz UI is being made to support <a href="https://www.zzz.software/">Zzz</a> and
 						<a href="https://www.ryanatkn.com/table">my other projects</a>
 						that focus on end-users. Fuz emphasizes capability and efficiency and tries to be simple
 						for those goals. Compared to most UI libraries, Fuz has fewer features and more opinions,
@@ -67,8 +67,8 @@
 					<p>
 						<!-- eslint-disable-next-line svelte/no-navigation-without-resolve -->
 						To learn more see <a href={DOCS_PATH}>the docs</a>
-						and <GithubLink path="ryanatkn/fuz#readme">readme</GithubLink>. Feel free to take the
-						ideas and <GithubLink path="ryanatkn/fuz">code</GithubLink> for your own purposes.
+						and <GithubLink path="fuzdev/fuz_ui#readme">readme</GithubLink>. Feel free to take the
+						ideas and <GithubLink path="fuzdev/fuz_ui">code</GithubLink> for your own purposes.
 					</p>
 				</div>
 			</div>

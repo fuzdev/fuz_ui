@@ -1,6 +1,6 @@
 import {test, assert, describe} from 'vitest';
 import type {KitConfig} from '@sveltejs/kit';
-import type {Defined} from '@ryanatkn/belt/types.js';
+import type {Defined} from '@fuzdev/fuz_util/types.js';
 
 import {
 	create_csp_directives,

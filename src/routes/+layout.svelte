@@ -1,7 +1,7 @@
 <script lang="ts">
-	import '@ryanatkn/moss/style.css';
-	import '@ryanatkn/moss/theme.css';
-	import '@ryanatkn/fuz_code/theme.css';
+	import '@fuzdev/fuz_css/style.css';
+	import '@fuzdev/fuz_css/theme.css';
+	import '@fuzdev/fuz_code/theme.css';
 	import '$routes/moss.css';
 
 	import type {Snippet} from 'svelte';

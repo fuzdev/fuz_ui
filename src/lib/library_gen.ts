@@ -11,7 +11,7 @@
  * - Dependency graphs
  * - Svelte component props
  *
- * @see @ryanatkn/belt/source_json.js for type definitions
+ * @see @fuzdev/fuz_util/source_json.js for type definitions
  * @see src/lib/library_gen_helpers.ts for buildtime-only helpers
  * @see src/lib/tsdoc_helpers.ts for JSDoc/TSDoc parsing
  * @see src/lib/ts_helpers.ts for TypeScript analysis
@@ -20,7 +20,7 @@
 
 import type {Gen} from '@ryanatkn/gro';
 import {load_package_json} from '@ryanatkn/gro/package_json.js';
-import type {SourceJson} from '@ryanatkn/belt/source_json.js';
+import type {SourceJson} from '@fuzdev/fuz_util/source_json.js';
 
 import {ts_create_program, type ReExportInfo} from './ts_helpers.js';
 import {module_extract_path, module_is_svelte} from './module_helpers.js';
@@ -42,7 +42,7 @@ export interface LibraryGenOptions {
  *
  * Usage in a `.gen.ts` file:
  * ```ts
- * import {library_gen} from '@ryanatkn/fuz/library_gen.js';
+ * import {library_gen} from '@fuzdev/fuz_ui/library_gen.js';
  * export const gen = library_gen();
  * ```
  */

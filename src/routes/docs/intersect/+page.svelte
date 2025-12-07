@@ -1,5 +1,5 @@
 <script lang="ts">
-	import Code from '@ryanatkn/fuz_code/Code.svelte';
+	import Code from '@fuzdev/fuz_code/Code.svelte';
 
 	import {get_tome_by_name} from '$lib/tome.js';
 	import {intersect} from '$lib/intersect.svelte.js';
@@ -45,7 +45,7 @@
 	</section>
 
 	<section>
-		<Code content={`import {intersect} from '@ryanatkn/fuz/intersect.svelte.js';`} lang="ts" />
+		<Code content={`import {intersect} from '@fuzdev/fuz_ui/intersect.svelte.js';`} lang="ts" />
 		<Code
 			content={`<div {@attach intersect(() => ({intersecting}) => {
   console.log(intersecting ? 'entered' : 'left');
