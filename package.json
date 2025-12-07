@@ -60,7 +60,6 @@
     "@fuzdev/fuz_code": "^0.37.0",
     "@fuzdev/fuz_css": "^0.40.0",
     "@fuzdev/fuz_util": "^0.42.0",
-    "@ryanatkn/belt": "^0.41.1",
     "@ryanatkn/eslint-config": "^0.9.0",
     "@ryanatkn/gro": "^0.180.0",
     "@sveltejs/adapter-static": "^3.0.10",
