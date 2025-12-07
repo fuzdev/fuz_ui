@@ -1,5 +1,11 @@
 # @ryanatkn/fuz
 
+## 0.169.0
+
+### Minor Changes
+
+- move to fuzdev and rename to fuz_ui from fuz ([3088d89](https://github.com/ryanatkn/fuz/commit/3088d89))
+
 ## 0.168.0
 
 ### Minor Changes

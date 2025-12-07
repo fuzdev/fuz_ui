@@ -5,7 +5,7 @@ import type {LibraryJson} from '@fuzdev/fuz_util/library_json.js';
 export const library_json: LibraryJson = {
 	package_json: {
 		name: '@fuzdev/fuz_ui',
-		version: '0.168.0',
+		version: '0.169.0',
 		description: 'Svelte UI library',
 		motto: 'friendly user zystem',
 		glyph: '🧶',
@@ -124,7 +124,7 @@ export const library_json: LibraryJson = {
 	},
 	source_json: {
 		name: '@fuzdev/fuz_ui',
-		version: '0.168.0',
+		version: '0.169.0',
 		modules: [
 			{
 				path: 'Alert.svelte',
