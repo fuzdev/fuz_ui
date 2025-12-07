@@ -24,7 +24,7 @@
 			>. Includes a rendered link and JS navigation fallback.
 		</p>
 		<!-- TODO make this a generic data-driven helper -->
-		<Code content={`import Redirect from '@ryanatkn/fuz/Redirect.svelte';`} lang="ts" />
+		<Code content={`import Redirect from '@fuzdev/fuz_ui/Redirect.svelte';`} lang="ts" />
 		<aside>
 			Note that <code>auto={'{'}false}</code> is only used here to prevent the page from
 			redirecting! Typical usage lets it default to <code>true</code>.

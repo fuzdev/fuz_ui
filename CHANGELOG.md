@@ -1,4 +1,4 @@
-# @ryanatkn/fuz
+# @fuzdev/fuz_ui
 
 ## 0.169.0
 

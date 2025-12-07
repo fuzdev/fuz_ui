@@ -1,20 +1,20 @@
 # Fuz
 
-[<img src="static/logo.svg" alt="a friendly brown spider facing you" align="right" width="192" height="192">](https://www.fuz.dev/)
+[<img src="static/logo.svg" alt="a friendly brown spider facing you" align="right" width="192" height="192">](https://ui.fuz.dev/)
 
-> friendly user zystem 🧶 [fuz.dev](https://www.fuz.dev/)
+> friendly user zystem 🧶 [fuz.dev](https://ui.fuz.dev/)
 
-Fuz is a [Svelte](https://svelte.dev/) UI library
+Fuz UI is a [Svelte](https://svelte.dev/) UI library
 with components and helpers for making modern websites.
 It's in early alpha and it will go through many breaking changes.
 
-Fuz is being made to support
+Fuz UI is being made to support
 [my other projects](https://www.ryanatkn.com/)
 that focus on end-users.
 Fuz emphasizes capability and efficiency and tries to be simple for those goals.
 Compared to most UI libraries, Fuz has fewer conventional features and more opinions.
 
-To learn more see [the docs](https://www.fuz.dev/docs) and [contributing.md](contributing.md).
+To learn more see [the docs](https://ui.fuz.dev/docs) and [contributing.md](contributing.md).
 Feel free to take the ideas and code for your own purposes.
 
 The Svelte components and helpers:
@@ -36,13 +36,13 @@ The Svelte components and helpers:
 > thank you see [contributing.md](contributing.md), your input is appreciated.
 >
 > If you feel comfortable looking at the source code,
-> Fuz is ready to use in your own projects,
+> Fuz UI is ready to use in your own projects,
 > with the major caveat that there will be a lot of breaking changes ahead.
 > The code is significantly incomplete but I think it's stable enough to use
 > if you're willing to keep up with the relatively fast-moving changelog.
 
 ```bash
-npm i -D @ryanatkn/fuz
+npm i -D @fuzdev/fuz_ui
 ```
 
 Fuz uses my style framework [Moss](https://github.com/fuzdev/fuz_css).
@@ -59,13 +59,13 @@ import '@fuzdev/fuz_css/theme.css'; // or bring your own
 import '$routes/moss.css';
 
 // then import Fuz Svelte components:
-import Themed from '@ryanatkn/fuz/Themed.svelte';
+import Themed from '@fuzdev/fuz_ui/Themed.svelte';
 
 // and Fuz TypeScript modules:
-import {type Theme, themer_context} from '@ryanatkn/fuz/themer.svelte.js';
+import {type Theme, themer_context} from '@fuzdev/fuz_ui/themer.svelte.js';
 ```
 
-See [the library](https://www.fuz.dev/docs) for more.
+See [the library](https://ui.fuz.dev/docs) for more.
 
 ## Contributing
 

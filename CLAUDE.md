@@ -2,7 +2,7 @@
 
 > friendly user zystem 🧶
 
-Fuz is a Svelte UI library built on the Moss CSS framework. It provides Svelte
+Fuz UI is a Svelte UI library built on the Moss CSS framework. It provides Svelte
 components and TypeScript helpers for building user-friendly and
 resource-efficient websites.
 
@@ -406,7 +406,7 @@ Usage in Fuz:
 ```svelte
 <!-- src/routes/docs/+layout.svelte -->
 <script>
-  import {Docs} from '@ryanatkn/fuz/Docs.svelte';
+  import {Docs} from '@fuzdev/fuz_ui/Docs.svelte';
   import {tomes} from './tomes.js';
   import {library_json} from './library.js';
 </script>
@@ -451,8 +451,8 @@ Creating a tome:
    ```svelte
    <!-- src/routes/docs/my_component/+page.svelte -->
    <script>
-     import {TomeContent} from '@ryanatkn/fuz/TomeContent.svelte';
-     import {get_tome_by_name} from '@ryanatkn/fuz/tome.js';
+     import {TomeContent} from '@fuzdev/fuz_ui/TomeContent.svelte';
+     import {get_tome_by_name} from '@fuzdev/fuz_ui/tome.js';
      const tome = get_tome_by_name('my_component');
    </script>
 
@@ -473,14 +473,14 @@ Setup for consumer projects (opt-in):
 1. **Setup generation**:
    ```typescript
    // src/routes/library.gen.ts
-   export * from "@ryanatkn/fuz/library.gen.js";
+   export * from "@fuzdev/fuz_ui/library.gen.js";
    ```
 
 2. **Create API index route**:
    ```svelte
    <!-- src/routes/docs/api/+page.svelte -->
    <script>
-     import {ApiIndex} from '@ryanatkn/fuz/ApiIndex.svelte';
+     import {ApiIndex} from '@fuzdev/fuz_ui/ApiIndex.svelte';
    </script>
    <ApiIndex />
    ```
@@ -489,7 +489,7 @@ Setup for consumer projects (opt-in):
    ```svelte
    <!-- src/routes/docs/api/[...module_path]/+page.svelte -->
    <script>
-     import {ApiModule} from '@ryanatkn/fuz/ApiModule.svelte';
+     import {ApiModule} from '@fuzdev/fuz_ui/ApiModule.svelte';
      const {params} = $props();
    </script>
    <ApiModule module_path={params.module_path} />

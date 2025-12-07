@@ -19,7 +19,7 @@ export type ContextmenuParams =
 
 export type ContextmenuActivateResult =
 	| void
-	| undefined // eslint-disable-line @typescript-eslint/no-redundant-type-constituents
+	| undefined
 	| Result<{close?: boolean}, {message?: string}>;
 
 export type ItemState = SubmenuState | EntryState;

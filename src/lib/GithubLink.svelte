@@ -15,9 +15,9 @@
 	}: SvelteHTMLElements['a'] & {
 		/**
 		 * GitHub path - can be a full URL or a relative path like `owner/repo` or `owner/repo/blob/main/file.ts`
-		 * @example ryanatkn/fuz
-		 * @example ryanatkn/fuz/blob/main/src/lib/Card.svelte
-		 * @example https://github.com/ryanatkn/fuz/issues/123
+		 * @example fuzdev/fuz_ui
+		 * @example fuzdev/fuz_ui/blob/main/src/lib/Card.svelte
+		 * @example https://github.com/fuzdev/fuz_ui/issues/123
 		 */
 		path?: string;
 	} = $props();

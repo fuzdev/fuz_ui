@@ -11,8 +11,8 @@
 <TomeContent {tome}>
 	<section>
 		<p>
-			Fuz is a Svelte UI library that builds on my CSS framework <a
-				href="https://moss.ryanatkn.com/">Moss</a
+			Fuz UI is a Svelte UI library that builds on my CSS framework <a href="https://css.fuz.dev/"
+				>Moss</a
 			>. It's in early alpha and there will be many breaking changes. I'm making it to support
 			<a href="https://www.zzz.software/">Zzz</a>
 			and
@@ -23,8 +23,8 @@
 			The goal is to make a fully-featured Svelte UI library, but it'll take extra time to get
 			there. That lets us prioritize design above features, making it an interesting project for
 			learning and experimentation. For more see the
-			<GithubLink path="ryanatkn/fuz#readme">readme</GithubLink>, and to get involved see <GithubLink
-				path="ryanatkn/fuz/blob/main/contributing.md"
+			<GithubLink path="fuzdev/fuz_ui#readme">readme</GithubLink>, and to get involved see <GithubLink
+				path="fuzdev/fuz_ui/blob/main/contributing.md"
 			/>.
 		</p>
 	</section>

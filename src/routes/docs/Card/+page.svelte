@@ -21,7 +21,7 @@
 	</section>
 	<section>
 		<!-- TODO make this a generic data-driven helper -->
-		<Code content={`import Card from '@ryanatkn/fuz/Card.svelte';`} lang="ts" />
+		<Code content={`import Card from '@fuzdev/fuz_ui/Card.svelte';`} lang="ts" />
 		<Code
 			content={`<Card>
   just<br />

@@ -22,7 +22,7 @@
 				>Gro's public packages</a
 			> features.
 		</p>
-		<Code content={`import LibraryDetail from '@ryanatkn/fuz/LibraryDetail.svelte';`} lang="ts" />
+		<Code content={`import LibraryDetail from '@fuzdev/fuz_ui/LibraryDetail.svelte';`} lang="ts" />
 		<Code content={`<LibraryDetail {library} />`} />
 	</section>
 	<section>

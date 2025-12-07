@@ -18,7 +18,7 @@
 <TomeContent {tome}>
 	<section>
 		<!-- TODO make this a generic data-driven helper -->
-		<Code content={`import Svg from '@ryanatkn/fuz/Svg.svelte';`} lang="ts" />
+		<Code content={`import Svg from '@fuzdev/fuz_ui/Svg.svelte';`} lang="ts" />
 		<Code content={`<Svg data={fuz_logo} />`} />
 		<aside class="mt_lg">
 			⚠️ <DeclarationLink name="Svg" /> currently uses <code>@html</code> but for security should not.
@@ -30,7 +30,7 @@
 		<TomeSectionHeader text="With custom size" />
 		<p>
 			Set <code>size</code>: (see the
-			<a href="https://moss.ryanatkn.com/docs/typography#font-sizes">Moss typography docs</a>)
+			<a href="https://css.fuz.dev/docs/typography#font-sizes">Moss typography docs</a>)
 		</p>
 		<Code content={`<Svg data={fuz_logo} size="var(--icon_size_xl)" />`} />
 		<p><Svg data={fuz_logo} size="var(--icon_size_xl)" /></p>
@@ -48,7 +48,7 @@
 		<TomeSectionHeader text="With custom color" />
 		<p>
 			Set <code>fill</code>: (see the
-			<a href="https://moss.ryanatkn.com/docs/colors#color-variables">Moss colors docs</a>)
+			<a href="https://css.fuz.dev/docs/colors#color-variables">Moss colors docs</a>)
 		</p>
 		<Code content={`<Svg data={fuz_logo} fill="var(--color_d_5)" />`} />
 		<p class="width_upto_sm">

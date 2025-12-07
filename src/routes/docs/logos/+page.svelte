@@ -48,13 +48,11 @@
 				<Code content={`<Svg data={zzz_logo} />`} />
 			</li>
 			<li>
-				<a href="https://moss.ryanatkn.com/"><Svg data={moss_logo} size="var(--icon_size_xl3)" /></a
-				>
+				<a href="https://css.fuz.dev/"><Svg data={moss_logo} size="var(--icon_size_xl3)" /></a>
 				<Code content={`<Svg data={moss_logo} />`} />
 			</li>
 			<li>
-				<a href="https://belt.ryanatkn.com/"><Svg data={belt_logo} size="var(--icon_size_xl3)" /></a
-				>
+				<a href="https://util.fuz.dev/"><Svg data={belt_logo} size="var(--icon_size_xl3)" /></a>
 				<Code content={`<Svg data={belt_logo} />`} />
 			</li>
 			<li>

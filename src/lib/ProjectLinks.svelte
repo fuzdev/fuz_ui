@@ -16,10 +16,10 @@
 	title="Gro - task runner and toolkit extending SvelteKit"
 	href="https://gro.ryanatkn.com/"><Svg data={gro_logo} {size} /><span class="name">Gro</span></a
 >
-<a class="project_link" title="Moss - CSS framework" href="https://moss.ryanatkn.com/"
+<a class="project_link" title="Moss - CSS framework" href="https://css.fuz.dev/"
 	><Svg data={moss_logo} {size} /><span class="name">Moss</span></a
 >
-<a class="project_link" title="Fuz - Svelte UI library" href="https://www.fuz.dev/"
+<a class="project_link" title="Fuz - Svelte UI library" href="https://ui.fuz.dev/"
 	><Svg data={fuz_logo} {size} /><span class="name">Fuz</span></a
 >
 <a

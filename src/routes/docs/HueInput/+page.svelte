@@ -18,7 +18,7 @@
 
 <TomeContent {tome}>
 	<section>
-		<Code content={`import HueInput from '@ryanatkn/fuz/HueInput.svelte';`} lang="ts" />
+		<Code content={`import HueInput from '@fuzdev/fuz_ui/HueInput.svelte';`} lang="ts" />
 	</section>
 	<TomeSection>
 		<TomeSectionHeader text="With bind:value">With <code>bind:value</code></TomeSectionHeader>

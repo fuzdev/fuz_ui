@@ -17,7 +17,7 @@
 <TomeContent {tome}>
 	<section>
 		<!-- TODO make this a generic data-driven helper -->
-		<Code content={`import Breadcrumb from '@ryanatkn/fuz/Breadcrumb.svelte';`} lang="ts" />
+		<Code content={`import Breadcrumb from '@fuzdev/fuz_ui/Breadcrumb.svelte';`} lang="ts" />
 		<Code content={`<Breadcrumb />`} />
 		<Breadcrumb />
 	</section>

@@ -54,7 +54,7 @@ export const create_shared_link_entry_tests = (
 				container.appendChild(target);
 
 				await setup_contextmenu_attachment(target, [
-					{snippet: 'link', props: {href: 'https://www.fuz.dev/'}},
+					{snippet: 'link', props: {href: 'https://ui.fuz.dev/'}},
 				]);
 
 				// Open menu
@@ -80,7 +80,7 @@ export const create_shared_link_entry_tests = (
 				const menu = container.querySelector('.contextmenu');
 				assert.ok(menu, 'contextmenu should be rendered');
 
-				const link = menu.querySelector('a[href="https://www.fuz.dev/"]');
+				const link = menu.querySelector('a[href="https://ui.fuz.dev/"]');
 				assert.ok(link, 'link entry should be rendered');
 
 				// Track if window handler was called
@@ -173,7 +173,7 @@ export const create_shared_link_entry_tests = (
 				container.appendChild(target);
 
 				await setup_contextmenu_attachment(target, [
-					{snippet: 'link', props: {href: 'https://www.fuz.dev/'}},
+					{snippet: 'link', props: {href: 'https://ui.fuz.dev/'}},
 					{snippet: 'link', props: {href: 'https://fuz.dev/'}},
 				]);
 
@@ -245,7 +245,7 @@ export const create_shared_link_entry_tests = (
 				container.appendChild(target);
 
 				await setup_contextmenu_attachment(target, [
-					{snippet: 'link', props: {href: 'https://www.fuz.dev/'}},
+					{snippet: 'link', props: {href: 'https://ui.fuz.dev/'}},
 				]);
 
 				// Open menu
@@ -270,7 +270,7 @@ export const create_shared_link_entry_tests = (
 				const menu = container.querySelector('.contextmenu');
 				assert.ok(menu);
 
-				const link = menu.querySelector('a[href="https://www.fuz.dev/"]');
+				const link = menu.querySelector('a[href="https://ui.fuz.dev/"]');
 				assert.ok(link);
 
 				// Store the original params count

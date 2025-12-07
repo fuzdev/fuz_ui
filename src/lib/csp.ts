@@ -302,7 +302,7 @@ export const csp_directive_value_defaults: Record<
  * If null, no trusted sources are added to the directive automatically.
  * Directives that don't support sources or default to `['none']` are null.
  *
- * Feedback is welcome, please see the issues - https://github.com/ryanatkn/fuz/issues
+ * Feedback is welcome, please see the issues - https://github.com/fuzdev/fuz_ui/issues
  */
 export const csp_directive_required_trust_defaults: Record<CspDirective, CspTrustLevel | null> = {
 	'default-src': null,

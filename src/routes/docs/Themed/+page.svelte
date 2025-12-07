@@ -32,7 +32,7 @@
 <TomeContent {tome}>
 	<section class="theme">
 		<p>
-			Fuz provides UI components that use <a href="https://moss.ryanatkn.com/docs/themes"
+			Fuz provides UI components that use <a href="https://css.fuz.dev/docs/themes"
 				>Moss' theming system</a
 			> for dark mode and custom themes.
 		</p>
@@ -40,11 +40,11 @@
 			<code>Themed</code> adds global support for both the browser's
 			<MdnLink path="Web/CSS/color-scheme" />
 			and custom themes based on
-			<a href="https://moss.ryanatkn.com/docs/variables">Moss style variables</a>, which use
+			<a href="https://css.fuz.dev/docs/variables">Moss style variables</a>, which use
 			<MdnLink path="Web/CSS/--*">CSS custom properties</MdnLink>.
 			<code>Themed</code> is a singleton component that's mounted at the top-level of the page:
 		</p>
-		<Code content={`import Themed from '@ryanatkn/fuz/Themed.svelte';`} lang="ts" />
+		<Code content={`import Themed from '@fuzdev/fuz_ui/Themed.svelte';`} lang="ts" />
 		<Code content={`<!-- +layout.svelte -->\n<Themed>\n\t{@render children()}\n</Themed>`} />
 		<Details>
 			{#snippet summary()}Why the singleton?{/snippet}
@@ -112,7 +112,7 @@
 			<ColorSchemeInput />
 		</div>
 		<Code
-			content={`import ColorSchemeInput from '@ryanatkn/fuz/ColorSchemeInput.svelte';`}
+			content={`import ColorSchemeInput from '@fuzdev/fuz_ui/ColorSchemeInput.svelte';`}
 			lang="ts"
 		/>
 		<Code content="<ColorSchemeInput />" />
@@ -148,7 +148,7 @@
 	<TomeSection>
 		<TomeSectionHeader text="Builtin themes" />
 		<p>
-			A theme is a simple JSON collection of <a href="https://moss.ryanatkn.com/docs/variables"
+			A theme is a simple JSON collection of <a href="https://css.fuz.dev/docs/variables"
 				>Moss style variables</a
 			> that can be transformed into CSS that set custom properties. Each variable can have values for
 			light and/or dark color schemes. In other words, "dark" isn't a theme, it's a mode that any theme
@@ -180,7 +180,7 @@
 				`script>
 	import '@fuzdev/fuz_css/style.css';
 	import '@fuzdev/fuz_css/theme.css';
-	import Themed from '@ryanatkn/fuz/Themed.svelte';
+	import Themed from '@fuzdev/fuz_ui/Themed.svelte';
 	import type {Snippet} from 'svelte';
 	
 	const {children}: {children: Snippet} = $props();
@@ -196,7 +196,7 @@
 			<code>themer</code>:
 		</p>
 		<Code
-			content={`import {Themer} from '@ryanatkn/fuz/themer.svelte.js';\nconst themer = new Themer(...);`}
+			content={`import {Themer} from '@fuzdev/fuz_ui/themer.svelte.js';\nconst themer = new Themer(...);`}
 			lang="ts"
 		/>
 		<Code
@@ -214,14 +214,14 @@
 		<Code
 			content={`// get values from the Svelte context provided by
 // the nearest \`Themed\` ancestor:
-import {themer_context} from '@ryanatkn/fuz/themer.svelte.js';
+import {themer_context} from '@fuzdev/fuz_ui/themer.svelte.js';
 const themer = themer_context.get();
 themer.theme.name; // '${themer.theme.name}'
 themer.color_scheme; // '${themer.color_scheme}'`}
 			lang="ts"
 		/>
 		<p>
-			For a more complete example, see <a href="https://github.com/ryanatkn/fuz_template"
+			For a more complete example, see <a href="https://github.com/fuzdev/fuz_template"
 				>fuz_template</a
 			>.
 		</p>
@@ -239,8 +239,8 @@ themer.color_scheme; // '${themer.color_scheme}'`}
 			This strategy enables color scheme and theme support with minimal CSS and optimal performance
 			for most use cases. The system supports plain CSS usage that can be static or dynamic, or
 			imported at buildtime or runtime. It also allows runtime access to the underlying data like
-			the <a href="https://moss.ryanatkn.com/docs/variables">style variables</a> if you want to pay the
-			performance costs. Scoped theming to one part of the page is planned.
+			the <a href="https://css.fuz.dev/docs/variables">style variables</a> if you want to pay the performance
+			costs. Scoped theming to one part of the page is planned.
 		</p>
 		<p>
 			The theme setup script interacts with <code>sync_color_scheme</code> to save the user's

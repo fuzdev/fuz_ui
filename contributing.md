@@ -12,7 +12,7 @@ and it has opinions and design choices that make it more specialized than most U
 But Fuz should be broadly useful, and I always appreciate help
 making it more generic and flexible when it doesn't compromise other qualities.
 
-Please [open issues](https://github.com/ryanatkn/fuz/issues) with any bugs, unhandled usecases, proposals,
+Please [open issues](https://github.com/fuzdev/fuz_ui/issues) with any bugs, unhandled usecases, proposals,
 or other things you would like to discuss.
 
 ## Developers

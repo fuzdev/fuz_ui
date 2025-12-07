@@ -42,7 +42,7 @@ export interface LibraryGenOptions {
  *
  * Usage in a `.gen.ts` file:
  * ```ts
- * import {library_gen} from '@ryanatkn/fuz/library_gen.js';
+ * import {library_gen} from '@fuzdev/fuz_ui/library_gen.js';
  * export const gen = library_gen();
  * ```
  */
