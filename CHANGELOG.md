@@ -1,5 +1,11 @@
 # @fuzdev/fuz_ui
 
+## 0.170.0
+
+### Minor Changes
+
+- migrate to fuzdev and rename to fuz_ui from fuz ([#102](https://github.com/fuzdev/fuz_ui/pull/102))
+
 ## 0.169.0
 
 ### Minor Changes
