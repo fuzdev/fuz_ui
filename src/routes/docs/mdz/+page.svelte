@@ -169,8 +169,8 @@
 			<code>/docs/api/foo.ts</code>). Root-relative paths (<code>/docs/...</code>) have unambiguous
 			meaning regardless of render location, making them more portable. However it seems very useful
 			to make
-			<code>../</code> and <code>./</code> links work, maybe we can support it and make the renderer accept
-			a custom base path?
+			<code>../</code> and <code>./</code> links work, maybe we can support it and make the renderer
+			accept a custom base path?
 		</p>
 	</TomeSection>
 

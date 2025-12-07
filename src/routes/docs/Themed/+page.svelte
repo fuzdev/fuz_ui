@@ -131,7 +131,8 @@
 			{#snippet summary()}More about <code>ColorSchemeInput</code>{/snippet}
 			<aside>
 				<p>
-					<code>ColorSchemeInput</code> enables users to choose and persist the color scheme without boilerplate.
+					<code>ColorSchemeInput</code> enables users to choose and persist the color scheme without
+					boilerplate.
 				</p>
 				<p>
 					By default, <code>ColorSchemeInput</code> works with <code>Themed</code>'s

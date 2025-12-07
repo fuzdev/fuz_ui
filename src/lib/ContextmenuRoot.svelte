@@ -330,15 +330,15 @@
 	</ul>
 {/if}
 
-{#snippet link_entry_default(props: ComponentProps)}
+{#snippet link_entry_default(props: ComponentProps<typeof ContextmenuLinkEntry>)}
 	<ContextmenuLinkEntry {...props} />
 {/snippet}
 
-{#snippet text_entry_default(props: ComponentProps)}
+{#snippet text_entry_default(props: ComponentProps<typeof ContextmenuTextEntry>)}
 	<ContextmenuTextEntry {...props} />
 {/snippet}
 
-{#snippet separator_entry_default(props: ComponentProps)}
+{#snippet separator_entry_default(props: ComponentProps<typeof ContextmenuSeparator>)}
 	<ContextmenuSeparator {...props} />
 {/snippet}
 

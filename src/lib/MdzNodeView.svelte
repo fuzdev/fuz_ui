@@ -76,13 +76,13 @@
 	<Code lang={node.lang} content={node.content} />
 {/if}
 
-{#snippet render_children(nodes: Array)}
+{#snippet render_children(nodes: Array<MdzNode>)}
 	{#each nodes as node (node)}
 		<MdzNodeView {node} />
 	{/each}
 {/snippet}
 
-{#snippet render_unregistered_tag(name: string, children: Array)}
+{#snippet render_unregistered_tag(name: string, children: Array<MdzNode>)}
 	{#if children.length > 0}
 		<code class="color_c_5">&lt;{name}&gt;</code>{@render render_children(children)}<code
 			class="color_c_5">&lt;/{name}&gt;</code
