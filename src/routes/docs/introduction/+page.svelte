@@ -12,7 +12,7 @@
 	<section>
 		<p>
 			Fuz UI is a Svelte UI library that builds on my CSS framework <a href="https://css.fuz.dev/"
-				>Moss</a
+				>Fuz CSS</a
 			>. It's in early alpha and there will be many breaking changes. I'm making it to support
 			<a href="https://www.zzz.software/">Zzz</a>
 			and

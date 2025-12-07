@@ -19,9 +19,9 @@ Feel free to take the ideas and code for your own purposes.
 
 The Svelte components and helpers:
 
-- builds on my CSS framework [Moss](https://github.com/fuzdev/fuz_css)
+- builds on my CSS framework [Fuz CSS](https://github.com/fuzdev/fuz_css)
 - plain CSS and minimal abstraction
-- near-zero dependencies except for Svelte, SvelteKit, Moss,
+- near-zero dependencies except for Svelte, SvelteKit, Fuz CSS,
   and my utility library [`@fuzdev/fuz_util`](https://github.com/fuzdev/fuz_util)
   (not all components require SvelteKit but some do import its modules, needs more consideration)
 - not a fully-featured enterprise-ready set of components,
@@ -45,18 +45,18 @@ The Svelte components and helpers:
 npm i -D @fuzdev/fuz_ui
 ```
 
-Fuz uses my style framework [Moss](https://github.com/fuzdev/fuz_css).
+Fuz uses my style framework [Fuz CSS](https://github.com/fuzdev/fuz_css).
 Import modules at their full paths:
 
 ```ts
-// Moss has one main plain CSS stylesheet:
+// Fuz CSS has one main plain CSS stylesheet:
 import '@fuzdev/fuz_css/style.css';
 
-// and import a Moss theme:
+// and import a Fuz CSS theme:
 import '@fuzdev/fuz_css/theme.css'; // or bring your own
 
-// using Gro generates Moss' utility classes stylesheet by default:
-import '$routes/moss.css';
+// using Gro generates Fuz CSS' utility classes stylesheet by default:
+import '$routes/fuz.css';
 
 // then import Fuz Svelte components:
 import Themed from '@fuzdev/fuz_ui/Themed.svelte';

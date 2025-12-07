@@ -8,7 +8,7 @@
 		zzz_logo,
 		gro_logo,
 		fuz_logo,
-		moss_logo,
+		fuz_css_logo,
 		fuz_code_logo,
 		fuz_blog_logo,
 		fuz_mastodon_logo,
@@ -48,8 +48,8 @@
 				<Code content={`<Svg data={zzz_logo} />`} />
 			</li>
 			<li>
-				<a href="https://css.fuz.dev/"><Svg data={moss_logo} size="var(--icon_size_xl3)" /></a>
-				<Code content={`<Svg data={moss_logo} />`} />
+				<a href="https://css.fuz.dev/"><Svg data={fuz_css_logo} size="var(--icon_size_xl3)" /></a>
+				<Code content={`<Svg data={fuz_css_logo} />`} />
 			</li>
 			<li>
 				<a href="https://util.fuz.dev/"><Svg data={belt_logo} size="var(--icon_size_xl3)" /></a>

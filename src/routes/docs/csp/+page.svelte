@@ -180,7 +180,7 @@ const custom_csp = create_csp_directives({
 							<td>Sources that can execute arbitrary code in the page's context</td>
 						{/if}
 						<td>
-							<!-- TODO convert to `Code`, needs a layout fix after Moss upgrade -->
+							<!-- TODO convert to `Code`, needs a layout fix after Fuz CSS upgrade -->
 							<code
 								>{Object.entries(csp_directive_required_trust_defaults)
 									.filter(([_, value]) => value === trust_level)

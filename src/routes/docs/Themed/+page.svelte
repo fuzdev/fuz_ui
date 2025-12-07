@@ -33,14 +33,14 @@
 	<section class="theme">
 		<p>
 			Fuz provides UI components that use <a href="https://css.fuz.dev/docs/themes"
-				>Moss' theming system</a
+				>Fuz CSS' theming system</a
 			> for dark mode and custom themes.
 		</p>
 		<p>
 			<code>Themed</code> adds global support for both the browser's
 			<MdnLink path="Web/CSS/color-scheme" />
 			and custom themes based on
-			<a href="https://css.fuz.dev/docs/variables">Moss style variables</a>, which use
+			<a href="https://css.fuz.dev/docs/variables">Fuz CSS style variables</a>, which use
 			<MdnLink path="Web/CSS/--*">CSS custom properties</MdnLink>.
 			<code>Themed</code> is a singleton component that's mounted at the top-level of the page:
 		</p>
@@ -149,7 +149,7 @@
 		<TomeSectionHeader text="Builtin themes" />
 		<p>
 			A theme is a simple JSON collection of <a href="https://css.fuz.dev/docs/variables"
-				>Moss style variables</a
+				>Fuz CSS style variables</a
 			> that can be transformed into CSS that set custom properties. Each variable can have values for
 			light and/or dark color schemes. In other words, "dark" isn't a theme, it's a mode that any theme
 			can implement.

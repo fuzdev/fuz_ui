@@ -14,7 +14,7 @@
 		fuz_gitops_logo,
 		fuz_template_logo,
 		gro_logo,
-		moss_logo,
+		fuz_css_logo,
 	} from '$lib/logos.js';
 	import HiddenPersonalLinks from '$lib/HiddenPersonalLinks.svelte';
 	import {MAIN_HEADER_MARGIN_TOP} from '$lib/constants.js';
@@ -33,7 +33,7 @@
 
 	// prettier-ignore
 	const project_items: Array<ProjectItem> = [ 
-		{name: 'moss', url: 'https://css.fuz.dev/', logo: moss_logo, description: 'CSS framework and design system', glyph: '🌿'},
+		{name: 'moss', url: 'https://css.fuz.dev/', logo: fuz_css_logo, description: 'CSS framework and design system', glyph: '🌿'},
 		{name: 'gro', url: 'https://gro.ryanatkn.com/', logo: gro_logo, description: 'task runner and toolkit extending SvelteKit', glyph: '🌰'},
 		{name: 'fuz_template', url: 'https://template.fuz.dev/', logo: fuz_template_logo, description: 'a static web app and Node library template with TypeScript, Svelte, SvelteKit, Vite, esbuild, Fuz, and Gro', glyph: '❄'},
 		{name: 'fuz_blog', url: 'https://blog.fuz.dev/', logo: fuz_blog_logo, description: 'blog software from scratch with SvelteKit', glyph: '🖊️'},
@@ -53,7 +53,7 @@
 				<div class="width_upto_sm panel p_lg shadow_inset_xs bg">
 					<p>
 						Fuz UI is a Svelte UI library with components and helpers for making modern websites. It
-						builds on my CSS framework <a href="https://css.fuz.dev/">Moss</a>, which is based on
+						builds on my CSS framework <a href="https://css.fuz.dev/">Fuz CSS</a>, which is based on
 						CSS custom properties, and Fuz continues those patterns. It's in early alpha and will
 						have many breaking changes.
 					</p>

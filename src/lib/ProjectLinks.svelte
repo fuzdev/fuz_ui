@@ -1,6 +1,6 @@
 <script lang="ts">
 	import Svg from './Svg.svelte';
-	import {gro_logo, fuz_logo, moss_logo, fuz_template_logo} from './logos.js';
+	import {gro_logo, fuz_logo, fuz_css_logo, fuz_template_logo} from './logos.js';
 
 	const size = 'var(--icon_size_lg)';
 </script>
@@ -16,8 +16,8 @@
 	title="Gro - task runner and toolkit extending SvelteKit"
 	href="https://gro.ryanatkn.com/"><Svg data={gro_logo} {size} /><span class="name">Gro</span></a
 >
-<a class="project_link" title="Moss - CSS framework" href="https://css.fuz.dev/"
-	><Svg data={moss_logo} {size} /><span class="name">Moss</span></a
+<a class="project_link" title="Fuz CSS - CSS framework" href="https://css.fuz.dev/"
+	><Svg data={fuz_css_logo} {size} /><span class="name">Fuz CSS</span></a
 >
 <a class="project_link" title="Fuz - Svelte UI library" href="https://ui.fuz.dev/"
 	><Svg data={fuz_logo} {size} /><span class="name">Fuz</span></a

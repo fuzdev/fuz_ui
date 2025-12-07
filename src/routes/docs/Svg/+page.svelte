@@ -30,7 +30,7 @@
 		<TomeSectionHeader text="With custom size" />
 		<p>
 			Set <code>size</code>: (see the
-			<a href="https://css.fuz.dev/docs/typography#font-sizes">Moss typography docs</a>)
+			<a href="https://css.fuz.dev/docs/typography#font-sizes">Fuz CSS typography docs</a>)
 		</p>
 		<Code content={`<Svg data={fuz_logo} size="var(--icon_size_xl)" />`} />
 		<p><Svg data={fuz_logo} size="var(--icon_size_xl)" /></p>
@@ -48,7 +48,7 @@
 		<TomeSectionHeader text="With custom color" />
 		<p>
 			Set <code>fill</code>: (see the
-			<a href="https://css.fuz.dev/docs/colors#color-variables">Moss colors docs</a>)
+			<a href="https://css.fuz.dev/docs/colors#color-variables">Fuz CSS colors docs</a>)
 		</p>
 		<Code content={`<Svg data={fuz_logo} fill="var(--color_d_5)" />`} />
 		<p class="width_upto_sm">
