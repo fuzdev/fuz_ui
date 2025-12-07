@@ -1,1 +1,0 @@
-import{m as c,n as _,y as o,E as d,z as y,A as E,B as T,w as b,D as v,v as f}from"./WhgF38LA.js";function g(n,i,u=!1){_&&o();var r=new v(n),h=u?d:0;function t(a,s){if(_){const l=y(n)===E;if(a===l){var e=T();b(e),r.anchor=e,f(!1),r.ensure(a,s),f(!0);return}}r.ensure(a,s)}c(()=>{var a=!1;i((s,e=!0)=>{a=!0,t(e,s)}),a||t(!1,null)},h)}export{g as i};
