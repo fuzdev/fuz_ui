@@ -60,9 +60,9 @@
 					<p>
 						Fuz UI is being made to support <a href="https://www.zzz.software/">Zzz</a> and
 						<a href="https://www.ryanatkn.com/table">my other projects</a>
-						that focus on end-users. Fuz emphasizes capability and efficiency and tries to be simple
-						for those goals. Compared to most UI libraries, Fuz has fewer features and more opinions,
-						but the eventual goal is to be fully-featured with high flexibility.
+						that focus on end-users. Fuz emphasizes capability and efficiency and tries to be simple for
+						those goals. Compared to most UI libraries, Fuz has fewer features and more opinions, but
+						the eventual goal is to be fully-featured with high flexibility.
 					</p>
 					<p>
 						<!-- eslint-disable-next-line svelte/no-navigation-without-resolve -->
