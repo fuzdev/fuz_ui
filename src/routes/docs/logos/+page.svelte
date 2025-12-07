@@ -60,7 +60,7 @@
 				<Code content={`<Svg data={gro_logo} />`} />
 			</li>
 			<li>
-				<a href="https://ui.fuz.dev/"><Svg data={fuz_logo} size="var(--icon_size_xl3)" /></a>
+				<a href="https://www.fuz.dev/"><Svg data={fuz_logo} size="var(--icon_size_xl3)" /></a>
 				<Code content={`<Svg data={fuz_logo} />`} />
 			</li>
 			<li>
