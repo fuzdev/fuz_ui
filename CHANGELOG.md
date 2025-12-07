@@ -1,5 +1,11 @@
 # @fuzdev/fuz_ui
 
+## 0.171.0
+
+### Minor Changes
+
+- rename `fuz_css_logo` from `moss_logo` ([2b33b74](https://github.com/fuzdev/fuz_ui/commit/2b33b74))
+
 ## 0.170.0
 
 ### Minor Changes
