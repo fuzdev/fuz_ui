@@ -180,7 +180,7 @@
 				`script>
 	import '@fuzdev/fuz_css/style.css';
 	import '@fuzdev/fuz_css/theme.css';
-	import Themed from '@fuzdev/fuz_ui/Themed.svelte';
+	import Themed from '@ryanatkn/fuz/Themed.svelte';
 	import type {Snippet} from 'svelte';
 	
 	const {children}: {children: Snippet} = $props();

@@ -5,7 +5,7 @@ import type {LibraryJson} from '@fuzdev/fuz_util/library_json.js';
 export const library_json: LibraryJson = {
 	package_json: {
 		name: '@fuzdev/fuz_ui',
-		version: '0.168.0',
+		version: '0.169.0',
 		description: 'Svelte UI library',
 		motto: 'friendly user zystem',
 		glyph: '🧶',
@@ -39,10 +39,10 @@ export const library_json: LibraryJson = {
 			node: '>=22.15',
 		},
 		peerDependencies: {
-			'@fuzdev/fuz_util': '>=0.41.1',
-			'@fuzdev/fuz_code': '>=0.36.0',
+			'@fuzdev/fuz_code': '>=0.37.0',
+			'@fuzdev/fuz_css': '>=0.40.0',
+			'@fuzdev/fuz_util': '>=0.42.0',
 			'@ryanatkn/gro': '>=0.180.0',
-			'@fuzdev/fuz_css': '>=0.39.0',
 			'@sveltejs/kit': '^2.47.3',
 			'esm-env': '^1',
 			svelte: '^5',
@@ -62,11 +62,12 @@ export const library_json: LibraryJson = {
 		},
 		devDependencies: {
 			'@changesets/changelog-git': '^0.2.1',
-			'@fuzdev/fuz_util': '^0.41.1',
+			'@fuzdev/fuz_code': '^0.37.0',
+			'@fuzdev/fuz_css': '^0.40.0',
+			'@fuzdev/fuz_util': '^0.42.0',
+			'@ryanatkn/belt': '^0.41.1',
 			'@ryanatkn/eslint-config': '^0.9.0',
-			'@fuzdev/fuz_code': '^0.36.0',
 			'@ryanatkn/gro': '^0.180.0',
-			'@fuzdev/fuz_css': '^0.39.0',
 			'@sveltejs/adapter-static': '^3.0.10',
 			'@sveltejs/kit': '^2.49.0',
 			'@sveltejs/package': '^2.5.7',
@@ -123,7 +124,7 @@ export const library_json: LibraryJson = {
 	},
 	source_json: {
 		name: '@fuzdev/fuz_ui',
-		version: '0.168.0',
+		version: '0.169.0',
 		modules: [
 			{
 				path: 'Alert.svelte',
@@ -2157,13 +2158,7 @@ export const library_json: LibraryJson = {
 						source_line: 1,
 					},
 				],
-				dependencies: [
-					'Details.svelte',
-					'Mdz.svelte',
-					'ModuleLink.svelte',
-					'TypeLink.svelte',
-					'_code/Code.svelte.ts',
-				],
+				dependencies: ['Details.svelte', 'Mdz.svelte', 'ModuleLink.svelte', 'TypeLink.svelte'],
 				dependents: ['ApiDeclarationList.svelte'],
 			},
 			{
@@ -4664,12 +4659,7 @@ export const library_json: LibraryJson = {
 						source_line: 1,
 					},
 				],
-				dependencies: [
-					'DocsLink.svelte',
-					'MdzNodeView.svelte',
-					'_code/Code.svelte.ts',
-					'mdz_components.ts',
-				],
+				dependencies: ['DocsLink.svelte', 'MdzNodeView.svelte', 'mdz_components.ts'],
 				dependents: ['Mdz.svelte', 'MdzNodeView.svelte'],
 			},
 			{
@@ -6339,20 +6329,20 @@ export const library_json: LibraryJson = {
 						source_line: 1,
 					},
 				],
-				dependencies: ['DeclarationLink.svelte', '_code/Code.svelte.ts', 'library.svelte.ts'],
+				dependencies: ['DeclarationLink.svelte', 'library.svelte.ts'],
 				dependents: ['DeclarationDetail.svelte'],
 			},
 		],
 	},
 	name: '@fuzdev/fuz_ui',
-	repo_name: 'fuz',
-	repo_url: 'https://github.com/fuzdev/fuz_ui',
+	repo_name: 'fuz_ui',
+	repo_url: 'https://github.com/ryanatkn/fuz',
 	owner_name: 'ryanatkn',
 	homepage_url: 'https://ui.fuz.dev/',
 	logo_url: 'https://ui.fuz.dev/logo.svg',
 	logo_alt: 'a friendly brown spider facing you',
 	npm_url: 'https://www.npmjs.com/package/@fuzdev/fuz_ui',
-	changelog_url: 'https://github.com/fuzdev/fuz_ui/blob/main/CHANGELOG.md',
+	changelog_url: 'https://github.com/ryanatkn/fuz/blob/main/CHANGELOG.md',
 	published: true,
 };
 
