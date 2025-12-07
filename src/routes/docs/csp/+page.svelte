@@ -1,5 +1,6 @@
 <script lang="ts">
 	import Code from '@fuzdev/fuz_code/Code.svelte';
+	import type {ArrayElement} from '@fuzdev/fuz_util/types.js';
 
 	import GithubLink from '$lib/GithubLink.svelte';
 	import {get_tome_by_name} from '$lib/tome.js';
@@ -21,6 +22,10 @@
 	// TODO maybe subheadings, needs polish/reworking tho
 
 	// TODO add a Svelte logo svg and make the below a special component that MdnLink also extends (MdnLink only exists because it has special inference logic for its href)
+
+	const trust_levels = $derived(
+		([null] as Array<ArrayElement<typeof csp_trust_levels> | null>).concat(csp_trust_levels),
+	);
 </script>
 
 <!-- eslint-disable svelte/no-useless-mustaches -->
@@ -159,7 +164,7 @@ const custom_csp = create_csp_directives({
 				</tr>
 			</thead>
 			<tbody>
-				{#each ([null] as typeof csp_trust_levels | Array).concat(csp_trust_levels) as trust_level (trust_level)}
+				{#each trust_levels as trust_level (trust_level)}
 					<tr>
 						<td><Code content={render_value_to_string(trust_level)} /></td>
 						{#if trust_level === null}
