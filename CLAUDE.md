@@ -2,7 +2,7 @@
 
 > friendly user zystem 🧶
 
-Fuz UI is a Svelte UI library built on the Fuz CSS CSS framework. It provides Svelte
+Fuz UI is a Svelte UI library built on the Fuz CSS framework. It provides Svelte
 components and TypeScript helpers for building user-friendly and
 resource-efficient websites.
 
@@ -380,7 +380,7 @@ Contextmenu:
 
 ### Theming
 
-Built on Fuz CSS CSS custom properties:
+Built on Fuz CSS custom properties:
 
 - `Themer` class manages theme state
 - `Themed` component provides theme context
