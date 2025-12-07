@@ -38,7 +38,7 @@
  */
 
 import ts from 'typescript';
-import type {DeclarationJson} from '@ryanatkn/belt/source_json.js';
+import type {DeclarationJson} from '@fuzdev/fuz_util/source_json.js';
 
 /**
  * Parsed JSDoc/TSDoc comment with structured metadata.

@@ -1,5 +1,5 @@
 <script lang="ts">
-	import Code from '@ryanatkn/fuz_code/Code.svelte';
+	import Code from '@fuzdev/fuz_code/Code.svelte';
 
 	import GithubLink from '$lib/GithubLink.svelte';
 	import {get_tome_by_name} from '$lib/tome.js';

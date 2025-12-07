@@ -1,7 +1,7 @@
 import {test, assert, describe} from 'vitest';
-import type {Logger} from '@ryanatkn/belt/log.js';
-import type {PackageJson} from '@ryanatkn/belt/package_json.js';
-import type {SourceJson, ModuleJson, DeclarationKind} from '@ryanatkn/belt/source_json.js';
+import type {Logger} from '@fuzdev/fuz_util/log.js';
+import type {PackageJson} from '@fuzdev/fuz_util/package_json.js';
+import type {SourceJson, ModuleJson, DeclarationKind} from '@fuzdev/fuz_util/source_json.js';
 import type {Disknode} from '@ryanatkn/gro/disknode.js';
 
 import {
@@ -705,7 +705,7 @@ describe('library_gen_extract_dependencies', () => {
 				[
 					'/home/user/project/src/lib/local.ts',
 					'/home/user/project/node_modules/svelte/index.js',
-					'/home/user/project/node_modules/@ryanatkn/belt/object.js',
+					'/home/user/project/node_modules/@fuzdev/fuz_util/object.js',
 				],
 				[],
 			);

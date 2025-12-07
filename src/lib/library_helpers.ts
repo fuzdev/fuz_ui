@@ -1,5 +1,5 @@
-import {ensure_end, strip_end, strip_start} from '@ryanatkn/belt/string.js';
-import type {PackageJson} from '@ryanatkn/belt/package_json.js';
+import {ensure_end, strip_end, strip_start} from '@fuzdev/fuz_util/string.js';
+import type {PackageJson} from '@fuzdev/fuz_util/package_json.js';
 import {page} from '$app/state';
 
 import {DOCS_API_PATH, DOCS_PATH_DEFAULT} from './docs_helpers.svelte.js';

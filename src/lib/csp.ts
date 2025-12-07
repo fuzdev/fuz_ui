@@ -1,4 +1,4 @@
-import type {ArrayElement, Defined} from '@ryanatkn/belt/types.js';
+import type {ArrayElement, Defined} from '@fuzdev/fuz_util/types.js';
 
 // TODO schemas, but I may be moving to ArkType from Zod if precompilation looks good
 

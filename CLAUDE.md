@@ -10,8 +10,8 @@ resource-efficient websites.
 
 - Svelte 5 - component framework
 - SvelteKit - application framework
-- Moss (@ryanatkn/moss) - CSS framework foundation
-- Belt (@ryanatkn/belt) - utility library
+- Moss (@fuzdev/fuz_css) - CSS framework foundation
+- Belt (@fuzdev/fuz_util) - utility library
 - Gro (@ryanatkn/gro) - build system and CLI
 
 ## Architecture

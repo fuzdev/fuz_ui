@@ -1,7 +1,7 @@
 <script lang="ts">
-	import Code from '@ryanatkn/fuz_code/Code.svelte';
-	import type {Theme} from '@ryanatkn/moss/theme.js';
-	import {default_themes} from '@ryanatkn/moss/themes.js';
+	import Code from '@fuzdev/fuz_code/Code.svelte';
+	import type {Theme} from '@fuzdev/fuz_css/theme.js';
+	import {default_themes} from '@fuzdev/fuz_css/themes.js';
 
 	import TomeContent from '$lib/TomeContent.svelte';
 	import Details from '$lib/Details.svelte';
@@ -178,8 +178,8 @@
 			content={`<!-- +layout.svelte -->
 <` +
 				`script>
-	import '@ryanatkn/moss/style.css';
-	import '@ryanatkn/moss/theme.css';
+	import '@fuzdev/fuz_css/style.css';
+	import '@fuzdev/fuz_css/theme.css';
 	import Themed from '@ryanatkn/fuz/Themed.svelte';
 	import type {Snippet} from 'svelte';
 	

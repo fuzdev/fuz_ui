@@ -1,7 +1,7 @@
 <script lang="ts">
-	import {swallow} from '@ryanatkn/belt/dom.js';
-	import type {Theme} from '@ryanatkn/moss/theme.js';
-	import {default_themes} from '@ryanatkn/moss/themes.js';
+	import {swallow} from '@fuzdev/fuz_util/dom.js';
+	import type {Theme} from '@fuzdev/fuz_css/theme.js';
+	import {default_themes} from '@fuzdev/fuz_css/themes.js';
 
 	import {themer_context} from './themer.svelte.js';
 

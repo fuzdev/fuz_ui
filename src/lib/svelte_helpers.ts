@@ -16,7 +16,7 @@
 import ts from 'typescript';
 import {readFileSync} from 'node:fs';
 import {svelte2tsx} from 'svelte2tsx';
-import type {DeclarationJson, ComponentPropInfo} from '@ryanatkn/belt/source_json.js';
+import type {DeclarationJson, ComponentPropInfo} from '@fuzdev/fuz_util/source_json.js';
 
 import {tsdoc_parse, tsdoc_apply_to_declaration} from './tsdoc_helpers.js';
 import {module_get_component_name} from './module_helpers.js';

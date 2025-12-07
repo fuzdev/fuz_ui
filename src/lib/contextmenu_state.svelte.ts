@@ -1,9 +1,9 @@
 import {onDestroy, type Snippet} from 'svelte';
-import type {Result} from '@ryanatkn/belt/result.js';
-import {is_promise} from '@ryanatkn/belt/async.js';
+import type {Result} from '@fuzdev/fuz_util/result.js';
+import {is_promise} from '@fuzdev/fuz_util/async.js';
 import {BROWSER} from 'esm-env';
 import type {SvelteHTMLElements} from 'svelte/elements';
-import {EMPTY_OBJECT} from '@ryanatkn/belt/object.js';
+import {EMPTY_OBJECT} from '@fuzdev/fuz_util/object.js';
 import type {Attachment} from 'svelte/attachments';
 
 import {Dimensions} from './dimensions.svelte.js';

@@ -1,5 +1,5 @@
 <script lang="ts">
-	import type {Hue} from '@ryanatkn/belt/colors.js';
+	import type {Hue} from '@fuzdev/fuz_util/colors.js';
 	import type {Snippet} from 'svelte';
 
 	let {

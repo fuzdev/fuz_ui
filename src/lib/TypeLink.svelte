@@ -1,5 +1,5 @@
 <script lang="ts">
-	import Code from '@ryanatkn/fuz_code/Code.svelte';
+	import Code from '@fuzdev/fuz_code/Code.svelte';
 
 	import DeclarationLink from './DeclarationLink.svelte';
 	import {library_context} from './library.svelte.js';

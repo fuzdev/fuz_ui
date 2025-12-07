@@ -4,8 +4,8 @@
 
 <script lang="ts">
 	import {onMount, type Snippet} from 'svelte';
-	import {render_theme_style, type Theme} from '@ryanatkn/moss/theme.js';
-	import {DEFAULT_THEME} from '@ryanatkn/moss/themes.js';
+	import {render_theme_style, type Theme} from '@fuzdev/fuz_css/theme.js';
+	import {DEFAULT_THEME} from '@fuzdev/fuz_css/themes.js';
 	import {DEV} from 'esm-env';
 
 	import {

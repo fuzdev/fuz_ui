@@ -1,6 +1,6 @@
 <script lang="ts">
 	import {resolve} from '$app/paths';
-	import Code from '@ryanatkn/fuz_code/Code.svelte';
+	import Code from '@fuzdev/fuz_code/Code.svelte';
 
 	import ContextmenuEntry from '$lib/ContextmenuEntry.svelte';
 	import Contextmenu from '$lib/Contextmenu.svelte';

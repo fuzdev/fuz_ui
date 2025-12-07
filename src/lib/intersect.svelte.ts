@@ -1,5 +1,5 @@
 import type {Attachment} from 'svelte/attachments';
-import {deep_equal} from '@ryanatkn/belt/deep_equal.js';
+import {deep_equal} from '@fuzdev/fuz_util/deep_equal.js';
 
 export interface IntersectParams {
 	/**

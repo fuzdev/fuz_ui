@@ -1,5 +1,5 @@
 <script lang="ts">
-	import {strip_start} from '@ryanatkn/belt/string.js';
+	import {strip_start} from '@fuzdev/fuz_util/string.js';
 	import type {SvelteHTMLElements} from 'svelte/elements';
 	import {DEV} from 'esm-env';
 

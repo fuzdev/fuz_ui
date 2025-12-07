@@ -1,4 +1,4 @@
-import {is_editable, swallow, inside_editable} from '@ryanatkn/belt/dom.js';
+import {is_editable, swallow, inside_editable} from '@fuzdev/fuz_util/dom.js';
 
 import type {ContextmenuState} from './contextmenu_state.svelte.js';
 

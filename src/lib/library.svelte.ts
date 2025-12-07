@@ -1,4 +1,4 @@
-import type {LibraryJson} from '@ryanatkn/belt/library_json.js';
+import type {LibraryJson} from '@fuzdev/fuz_util/library_json.js';
 
 import {create_context} from './context_helpers.js';
 import {Declaration} from './declaration.svelte.js';

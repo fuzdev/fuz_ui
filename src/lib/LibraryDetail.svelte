@@ -1,6 +1,6 @@
 <script lang="ts">
 	import {page} from '$app/state';
-	import {format_url} from '@ryanatkn/belt/url.js';
+	import {format_url} from '@fuzdev/fuz_util/url.js';
 	import type {Snippet} from 'svelte';
 
 	import type {Library} from './library.svelte.js';

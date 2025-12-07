@@ -1,4 +1,4 @@
-import type {StyleVariable} from '@ryanatkn/moss/variable.js';
+import type {StyleVariable} from '@fuzdev/fuz_css/variable.js';
 
 import {create_context} from '$lib/context_helpers.js';
 
