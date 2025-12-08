@@ -5,7 +5,6 @@
 	import TomeLink from '$lib/TomeLink.svelte';
 	import Svg from '$lib/Svg.svelte';
 	import {
-		logo_zzz,
 		logo_gro,
 		logo_fuz,
 		logo_fuz_css,
@@ -13,16 +12,10 @@
 		logo_fuz_blog,
 		logo_fuz_mastodon,
 		logo_fuz_gitops,
-		logo_webdevladder,
-		logo_earbetter,
-		logo_spiderspace,
 		logo_github,
 		logo_mdn,
 		logo_fuz_template,
 		logo_fuz_util,
-		logo_gemini,
-		logo_claude,
-		logo_chatgpt,
 	} from '$lib/logos.js';
 
 	const LIBRARY_ITEM_NAME = 'logos';
@@ -44,10 +37,6 @@
 			class="display_flex flex_wrap_wrap justify_content_center gap_lg text_align_center unstyled"
 		>
 			<li>
-				<a href="https://www.zzz.software/"><Svg data={logo_zzz} size="var(--icon_size_xl3)" /></a>
-				<Code content={`<Svg data={logo_zzz} />`} />
-			</li>
-			<li>
 				<a href="https://css.fuz.dev/"><Svg data={logo_fuz_css} size="var(--icon_size_xl3)" /></a>
 				<Code content={`<Svg data={logo_fuz_css} />`} />
 			</li>
@@ -62,12 +51,6 @@
 			<li>
 				<a href="https://www.fuz.dev/"><Svg data={logo_fuz} size="var(--icon_size_xl3)" /></a>
 				<Code content={`<Svg data={logo_fuz} />`} />
-			</li>
-			<li>
-				<a href="https://www.webdevladder.net/"
-					><Svg data={logo_webdevladder} size="var(--icon_size_xl3)" /></a
-				>
-				<Code content={`<Svg data={logo_webdevladder} />`} />
 			</li>
 			<li>
 				<a href="https://blog.fuz.dev/"><Svg data={logo_fuz_blog} size="var(--icon_size_xl3)" /></a>
@@ -96,18 +79,6 @@
 				<Code content={`<Svg data={logo_fuz_template} />`} />
 			</li>
 			<li>
-				<a href="https://earbetter.ryanatkn.com/"
-					><Svg data={logo_earbetter} size="var(--icon_size_xl3)" /></a
-				>
-				<Code content={`<Svg data={logo_earbetter} />`} />
-			</li>
-			<li>
-				<a href="https://www.spiderspace.org/"
-					><Svg data={logo_spiderspace} size="var(--icon_size_xl3)" /></a
-				>
-				<Code content={`<Svg data={logo_spiderspace} />`} />
-			</li>
-			<li>
 				<a href="https://github.com/"><Svg data={logo_github} size="var(--icon_size_xl3)" /></a>
 				<Code content={`<Svg data={logo_github} />`} />
 			</li>
@@ -116,20 +87,6 @@
 					><Svg data={logo_mdn} size="var(--icon_size_xl3)" /></a
 				>
 				<Code content={`<Svg data={logo_mdn} />`} />
-			</li>
-			<li>
-				<a href="https://chatgpt.com/"><Svg data={logo_chatgpt} size="var(--icon_size_xl3)" /></a>
-				<Code content={`<Svg data={logo_chatgpt} />`} />
-			</li>
-			<li>
-				<a href="https://claude.ai/"><Svg data={logo_claude} size="var(--icon_size_xl3)" /></a>
-				<Code content={`<Svg data={logo_claude} />`} />
-			</li>
-			<li>
-				<a href="https://gemini.google.com/"
-					><Svg data={logo_gemini} size="var(--icon_size_xl3)" /></a
-				>
-				<Code content={`<Svg data={logo_gemini} />`} />
 			</li>
 		</ul>
 	</section>
