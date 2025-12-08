@@ -10,7 +10,7 @@
 	import {create_random_alea} from '@fuzdev/fuz_util/random_alea.js';
 
 	import Svg from './Svg.svelte';
-	import {fuz_logo} from './logos.js';
+	import {logo_fuz} from './logos.js';
 
 	const {
 		spiders = [
@@ -41,7 +41,7 @@
 <!-- TODO show when intersected in viewport, maybe inline `svelte-intersect` in Fuz? -->
 <div class="spiders" style:--spider_count={spiders.length}>
 	{#each shuffled as color, i (color)}
-		<Svg data={fuz_logo} fill={color} attrs={{style: `transform: rotate(${rotations[i]}deg)`}} />
+		<Svg data={logo_fuz} fill={color} attrs={{style: `transform: rotate(${rotations[i]}deg)`}} />
 	{/each}
 </div>
 

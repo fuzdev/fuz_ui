@@ -61,8 +61,8 @@ export const save_theme = (theme: Theme | null, key = THEME_STORAGE_KEY): void =
 };
 
 export const load_theme = (fallback: Theme = default_themes[0]!, key = THEME_STORAGE_KEY): Theme =>
-	load_from_storage<Theme>(key, true) ?? fallback; // TODO use `parse_theme` from moss
+	load_from_storage<Theme>(key, true) ?? fallback; // TODO use `parse_theme` from fuz_css
 
-// TODO move to moss
+// TODO move to fuz_css
 const parse_color_scheme = (value: unknown): ColorScheme | null =>
 	color_schemes.includes(value as any) ? (value as ColorScheme) : null;

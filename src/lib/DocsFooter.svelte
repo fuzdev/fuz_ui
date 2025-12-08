@@ -4,7 +4,7 @@
 
 	import type {Library} from './library.svelte.js';
 	import Svg from './Svg.svelte';
-	import {github_logo} from './logos.js';
+	import {logo_github} from './logos.js';
 
 	const {
 		library,
@@ -30,7 +30,7 @@
 		<!-- eslint-disable-next-line svelte/no-navigation-without-resolve -->
 		<a href={library.repo_url} rel="me" title="source code on GitHub"
 			>{#if logo}{@render logo()}{:else}<Svg
-					data={github_logo}
+					data={logo_github}
 					size="var(--icon_size_lg)"
 				/>{/if}</a
 		>

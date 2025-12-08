@@ -1,6 +1,6 @@
 <script lang="ts">
 	import Svg from './Svg.svelte';
-	import {gro_logo, fuz_logo, fuz_css_logo, fuz_template_logo} from './logos.js';
+	import {logo_gro, logo_fuz, logo_fuz_css, logo_fuz_template} from './logos.js';
 
 	const size = 'var(--icon_size_lg)';
 </script>
@@ -9,24 +9,24 @@
 <!-- <a
 	class="project_link"
 	title="Zzz - bot control hq"
-	href="https://www.zzz.software/"><Svg data={zzz_logo} {size} /><span class="name">Zzz</span></a
+	href="https://www.zzz.software/"><Svg data={logo_zzz} {size} /><span class="name">Zzz</span></a
 > -->
 <a
 	class="project_link"
 	title="Gro - task runner and toolkit extending SvelteKit"
-	href="https://gro.ryanatkn.com/"><Svg data={gro_logo} {size} /><span class="name">Gro</span></a
+	href="https://gro.ryanatkn.com/"><Svg data={logo_gro} {size} /><span class="name">Gro</span></a
 >
 <a class="project_link" title="Fuz CSS - CSS framework" href="https://css.fuz.dev/"
-	><Svg data={fuz_css_logo} {size} /><span class="name">Fuz CSS</span></a
+	><Svg data={logo_fuz_css} {size} /><span class="name">Fuz CSS</span></a
 >
 <a class="project_link" title="Fuz - Svelte UI library" href="https://ui.fuz.dev/"
-	><Svg data={fuz_logo} {size} /><span class="name">Fuz</span></a
+	><Svg data={logo_fuz} {size} /><span class="name">Fuz</span></a
 >
 <a
 	class="project_link"
 	title="fuz_template - a static web app and Node library template with TypeScript, Svelte, SvelteKit, Vite, esbuild, Fuz, and Gro"
 	href="https://template.fuz.dev/"
-	><Svg data={fuz_template_logo} {size} /><span class="name">fuz_template</span></a
+	><Svg data={logo_fuz_template} {size} /><span class="name">fuz_template</span></a
 >
 
 <style>

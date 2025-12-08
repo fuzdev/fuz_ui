@@ -7,14 +7,14 @@
 	import {library_context} from '$lib/library.svelte.js';
 	import Svg, {type SvgData} from '$lib/Svg.svelte';
 	import {
-		fuz_logo,
-		fuz_code_logo,
-		fuz_blog_logo,
-		fuz_mastodon_logo,
-		fuz_gitops_logo,
-		fuz_template_logo,
-		gro_logo,
-		fuz_css_logo,
+		logo_fuz,
+		logo_fuz_code,
+		logo_fuz_blog,
+		logo_fuz_mastodon,
+		logo_fuz_gitops,
+		logo_fuz_template,
+		logo_gro,
+		logo_fuz_css,
 	} from '$lib/logos.js';
 	import HiddenPersonalLinks from '$lib/HiddenPersonalLinks.svelte';
 	import {MAIN_HEADER_MARGIN_TOP} from '$lib/constants.js';
@@ -33,13 +33,13 @@
 
 	// prettier-ignore
 	const project_items: Array<ProjectItem> = [ 
-		{name: 'moss', url: 'https://css.fuz.dev/', logo: fuz_css_logo, description: 'CSS framework and design system', glyph: '🌿'},
-		{name: 'gro', url: 'https://gro.ryanatkn.com/', logo: gro_logo, description: 'task runner and toolkit extending SvelteKit', glyph: '🌰'},
-		{name: 'fuz_template', url: 'https://template.fuz.dev/', logo: fuz_template_logo, description: 'a static web app and Node library template with TypeScript, Svelte, SvelteKit, Vite, esbuild, Fuz, and Gro', glyph: '❄'},
-		{name: 'fuz_blog', url: 'https://blog.fuz.dev/', logo: fuz_blog_logo, description: 'blog software from scratch with SvelteKit', glyph: '🖊️'},
-		{name: 'fuz_mastodon', url: 'https://mastodon.fuz.dev/', logo: fuz_mastodon_logo, description: 'Mastodon components and helpers for Svelte, SvelteKit, and Fuz', glyph: '🦣'},
-		{name: 'fuz_code', url: 'https://code.fuz.dev/', logo: fuz_code_logo, description: 'syntax styling utilities and components for TypeScript, Svelte, SvelteKit', glyph: '🎨'},
-		{name: 'fuz_gitops', url: 'https://gitops.fuz.dev/', logo: fuz_gitops_logo, description: 'a tool for managing many repos', glyph: '🪄'},
+		{name: 'fuz_css', url: 'https://css.fuz.dev/', logo: logo_fuz_css, description: 'CSS framework and design system', glyph: '🌿'},
+		{name: 'gro', url: 'https://gro.ryanatkn.com/', logo: logo_gro, description: 'task runner and toolkit extending SvelteKit', glyph: '🌰'},
+		{name: 'fuz_template', url: 'https://template.fuz.dev/', logo: logo_fuz_template, description: 'a static web app and Node library template with TypeScript, Svelte, SvelteKit, Vite, esbuild, Fuz, and Gro', glyph: '❄'},
+		{name: 'fuz_blog', url: 'https://blog.fuz.dev/', logo: logo_fuz_blog, description: 'blog software from scratch with SvelteKit', glyph: '🖊️'},
+		{name: 'fuz_mastodon', url: 'https://mastodon.fuz.dev/', logo: logo_fuz_mastodon, description: 'Mastodon components and helpers for Svelte, SvelteKit, and Fuz', glyph: '🦣'},
+		{name: 'fuz_code', url: 'https://code.fuz.dev/', logo: logo_fuz_code, description: 'syntax styling utilities and components for TypeScript, Svelte, SvelteKit', glyph: '🎨'},
+		{name: 'fuz_gitops', url: 'https://gitops.fuz.dev/', logo: logo_fuz_gitops, description: 'a tool for managing many repos', glyph: '🪄'},
 	];
 </script>
 
@@ -47,7 +47,7 @@
 	<div class="box width_upto_md mb_xl9">
 		<section class="box">
 			<h1 class="mb_sm" style:margin-top={MAIN_HEADER_MARGIN_TOP}>fuz</h1>
-			<div class="box mb_lg"><Svg data={fuz_logo} size="var(--icon_size_xl2)" /></div>
+			<div class="box mb_lg"><Svg data={logo_fuz} size="var(--icon_size_xl2)" /></div>
 			<blockquote class="shadow_bottom_sm px_xl bg">friendly user zystem 🧶</blockquote>
 			<div class="mb_lg p_xs2 shadow_md border_radius_sm">
 				<div class="width_upto_sm panel p_lg shadow_inset_xs bg">
