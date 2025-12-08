@@ -1,5 +1,12 @@
 # @fuzdev/fuz_ui
 
+## 0.172.0
+
+### Minor Changes
+
+- remove some logos and rename some identifiers ([#103](https://github.com/fuzdev/fuz_ui/pull/103))
+- remove `HiddenPersonalLinks` ([#103](https://github.com/fuzdev/fuz_ui/pull/103))
+
 ## 0.171.0
 
 ### Minor Changes
