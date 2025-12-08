@@ -3,7 +3,7 @@
 	import type {SvelteHTMLElements} from 'svelte/elements';
 
 	import Svg from './Svg.svelte';
-	import {mdn_logo} from './logos.js';
+	import {logo_mdn} from './logos.js';
 
 	const {
 		path,
@@ -27,7 +27,7 @@
 <!-- eslint-disable svelte/no-navigation-without-resolve -->
 <a {...rest} {href} class="mdn_link chip white_space_nowrap {class_prop}" rel="noopener"
 	><Svg
-		data={mdn_logo}
+		data={logo_mdn}
 		inline
 		size="var(--icon_size_xs)"
 		attrs={{class: 'mx_xs3 vertical_align_middle'}}

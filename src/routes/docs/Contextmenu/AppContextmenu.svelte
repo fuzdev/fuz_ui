@@ -3,7 +3,7 @@
 	import ContextmenuLinkEntry from '$lib/ContextmenuLinkEntry.svelte';
 	import ContextmenuSeparator from '$lib/ContextmenuSeparator.svelte';
 	import Svg from '$lib/Svg.svelte';
-	import {github_logo} from '$lib/logos.js';
+	import {logo_github} from '$lib/logos.js';
 
 	const {
 		toggle_about_dialog,
@@ -13,7 +13,7 @@
 </script>
 
 <ContextmenuLinkEntry href="https://github.com/fuzdev/fuz_ui">
-	{#snippet icon()}<Svg data={github_logo} size="var(--icon_size_xs)" />{/snippet}
+	{#snippet icon()}<Svg data={logo_github} size="var(--icon_size_xs)" />{/snippet}
 	Source code
 </ContextmenuLinkEntry>
 <ContextmenuSeparator />

@@ -26,7 +26,8 @@
 		load_theme = default_load_theme,
 		save_theme = default_save_theme,
 		theme_fallback,
-		themer = new Themer(load_theme(theme_fallback), load_color_scheme()),
+		// TODO make reactive? by passing getters as options?
+		themer = new Themer({theme: load_theme(theme_fallback), color_scheme: load_color_scheme()}),
 		children,
 	}: {
 		sync_color_scheme?: typeof default_sync_color_scheme;

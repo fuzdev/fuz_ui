@@ -5,11 +5,20 @@ import {BROWSER} from 'esm-env';
 import {create_context} from './context_helpers.js';
 import {load_from_storage, save_to_storage} from './storage.js';
 
+export interface ThemerJson {
+	theme: Theme;
+	color_scheme: ColorScheme;
+}
+
+export type ThemerOptions = Partial<ThemerJson>;
+
 export class Themer {
 	theme: Theme = $state()!;
 	color_scheme: ColorScheme = $state()!;
 
-	constructor(theme: Theme = default_themes[0]!, color_scheme: ColorScheme = 'auto') {
+	constructor(options?: ThemerOptions) {
+		const theme = options?.theme ?? default_themes[0]!;
+		const color_scheme = options?.color_scheme ?? 'auto';
 		if (parse_color_scheme(color_scheme) === null) {
 			throw Error('unknown color scheme: ' + color_scheme);
 		}
@@ -24,12 +33,6 @@ export class Themer {
 		};
 	}
 }
-
-export interface ThemerJson {
-	theme: Theme;
-	color_scheme: ColorScheme;
-}
-
 export const themer_context = create_context<Themer>();
 
 export const sync_color_scheme = (color_scheme: ColorScheme | null): void => {
@@ -61,8 +64,8 @@ export const save_theme = (theme: Theme | null, key = THEME_STORAGE_KEY): void =
 };
 
 export const load_theme = (fallback: Theme = default_themes[0]!, key = THEME_STORAGE_KEY): Theme =>
-	load_from_storage<Theme>(key, true) ?? fallback; // TODO use `parse_theme` from moss
+	load_from_storage<Theme>(key, true) ?? fallback; // TODO use `parse_theme` from fuz_css
 
-// TODO move to moss
+// TODO move to fuz_css
 const parse_color_scheme = (value: unknown): ColorScheme | null =>
 	color_schemes.includes(value as any) ? (value as ColorScheme) : null;

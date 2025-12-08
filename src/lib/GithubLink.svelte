@@ -4,7 +4,7 @@
 	import {DEV} from 'esm-env';
 
 	import Svg from './Svg.svelte';
-	import {github_logo} from './logos.js';
+	import {logo_github} from './logos.js';
 
 	const {
 		path,
@@ -62,7 +62,7 @@
 <!-- eslint-disable svelte/no-navigation-without-resolve -->
 <a {...rest} {href} class="github_link chip white_space_nowrap {class_prop}" rel="noopener"
 	><Svg
-		data={github_logo}
+		data={logo_github}
 		inline
 		size="var(--icon_size_xs)"
 		attrs={{class: 'mx_xs3 vertical_align_middle'}}

@@ -8,7 +8,7 @@
 	import Dialog from '$lib/Dialog.svelte';
 	import {library_context} from '$lib/library.svelte.js';
 	import Svg from '$lib/Svg.svelte';
-	import {fuz_logo} from '$lib/logos.js';
+	import {logo_fuz} from '$lib/logos.js';
 
 	const {
 		children,
@@ -25,10 +25,10 @@
 	{#snippet breadcrumb_children(is_primary_nav)}
 		{#if is_primary_nav}
 			<div class="icon row">
-				<Svg data={fuz_logo} size="var(--icon_size_sm)" /> <span class="ml_sm">fuz</span>
+				<Svg data={logo_fuz} size="var(--icon_size_sm)" /> <span class="ml_sm">fuz</span>
 			</div>
 		{:else}
-			<Svg data={fuz_logo} size="var(--icon_size_sm)" />
+			<Svg data={logo_fuz} size="var(--icon_size_sm)" />
 		{/if}
 	{/snippet}
 	{@render children()}

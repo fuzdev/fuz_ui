@@ -6,7 +6,7 @@
 	import TomeContent from '$lib/TomeContent.svelte';
 	import TomeSection from '$lib/TomeSection.svelte';
 	import TomeSectionHeader from '$lib/TomeSectionHeader.svelte';
-	import {fuz_logo, github_logo} from '$lib/logos.js';
+	import {logo_fuz, logo_github} from '$lib/logos.js';
 	import DeclarationLink from '$lib/DeclarationLink.svelte';
 
 	const LIBRARY_ITEM_NAME = 'Svg';
@@ -19,12 +19,12 @@
 	<section>
 		<!-- TODO make this a generic data-driven helper -->
 		<Code content={`import Svg from '@fuzdev/fuz_ui/Svg.svelte';`} lang="ts" />
-		<Code content={`<Svg data={fuz_logo} />`} />
+		<Code content={`<Svg data={logo_fuz} />`} />
 		<aside class="mt_lg">
 			⚠️ <DeclarationLink name="Svg" /> currently uses <code>@html</code> but for security should not.
 		</aside>
 		<p>Fills available space by default:</p>
-		<Svg data={fuz_logo} />
+		<Svg data={logo_fuz} />
 	</section>
 	<TomeSection>
 		<TomeSectionHeader text="With custom size" />
@@ -32,17 +32,17 @@
 			Set <code>size</code>: (see the
 			<a href="https://css.fuz.dev/docs/typography#font-sizes">Fuz CSS typography docs</a>)
 		</p>
-		<Code content={`<Svg data={fuz_logo} size="var(--icon_size_xl)" />`} />
-		<p><Svg data={fuz_logo} size="var(--icon_size_xl)" /></p>
-		<Code content={`<Svg data={fuz_logo} size="var(--icon_size_sm)" />`} />
-		<p><Svg data={fuz_logo} size="var(--icon_size_sm)" /></p>
+		<Code content={`<Svg data={logo_fuz} size="var(--icon_size_xl)" />`} />
+		<p><Svg data={logo_fuz} size="var(--icon_size_xl)" /></p>
+		<Code content={`<Svg data={logo_fuz} size="var(--icon_size_sm)" />`} />
+		<p><Svg data={logo_fuz} size="var(--icon_size_sm)" /></p>
 		<p>
 			Set <code>--font_size</code> on the component or a parent:
 		</p>
 		<Code
-			content={`<span style:--font_size="var(--icon_size_xl)"><Svg data={fuz_logo} /></span>`}
+			content={`<span style:--font_size="var(--icon_size_xl)"><Svg data={logo_fuz} /></span>`}
 		/>
-		<p><span style:--font_size="var(--icon_size_xl)"><Svg data={fuz_logo} /></span></p>
+		<p><span style:--font_size="var(--icon_size_xl)"><Svg data={logo_fuz} /></span></p>
 	</TomeSection>
 	<TomeSection>
 		<TomeSectionHeader text="With custom color" />
@@ -50,22 +50,22 @@
 			Set <code>fill</code>: (see the
 			<a href="https://css.fuz.dev/docs/colors#color-variables">Fuz CSS colors docs</a>)
 		</p>
-		<Code content={`<Svg data={fuz_logo} fill="var(--color_d_5)" />`} />
+		<Code content={`<Svg data={logo_fuz} fill="var(--color_d_5)" />`} />
 		<p class="width_upto_sm">
-			<Svg data={fuz_logo} fill="var(--color_d_5)" />
+			<Svg data={logo_fuz} fill="var(--color_d_5)" />
 		</p>
-		<Code content={`<Svg data={fuz_logo} fill="var(--color_b_5)" />`} />
+		<Code content={`<Svg data={logo_fuz} fill="var(--color_b_5)" />`} />
 		<p class="width_upto_sm">
-			<Svg data={fuz_logo} fill="var(--color_b_5)" />
+			<Svg data={logo_fuz} fill="var(--color_b_5)" />
 		</p>
 		<p>
 			Set <code>--text_color</code> on the component or a parent, for svgs that have no default fill:
 		</p>
 		<Code
-			content={`<span style:--text_color="var(--color_i_5)"><Svg data={github_logo} /></span>`}
+			content={`<span style:--text_color="var(--color_i_5)"><Svg data={logo_github} /></span>`}
 		/>
 		<p class="width_upto_sm">
-			<span style:--text_color="var(--color_i_5)"><Svg data={github_logo} /></span>
+			<span style:--text_color="var(--color_i_5)"><Svg data={logo_github} /></span>
 		</p>
 	</TomeSection>
 </TomeContent>

@@ -3036,7 +3036,7 @@ export const library_json: LibraryJson = {
 						props: [
 							{
 								name: 'selected',
-								type: "'webdevladder.net' | 'ryanatkn.com'",
+								type: "'www.fuz.dev'",
 								optional: true,
 							},
 						],
@@ -3136,16 +3136,6 @@ export const library_json: LibraryJson = {
 								type: 'unknown',
 							},
 						],
-					},
-				],
-			},
-			{
-				path: 'HiddenPersonalLinks.svelte',
-				declarations: [
-					{
-						name: 'HiddenPersonalLinks',
-						kind: 'component',
-						source_line: 1,
 					},
 				],
 			},
@@ -4108,111 +4098,75 @@ export const library_json: LibraryJson = {
 				path: 'logos.ts',
 				declarations: [
 					{
-						name: 'zzz_logo',
+						name: 'logo_gro',
 						kind: 'variable',
 						source_line: 22,
 						type_signature: 'SvgData',
 					},
 					{
-						name: 'gro_logo',
+						name: 'logo_fuz',
 						kind: 'variable',
-						source_line: 38,
+						source_line: 56,
 						type_signature: 'SvgData',
 					},
 					{
-						name: 'fuz_logo',
+						name: 'logo_fuz_ui',
+						kind: 'variable',
+						source_line: 66,
+						type_signature: 'SvgData',
+					},
+					{
+						name: 'logo_fuz_css',
 						kind: 'variable',
 						source_line: 72,
 						type_signature: 'SvgData',
 					},
 					{
-						name: 'fuz_css_logo',
+						name: 'logo_fuz_code',
 						kind: 'variable',
-						source_line: 82,
+						source_line: 79,
 						type_signature: 'SvgData',
 					},
 					{
-						name: 'belt_logo',
+						name: 'logo_fuz_blog',
 						kind: 'variable',
-						source_line: 89,
+						source_line: 85,
 						type_signature: 'SvgData',
 					},
 					{
-						name: 'fuz_code_logo',
+						name: 'logo_fuz_mastodon',
 						kind: 'variable',
-						source_line: 115,
+						source_line: 91,
 						type_signature: 'SvgData',
 					},
 					{
-						name: 'fuz_blog_logo',
+						name: 'logo_fuz_gitops',
 						kind: 'variable',
-						source_line: 121,
+						source_line: 97,
 						type_signature: 'SvgData',
 					},
 					{
-						name: 'fuz_mastodon_logo',
+						name: 'logo_fuz_template',
 						kind: 'variable',
-						source_line: 127,
+						source_line: 103,
 						type_signature: 'SvgData',
 					},
 					{
-						name: 'fuz_gitops_logo',
+						name: 'logo_fuz_util',
 						kind: 'variable',
-						source_line: 133,
+						source_line: 113,
 						type_signature: 'SvgData',
 					},
 					{
-						name: 'fuz_template_logo',
+						name: 'logo_github',
 						kind: 'variable',
 						source_line: 139,
 						type_signature: 'SvgData',
 					},
 					{
-						name: 'webdevladder_logo',
+						name: 'logo_mdn',
 						kind: 'variable',
-						source_line: 149,
-						type_signature: 'SvgData',
-					},
-					{
-						name: 'earbetter_logo',
-						kind: 'variable',
-						source_line: 165,
-						type_signature: 'SvgData',
-					},
-					{
-						name: 'spiderspace_logo',
-						kind: 'variable',
-						source_line: 175,
-						type_signature: 'SvgData',
-					},
-					{
-						name: 'github_logo',
-						kind: 'variable',
-						source_line: 237,
-						type_signature: 'SvgData',
-					},
-					{
-						name: 'mdn_logo',
-						kind: 'variable',
-						source_line: 250,
-						type_signature: 'SvgData',
-					},
-					{
-						name: 'chatgpt_logo',
-						kind: 'variable',
-						source_line: 260,
-						type_signature: 'SvgData',
-					},
-					{
-						name: 'claude_logo',
-						kind: 'variable',
-						source_line: 269,
-						type_signature: 'SvgData',
-					},
-					{
-						name: 'gemini_logo',
-						kind: 'variable',
-						source_line: 279,
+						source_line: 152,
 						type_signature: 'SvgData',
 					},
 				],
@@ -5523,50 +5477,9 @@ export const library_json: LibraryJson = {
 				path: 'themer.svelte.ts',
 				declarations: [
 					{
-						name: 'Themer',
-						kind: 'class',
-						source_line: 8,
-						members: [
-							{
-								name: 'theme',
-								kind: 'variable',
-								type_signature: 'Theme',
-							},
-							{
-								name: 'color_scheme',
-								kind: 'variable',
-								type_signature: 'ColorScheme',
-							},
-							{
-								name: 'constructor',
-								kind: 'constructor',
-								type_signature: '(theme?: Theme, color_scheme?: ColorScheme): Themer',
-								parameters: [
-									{
-										name: 'theme',
-										type: 'Theme',
-										default_value: 'default_themes[0]!',
-									},
-									{
-										name: 'color_scheme',
-										type: 'ColorScheme',
-										default_value: "'auto'",
-									},
-								],
-							},
-							{
-								name: 'toJSON',
-								kind: 'function',
-								type_signature: '(): ThemerJson',
-								return_type: 'ThemerJson',
-								parameters: [],
-							},
-						],
-					},
-					{
 						name: 'ThemerJson',
 						kind: 'type',
-						source_line: 28,
+						source_line: 8,
 						type_signature: 'ThemerJson',
 						properties: [
 							{
@@ -5582,16 +5495,58 @@ export const library_json: LibraryJson = {
 						],
 					},
 					{
+						name: 'ThemerOptions',
+						kind: 'type',
+						source_line: 13,
+						type_signature: 'Partial<ThemerJson>',
+					},
+					{
+						name: 'Themer',
+						kind: 'class',
+						source_line: 15,
+						members: [
+							{
+								name: 'theme',
+								kind: 'variable',
+								type_signature: 'Theme',
+							},
+							{
+								name: 'color_scheme',
+								kind: 'variable',
+								type_signature: 'ColorScheme',
+							},
+							{
+								name: 'constructor',
+								kind: 'constructor',
+								type_signature: '(options?: Partial<ThemerJson> | undefined): Themer',
+								parameters: [
+									{
+										name: 'options',
+										type: 'Partial<ThemerJson> | undefined',
+										optional: true,
+									},
+								],
+							},
+							{
+								name: 'toJSON',
+								kind: 'function',
+								type_signature: '(): ThemerJson',
+								return_type: 'ThemerJson',
+								parameters: [],
+							},
+						],
+					},
+					{
 						name: 'themer_context',
 						kind: 'variable',
-						source_line: 33,
+						source_line: 36,
 						type_signature:
 							'{ get: (error_message?: string | undefined) => Themer; get_maybe: () => Themer | undefined; set: (value: Themer) => Themer; }',
 					},
 					{
 						name: 'sync_color_scheme',
 						kind: 'function',
-						source_line: 35,
+						source_line: 38,
 						type_signature: '(color_scheme: ColorScheme | null): void',
 						return_type: 'void',
 						parameters: [
@@ -5604,19 +5559,19 @@ export const library_json: LibraryJson = {
 					{
 						name: 'COLOR_SCHEME_STORAGE_KEY',
 						kind: 'variable',
-						source_line: 44,
+						source_line: 47,
 						type_signature: '"fuz:color-scheme"',
 					},
 					{
 						name: 'THEME_STORAGE_KEY',
 						kind: 'variable',
-						source_line: 45,
+						source_line: 48,
 						type_signature: '"fuz:theme"',
 					},
 					{
 						name: 'save_color_scheme',
 						kind: 'function',
-						source_line: 47,
+						source_line: 50,
 						type_signature: '(color_scheme: ColorScheme | null, key?: string): void',
 						return_type: 'void',
 						parameters: [
@@ -5634,7 +5589,7 @@ export const library_json: LibraryJson = {
 					{
 						name: 'load_color_scheme',
 						kind: 'function',
-						source_line: 54,
+						source_line: 57,
 						type_signature: '(fallback?: ColorScheme, key?: string): ColorScheme',
 						return_type: 'ColorScheme',
 						parameters: [
@@ -5653,7 +5608,7 @@ export const library_json: LibraryJson = {
 					{
 						name: 'save_theme',
 						kind: 'function',
-						source_line: 59,
+						source_line: 62,
 						type_signature: '(theme: Theme | null, key?: string): void',
 						return_type: 'void',
 						parameters: [
@@ -5671,7 +5626,7 @@ export const library_json: LibraryJson = {
 					{
 						name: 'load_theme',
 						kind: 'function',
-						source_line: 63,
+						source_line: 66,
 						type_signature: '(fallback?: Theme, key?: string): Theme',
 						return_type: 'Theme',
 						parameters: [

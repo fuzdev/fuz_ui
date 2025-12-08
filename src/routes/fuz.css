@@ -274,6 +274,12 @@ a.chip {
 .bg {
 	background-color: var(--bg);
 }
+.color_a_5 {
+	color: var(--color_a_5);
+}
+.color_b_5 {
+	color: var(--color_b_5);
+}
 .color_c_5 {
 	color: var(--color_c_5);
 }
@@ -288,6 +294,9 @@ a.chip {
 }
 .color_g_5 {
 	color: var(--color_g_5);
+}
+.color_h_5 {
+	color: var(--color_h_5);
 }
 .color_j_5 {
 	color: var(--color_j_5);

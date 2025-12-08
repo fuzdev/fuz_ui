@@ -26,8 +26,8 @@ export const create_test_contextmenu = (): ContextmenuState => {
  * @param contextmenu Optional contextmenu instance (uses default if not provided)
  * @param props Additional props to pass to the component
  */
-export const mount_contextmenu_root = <Props extends Record<string, any>>(
-	Component: Component<Props>,
+export const mount_contextmenu_root = <TProps extends Record<string, any>>(
+	Component: Component<TProps>,
 	contextmenu?: ContextmenuState,
 	props: Record<string, any> = {},
 ): {instance: any; container: HTMLElement; contextmenu: ContextmenuState} => {

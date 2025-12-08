@@ -31,7 +31,7 @@
 		margin: var(--space_xl6) 0;
 	}
 
-	/* TODO should be fixed upstream in moss */
+	/* TODO should be fixed upstream in fuz_css */
 	.docs_list :global(a.highlighted) {
 		background-color: var(--bg_4);
 	}

@@ -11,9 +11,8 @@
 <TomeContent {tome}>
 	<section>
 		<p>
-			Fuz UI is a Svelte UI library that builds on my CSS framework <a href="https://css.fuz.dev/"
-				>Fuz CSS</a
-			>. It's in early alpha and there will be many breaking changes. I'm making it to support
+			Fuz UI is a Svelte UI library that builds on <a href="https://css.fuz.dev/">Fuz CSS</a>. It's
+			in early alpha and there will be many breaking changes. I'm making it to support
 			<a href="https://www.zzz.software/">Zzz</a>
 			and
 			<a href="https://www.ryanatkn.com/">my other projects</a> that focus on end-users, so it'll continue

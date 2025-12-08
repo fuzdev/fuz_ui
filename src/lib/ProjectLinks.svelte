@@ -1,54 +1,81 @@
 <script lang="ts">
-	import Svg from './Svg.svelte';
-	import {gro_logo, fuz_logo, fuz_css_logo, fuz_template_logo} from './logos.js';
+	import Svg, {type SvgData} from './Svg.svelte';
+	import {
+		logo_fuz_ui,
+		logo_fuz_code,
+		logo_fuz_blog,
+		logo_fuz_mastodon,
+		logo_fuz_gitops,
+		logo_fuz_template,
+		logo_fuz_css,
+		logo_fuz_util,
+	} from './logos.js';
 
-	const size = 'var(--icon_size_lg)';
+	// TODO refactor
+	interface ProjectItem {
+		name: string;
+		url: string;
+		logo: SvgData;
+		description: string;
+		glyph: string;
+		color_class: string;
+	}
+
+	// TODO ideally this wouldn't duplicate metadata like descriptions, but adding fuz_gitops to this repo is heavy
+	// prettier-ignore
+	const project_items: Array<ProjectItem> = [
+		{name: 'fuz_ui', url: 'https://ui.fuz.dev/', logo: logo_fuz_ui, description: 'Svelte UI library', glyph: '🧶', color_class: 'color_c_5'},
+		{name: 'fuz_css', url: 'https://css.fuz.dev/', logo: logo_fuz_css, description: 'CSS framework and design system', glyph: '🌿', color_class: 'color_b_5'},
+		{name: 'fuz_template', url: 'https://template.fuz.dev/', logo: logo_fuz_template, description: 'a static web app and Node library template with TypeScript, Svelte, SvelteKit, Vite, esbuild, Fuz, and Gro', glyph: '❄', color_class: 'color_h_5'},
+		{name: 'fuz_code', url: 'https://code.fuz.dev/', logo: logo_fuz_code, description: 'syntax styling utilities and components for TypeScript, Svelte, SvelteKit', glyph: '🎨', color_class: 'color_g_5'},
+		{name: 'fuz_blog', url: 'https://blog.fuz.dev/', logo: logo_fuz_blog, description: 'blog software from scratch with SvelteKit', glyph: '🖊️', color_class: 'color_e_5'},
+		{name: 'fuz_mastodon', url: 'https://mastodon.fuz.dev/', logo: logo_fuz_mastodon, description: 'Mastodon components and helpers for Svelte, SvelteKit, and Fuz', glyph: '🦣', color_class: 'color_d_5'},
+		{name: 'fuz_gitops', url: 'https://gitops.fuz.dev/', logo: logo_fuz_gitops, description: 'a tool for managing many repos', glyph: '🪄', color_class: 'color_a_5'},
+		{name: 'fuz_util', url: 'https://util.fuz.dev/', logo: logo_fuz_util, description: 'utility belt for JS', glyph: '🦕', color_class: 'color_f_5'},
+	];
 </script>
 
-<!--<a href="https://www.spiderspace.org/"></a>--><!--<a href="https://www.webdevladder.net/"></a>-->
-<!-- <a
-	class="project_link"
-	title="Zzz - bot control hq"
-	href="https://www.zzz.software/"><Svg data={zzz_logo} {size} /><span class="name">Zzz</span></a
-> -->
-<a
-	class="project_link"
-	title="Gro - task runner and toolkit extending SvelteKit"
-	href="https://gro.ryanatkn.com/"><Svg data={gro_logo} {size} /><span class="name">Gro</span></a
->
-<a class="project_link" title="Fuz CSS - CSS framework" href="https://css.fuz.dev/"
-	><Svg data={fuz_css_logo} {size} /><span class="name">Fuz CSS</span></a
->
-<a class="project_link" title="Fuz - Svelte UI library" href="https://ui.fuz.dev/"
-	><Svg data={fuz_logo} {size} /><span class="name">Fuz</span></a
->
-<a
-	class="project_link"
-	title="fuz_template - a static web app and Node library template with TypeScript, Svelte, SvelteKit, Vite, esbuild, Fuz, and Gro"
-	href="https://template.fuz.dev/"
-	><Svg data={fuz_template_logo} {size} /><span class="name">fuz_template</span></a
->
+<h2 class="mt_0 mb_xl2">Packages</h2>
+<menu class="unstyled font_size_lg">
+	{#each project_items as project_item (project_item.name)}
+		{@render package_thumbnail(project_item)}
+	{/each}
+</menu>
+
+{#snippet package_thumbnail(project_item: ProjectItem)}
+	<!-- eslint-disable-next-line svelte/no-navigation-without-resolve -->
+	<a class="thumbnail row bg px_md py_xs border_radius_sm mb_lg" href={project_item.url}
+		><Svg shrink={false} data={project_item.logo} size="var(--icon_size_lg)" />
+		<div class="pl_lg width_upto_sm">
+			<div class="thumbnail_name {project_item.color_class}">{project_item.name}</div>
+			<div class="thumbnail_description font_size_md text_color_3 font_weight_500">
+				{project_item.description}
+				{project_item.glyph}
+			</div>
+		</div></a
+	>
+{/snippet}
 
 <style>
-	.project_link {
-		display: flex;
-		flex-direction: column;
-		align-items: center;
-		padding: var(--space_md);
-		text-align: center;
+	.thumbnail {
+		box-shadow: var(--shadow_bottom_xs)
+			color-mix(in hsl, var(--shadow_color) var(--shadow_alpha_1), transparent);
 	}
+	.thumbnail:hover {
+		box-shadow: var(--shadow_bottom_sm)
+			color-mix(in hsl, var(--shadow_color) var(--shadow_alpha_1), transparent);
 
-	.project_link:hover {
+		/* show the underline only on the name, not the description */
 		text-decoration: none;
+		.thumbnail_name {
+			text-decoration: underline;
+		}
+		.thumbnail_description {
+			text-decoration: none;
+		}
 	}
-	.project_link:hover .name {
-		text-decoration: underline;
-	}
-
-	.project_link .name {
-		display: block;
-		margin-top: var(--font_size_sm);
-		font-size: var(--font_size_lg);
-		font-weight: 400;
+	.thumbnail:active {
+		box-shadow: var(--shadow_top_xs)
+			color-mix(in hsl, var(--shadow_color) var(--shadow_alpha_1), transparent);
 	}
 </style>
