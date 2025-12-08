@@ -1,6 +1,6 @@
 {
   "name": "@fuzdev/fuz_ui",
-  "version": "0.170.0",
+  "version": "0.172.0",
   "modules": [
     {
       "path": "alert.ts",
@@ -557,75 +557,51 @@
       "path": "logos.ts",
       "declarations": [
         {
-          "name": "zzz_logo",
+          "name": "logo_gro",
           "kind": "variable"
         },
         {
-          "name": "gro_logo",
+          "name": "logo_fuz",
           "kind": "variable"
         },
         {
-          "name": "fuz_logo",
+          "name": "logo_fuz_ui",
           "kind": "variable"
         },
         {
-          "name": "moss_logo",
+          "name": "logo_fuz_css",
           "kind": "variable"
         },
         {
-          "name": "belt_logo",
+          "name": "logo_fuz_code",
           "kind": "variable"
         },
         {
-          "name": "fuz_code_logo",
+          "name": "logo_fuz_blog",
           "kind": "variable"
         },
         {
-          "name": "fuz_blog_logo",
+          "name": "logo_fuz_mastodon",
           "kind": "variable"
         },
         {
-          "name": "fuz_mastodon_logo",
+          "name": "logo_fuz_gitops",
           "kind": "variable"
         },
         {
-          "name": "fuz_gitops_logo",
+          "name": "logo_fuz_template",
           "kind": "variable"
         },
         {
-          "name": "fuz_template_logo",
+          "name": "logo_fuz_util",
           "kind": "variable"
         },
         {
-          "name": "webdevladder_logo",
+          "name": "logo_github",
           "kind": "variable"
         },
         {
-          "name": "earbetter_logo",
-          "kind": "variable"
-        },
-        {
-          "name": "spiderspace_logo",
-          "kind": "variable"
-        },
-        {
-          "name": "github_logo",
-          "kind": "variable"
-        },
-        {
-          "name": "mdn_logo",
-          "kind": "variable"
-        },
-        {
-          "name": "chatgpt_logo",
-          "kind": "variable"
-        },
-        {
-          "name": "claude_logo",
-          "kind": "variable"
-        },
-        {
-          "name": "gemini_logo",
+          "name": "logo_mdn",
           "kind": "variable"
         }
       ]
@@ -826,12 +802,16 @@
       "path": "themer.svelte.ts",
       "declarations": [
         {
-          "name": "Themer",
-          "kind": "class"
-        },
-        {
           "name": "ThemerJson",
           "kind": "type"
+        },
+        {
+          "name": "ThemerOptions",
+          "kind": "type"
+        },
+        {
+          "name": "Themer",
+          "kind": "class"
         },
         {
           "name": "themer_context",
@@ -1306,15 +1286,6 @@
     },
     {
       "path": "Hashlink.svelte",
-      "declarations": [
-        {
-          "name": "default",
-          "kind": "component"
-        }
-      ]
-    },
-    {
-      "path": "HiddenPersonalLinks.svelte",
       "declarations": [
         {
           "name": "default",

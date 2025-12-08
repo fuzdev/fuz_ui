@@ -1,1 +1,0 @@
-import{l as o,m as u,H as _,n as t,o as g,C as m,q as a,v as i,w as n,x as p}from"./DuI-xSAA.js";function E(d,r){let s=null,f=t;var l;if(t){s=p;for(var e=g(document.head);e!==null&&(e.nodeType!==m||e.data!==d);)e=a(e);if(e===null)i(!1);else{var y=a(e);e.remove(),n(y)}}t||(l=document.head.appendChild(o()));try{u(()=>r(l),_)}finally{f&&(i(!0),n(s))}}export{E as h};
