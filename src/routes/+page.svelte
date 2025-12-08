@@ -16,7 +16,6 @@
 		logo_fuz_css,
 		logo_fuz_util,
 	} from '$lib/logos.js';
-	import HiddenPersonalLinks from '$lib/HiddenPersonalLinks.svelte';
 	import {MAIN_HEADER_MARGIN_TOP} from '$lib/constants.js';
 	import {DOCS_PATH} from '$lib/docs_helpers.svelte.js';
 
@@ -92,7 +91,6 @@
 				{#snippet logo_header()}
 					<a href={resolve('/about')} class="mb_xs">about</a>
 				{/snippet}
-				<HiddenPersonalLinks />
 			</DocsFooter>
 		</section>
 	</div>
