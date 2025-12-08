@@ -3036,7 +3036,7 @@ export const library_json: LibraryJson = {
 						props: [
 							{
 								name: 'selected',
-								type: "'webdevladder.net' | 'ryanatkn.com'",
+								type: "'www.fuz.dev'",
 								optional: true,
 							},
 						],
@@ -3136,16 +3136,6 @@ export const library_json: LibraryJson = {
 								type: 'unknown',
 							},
 						],
-					},
-				],
-			},
-			{
-				path: 'HiddenPersonalLinks.svelte',
-				declarations: [
-					{
-						name: 'HiddenPersonalLinks',
-						kind: 'component',
-						source_line: 1,
 					},
 				],
 			},
@@ -5487,50 +5477,9 @@ export const library_json: LibraryJson = {
 				path: 'themer.svelte.ts',
 				declarations: [
 					{
-						name: 'Themer',
-						kind: 'class',
-						source_line: 8,
-						members: [
-							{
-								name: 'theme',
-								kind: 'variable',
-								type_signature: 'Theme',
-							},
-							{
-								name: 'color_scheme',
-								kind: 'variable',
-								type_signature: 'ColorScheme',
-							},
-							{
-								name: 'constructor',
-								kind: 'constructor',
-								type_signature: '(theme?: Theme, color_scheme?: ColorScheme): Themer',
-								parameters: [
-									{
-										name: 'theme',
-										type: 'Theme',
-										default_value: 'default_themes[0]!',
-									},
-									{
-										name: 'color_scheme',
-										type: 'ColorScheme',
-										default_value: "'auto'",
-									},
-								],
-							},
-							{
-								name: 'toJSON',
-								kind: 'function',
-								type_signature: '(): ThemerJson',
-								return_type: 'ThemerJson',
-								parameters: [],
-							},
-						],
-					},
-					{
 						name: 'ThemerJson',
 						kind: 'type',
-						source_line: 28,
+						source_line: 8,
 						type_signature: 'ThemerJson',
 						properties: [
 							{
@@ -5546,16 +5495,58 @@ export const library_json: LibraryJson = {
 						],
 					},
 					{
+						name: 'ThemerOptions',
+						kind: 'type',
+						source_line: 13,
+						type_signature: 'Partial<ThemerJson>',
+					},
+					{
+						name: 'Themer',
+						kind: 'class',
+						source_line: 15,
+						members: [
+							{
+								name: 'theme',
+								kind: 'variable',
+								type_signature: 'Theme',
+							},
+							{
+								name: 'color_scheme',
+								kind: 'variable',
+								type_signature: 'ColorScheme',
+							},
+							{
+								name: 'constructor',
+								kind: 'constructor',
+								type_signature: '(options?: Partial<ThemerJson> | undefined): Themer',
+								parameters: [
+									{
+										name: 'options',
+										type: 'Partial<ThemerJson> | undefined',
+										optional: true,
+									},
+								],
+							},
+							{
+								name: 'toJSON',
+								kind: 'function',
+								type_signature: '(): ThemerJson',
+								return_type: 'ThemerJson',
+								parameters: [],
+							},
+						],
+					},
+					{
 						name: 'themer_context',
 						kind: 'variable',
-						source_line: 33,
+						source_line: 36,
 						type_signature:
 							'{ get: (error_message?: string | undefined) => Themer; get_maybe: () => Themer | undefined; set: (value: Themer) => Themer; }',
 					},
 					{
 						name: 'sync_color_scheme',
 						kind: 'function',
-						source_line: 35,
+						source_line: 38,
 						type_signature: '(color_scheme: ColorScheme | null): void',
 						return_type: 'void',
 						parameters: [
@@ -5568,19 +5559,19 @@ export const library_json: LibraryJson = {
 					{
 						name: 'COLOR_SCHEME_STORAGE_KEY',
 						kind: 'variable',
-						source_line: 44,
+						source_line: 47,
 						type_signature: '"fuz:color-scheme"',
 					},
 					{
 						name: 'THEME_STORAGE_KEY',
 						kind: 'variable',
-						source_line: 45,
+						source_line: 48,
 						type_signature: '"fuz:theme"',
 					},
 					{
 						name: 'save_color_scheme',
 						kind: 'function',
-						source_line: 47,
+						source_line: 50,
 						type_signature: '(color_scheme: ColorScheme | null, key?: string): void',
 						return_type: 'void',
 						parameters: [
@@ -5598,7 +5589,7 @@ export const library_json: LibraryJson = {
 					{
 						name: 'load_color_scheme',
 						kind: 'function',
-						source_line: 54,
+						source_line: 57,
 						type_signature: '(fallback?: ColorScheme, key?: string): ColorScheme',
 						return_type: 'ColorScheme',
 						parameters: [
@@ -5617,7 +5608,7 @@ export const library_json: LibraryJson = {
 					{
 						name: 'save_theme',
 						kind: 'function',
-						source_line: 59,
+						source_line: 62,
 						type_signature: '(theme: Theme | null, key?: string): void',
 						return_type: 'void',
 						parameters: [
@@ -5635,7 +5626,7 @@ export const library_json: LibraryJson = {
 					{
 						name: 'load_theme',
 						kind: 'function',
-						source_line: 63,
+						source_line: 66,
 						type_signature: '(fallback?: Theme, key?: string): Theme',
 						return_type: 'Theme',
 						parameters: [
