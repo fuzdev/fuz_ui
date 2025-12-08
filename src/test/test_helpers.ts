@@ -12,9 +12,9 @@ import {join} from 'node:path';
  * Mount a Svelte component for testing.
  * Creates a container div, appends it to document.body, and mounts the component.
  */
-export const mount_component = <Props extends Record<string, any>>(
-	Component: Component<Props>,
-	props: Props,
+export const mount_component = <TProps extends Record<string, any>>(
+	Component: Component<TProps>,
+	props: TProps,
 ): {instance: any; container: HTMLElement} => {
 	const container = document.createElement('div');
 	document.body.appendChild(container);
