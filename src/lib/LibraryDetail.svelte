@@ -208,6 +208,7 @@
 		align-items: flex-start;
 		width: 100%;
 		max-width: var(--max_width, var(--distance_md));
+		overflow-x: auto;
 	}
 
 	.info {

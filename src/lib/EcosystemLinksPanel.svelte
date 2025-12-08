@@ -17,6 +17,10 @@
 	{:else}
 		<h2 class="mt_0 mb_lg">Links</h2>
 	{/if}
-	<EcosystemLinks />
-	<div class="box row"><ProjectLinks /></div>
+	<section>
+		<EcosystemLinks />
+	</section>
+	<section>
+		<ProjectLinks />
+	</section>
 </section>
