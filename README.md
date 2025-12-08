@@ -19,7 +19,7 @@ Feel free to take the ideas and code for your own purposes.
 
 The Svelte components and helpers:
 
-- builds on my CSS framework [Fuz CSS](https://github.com/fuzdev/fuz_css)
+- builds on [Fuz CSS](https://github.com/fuzdev/fuz_css)
 - plain CSS and minimal abstraction
 - near-zero dependencies except for Svelte, SvelteKit, Fuz CSS,
   and my utility library [`@fuzdev/fuz_util`](https://github.com/fuzdev/fuz_util)

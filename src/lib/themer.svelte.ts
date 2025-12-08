@@ -5,11 +5,20 @@ import {BROWSER} from 'esm-env';
 import {create_context} from './context_helpers.js';
 import {load_from_storage, save_to_storage} from './storage.js';
 
+export interface ThemerJson {
+	theme: Theme;
+	color_scheme: ColorScheme;
+}
+
+export type ThemerOptions = Partial<ThemerJson>;
+
 export class Themer {
 	theme: Theme = $state()!;
 	color_scheme: ColorScheme = $state()!;
 
-	constructor(theme: Theme = default_themes[0]!, color_scheme: ColorScheme = 'auto') {
+	constructor(options?: ThemerOptions) {
+		const theme = options?.theme ?? default_themes[0]!;
+		const color_scheme = options?.color_scheme ?? 'auto';
 		if (parse_color_scheme(color_scheme) === null) {
 			throw Error('unknown color scheme: ' + color_scheme);
 		}
@@ -24,12 +33,6 @@ export class Themer {
 		};
 	}
 }
-
-export interface ThemerJson {
-	theme: Theme;
-	color_scheme: ColorScheme;
-}
-
 export const themer_context = create_context<Themer>();
 
 export const sync_color_scheme = (color_scheme: ColorScheme | null): void => {

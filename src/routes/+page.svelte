@@ -54,16 +54,14 @@
 				<div class="width_upto_sm panel p_lg shadow_inset_xs bg">
 					<p>
 						Fuz UI is a Svelte UI library with components and helpers for making modern websites. It
-						builds on my CSS framework <a href="https://css.fuz.dev/">Fuz CSS</a>, which is based on
-						CSS custom properties, and Fuz continues those patterns. It's in early alpha and will
-						have many breaking changes.
+						builds on <a href="https://css.fuz.dev/">Fuz CSS</a>, which is based on CSS custom
+						properties, and Fuz UI continues those patterns. It's in early alpha and will have many
+						breaking changes.
 					</p>
 					<p>
-						Fuz UI is being made to support <a href="https://www.zzz.software/">Zzz</a> and
-						<a href="https://www.ryanatkn.com/table">my other projects</a>
-						that focus on end-users. Fuz emphasizes capability and efficiency and tries to be simple
-						for those goals. Compared to most UI libraries, Fuz has fewer features and more opinions,
-						but the eventual goal is to be fully-featured with high flexibility.
+						Compared to most UI libraries, Fuz UI has fewer features and more opinions, but the
+						eventual goal is to be fully-featured with high flexibility. Fuz emphasizes capability
+						and efficiency and tries to be simple for those goals.
 					</p>
 					<p>
 						<!-- eslint-disable-next-line svelte/no-navigation-without-resolve -->

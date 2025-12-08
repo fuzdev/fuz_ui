@@ -12,9 +12,9 @@
 <TomeContent {tome}>
 	<section>
 		<p>
-			Fuz bases its theme support on my CSS framework <a href="https://css.fuz.dev/">Fuz CSS</a>,
-			which is based on <MdnLink path="Web/CSS/--*">CSS custom properties</MdnLink>. For usage docs
-			see <TomeLink name="Themed" />.
+			Fuz bases its theme support on <a href="https://css.fuz.dev/">Fuz CSS</a>, which is based on <MdnLink
+				path="Web/CSS/--*">CSS custom properties</MdnLink
+			>. For usage docs see <TomeLink name="Themed" />.
 		</p>
 	</section>
 </TomeContent>
