@@ -65,7 +65,7 @@ export const logo_fuz = {
 
 export const logo_fuz_ui = {
 	label: 'a friendly red spider facing you',
-	fill: '#d73737',
+	fill: '#d93636',
 	paths: logo_fuz.paths,
 } satisfies SvgData;
 
