@@ -12,7 +12,7 @@
 		children?: Snippet;
 	} = $props();
 
-	// TODO probably upstream this to belt
+	// TODO probably upstream this to fuz_util
 	const parse_hue = (v: any): Hue | null => {
 		const t = typeof v;
 		if (t === 'number') return v;

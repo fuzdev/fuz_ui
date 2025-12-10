@@ -11,7 +11,7 @@ resource-efficient websites.
 - Svelte 5 - component framework
 - SvelteKit - application framework
 - Fuz CSS (@fuzdev/fuz_css) - CSS framework foundation
-- Belt (@fuzdev/fuz_util) - utility library
+- fuz_util (@fuzdev/fuz_util) - utility library
 - Gro (@ryanatkn/gro) - build system and CLI
 
 ## Architecture
@@ -81,7 +81,7 @@ Helper file prefixes (by domain):
 - `module_*` - module path and detection helpers
 - `package_gen_*` - Gro-specific package generation helpers
 
-This naming is consistent across Belt, Fuz CSS, and Gro for a unified developer
+This naming is consistent across fuz_util, Fuz CSS, and Gro for a unified developer
 experience.
 
 Duplicate identifier names across modules fail fast during `gro gen` with clear
