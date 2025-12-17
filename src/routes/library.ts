@@ -6286,6 +6286,44 @@ export const library_json: LibraryJson = {
 				dependencies: ['DeclarationLink.svelte', 'library.svelte.ts'],
 				dependents: ['DeclarationDetail.svelte'],
 			},
+			{
+				path: 'vite_plugin_well_known.ts',
+				declarations: [
+					{
+						name: 'VitePluginWellKnownOptions',
+						kind: 'type',
+						source_line: 6,
+						type_signature: 'VitePluginWellKnownOptions',
+						properties: [
+							{
+								name: 'library_path',
+								kind: 'variable',
+								type_signature: 'string',
+								doc_comment: 'Path to the library.ts file (relative to vite.config.ts).',
+							},
+						],
+					},
+					{
+						name: 'vite_plugin_well_known',
+						kind: 'function',
+						doc_comment:
+							'Vite plugin that publishes `package.json` and `source.json` to `.well-known/`.\n\nRequires a generated library.ts file (created by `library_gen` from `gro gen`).\nThe plugin imports this file and publishes its metadata to `.well-known/` for\nboth dev and production builds.',
+						examples: [
+							"```ts\n// vite.config.ts\nimport {sveltekit} from '@sveltejs/kit/vite';\nimport {vite_plugin_well_known} from '@fuzdev/fuz_ui/vite_plugin_well_known.js';\n\nexport default {\n  plugins: [sveltekit(), vite_plugin_well_known()],\n};\n```",
+						],
+						source_line: 37,
+						type_signature: '(options?: VitePluginWellKnownOptions): Plugin<any>',
+						return_type: 'Plugin<any>',
+						parameters: [
+							{
+								name: 'options',
+								type: 'VitePluginWellKnownOptions',
+								default_value: '{}',
+							},
+						],
+					},
+				],
+			},
 		],
 	},
 	name: '@fuzdev/fuz_ui',
