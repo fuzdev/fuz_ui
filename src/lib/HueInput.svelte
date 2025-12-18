@@ -1,14 +1,14 @@
 <script lang="ts">
 	import type {Hue} from '@fuzdev/fuz_util/colors.js';
 	import type {Snippet} from 'svelte';
+	import type {SvelteHTMLElements} from 'svelte/elements';
 
 	let {
 		value = $bindable(180),
-		oninput,
 		children,
-	}: {
+		...rest
+	}: SvelteHTMLElements['div'] & {
 		value?: Hue;
-		oninput?: (hue: Hue) => void;
 		children?: Snippet;
 	} = $props();
 
@@ -24,7 +24,6 @@
 
 	const update_hue = (v: Hue) => {
 		value = v;
-		oninput?.(value);
 	};
 
 	const on_input_event = (e: Event & {currentTarget: EventTarget & HTMLInputElement}) => {
@@ -44,7 +43,7 @@
 </script>
 
 <!-- TODO consider making this a text input or otherwise editable directly -->
-<div class="hue_input" style:--hue={value}>
+<div {...rest} class="hue_input {rest.class}" style:--hue={value}>
 	<label>
 		{#if children}<div class="title">{@render children()}</div>{/if}
 		<div class="preview">

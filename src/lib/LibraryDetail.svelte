@@ -100,7 +100,7 @@
 											src={library.logo_url}
 											label={library.logo_alt}
 											size="16px"
-											attrs={{class: 'mr_xs'}}
+											class="mr_xs"
 										/>
 									{/if}
 									{format_url(library.homepage_url)}

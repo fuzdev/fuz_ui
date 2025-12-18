@@ -2,6 +2,7 @@
 	import {swallow} from '@fuzdev/fuz_util/dom.js';
 	import type {Theme} from '@fuzdev/fuz_css/theme.js';
 	import {default_themes} from '@fuzdev/fuz_css/themes.js';
+	import type {SvelteHTMLElements} from 'svelte/elements';
 
 	import {themer_context} from './themer.svelte.js';
 
@@ -14,7 +15,8 @@
 		},
 		onselect,
 		onedit,
-	}: {
+		...rest
+	}: SvelteHTMLElements['menu'] & {
 		selected_theme?: {theme: Theme};
 		themes?: Array<Theme>;
 		enable_editing?: boolean;
@@ -24,7 +26,7 @@
 	} = $props();
 </script>
 
-<menu class="theme_input unstyled">
+<menu {...rest} class="theme_input unstyled {rest.class}">
 	{#each themes as theme (theme.name)}
 		<!-- TODO @many proper equality check, won't work when we allow editing, need an id or unique names and a deep equality check -->
 		{@const selected = theme.name === selected_theme.theme.name}

@@ -1,23 +1,21 @@
 <script lang="ts">
 	import {swallow} from '@fuzdev/fuz_util/dom.js';
 	import {color_schemes, type ColorScheme} from '@fuzdev/fuz_css/theme.js';
+	import type {SvelteHTMLElements} from 'svelte/elements';
 
 	import {themer_context} from './themer.svelte.js';
 
 	const {
 		value = themer_context.get(),
-		onchange = (color_scheme) => {
-			value.color_scheme = color_scheme; // won't work with POJOs but users could provide their own onchange in that case
-		},
-	}: {
+		...rest
+	}: SvelteHTMLElements['menu'] & {
 		value?: {color_scheme: ColorScheme};
-		onchange?: (color_scheme: ColorScheme) => void;
 	} = $props();
 </script>
 
 <!-- TODO maybe support menubar aria
 https://developer.mozilla.org/en-US/docs/Web/Accessibility/ARIA/Roles/menubar_role -->
-<menu class="color_scheme_control unstyled">
+<menu {...rest} class="color_scheme_control unstyled {rest.class}">
 	{#each color_schemes as color_scheme (color_scheme)}
 		{@const selected = color_scheme === value.color_scheme}
 		<button
@@ -31,7 +29,7 @@ https://developer.mozilla.org/en-US/docs/Web/Accessibility/ARIA/Roles/menubar_ro
 			aria-checked={selected}
 			onclick={(e) => {
 				swallow(e);
-				onchange(color_scheme);
+				value.color_scheme = color_scheme;
 			}}
 		>
 			<div class="content">{color_scheme}</div>

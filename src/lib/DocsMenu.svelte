@@ -2,6 +2,7 @@
 	import {page} from '$app/state';
 	import {slide} from 'svelte/transition';
 	import type {Snippet} from 'svelte';
+	import type {SvelteHTMLElements} from 'svelte/elements';
 
 	import DocsList from './DocsList.svelte';
 	import {to_tome_pathname, type Tome} from './tome.js';
@@ -11,7 +12,8 @@
 		tomes,
 		children,
 		expand_width = false,
-	}: {
+		...rest
+	}: SvelteHTMLElements['div'] & {
 		tomes: Array<Tome>;
 		children?: Snippet<[category: string]>;
 		expand_width?: boolean;
@@ -27,7 +29,7 @@
 
 <!-- eslint-disable svelte/no-navigation-without-resolve -->
 
-<DocsList {expand_width} margin={false} class="docs_menu">
+<DocsList {...rest} {expand_width} margin={false} class="docs_menu">
 	<ul class="unstyled">
 		{#each Object.entries(tomes_by_category) as [category, tomes] (category)}
 			<li class="category">

@@ -2,6 +2,7 @@
 	import {is_iframed} from '@fuzdev/fuz_util/dom.js';
 	import type {Snippet} from 'svelte';
 	import {scrollY} from 'svelte/reactivity/window';
+	import type {SvelteHTMLElements} from 'svelte/elements';
 
 	import type {Library} from './library.svelte.js';
 	import Breadcrumb from './Breadcrumb.svelte';
@@ -10,7 +11,8 @@
 		library,
 		breadcrumb_children,
 		children,
-	}: {
+		...rest
+	}: SvelteHTMLElements['div'] & {
 		library: Library;
 		breadcrumb_children?: Snippet<[is_primary_nav: boolean]>;
 		children?: Snippet;
@@ -23,7 +25,7 @@
 </script>
 
 {#if enabled}
-	<div class="docs_primary_nav" class:scrolled>
+	<div {...rest} class="docs_primary_nav {rest.class}" class:scrolled>
 		<div class="background" aria-hidden="true"></div>
 		<div class="content">
 			<nav aria-label="Primary nav">

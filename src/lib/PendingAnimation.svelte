@@ -7,7 +7,6 @@
 		inline,
 		running = true,
 		item_attrs,
-		class: class_prop,
 		children,
 		...rest
 	}: OmitStrict<SvelteHTMLElements['span'], 'children'> & {
@@ -22,7 +21,7 @@
 
 <span
 	{...rest}
-	class="pending_animation {class_prop}"
+	class="pending_animation {rest.class}"
 	class:running
 	class:display_flex={!inline}
 	class:display_inline_flex={inline}

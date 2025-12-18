@@ -7,7 +7,6 @@
 		onclipboardtext,
 		onerror,
 		children,
-		class: class_prop,
 		...rest
 	}: SvelteHTMLElements['button'] & {
 		onclipboardtext: (text: string) => void;
@@ -21,7 +20,7 @@
 	type="button"
 	title="paste from clipboard"
 	{...rest}
-	class="paste_from_clipboard {class_prop}"
+	class="paste_from_clipboard {rest.class}"
 	onclick={async () => {
 		try {
 			const text = await navigator.clipboard.readText();

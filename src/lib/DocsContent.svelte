@@ -1,5 +1,6 @@
 <script lang="ts">
 	import type {Snippet} from 'svelte';
+	import type {SvelteHTMLElements} from 'svelte/elements';
 
 	import type {Library} from './library.svelte.js';
 	import type {Tome} from './tome.js';
@@ -11,7 +12,8 @@
 		repo_name,
 		content,
 		header,
-	}: {
+		...rest
+	}: SvelteHTMLElements['div'] & {
 		tomes: Array<Tome>;
 		library: Library;
 		repo_name?: Snippet<[repo_name: string]>;
@@ -20,7 +22,7 @@
 	} = $props();
 </script>
 
-<div class="width_upto_md">
+<div {...rest} class="width_upto_md {rest.class}">
 	{#if header}
 		{@render header()}
 	{:else}
