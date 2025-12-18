@@ -6,6 +6,7 @@
 	import TomeContent from '$lib/TomeContent.svelte';
 	import TomeSection from '$lib/TomeSection.svelte';
 	import TomeSectionHeader from '$lib/TomeSectionHeader.svelte';
+	import DeclarationLink from '$lib/DeclarationLink.svelte';
 
 	const LIBRARY_ITEM_NAME = 'vite_plugin_library_well_known';
 	const tome = get_tome_by_name(LIBRARY_ITEM_NAME);
@@ -17,12 +18,15 @@
 <TomeContent {tome}>
 	<section>
 		<p>
-			A Vite plugin that publishes <code>package.json</code> and <code>source.json</code>
-			to <code>.well-known/</code> in your build output.
+			<DeclarationLink name="vite_plugin_library_well_known" /> publishes metadata to
+			<code>.well-known/</code>
+			in your build output, currently only <a href={package_json_url}><code>package.json</code></a>
+			and
+			<a href={source_json_url}><code>source.json</code></a>.
 		</p>
 		<p>
-			Requires a generated <code>library.ts</code> file (created by
-			<code>library_gen</code> from <code>gro gen</code>).
+			Requires a generated <code>library.ts</code> file, as created by
+			<DeclarationLink name="library_gen" /> via <code>gro gen</code>.
 		</p>
 	</section>
 
@@ -87,15 +91,18 @@ export default defineConfig({
 		</TomeSectionHeader>
 		<p>
 			Writing to <code>.well-known/package.json</code> and <code>.well-known/source.json</code>
-			extends <a href="https://en.wikipedia.org/wiki/Well-known_URI">Well-known URIs</a> for JS
-			packages to provide conventional metadata for deployed websites. A popular example is how
-			Mastodon uses WebFinger, which uses <code>.well-known/</code> for discovery.
+			extends <a href="https://en.wikipedia.org/wiki/Well-known_URI">Well-known URIs</a> (<a
+				href="https://www.rfc-editor.org/rfc/rfc8615">RFC 8615</a
+			>) for JS packages to provide conventional metadata for deployed websites. A popular example
+			is how Mastodon uses WebFinger, which uses <code>.well-known/</code> for user identity discovery.
 		</p>
 		<p>
 			SvelteKit outputs static files relative to the configured <code>base</code> path, so the
 			<code>.well-known</code> directory may not be in the root <code>/</code>. This enables
 			websites to provide metadata even when hosted in a namespaced path like
-			<code>username.github.io/projectname/.well-known</code>.
+			<code>username.github.io/projectname/.well-known</code>. This breaks from the RFC but
+			hopefully not in the bad-citizen kind of way; the alternative would be to ignore the standard
+			and do something bespoke, which seems worse.
 		</p>
 		<p>Why publish this metadata to the web instead of relying on the git repo?</p>
 		<ul>

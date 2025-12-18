@@ -3523,8 +3523,8 @@ export const library_json: LibraryJson = {
 						name: 'library_gen',
 						kind: 'function',
 						doc_comment:
-							"Creates a Gen object for generating library metadata with full TypeScript analysis.\n\nUsage in a `.gen.ts` file:\n```ts\nimport {library_gen} from '@fuzdev/fuz_ui/library_gen.js';\nexport const gen = library_gen();\n```",
-						source_line: 49,
+							"Creates a Gen object for generating library metadata with full TypeScript analysis.\n\nUsage in a `.gen.ts` file:\n\n```ts\nimport {library_gen} from '@fuzdev/fuz_ui/library_gen.js';\n\nexport const gen = library_gen();\n```",
+						source_line: 51,
 						type_signature: '(options?: LibraryGenOptions | undefined): Gen',
 						return_type: 'Gen',
 						parameters: [
@@ -6261,11 +6261,11 @@ export const library_json: LibraryJson = {
 						name: 'vite_plugin_library_well_known',
 						kind: 'function',
 						doc_comment:
-							'Vite plugin that publishes `package.json` and `source.json` to `.well-known/`.\n\nRequires a generated library.ts file (created by `library_gen` from `gro gen`).\nThe plugin imports this file and publishes its metadata to `.well-known/` for\nboth dev and production builds.',
+							"Vite plugin that publishes `package.json` and `source.json` to `.well-known/`.\n\nRequires a generated library.ts file (created by `library_gen` from `gro gen`).\nThe plugin imports this file and publishes its metadata to `.well-known/` for\nboth dev and production builds.\n\nNote: This plugin respects SvelteKit's `base` path configuration, so `.well-known/`\nwill be served at `{base}.well-known/` (e.g., `/my-app/.well-known/`). This deviates\nfrom RFC 8615 which specifies `.well-known` should be at the domain root. This tradeoff\nallows the plugin to work correctly when apps are deployed to non-root paths.\n\nNote: CORS headers are only set for the dev server. For production, configure\nCORS at the server level (nginx, Caddy, etc.) if cross-origin access is needed.",
 						examples: [
 							"```ts\n// vite.config.ts\nimport {defineConfig} from 'vite';\nimport {sveltekit} from '@sveltejs/kit/vite';\nimport {vite_plugin_library_well_known} from '@fuzdev/fuz_ui/vite_plugin_library_well_known.js';\n\nexport default defineConfig({\n  plugins: [sveltekit(), vite_plugin_library_well_known()],\n});\n```",
 						],
-						source_line: 46,
+						source_line: 54,
 						type_signature: '(options?: VitePluginLibraryWellKnownOptions): Plugin<any>',
 						return_type: 'Plugin<any>',
 						parameters: [

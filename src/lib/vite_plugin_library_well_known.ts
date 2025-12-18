@@ -31,6 +31,14 @@ const respond_json = (res: ServerResponse, body: string): void => {
  * The plugin imports this file and publishes its metadata to `.well-known/` for
  * both dev and production builds.
  *
+ * Note: This plugin respects SvelteKit's `base` path configuration, so `.well-known/`
+ * will be served at `{base}.well-known/` (e.g., `/my-app/.well-known/`). This deviates
+ * from RFC 8615 which specifies `.well-known` should be at the domain root. This tradeoff
+ * allows the plugin to work correctly when apps are deployed to non-root paths.
+ *
+ * Note: CORS headers are only set for the dev server. For production, configure
+ * CORS at the server level (nginx, Caddy, etc.) if cross-origin access is needed.
+ *
  * @example
  * ```ts
  * // vite.config.ts
@@ -53,16 +61,18 @@ export const vite_plugin_library_well_known = (
 		source_json: null,
 	};
 
+	// Set by configResolved
+	let root: string;
+	let base: string; // e.g., '/' or '/my-app/'
+
 	// Promise that resolves when library is loaded, used by middleware to avoid race condition
 	let ready_promise: Promise<void> | null = null;
 
 	const load_library = async (): Promise<void> => {
 		let library_json: LibraryJson | undefined;
 
-		// Resolve path relative to project root (cwd), not plugin location
-		const resolved_path = isAbsolute(library_path)
-			? library_path
-			: join(process.cwd(), library_path);
+		// Resolve path relative to project root
+		const resolved_path = isAbsolute(library_path) ? library_path : join(root, library_path);
 
 		// Convert to file:// URL for dynamic import
 		const file_url = pathToFileURL(resolved_path).href;
@@ -93,6 +103,11 @@ export const vite_plugin_library_well_known = (
 	return {
 		name: 'vite_plugin_library_well_known',
 
+		configResolved(config) {
+			root = config.root;
+			base = config.base; // e.g., '/' or '/my-app/'
+		},
+
 		async buildStart() {
 			ready_promise = load_library();
 			await ready_promise;
@@ -100,9 +115,16 @@ export const vite_plugin_library_well_known = (
 
 		configureServer(server) {
 			// TODO: add HMR support to reload library.ts when it changes
+			const well_known_prefix = `${base}.well-known/`;
+
 			server.middlewares.use(async (req, res, next) => {
-				const url = req.url;
-				if (!url?.startsWith('/.well-known/')) {
+				if (!req.url) {
+					next();
+					return;
+				}
+
+				const {pathname} = new URL(req.url, 'http://localhost');
+				if (!pathname.startsWith(well_known_prefix)) {
 					next();
 					return;
 				}
@@ -117,10 +139,7 @@ export const vite_plugin_library_well_known = (
 					return;
 				}
 
-				// Strip query string if present
-				const query_index = url.indexOf('?');
-				const url_path = query_index === -1 ? url : url.slice(0, query_index);
-				const path = url_path.slice('/.well-known/'.length);
+				const path = pathname.slice(well_known_prefix.length);
 
 				if (path === 'package.json' && content.package_json) {
 					respond_json(res, content.package_json);
