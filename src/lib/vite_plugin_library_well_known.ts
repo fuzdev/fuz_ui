@@ -1,13 +1,15 @@
 import type {Plugin} from 'vite';
 import type {ServerResponse} from 'node:http';
 import {isAbsolute, join} from 'node:path';
-import {pathToFileURL} from 'node:url';
+import {readFile} from 'node:fs/promises';
 import type {LibraryJson} from '@fuzdev/fuz_util/library_json.js';
+import {SourceJson} from '@fuzdev/fuz_util/source_json.js';
+import {PackageJson} from '@fuzdev/fuz_util/package_json.js';
 
 export interface VitePluginLibraryWellKnownOptions {
 	/**
-	 * Path to the library.ts file (relative to vite.config.ts).
-	 * @default './src/routes/library.ts'
+	 * Path to the library.json file (relative to vite.config.ts).
+	 * @default './src/routes/library.json'
 	 */
 	library_path?: string;
 }
@@ -27,8 +29,8 @@ const respond_json = (res: ServerResponse, body: string): void => {
 /**
  * Vite plugin that publishes `package.json` and `source.json` to `.well-known/`.
  *
- * Requires a generated library.ts file (created by `library_gen` from `gro gen`).
- * The plugin imports this file and publishes its metadata to `.well-known/` for
+ * Requires a generated library.json file (created by `library_gen` from `gro gen`).
+ * The plugin reads this JSON file and publishes its metadata to `.well-known/` for
  * both dev and production builds.
  *
  * Note: This plugin respects SvelteKit's `base` path configuration, so `.well-known/`
@@ -54,7 +56,7 @@ const respond_json = (res: ServerResponse, body: string): void => {
 export const vite_plugin_library_well_known = (
 	options: VitePluginLibraryWellKnownOptions = {},
 ): Plugin => {
-	const {library_path = './src/routes/library.ts'} = options;
+	const {library_path = './src/routes/library.json'} = options;
 
 	const content: WellKnownContent = {
 		package_json: null,
@@ -69,32 +71,48 @@ export const vite_plugin_library_well_known = (
 	let ready_promise: Promise<void> | null = null;
 
 	const load_library = async (): Promise<void> => {
-		let library_json: LibraryJson | undefined;
-
 		// Resolve path relative to project root
 		const resolved_path = isAbsolute(library_path) ? library_path : join(root, library_path);
 
-		// Convert to file:// URL for dynamic import
-		const file_url = pathToFileURL(resolved_path).href;
-
+		let json_content: string;
 		try {
-			const module = await import(file_url);
-			library_json = module.library_json;
+			json_content = await readFile(resolved_path, 'utf-8');
 		} catch (err) {
 			throw new Error(
-				`vite_plugin_library_well_known: failed to import library_json from "${library_path}"\n` +
+				`vite_plugin_library_well_known: failed to read library.json from "${library_path}"\n` +
 					`Resolved to: ${resolved_path}\n` +
 					`Make sure you've run \`gro gen\` to generate the library metadata.\n` +
 					`Error: ${err}`,
 			);
 		}
 
-		if (!library_json) {
+		let raw: unknown;
+		try {
+			raw = JSON.parse(json_content);
+		} catch (err) {
 			throw new Error(
-				`vite_plugin_library_well_known: library_json is undefined in "${library_path}"\n` +
-					`The file must export a \`library_json\` named export.`,
+				`vite_plugin_library_well_known: failed to parse library.json from "${library_path}"\n` +
+					`Error: ${err}`,
 			);
 		}
+
+		// Validate with zod schemas to ensure proper types
+		const raw_obj = raw as {package_json?: unknown; source_json?: unknown};
+		const package_json_result = PackageJson.safeParse(raw_obj.package_json);
+		if (!package_json_result.success) {
+			throw new Error(
+				`vite_plugin_library_well_known: invalid package_json in "${library_path}"\n` +
+					`Error: ${package_json_result.error.message}`,
+			);
+		}
+		const source_json_result = SourceJson.safeParse(raw_obj.source_json);
+		if (!source_json_result.success) {
+			throw new Error(
+				`vite_plugin_library_well_known: invalid source_json in "${library_path}"\n` +
+					`Error: ${source_json_result.error.message}`,
+			);
+		}
+		const library_json: LibraryJson = raw as LibraryJson;
 
 		content.package_json = JSON.stringify(library_json.package_json, null, 2) + '\n';
 		content.source_json = JSON.stringify(library_json.source_json, null, 2) + '\n';
@@ -114,7 +132,7 @@ export const vite_plugin_library_well_known = (
 		},
 
 		configureServer(server) {
-			// TODO: add HMR support to reload library.ts when it changes
+			// TODO: add HMR support to reload library.json when it changes
 			const well_known_prefix = `${base}.well-known/`;
 
 			server.middlewares.use(async (req, res, next) => {

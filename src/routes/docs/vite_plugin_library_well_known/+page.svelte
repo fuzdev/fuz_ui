@@ -25,14 +25,14 @@
 			<a href={source_json_url}><code>source.json</code></a>.
 		</p>
 		<p>
-			Requires a generated <code>library.ts</code> file, as created by
+			Requires a generated <code>library.json</code> file, as created by
 			<DeclarationLink name="library_gen" /> via <code>gro gen</code>.
 		</p>
 	</section>
 
 	<TomeSection>
 		<TomeSectionHeader text="Setup" />
-		<p>1. Create <code>src/routes/library.gen.ts</code>:</p>
+		<p>1. Create <code>src/routes/library.gen.json.ts</code>:</p>
 		<Code
 			class="mb_lg"
 			content={`import {library_gen} from '@fuzdev/fuz_ui/library_gen.js';
@@ -41,7 +41,7 @@ export const gen = library_gen();`}
 			lang="ts"
 		/>
 		<p>
-			2. Run <code>gro gen</code> to generate <code>src/routes/library.ts</code> (or run the dev server,
+			2. Run <code>gro gen</code> to generate <code>src/routes/library.json</code> (or run the dev server,
 			or build)
 		</p>
 		<p>3. Add plugin to <code>vite.config.ts</code>:</p>
@@ -74,12 +74,12 @@ export default defineConfig({
 	<TomeSection>
 		<TomeSectionHeader text="Options" />
 		<p>
-			By default, the plugin looks for <code>./src/routes/library.ts</code>. Customize with the
+			By default, the plugin looks for <code>./src/routes/library.json</code>. Customize with the
 			<code>library_path</code> option:
 		</p>
 		<Code
 			content={`vite_plugin_library_well_known({
-  library_path: './src/lib/library.ts',
+  library_path: './src/lib/library.json',
 })`}
 			lang="ts"
 		/>

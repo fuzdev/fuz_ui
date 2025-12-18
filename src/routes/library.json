@@ -1,0 +1,6121 @@
+{
+	"package_json": {
+		"name": "@fuzdev/fuz_ui",
+		"version": "0.172.0",
+		"description": "Svelte UI library",
+		"motto": "friendly user zystem",
+		"glyph": "🧶",
+		"logo": "logo.svg",
+		"logo_alt": "a friendly brown spider facing you",
+		"public": true,
+		"license": "MIT",
+		"homepage": "https://ui.fuz.dev/",
+		"author": {
+			"name": "Ryan Atkinson",
+			"email": "mail@ryanatkn.com",
+			"url": "https://www.ryanatkn.com/"
+		},
+		"repository": {
+			"type": "git",
+			"url": "git+https://github.com/fuzdev/fuz_ui.git"
+		},
+		"bugs": "https://github.com/fuzdev/fuz_ui/issues",
+		"funding": "https://www.ryanatkn.com/funding",
+		"scripts": {
+			"start": "gro dev",
+			"dev": "gro dev",
+			"build": "gro build",
+			"check": "gro check",
+			"test": "gro test",
+			"preview": "vite preview",
+			"deploy": "gro deploy"
+		},
+		"type": "module",
+		"engines": {
+			"node": ">=22.15"
+		},
+		"peerDependencies": {
+			"@fuzdev/fuz_code": ">=0.37.0",
+			"@fuzdev/fuz_css": ">=0.40.0",
+			"@fuzdev/fuz_util": ">=0.42.0",
+			"@ryanatkn/gro": ">=0.180.0",
+			"@sveltejs/kit": "^2.47.3",
+			"esm-env": "^1",
+			"svelte": "^5",
+			"svelte2tsx": "^0.7.45",
+			"zod": "^4.1.12"
+		},
+		"peerDependenciesMeta": {
+			"@fuzdev/fuz_code": {
+				"optional": true
+			},
+			"@ryanatkn/gro": {
+				"optional": true
+			},
+			"esm-env": {
+				"optional": true
+			}
+		},
+		"devDependencies": {
+			"@changesets/changelog-git": "^0.2.1",
+			"@fuzdev/fuz_code": "^0.38.0",
+			"@fuzdev/fuz_css": "^0.42.1",
+			"@fuzdev/fuz_util": "^0.45.0",
+			"@ryanatkn/eslint-config": "^0.9.0",
+			"@ryanatkn/gro": "^0.181.0",
+			"@sveltejs/adapter-static": "^3.0.10",
+			"@sveltejs/kit": "^2.49.1",
+			"@sveltejs/package": "^2.5.7",
+			"@sveltejs/vite-plugin-svelte": "^6.2.1",
+			"@types/node": "^24.10.1",
+			"eslint": "^9.39.1",
+			"eslint-plugin-svelte": "^3.13.1",
+			"esm-env": "^1.2.2",
+			"jsdom": "^27.2.0",
+			"prettier": "^3.6.2",
+			"prettier-plugin-svelte": "^3.4.0",
+			"svelte": "^5.45.6",
+			"svelte-check": "^4.3.4",
+			"svelte2tsx": "^0.7.45",
+			"tslib": "^2.8.1",
+			"typescript": "^5.9.3",
+			"typescript-eslint": "^8.48.1",
+			"vitest": "^4.0.15",
+			"zod": "^4.1.13"
+		},
+		"prettier": {
+			"plugins": ["prettier-plugin-svelte"],
+			"useTabs": true,
+			"printWidth": 100,
+			"singleQuote": true,
+			"bracketSpacing": false,
+			"overrides": [
+				{
+					"files": "package.json",
+					"options": {
+						"useTabs": false
+					}
+				}
+			]
+		},
+		"sideEffects": ["**/*.css"],
+		"files": ["dist", "src/lib/**/*.ts", "!src/lib/**/*.test.*", "!dist/**/*.test.*"],
+		"exports": {
+			"./package.json": "./package.json",
+			"./*.js": {
+				"types": "./dist/*.d.ts",
+				"default": "./dist/*.js"
+			},
+			"./*.ts": {
+				"types": "./dist/*.d.ts",
+				"default": "./dist/*.js"
+			},
+			"./*.svelte": {
+				"types": "./dist/*.svelte.d.ts",
+				"svelte": "./dist/*.svelte",
+				"default": "./dist/*.svelte"
+			}
+		}
+	},
+	"source_json": {
+		"name": "@fuzdev/fuz_ui",
+		"version": "0.172.0",
+		"modules": [
+			{
+				"path": "Alert.svelte",
+				"declarations": [
+					{
+						"name": "Alert",
+						"kind": "component",
+						"doc_comment": "",
+						"see_also": ["https://www.w3.org/WAI/ARIA/apg/patterns/alert/"],
+						"props": [
+							{
+								"name": "status",
+								"type": "AlertStatus",
+								"optional": true
+							},
+							{
+								"name": "color",
+								"type": "string",
+								"optional": true
+							},
+							{
+								"name": "onclick",
+								"type": "(() => void) | undefined",
+								"optional": true
+							},
+							{
+								"name": "disabled",
+								"type": "boolean",
+								"optional": true
+							},
+							{
+								"name": "icon",
+								"type": "string | Snippet<[icon: string]> | null | undefined",
+								"optional": true
+							},
+							{
+								"name": "children",
+								"type": "Snippet"
+							}
+						],
+						"source_line": 1
+					}
+				],
+				"dependencies": ["alert.ts"]
+			},
+			{
+				"path": "alert.ts",
+				"declarations": [
+					{
+						"name": "AlertStatus",
+						"kind": "type",
+						"source_line": 3,
+						"type_signature": "AlertStatus"
+					},
+					{
+						"name": "AlertStatusOptions",
+						"kind": "type",
+						"source_line": 5,
+						"type_signature": "AlertStatusOptions",
+						"properties": [
+							{
+								"name": "color",
+								"kind": "variable",
+								"type_signature": "string"
+							},
+							{
+								"name": "icon",
+								"kind": "variable",
+								"type_signature": "string | null"
+							}
+						]
+					},
+					{
+						"name": "alert_status_options",
+						"kind": "variable",
+						"source_line": 10,
+						"type_signature": "Record<AlertStatus, AlertStatusOptions>"
+					}
+				],
+				"dependents": ["Alert.svelte"]
+			},
+			{
+				"path": "api_search.svelte.ts",
+				"declarations": [
+					{
+						"name": "DeclarationSearchState",
+						"kind": "type",
+						"source_line": 4,
+						"type_signature": "DeclarationSearchState",
+						"properties": [
+							{
+								"name": "query",
+								"kind": "variable",
+								"type_signature": "string"
+							},
+							{
+								"name": "all",
+								"kind": "variable",
+								"type_signature": "Array<Declaration>"
+							},
+							{
+								"name": "filtered",
+								"kind": "variable",
+								"type_signature": "Array<Declaration>"
+							}
+						]
+					},
+					{
+						"name": "create_declaration_search",
+						"kind": "function",
+						"doc_comment": "Creates search state for the API index page (all declarations across all modules).",
+						"source_line": 13,
+						"type_signature": "(library: Library): DeclarationSearchState",
+						"return_type": "DeclarationSearchState",
+						"parameters": [
+							{
+								"name": "library",
+								"type": "Library"
+							}
+						]
+					},
+					{
+						"name": "create_module_declaration_search",
+						"kind": "function",
+						"doc_comment": "Creates search state for module-specific declaration lists.",
+						"source_line": 42,
+						"type_signature": "(declarations: Declaration[]): DeclarationSearchState",
+						"return_type": "DeclarationSearchState",
+						"parameters": [
+							{
+								"name": "declarations",
+								"type": "Declaration[]"
+							}
+						]
+					}
+				],
+				"dependents": ["ApiIndex.svelte", "ApiModule.svelte"]
+			},
+			{
+				"path": "ApiDeclarationList.svelte",
+				"declarations": [
+					{
+						"name": "ApiDeclarationList",
+						"kind": "component",
+						"props": [
+							{
+								"name": "declarations",
+								"type": "Array<Declaration>"
+							},
+							{
+								"name": "search_query",
+								"type": "string",
+								"optional": true
+							}
+						],
+						"source_line": 1
+					}
+				],
+				"dependencies": [
+					"DeclarationDetail.svelte",
+					"TomeSection.svelte",
+					"TomeSectionHeader.svelte"
+				],
+				"dependents": ["ApiIndex.svelte", "ApiModule.svelte"]
+			},
+			{
+				"path": "ApiIndex.svelte",
+				"declarations": [
+					{
+						"name": "ApiIndex",
+						"kind": "component",
+						"props": [
+							{
+								"name": "library",
+								"type": "Library",
+								"optional": true,
+								"description": "The library instance to render API docs for.\nDefaults to getting from library_context."
+							},
+							{
+								"name": "tome",
+								"type": "Tome",
+								"optional": true,
+								"description": "The tome for the API docs page.\nDefaults to looking up the 'api' tome."
+							},
+							{
+								"name": "minimal",
+								"type": "boolean",
+								"optional": true,
+								"description": "Whether to show minimal content (just a link to full API docs).\nUsed when the API index is shown on a parent docs page."
+							}
+						],
+						"source_line": 1
+					}
+				],
+				"dependencies": [
+					"ApiDeclarationList.svelte",
+					"DocsSearch.svelte",
+					"TomeContent.svelte",
+					"TomeLink.svelte",
+					"TomeSection.svelte",
+					"TomeSectionHeader.svelte",
+					"api_search.svelte.ts",
+					"library.svelte.ts",
+					"tome.ts"
+				]
+			},
+			{
+				"path": "ApiModule.svelte",
+				"declarations": [
+					{
+						"name": "ApiModule",
+						"kind": "component",
+						"props": [
+							{
+								"name": "module_path",
+								"type": "string | Array<string>",
+								"description": "The module path parameter from the route (e.g., \"lib/Button.svelte\")."
+							},
+							{
+								"name": "library",
+								"type": "Library",
+								"optional": true,
+								"description": "The library instance to render API docs for.\nDefaults to getting from library_context."
+							},
+							{
+								"name": "tome",
+								"type": "Tome",
+								"optional": true,
+								"description": "The tome for the API docs page.\nDefaults to looking up the 'api' tome."
+							}
+						],
+						"source_line": 1
+					}
+				],
+				"dependencies": [
+					"ApiDeclarationList.svelte",
+					"DocsSearch.svelte",
+					"Mdz.svelte",
+					"ModuleLink.svelte",
+					"TomeContent.svelte",
+					"TomeSection.svelte",
+					"TomeSectionHeader.svelte",
+					"api_search.svelte.ts",
+					"library.svelte.ts",
+					"tome.ts"
+				]
+			},
+			{
+				"path": "Breadcrumb.svelte",
+				"declarations": [
+					{
+						"name": "Breadcrumb",
+						"kind": "component",
+						"props": [
+							{
+								"name": "path",
+								"type": "string | undefined",
+								"optional": true,
+								"description": "Prefixed with a slash and relative to the base path."
+							},
+							{
+								"name": "selected_path",
+								"type": "string | null | undefined",
+								"optional": true,
+								"description": "Prefixed with a slash and relative to the base path.\n`null` means none and `undefined` is detected from the current url."
+							},
+							{
+								"name": "base_path",
+								"type": "string",
+								"optional": true,
+								"description": "Sets a custom base path of `path` and `selected_path`.\nDefaults to `base` from `$app/paths`."
+							},
+							{
+								"name": "separator",
+								"type": "Snippet",
+								"optional": true
+							},
+							{
+								"name": "children",
+								"type": "Snippet",
+								"optional": true
+							}
+						],
+						"source_line": 1
+					}
+				],
+				"dependents": ["Docs.svelte", "DocsPrimaryNav.svelte"]
+			},
+			{
+				"path": "Card.svelte",
+				"declarations": [
+					{
+						"name": "Card",
+						"kind": "component",
+						"props": [
+							{
+								"name": "tag",
+								"type": "string | undefined",
+								"optional": true
+							},
+							{
+								"name": "align",
+								"type": "'left' | 'right' | 'above' | 'below'",
+								"optional": true
+							},
+							{
+								"name": "icon",
+								"type": "string | Snippet",
+								"optional": true
+							},
+							{
+								"name": "children",
+								"type": "Snippet"
+							}
+						],
+						"source_line": 1
+					}
+				]
+			},
+			{
+				"path": "ColorSchemeInput.svelte",
+				"declarations": [
+					{
+						"name": "ColorSchemeInput",
+						"kind": "component",
+						"props": [
+							{
+								"name": "value",
+								"type": "{color_scheme: ColorScheme}",
+								"optional": true
+							}
+						],
+						"source_line": 1
+					}
+				],
+				"dependencies": ["themer.svelte.ts"]
+			},
+			{
+				"path": "constants.ts",
+				"declarations": [
+					{
+						"name": "MAIN_HEADER_MARGIN_TOP",
+						"kind": "variable",
+						"source_line": 3,
+						"type_signature": "\"calc(60px + var(--space_lg))\""
+					}
+				]
+			},
+			{
+				"path": "context_helpers.ts",
+				"declarations": [
+					{
+						"name": "create_context",
+						"kind": "function",
+						"doc_comment": "Wraps Svelte's `setContext` and `getContext` for better ergonomics.\nWhen no value is set in the context,\n`get` throws an error and `get_maybe` returns `undefined`.\nIf a `fallback` is provided, the `value` argument to `set` is optional\nand `get_maybe` is omitted from the type.",
+						"source_line": 18,
+						"type_signature": "<T>(fallback: () => T): { get: () => T; set: (value?: T | undefined) => T; }",
+						"return_type": "{ get: () => T; set: (value?: T | undefined) => T; }",
+						"parameters": [
+							{
+								"name": "fallback",
+								"type": "() => T"
+							}
+						],
+						"generic_params": [
+							{
+								"name": "T"
+							}
+						]
+					}
+				],
+				"dependents": [
+					"TomeSection.svelte",
+					"contextmenu_state.svelte.ts",
+					"docs_helpers.svelte.ts",
+					"library.svelte.ts",
+					"mdz_components.ts",
+					"themer.svelte.ts",
+					"tome.ts"
+				]
+			},
+			{
+				"path": "contextmenu_helpers.ts",
+				"declarations": [
+					{
+						"name": "CONTEXTMENU_DEFAULT_OPEN_OFFSET_X",
+						"kind": "variable",
+						"source_line": 6,
+						"type_signature": "-2"
+					},
+					{
+						"name": "CONTEXTMENU_DEFAULT_OPEN_OFFSET_Y",
+						"kind": "variable",
+						"source_line": 7,
+						"type_signature": "-2"
+					},
+					{
+						"name": "CONTEXTMENU_DEFAULT_BYPASS_WINDOW",
+						"kind": "variable",
+						"source_line": 8,
+						"type_signature": "750"
+					},
+					{
+						"name": "CONTEXTMENU_DEFAULT_BYPASS_MOVE_TOLERANCE",
+						"kind": "variable",
+						"source_line": 9,
+						"type_signature": "11"
+					},
+					{
+						"name": "CONTEXTMENU_DEFAULT_LONGPRESS_DURATION",
+						"kind": "variable",
+						"source_line": 10,
+						"type_signature": "633"
+					},
+					{
+						"name": "CONTEXTMENU_DEFAULT_LONGPRESS_MOVE_TOLERANCE",
+						"kind": "variable",
+						"source_line": 11,
+						"type_signature": "21"
+					},
+					{
+						"name": "contextmenu_is_valid_target",
+						"kind": "function",
+						"doc_comment": "Returns true if valid and narrows the type to HTMLElement | SVGElement.",
+						"source_line": 16,
+						"type_signature": "(target: EventTarget | null, shiftKey: boolean): target is HTMLElement | SVGElement",
+						"return_type": "boolean",
+						"parameters": [
+							{
+								"name": "target",
+								"type": "EventTarget | null"
+							},
+							{
+								"name": "shiftKey",
+								"type": "boolean"
+							}
+						]
+					},
+					{
+						"name": "contextmenu_create_keyboard_handlers",
+						"kind": "function",
+						"source_line": 27,
+						"type_signature": "(contextmenu: ContextmenuState): Map<string, () => void>",
+						"return_type": "Map<string, () => void>",
+						"parameters": [
+							{
+								"name": "contextmenu",
+								"type": "ContextmenuState"
+							}
+						]
+					},
+					{
+						"name": "contextmenu_create_keydown_handler",
+						"kind": "function",
+						"source_line": 42,
+						"type_signature": "(keyboard_handlers: Map<string, () => void>): (e: KeyboardEvent) => void",
+						"return_type": "(e: KeyboardEvent) => void",
+						"parameters": [
+							{
+								"name": "keyboard_handlers",
+								"type": "Map<string, () => void>"
+							}
+						]
+					},
+					{
+						"name": "contextmenu_calculate_constrained_x",
+						"kind": "function",
+						"source_line": 53,
+						"type_signature": "(menu_x: number, menu_width: number, layout_width: number): number",
+						"return_type": "number",
+						"parameters": [
+							{
+								"name": "menu_x",
+								"type": "number"
+							},
+							{
+								"name": "menu_width",
+								"type": "number"
+							},
+							{
+								"name": "layout_width",
+								"type": "number"
+							}
+						]
+					},
+					{
+						"name": "contextmenu_calculate_constrained_y",
+						"kind": "function",
+						"source_line": 59,
+						"type_signature": "(menu_y: number, menu_height: number, layout_height: number): number",
+						"return_type": "number",
+						"parameters": [
+							{
+								"name": "menu_y",
+								"type": "number"
+							},
+							{
+								"name": "menu_height",
+								"type": "number"
+							},
+							{
+								"name": "layout_height",
+								"type": "number"
+							}
+						]
+					}
+				],
+				"dependents": ["ContextmenuRoot.svelte", "ContextmenuRootForSafariCompatibility.svelte"]
+			},
+			{
+				"path": "contextmenu_state.svelte.ts",
+				"declarations": [
+					{
+						"name": "ContextmenuParams",
+						"kind": "type",
+						"source_line": 13,
+						"type_signature": "ContextmenuParams"
+					},
+					{
+						"name": "ContextmenuActivateResult",
+						"kind": "type",
+						"source_line": 20,
+						"type_signature": "ContextmenuActivateResult"
+					},
+					{
+						"name": "ItemState",
+						"kind": "type",
+						"source_line": 25,
+						"type_signature": "ItemState"
+					},
+					{
+						"name": "EntryState",
+						"kind": "class",
+						"source_line": 27,
+						"members": [
+							{
+								"name": "is_menu",
+								"kind": "variable",
+								"modifiers": ["readonly"]
+							},
+							{
+								"name": "menu",
+								"kind": "variable",
+								"modifiers": ["readonly"],
+								"type_signature": "SubmenuState | RootMenuState"
+							},
+							{
+								"name": "run",
+								"kind": "variable",
+								"modifiers": ["readonly"],
+								"type_signature": "() => ContextmenuRun"
+							},
+							{
+								"name": "disabled",
+								"kind": "variable",
+								"modifiers": ["readonly"],
+								"type_signature": "() => boolean"
+							},
+							{
+								"name": "selected",
+								"kind": "variable",
+								"type_signature": "boolean"
+							},
+							{
+								"name": "pending",
+								"kind": "variable",
+								"type_signature": "boolean"
+							},
+							{
+								"name": "error_message",
+								"kind": "variable",
+								"type_signature": "string | null"
+							},
+							{
+								"name": "promise",
+								"kind": "variable",
+								"type_signature": "Promise<ContextmenuActivateResult> | null"
+							},
+							{
+								"name": "constructor",
+								"kind": "constructor",
+								"type_signature": "(menu: SubmenuState | RootMenuState, run: () => ContextmenuRun, disabled?: () => boolean): EntryState",
+								"parameters": [
+									{
+										"name": "menu",
+										"type": "SubmenuState | RootMenuState"
+									},
+									{
+										"name": "run",
+										"type": "() => ContextmenuRun"
+									},
+									{
+										"name": "disabled",
+										"type": "() => boolean",
+										"default_value": "() => false"
+									}
+								]
+							}
+						]
+					},
+					{
+						"name": "SubmenuState",
+						"kind": "class",
+						"source_line": 50,
+						"members": [
+							{
+								"name": "is_menu",
+								"kind": "variable",
+								"modifiers": ["readonly"]
+							},
+							{
+								"name": "menu",
+								"kind": "variable",
+								"modifiers": ["readonly"],
+								"type_signature": "SubmenuState | RootMenuState"
+							},
+							{
+								"name": "depth",
+								"kind": "variable",
+								"modifiers": ["readonly"],
+								"type_signature": "number"
+							},
+							{
+								"name": "selected",
+								"kind": "variable",
+								"type_signature": "boolean"
+							},
+							{
+								"name": "items",
+								"kind": "variable",
+								"type_signature": "ReadonlyArray<ItemState>"
+							},
+							{
+								"name": "constructor",
+								"kind": "constructor",
+								"type_signature": "(menu: SubmenuState | RootMenuState, depth: number): SubmenuState",
+								"parameters": [
+									{
+										"name": "menu",
+										"type": "SubmenuState | RootMenuState"
+									},
+									{
+										"name": "depth",
+										"type": "number"
+									}
+								]
+							}
+						]
+					},
+					{
+						"name": "RootMenuState",
+						"kind": "class",
+						"source_line": 64,
+						"members": [
+							{
+								"name": "is_menu",
+								"kind": "variable",
+								"modifiers": ["readonly"]
+							},
+							{
+								"name": "menu",
+								"kind": "variable",
+								"modifiers": ["readonly"]
+							},
+							{
+								"name": "depth",
+								"kind": "variable",
+								"modifiers": ["readonly"]
+							},
+							{
+								"name": "items",
+								"kind": "variable",
+								"type_signature": "ReadonlyArray<ItemState>"
+							}
+						]
+					},
+					{
+						"name": "ContextmenuRun",
+						"kind": "type",
+						"source_line": 72,
+						"type_signature": "ContextmenuRun"
+					},
+					{
+						"name": "ContextmenuStateOptions",
+						"kind": "type",
+						"source_line": 74,
+						"type_signature": "ContextmenuStateOptions",
+						"properties": [
+							{
+								"name": "layout",
+								"kind": "variable",
+								"type_signature": "Dimensions"
+							}
+						]
+					},
+					{
+						"name": "ContextmenuState",
+						"kind": "class",
+						"doc_comment": "Creates a `contextmenu` store.\nSee usage with `ContextmenuRoot.svelte` and `Contextmenu.svelte`.",
+						"see_also": [
+							"https://developer.mozilla.org/en-US/docs/Web/API/Element/contextmenu_event"
+						],
+						"source_line": 84,
+						"members": [
+							{
+								"name": "layout",
+								"kind": "variable",
+								"type_signature": "Dimensions"
+							},
+							{
+								"name": "has_custom_layout",
+								"kind": "variable",
+								"modifiers": ["readonly"],
+								"doc_comment": "If an initial layout is provided, control is deferred externally.\nOtherwise the layout syncs to the page dimensions.",
+								"type_signature": "boolean"
+							},
+							{
+								"name": "opened",
+								"kind": "variable",
+								"type_signature": "boolean"
+							},
+							{
+								"name": "x",
+								"kind": "variable",
+								"type_signature": "number"
+							},
+							{
+								"name": "y",
+								"kind": "variable",
+								"type_signature": "number"
+							},
+							{
+								"name": "params",
+								"kind": "variable",
+								"type_signature": "ReadonlyArray<ContextmenuParams>"
+							},
+							{
+								"name": "error",
+								"kind": "variable",
+								"type_signature": "string | undefined"
+							},
+							{
+								"name": "root_menu",
+								"kind": "variable",
+								"modifiers": ["readonly"],
+								"type_signature": "RootMenuState"
+							},
+							{
+								"name": "selections",
+								"kind": "variable",
+								"type_signature": "ReadonlyArray<ItemState>"
+							},
+							{
+								"name": "can_collapse",
+								"kind": "variable"
+							},
+							{
+								"name": "can_expand",
+								"kind": "variable"
+							},
+							{
+								"name": "can_select_next",
+								"kind": "variable"
+							},
+							{
+								"name": "can_select_previous",
+								"kind": "variable"
+							},
+							{
+								"name": "can_activate",
+								"kind": "variable"
+							},
+							{
+								"name": "constructor",
+								"kind": "constructor",
+								"type_signature": "(options?: ContextmenuStateOptions): ContextmenuState",
+								"parameters": [
+									{
+										"name": "options",
+										"type": "ContextmenuStateOptions",
+										"default_value": "EMPTY_OBJECT"
+									}
+								]
+							},
+							{
+								"name": "open",
+								"kind": "function",
+								"type_signature": "(params: ContextmenuParams[], x: number, y: number): void",
+								"return_type": "void",
+								"parameters": [
+									{
+										"name": "params",
+										"type": "ContextmenuParams[]"
+									},
+									{
+										"name": "x",
+										"type": "number"
+									},
+									{
+										"name": "y",
+										"type": "number"
+									}
+								]
+							},
+							{
+								"name": "close",
+								"kind": "function",
+								"type_signature": "(): void",
+								"return_type": "void",
+								"parameters": []
+							},
+							{
+								"name": "reset_items",
+								"kind": "function",
+								"type_signature": "(items: readonly ItemState[]): void",
+								"return_type": "void",
+								"parameters": [
+									{
+										"name": "items",
+										"type": "readonly ItemState[]"
+									}
+								]
+							},
+							{
+								"name": "activate",
+								"kind": "function",
+								"type_signature": "(item: ItemState): boolean | Promise<ContextmenuActivateResult>",
+								"return_type": "boolean | Promise<ContextmenuActivateResult>",
+								"parameters": [
+									{
+										"name": "item",
+										"type": "ItemState"
+									}
+								]
+							},
+							{
+								"name": "activate_selected",
+								"kind": "function",
+								"type_signature": "(): boolean | void | Promise<ContextmenuActivateResult>",
+								"return_type": "boolean | void | Promise<ContextmenuActivateResult>",
+								"parameters": []
+							},
+							{
+								"name": "select",
+								"kind": "function",
+								"doc_comment": "Activates the selected entry, or if none, selects the first.",
+								"type_signature": "(item: ItemState): void",
+								"return_type": "void",
+								"parameters": [
+									{
+										"name": "item",
+										"type": "ItemState"
+									}
+								]
+							},
+							{
+								"name": "collapse_selected",
+								"kind": "function",
+								"type_signature": "(): void",
+								"return_type": "void",
+								"parameters": []
+							},
+							{
+								"name": "expand_selected",
+								"kind": "function",
+								"type_signature": "(): void",
+								"return_type": "void",
+								"parameters": []
+							},
+							{
+								"name": "select_next",
+								"kind": "function",
+								"type_signature": "(): void",
+								"return_type": "void",
+								"parameters": []
+							},
+							{
+								"name": "select_previous",
+								"kind": "function",
+								"type_signature": "(): void",
+								"return_type": "void",
+								"parameters": []
+							},
+							{
+								"name": "select_first",
+								"kind": "function",
+								"type_signature": "(): void",
+								"return_type": "void",
+								"parameters": []
+							},
+							{
+								"name": "select_last",
+								"kind": "function",
+								"type_signature": "(): void",
+								"return_type": "void",
+								"parameters": []
+							},
+							{
+								"name": "add_entry",
+								"kind": "function",
+								"doc_comment": "Used by `ContextmenuEntry` and custom entry components",
+								"type_signature": "(run: () => ContextmenuRun, disabled?: () => boolean): EntryState",
+								"return_type": "EntryState",
+								"parameters": [
+									{
+										"name": "run",
+										"type": "() => ContextmenuRun"
+									},
+									{
+										"name": "disabled",
+										"type": "() => boolean",
+										"default_value": "() => false"
+									}
+								]
+							},
+							{
+								"name": "add_submenu",
+								"kind": "function",
+								"doc_comment": "",
+								"type_signature": "(): SubmenuState",
+								"return_type": "SubmenuState",
+								"parameters": []
+							}
+						]
+					},
+					{
+						"name": "contextmenu_attachment",
+						"kind": "function",
+						"doc_comment": "Creates an attachment that sets up contextmenu behavior on an element.",
+						"source_line": 349,
+						"type_signature": "<T extends ContextmenuParams, U extends T | Array<T>>(params: U | null | undefined): Attachment<HTMLElement | SVGElement>",
+						"return_type": "Attachment<HTMLElement | SVGElement>",
+						"parameters": [
+							{
+								"name": "params",
+								"type": "U | null | undefined",
+								"description": "Contextmenu parameters or nullish to disable"
+							}
+						]
+					},
+					{
+						"name": "ContextmenuOpenOptions",
+						"kind": "type",
+						"source_line": 373,
+						"type_signature": "ContextmenuOpenOptions",
+						"properties": [
+							{
+								"name": "link_enabled",
+								"kind": "variable",
+								"type_signature": "boolean"
+							},
+							{
+								"name": "text_enabled",
+								"kind": "variable",
+								"type_signature": "boolean"
+							},
+							{
+								"name": "separator_enabled",
+								"kind": "variable",
+								"type_signature": "boolean"
+							},
+							{
+								"name": "vibrate",
+								"kind": "variable",
+								"type_signature": "boolean"
+							}
+						]
+					},
+					{
+						"name": "contextmenu_open",
+						"kind": "function",
+						"doc_comment": "Opens the contextmenu, if appropriate,\nquerying the menu items from the DOM starting at the event target.",
+						"source_line": 390,
+						"type_signature": "(target: HTMLElement | SVGElement, x: number, y: number, contextmenu: ContextmenuState, options?: ContextmenuOpenOptions | undefined): boolean",
+						"return_type": "boolean",
+						"return_description": "a boolean indicating if the menu was opened or not",
+						"parameters": [
+							{
+								"name": "target",
+								"type": "HTMLElement | SVGElement",
+								"description": "the leaf element from which to open the contextmenu"
+							},
+							{
+								"name": "x",
+								"type": "number",
+								"description": "the page X coordinate at which to open the contextmenu, typically the mouse `pageX`"
+							},
+							{
+								"name": "y",
+								"type": "number",
+								"description": "the page Y coordinate at which to open the contextmenu, typically the mouse `pageY`"
+							},
+							{
+								"name": "contextmenu",
+								"type": "ContextmenuState",
+								"description": "the contextmenu store"
+							},
+							{
+								"name": "options",
+								"type": "ContextmenuOpenOptions | undefined",
+								"optional": true,
+								"description": "optional configuration for filtering entries and haptic feedback"
+							}
+						]
+					},
+					{
+						"name": "contextmenu_context",
+						"kind": "variable",
+						"source_line": 477,
+						"type_signature": "{ get: (error_message?: string | undefined) => ContextmenuState; get_maybe: () => ContextmenuState | undefined; set: (value: ContextmenuState) => ContextmenuState; }"
+					},
+					{
+						"name": "contextmenu_submenu_context",
+						"kind": "variable",
+						"source_line": 479,
+						"type_signature": "{ get: (error_message?: string | undefined) => SubmenuState; get_maybe: () => SubmenuState | undefined; set: (value: SubmenuState) => SubmenuState; }"
+					},
+					{
+						"name": "contextmenu_dimensions_context",
+						"kind": "variable",
+						"source_line": 481,
+						"type_signature": "{ get: () => Dimensions; set: (value?: Dimensions | undefined) => Dimensions; }"
+					},
+					{
+						"name": "contextmenu_check_global_root",
+						"kind": "function",
+						"doc_comment": "Registers a contextmenu root and warns if multiple non-scoped roots are detected.\nOnly active in development mode. Automatically handles cleanup on unmount.",
+						"source_line": 492,
+						"type_signature": "(get_scoped: () => boolean): void",
+						"return_type": "void",
+						"parameters": [
+							{
+								"name": "get_scoped",
+								"type": "() => boolean",
+								"description": "Getter function that returns the current scoped value"
+							}
+						]
+					}
+				],
+				"dependencies": ["context_helpers.ts", "dimensions.svelte.ts", "library_helpers.ts"],
+				"dependents": [
+					"Contextmenu.svelte",
+					"ContextmenuEntry.svelte",
+					"ContextmenuLinkEntry.svelte",
+					"ContextmenuRoot.svelte",
+					"ContextmenuRootForSafariCompatibility.svelte",
+					"ContextmenuSubmenu.svelte",
+					"DeclarationLink.svelte",
+					"ModuleLink.svelte"
+				]
+			},
+			{
+				"path": "Contextmenu.svelte",
+				"declarations": [
+					{
+						"name": "Contextmenu",
+						"kind": "component",
+						"source_line": 1
+					}
+				],
+				"dependencies": ["contextmenu_state.svelte.ts"]
+			},
+			{
+				"path": "ContextmenuEntry.svelte",
+				"declarations": [
+					{
+						"name": "ContextmenuEntry",
+						"kind": "component",
+						"props": [
+							{
+								"name": "run",
+								"type": "ContextmenuRun"
+							},
+							{
+								"name": "icon",
+								"type": "string | Snippet",
+								"optional": true
+							},
+							{
+								"name": "children",
+								"type": "Snippet"
+							},
+							{
+								"name": "disabled",
+								"type": "boolean",
+								"optional": true
+							}
+						],
+						"source_line": 1
+					}
+				],
+				"dependencies": ["PendingAnimation.svelte", "contextmenu_state.svelte.ts"],
+				"dependents": ["ContextmenuTextEntry.svelte"]
+			},
+			{
+				"path": "ContextmenuLinkEntry.svelte",
+				"declarations": [
+					{
+						"name": "ContextmenuLinkEntry",
+						"kind": "component",
+						"props": [
+							{
+								"name": "href",
+								"type": "string"
+							},
+							{
+								"name": "icon",
+								"type": "string | Snippet",
+								"optional": true
+							},
+							{
+								"name": "children",
+								"type": "Snippet",
+								"optional": true
+							},
+							{
+								"name": "disabled",
+								"type": "boolean",
+								"optional": true
+							},
+							{
+								"name": "external_rel",
+								"type": "string",
+								"optional": true
+							}
+						],
+						"source_line": 1
+					}
+				],
+				"dependencies": ["contextmenu_state.svelte.ts"],
+				"dependents": ["ContextmenuRoot.svelte", "ContextmenuRootForSafariCompatibility.svelte"]
+			},
+			{
+				"path": "ContextmenuRoot.svelte",
+				"declarations": [
+					{
+						"name": "ContextmenuRoot",
+						"kind": "component",
+						"doc_comment": "Touch event handler for tap-then-longpress bypass detection.\n\nThis allows users to access the native context menu by performing a tap\nfollowed by a longpress/rightclick within a specified time window.\nThe bypass gesture is useful for accessing browser features like text selection\nor the native context menu when the Fuz contextmenu would normally override it.\n\nNote: preventDefault is not called as we're only observing touch patterns,\nnot intercepting them. The actual bypass happens in on_window_contextmenu.",
+						"props": [
+							{
+								"name": "contextmenu",
+								"type": "ContextmenuState",
+								"optional": true,
+								"description": "The `contextmenu` prop is not reactive because that's a rare corner case and\nit's easier to put the `contextmenu` directly in the context\nrather than wrapping with a store or other reactivity.\nIf you need to change the contextmenu prop for some reason, use a `{#key contextmenu}` block:\nhttps://svelte.dev/docs#template-syntax-key"
+							},
+							{
+								"name": "open_offset_x",
+								"type": "number",
+								"optional": true,
+								"description": "The number of pixels to offset from the pointer X position when opened.\nUseful to ensure the first menu item is immediately under the pointer."
+							},
+							{
+								"name": "open_offset_y",
+								"type": "number",
+								"optional": true,
+								"description": "The number of pixels to offset from the pointer Y position when opened.\nUseful to ensure the first menu item is immediately under the pointer."
+							},
+							{
+								"name": "bypass_with_tap_then_longpress",
+								"type": "boolean",
+								"optional": true,
+								"description": "Whether to detect tap-then-longpress to bypass the Fuz contextmenu.\nThis allows access to the system contextmenu by tapping once then rightclicking/long-pressing.\nSetting to `false` disables the gesture."
+							},
+							{
+								"name": "bypass_window",
+								"type": "number",
+								"optional": true,
+								"description": "The number of milliseconds between taps to detect a gesture that bypasses the Fuz contextmenu.\nUsed only when `bypass_with_tap_then_longpress` is true.\nIf the duration is too long, it'll detect more false positives and interrupt normal usage,\nbut too short and some people will have difficulty performing the gesture."
+							},
+							{
+								"name": "bypass_move_tolerance",
+								"type": "number",
+								"optional": true,
+								"description": "The number of pixels the pointer can be moved between taps to detect a tap-then-longpress.\nUsed only when `bypass_with_tap_then_longpress` is true."
+							},
+							{
+								"name": "scoped",
+								"type": "boolean",
+								"optional": true,
+								"description": "If `true`, wraps `children` with a div and listens to events on it instead of the window."
+							},
+							{
+								"name": "link_entry",
+								"type": "Snippet<[ComponentProps<typeof ContextmenuLinkEntry>]> | null",
+								"optional": true,
+								"description": "Snippet for rendering link entries.\nSet to `null` to disable automatic link detection.\nDefaults to `link_entry_default` which renders `ContextmenuLinkEntry`."
+							},
+							{
+								"name": "text_entry",
+								"type": "Snippet<[ComponentProps<typeof ContextmenuTextEntry>]> | null",
+								"optional": true,
+								"description": "Snippet for rendering copy text entries.\nSet to `null` to disable automatic copy text detection.\nDefaults to `text_entry_default` which renders `ContextmenuTextEntry`."
+							},
+							{
+								"name": "separator_entry",
+								"type": "Snippet<[ComponentProps<typeof ContextmenuSeparator>]> | null",
+								"optional": true,
+								"description": "Snippet for rendering separator entries.\nSet to `null` to disable automatic separator rendering.\nDefaults to `separator_entry_default` which renders `ContextmenuSeparator`."
+							},
+							{
+								"name": "children",
+								"type": "Snippet"
+							}
+						],
+						"source_line": 1
+					}
+				],
+				"dependencies": [
+					"ContextmenuLinkEntry.svelte",
+					"ContextmenuSeparator.svelte",
+					"ContextmenuTextEntry.svelte",
+					"contextmenu_helpers.ts",
+					"contextmenu_state.svelte.ts"
+				]
+			},
+			{
+				"path": "ContextmenuRootForSafariCompatibility.svelte",
+				"declarations": [
+					{
+						"name": "ContextmenuRootForSafariCompatibility",
+						"kind": "component",
+						"doc_comment": "Blocks the next click event. Set to true when a longpress completes to prevent\niOS's synthesized click from activating the first menu item.",
+						"props": [
+							{
+								"name": "contextmenu",
+								"type": "ContextmenuState",
+								"optional": true,
+								"description": "The `contextmenu` prop is not reactive because that's a rare corner case and\nit's easier to put the `contextmenu` directly in the context\nrather than wrapping with a store or other reactivity.\nIf you need to change the contextmenu prop for some reason, use a `{#key contextmenu}` block:\nhttps://svelte.dev/docs#template-syntax-key"
+							},
+							{
+								"name": "longpress_move_tolerance",
+								"type": "number",
+								"optional": true,
+								"description": "The number of pixels the pointer can be moved without canceling `longpress`."
+							},
+							{
+								"name": "longpress_duration",
+								"type": "number",
+								"optional": true,
+								"description": "The number of milliseconds after a touch starts before opening the Fuz contextmenu."
+							},
+							{
+								"name": "bypass_with_tap_then_longpress",
+								"type": "boolean",
+								"optional": true,
+								"description": "Whether to detect tap-then-longpress to bypass the Fuz contextmenu.\nThis allows access to the system contextmenu by tapping once then long-pressing.\nSetting to `false` disables the gesture."
+							},
+							{
+								"name": "bypass_window",
+								"type": "number",
+								"optional": true,
+								"description": "The number of milliseconds between taps to detect a gesture that bypasses the Fuz contextmenu.\nUsed only when `bypass_with_tap_then_longpress` is true.\nIf the duration is too long, it'll detect more false positives and interrupt normal usage,\nbut too short and some people will have difficulty performing the gesture."
+							},
+							{
+								"name": "bypass_move_tolerance",
+								"type": "number",
+								"optional": true,
+								"description": "The number of pixels the pointer can be moved between taps to detect a tap-then-longpress.\nUsed only when `bypass_with_tap_then_longpress` is true."
+							},
+							{
+								"name": "open_offset_x",
+								"type": "number",
+								"optional": true,
+								"description": "The number of pixels to offset from the pointer X position when opened.\nUseful to ensure the first menu item is immediately under the pointer."
+							},
+							{
+								"name": "open_offset_y",
+								"type": "number",
+								"optional": true,
+								"description": "The number of pixels to offset from the pointer Y position when opened.\nUseful to ensure the first menu item is immediately under the pointer."
+							},
+							{
+								"name": "scoped",
+								"type": "boolean",
+								"optional": true,
+								"description": "If `true`, wraps `children` with a div and listens to events on it instead of the window."
+							},
+							{
+								"name": "link_entry",
+								"type": "Snippet<[ComponentProps<typeof ContextmenuLinkEntry>]> | null",
+								"optional": true,
+								"description": "Snippet for rendering link entries.\nSet to `null` to disable automatic link detection.\nDefaults to `link_entry_default` which renders `ContextmenuLinkEntry`."
+							},
+							{
+								"name": "text_entry",
+								"type": "Snippet<[ComponentProps<typeof ContextmenuTextEntry>]> | null",
+								"optional": true,
+								"description": "Snippet for rendering copy text entries.\nSet to `null` to disable automatic copy text detection.\nDefaults to `text_entry_default` which renders `ContextmenuTextEntry`."
+							},
+							{
+								"name": "separator_entry",
+								"type": "Snippet<[ComponentProps<typeof ContextmenuSeparator>]> | null",
+								"optional": true,
+								"description": "Snippet for rendering separator entries.\nSet to `null` to disable automatic separator rendering.\nDefaults to `separator_entry_default` which renders `ContextmenuSeparator`."
+							},
+							{
+								"name": "children",
+								"type": "Snippet"
+							}
+						],
+						"source_line": 1
+					}
+				],
+				"dependencies": [
+					"ContextmenuLinkEntry.svelte",
+					"ContextmenuSeparator.svelte",
+					"ContextmenuTextEntry.svelte",
+					"contextmenu_helpers.ts",
+					"contextmenu_state.svelte.ts"
+				]
+			},
+			{
+				"path": "ContextmenuSeparator.svelte",
+				"declarations": [
+					{
+						"name": "ContextmenuSeparator",
+						"kind": "component",
+						"source_line": 1
+					}
+				],
+				"dependents": ["ContextmenuRoot.svelte", "ContextmenuRootForSafariCompatibility.svelte"]
+			},
+			{
+				"path": "ContextmenuSubmenu.svelte",
+				"declarations": [
+					{
+						"name": "ContextmenuSubmenu",
+						"kind": "component",
+						"props": [
+							{
+								"name": "icon",
+								"type": "Snippet",
+								"optional": true
+							},
+							{
+								"name": "menu",
+								"type": "Snippet"
+							},
+							{
+								"name": "children",
+								"type": "Snippet"
+							}
+						],
+						"source_line": 1
+					}
+				],
+				"dependencies": ["contextmenu_state.svelte.ts"]
+			},
+			{
+				"path": "ContextmenuTextEntry.svelte",
+				"declarations": [
+					{
+						"name": "ContextmenuTextEntry",
+						"kind": "component",
+						"props": [
+							{
+								"name": "run",
+								"type": "ContextmenuRun"
+							},
+							{
+								"name": "content",
+								"type": "string"
+							},
+							{
+								"name": "icon",
+								"type": "string"
+							}
+						],
+						"source_line": 1
+					}
+				],
+				"dependencies": ["ContextmenuEntry.svelte"],
+				"dependents": ["ContextmenuRoot.svelte", "ContextmenuRootForSafariCompatibility.svelte"]
+			},
+			{
+				"path": "CopyToClipboard.svelte",
+				"declarations": [
+					{
+						"name": "CopyToClipboard",
+						"kind": "component",
+						"props": [
+							{
+								"name": "text",
+								"type": "string | null"
+							},
+							{
+								"name": "copied_display_duration",
+								"type": "number",
+								"optional": true
+							},
+							{
+								"name": "allow_copying_empty_string",
+								"type": "boolean",
+								"optional": true
+							},
+							{
+								"name": "icon_button",
+								"type": "boolean",
+								"optional": true,
+								"description": "Defaults to `true`, ignored if `children` is provided."
+							},
+							{
+								"name": "oncopy",
+								"type": "(text: string | null, e: MouseEvent) => void",
+								"optional": true
+							},
+							{
+								"name": "children",
+								"type": "Snippet<[copied: boolean, failed: boolean]>",
+								"optional": true
+							}
+						],
+						"source_line": 1
+					}
+				]
+			},
+			{
+				"path": "csp_of_ryanatkn.ts",
+				"declarations": [
+					{
+						"name": "csp_trusted_sources_of_ryanatkn",
+						"kind": "variable",
+						"doc_comment": "Trusted sources owned by ryanatkn.",
+						"source_line": 6,
+						"type_signature": "CspSourceSpec[]"
+					}
+				]
+			},
+			{
+				"path": "csp.ts",
+				"declarations": [
+					{
+						"name": "create_csp_directives",
+						"kind": "function",
+						"doc_comment": "This is designed for compatibility with SvelteKit\nand maps to the `KitConfig` `directives` option.\nThe goal is to provide an ergonomic, modern, and safe API\nfor Content Security Policy (CSP) creation\nthat's simple to write and audit, and isn't error-prone.\n\nThings like validation and rendering to a string\nare out of scope and left to SvelteKit.",
+						"source_line": 60,
+						"type_signature": "(options?: CreateCspDirectivesOptions): CspDirectives",
+						"return_type": "CspDirectives",
+						"parameters": [
+							{
+								"name": "options",
+								"type": "CreateCspDirectivesOptions",
+								"default_value": "{}"
+							}
+						]
+					},
+					{
+						"name": "CreateCspDirectivesOptions",
+						"kind": "type",
+						"source_line": 5,
+						"type_signature": "CreateCspDirectivesOptions",
+						"properties": [
+							{
+								"name": "directives",
+								"kind": "variable",
+								"type_signature": "{\n\t\t[K in CspDirective]?:\n\t\t\t| CspDirectiveValue<K> // Static value replacement\n\t\t\t| null // Removes the directive\n\t\t\t// Transform function returning one of the previous types\n\t\t\t| ((value: CspDirectiveValue<K>) => CspDirectiveValue<K> | null);\n\t}",
+								"doc_comment": "Override or transform specific directives.\nReturning `null` or `undefined` from a transform function will remove the directive."
+							},
+							{
+								"name": "trusted_sources",
+								"kind": "variable",
+								"type_signature": "Array<CspSourceSpec>",
+								"doc_comment": "Sources to include based on their trust levels."
+							},
+							{
+								"name": "value_defaults",
+								"kind": "variable",
+								"type_signature": "Partial<typeof csp_directive_value_defaults>",
+								"doc_comment": "Override default values for specific directives,\nmerging with `value_defaults_base` (or replacing if that directive is null in the base)."
+							},
+							{
+								"name": "value_defaults_base",
+								"kind": "variable",
+								"type_signature": "Partial<typeof csp_directive_value_defaults> | null",
+								"doc_comment": "Base values for directive defaults.\nSet to `null` or `{}` to start with no defaults.\nDefaults to `csp_directive_value_defaults`."
+							},
+							{
+								"name": "required_trust_defaults",
+								"kind": "variable",
+								"type_signature": "Partial<typeof csp_directive_required_trust_defaults>",
+								"doc_comment": "Override trust requirements for specific directives,\nmerging with `required_trust_defaults_base` (or replacing if that directive is null in the base)."
+							},
+							{
+								"name": "required_trust_defaults_base",
+								"kind": "variable",
+								"type_signature": "Partial<typeof csp_directive_required_trust_defaults> | null",
+								"doc_comment": "Base values for directive trust requirements.\nSet to `null` or `{}` to start with no trust requirements.\nDefaults to `csp_directive_required_trust_defaults`."
+							}
+						]
+					},
+					{
+						"name": "CspDirective",
+						"kind": "type",
+						"source_line": 175,
+						"type_signature": "keyof CspDirectives"
+					},
+					{
+						"name": "parse_csp_directive",
+						"kind": "function",
+						"source_line": 177,
+						"type_signature": "(directive: unknown): keyof CspDirectives | null",
+						"return_type": "keyof CspDirectives | null",
+						"parameters": [
+							{
+								"name": "directive",
+								"type": "unknown"
+							}
+						]
+					},
+					{
+						"name": "CspDirectiveValue",
+						"kind": "type",
+						"source_line": 182,
+						"type_signature": "CspDirectiveValue<T>",
+						"generic_params": [
+							{
+								"name": "T",
+								"constraint": "CspDirective"
+							}
+						]
+					},
+					{
+						"name": "csp_trust_levels",
+						"kind": "variable",
+						"source_line": 184,
+						"type_signature": "readonly [\"low\", \"medium\", \"high\"]"
+					},
+					{
+						"name": "csp_trust_level_value",
+						"kind": "variable",
+						"doc_comment": "Numeric values for CSP trust levels, `csp_trust_levels`.\nLower is less trusted.\nIncludes `undefined` in the type for safety.",
+						"source_line": 191,
+						"type_signature": "Record<\"low\" | \"medium\" | \"high\", number | undefined>"
+					},
+					{
+						"name": "CspTrustLevel",
+						"kind": "type",
+						"doc_comment": "Trust levels for CSP sources.\n\nWith the base defaults, trust levels roughly correspond to:\n\n- `low` – Passive resources only (no script execution, no styling or UI control).\n\t\tExamples: `img-src`, `font-src`.\n- `medium` – Content that may affect layout, styling, or embed external browsing contexts,\n   but cannot directly run code in the page's JS execution environment or\n\t\tperform other high-risk actions. Examples: `style-src`, `frame-src`, `frame-ancestors`.\n- `high` – Sources that can execute code in the page's context or open powerful network\n   channels. Examples: `script-src`, `connect-src`, `child-src`.\n- `null` – No trust. This is used for directives that don't support sources.",
+						"source_line": 212,
+						"type_signature": "\"low\" | \"medium\" | \"high\""
+					},
+					{
+						"name": "parse_csp_trust_level",
+						"kind": "function",
+						"doc_comment": "Validates and extracts a CSP trust level from an unknown value.",
+						"source_line": 217,
+						"type_signature": "(trust: unknown): \"low\" | \"medium\" | \"high\" | null",
+						"return_type": "\"low\" | \"medium\" | \"high\" | null",
+						"parameters": [
+							{
+								"name": "trust",
+								"type": "unknown"
+							}
+						]
+					},
+					{
+						"name": "CspSourceSpec",
+						"kind": "type",
+						"source_line": 220,
+						"type_signature": "CspSourceSpec",
+						"properties": [
+							{
+								"name": "source",
+								"kind": "variable",
+								"type_signature": "CspSource"
+							},
+							{
+								"name": "trust",
+								"kind": "variable",
+								"type_signature": "CspTrustLevel"
+							},
+							{
+								"name": "directives",
+								"kind": "variable",
+								"type_signature": "Array<CspDirective>"
+							}
+						]
+					},
+					{
+						"name": "CspDirectiveSpec",
+						"kind": "type",
+						"source_line": 226,
+						"type_signature": "CspDirectiveSpec",
+						"properties": [
+							{
+								"name": "name",
+								"kind": "variable",
+								"type_signature": "CspDirective"
+							},
+							{
+								"name": "fallback",
+								"kind": "variable",
+								"type_signature": "Array<CspDirective> | null"
+							},
+							{
+								"name": "fallback_of",
+								"kind": "variable",
+								"type_signature": "Array<CspDirective> | null"
+							}
+						]
+					},
+					{
+						"name": "is_csp_trusted",
+						"kind": "function",
+						"doc_comment": "Determines if a granted trust level is sufficient to satisfy a required trust level.\n\nTrust levels have the following hierarchy:\n- 'high' sources can be used in high, medium, and low trust directives (highest privilege)\n- 'medium' sources can be used in medium and low trust directives\n- 'low' sources can only be used in low trust directives (lowest privilege)",
+						"source_line": 240,
+						"type_signature": "(required_trust: \"low\" | \"medium\" | \"high\" | null | undefined, granted_trust: \"low\" | \"medium\" | \"high\" | null | undefined): boolean",
+						"return_type": "boolean",
+						"parameters": [
+							{
+								"name": "required_trust",
+								"type": "\"low\" | \"medium\" | \"high\" | null | undefined"
+							},
+							{
+								"name": "granted_trust",
+								"type": "\"low\" | \"medium\" | \"high\" | null | undefined"
+							}
+						]
+					},
+					{
+						"name": "COLOR_SCHEME_SCRIPT_HASH",
+						"kind": "variable",
+						"source_line": 263,
+						"type_signature": "\"sha256-QOxqn7EUzb3ydF9SALJoJGWSvywW9R0AfTDSenB83Z8=\""
+					},
+					{
+						"name": "csp_directive_value_defaults",
+						"kind": "variable",
+						"doc_comment": "The base CSP directive defaults.\nPrioritizes safety but loosens around media and styles, relying on defense-in-depth.\nCustomizable via `CreateCspDirectivesOptions.defaults`.",
+						"source_line": 270,
+						"type_signature": "Record<keyof CspDirectives, boolean | (CspSource | CspActionSource)[] | CspSources | CspFrameSource[] | string[] | \"script\"[] | (\"allow-downloads-without-user-activation\" | ... 11 more ... | \"allow-top-navigation-by-user-activation\")[] | null>"
+					},
+					{
+						"name": "csp_directive_required_trust_defaults",
+						"kind": "variable",
+						"doc_comment": "Sources that meet this trust requirement are included for it by default.\nIf null, no trusted sources are added to the directive automatically.\nDirectives that don't support sources or default to `['none']` are null.\n\nFeedback is welcome, please see the issues - https://github.com/fuzdev/fuz_ui/issues",
+						"source_line": 307,
+						"type_signature": "Record<keyof CspDirectives, \"low\" | \"medium\" | \"high\" | null>"
+					},
+					{
+						"name": "csp_directive_specs",
+						"kind": "variable",
+						"doc_comment": "Static data descriptors for the CSP directives.\nFuz excludes deprecated directives, so those are intentionally omitted,\nbut any newer missing directives are bugs.\n\nCould be moved to `csp.ts` but is currently here to keep that module smaller.",
+						"see_also": [
+							"https://developer.mozilla.org/en-US/docs/Web/HTTP/Reference/Headers/Content-Security-Policy"
+						],
+						"source_line": 343,
+						"type_signature": "CspDirectiveSpec[]"
+					},
+					{
+						"name": "csp_directive_spec_by_name",
+						"kind": "variable",
+						"source_line": 481,
+						"type_signature": "Map<keyof CspDirectives, CspDirectiveSpec>"
+					},
+					{
+						"name": "CspActionSource",
+						"kind": "type",
+						"source_line": 513,
+						"type_signature": "CspActionSource"
+					},
+					{
+						"name": "CspBaseSource",
+						"kind": "type",
+						"source_line": 514,
+						"type_signature": "CspBaseSource"
+					},
+					{
+						"name": "CspCryptoSource",
+						"kind": "type",
+						"source_line": 521,
+						"type_signature": "`nonce-${string}` | `sha256-${string}` | `sha384-${string}` | `sha512-${string}`"
+					},
+					{
+						"name": "CspFrameSource",
+						"kind": "type",
+						"source_line": 522,
+						"type_signature": "CspFrameSource"
+					},
+					{
+						"name": "CspHostNameScheme",
+						"kind": "type",
+						"source_line": 523,
+						"type_signature": "CspHostNameScheme"
+					},
+					{
+						"name": "CspHostSource",
+						"kind": "type",
+						"source_line": 524,
+						"type_signature": "`${string}.${string}` | \"localhost\" | `${string}.${string}:${number}` | `${string}.${string}:*` | `localhost:${number}` | \"localhost:*\" | `${string}://${string}.${string}` | `${string}://${string}.${string}:${number}` | `${string}://${string}.${string}:*` | `${string}://localhost` | `${string}://localhost:${number}`..."
+					},
+					{
+						"name": "CspHostProtocolSchemes",
+						"kind": "type",
+						"source_line": 525,
+						"type_signature": "CspHostProtocolSchemes"
+					},
+					{
+						"name": "CspPortScheme",
+						"kind": "type",
+						"source_line": 526,
+						"type_signature": "CspPortScheme"
+					},
+					{
+						"name": "CspSchemeSource",
+						"kind": "type",
+						"source_line": 527,
+						"type_signature": "CspSchemeSource"
+					},
+					{
+						"name": "CspSource",
+						"kind": "type",
+						"source_line": 534,
+						"type_signature": "CspSource"
+					},
+					{
+						"name": "CspSources",
+						"kind": "type",
+						"source_line": 535,
+						"type_signature": "CspSources"
+					},
+					{
+						"name": "CspDirectives",
+						"kind": "type",
+						"source_line": 537,
+						"type_signature": "CspDirectives",
+						"properties": [
+							{
+								"name": "sandbox",
+								"kind": "variable",
+								"type_signature": "Array<\n\t\t| 'allow-downloads-without-user-activation'\n\t\t| 'allow-forms'\n\t\t| 'allow-modals'\n\t\t| 'allow-orientation-lock'\n\t\t| 'allow-pointer-lock'\n\t\t| 'allow-popups'\n\t\t| 'allow-popups-to-escape-sandbox'\n\t\t| 'allow-presentation'\n\t\t| 'allow-same-origin'\n\t\t| 'allow-scripts'\n\t\t| 'allow-storage-access-by-user-activation'\n\t\t| 'allow-top-navigation'\n\t\t| 'allow-top-navigation-by-user-activation'\n\t>"
+							}
+						]
+					}
+				]
+			},
+			{
+				"path": "declaration_contextmenu.ts",
+				"declarations": [
+					{
+						"name": "create_declaration_contextmenu",
+						"kind": "function",
+						"source_line": 6,
+						"type_signature": "(declaration: Declaration): ContextmenuParams[]",
+						"return_type": "ContextmenuParams[]",
+						"parameters": [
+							{
+								"name": "declaration",
+								"type": "Declaration"
+							}
+						]
+					}
+				],
+				"dependents": ["DeclarationLink.svelte"]
+			},
+			{
+				"path": "declaration.svelte.ts",
+				"declarations": [
+					{
+						"name": "Declaration",
+						"kind": "class",
+						"doc_comment": "Rich runtime representation of an exported declaration.",
+						"source_line": 13,
+						"members": [
+							{
+								"name": "module",
+								"kind": "variable",
+								"modifiers": ["readonly"],
+								"type_signature": "Module"
+							},
+							{
+								"name": "declaration_json",
+								"kind": "variable",
+								"modifiers": ["readonly"],
+								"type_signature": "DeclarationJson"
+							},
+							{
+								"name": "library",
+								"kind": "variable"
+							},
+							{
+								"name": "module_path",
+								"kind": "variable",
+								"doc_comment": "Module path where this declaration is defined."
+							},
+							{
+								"name": "name",
+								"kind": "variable"
+							},
+							{
+								"name": "kind",
+								"kind": "variable"
+							},
+							{
+								"name": "url_github",
+								"kind": "variable",
+								"doc_comment": "GitHub source URL with line number."
+							},
+							{
+								"name": "url_api",
+								"kind": "variable",
+								"doc_comment": "API documentation URL."
+							},
+							{
+								"name": "import_statement",
+								"kind": "variable",
+								"doc_comment": "Generated TypeScript import statement."
+							},
+							{
+								"name": "url_api_full",
+								"kind": "variable",
+								"doc_comment": "Public documentation link (if homepage_url is available)."
+							},
+							{
+								"name": "display_name",
+								"kind": "variable",
+								"doc_comment": "Display name with generic parameters."
+							},
+							{
+								"name": "type_signature",
+								"kind": "variable"
+							},
+							{
+								"name": "doc_comment",
+								"kind": "variable"
+							},
+							{
+								"name": "deprecated_message",
+								"kind": "variable"
+							},
+							{
+								"name": "parameters",
+								"kind": "variable"
+							},
+							{
+								"name": "props",
+								"kind": "variable"
+							},
+							{
+								"name": "return_type",
+								"kind": "variable"
+							},
+							{
+								"name": "return_description",
+								"kind": "variable"
+							},
+							{
+								"name": "generic_params",
+								"kind": "variable"
+							},
+							{
+								"name": "extends",
+								"kind": "variable"
+							},
+							{
+								"name": "implements",
+								"kind": "variable"
+							},
+							{
+								"name": "throws",
+								"kind": "variable"
+							},
+							{
+								"name": "since",
+								"kind": "variable"
+							},
+							{
+								"name": "examples",
+								"kind": "variable"
+							},
+							{
+								"name": "see_also",
+								"kind": "variable"
+							},
+							{
+								"name": "members",
+								"kind": "variable",
+								"type_signature": "Array<DeclarationJson> | undefined"
+							},
+							{
+								"name": "properties",
+								"kind": "variable",
+								"type_signature": "Array<DeclarationJson> | undefined"
+							},
+							{
+								"name": "has_examples",
+								"kind": "variable"
+							},
+							{
+								"name": "is_deprecated",
+								"kind": "variable"
+							},
+							{
+								"name": "has_documentation",
+								"kind": "variable"
+							},
+							{
+								"name": "has_parameters",
+								"kind": "variable"
+							},
+							{
+								"name": "has_props",
+								"kind": "variable"
+							},
+							{
+								"name": "has_generics",
+								"kind": "variable"
+							},
+							{
+								"name": "constructor",
+								"kind": "constructor",
+								"type_signature": "(module: Module, declaration_json: { [x: string]: unknown; name: string; kind: \"function\" | \"json\" | \"type\" | \"variable\" | \"class\" | \"constructor\" | \"component\" | \"css\"; doc_comment?: string | undefined; ... 18 more ...; alias_of?: { ...; } | undefined; }): Declaration",
+								"parameters": [
+									{
+										"name": "module",
+										"type": "Module"
+									},
+									{
+										"name": "declaration_json",
+										"type": "{ [x: string]: unknown; name: string; kind: \"function\" | \"json\" | \"type\" | \"variable\" | \"class\" | \"constructor\" | \"component\" | \"css\"; doc_comment?: string | undefined; type_signature?: string | undefined; ... 17 more ...; alias_of?: { ...; } | undefined; }"
+									}
+								]
+							}
+						]
+					}
+				],
+				"dependencies": ["library_helpers.ts"],
+				"dependents": ["library.svelte.ts", "module.svelte.ts"]
+			},
+			{
+				"path": "DeclarationDetail.svelte",
+				"declarations": [
+					{
+						"name": "DeclarationDetail",
+						"kind": "component",
+						"props": [
+							{
+								"name": "declaration",
+								"type": "Declaration"
+							}
+						],
+						"source_line": 1
+					}
+				],
+				"dependencies": ["Details.svelte", "Mdz.svelte", "ModuleLink.svelte", "TypeLink.svelte"],
+				"dependents": ["ApiDeclarationList.svelte"]
+			},
+			{
+				"path": "DeclarationLink.svelte",
+				"declarations": [
+					{
+						"name": "DeclarationLink",
+						"kind": "component",
+						"props": [
+							{
+								"name": "name",
+								"type": "string"
+							}
+						],
+						"source_line": 1
+					}
+				],
+				"dependencies": [
+					"contextmenu_state.svelte.ts",
+					"declaration_contextmenu.ts",
+					"library.svelte.ts"
+				],
+				"dependents": [
+					"DocsLink.svelte",
+					"DocsTertiaryNav.svelte",
+					"LibraryDetail.svelte",
+					"TypeLink.svelte"
+				]
+			},
+			{
+				"path": "Details.svelte",
+				"declarations": [
+					{
+						"name": "Details",
+						"kind": "component",
+						"doc_comment": "Like `details` but renders children lazily by default.",
+						"props": [
+							{
+								"name": "open",
+								"type": "boolean",
+								"optional": true,
+								"bindable": true
+							},
+							{
+								"name": "eager",
+								"type": "boolean",
+								"optional": true,
+								"description": "Children are lazily rendered by default,\nenabling transitions and improving performance, sometimes significantly.\nPass `true` to render children eagerly to gain\n`ctrl+f` functionality while trading away the benefits.\nConsider a `<details>` element instead of making this component eager."
+							},
+							{
+								"name": "summary",
+								"type": "string | Snippet"
+							},
+							{
+								"name": "summary_attrs",
+								"type": "SvelteHTMLElements['summary']",
+								"optional": true
+							},
+							{
+								"name": "children",
+								"type": "Snippet"
+							}
+						],
+						"source_line": 1
+					}
+				],
+				"dependents": ["DeclarationDetail.svelte"]
+			},
+			{
+				"path": "Dialog.svelte",
+				"declarations": [
+					{
+						"name": "Dialog",
+						"kind": "component",
+						"props": [
+							{
+								"name": "container",
+								"type": "HTMLElement",
+								"optional": true
+							},
+							{
+								"name": "layout",
+								"type": "DialogLayout",
+								"optional": true,
+								"description": ""
+							},
+							{
+								"name": "index",
+								"type": "number",
+								"optional": true,
+								"description": "index 0 is under 1 is under 2 etc -- the topmost dialog is the last in the array"
+							},
+							{
+								"name": "active",
+								"type": "boolean",
+								"optional": true,
+								"description": ""
+							},
+							{
+								"name": "content_selector",
+								"type": "string | null",
+								"optional": true,
+								"description": "If provided, prevents clicks that would close the dialog\nfrom bubbling past any elements matching this selector."
+							},
+							{
+								"name": "onclose",
+								"type": "() => void",
+								"optional": true
+							},
+							{
+								"name": "children",
+								"type": "Snippet<[close: (e?: Event) => void]>"
+							}
+						],
+						"source_line": 1
+					}
+				],
+				"dependencies": ["Teleport.svelte"],
+				"dependents": ["Dialogs.svelte", "Docs.svelte"]
+			},
+			{
+				"path": "dialog.ts",
+				"declarations": [
+					{
+						"name": "to_dialog_params",
+						"kind": "function",
+						"doc_comment": "This helper function is needed to construct `DialogParams` with type safety.\nIt uses TypeScript's inferred generics for functions,\nwhich do not work for plain objects as of v5.0.4.\n* `ContextmenuParams` uses a similar strategy.",
+						"source_line": 11,
+						"type_signature": "<T extends Component<any>>(Component: T, props: ComponentProps<T>, dialog_props?: Partial<Record<string, any>> | undefined): DialogParams<T>",
+						"return_type": "DialogParams<T>",
+						"parameters": [
+							{
+								"name": "Component",
+								"type": "T"
+							},
+							{
+								"name": "props",
+								"type": "ComponentProps<T>"
+							},
+							{
+								"name": "dialog_props",
+								"type": "Partial<Record<string, any>> | undefined",
+								"optional": true
+							}
+						]
+					},
+					{
+						"name": "DialogParams",
+						"kind": "type",
+						"doc_comment": "This pattern is based on:\nhttps://github.com/ivanhofer/sveltekit-typescript-showcase/blob/main/src/01-props/09-svelte-component/Component.svelte\nThe main limitation is that the generic cannot be inferred automatically,\nso we use `to_dialog_params` to construct instances in most cases.\nDefinining `DialogParams` with no concrete `T` lacks typechecking for `props`.",
+						"source_line": 28,
+						"type_signature": "DialogParams<T>",
+						"generic_params": [
+							{
+								"name": "T",
+								"constraint": "Component<any>",
+								"default_type": "Component<any>"
+							}
+						],
+						"properties": [
+							{
+								"name": "Component",
+								"kind": "variable",
+								"type_signature": "T"
+							},
+							{
+								"name": "props",
+								"kind": "variable",
+								"type_signature": "ComponentProps<T>"
+							},
+							{
+								"name": "dialog_props",
+								"kind": "variable",
+								"type_signature": "Partial<ComponentProps<typeof Dialog>> | undefined"
+							}
+						]
+					},
+					{
+						"name": "DialogLayout",
+						"kind": "type",
+						"source_line": 34,
+						"type_signature": "DialogLayout"
+					},
+					{
+						"name": "dialog_layouts",
+						"kind": "variable",
+						"source_line": 35,
+						"type_signature": "DialogLayout[]"
+					}
+				]
+			},
+			{
+				"path": "Dialogs.svelte",
+				"declarations": [
+					{
+						"name": "Dialogs",
+						"kind": "component",
+						"props": [
+							{
+								"name": "dialogs",
+								"type": "Array<DialogParams>"
+							},
+							{
+								"name": "onclose",
+								"type": "() => void",
+								"optional": true
+							},
+							{
+								"name": "children",
+								"type": "Snippet<[dialog: DialogParams]>",
+								"optional": true
+							}
+						],
+						"source_line": 1
+					}
+				],
+				"dependencies": ["Dialog.svelte"]
+			},
+			{
+				"path": "dimensions.svelte.ts",
+				"declarations": [
+					{
+						"name": "Dimensions",
+						"kind": "class",
+						"source_line": 1,
+						"members": [
+							{
+								"name": "width",
+								"kind": "variable",
+								"type_signature": "number"
+							},
+							{
+								"name": "height",
+								"kind": "variable",
+								"type_signature": "number"
+							}
+						]
+					}
+				],
+				"dependents": ["contextmenu_state.svelte.ts"]
+			},
+			{
+				"path": "docs_helpers.svelte.ts",
+				"declarations": [
+					{
+						"name": "docs_slugify",
+						"kind": "function",
+						"doc_comment": "Convert a string to a URL-safe fragment identifier, preserving case for API declarations.\nOnly transforms spaces and special characters, keeping valid identifier characters intact.\nUsed for hash anchors in documentation.",
+						"source_line": 14,
+						"type_signature": "(str: string): string",
+						"return_type": "string",
+						"return_description": "A URL-safe fragment identifier",
+						"parameters": [
+							{
+								"name": "str",
+								"type": "string",
+								"description": "- The string to convert to a fragment"
+							}
+						]
+					},
+					{
+						"name": "DOCS_PATH_DEFAULT",
+						"kind": "variable",
+						"source_line": 28,
+						"type_signature": "\"/docs\""
+					},
+					{
+						"name": "DOCS_PATH",
+						"kind": "variable",
+						"source_line": 29,
+						"type_signature": "\"/docs\" | \"/\" | \"/about\" | \"/docs/Alert\" | \"/docs/Breadcrumb\" | \"/docs/Breadcrumb/a\" | \"/docs/Breadcrumb/a/b\" | \"/docs/Breadcrumb/a/b/c\" | \"/docs/Breadcrumb/a/b/c/d\" | \"/docs/Card\" | ... 97 more ... | `/${string}/help/`"
+					},
+					{
+						"name": "DOCS_API_PATH",
+						"kind": "variable",
+						"source_line": 30,
+						"type_signature": "string"
+					},
+					{
+						"name": "to_docs_path_info",
+						"kind": "function",
+						"source_line": 32,
+						"type_signature": "(path_slug: string, pathname: string, root_path?: string): { path: string; path_is_selected: boolean; path_segment: string | undefined; }",
+						"return_type": "{ path: string; path_is_selected: boolean; path_segment: string | undefined; }",
+						"parameters": [
+							{
+								"name": "path_slug",
+								"type": "string"
+							},
+							{
+								"name": "pathname",
+								"type": "string"
+							},
+							{
+								"name": "root_path",
+								"type": "string",
+								"default_value": "DOCS_PATH_DEFAULT"
+							}
+						]
+					},
+					{
+						"name": "docs_links_context",
+						"kind": "variable",
+						"source_line": 43,
+						"type_signature": "{ get: (error_message?: string | undefined) => DocsLinks; get_maybe: () => DocsLinks | undefined; set: (value: DocsLinks) => DocsLinks; }"
+					},
+					{
+						"name": "DocsLinkTag",
+						"kind": "type",
+						"source_line": 45,
+						"type_signature": "DocsLinkTag"
+					},
+					{
+						"name": "DocsLinkInfo",
+						"kind": "type",
+						"source_line": 47,
+						"type_signature": "DocsLinkInfo",
+						"properties": [
+							{
+								"name": "id",
+								"kind": "variable",
+								"type_signature": "string"
+							},
+							{
+								"name": "text",
+								"kind": "variable",
+								"type_signature": "string"
+							},
+							{
+								"name": "fragment",
+								"kind": "variable",
+								"type_signature": "string"
+							},
+							{
+								"name": "tag",
+								"kind": "variable",
+								"type_signature": "DocsLinkTag | undefined"
+							},
+							{
+								"name": "depth",
+								"kind": "variable",
+								"type_signature": "number"
+							},
+							{
+								"name": "order",
+								"kind": "variable",
+								"type_signature": "number"
+							},
+							{
+								"name": "parent_id",
+								"kind": "variable",
+								"type_signature": "string | undefined"
+							}
+						]
+					},
+					{
+						"name": "DocsLinks",
+						"kind": "class",
+						"source_line": 57,
+						"members": [
+							{
+								"name": "root_path",
+								"kind": "variable",
+								"modifiers": ["readonly"],
+								"type_signature": "string"
+							},
+							{
+								"name": "links",
+								"kind": "variable",
+								"modifiers": ["readonly"],
+								"type_signature": "SvelteMap<string, DocsLinkInfo>"
+							},
+							{
+								"name": "docs_links",
+								"kind": "variable"
+							},
+							{
+								"name": "fragments_onscreen",
+								"kind": "variable",
+								"modifiers": ["readonly"],
+								"type_signature": "SvelteSet<string>"
+							},
+							{
+								"name": "constructor",
+								"kind": "constructor",
+								"type_signature": "(root_path?: string): DocsLinks",
+								"parameters": [
+									{
+										"name": "root_path",
+										"type": "string",
+										"default_value": "DOCS_PATH_DEFAULT"
+									}
+								]
+							},
+							{
+								"name": "add",
+								"kind": "function",
+								"type_signature": "(fragment: string, text: string, pathname: string, tag?: DocsLinkTag | undefined, depth?: number, parent_id?: string | undefined, explicit_id?: string | undefined): string",
+								"return_type": "string",
+								"parameters": [
+									{
+										"name": "fragment",
+										"type": "string"
+									},
+									{
+										"name": "text",
+										"type": "string"
+									},
+									{
+										"name": "pathname",
+										"type": "string"
+									},
+									{
+										"name": "tag",
+										"type": "DocsLinkTag | undefined",
+										"optional": true
+									},
+									{
+										"name": "depth",
+										"type": "number",
+										"default_value": "1"
+									},
+									{
+										"name": "parent_id",
+										"type": "string | undefined",
+										"optional": true
+									},
+									{
+										"name": "explicit_id",
+										"type": "string | undefined",
+										"optional": true
+									}
+								]
+							},
+							{
+								"name": "remove",
+								"kind": "function",
+								"type_signature": "(id: string): void",
+								"return_type": "void",
+								"parameters": [
+									{
+										"name": "id",
+										"type": "string"
+									}
+								]
+							},
+							{
+								"name": "generate_section_id",
+								"kind": "function",
+								"doc_comment": "Generate a unique section ID for the current page render.\nThis counter is instance-scoped, ensuring SSR/client consistency.",
+								"type_signature": "(): string",
+								"return_type": "string",
+								"parameters": []
+							}
+						]
+					}
+				],
+				"dependencies": ["context_helpers.ts"],
+				"dependents": [
+					"Docs.svelte",
+					"DocsPageLinks.svelte",
+					"DocsTertiaryNav.svelte",
+					"TomeContent.svelte",
+					"TomeHeader.svelte",
+					"TomeLink.svelte",
+					"TomeSection.svelte",
+					"TomeSectionHeader.svelte",
+					"library_helpers.ts",
+					"tome.ts"
+				]
+			},
+			{
+				"path": "Docs.svelte",
+				"declarations": [
+					{
+						"name": "Docs",
+						"kind": "component",
+						"props": [
+							{
+								"name": "tomes",
+								"type": "Array<Tome>"
+							},
+							{
+								"name": "library",
+								"type": "Library"
+							},
+							{
+								"name": "breadcrumb_children",
+								"type": "Snippet<[is_primary_nav: boolean]>",
+								"optional": true
+							},
+							{
+								"name": "children",
+								"type": "Snippet"
+							}
+						],
+						"source_line": 1
+					}
+				],
+				"dependencies": [
+					"Breadcrumb.svelte",
+					"Dialog.svelte",
+					"DocsFooter.svelte",
+					"DocsPrimaryNav.svelte",
+					"DocsSecondaryNav.svelte",
+					"DocsTertiaryNav.svelte",
+					"docs_helpers.svelte.ts",
+					"tome.ts"
+				]
+			},
+			{
+				"path": "DocsContent.svelte",
+				"declarations": [
+					{
+						"name": "DocsContent",
+						"kind": "component",
+						"props": [
+							{
+								"name": "tomes",
+								"type": "Array<Tome>"
+							},
+							{
+								"name": "library",
+								"type": "Library"
+							},
+							{
+								"name": "repo_name",
+								"type": "Snippet<[repo_name: string]>",
+								"optional": true
+							},
+							{
+								"name": "content",
+								"type": "Snippet",
+								"optional": true
+							},
+							{
+								"name": "header",
+								"type": "Snippet",
+								"optional": true
+							}
+						],
+						"source_line": 1
+					}
+				],
+				"dependencies": ["LibrarySummary.svelte"]
+			},
+			{
+				"path": "DocsFooter.svelte",
+				"declarations": [
+					{
+						"name": "DocsFooter",
+						"kind": "component",
+						"props": [
+							{
+								"name": "library",
+								"type": "Library"
+							},
+							{
+								"name": "root_url",
+								"type": "Url | null",
+								"optional": true
+							},
+							{
+								"name": "logo",
+								"type": "Snippet",
+								"optional": true
+							},
+							{
+								"name": "logo_header",
+								"type": "Snippet",
+								"optional": true
+							},
+							{
+								"name": "logo_footer",
+								"type": "Snippet",
+								"optional": true
+							}
+						],
+						"source_line": 1
+					}
+				],
+				"dependencies": ["Svg.svelte", "logos.ts"],
+				"dependents": ["Docs.svelte"]
+			},
+			{
+				"path": "DocsLink.svelte",
+				"declarations": [
+					{
+						"name": "DocsLink",
+						"kind": "component",
+						"props": [
+							{
+								"name": "reference",
+								"type": "string"
+							},
+							{
+								"name": "display_text",
+								"type": "string | null",
+								"optional": true
+							},
+							{
+								"name": "children",
+								"type": "Snippet<[Declaration | undefined, Module | undefined]>",
+								"optional": true
+							}
+						],
+						"source_line": 1
+					}
+				],
+				"dependencies": ["DeclarationLink.svelte", "ModuleLink.svelte", "library.svelte.ts"],
+				"dependents": ["MdzNodeView.svelte"]
+			},
+			{
+				"path": "DocsList.svelte",
+				"declarations": [
+					{
+						"name": "DocsList",
+						"kind": "component",
+						"props": [
+							{
+								"name": "expand_width",
+								"type": "boolean",
+								"optional": true
+							},
+							{
+								"name": "margin",
+								"type": "boolean",
+								"optional": true
+							},
+							{
+								"name": "children",
+								"type": "Snippet"
+							}
+						],
+						"source_line": 1
+					}
+				],
+				"dependents": ["DocsMenu.svelte", "DocsModulesList.svelte", "DocsPageLinks.svelte"]
+			},
+			{
+				"path": "DocsMenu.svelte",
+				"declarations": [
+					{
+						"name": "DocsMenu",
+						"kind": "component",
+						"props": [
+							{
+								"name": "tomes",
+								"type": "Array<Tome>"
+							},
+							{
+								"name": "children",
+								"type": "Snippet<[category: string]>",
+								"optional": true
+							},
+							{
+								"name": "expand_width",
+								"type": "boolean",
+								"optional": true
+							}
+						],
+						"source_line": 1
+					}
+				],
+				"dependencies": ["DocsList.svelte", "DocsMenuHeader.svelte", "tome.ts"],
+				"dependents": ["DocsSecondaryNav.svelte"]
+			},
+			{
+				"path": "DocsMenuHeader.svelte",
+				"declarations": [
+					{
+						"name": "DocsMenuHeader",
+						"kind": "component",
+						"props": [
+							{
+								"name": "children",
+								"type": "Snippet"
+							}
+						],
+						"source_line": 1
+					}
+				],
+				"dependents": ["DocsMenu.svelte"]
+			},
+			{
+				"path": "DocsModulesList.svelte",
+				"declarations": [
+					{
+						"name": "DocsModulesList",
+						"kind": "component",
+						"props": [
+							{
+								"name": "expand_width",
+								"type": "boolean",
+								"optional": true
+							}
+						],
+						"source_line": 1
+					}
+				],
+				"dependencies": ["DocsList.svelte", "library.svelte.ts"],
+				"dependents": ["DocsTertiaryNav.svelte"]
+			},
+			{
+				"path": "DocsPageLinks.svelte",
+				"declarations": [
+					{
+						"name": "DocsPageLinks",
+						"kind": "component",
+						"props": [
+							{
+								"name": "sidebar",
+								"type": "boolean",
+								"optional": true
+							},
+							{
+								"name": "expand_width",
+								"type": "boolean",
+								"optional": true
+							}
+						],
+						"source_line": 1
+					}
+				],
+				"dependencies": ["DocsList.svelte", "docs_helpers.svelte.ts"],
+				"dependents": ["DocsTertiaryNav.svelte"]
+			},
+			{
+				"path": "DocsPrimaryNav.svelte",
+				"declarations": [
+					{
+						"name": "DocsPrimaryNav",
+						"kind": "component",
+						"props": [
+							{
+								"name": "library",
+								"type": "Library"
+							},
+							{
+								"name": "breadcrumb_children",
+								"type": "Snippet<[is_primary_nav: boolean]>",
+								"optional": true
+							},
+							{
+								"name": "children",
+								"type": "Snippet",
+								"optional": true
+							}
+						],
+						"source_line": 1
+					}
+				],
+				"dependencies": ["Breadcrumb.svelte"],
+				"dependents": ["Docs.svelte"]
+			},
+			{
+				"path": "DocsSearch.svelte",
+				"declarations": [
+					{
+						"name": "DocsSearch",
+						"kind": "component",
+						"props": [
+							{
+								"name": "placeholder",
+								"type": "string",
+								"optional": true
+							},
+							{
+								"name": "total_count",
+								"type": "number"
+							},
+							{
+								"name": "result_count",
+								"type": "number",
+								"optional": true
+							},
+							{
+								"name": "search_query",
+								"type": "string",
+								"bindable": true
+							}
+						],
+						"source_line": 1
+					}
+				],
+				"dependents": ["ApiIndex.svelte", "ApiModule.svelte"]
+			},
+			{
+				"path": "DocsSecondaryNav.svelte",
+				"declarations": [
+					{
+						"name": "DocsSecondaryNav",
+						"kind": "component",
+						"props": [
+							{
+								"name": "tomes",
+								"type": "Array<Tome>"
+							},
+							{
+								"name": "sidebar",
+								"type": "boolean",
+								"optional": true
+							}
+						],
+						"source_line": 1
+					}
+				],
+				"dependencies": ["DocsMenu.svelte", "tome.ts"],
+				"dependents": ["Docs.svelte"]
+			},
+			{
+				"path": "DocsTertiaryNav.svelte",
+				"declarations": [
+					{
+						"name": "DocsTertiaryNav",
+						"kind": "component",
+						"props": [
+							{
+								"name": "tomes",
+								"type": "Array<Tome>"
+							},
+							{
+								"name": "tomes_by_name",
+								"type": "Map<string, Tome>"
+							},
+							{
+								"name": "sidebar",
+								"type": "boolean",
+								"optional": true
+							}
+						],
+						"source_line": 1
+					}
+				],
+				"dependencies": [
+					"DeclarationLink.svelte",
+					"DocsModulesList.svelte",
+					"DocsPageLinks.svelte",
+					"ModuleLink.svelte",
+					"TomeLink.svelte",
+					"docs_helpers.svelte.ts",
+					"library.svelte.ts",
+					"tome.ts"
+				],
+				"dependents": ["Docs.svelte"]
+			},
+			{
+				"path": "EcosystemLinks.svelte",
+				"declarations": [
+					{
+						"name": "EcosystemLinks",
+						"kind": "component",
+						"props": [
+							{
+								"name": "selected",
+								"type": "'www.fuz.dev'",
+								"optional": true
+							}
+						],
+						"source_line": 1
+					}
+				],
+				"dependents": ["EcosystemLinksPanel.svelte"]
+			},
+			{
+				"path": "EcosystemLinksPanel.svelte",
+				"declarations": [
+					{
+						"name": "EcosystemLinksPanel",
+						"kind": "component",
+						"props": [
+							{
+								"name": "children",
+								"type": "Snippet",
+								"optional": true
+							}
+						],
+						"source_line": 1
+					}
+				],
+				"dependencies": ["EcosystemLinks.svelte", "ProjectLinks.svelte"]
+			},
+			{
+				"path": "GithubLink.svelte",
+				"declarations": [
+					{
+						"name": "GithubLink",
+						"kind": "component",
+						"props": [
+							{
+								"name": "path",
+								"type": "string",
+								"optional": true,
+								"description": "GitHub path - can be a full URL or a relative path like `owner/repo` or `owner/repo/blob/main/file.ts`"
+							}
+						],
+						"source_line": 1
+					}
+				],
+				"dependencies": ["Svg.svelte", "logos.ts"]
+			},
+			{
+				"path": "Glyph.svelte",
+				"declarations": [
+					{
+						"name": "Glyph",
+						"kind": "component",
+						"props": [
+							{
+								"name": "glyph",
+								"type": "string"
+							},
+							{
+								"name": "size",
+								"type": "string | undefined",
+								"optional": true
+							}
+						],
+						"source_line": 1
+					}
+				]
+			},
+			{
+				"path": "Hashlink.svelte",
+				"declarations": [
+					{
+						"name": "Hashlink",
+						"kind": "component",
+						"props": [
+							{
+								"name": "fragment",
+								"type": "string"
+							}
+						],
+						"source_line": 1
+					}
+				],
+				"dependents": ["TomeHeader.svelte", "TomeSectionHeader.svelte"]
+			},
+			{
+				"path": "helpers.ts",
+				"declarations": [
+					{
+						"name": "render_value_to_string",
+						"kind": "function",
+						"source_line": 1,
+						"type_signature": "(value: unknown): string",
+						"return_type": "string",
+						"parameters": [
+							{
+								"name": "value",
+								"type": "unknown"
+							}
+						]
+					}
+				]
+			},
+			{
+				"path": "HueInput.svelte",
+				"declarations": [
+					{
+						"name": "HueInput",
+						"kind": "component",
+						"props": [
+							{
+								"name": "value",
+								"type": "Hue",
+								"optional": true,
+								"bindable": true
+							},
+							{
+								"name": "children",
+								"type": "Snippet",
+								"optional": true
+							}
+						],
+						"source_line": 1
+					}
+				]
+			},
+			{
+				"path": "ImgOrSvg.svelte",
+				"declarations": [
+					{
+						"name": "ImgOrSvg",
+						"kind": "component",
+						"props": [
+							{
+								"name": "src",
+								"type": "string"
+							},
+							{
+								"name": "label",
+								"type": "string",
+								"optional": true
+							},
+							{
+								"name": "size",
+								"type": "string",
+								"optional": true,
+								"description": "Sets both the `width` and `height` of the svg. Overridden by the `width` and `height` props."
+							},
+							{
+								"name": "width",
+								"type": "string",
+								"optional": true,
+								"description": "Sets the `width` of the svg. Overrides `size`."
+							},
+							{
+								"name": "height",
+								"type": "string",
+								"optional": true,
+								"description": "Sets the `height` of the svg. Overrides `size`."
+							},
+							{
+								"name": "svg_attrs",
+								"type": "SvelteHTMLElements['svg']",
+								"optional": true
+							},
+							{
+								"name": "img_attrs",
+								"type": "SvelteHTMLElements['img']",
+								"optional": true
+							}
+						],
+						"source_line": 1
+					}
+				],
+				"dependents": ["LibraryDetail.svelte", "LibrarySummary.svelte"]
+			},
+			{
+				"path": "intersect.svelte.ts",
+				"declarations": [
+					{
+						"name": "IntersectParams",
+						"kind": "type",
+						"source_line": 4,
+						"type_signature": "IntersectParams",
+						"properties": [
+							{
+								"name": "onintersect",
+								"kind": "variable",
+								"type_signature": "OnIntersect",
+								"doc_comment": "Called when the element enters or leaves the viewport until disconnected."
+							},
+							{
+								"name": "ondisconnect",
+								"kind": "variable",
+								"type_signature": "OnDisconnect",
+								"doc_comment": "Called when the attachment's observer is disconnected,\neither by the user calling disconnect or the attachment being destroyed."
+							},
+							{
+								"name": "count",
+								"kind": "variable",
+								"type_signature": "number",
+								"doc_comment": "A value of `1` disconnects after `el` enters and leaves the viewport one time,\nsimilar to 'once' for an event.\n`0` disables and `undefined` or a negative number like `-1` never disconnects."
+							},
+							{
+								"name": "options",
+								"kind": "variable",
+								"type_signature": "IntersectionObserverInit",
+								"doc_comment": "Same as the `options` param to\n[`IntersectionObserver`](https://developer.mozilla.org/en-US/docs/Web/API/IntersectionObserver/IntersectionObserver#options)"
+							}
+						]
+					},
+					{
+						"name": "IntersectParamsOrCallback",
+						"kind": "type",
+						"source_line": 27,
+						"type_signature": "IntersectParamsOrCallback"
+					},
+					{
+						"name": "intersect",
+						"kind": "function",
+						"doc_comment": "Creates an attachment that observes element viewport intersection.\nUses the lazy function pattern to optimize reactivity:\ncallbacks can update without recreating the observer, preserving state.",
+						"source_line": 35,
+						"type_signature": "(get_params: () => IntersectParamsOrCallback | null | undefined): Attachment<HTMLElement | SVGElement>",
+						"return_type": "Attachment<HTMLElement | SVGElement>",
+						"parameters": [
+							{
+								"name": "get_params",
+								"type": "() => IntersectParamsOrCallback | null | undefined",
+								"description": "Function that returns callback, params object, or nullish to disable"
+							}
+						]
+					},
+					{
+						"name": "OnIntersect",
+						"kind": "type",
+						"source_line": 134,
+						"type_signature": "OnIntersect"
+					},
+					{
+						"name": "IntersectState",
+						"kind": "type",
+						"source_line": 136,
+						"type_signature": "IntersectState",
+						"properties": [
+							{
+								"name": "intersecting",
+								"kind": "variable",
+								"type_signature": "boolean"
+							},
+							{
+								"name": "intersections",
+								"kind": "variable",
+								"type_signature": "number"
+							},
+							{
+								"name": "el",
+								"kind": "variable",
+								"type_signature": "HTMLElement | SVGElement"
+							},
+							{
+								"name": "observer",
+								"kind": "variable",
+								"type_signature": "IntersectionObserver"
+							},
+							{
+								"name": "disconnect",
+								"kind": "variable",
+								"type_signature": "() => void"
+							}
+						]
+					},
+					{
+						"name": "OnDisconnect",
+						"kind": "type",
+						"source_line": 145,
+						"type_signature": "OnDisconnect"
+					},
+					{
+						"name": "DisconnectState",
+						"kind": "type",
+						"source_line": 147,
+						"type_signature": "DisconnectState",
+						"properties": [
+							{
+								"name": "intersecting",
+								"kind": "variable",
+								"type_signature": "boolean"
+							},
+							{
+								"name": "intersections",
+								"kind": "variable",
+								"type_signature": "number"
+							},
+							{
+								"name": "el",
+								"kind": "variable",
+								"type_signature": "HTMLElement | SVGElement"
+							},
+							{
+								"name": "observer",
+								"kind": "variable",
+								"type_signature": "IntersectionObserver"
+							}
+						]
+					}
+				],
+				"dependents": ["TomeContent.svelte", "TomeSection.svelte"]
+			},
+			{
+				"path": "library_gen_helpers.ts",
+				"declarations": [
+					{
+						"name": "TsFileAnalysis",
+						"kind": "type",
+						"doc_comment": "Result of analyzing a TypeScript file.\nIncludes both the module metadata and re-export information for post-processing.",
+						"source_line": 41,
+						"type_signature": "TsFileAnalysis",
+						"properties": [
+							{
+								"name": "module",
+								"kind": "variable",
+								"type_signature": "ModuleJson",
+								"doc_comment": "Module metadata for inclusion in source_json."
+							},
+							{
+								"name": "re_exports",
+								"kind": "variable",
+								"type_signature": "Array<ReExportInfo>",
+								"doc_comment": "Re-exports from this module for building also_exported_from."
+							}
+						]
+					},
+					{
+						"name": "library_gen_validate_no_duplicates",
+						"kind": "function",
+						"doc_comment": "Validates that no declaration names are duplicated across modules.\nThe flat namespace is intentional - duplicates should fail fast.",
+						"throws": [
+							{
+								"type": "Error",
+								"description": "if duplicate declaration names are found"
+							}
+						],
+						"source_line": 54,
+						"type_signature": "(source_json: { [x: string]: unknown; name: string; version: string; modules?: { [x: string]: unknown; path: string; declarations?: { [x: string]: unknown; name: string; kind: \"function\" | \"json\" | \"type\" | \"variable\" | \"class\" | \"constructor\" | \"component\" | \"css\"; ... 19 more ...; alias_of?: { ...; } | undefined; }[] | undefined; module_comment?: string | undefined; dependencies?: string[] | undefined; dependents?: string[] | undefined; }[] | undefined; }, log: Logger): void",
+						"return_type": "void",
+						"parameters": [
+							{
+								"name": "source_json",
+								"type": "{ [x: string]: unknown; name: string; version: string; modules?: { [x: string]: unknown; path: string; declarations?: { [x: string]: unknown; name: string; kind: \"function\" | \"json\" | \"type\" | \"variable\" | \"class\" | \"constructor\" | \"component\" | \"css\"; ... 19 more ...; alias_of?: { ...; } | undefined; }[] | undefine..."
+							},
+							{
+								"name": "log",
+								"type": "Logger"
+							}
+						]
+					},
+					{
+						"name": "library_gen_sort_modules",
+						"kind": "function",
+						"doc_comment": "Sort modules alphabetically by path for deterministic output and cleaner diffs.",
+						"source_line": 100,
+						"type_signature": "(modules: { [x: string]: unknown; path: string; declarations?: { [x: string]: unknown; name: string; kind: \"function\" | \"json\" | \"type\" | \"variable\" | \"class\" | \"constructor\" | \"component\" | \"css\"; doc_comment?: string | undefined; ... 18 more ...; alias_of?: { ...; } | undefined; }[] | undefined; module_comment?: string | undefined; dependencies?: string[] | undefined; dependents?: string[] | undefined; }[]): { ...; }[]",
+						"return_type": "{ [x: string]: unknown; path: string; declarations?: { [x: string]: unknown; name: string; kind: \"function\" | \"json\" | \"type\" | \"variable\" | \"class\" | \"constructor\" | \"component\" | \"css\"; doc_comment?: string | undefined; ... 18 more ...; alias_of?: { ...; } | undefined; }[] | undefined; module_comment?: string | un...",
+						"parameters": [
+							{
+								"name": "modules",
+								"type": "{ [x: string]: unknown; path: string; declarations?: { [x: string]: unknown; name: string; kind: \"function\" | \"json\" | \"type\" | \"variable\" | \"class\" | \"constructor\" | \"component\" | \"css\"; doc_comment?: string | undefined; ... 18 more ...; alias_of?: { ...; } | undefined; }[] | undefined; module_comment?: string | un..."
+							}
+						]
+					},
+					{
+						"name": "LibraryGenOutput",
+						"kind": "type",
+						"doc_comment": "Result of generating library files.\nContains both the JSON data and the TypeScript wrapper file.",
+						"source_line": 108,
+						"type_signature": "LibraryGenOutput",
+						"properties": [
+							{
+								"name": "json_content",
+								"kind": "variable",
+								"type_signature": "string",
+								"doc_comment": "JSON content for library.json"
+							},
+							{
+								"name": "ts_content",
+								"kind": "variable",
+								"type_signature": "string",
+								"doc_comment": "TypeScript wrapper content for library.ts"
+							}
+						]
+					},
+					{
+						"name": "library_gen_generate_json",
+						"kind": "function",
+						"doc_comment": "Generate the library.json and library.ts file contents.\nParses at generation time so runtime only needs the pre-computed result.\n\nReturns JSON + .ts wrapper because:\n- JSON is natively importable by Node.js and Vite without TypeScript loaders\n- Works in CI environments that don't have TS compilation\n- The .ts wrapper validates with zod and exports with proper types\n  (JSON imports get widened types like `string` instead of literal unions)",
+						"source_line": 125,
+						"type_signature": "(package_json: { [x: string]: unknown; name: string; version: string; private?: boolean | undefined; description?: string | undefined; motto?: string | undefined; glyph?: string | undefined; logo?: string | undefined; ... 23 more ...; exports?: string | ... 2 more ... | undefined; }, source_json: { ...; }): LibraryGenOutput",
+						"return_type": "LibraryGenOutput",
+						"parameters": [
+							{
+								"name": "package_json",
+								"type": "{ [x: string]: unknown; name: string; version: string; private?: boolean | undefined; description?: string | undefined; motto?: string | undefined; glyph?: string | undefined; logo?: string | undefined; ... 23 more ...; exports?: string | ... 2 more ... | undefined; }"
+							},
+							{
+								"name": "source_json",
+								"type": "{ [x: string]: unknown; name: string; version: string; modules?: { [x: string]: unknown; path: string; declarations?: { [x: string]: unknown; name: string; kind: \"function\" | \"json\" | \"type\" | \"variable\" | \"class\" | \"constructor\" | \"component\" | \"css\"; ... 19 more ...; alias_of?: { ...; } | undefined; }[] | undefine..."
+							}
+						]
+					},
+					{
+						"name": "library_gen_collect_source_files",
+						"kind": "function",
+						"doc_comment": "Collect and filter source files from filer.\n\nReturns disknodes for TypeScript/JS files and Svelte components from src/lib, excluding test files.\nReturns an empty array with a warning if no source files are found.",
+						"source_line": 158,
+						"type_signature": "(files: Map<PathId, Disknode>, log: Logger): Disknode[]",
+						"return_type": "Disknode[]",
+						"parameters": [
+							{
+								"name": "files",
+								"type": "Map<PathId, Disknode>"
+							},
+							{
+								"name": "log",
+								"type": "Logger"
+							}
+						]
+					},
+					{
+						"name": "library_gen_analyze_svelte_file",
+						"kind": "function",
+						"doc_comment": "Analyze a Svelte component file and extract metadata.\n\nUses `svelte_analyze_file` for core analysis, then adds\nGro-specific dependency information from the disknode.",
+						"source_line": 193,
+						"type_signature": "(disknode: Disknode, module_path: string, checker: TypeChecker): { [x: string]: unknown; path: string; declarations?: { [x: string]: unknown; name: string; kind: \"function\" | ... 6 more ... | \"css\"; ... 19 more ...; alias_of?: { ...; } | undefined; }[] | undefined; module_comment?: string | undefined; dependencies?: string[] | undefined; dependents?: string[] | undefined; }",
+						"return_type": "{ [x: string]: unknown; path: string; declarations?: { [x: string]: unknown; name: string; kind: \"function\" | \"json\" | \"type\" | \"variable\" | \"class\" | \"constructor\" | \"component\" | \"css\"; doc_comment?: string | undefined; ... 18 more ...; alias_of?: { ...; } | undefined; }[] | undefined; module_comment?: string | un...",
+						"parameters": [
+							{
+								"name": "disknode",
+								"type": "Disknode"
+							},
+							{
+								"name": "module_path",
+								"type": "string"
+							},
+							{
+								"name": "checker",
+								"type": "TypeChecker"
+							}
+						]
+					},
+					{
+						"name": "library_gen_analyze_typescript_file",
+						"kind": "function",
+						"doc_comment": "Analyze a TypeScript file and extract all declarations.\n\nUses `ts_analyze_module_exports` for core analysis, then adds\nGro-specific dependency information from the disknode.\n\nReturns both the module metadata and re-export information for post-processing.",
+						"source_line": 220,
+						"type_signature": "(disknode: Disknode, source_file: SourceFile, module_path: string, checker: TypeChecker): TsFileAnalysis",
+						"return_type": "TsFileAnalysis",
+						"parameters": [
+							{
+								"name": "disknode",
+								"type": "Disknode"
+							},
+							{
+								"name": "source_file",
+								"type": "SourceFile"
+							},
+							{
+								"name": "module_path",
+								"type": "string"
+							},
+							{
+								"name": "checker",
+								"type": "TypeChecker"
+							}
+						]
+					},
+					{
+						"name": "library_gen_extract_dependencies",
+						"kind": "function",
+						"doc_comment": "Extract dependencies and dependents for a module from the filer's dependency graph.\n\nFilters to only include source modules from src/lib (excludes external packages, node_modules, tests).\nReturns sorted arrays of module paths (relative to src/lib) for deterministic output.",
+						"source_line": 259,
+						"type_signature": "(disknode: Disknode): { dependencies: string[]; dependents: string[]; }",
+						"return_type": "{ dependencies: string[]; dependents: string[]; }",
+						"parameters": [
+							{
+								"name": "disknode",
+								"type": "Disknode"
+							}
+						]
+					}
+				],
+				"module_comment": "Build-time helpers for library metadata generation.\n\nThese functions handle Gro-specific concerns like file collection and dependency\ngraph extraction. Core analysis logic has been extracted to reusable helpers:\n\n- `ts_helpers.ts` - `ts_analyze_module_exports`\n- `svelte_helpers.ts` - `svelte_analyze_file`\n- `module_helpers.ts` - path utilities and source detection\n\nDesign philosophy: Fail fast with clear errors rather than silently producing invalid\nmetadata. All validation errors halt the build immediately with actionable messages.\n\n@see library_gen.ts for the main generation task\n@see @fuzdev/fuz_util/source_json.js for type definitions\n@see ts_helpers.ts for reusable TypeScript analysis\n@see svelte_helpers.ts for reusable Svelte component analysis",
+				"dependencies": ["module_helpers.ts", "svelte_helpers.ts", "ts_helpers.ts"],
+				"dependents": ["library_gen.ts"]
+			},
+			{
+				"path": "library_gen.ts",
+				"declarations": [
+					{
+						"name": "library_gen",
+						"kind": "function",
+						"doc_comment": "Creates a Gen object for generating library metadata with full TypeScript analysis.\n\nUsage in a `.gen.ts` file:\n\n```ts\nimport {library_gen} from '@fuzdev/fuz_ui/library_gen.js';\n\nexport const gen = library_gen();\n```",
+						"source_line": 47,
+						"type_signature": "(): Gen",
+						"return_type": "Gen",
+						"parameters": []
+					}
+				],
+				"module_comment": "Library metadata generator helper.\n\nGenerates package_json and source_json with rich metadata:\n- JSDoc/TSDoc comments with full tag support\n- Full type signatures\n- Source code locations\n- Parameter information with descriptions and defaults\n- Return value documentation\n- Usage examples\n- Dependency graphs\n- Svelte component props\n\n@see @fuzdev/fuz_util/source_json.js for type definitions\n@see src/lib/library_gen_helpers.ts for buildtime-only helpers\n@see src/lib/tsdoc_helpers.ts for JSDoc/TSDoc parsing\n@see src/lib/ts_helpers.ts for TypeScript analysis\n@see src/lib/svelte_helpers.ts for Svelte component analysis",
+				"dependencies": ["library_gen_helpers.ts", "module_helpers.ts", "ts_helpers.ts"]
+			},
+			{
+				"path": "library_helpers.ts",
+				"declarations": [
+					{
+						"name": "url_api_declaration",
+						"kind": "function",
+						"doc_comment": "Build project-relative API documentation URL with hash anchor.",
+						"source_line": 10,
+						"type_signature": "(declaration_name: string): string",
+						"return_type": "string",
+						"parameters": [
+							{
+								"name": "declaration_name",
+								"type": "string"
+							}
+						]
+					},
+					{
+						"name": "url_api_declaration_full",
+						"kind": "function",
+						"doc_comment": "Build full API documentation URL with domain and hash anchor.",
+						"source_line": 16,
+						"type_signature": "(homepage: string, declaration_name: string): string",
+						"return_type": "string",
+						"parameters": [
+							{
+								"name": "homepage",
+								"type": "string"
+							},
+							{
+								"name": "declaration_name",
+								"type": "string"
+							}
+						]
+					},
+					{
+						"name": "url_api_module",
+						"kind": "function",
+						"doc_comment": "Build project-relative module documentation URL.",
+						"source_line": 22,
+						"type_signature": "(module_path: string): string",
+						"return_type": "string",
+						"parameters": [
+							{
+								"name": "module_path",
+								"type": "string"
+							}
+						]
+					},
+					{
+						"name": "url_github_file",
+						"kind": "function",
+						"doc_comment": "Build GitHub file URL for a repository.",
+						"source_line": 27,
+						"type_signature": "(repo_url: string, file_path: string, line?: number | undefined): string",
+						"return_type": "string",
+						"parameters": [
+							{
+								"name": "repo_url",
+								"type": "string"
+							},
+							{
+								"name": "file_path",
+								"type": "string"
+							},
+							{
+								"name": "line",
+								"type": "number | undefined",
+								"optional": true
+							}
+						]
+					},
+					{
+						"name": "url_github_org",
+						"kind": "function",
+						"doc_comment": "Build GitHub organization URL from repo URL and repo name.",
+						"source_line": 36,
+						"type_signature": "(repo_url: string, repo_name: string): string | null",
+						"return_type": "string | null",
+						"parameters": [
+							{
+								"name": "repo_url",
+								"type": "string"
+							},
+							{
+								"name": "repo_name",
+								"type": "string"
+							}
+						]
+					},
+					{
+						"name": "github_owner_parse",
+						"kind": "function",
+						"doc_comment": "Parse GitHub owner/org name from repository URL.",
+						"source_line": 43,
+						"type_signature": "(repo_url: string): string | null",
+						"return_type": "string | null",
+						"parameters": [
+							{
+								"name": "repo_url",
+								"type": "string"
+							}
+						]
+					},
+					{
+						"name": "url_npm_package",
+						"kind": "function",
+						"doc_comment": "Build npm package URL.",
+						"source_line": 53,
+						"type_signature": "(package_name: string): string",
+						"return_type": "string",
+						"parameters": [
+							{
+								"name": "package_name",
+								"type": "string"
+							}
+						]
+					},
+					{
+						"name": "package_is_published",
+						"kind": "function",
+						"doc_comment": "Check if a package is published to npm.",
+						"source_line": 59,
+						"type_signature": "(package_json: { [x: string]: unknown; name: string; version: string; private?: boolean | undefined; description?: string | undefined; motto?: string | undefined; glyph?: string | undefined; logo?: string | undefined; ... 23 more ...; exports?: string | ... 2 more ... | undefined; }): boolean",
+						"return_type": "boolean",
+						"parameters": [
+							{
+								"name": "package_json",
+								"type": "{ [x: string]: unknown; name: string; version: string; private?: boolean | undefined; description?: string | undefined; motto?: string | undefined; glyph?: string | undefined; logo?: string | undefined; ... 23 more ...; exports?: string | ... 2 more ... | undefined; }"
+							}
+						]
+					},
+					{
+						"name": "url_package_logo",
+						"kind": "function",
+						"doc_comment": "Build package logo URL with favicon.png fallback.",
+						"source_line": 66,
+						"type_signature": "(homepage_url: string | null, logo_path?: string | undefined): string | null",
+						"return_type": "string | null",
+						"parameters": [
+							{
+								"name": "homepage_url",
+								"type": "string | null"
+							},
+							{
+								"name": "logo_path",
+								"type": "string | undefined",
+								"optional": true
+							}
+						]
+					},
+					{
+						"name": "repo_name_parse",
+						"kind": "function",
+						"doc_comment": "Extract repository name without scope from package name.",
+						"source_line": 78,
+						"type_signature": "(name: string): string",
+						"return_type": "string",
+						"parameters": [
+							{
+								"name": "name",
+								"type": "string"
+							}
+						]
+					},
+					{
+						"name": "repo_url_parse",
+						"kind": "function",
+						"doc_comment": "Parse repository URL from package.json format.",
+						"source_line": 92,
+						"type_signature": "(repository: string | { [x: string]: unknown; type: string; url: string; directory?: string | undefined; } | undefined): string | null",
+						"return_type": "string | null",
+						"parameters": [
+							{
+								"name": "repository",
+								"type": "string | { [x: string]: unknown; type: string; url: string; directory?: string | undefined; } | undefined"
+							}
+						]
+					},
+					{
+						"name": "url_well_known",
+						"kind": "function",
+						"doc_comment": "Build .well-known URL for package metadata files.",
+						"source_line": 102,
+						"type_signature": "(homepage_url: string, filename: string): string",
+						"return_type": "string",
+						"parameters": [
+							{
+								"name": "homepage_url",
+								"type": "string"
+							},
+							{
+								"name": "filename",
+								"type": "string"
+							}
+						]
+					},
+					{
+						"name": "url_to_root_relative",
+						"kind": "function",
+						"doc_comment": "Convert a full URL to root-relative format by removing the origin.",
+						"source_line": 109,
+						"type_signature": "(url: string, origin?: string): string",
+						"return_type": "string",
+						"parameters": [
+							{
+								"name": "url",
+								"type": "string"
+							},
+							{
+								"name": "origin",
+								"type": "string",
+								"default_value": "page.url.origin"
+							}
+						]
+					}
+				],
+				"dependencies": ["docs_helpers.svelte.ts"],
+				"dependents": [
+					"LibraryDetail.svelte",
+					"contextmenu_state.svelte.ts",
+					"declaration.svelte.ts",
+					"module.svelte.ts"
+				]
+			},
+			{
+				"path": "library.svelte.ts",
+				"declarations": [
+					{
+						"name": "Library",
+						"kind": "class",
+						"doc_comment": "Rich runtime representation of a library.\n\nWraps `LibraryJson` with computed properties and provides the root\nof the API documentation hierarchy: Library → modules → declarations",
+						"see_also": [
+							"`module.svelte.ts for Module class`",
+							"`declaration.svelte.ts for Declaration class`"
+						],
+						"source_line": 16,
+						"members": [
+							{
+								"name": "library_json",
+								"kind": "variable",
+								"modifiers": ["readonly"],
+								"type_signature": "LibraryJson"
+							},
+							{
+								"name": "package_json",
+								"kind": "variable"
+							},
+							{
+								"name": "source_json",
+								"kind": "variable"
+							},
+							{
+								"name": "name",
+								"kind": "variable"
+							},
+							{
+								"name": "repo_name",
+								"kind": "variable"
+							},
+							{
+								"name": "repo_url",
+								"kind": "variable"
+							},
+							{
+								"name": "owner_name",
+								"kind": "variable"
+							},
+							{
+								"name": "homepage_url",
+								"kind": "variable"
+							},
+							{
+								"name": "logo_url",
+								"kind": "variable"
+							},
+							{
+								"name": "logo_alt",
+								"kind": "variable"
+							},
+							{
+								"name": "npm_url",
+								"kind": "variable"
+							},
+							{
+								"name": "changelog_url",
+								"kind": "variable"
+							},
+							{
+								"name": "published",
+								"kind": "variable"
+							},
+							{
+								"name": "org_url",
+								"kind": "variable",
+								"doc_comment": "Organization URL (e.g., 'https://github.com/ryanatkn')."
+							},
+							{
+								"name": "modules",
+								"kind": "variable",
+								"doc_comment": "All modules as rich Module instances."
+							},
+							{
+								"name": "modules_sorted",
+								"kind": "variable",
+								"doc_comment": "All modules sorted alphabetically by path."
+							},
+							{
+								"name": "declarations",
+								"kind": "variable",
+								"doc_comment": "All declarations across all modules as a flat array."
+							},
+							{
+								"name": "declaration_map",
+								"kind": "variable",
+								"doc_comment": "Declaration lookup map by name. Provides O(1) lookup."
+							},
+							{
+								"name": "constructor",
+								"kind": "constructor",
+								"type_signature": "(library_json: LibraryJson): Library",
+								"parameters": [
+									{
+										"name": "library_json",
+										"type": "LibraryJson"
+									}
+								]
+							},
+							{
+								"name": "lookup_declaration",
+								"kind": "function",
+								"doc_comment": "Look up a declaration by name.",
+								"type_signature": "(name: string): Declaration | undefined",
+								"return_type": "Declaration | undefined",
+								"parameters": [
+									{
+										"name": "name",
+										"type": "string"
+									}
+								]
+							},
+							{
+								"name": "has_declaration",
+								"kind": "function",
+								"doc_comment": "Check if a declaration exists.",
+								"type_signature": "(name: string): boolean",
+								"return_type": "boolean",
+								"parameters": [
+									{
+										"name": "name",
+										"type": "string"
+									}
+								]
+							},
+							{
+								"name": "lookup_module",
+								"kind": "function",
+								"doc_comment": "Look up a module by its canonical path.",
+								"type_signature": "(path: string): Module | undefined",
+								"return_type": "Module | undefined",
+								"parameters": [
+									{
+										"name": "path",
+										"type": "string"
+									}
+								]
+							},
+							{
+								"name": "search_declarations",
+								"kind": "function",
+								"doc_comment": "Search declarations by query string with multi-term AND logic.",
+								"type_signature": "(query: string): Declaration[]",
+								"return_type": "Declaration[]",
+								"parameters": [
+									{
+										"name": "query",
+										"type": "string"
+									}
+								]
+							}
+						]
+					},
+					{
+						"name": "library_context",
+						"kind": "variable",
+						"source_line": 101,
+						"type_signature": "{ get: (error_message?: string | undefined) => Library; get_maybe: () => Library | undefined; set: (value: Library) => Library; }"
+					}
+				],
+				"dependencies": ["context_helpers.ts", "declaration.svelte.ts", "module.svelte.ts"],
+				"dependents": [
+					"ApiIndex.svelte",
+					"ApiModule.svelte",
+					"DeclarationLink.svelte",
+					"DocsLink.svelte",
+					"DocsModulesList.svelte",
+					"DocsTertiaryNav.svelte",
+					"ModuleLink.svelte",
+					"TypeLink.svelte"
+				]
+			},
+			{
+				"path": "LibraryDetail.svelte",
+				"declarations": [
+					{
+						"name": "LibraryDetail",
+						"kind": "component",
+						"props": [
+							{
+								"name": "library",
+								"type": "Library"
+							},
+							{
+								"name": "repo_name",
+								"type": "Snippet<[repo_name: string]>",
+								"optional": true
+							},
+							{
+								"name": "description",
+								"type": "Snippet<[description: string]>",
+								"optional": true
+							},
+							{
+								"name": "motto",
+								"type": "Snippet<[description: string]>",
+								"optional": true
+							},
+							{
+								"name": "npm_url",
+								"type": "Snippet<[npm_url: string]>",
+								"optional": true
+							},
+							{
+								"name": "homepage_url",
+								"type": "Snippet<[homepage_url: string]>",
+								"optional": true
+							},
+							{
+								"name": "children",
+								"type": "Snippet<[library: Library]>",
+								"optional": true
+							}
+						],
+						"source_line": 1
+					}
+				],
+				"dependencies": [
+					"DeclarationLink.svelte",
+					"ImgOrSvg.svelte",
+					"ModuleLink.svelte",
+					"library_helpers.ts",
+					"module_helpers.ts"
+				]
+			},
+			{
+				"path": "LibrarySummary.svelte",
+				"declarations": [
+					{
+						"name": "LibrarySummary",
+						"kind": "component",
+						"props": [
+							{
+								"name": "library",
+								"type": "Library"
+							},
+							{
+								"name": "repo_name",
+								"type": "Snippet<[repo_name: string]>",
+								"optional": true
+							},
+							{
+								"name": "logo",
+								"type": "Snippet<[logo_url: string, logo_alt: string]>",
+								"optional": true
+							},
+							{
+								"name": "motto",
+								"type": "Snippet<[motto: string, glyph?: string]>",
+								"optional": true
+							},
+							{
+								"name": "description",
+								"type": "Snippet<[description: string, glyph?: string]>",
+								"optional": true
+							},
+							{
+								"name": "npm_url",
+								"type": "Snippet<[npm_url: string]>",
+								"optional": true
+							},
+							{
+								"name": "homepage_url",
+								"type": "Snippet<[homepage_url: string]>",
+								"optional": true
+							},
+							{
+								"name": "children",
+								"type": "Snippet",
+								"optional": true
+							}
+						],
+						"source_line": 1
+					}
+				],
+				"dependencies": ["ImgOrSvg.svelte"],
+				"dependents": ["DocsContent.svelte"]
+			},
+			{
+				"path": "logos.ts",
+				"declarations": [
+					{
+						"name": "logo_gro",
+						"kind": "variable",
+						"source_line": 22,
+						"type_signature": "SvgData"
+					},
+					{
+						"name": "logo_fuz",
+						"kind": "variable",
+						"source_line": 56,
+						"type_signature": "SvgData"
+					},
+					{
+						"name": "logo_fuz_ui",
+						"kind": "variable",
+						"source_line": 66,
+						"type_signature": "SvgData"
+					},
+					{
+						"name": "logo_fuz_css",
+						"kind": "variable",
+						"source_line": 72,
+						"type_signature": "SvgData"
+					},
+					{
+						"name": "logo_fuz_code",
+						"kind": "variable",
+						"source_line": 79,
+						"type_signature": "SvgData"
+					},
+					{
+						"name": "logo_fuz_blog",
+						"kind": "variable",
+						"source_line": 85,
+						"type_signature": "SvgData"
+					},
+					{
+						"name": "logo_fuz_mastodon",
+						"kind": "variable",
+						"source_line": 91,
+						"type_signature": "SvgData"
+					},
+					{
+						"name": "logo_fuz_gitops",
+						"kind": "variable",
+						"source_line": 97,
+						"type_signature": "SvgData"
+					},
+					{
+						"name": "logo_fuz_template",
+						"kind": "variable",
+						"source_line": 103,
+						"type_signature": "SvgData"
+					},
+					{
+						"name": "logo_fuz_util",
+						"kind": "variable",
+						"source_line": 113,
+						"type_signature": "SvgData"
+					},
+					{
+						"name": "logo_github",
+						"kind": "variable",
+						"source_line": 139,
+						"type_signature": "SvgData"
+					},
+					{
+						"name": "logo_mdn",
+						"kind": "variable",
+						"source_line": 152,
+						"type_signature": "SvgData"
+					}
+				],
+				"dependents": [
+					"DocsFooter.svelte",
+					"GithubLink.svelte",
+					"MdnLink.svelte",
+					"ProjectLinks.svelte",
+					"Spiders.svelte"
+				]
+			},
+			{
+				"path": "MdnLink.svelte",
+				"declarations": [
+					{
+						"name": "MdnLink",
+						"kind": "component",
+						"props": [
+							{
+								"name": "path",
+								"type": "string"
+							}
+						],
+						"source_line": 1
+					}
+				],
+				"dependencies": ["Svg.svelte", "logos.ts"]
+			},
+			{
+				"path": "mdz_components.ts",
+				"declarations": [
+					{
+						"name": "MdzComponents",
+						"kind": "type",
+						"doc_comment": "Component registry for custom Svelte components that can be used in mdz content.\n\nFor example, registering 'Alert' allows using `<Alert>...</Alert>` in mdz content.\n\nThe Map values are the Svelte component constructors.",
+						"source_line": 12,
+						"type_signature": "MdzComponents"
+					},
+					{
+						"name": "MdzElements",
+						"kind": "type",
+						"doc_comment": "Element registry for HTML elements that can be used in mdz content.\n\nFor example, registering 'div' allows using `<div>...</div>` in mdz content.\n\nThe Map values are boolean placeholders for future configuration options.",
+						"source_line": 21,
+						"type_signature": "MdzElements"
+					},
+					{
+						"name": "mdz_components_context",
+						"kind": "variable",
+						"doc_comment": "Context for providing custom mdz components.\nMust be set by the application using mdz.",
+						"source_line": 27,
+						"type_signature": "{ get: (error_message?: string | undefined) => MdzComponents; get_maybe: () => MdzComponents | undefined; set: (value: MdzComponents) => MdzComponents; }"
+					},
+					{
+						"name": "mdz_elements_context",
+						"kind": "variable",
+						"doc_comment": "Context for providing allowed HTML elements.\nMust be set by the application using mdz.\nBy default, no HTML elements are allowed.",
+						"source_line": 34,
+						"type_signature": "{ get: (error_message?: string | undefined) => MdzElements; get_maybe: () => MdzElements | undefined; set: (value: MdzElements) => MdzElements; }"
+					}
+				],
+				"dependencies": ["context_helpers.ts"],
+				"dependents": ["MdzNodeView.svelte"]
+			},
+			{
+				"path": "Mdz.svelte",
+				"declarations": [
+					{
+						"name": "Mdz",
+						"kind": "component",
+						"props": [
+							{
+								"name": "content",
+								"type": "string"
+							},
+							{
+								"name": "inline",
+								"type": "boolean",
+								"optional": true
+							},
+							{
+								"name": "nowrap",
+								"type": "boolean",
+								"optional": true
+							}
+						],
+						"source_line": 1
+					}
+				],
+				"dependencies": ["MdzNodeView.svelte", "mdz.ts"],
+				"dependents": ["ApiModule.svelte", "DeclarationDetail.svelte"]
+			},
+			{
+				"path": "mdz.ts",
+				"declarations": [
+					{
+						"name": "mdz_parse",
+						"kind": "function",
+						"doc_comment": "Parses text to an array of `MdzNode`.",
+						"source_line": 35,
+						"type_signature": "(text: string): MdzNode[]",
+						"return_type": "MdzNode[]",
+						"parameters": [
+							{
+								"name": "text",
+								"type": "string"
+							}
+						]
+					},
+					{
+						"name": "MdzNode",
+						"kind": "type",
+						"source_line": 37,
+						"type_signature": "MdzNode"
+					},
+					{
+						"name": "MdzBaseNode",
+						"kind": "type",
+						"source_line": 51,
+						"type_signature": "MdzBaseNode",
+						"properties": [
+							{
+								"name": "type",
+								"kind": "variable",
+								"type_signature": "string"
+							},
+							{
+								"name": "start",
+								"kind": "variable",
+								"type_signature": "number"
+							},
+							{
+								"name": "end",
+								"kind": "variable",
+								"type_signature": "number"
+							}
+						]
+					},
+					{
+						"name": "MdzTextNode",
+						"kind": "type",
+						"source_line": 57,
+						"type_signature": "MdzTextNode",
+						"extends": ["MdzBaseNode"],
+						"properties": [
+							{
+								"name": "type",
+								"kind": "variable",
+								"type_signature": "'Text'"
+							},
+							{
+								"name": "content",
+								"kind": "variable",
+								"type_signature": "string"
+							}
+						]
+					},
+					{
+						"name": "MdzCodeNode",
+						"kind": "type",
+						"source_line": 62,
+						"type_signature": "MdzCodeNode",
+						"extends": ["MdzBaseNode"],
+						"properties": [
+							{
+								"name": "type",
+								"kind": "variable",
+								"type_signature": "'Code'"
+							},
+							{
+								"name": "content",
+								"kind": "variable",
+								"type_signature": "string"
+							}
+						]
+					},
+					{
+						"name": "MdzCodeblockNode",
+						"kind": "type",
+						"source_line": 67,
+						"type_signature": "MdzCodeblockNode",
+						"extends": ["MdzBaseNode"],
+						"properties": [
+							{
+								"name": "type",
+								"kind": "variable",
+								"type_signature": "'Codeblock'"
+							},
+							{
+								"name": "lang",
+								"kind": "variable",
+								"type_signature": "string | null"
+							},
+							{
+								"name": "content",
+								"kind": "variable",
+								"type_signature": "string"
+							}
+						]
+					},
+					{
+						"name": "MdzBoldNode",
+						"kind": "type",
+						"source_line": 73,
+						"type_signature": "MdzBoldNode",
+						"extends": ["MdzBaseNode"],
+						"properties": [
+							{
+								"name": "type",
+								"kind": "variable",
+								"type_signature": "'Bold'"
+							},
+							{
+								"name": "children",
+								"kind": "variable",
+								"type_signature": "Array<MdzNode>"
+							}
+						]
+					},
+					{
+						"name": "MdzItalicNode",
+						"kind": "type",
+						"source_line": 78,
+						"type_signature": "MdzItalicNode",
+						"extends": ["MdzBaseNode"],
+						"properties": [
+							{
+								"name": "type",
+								"kind": "variable",
+								"type_signature": "'Italic'"
+							},
+							{
+								"name": "children",
+								"kind": "variable",
+								"type_signature": "Array<MdzNode>"
+							}
+						]
+					},
+					{
+						"name": "MdzStrikethroughNode",
+						"kind": "type",
+						"source_line": 83,
+						"type_signature": "MdzStrikethroughNode",
+						"extends": ["MdzBaseNode"],
+						"properties": [
+							{
+								"name": "type",
+								"kind": "variable",
+								"type_signature": "'Strikethrough'"
+							},
+							{
+								"name": "children",
+								"kind": "variable",
+								"type_signature": "Array<MdzNode>"
+							}
+						]
+					},
+					{
+						"name": "MdzLinkNode",
+						"kind": "type",
+						"source_line": 88,
+						"type_signature": "MdzLinkNode",
+						"extends": ["MdzBaseNode"],
+						"properties": [
+							{
+								"name": "type",
+								"kind": "variable",
+								"type_signature": "'Link'"
+							},
+							{
+								"name": "reference",
+								"kind": "variable",
+								"type_signature": "string"
+							},
+							{
+								"name": "children",
+								"kind": "variable",
+								"type_signature": "Array<MdzNode>"
+							},
+							{
+								"name": "link_type",
+								"kind": "variable",
+								"type_signature": "'external' | 'internal'"
+							}
+						]
+					},
+					{
+						"name": "MdzParagraphNode",
+						"kind": "type",
+						"source_line": 95,
+						"type_signature": "MdzParagraphNode",
+						"extends": ["MdzBaseNode"],
+						"properties": [
+							{
+								"name": "type",
+								"kind": "variable",
+								"type_signature": "'Paragraph'"
+							},
+							{
+								"name": "children",
+								"kind": "variable",
+								"type_signature": "Array<MdzNode>"
+							}
+						]
+					},
+					{
+						"name": "MdzHrNode",
+						"kind": "type",
+						"source_line": 100,
+						"type_signature": "MdzHrNode",
+						"extends": ["MdzBaseNode"],
+						"properties": [
+							{
+								"name": "type",
+								"kind": "variable",
+								"type_signature": "'Hr'"
+							}
+						]
+					},
+					{
+						"name": "MdzHeadingNode",
+						"kind": "type",
+						"source_line": 104,
+						"type_signature": "MdzHeadingNode",
+						"extends": ["MdzBaseNode"],
+						"properties": [
+							{
+								"name": "type",
+								"kind": "variable",
+								"type_signature": "'Heading'"
+							},
+							{
+								"name": "level",
+								"kind": "variable",
+								"type_signature": "1 | 2 | 3 | 4 | 5 | 6"
+							},
+							{
+								"name": "children",
+								"kind": "variable",
+								"type_signature": "Array<MdzNode>"
+							}
+						]
+					},
+					{
+						"name": "MdzElementNode",
+						"kind": "type",
+						"source_line": 110,
+						"type_signature": "MdzElementNode",
+						"extends": ["MdzBaseNode"],
+						"properties": [
+							{
+								"name": "type",
+								"kind": "variable",
+								"type_signature": "'Element'"
+							},
+							{
+								"name": "name",
+								"kind": "variable",
+								"type_signature": "string"
+							},
+							{
+								"name": "children",
+								"kind": "variable",
+								"type_signature": "Array<MdzNode>"
+							}
+						]
+					},
+					{
+						"name": "MdzComponentNode",
+						"kind": "type",
+						"source_line": 116,
+						"type_signature": "MdzComponentNode",
+						"extends": ["MdzBaseNode"],
+						"properties": [
+							{
+								"name": "type",
+								"kind": "variable",
+								"type_signature": "'Component'"
+							},
+							{
+								"name": "name",
+								"kind": "variable",
+								"type_signature": "string"
+							},
+							{
+								"name": "children",
+								"kind": "variable",
+								"type_signature": "Array<MdzNode>"
+							}
+						]
+					},
+					{
+						"name": "MdzParser",
+						"kind": "class",
+						"doc_comment": "Parser for mdz format.\nSingle-pass lexer/parser with text accumulation for efficiency.\nUsed by `mdz_parse`, which should be preferred for simple usage.",
+						"source_line": 172,
+						"members": [
+							{
+								"name": "constructor",
+								"kind": "constructor",
+								"type_signature": "(template: string): MdzParser",
+								"parameters": [
+									{
+										"name": "template",
+										"type": "string"
+									}
+								]
+							},
+							{
+								"name": "parse",
+								"kind": "function",
+								"doc_comment": "Main parse method. Returns flat array of nodes,\nwith paragraph nodes wrapping content between double newlines.",
+								"type_signature": "(): MdzNode[]",
+								"return_type": "MdzNode[]",
+								"parameters": []
+							}
+						]
+					}
+				],
+				"module_comment": "mdz - minimal markdown dialect for Fuz documentation.\n\nParses an enhanced markdown dialect with:\n- inline formatting: `code`, **bold**, _italic_, ~strikethrough~\n- auto-detected links: external URLs (`https://...`) and internal paths (`/path`)\n- markdown links: `[text](url)` with custom display text\n- inline code in backticks (creates `Code` nodes; auto-linking to identifiers/modules\n  is handled by the rendering layer via `MdzNodeView.svelte`)\n- paragraph breaks (double newline)\n- block elements: headings, horizontal rules, code blocks\n- HTML elements and Svelte components (opt-in via context)\n\nKey constraint: preserves ALL whitespace exactly as authored,\nand is rendered with white-space pre or pre-wrap.\n\n## Design philosophy\n\n- **False negatives over false positives**: Strict syntax prevents accidentally\n  interpreting plain text as formatting. When in doubt, treat as plain text.\n- **One way to do things**: Single unambiguous syntax per feature. No alternatives.\n- **Explicit over implicit**: Clear delimiters and column-0 requirements avoid ambiguity.\n- **Simple over complete**: Prefer simple parsing rules over complex edge case handling.\n\n## Status\n\nThis is an early proof of concept with missing features and edge cases.",
+				"dependents": ["Mdz.svelte"]
+			},
+			{
+				"path": "MdzNodeView.svelte",
+				"declarations": [
+					{
+						"name": "MdzNodeView",
+						"kind": "component",
+						"props": [
+							{
+								"name": "node",
+								"type": "MdzNode"
+							}
+						],
+						"source_line": 1
+					}
+				],
+				"dependencies": ["DocsLink.svelte", "MdzNodeView.svelte", "mdz_components.ts"],
+				"dependents": ["Mdz.svelte", "MdzNodeView.svelte"]
+			},
+			{
+				"path": "module_contextmenu.ts",
+				"declarations": [
+					{
+						"name": "create_module_contextmenu",
+						"kind": "function",
+						"source_line": 6,
+						"type_signature": "(module: Module): ContextmenuParams[]",
+						"return_type": "ContextmenuParams[]",
+						"parameters": [
+							{
+								"name": "module",
+								"type": "Module"
+							}
+						]
+					}
+				],
+				"dependents": ["ModuleLink.svelte"]
+			},
+			{
+				"path": "module_helpers.ts",
+				"declarations": [
+					{
+						"name": "ModuleSourceOptions",
+						"kind": "type",
+						"doc_comment": "Configuration for module source detection.\n\nAllows customizing which paths are considered source modules,\nuseful for projects with non-standard directory structures.",
+						"source_line": 16,
+						"type_signature": "ModuleSourceOptions",
+						"properties": [
+							{
+								"name": "source_paths",
+								"kind": "variable",
+								"type_signature": "Array<string>",
+								"doc_comment": "Source directory paths to include."
+							},
+							{
+								"name": "extensions",
+								"kind": "variable",
+								"type_signature": "Array<string>",
+								"doc_comment": "File extensions to analyze."
+							},
+							{
+								"name": "exclude_patterns",
+								"kind": "variable",
+								"type_signature": "Array<RegExp>",
+								"doc_comment": "Patterns to exclude (matched against full path)."
+							}
+						]
+					},
+					{
+						"name": "MODULE_SOURCE_DEFAULTS",
+						"kind": "variable",
+						"doc_comment": "Default options for module source detection.",
+						"source_line": 28,
+						"type_signature": "Required<ModuleSourceOptions>"
+					},
+					{
+						"name": "module_extract_path",
+						"kind": "function",
+						"doc_comment": "Extract module path relative to src/lib from absolute source ID.",
+						"examples": [
+							"module_extract_path('/home/user/project/src/lib/foo.ts') // => 'foo.ts'\nmodule_extract_path('/home/user/project/src/lib/nested/bar.svelte') // => 'nested/bar.svelte'"
+						],
+						"source_line": 41,
+						"type_signature": "(source_id: string): string",
+						"return_type": "string",
+						"parameters": [
+							{
+								"name": "source_id",
+								"type": "string"
+							}
+						]
+					},
+					{
+						"name": "module_get_component_name",
+						"kind": "function",
+						"doc_comment": "Extract component name from a Svelte module path.",
+						"examples": [
+							"module_get_component_name('Alert.svelte') // => 'Alert'\nmodule_get_component_name('components/Button.svelte') // => 'Button'"
+						],
+						"source_line": 53,
+						"type_signature": "(module_path: string): string",
+						"return_type": "string",
+						"parameters": [
+							{
+								"name": "module_path",
+								"type": "string"
+							}
+						]
+					},
+					{
+						"name": "module_get_key",
+						"kind": "function",
+						"doc_comment": "Convert module path to module key format (with ./ prefix).",
+						"examples": ["module_get_key('foo.ts') // => './foo.ts'"],
+						"source_line": 62,
+						"type_signature": "(module_path: string): string",
+						"return_type": "string",
+						"parameters": [
+							{
+								"name": "module_path",
+								"type": "string"
+							}
+						]
+					},
+					{
+						"name": "module_is_typescript",
+						"kind": "function",
+						"source_line": 64,
+						"type_signature": "(path: string): boolean",
+						"return_type": "boolean",
+						"parameters": [
+							{
+								"name": "path",
+								"type": "string"
+							}
+						]
+					},
+					{
+						"name": "module_is_svelte",
+						"kind": "function",
+						"source_line": 67,
+						"type_signature": "(path: string): boolean",
+						"return_type": "boolean",
+						"parameters": [
+							{
+								"name": "path",
+								"type": "string"
+							}
+						]
+					},
+					{
+						"name": "module_is_css",
+						"kind": "function",
+						"source_line": 69,
+						"type_signature": "(path: string): boolean",
+						"return_type": "boolean",
+						"parameters": [
+							{
+								"name": "path",
+								"type": "string"
+							}
+						]
+					},
+					{
+						"name": "module_is_json",
+						"kind": "function",
+						"source_line": 71,
+						"type_signature": "(path: string): boolean",
+						"return_type": "boolean",
+						"parameters": [
+							{
+								"name": "path",
+								"type": "string"
+							}
+						]
+					},
+					{
+						"name": "module_is_test",
+						"kind": "function",
+						"source_line": 73,
+						"type_signature": "(path: string): boolean",
+						"return_type": "boolean",
+						"parameters": [
+							{
+								"name": "path",
+								"type": "string"
+							}
+						]
+					},
+					{
+						"name": "module_matches_source",
+						"kind": "function",
+						"doc_comment": "Check if a path matches source criteria.\n\nChecks source directory paths, file extensions, and exclusion patterns.\nUses defaults if no options provided.\n\nRejects nested repo paths by ensuring the first `/src/` leads to the source directory\n(e.g. rejects `/src/fixtures/repos/foo/src/lib/index.ts` because `/src/fixtures/` ≠ `/src/lib/`).",
+						"source_line": 88,
+						"type_signature": "(path: string, options?: ModuleSourceOptions | undefined): boolean",
+						"return_type": "boolean",
+						"return_description": "True if the path matches all criteria",
+						"parameters": [
+							{
+								"name": "path",
+								"type": "string",
+								"description": "Full path to check"
+							},
+							{
+								"name": "options",
+								"type": "ModuleSourceOptions | undefined",
+								"optional": true,
+								"description": "Configuration options (uses defaults if not provided)"
+							}
+						]
+					}
+				],
+				"module_comment": "Module path and metadata helpers.\n\nProvides utilities for working with source module paths, file types,\nand import relationships in the package generation system.\n\nAll functions are prefixed with `module_` for clarity.",
+				"dependents": [
+					"LibraryDetail.svelte",
+					"library_gen.ts",
+					"library_gen_helpers.ts",
+					"svelte_helpers.ts",
+					"ts_helpers.ts"
+				]
+			},
+			{
+				"path": "module.svelte.ts",
+				"declarations": [
+					{
+						"name": "Module",
+						"kind": "class",
+						"doc_comment": "Rich runtime representation of a module with computed properties.",
+						"source_line": 10,
+						"members": [
+							{
+								"name": "library",
+								"kind": "variable",
+								"modifiers": ["readonly"],
+								"type_signature": "Library"
+							},
+							{
+								"name": "module_json",
+								"kind": "variable",
+								"modifiers": ["readonly"],
+								"type_signature": "ModuleJson"
+							},
+							{
+								"name": "path",
+								"kind": "variable",
+								"doc_comment": "Canonical module path (e.g., 'Alert.ts', 'helpers/foo.ts')."
+							},
+							{
+								"name": "path_import",
+								"kind": "variable",
+								"doc_comment": "Import-style path with ./ prefix."
+							},
+							{
+								"name": "module_comment",
+								"kind": "variable"
+							},
+							{
+								"name": "declarations",
+								"kind": "variable",
+								"doc_comment": "Array of Declaration instances. Filters out default exports."
+							},
+							{
+								"name": "url_api",
+								"kind": "variable",
+								"doc_comment": "API documentation URL for this module."
+							},
+							{
+								"name": "url_github",
+								"kind": "variable",
+								"doc_comment": "GitHub source URL."
+							},
+							{
+								"name": "has_declarations",
+								"kind": "variable",
+								"type_signature": "boolean"
+							},
+							{
+								"name": "has_module_comment",
+								"kind": "variable",
+								"type_signature": "boolean"
+							},
+							{
+								"name": "dependencies",
+								"kind": "variable",
+								"doc_comment": "Modules this imports (paths relative to src/lib)."
+							},
+							{
+								"name": "dependents",
+								"kind": "variable",
+								"doc_comment": "Modules that import this (paths relative to src/lib)."
+							},
+							{
+								"name": "constructor",
+								"kind": "constructor",
+								"type_signature": "(library: Library, module_json: { [x: string]: unknown; path: string; declarations?: { [x: string]: unknown; name: string; kind: \"function\" | \"json\" | \"type\" | \"variable\" | \"class\" | \"constructor\" | \"component\" | \"css\"; ... 19 more ...; alias_of?: { ...; } | undefined; }[] | undefined; module_comment?: string | undefined; dependencies?: string[] | undefined; dependents?: string[] | undefined; }): Module",
+								"parameters": [
+									{
+										"name": "library",
+										"type": "Library"
+									},
+									{
+										"name": "module_json",
+										"type": "{ [x: string]: unknown; path: string; declarations?: { [x: string]: unknown; name: string; kind: \"function\" | \"json\" | \"type\" | \"variable\" | \"class\" | \"constructor\" | \"component\" | \"css\"; doc_comment?: string | undefined; ... 18 more ...; alias_of?: { ...; } | undefined; }[] | undefined; module_comment?: string | un..."
+									}
+								]
+							},
+							{
+								"name": "get_declaration_by_name",
+								"kind": "function",
+								"doc_comment": "Look up a declaration by name within this module.",
+								"type_signature": "(name: string): Declaration | undefined",
+								"return_type": "Declaration | undefined",
+								"parameters": [
+									{
+										"name": "name",
+										"type": "string"
+									}
+								]
+							}
+						]
+					}
+				],
+				"dependencies": ["declaration.svelte.ts", "library_helpers.ts"],
+				"dependents": ["library.svelte.ts"]
+			},
+			{
+				"path": "ModuleLink.svelte",
+				"declarations": [
+					{
+						"name": "ModuleLink",
+						"kind": "component",
+						"props": [
+							{
+								"name": "module_path",
+								"type": "string"
+							}
+						],
+						"source_line": 1
+					}
+				],
+				"dependencies": [
+					"contextmenu_state.svelte.ts",
+					"library.svelte.ts",
+					"module_contextmenu.ts"
+				],
+				"dependents": [
+					"ApiModule.svelte",
+					"DeclarationDetail.svelte",
+					"DocsLink.svelte",
+					"DocsTertiaryNav.svelte",
+					"LibraryDetail.svelte"
+				]
+			},
+			{
+				"path": "PasteFromClipboard.svelte",
+				"declarations": [
+					{
+						"name": "PasteFromClipboard",
+						"kind": "component",
+						"props": [
+							{
+								"name": "onclipboardtext",
+								"type": "(text: string) => void"
+							},
+							{
+								"name": "onerror",
+								"type": "(error: Error) => void",
+								"optional": true
+							}
+						],
+						"source_line": 1
+					}
+				]
+			},
+			{
+				"path": "PendingAnimation.svelte",
+				"declarations": [
+					{
+						"name": "PendingAnimation",
+						"kind": "component",
+						"props": [
+							{
+								"name": "inline",
+								"type": "boolean",
+								"optional": true
+							},
+							{
+								"name": "running",
+								"type": "boolean",
+								"optional": true
+							},
+							{
+								"name": "item_attrs",
+								"type": "SvelteHTMLElements['span']",
+								"optional": true
+							},
+							{
+								"name": "children",
+								"type": "Snippet<[index: number]>",
+								"optional": true
+							}
+						],
+						"source_line": 1
+					}
+				],
+				"dependents": ["ContextmenuEntry.svelte", "PendingButton.svelte"]
+			},
+			{
+				"path": "PendingButton.svelte",
+				"declarations": [
+					{
+						"name": "PendingButton",
+						"kind": "component",
+						"props": [
+							{
+								"name": "pending",
+								"type": "boolean"
+							},
+							{
+								"name": "onclick",
+								"type": "() => void"
+							},
+							{
+								"name": "running",
+								"type": "boolean",
+								"optional": true
+							},
+							{
+								"name": "title",
+								"type": "string",
+								"optional": true
+							},
+							{
+								"name": "disabled",
+								"type": "boolean",
+								"optional": true
+							},
+							{
+								"name": "animation",
+								"type": "Snippet",
+								"optional": true
+							},
+							{
+								"name": "children",
+								"type": "Snippet"
+							}
+						],
+						"source_line": 1
+					}
+				],
+				"dependencies": ["PendingAnimation.svelte"]
+			},
+			{
+				"path": "ProjectLinks.svelte",
+				"declarations": [
+					{
+						"name": "ProjectLinks",
+						"kind": "component",
+						"source_line": 1
+					}
+				],
+				"dependencies": ["Svg.svelte", "logos.ts"],
+				"dependents": ["EcosystemLinksPanel.svelte"]
+			},
+			{
+				"path": "Redirect.svelte",
+				"declarations": [
+					{
+						"name": "Redirect",
+						"kind": "component",
+						"props": [
+							{
+								"name": "host",
+								"type": "string",
+								"optional": true,
+								"description": "The target host to redirect to. Defaults to the current `location.host`."
+							},
+							{
+								"name": "path",
+								"type": "string",
+								"optional": true,
+								"description": "The target path to redirect to. Defaults to the current `location.pathname`."
+							},
+							{
+								"name": "auto",
+								"type": "boolean",
+								"optional": true,
+								"description": "Should the redirect happen automatically without user input? Defaults to `true`."
+							},
+							{
+								"name": "children",
+								"type": "Snippet<[url: string]>",
+								"optional": true
+							}
+						],
+						"source_line": 1
+					}
+				]
+			},
+			{
+				"path": "rune_helpers.svelte.ts",
+				"declarations": [
+					{
+						"name": "effect_with_count",
+						"kind": "function",
+						"doc_comment": "Runs `fn` in an `$effect`, passing `true` as the `skip` argument for the first `count` runs.\nCalls `fn` even when skipping so callers can read any dependent signals.",
+						"source_line": 5,
+						"type_signature": "(fn: (count: number) => void, initial?: number): void",
+						"return_type": "void",
+						"parameters": [
+							{
+								"name": "fn",
+								"type": "(count: number) => void"
+							},
+							{
+								"name": "initial",
+								"type": "number",
+								"default_value": "0"
+							}
+						]
+					}
+				],
+				"dependents": ["Themed.svelte"]
+			},
+			{
+				"path": "Spiders.svelte",
+				"declarations": [
+					{
+						"name": "Spiders",
+						"kind": "component",
+						"props": [
+							{
+								"name": "spiders",
+								"type": "Array<string>",
+								"optional": true
+							},
+							{
+								"name": "seed",
+								"type": "unknown",
+								"optional": true
+							},
+							{
+								"name": "random",
+								"type": "typeof Math.random",
+								"optional": true
+							}
+						],
+						"source_line": 1
+					}
+				],
+				"dependencies": ["Svg.svelte", "logos.ts"]
+			},
+			{
+				"path": "storage.ts",
+				"declarations": [
+					{
+						"name": "save_to_storage",
+						"kind": "function",
+						"doc_comment": "Utility function to save a value to `localStorage`.",
+						"source_line": 8,
+						"type_signature": "(key: string, value: any, is_json?: boolean): void",
+						"return_type": "void",
+						"parameters": [
+							{
+								"name": "key",
+								"type": "string"
+							},
+							{
+								"name": "value",
+								"type": "any"
+							},
+							{
+								"name": "is_json",
+								"type": "boolean",
+								"default_value": "false"
+							}
+						]
+					},
+					{
+						"name": "load_from_storage",
+						"kind": "function",
+						"doc_comment": "Utility function to load a value from `localStorage` with optional parsing",
+						"source_line": 26,
+						"type_signature": "<T>(key: string, is_json?: boolean, parse_fn?: ((value: unknown) => T | null) | undefined): T | null",
+						"return_type": "T | null",
+						"return_description": "The parsed value or null if not found or parsing fails",
+						"parameters": [
+							{
+								"name": "key",
+								"type": "string",
+								"description": "The localStorage key"
+							},
+							{
+								"name": "is_json",
+								"type": "boolean",
+								"description": "Whether to parse the value as JSON",
+								"default_value": "false"
+							},
+							{
+								"name": "parse_fn",
+								"type": "((value: unknown) => T | null) | undefined",
+								"optional": true,
+								"description": "Optional custom parsing function to transform the value"
+							}
+						]
+					}
+				],
+				"dependents": ["themer.svelte.ts"]
+			},
+			{
+				"path": "svelte_helpers.ts",
+				"declarations": [
+					{
+						"name": "svelte_analyze_component",
+						"kind": "function",
+						"doc_comment": "Analyze a Svelte component from its svelte2tsx transformation.",
+						"source_line": 27,
+						"type_signature": "(ts_code: string, source_file: SourceFile, checker: TypeChecker, component_name: string): { [x: string]: unknown; name: string; kind: \"function\" | \"json\" | \"type\" | ... 4 more ... | \"css\"; ... 19 more ...; alias_of?: { ...; } | undefined; }",
+						"return_type": "{ [x: string]: unknown; name: string; kind: \"function\" | \"json\" | \"type\" | \"variable\" | \"class\" | \"constructor\" | \"component\" | \"css\"; doc_comment?: string | undefined; type_signature?: string | undefined; ... 17 more ...; alias_of?: { ...; } | undefined; }",
+						"parameters": [
+							{
+								"name": "ts_code",
+								"type": "string"
+							},
+							{
+								"name": "source_file",
+								"type": "SourceFile"
+							},
+							{
+								"name": "checker",
+								"type": "TypeChecker"
+							},
+							{
+								"name": "component_name",
+								"type": "string"
+							}
+						]
+					},
+					{
+						"name": "svelte_analyze_file",
+						"kind": "function",
+						"doc_comment": "Analyze a Svelte component file from disk.\n\nThis is a high-level function that handles the complete workflow:\n1. Read the Svelte source from disk\n2. Transform to TypeScript via svelte2tsx\n3. Extract component metadata (props, documentation)\n\nSuitable for use in documentation generators, build tools, and analysis.",
+						"source_line": 278,
+						"type_signature": "(file_path: string, module_path: string, checker: TypeChecker): { [x: string]: unknown; name: string; kind: \"function\" | \"json\" | \"type\" | \"variable\" | \"class\" | \"constructor\" | \"component\" | \"css\"; ... 19 more ...; alias_of?: { ...; } | undefined; }",
+						"return_type": "{ [x: string]: unknown; name: string; kind: \"function\" | \"json\" | \"type\" | \"variable\" | \"class\" | \"constructor\" | \"component\" | \"css\"; doc_comment?: string | undefined; type_signature?: string | undefined; ... 17 more ...; alias_of?: { ...; } | undefined; }",
+						"return_description": "Complete declaration metadata for the component",
+						"parameters": [
+							{
+								"name": "file_path",
+								"type": "string",
+								"description": "Absolute path to the .svelte file"
+							},
+							{
+								"name": "module_path",
+								"type": "string",
+								"description": "Module path relative to src/lib (e.g., 'Alert.svelte')"
+							},
+							{
+								"name": "checker",
+								"type": "TypeChecker",
+								"description": "TypeScript type checker for type resolution"
+							}
+						]
+					}
+				],
+				"module_comment": "Svelte component analysis helpers.\n\nExtracts metadata from Svelte components using svelte2tsx transformations:\n\n- Component props with types and JSDoc\n- Component-level documentation\n- Type information\n\nWorkflow: Transform Svelte to TypeScript via svelte2tsx, parse the transformed\nTypeScript with the TS Compiler API, extract component-level JSDoc from original source.\n\nAll functions are prefixed with `svelte_` for clarity.",
+				"dependencies": ["module_helpers.ts", "tsdoc_helpers.ts"],
+				"dependents": ["library_gen_helpers.ts"]
+			},
+			{
+				"path": "Svg.svelte",
+				"declarations": [
+					{
+						"name": "Svg",
+						"kind": "component",
+						"props": [
+							{
+								"name": "data",
+								"type": "SvgData"
+							},
+							{
+								"name": "fill",
+								"type": "string | null",
+								"optional": true,
+								"description": "Overrides `data.fill`."
+							},
+							{
+								"name": "size",
+								"type": "string",
+								"optional": true,
+								"description": "Sets both the `width` and `height` of the svg. Overridden by the `width` and `height` props."
+							},
+							{
+								"name": "width",
+								"type": "string",
+								"optional": true,
+								"description": "Sets the `width` of the svg. Overrides `size`."
+							},
+							{
+								"name": "height",
+								"type": "string",
+								"optional": true,
+								"description": "Sets the `height` of the svg. Overrides `size`."
+							},
+							{
+								"name": "label",
+								"type": "string",
+								"optional": true
+							},
+							{
+								"name": "inline",
+								"type": "boolean",
+								"optional": true,
+								"description": "Renders the SVG as an inline block with spacing appropriate for text. Defaults to `false`."
+							},
+							{
+								"name": "shrink",
+								"type": "boolean",
+								"optional": true
+							}
+						],
+						"source_line": 1
+					}
+				],
+				"dependents": [
+					"DocsFooter.svelte",
+					"GithubLink.svelte",
+					"MdnLink.svelte",
+					"ProjectLinks.svelte",
+					"Spiders.svelte"
+				]
+			},
+			{
+				"path": "Teleport.svelte",
+				"declarations": [
+					{
+						"name": "Teleport",
+						"kind": "component",
+						"props": [
+							{
+								"name": "to",
+								"type": "HTMLElement | undefined | null",
+								"optional": true,
+								"description": "Defaults to `undefined` to lessen friction with SSR.\nWe may want to change this to optionally accept a string selector,\nbut that didn't seem to be the best API for the `Dialog`."
+							},
+							{
+								"name": "onmove",
+								"type": "(el: HTMLElement, to: HTMLElement) => void",
+								"optional": true
+							},
+							{
+								"name": "children",
+								"type": "Snippet"
+							}
+						],
+						"source_line": 1
+					}
+				],
+				"dependents": ["Dialog.svelte"]
+			},
+			{
+				"path": "Themed.svelte",
+				"declarations": [
+					{
+						"name": "Themed",
+						"kind": "component",
+						"props": [
+							{
+								"name": "sync_color_scheme",
+								"type": "typeof default_sync_color_scheme",
+								"optional": true
+							},
+							{
+								"name": "load_color_scheme",
+								"type": "typeof default_load_color_scheme",
+								"optional": true
+							},
+							{
+								"name": "save_color_scheme",
+								"type": "typeof default_save_color_scheme",
+								"optional": true
+							},
+							{
+								"name": "load_theme",
+								"type": "typeof default_load_theme",
+								"optional": true
+							},
+							{
+								"name": "save_theme",
+								"type": "typeof default_save_theme",
+								"optional": true
+							},
+							{
+								"name": "theme_fallback",
+								"type": "Theme | undefined",
+								"optional": true
+							},
+							{
+								"name": "themer",
+								"type": "Themer",
+								"optional": true,
+								"description": "A reactive class containing the selected theme and color scheme.\nDefaults to the first default theme.\nThe class reference is not reactive\nbecause it's set in context without a wrapper, use `{#key theme}` if it changes."
+							},
+							{
+								"name": "children",
+								"type": "Snippet<[themer: Themer, style: string | null, theme_style_html: string | null]>"
+							}
+						],
+						"source_line": 1
+					}
+				],
+				"dependencies": ["rune_helpers.svelte.ts", "themer.svelte.ts"]
+			},
+			{
+				"path": "ThemeInput.svelte",
+				"declarations": [
+					{
+						"name": "ThemeInput",
+						"kind": "component",
+						"props": [
+							{
+								"name": "selected_theme",
+								"type": "{theme: Theme}",
+								"optional": true
+							},
+							{
+								"name": "themes",
+								"type": "Array<Theme>",
+								"optional": true
+							},
+							{
+								"name": "enable_editing",
+								"type": "boolean",
+								"optional": true
+							},
+							{
+								"name": "select",
+								"type": "((theme: Theme) => void | boolean) | null",
+								"optional": true
+							},
+							{
+								"name": "onselect",
+								"type": "(theme: Theme) => void",
+								"optional": true
+							},
+							{
+								"name": "onedit",
+								"type": "(theme: Theme) => void",
+								"optional": true
+							}
+						],
+						"source_line": 1
+					}
+				],
+				"dependencies": ["themer.svelte.ts"]
+			},
+			{
+				"path": "themer.svelte.ts",
+				"declarations": [
+					{
+						"name": "ThemerJson",
+						"kind": "type",
+						"source_line": 8,
+						"type_signature": "ThemerJson",
+						"properties": [
+							{
+								"name": "theme",
+								"kind": "variable",
+								"type_signature": "Theme"
+							},
+							{
+								"name": "color_scheme",
+								"kind": "variable",
+								"type_signature": "ColorScheme"
+							}
+						]
+					},
+					{
+						"name": "ThemerOptions",
+						"kind": "type",
+						"source_line": 13,
+						"type_signature": "Partial<ThemerJson>"
+					},
+					{
+						"name": "Themer",
+						"kind": "class",
+						"source_line": 15,
+						"members": [
+							{
+								"name": "theme",
+								"kind": "variable",
+								"type_signature": "Theme"
+							},
+							{
+								"name": "color_scheme",
+								"kind": "variable",
+								"type_signature": "ColorScheme"
+							},
+							{
+								"name": "constructor",
+								"kind": "constructor",
+								"type_signature": "(options?: Partial<ThemerJson> | undefined): Themer",
+								"parameters": [
+									{
+										"name": "options",
+										"type": "Partial<ThemerJson> | undefined",
+										"optional": true
+									}
+								]
+							},
+							{
+								"name": "toJSON",
+								"kind": "function",
+								"type_signature": "(): ThemerJson",
+								"return_type": "ThemerJson",
+								"parameters": []
+							}
+						]
+					},
+					{
+						"name": "themer_context",
+						"kind": "variable",
+						"source_line": 36,
+						"type_signature": "{ get: (error_message?: string | undefined) => Themer; get_maybe: () => Themer | undefined; set: (value: Themer) => Themer; }"
+					},
+					{
+						"name": "sync_color_scheme",
+						"kind": "function",
+						"source_line": 38,
+						"type_signature": "(color_scheme: ColorScheme | null): void",
+						"return_type": "void",
+						"parameters": [
+							{
+								"name": "color_scheme",
+								"type": "ColorScheme | null"
+							}
+						]
+					},
+					{
+						"name": "COLOR_SCHEME_STORAGE_KEY",
+						"kind": "variable",
+						"source_line": 47,
+						"type_signature": "\"fuz:color-scheme\""
+					},
+					{
+						"name": "THEME_STORAGE_KEY",
+						"kind": "variable",
+						"source_line": 48,
+						"type_signature": "\"fuz:theme\""
+					},
+					{
+						"name": "save_color_scheme",
+						"kind": "function",
+						"source_line": 50,
+						"type_signature": "(color_scheme: ColorScheme | null, key?: string): void",
+						"return_type": "void",
+						"parameters": [
+							{
+								"name": "color_scheme",
+								"type": "ColorScheme | null"
+							},
+							{
+								"name": "key",
+								"type": "string",
+								"default_value": "COLOR_SCHEME_STORAGE_KEY"
+							}
+						]
+					},
+					{
+						"name": "load_color_scheme",
+						"kind": "function",
+						"source_line": 57,
+						"type_signature": "(fallback?: ColorScheme, key?: string): ColorScheme",
+						"return_type": "ColorScheme",
+						"parameters": [
+							{
+								"name": "fallback",
+								"type": "ColorScheme",
+								"default_value": "'auto'"
+							},
+							{
+								"name": "key",
+								"type": "string",
+								"default_value": "COLOR_SCHEME_STORAGE_KEY"
+							}
+						]
+					},
+					{
+						"name": "save_theme",
+						"kind": "function",
+						"source_line": 62,
+						"type_signature": "(theme: Theme | null, key?: string): void",
+						"return_type": "void",
+						"parameters": [
+							{
+								"name": "theme",
+								"type": "Theme | null"
+							},
+							{
+								"name": "key",
+								"type": "string",
+								"default_value": "THEME_STORAGE_KEY"
+							}
+						]
+					},
+					{
+						"name": "load_theme",
+						"kind": "function",
+						"source_line": 66,
+						"type_signature": "(fallback?: Theme, key?: string): Theme",
+						"return_type": "Theme",
+						"parameters": [
+							{
+								"name": "fallback",
+								"type": "Theme",
+								"default_value": "default_themes[0]!"
+							},
+							{
+								"name": "key",
+								"type": "string",
+								"default_value": "THEME_STORAGE_KEY"
+							}
+						]
+					}
+				],
+				"dependencies": ["context_helpers.ts", "storage.ts"],
+				"dependents": ["ColorSchemeInput.svelte", "ThemeInput.svelte", "Themed.svelte"]
+			},
+			{
+				"path": "tome.ts",
+				"declarations": [
+					{
+						"name": "Tome",
+						"kind": "type",
+						"source_line": 8,
+						"type_signature": "ZodObject<{ name: ZodString; category: ZodString; Component: ZodCustom<Component<any, any, string>, Component<any, any, string>>; related_tomes: ZodArray<...>; related_modules: ZodArray<...>; related_declarations: ZodArray<...>; }, $strip>"
+					},
+					{
+						"name": "to_tome_pathname",
+						"kind": "function",
+						"source_line": 19,
+						"type_signature": "(item: string | { name: string; category: string; Component: Component<any, any, string>; related_tomes: string[]; related_modules: string[]; related_declarations: string[]; }, docs_path?: string, hash?: string | undefined): string",
+						"return_type": "string",
+						"parameters": [
+							{
+								"name": "item",
+								"type": "string | { name: string; category: string; Component: Component<any, any, string>; related_tomes: string[]; related_modules: string[]; related_declarations: string[]; }"
+							},
+							{
+								"name": "docs_path",
+								"type": "string",
+								"default_value": "DOCS_PATH_DEFAULT"
+							},
+							{
+								"name": "hash",
+								"type": "string | undefined",
+								"optional": true
+							}
+						]
+					},
+					{
+						"name": "tomes_context",
+						"kind": "variable",
+						"source_line": 29,
+						"type_signature": "{ get: (error_message?: string | undefined) => Map<string, { name: string; category: string; Component: Component<any, any, string>; related_tomes: string[]; related_modules: string[]; related_declarations: string[]; }>; get_maybe: () => Map<...> | undefined; set: (value: Map<...>) => Map<...>; }"
+					},
+					{
+						"name": "get_tome_by_name",
+						"kind": "function",
+						"source_line": 31,
+						"type_signature": "(name: string): { name: string; category: string; Component: Component<any, any, string>; related_tomes: string[]; related_modules: string[]; related_declarations: string[]; }",
+						"return_type": "{ name: string; category: string; Component: Component<any, any, string>; related_tomes: string[]; related_modules: string[]; related_declarations: string[]; }",
+						"parameters": [
+							{
+								"name": "name",
+								"type": "string"
+							}
+						]
+					},
+					{
+						"name": "tome_context",
+						"kind": "variable",
+						"source_line": 38,
+						"type_signature": "{ get: (error_message?: string | undefined) => { name: string; category: string; Component: Component<any, any, string>; related_tomes: string[]; related_modules: string[]; related_declarations: string[]; }; get_maybe: () => { ...; } | undefined; set: (value: { ...; }) => { ...; }; }"
+					}
+				],
+				"dependencies": ["context_helpers.ts", "docs_helpers.svelte.ts"],
+				"dependents": [
+					"ApiIndex.svelte",
+					"ApiModule.svelte",
+					"Docs.svelte",
+					"DocsMenu.svelte",
+					"DocsSecondaryNav.svelte",
+					"DocsTertiaryNav.svelte",
+					"TomeContent.svelte",
+					"TomeHeader.svelte",
+					"TomeLink.svelte"
+				]
+			},
+			{
+				"path": "TomeContent.svelte",
+				"declarations": [
+					{
+						"name": "TomeContent",
+						"kind": "component",
+						"props": [
+							{
+								"name": "tome",
+								"type": "Tome"
+							},
+							{
+								"name": "docs_path",
+								"type": "string",
+								"optional": true
+							},
+							{
+								"name": "header",
+								"type": "Snippet",
+								"optional": true
+							},
+							{
+								"name": "children",
+								"type": "Snippet"
+							}
+						],
+						"source_line": 1
+					}
+				],
+				"dependencies": [
+					"TomeHeader.svelte",
+					"docs_helpers.svelte.ts",
+					"intersect.svelte.ts",
+					"tome.ts"
+				],
+				"dependents": ["ApiIndex.svelte", "ApiModule.svelte"]
+			},
+			{
+				"path": "TomeHeader.svelte",
+				"declarations": [
+					{
+						"name": "TomeHeader",
+						"kind": "component",
+						"source_line": 1
+					}
+				],
+				"dependencies": ["Hashlink.svelte", "docs_helpers.svelte.ts", "tome.ts"],
+				"dependents": ["TomeContent.svelte"]
+			},
+			{
+				"path": "TomeLink.svelte",
+				"declarations": [
+					{
+						"name": "TomeLink",
+						"kind": "component",
+						"props": [
+							{
+								"name": "name",
+								"type": "string"
+							},
+							{
+								"name": "docs_path",
+								"type": "string",
+								"optional": true
+							},
+							{
+								"name": "hash",
+								"type": "string",
+								"optional": true
+							}
+						],
+						"source_line": 1
+					}
+				],
+				"dependencies": ["docs_helpers.svelte.ts", "tome.ts"],
+				"dependents": ["ApiIndex.svelte", "DocsTertiaryNav.svelte"]
+			},
+			{
+				"path": "TomeSection.svelte",
+				"declarations": [
+					{
+						"name": "TomeSection",
+						"kind": "component",
+						"props": [
+							{
+								"name": "children",
+								"type": "Snippet"
+							}
+						],
+						"source_line": 1
+					}
+				],
+				"dependencies": ["context_helpers.ts", "docs_helpers.svelte.ts", "intersect.svelte.ts"],
+				"dependents": [
+					"ApiDeclarationList.svelte",
+					"ApiIndex.svelte",
+					"ApiModule.svelte",
+					"TomeSectionHeader.svelte"
+				]
+			},
+			{
+				"path": "TomeSectionHeader.svelte",
+				"declarations": [
+					{
+						"name": "TomeSectionHeader",
+						"kind": "component",
+						"props": [
+							{
+								"name": "text",
+								"type": "string"
+							},
+							{
+								"name": "tag",
+								"type": "DocsLinkTag",
+								"optional": true
+							},
+							{
+								"name": "children",
+								"type": "Snippet",
+								"optional": true
+							}
+						],
+						"source_line": 1
+					}
+				],
+				"dependencies": ["Hashlink.svelte", "TomeSection.svelte", "docs_helpers.svelte.ts"],
+				"dependents": ["ApiDeclarationList.svelte", "ApiIndex.svelte", "ApiModule.svelte"]
+			},
+			{
+				"path": "ts_helpers.ts",
+				"declarations": [
+					{
+						"name": "ts_infer_declaration_kind",
+						"kind": "function",
+						"doc_comment": "Infer declaration kind from symbol and node.",
+						"source_line": 59,
+						"type_signature": "(symbol: Symbol, node: Node): \"function\" | \"json\" | \"type\" | \"variable\" | \"class\" | \"constructor\" | \"component\" | \"css\"",
+						"return_type": "\"function\" | \"json\" | \"type\" | \"variable\" | \"class\" | \"constructor\" | \"component\" | \"css\"",
+						"parameters": [
+							{
+								"name": "symbol",
+								"type": "Symbol"
+							},
+							{
+								"name": "node",
+								"type": "Node"
+							}
+						]
+					},
+					{
+						"name": "ts_extract_function_info",
+						"kind": "function",
+						"doc_comment": "Extract function/method information including parameters\nwith descriptions and default values.",
+						"source_line": 89,
+						"type_signature": "(node: Node, symbol: Symbol, checker: TypeChecker, declaration: { [x: string]: unknown; name: string; kind: \"function\" | \"json\" | \"type\" | \"variable\" | \"class\" | \"constructor\" | \"component\" | \"css\"; ... 19 more ...; alias_of?: { ...; } | undefined; }, tsdoc: TsdocParsedComment | undefined): void",
+						"return_type": "void",
+						"parameters": [
+							{
+								"name": "node",
+								"type": "Node"
+							},
+							{
+								"name": "symbol",
+								"type": "Symbol"
+							},
+							{
+								"name": "checker",
+								"type": "TypeChecker"
+							},
+							{
+								"name": "declaration",
+								"type": "{ [x: string]: unknown; name: string; kind: \"function\" | \"json\" | \"type\" | \"variable\" | \"class\" | \"constructor\" | \"component\" | \"css\"; doc_comment?: string | undefined; type_signature?: string | undefined; ... 17 more ...; alias_of?: { ...; } | undefined; }"
+							},
+							{
+								"name": "tsdoc",
+								"type": "TsdocParsedComment | undefined"
+							}
+						]
+					},
+					{
+						"name": "ts_extract_type_info",
+						"kind": "function",
+						"doc_comment": "Extract type/interface information with rich property metadata.",
+						"source_line": 162,
+						"type_signature": "(node: Node, _symbol: Symbol, checker: TypeChecker, declaration: { [x: string]: unknown; name: string; kind: \"function\" | \"json\" | \"type\" | \"variable\" | \"class\" | \"constructor\" | \"component\" | \"css\"; ... 19 more ...; alias_of?: { ...; } | undefined; }): void",
+						"return_type": "void",
+						"parameters": [
+							{
+								"name": "node",
+								"type": "Node"
+							},
+							{
+								"name": "_symbol",
+								"type": "Symbol"
+							},
+							{
+								"name": "checker",
+								"type": "TypeChecker"
+							},
+							{
+								"name": "declaration",
+								"type": "{ [x: string]: unknown; name: string; kind: \"function\" | \"json\" | \"type\" | \"variable\" | \"class\" | \"constructor\" | \"component\" | \"css\"; doc_comment?: string | undefined; type_signature?: string | undefined; ... 17 more ...; alias_of?: { ...; } | undefined; }"
+							}
+						]
+					},
+					{
+						"name": "ts_extract_class_info",
+						"kind": "function",
+						"doc_comment": "Extract class information with rich member metadata.",
+						"source_line": 226,
+						"type_signature": "(node: Node, _symbol: Symbol, checker: TypeChecker, declaration: { [x: string]: unknown; name: string; kind: \"function\" | \"json\" | \"type\" | \"variable\" | \"class\" | \"constructor\" | \"component\" | \"css\"; ... 19 more ...; alias_of?: { ...; } | undefined; }): void",
+						"return_type": "void",
+						"parameters": [
+							{
+								"name": "node",
+								"type": "Node"
+							},
+							{
+								"name": "_symbol",
+								"type": "Symbol"
+							},
+							{
+								"name": "checker",
+								"type": "TypeChecker"
+							},
+							{
+								"name": "declaration",
+								"type": "{ [x: string]: unknown; name: string; kind: \"function\" | \"json\" | \"type\" | \"variable\" | \"class\" | \"constructor\" | \"component\" | \"css\"; doc_comment?: string | undefined; type_signature?: string | undefined; ... 17 more ...; alias_of?: { ...; } | undefined; }"
+							}
+						]
+					},
+					{
+						"name": "ts_extract_variable_info",
+						"kind": "function",
+						"doc_comment": "Extract variable information.",
+						"source_line": 381,
+						"type_signature": "(node: Node, symbol: Symbol, checker: TypeChecker, declaration: { [x: string]: unknown; name: string; kind: \"function\" | \"json\" | \"type\" | \"variable\" | \"class\" | \"constructor\" | \"component\" | \"css\"; ... 19 more ...; alias_of?: { ...; } | undefined; }): void",
+						"return_type": "void",
+						"parameters": [
+							{
+								"name": "node",
+								"type": "Node"
+							},
+							{
+								"name": "symbol",
+								"type": "Symbol"
+							},
+							{
+								"name": "checker",
+								"type": "TypeChecker"
+							},
+							{
+								"name": "declaration",
+								"type": "{ [x: string]: unknown; name: string; kind: \"function\" | \"json\" | \"type\" | \"variable\" | \"class\" | \"constructor\" | \"component\" | \"css\"; doc_comment?: string | undefined; type_signature?: string | undefined; ... 17 more ...; alias_of?: { ...; } | undefined; }"
+							}
+						]
+					},
+					{
+						"name": "TsDeclarationAnalysis",
+						"kind": "type",
+						"doc_comment": "Result of analyzing a single declaration.",
+						"source_line": 398,
+						"type_signature": "TsDeclarationAnalysis",
+						"properties": [
+							{
+								"name": "declaration",
+								"kind": "variable",
+								"type_signature": "DeclarationJson",
+								"doc_comment": "The analyzed declaration metadata."
+							},
+							{
+								"name": "nodocs",
+								"kind": "variable",
+								"type_signature": "boolean",
+								"doc_comment": "Whether the declaration is marked"
+							}
+						]
+					},
+					{
+						"name": "ts_analyze_declaration",
+						"kind": "function",
+						"doc_comment": "Analyze a TypeScript symbol and extract rich metadata.\n\nThis is a high-level function that combines TSDoc parsing with TypeScript\ntype analysis to produce complete declaration metadata. Suitable for use\nin documentation generators, IDE integrations, and other tooling.",
+						"source_line": 417,
+						"type_signature": "(symbol: Symbol, source_file: SourceFile, checker: TypeChecker): TsDeclarationAnalysis",
+						"return_type": "TsDeclarationAnalysis",
+						"return_description": "Complete declaration metadata including docs, types, and parameters, plus nodocs flag",
+						"parameters": [
+							{
+								"name": "symbol",
+								"type": "Symbol",
+								"description": "The TypeScript symbol to analyze"
+							},
+							{
+								"name": "source_file",
+								"type": "SourceFile",
+								"description": "The source file containing the symbol"
+							},
+							{
+								"name": "checker",
+								"type": "TypeChecker",
+								"description": "The TypeScript type checker"
+							}
+						]
+					},
+					{
+						"name": "ReExportInfo",
+						"kind": "type",
+						"doc_comment": "Information about a same-name re-export.\nUsed for post-processing to build `also_exported_from` arrays.",
+						"source_line": 465,
+						"type_signature": "ReExportInfo",
+						"properties": [
+							{
+								"name": "name",
+								"kind": "variable",
+								"type_signature": "string",
+								"doc_comment": "Name of the re-exported declaration."
+							},
+							{
+								"name": "original_module",
+								"kind": "variable",
+								"type_signature": "string",
+								"doc_comment": "Module path (relative to src/lib) where the declaration is originally declared."
+							}
+						]
+					},
+					{
+						"name": "ModuleExportsAnalysis",
+						"kind": "type",
+						"doc_comment": "Result of analyzing a module's exports.",
+						"source_line": 475,
+						"type_signature": "ModuleExportsAnalysis",
+						"properties": [
+							{
+								"name": "module_comment",
+								"kind": "variable",
+								"type_signature": "string",
+								"doc_comment": "Module-level documentation comment."
+							},
+							{
+								"name": "declarations",
+								"kind": "variable",
+								"type_signature": "Array<DeclarationJson>",
+								"doc_comment": "All exported declarations with their metadata (excludes same-name re-exports)."
+							},
+							{
+								"name": "re_exports",
+								"kind": "variable",
+								"type_signature": "Array<ReExportInfo>",
+								"doc_comment": "Same-name re-exports (for building also_exported_from in post-processing)."
+							}
+						]
+					},
+					{
+						"name": "ts_analyze_module_exports",
+						"kind": "function",
+						"doc_comment": "Analyze all exports from a TypeScript source file.\n\nExtracts the module-level comment and all exported declarations with\ncomplete metadata. Handles re-exports by:\n- Same-name re-exports: tracked in `re_exports` for `also_exported_from` building\n- Renamed re-exports: included as new declarations with `alias_of` metadata\n\nThis is a high-level function suitable for building documentation, API explorers, or analysis tools.",
+						"source_line": 498,
+						"type_signature": "(source_file: SourceFile, checker: TypeChecker): ModuleExportsAnalysis",
+						"return_type": "ModuleExportsAnalysis",
+						"return_description": "Module comment, array of analyzed declarations, and re-export information",
+						"parameters": [
+							{
+								"name": "source_file",
+								"type": "SourceFile",
+								"description": "The TypeScript source file to analyze"
+							},
+							{
+								"name": "checker",
+								"type": "TypeChecker",
+								"description": "The TypeScript type checker"
+							}
+						]
+					},
+					{
+						"name": "ts_extract_module_comment",
+						"kind": "function",
+						"doc_comment": "Extract module-level comment.\n\nOnly accepts JSDoc/TSDoc comments (`/** ... *\\/`) followed by a blank line to distinguish\nthem from identifier-level comments. This prevents accidentally treating function/class\ncomments as module comments. Module comments can appear after imports.",
+						"source_line": 579,
+						"type_signature": "(source_file: SourceFile): string | undefined",
+						"return_type": "string | undefined",
+						"parameters": [
+							{
+								"name": "source_file",
+								"type": "SourceFile"
+							}
+						]
+					},
+					{
+						"name": "ts_create_program",
+						"kind": "function",
+						"doc_comment": "Create TypeScript program for analysis.",
+						"source_line": 651,
+						"type_signature": "(log: { warn: (message: string) => void; }): Program | null",
+						"return_type": "Program | null",
+						"parameters": [
+							{
+								"name": "log",
+								"type": "{ warn: (message: string) => void; }"
+							}
+						]
+					}
+				],
+				"module_comment": "TypeScript compiler API helpers for extracting metadata from source code.\n\nAll functions are prefixed with `ts_` for clarity.",
+				"dependencies": ["module_helpers.ts", "tsdoc_helpers.ts"],
+				"dependents": ["library_gen.ts", "library_gen_helpers.ts"]
+			},
+			{
+				"path": "tsdoc_helpers.ts",
+				"declarations": [
+					{
+						"name": "TsdocParsedComment",
+						"kind": "type",
+						"doc_comment": "Parsed JSDoc/TSDoc comment with structured metadata.",
+						"source_line": 46,
+						"type_signature": "TsdocParsedComment",
+						"properties": [
+							{
+								"name": "text",
+								"kind": "variable",
+								"type_signature": "string",
+								"doc_comment": "Comment text (excluding comment markers)"
+							},
+							{
+								"name": "params",
+								"kind": "variable",
+								"type_signature": "Map<string, string>",
+								"doc_comment": "Parameter descriptions mapped by parameter name"
+							},
+							{
+								"name": "returns",
+								"kind": "variable",
+								"type_signature": "string",
+								"doc_comment": "Return value description from `@returns`"
+							},
+							{
+								"name": "throws",
+								"kind": "variable",
+								"type_signature": "Array<{type?: string; description: string}>",
+								"doc_comment": "Thrown errors from `@throws`"
+							},
+							{
+								"name": "examples",
+								"kind": "variable",
+								"type_signature": "Array<string>",
+								"doc_comment": "Code examples from `@example`"
+							},
+							{
+								"name": "deprecated_message",
+								"kind": "variable",
+								"type_signature": "string",
+								"doc_comment": "Deprecation message from `@deprecated`"
+							},
+							{
+								"name": "see_also",
+								"kind": "variable",
+								"type_signature": "Array<string>",
+								"doc_comment": "Related references from `@see`"
+							},
+							{
+								"name": "since",
+								"kind": "variable",
+								"type_signature": "string",
+								"doc_comment": "Version information from `@since`"
+							},
+							{
+								"name": "mutates",
+								"kind": "variable",
+								"type_signature": "Array<string>",
+								"doc_comment": "Mutation documentation from `@mutates` (non-standard)"
+							},
+							{
+								"name": "nodocs",
+								"kind": "variable",
+								"type_signature": "boolean",
+								"doc_comment": "Whether to exclude from documentation. From `@nodocs` tag."
+							}
+						]
+					},
+					{
+						"name": "tsdoc_parse",
+						"kind": "function",
+						"doc_comment": "Parse JSDoc comment from a TypeScript node.\n\nExtracts and parses all JSDoc tags including:\n\n- `@param` - parameter descriptions\n- `@returns` - return value description\n- `@throws` - error documentation\n- `@example` - code examples\n- `@deprecated` - deprecation warnings\n- `@see` - related references\n- `@since` - version information\n- `@mutates` - mutation documentation (non-standard)",
+						"source_line": 133,
+						"type_signature": "(node: Node, source_file: SourceFile): TsdocParsedComment | undefined",
+						"return_type": "TsdocParsedComment | undefined",
+						"parameters": [
+							{
+								"name": "node",
+								"type": "Node",
+								"description": "The TypeScript node to extract JSDoc from"
+							},
+							{
+								"name": "source_file",
+								"type": "SourceFile",
+								"description": "Source file (used for extracting full` @see` tag text)"
+							}
+						]
+					},
+					{
+						"name": "tsdoc_apply_to_declaration",
+						"kind": "function",
+						"doc_comment": "Apply parsed TSDoc metadata to a declaration.\n\nConsolidates the common pattern of assigning TSDoc fields to declarations,\nwith conditional assignment for array fields (only if non-empty).",
+						"source_line": 237,
+						"type_signature": "(declaration: { [x: string]: unknown; name: string; kind: \"function\" | \"json\" | \"type\" | \"variable\" | \"class\" | \"constructor\" | \"component\" | \"css\"; doc_comment?: string | undefined; type_signature?: string | undefined; ... 17 more ...; alias_of?: { ...; } | undefined; }, tsdoc: TsdocParsedComment | undefined): void",
+						"return_type": "void",
+						"parameters": [
+							{
+								"name": "declaration",
+								"type": "{ [x: string]: unknown; name: string; kind: \"function\" | \"json\" | \"type\" | \"variable\" | \"class\" | \"constructor\" | \"component\" | \"css\"; doc_comment?: string | undefined; type_signature?: string | undefined; ... 17 more ...; alias_of?: { ...; } | undefined; }",
+								"description": "declaration object to update"
+							},
+							{
+								"name": "tsdoc",
+								"type": "TsdocParsedComment | undefined",
+								"description": "parsed TSDoc comment (if available)"
+							}
+						]
+					}
+				],
+				"module_comment": "TSDoc/JSDoc parsing helpers using the TypeScript Compiler API.\n\nProvides `tsdoc_parse()` for extracting JSDoc/TSDoc from TypeScript nodes.\nPrimarily designed for build-time code generation but can be used at runtime.\n\n## Design\n\nPure extraction approach: extracts documentation as-is with minimal transformation,\npreserving source intent. Works around TypeScript Compiler API quirks where needed.\n\nSupports both regular TypeScript and Svelte components (via svelte2tsx output).\n\n## Tag support\n\nSupports a subset of standard TSDoc tags:\n`@param`, `@returns`, `@throws`, `@example`, `@deprecated`, `@see`, `@since`, `@nodocs`.\n\nThe `@nodocs` tag excludes exports from documentation and flat namespace validation.\nThe declaration is still exported and usable, just not documented.\n\nAlso supports `@mutates` (non-standard) for documenting mutations to parameters or external state.\nUse format: `@mutates paramName - description of mutation`.\n\nOnly `@returns` is supported (not `@return`).\n\nThe `@see` tag supports multiple formats: plain URLs (`https://...`), `{@link}` syntax, and module names.\nRelative/absolute path support in `@see` is TBD.\n\n## Behavioral notes\n\nDue to TS Compiler API limitations:\n- Preserves dash separator in `@param` descriptions: `@param x desc` → `\"- desc\"`\n- `@throws` tags have `{Type}` stripped by TS API; fallback regex extracts first word as error type\n- TS API strips URL protocols from `@see` tag text; we use `getText()` to preserve original format including `{@link}` syntax\n\nAll functions are prefixed with `tsdoc_` for clarity.",
+				"dependents": ["svelte_helpers.ts", "ts_helpers.ts"]
+			},
+			{
+				"path": "TypeLink.svelte",
+				"declarations": [
+					{
+						"name": "TypeLink",
+						"kind": "component",
+						"props": [
+							{
+								"name": "type",
+								"type": "string"
+							}
+						],
+						"source_line": 1
+					}
+				],
+				"dependencies": ["DeclarationLink.svelte", "library.svelte.ts"],
+				"dependents": ["DeclarationDetail.svelte"]
+			},
+			{
+				"path": "vite_plugin_library_well_known.ts",
+				"declarations": [
+					{
+						"name": "VitePluginLibraryWellKnownOptions",
+						"kind": "type",
+						"source_line": 9,
+						"type_signature": "VitePluginLibraryWellKnownOptions",
+						"properties": [
+							{
+								"name": "library_path",
+								"kind": "variable",
+								"type_signature": "string",
+								"doc_comment": "Path to the library.json file (relative to vite.config.ts)."
+							}
+						]
+					},
+					{
+						"name": "vite_plugin_library_well_known",
+						"kind": "function",
+						"doc_comment": "Vite plugin that publishes `package.json` and `source.json` to `.well-known/`.\n\nRequires a generated library.json file (created by `library_gen` from `gro gen`).\nThe plugin reads this JSON file and publishes its metadata to `.well-known/` for\nboth dev and production builds.\n\nNote: This plugin respects SvelteKit's `base` path configuration, so `.well-known/`\nwill be served at `{base}.well-known/` (e.g., `/my-app/.well-known/`). This deviates\nfrom RFC 8615 which specifies `.well-known` should be at the domain root. This tradeoff\nallows the plugin to work correctly when apps are deployed to non-root paths.\n\nNote: CORS headers are only set for the dev server. For production, configure\nCORS at the server level (nginx, Caddy, etc.) if cross-origin access is needed.",
+						"examples": [
+							"```ts\n// vite.config.ts\nimport {defineConfig} from 'vite';\nimport {sveltekit} from '@sveltejs/kit/vite';\nimport {vite_plugin_library_well_known} from '@fuzdev/fuz_ui/vite_plugin_library_well_known.js';\n\nexport default defineConfig({\n  plugins: [sveltekit(), vite_plugin_library_well_known()],\n});\n```"
+						],
+						"source_line": 56,
+						"type_signature": "(options?: VitePluginLibraryWellKnownOptions): Plugin<any>",
+						"return_type": "Plugin<any>",
+						"parameters": [
+							{
+								"name": "options",
+								"type": "VitePluginLibraryWellKnownOptions",
+								"default_value": "{}"
+							}
+						]
+					}
+				]
+			}
+		]
+	},
+	"name": "@fuzdev/fuz_ui",
+	"repo_name": "fuz_ui",
+	"repo_url": "https://github.com/fuzdev/fuz_ui",
+	"owner_name": "fuzdev",
+	"homepage_url": "https://ui.fuz.dev/",
+	"logo_url": "https://ui.fuz.dev/logo.svg",
+	"logo_alt": "a friendly brown spider facing you",
+	"npm_url": "https://www.npmjs.com/package/@fuzdev/fuz_ui",
+	"changelog_url": "https://github.com/fuzdev/fuz_ui/blob/main/CHANGELOG.md",
+	"published": true
+}

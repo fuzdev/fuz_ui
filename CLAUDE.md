@@ -96,10 +96,10 @@ documentation:
 
 Code generation flow:
 
-1. `library.gen.ts` (Gro genfile) - analyzes TypeScript/Svelte source with full
+1. `library.gen.json.ts` (Gro genfile) - analyzes TypeScript/Svelte source with full
    TSDoc support
-2. generates `library.ts` - serialized library metadata (`package_json` +
-   `source_json`)
+2. generates `library.json` + `library.ts` - serialized library metadata
+   (`package_json` + `source_json`) with typed wrapper using zod validation
 3. runtime classes wrap the data with Svelte 5 reactivity:
    - `Library` - library-level API with module/declaration lookups
    - `Module` - represents a source file with its exports
@@ -268,10 +268,11 @@ component helpers:
 - `dialog.ts` - dialog utilities
 - `alert.ts` - alert utilities
 
-library and API:
+library and API (generated in `src/routes/`):
 
-- `library.ts` - generated library metadata (from `library.gen.ts`)
-- `library.gen.ts` - library metadata generator (Gro genfile)
+- `library.json` - generated library metadata (from `library.gen.json.ts`)
+- `library.ts` - typed wrapper with zod validation (from `library.gen.json.ts`)
+- `library.gen.json.ts` - library metadata generator (Gro genfile)
 - `library.svelte.ts` - `Library` class wrapping library data
 - `declaration.svelte.ts` - `Declaration` class for code declarations
 - `module.svelte.ts` - `Module` class for source files
@@ -495,7 +496,7 @@ Setup for consumer projects (opt-in):
    <ApiModule module_path={params.module_path} />
    ```
 
-4. **Run generator**: `gro gen` to create `library.ts`
+4. **Run generator**: `gro gen` to create `library.json`
 
 Composable building blocks (for custom layouts):
 

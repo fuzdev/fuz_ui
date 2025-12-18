@@ -70,7 +70,7 @@ describe('vite_plugin_library_well_known', () => {
 
 		test('accepts custom library_path', () => {
 			const options: VitePluginLibraryWellKnownOptions = {
-				library_path: './custom/path/library.ts',
+				library_path: './custom/path/library.json',
 			};
 			const plugin = vite_plugin_library_well_known(options);
 			assert.isDefined(plugin);
