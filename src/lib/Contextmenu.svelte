@@ -23,7 +23,7 @@
 
 <svelte:element
 	this={tag}
-	class="display_contents"
+	style:display="contents"
 	{...rest}
 	{@attach contextmenu_attachment(entries)}>{@render children()}</svelte:element
 >

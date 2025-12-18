@@ -9,8 +9,8 @@
 		height,
 		svg_attrs,
 		img_attrs,
-		attrs,
-	}: {
+		...rest
+	}: SvelteHTMLElements['div'] & {
 		src: string;
 		label?: string;
 		/**
@@ -28,7 +28,6 @@
 		svg_attrs?: SvelteHTMLElements['svg'];
 		img_attrs?: SvelteHTMLElements['img'];
 		/** Shared attributes for both img and svg. */
-		attrs?: Pick<SvelteHTMLElements['div'], 'class' | 'style'>; // TODO more shared attributes? can't use `div` directly for svg, users can always assert the type as a hacky workaround
 	} = $props();
 
 	const final_width = $derived(width ?? size);
@@ -38,7 +37,7 @@
 {#if src.endsWith('.svg')}
 	<svg
 		role="img"
-		{...attrs}
+		{...rest as SvelteHTMLElements['svg']}
 		{...svg_attrs}
 		aria-label={label}
 		style:width={final_width}
@@ -48,7 +47,7 @@
 	</svg>
 {:else}
 	<img
-		{...attrs}
+		{...rest}
 		{...img_attrs}
 		{src}
 		alt={label}

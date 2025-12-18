@@ -35,9 +35,9 @@
 
 <svelte:element
 	this={final_tag}
-	class="card"
 	{...rest}
 	{...inferred_attrs}
+	class="card {rest.class}"
 	class:link
 	class:selected
 	class:left
