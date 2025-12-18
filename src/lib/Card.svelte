@@ -1,24 +1,24 @@
 <script lang="ts">
 	import {page} from '$app/state';
 	import type {Snippet} from 'svelte';
+	import type {SvelteHTMLElements} from 'svelte/elements';
 
 	// TODO think through Alert+Card APIs together, one can be a button and the other a link atm
 
 	const {
-		tag,
 		href,
+		tag,
 		align = 'left',
-		attrs,
 		icon,
 		children,
-	}: {
-		tag?: string | undefined;
-		href?: string | undefined;
-		align?: 'left' | 'right' | 'above' | 'below';
-		attrs?: any; // type? what about the optional tag though? (button etc - maybe API should be more explicit)
-		icon?: string | Snippet;
-		children: Snippet;
-	} = $props();
+		...rest
+	}: SvelteHTMLElements['a'] & // TODO imprecise type
+		SvelteHTMLElements['div'] & {
+			tag?: string | undefined;
+			align?: 'left' | 'right' | 'above' | 'below';
+			icon?: string | Snippet;
+			children: Snippet;
+		} = $props();
 
 	const link = $derived(!!href);
 	const selected = $derived(link && page.url.pathname === href);
@@ -30,14 +30,13 @@
 	const above = $derived(align === 'above');
 	const below = $derived(align === 'below');
 
-	const fallback_icon = $derived(link ? '🔗' : '🪧');
-	const final_icon: string | Snippet = $derived(icon ?? fallback_icon);
+	const final_icon: string | Snippet = $derived(icon ?? (link ? '🔗' : '🪧'));
 </script>
 
 <svelte:element
 	this={final_tag}
 	class="card"
-	{...attrs}
+	{...rest}
 	{...inferred_attrs}
 	class:link
 	class:selected

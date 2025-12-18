@@ -6,13 +6,12 @@
 
 	const {
 		tag = 'span' as T, // TODO why is casting needed?
-		attrs,
 		entries,
 		children,
-	}: {
+		...rest
+	}: SvelteHTMLElements[T] & {
 		// TODO custom tag?
 		tag?: T;
-		attrs?: SvelteHTMLElements[T];
 		entries: Snippet;
 		children: Snippet;
 	} = $props();
@@ -25,6 +24,6 @@
 <svelte:element
 	this={tag}
 	class="display_contents"
-	{...attrs}
+	{...rest}
 	{@attach contextmenu_attachment(entries)}>{@render children()}</svelte:element
 >
