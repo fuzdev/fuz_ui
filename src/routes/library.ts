@@ -155,11 +155,6 @@ export const library_json: LibraryJson = {
 								optional: true,
 							},
 							{
-								name: 'attrs',
-								type: 'HTMLAttributes<HTMLElement> | undefined',
-								optional: true,
-							},
-							{
 								name: 'icon',
 								type: 'string | Snippet<[icon: string]> | null | undefined',
 								optional: true,
@@ -439,18 +434,8 @@ export const library_json: LibraryJson = {
 								optional: true,
 							},
 							{
-								name: 'href',
-								type: 'string | undefined',
-								optional: true,
-							},
-							{
 								name: 'align',
 								type: "'left' | 'right' | 'above' | 'below'",
-								optional: true,
-							},
-							{
-								name: 'attrs',
-								type: 'any',
 								optional: true,
 							},
 							{
@@ -477,11 +462,6 @@ export const library_json: LibraryJson = {
 							{
 								name: 'value',
 								type: '{color_scheme: ColorScheme}',
-								optional: true,
-							},
-							{
-								name: 'onchange',
-								type: '(color_scheme: ColorScheme) => void',
 								optional: true,
 							},
 						],
@@ -2748,11 +2728,6 @@ export const library_json: LibraryJson = {
 								type: 'Snippet',
 								optional: true,
 							},
-							{
-								name: 'children',
-								type: 'Snippet',
-								optional: true,
-							},
 						],
 						source_line: 1,
 					},
@@ -2803,11 +2778,6 @@ export const library_json: LibraryJson = {
 							{
 								name: 'margin',
 								type: 'boolean',
-								optional: true,
-							},
-							{
-								name: 'class',
-								type: 'string',
 								optional: true,
 							},
 							{
@@ -3153,11 +3123,6 @@ export const library_json: LibraryJson = {
 								bindable: true,
 							},
 							{
-								name: 'oninput',
-								type: '(hue: Hue) => void',
-								optional: true,
-							},
-							{
 								name: 'children',
 								type: 'Snippet',
 								optional: true,
@@ -3211,12 +3176,6 @@ export const library_json: LibraryJson = {
 								name: 'img_attrs',
 								type: "SvelteHTMLElements['img']",
 								optional: true,
-							},
-							{
-								name: 'attrs',
-								type: "Pick<SvelteHTMLElements['div'], 'class' | 'style'>",
-								optional: true,
-								description: 'Shared attributes for both img and svg.',
 							},
 						],
 						source_line: 1,
@@ -5328,11 +5287,6 @@ export const library_json: LibraryJson = {
 							{
 								name: 'shrink',
 								type: 'boolean',
-								optional: true,
-							},
-							{
-								name: 'attrs',
-								type: "SvelteHTMLElements['svg']",
 								optional: true,
 							},
 						],

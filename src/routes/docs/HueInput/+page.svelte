@@ -11,7 +11,6 @@
 	const tome = get_tome_by_name(LIBRARY_ITEM_NAME);
 
 	let value: number = $state(180);
-	let value_from_oninput: number | undefined = $state();
 </script>
 
 <!-- eslint-disable svelte/no-useless-mustaches -->
@@ -26,18 +25,6 @@
 		<HueInput bind:value />
 		<div class="mt_md" style:--text_color="hsl({value} 62% 31%)">
 			<code>bind:value === {value}</code>
-		</div>
-	</TomeSection>
-	<TomeSection>
-		<TomeSectionHeader text="With oninput">With <code>oninput</code></TomeSectionHeader>
-		<Code
-			content={`<HueInput
-	oninput={(v) => (value_from_oninput = v)}
-/>`}
-		/>
-		<HueInput oninput={(v) => (value_from_oninput = v)} />
-		<div class="mt_md" style:--text_color="hsl({value} 62% 31%)">
-			<code>value_from_oninput === {value_from_oninput + ''}</code>
 		</div>
 	</TomeSection>
 	<TomeSection>

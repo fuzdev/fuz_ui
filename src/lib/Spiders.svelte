@@ -41,7 +41,7 @@
 <!-- TODO show when intersected in viewport, maybe inline `svelte-intersect` in Fuz? -->
 <div class="spiders" style:--spider_count={spiders.length}>
 	{#each shuffled as color, i (color)}
-		<Svg data={logo_fuz} fill={color} attrs={{style: `transform: rotate(${rotations[i]}deg)`}} />
+		<Svg data={logo_fuz} fill={color} style="transform: rotate(${rotations[i]}deg)" />
 	{/each}
 </div>
 

@@ -3,7 +3,6 @@
 	import type {SvelteHTMLElements} from 'svelte/elements';
 
 	const {
-		class: class_prop,
 		children,
 		...rest
 	}: SvelteHTMLElements['h4'] & {
@@ -12,4 +11,4 @@
 	} = $props();
 </script>
 
-<h4 {...rest} class="mb_sm {class_prop}">{@render children()}</h4>
+<h4 {...rest} class="mb_sm {rest.class}">{@render children()}</h4>

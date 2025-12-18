@@ -4,6 +4,7 @@
 	import {page} from '$app/state';
 	import type {Snippet} from 'svelte';
 	import {strip_start, ensure_end} from '@fuzdev/fuz_util/string.js';
+	import type {SvelteHTMLElements} from 'svelte/elements';
 
 	const {
 		path,
@@ -11,7 +12,8 @@
 		base_path,
 		separator,
 		children,
-	}: {
+		...rest
+	}: SvelteHTMLElements['div'] & {
 		/**
 		 * Prefixed with a slash and relative to the base path.
 		 */
@@ -46,7 +48,7 @@
 	// `transition:slide={{axis: 'x'}}`
 </script>
 
-<div class="breadcrumb">
+<div {...rest} class="breadcrumb {rest.class}">
 	<!-- eslint-disable-next-line svelte/no-navigation-without-resolve -->
 	<a href={root_path} class:selected={root_path === final_base_path + final_selected_path}
 		>{#if children}{@render children()}{:else}•{/if}</a

@@ -35,8 +35,8 @@
 		label,
 		inline,
 		shrink = true,
-		attrs,
-	}: {
+		...rest
+	}: SvelteHTMLElements['svg'] & {
 		data: SvgData;
 		/**
 		 * Overrides `data.fill`.
@@ -60,7 +60,6 @@
 		 */
 		inline?: boolean;
 		shrink?: boolean;
-		attrs?: SvelteHTMLElements['svg'];
 	} = $props();
 
 	const final_fill = $derived(fill ?? data.fill ?? 'var(--text_color, #000)'); // can be overridden by each path's `fill` attribute
@@ -69,9 +68,9 @@
 
 	// merge `style` so users don't accidentally clobber any style data - maybe support other attrs or somehow clean this up?
 	const style = $derived(
-		data.attrs?.style && attrs?.style
-			? ensure_end(data.attrs.style, ';') + ' ' + attrs.style
-			: (data.attrs?.style ?? attrs?.style),
+		data.attrs?.style && rest.style
+			? ensure_end(data.attrs.style, ';') + ' ' + rest.style
+			: (data.attrs?.style ?? rest.style),
 	);
 
 	// TODO dont use @html
@@ -80,7 +79,7 @@
 <svg
 	viewBox={data.viewBox ?? '0 0 100 100'}
 	{...data.attrs}
-	{...attrs}
+	{...rest}
 	aria-label={label ?? data.label}
 	class:display_inline_block={inline}
 	class:position_relative={inline}

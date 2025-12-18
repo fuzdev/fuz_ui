@@ -9,13 +9,12 @@
 		name,
 		inline = false,
 		plain = true,
-		attrs,
 		children,
-	}: {
+		...rest
+	}: SvelteHTMLElements['button'] & {
 		name: string; // TODO type? generate from `tomes`? or keep extensible?
 		inline?: boolean;
 		plain?: boolean;
-		attrs?: SvelteHTMLElements['button'];
 		children?: Snippet;
 	} = $props();
 
@@ -34,7 +33,7 @@
 
 <button
 	type="button"
-	{...attrs}
+	{...rest}
 	class:inline
 	class:plain
 	onclick={() => (selected_variable.value = variable)}

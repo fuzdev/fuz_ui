@@ -1,5 +1,6 @@
 <script lang="ts">
 	import {page} from '$app/state';
+	import type {SvelteHTMLElements} from 'svelte/elements';
 
 	import DocsModulesList from './DocsModulesList.svelte';
 	import DocsPageLinks from './DocsPageLinks.svelte';
@@ -14,7 +15,8 @@
 		tomes,
 		tomes_by_name,
 		sidebar = true,
-	}: {
+		...rest
+	}: SvelteHTMLElements['aside'] & {
 		tomes: Array<Tome>;
 		tomes_by_name: Map<string, Tome>;
 		sidebar?: boolean; // TODO @many dialog navs (this shouldn't exist)
@@ -51,7 +53,7 @@
 </script>
 
 <!-- TODO probably add a `nav` wrapper? around which? -->
-<aside class="docs_tertiary_nav unstyled">
+<aside {...rest} class="docs_tertiary_nav unstyled {rest.class}">
 	{#if should_show_page_links}
 		<DocsPageLinks {sidebar} expand_width />
 	{/if}

@@ -190,9 +190,6 @@ a.chip {
 .position_sticky {
 	position: sticky;
 }
-.display_contents {
-	display: contents;
-}
 .display_block {
 	display: block;
 }

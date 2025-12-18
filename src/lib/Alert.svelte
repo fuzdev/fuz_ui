@@ -1,6 +1,6 @@
 <script lang="ts">
 	import type {Snippet} from 'svelte';
-	import type {HTMLAttributes} from 'svelte/elements';
+	import type {SvelteHTMLElements} from 'svelte/elements';
 
 	import {alert_status_options, type AlertStatus} from './alert.js';
 
@@ -15,22 +15,22 @@
 		color,
 		onclick,
 		disabled,
-		attrs,
 		icon,
 		children,
-	}: {
-		status?: AlertStatus;
-		color?: string;
-		// TODO this API is a mess in part because of the types, maybe an explicit `AlertButton` is better,
-		// or rethink the design because `role="alert"` can't be put on buttons.
-		// $props must be destructured, so we can't use a union with narrowing right?
-		// so `disabled` only makes sense if `onclick` is defined, and we dont get the other HTMLButtonElement attributes
-		onclick?: (() => void) | undefined;
-		disabled?: boolean;
-		attrs?: HTMLAttributes<HTMLElement> | undefined;
-		icon?: string | Snippet<[icon: string]> | null | undefined; // TODO experimenting with this, gets complex in the impl
-		children: Snippet;
-	} = $props();
+		...rest
+	}: SvelteHTMLElements['div'] &
+		SvelteHTMLElements['button'] & {
+			status?: AlertStatus;
+			color?: string;
+			// TODO this API is a mess in part because of the types, maybe an explicit `AlertButton` is better,
+			// or rethink the design because `role="alert"` can't be put on buttons.
+			// $props must be destructured, so we can't use a union with narrowing right?
+			// so `disabled` only makes sense if `onclick` is defined, and we dont get the other HTMLButtonElement attributes
+			onclick?: (() => void) | undefined;
+			disabled?: boolean;
+			icon?: string | Snippet<[icon: string]> | null | undefined; // TODO experimenting with this, gets complex in the impl
+			children: Snippet;
+		} = $props();
 
 	const options = $derived(alert_status_options[status]);
 	// TODO change this to use the hue and put transparency on the borders, or add a borderColor option
@@ -43,17 +43,17 @@
 
 {#if onclick}
 	<button
-		class="message"
 		type="button"
+		{...rest}
+		class="alert {rest.class}"
 		style:--text_color={final_color}
 		{onclick}
 		{disabled}
-		{...attrs}
 	>
 		{@render content()}
 	</button>
 {:else}
-	<div role="alert" class="message panel" style:--text_color={final_color} {...attrs}>
+	<div role="alert" {...rest} class="alert panel {rest.class}" style:--text_color={final_color}>
 		{@render content()}
 	</div>
 {/if}
@@ -75,8 +75,8 @@
 {/snippet}
 
 <style>
-	.message {
-		min-height: var(--message_min_height);
+	.alert {
+		min-height: var(--alert_min_height);
 		width: 100%;
 		color: var(--text_color);
 		font-size: var(--font_size_md);
@@ -89,7 +89,7 @@
 		padding: var(--space_xs2) var(--space_lg) var(--space_xs2) var(--space_xs);
 		margin-bottom: var(--space_lg);
 	}
-	.message:last-child {
+	.alert:last-child {
 		margin-bottom: 0;
 	}
 	.icon {
