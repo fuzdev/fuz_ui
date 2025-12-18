@@ -10,7 +10,6 @@
 		path,
 		href: href_prop,
 		children,
-		class: class_prop,
 		...rest
 	}: SvelteHTMLElements['a'] & {
 		/**
@@ -22,8 +21,12 @@
 		path?: string;
 	} = $props();
 
-	if (DEV && !path && !href_prop) {
-		throw new Error('GithubLink requires either `path` or `href` prop');
+	if (DEV) {
+		$effect.pre(() => {
+			if (!path && !href_prop) {
+				throw new Error('GithubLink requires either `path` or `href` prop');
+			}
+		});
 	}
 
 	const href = $derived(
@@ -60,13 +63,8 @@
 
 <!-- TODO -next-line doesnt work? -->
 <!-- eslint-disable svelte/no-navigation-without-resolve -->
-<a {...rest} {href} class="github_link chip white_space_nowrap {class_prop}" rel="noopener"
-	><Svg
-		data={logo_github}
-		inline
-		size="var(--icon_size_xs)"
-		attrs={{class: 'mx_xs3 vertical_align_middle'}}
-	/>
+<a {...rest} {href} class="github_link white_space_nowrap {rest.class}" rel="noopener"
+	><Svg data={logo_github} inline size="var(--icon_size_xs)" class="mx_xs3 vertical_align_middle" />
 	{#if typeof final_children === 'string'}
 		<span class="font_family_mono">{final_children}</span>
 	{:else if final_children}

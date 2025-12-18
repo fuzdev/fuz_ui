@@ -12,7 +12,6 @@
 		disabled: disabled_prop,
 		animation,
 		children,
-		class: class_prop,
 		...rest
 	}: SvelteHTMLElements['button'] & {
 		pending: boolean;
@@ -35,7 +34,7 @@
 	bind:this={el}
 	type="button"
 	{...rest}
-	class="pending_button {class_prop}"
+	class="pending_button {rest.class}"
 	disabled={disabled_prop ?? pending}
 	title={title_prop}
 	class:pending

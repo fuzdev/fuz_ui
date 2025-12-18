@@ -1,6 +1,6 @@
 <script lang="ts">
 	import type {Snippet} from 'svelte';
-	import type {HTMLAttributes} from 'svelte/elements';
+	import type {SvelteHTMLElements} from 'svelte/elements';
 
 	import {alert_status_options, type AlertStatus} from './alert.js';
 
@@ -18,18 +18,19 @@
 		icon,
 		children,
 		...rest
-	}: HTMLAttributes<HTMLElement> & {
-		status?: AlertStatus;
-		color?: string;
-		// TODO this API is a mess in part because of the types, maybe an explicit `AlertButton` is better,
-		// or rethink the design because `role="alert"` can't be put on buttons.
-		// $props must be destructured, so we can't use a union with narrowing right?
-		// so `disabled` only makes sense if `onclick` is defined, and we dont get the other HTMLButtonElement attributes
-		onclick?: (() => void) | undefined;
-		disabled?: boolean;
-		icon?: string | Snippet<[icon: string]> | null | undefined; // TODO experimenting with this, gets complex in the impl
-		children: Snippet;
-	} = $props();
+	}: SvelteHTMLElements['div'] &
+		SvelteHTMLElements['button'] & {
+			status?: AlertStatus;
+			color?: string;
+			// TODO this API is a mess in part because of the types, maybe an explicit `AlertButton` is better,
+			// or rethink the design because `role="alert"` can't be put on buttons.
+			// $props must be destructured, so we can't use a union with narrowing right?
+			// so `disabled` only makes sense if `onclick` is defined, and we dont get the other HTMLButtonElement attributes
+			onclick?: (() => void) | undefined;
+			disabled?: boolean;
+			icon?: string | Snippet<[icon: string]> | null | undefined; // TODO experimenting with this, gets complex in the impl
+			children: Snippet;
+		} = $props();
 
 	const options = $derived(alert_status_options[status]);
 	// TODO change this to use the hue and put transparency on the borders, or add a borderColor option

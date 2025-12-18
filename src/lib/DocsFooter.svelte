@@ -1,6 +1,7 @@
 <script lang="ts">
 	import {format_url, type Url} from '@fuzdev/fuz_util/url.js';
 	import type {Snippet} from 'svelte';
+	import type {SvelteHTMLElements} from 'svelte/elements';
 
 	import type {Library} from './library.svelte.js';
 	import Svg from './Svg.svelte';
@@ -13,17 +14,17 @@
 		logo_header,
 		logo_footer,
 		children,
-	}: {
+		...rest
+	}: SvelteHTMLElements['footer'] & {
 		library: Library;
 		root_url?: Url | null;
 		logo?: Snippet;
 		logo_header?: Snippet;
 		logo_footer?: Snippet;
-		children?: Snippet;
 	} = $props();
 </script>
 
-<footer class="box">
+<footer {...rest} class="box {rest.class}">
 	{@render children?.()}
 	<div class="logo box panel p_lg shadow_inset_xs">
 		{@render logo_header?.()}

@@ -1,11 +1,14 @@
 <script lang="ts">
+	import type {SvelteHTMLElements} from 'svelte/elements';
+
 	import DocsMenu from './DocsMenu.svelte';
 	import {Tome} from './tome.js';
 
 	const {
 		tomes,
 		sidebar = true,
-	}: {
+		...rest
+	}: SvelteHTMLElements['aside'] & {
 		tomes: Array<Tome>;
 		sidebar?: boolean; // TODO @many dialog navs (this shouldn't exist)
 	} = $props();
@@ -13,7 +16,7 @@
 	const expand_width = $derived(!sidebar);
 </script>
 
-<aside class="docs_secondary_nav unstyled" class:sidebar>
+<aside {...rest} class="docs_secondary_nav unstyled {rest.class}" class:sidebar>
 	<nav aria-label="Secondary nav">
 		<DocsMenu {tomes} {expand_width} />
 	</nav>

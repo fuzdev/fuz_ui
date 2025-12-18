@@ -464,11 +464,6 @@ export const library_json: LibraryJson = {
 								type: '{color_scheme: ColorScheme}',
 								optional: true,
 							},
-							{
-								name: 'onchange',
-								type: '(color_scheme: ColorScheme) => void',
-								optional: true,
-							},
 						],
 						source_line: 1,
 					},
@@ -2733,11 +2728,6 @@ export const library_json: LibraryJson = {
 								type: 'Snippet',
 								optional: true,
 							},
-							{
-								name: 'children',
-								type: 'Snippet',
-								optional: true,
-							},
 						],
 						source_line: 1,
 					},
@@ -2788,11 +2778,6 @@ export const library_json: LibraryJson = {
 							{
 								name: 'margin',
 								type: 'boolean',
-								optional: true,
-							},
-							{
-								name: 'class',
-								type: 'string',
 								optional: true,
 							},
 							{
@@ -3136,11 +3121,6 @@ export const library_json: LibraryJson = {
 								type: 'Hue',
 								optional: true,
 								bindable: true,
-							},
-							{
-								name: 'oninput',
-								type: '(hue: Hue) => void',
-								optional: true,
 							},
 							{
 								name: 'children',
@@ -5307,11 +5287,6 @@ export const library_json: LibraryJson = {
 							{
 								name: 'shrink',
 								type: 'boolean',
-								optional: true,
-							},
-							{
-								name: 'attrs',
-								type: "SvelteHTMLElements['svg']",
 								optional: true,
 							},
 						],

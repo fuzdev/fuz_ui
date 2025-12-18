@@ -10,25 +10,26 @@
 		svg_attrs,
 		img_attrs,
 		...rest
-	}: SvelteHTMLElements['div'] & {
-		src: string;
-		label?: string;
-		/**
-		 * Sets both the `width` and `height` of the svg. Overridden by the `width` and `height` props.
-		 */
-		size?: string;
-		/**
-		 * Sets the `width` of the svg. Overrides `size`.
-		 */
-		width?: string;
-		/**
-		 * Sets the `height` of the svg. Overrides `size`.
-		 */
-		height?: string;
-		svg_attrs?: SvelteHTMLElements['svg'];
-		img_attrs?: SvelteHTMLElements['img'];
-		/** Shared attributes for both img and svg. */
-	} = $props();
+	}: SvelteHTMLElements['img'] &
+		SvelteHTMLElements['svg'] & {
+			src: string;
+			label?: string;
+			/**
+			 * Sets both the `width` and `height` of the svg. Overridden by the `width` and `height` props.
+			 */
+			size?: string;
+			/**
+			 * Sets the `width` of the svg. Overrides `size`.
+			 */
+			width?: string;
+			/**
+			 * Sets the `height` of the svg. Overrides `size`.
+			 */
+			height?: string;
+			svg_attrs?: SvelteHTMLElements['svg'];
+			img_attrs?: SvelteHTMLElements['img'];
+			/** Shared attributes for both img and svg. */
+		} = $props();
 
 	const final_width = $derived(width ?? size);
 	const final_height = $derived(height ?? size);

@@ -12,12 +12,13 @@
 		icon,
 		children,
 		...rest
-	}: SvelteHTMLElements['a'] & {
-		tag?: string | undefined;
-		align?: 'left' | 'right' | 'above' | 'below';
-		icon?: string | Snippet;
-		children: Snippet;
-	} = $props();
+	}: SvelteHTMLElements['div'] &
+		SvelteHTMLElements['a'] & {
+			tag?: string | undefined;
+			align?: 'left' | 'right' | 'above' | 'below';
+			icon?: string | Snippet;
+			children: Snippet;
+		} = $props();
 
 	const link = $derived(!!href);
 	const selected = $derived(link && page.url.pathname === href);
