@@ -155,11 +155,6 @@ export const library_json: LibraryJson = {
 								optional: true,
 							},
 							{
-								name: 'attrs',
-								type: 'HTMLAttributes<HTMLElement> | undefined',
-								optional: true,
-							},
-							{
 								name: 'icon',
 								type: 'string | Snippet<[icon: string]> | null | undefined',
 								optional: true,
@@ -439,18 +434,8 @@ export const library_json: LibraryJson = {
 								optional: true,
 							},
 							{
-								name: 'href',
-								type: 'string | undefined',
-								optional: true,
-							},
-							{
 								name: 'align',
 								type: "'left' | 'right' | 'above' | 'below'",
-								optional: true,
-							},
-							{
-								name: 'attrs',
-								type: 'any',
 								optional: true,
 							},
 							{
@@ -3211,12 +3196,6 @@ export const library_json: LibraryJson = {
 								name: 'img_attrs',
 								type: "SvelteHTMLElements['img']",
 								optional: true,
-							},
-							{
-								name: 'attrs',
-								type: "Pick<SvelteHTMLElements['div'], 'class' | 'style'>",
-								optional: true,
-								description: 'Shared attributes for both img and svg.',
 							},
 						],
 						source_line: 1,
