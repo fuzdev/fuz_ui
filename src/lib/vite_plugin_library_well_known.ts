@@ -1,4 +1,5 @@
 import type {Plugin} from 'vite';
+import type {ServerResponse} from 'node:http';
 import {isAbsolute, join} from 'node:path';
 import {pathToFileURL} from 'node:url';
 import type {LibraryJson} from '@fuzdev/fuz_util/library_json.js';
@@ -15,6 +16,13 @@ interface WellKnownContent {
 	package_json: string | null;
 	source_json: string | null;
 }
+
+const respond_json = (res: ServerResponse, body: string): void => {
+	res.setHeader('Content-Type', 'application/json');
+	res.setHeader('Cache-Control', 'no-store');
+	res.setHeader('Access-Control-Allow-Origin', '*');
+	res.end(body);
+};
 
 /**
  * Vite plugin that publishes `package.json` and `source.json` to `.well-known/`.
@@ -44,6 +52,9 @@ export const vite_plugin_library_well_known = (
 		package_json: null,
 		source_json: null,
 	};
+
+	// Promise that resolves when library is loaded, used by middleware to avoid race condition
+	let ready_promise: Promise<void> | null = null;
 
 	const load_library = async (): Promise<void> => {
 		let library_json: LibraryJson | undefined;
@@ -75,33 +86,34 @@ export const vite_plugin_library_well_known = (
 			);
 		}
 
-		// Serialize package.json
-		try {
-			content.package_json = JSON.stringify(library_json.package_json, null, 2) + '\n';
-		} catch (err) {
-			throw new Error(`vite_plugin_library_well_known: failed to serialize package.json: ${err}`);
-		}
-
-		// Serialize source.json
-		try {
-			content.source_json = JSON.stringify(library_json.source_json, null, 2) + '\n';
-		} catch (err) {
-			throw new Error(`vite_plugin_library_well_known: failed to serialize source.json: ${err}`);
-		}
+		content.package_json = JSON.stringify(library_json.package_json, null, 2) + '\n';
+		content.source_json = JSON.stringify(library_json.source_json, null, 2) + '\n';
 	};
 
 	return {
 		name: 'vite_plugin_library_well_known',
 
 		async buildStart() {
-			await load_library();
+			ready_promise = load_library();
+			await ready_promise;
 		},
 
 		configureServer(server) {
-			server.middlewares.use((req, res, next) => {
+			// TODO: add HMR support to reload library.ts when it changes
+			server.middlewares.use(async (req, res, next) => {
 				const url = req.url;
 				if (!url?.startsWith('/.well-known/')) {
 					next();
+					return;
+				}
+
+				// Wait for library to load before serving
+				try {
+					if (!ready_promise) throw new Error('not initialized');
+					await ready_promise;
+				} catch {
+					res.statusCode = 503;
+					respond_json(res, JSON.stringify({error: 'Library not ready'}));
 					return;
 				}
 
@@ -111,16 +123,12 @@ export const vite_plugin_library_well_known = (
 				const path = url_path.slice('/.well-known/'.length);
 
 				if (path === 'package.json' && content.package_json) {
-					res.setHeader('Content-Type', 'application/json');
-					res.setHeader('Cache-Control', 'no-store');
-					res.end(content.package_json);
+					respond_json(res, content.package_json);
 					return;
 				}
 
 				if (path === 'source.json' && content.source_json) {
-					res.setHeader('Content-Type', 'application/json');
-					res.setHeader('Cache-Control', 'no-store');
-					res.end(content.source_json);
+					respond_json(res, content.source_json);
 					return;
 				}
 

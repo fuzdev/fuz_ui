@@ -6246,7 +6246,7 @@ export const library_json: LibraryJson = {
 					{
 						name: 'VitePluginLibraryWellKnownOptions',
 						kind: 'type',
-						source_line: 6,
+						source_line: 7,
 						type_signature: 'VitePluginLibraryWellKnownOptions',
 						properties: [
 							{
@@ -6265,7 +6265,7 @@ export const library_json: LibraryJson = {
 						examples: [
 							"```ts\n// vite.config.ts\nimport {defineConfig} from 'vite';\nimport {sveltekit} from '@sveltejs/kit/vite';\nimport {vite_plugin_library_well_known} from '@fuzdev/fuz_ui/vite_plugin_library_well_known.js';\n\nexport default defineConfig({\n  plugins: [sveltekit(), vite_plugin_library_well_known()],\n});\n```",
 						],
-						source_line: 38,
+						source_line: 46,
 						type_signature: '(options?: VitePluginLibraryWellKnownOptions): Plugin<any>',
 						return_type: 'Plugin<any>',
 						parameters: [
