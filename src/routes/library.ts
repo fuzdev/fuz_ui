@@ -2416,7 +2416,7 @@ export const library_json: LibraryJson = {
 						kind: 'variable',
 						source_line: 29,
 						type_signature:
-							'"/docs" | "/" | "/about" | "/docs/Alert" | "/docs/Breadcrumb" | "/docs/Breadcrumb/a" | "/docs/Breadcrumb/a/b" | "/docs/Breadcrumb/a/b/c" | "/docs/Breadcrumb/a/b/c/d" | "/docs/Card" | ... 94 more ... | `/${string}/help/`',
+							'"/docs" | "/" | "/about" | "/docs/Alert" | "/docs/Breadcrumb" | "/docs/Breadcrumb/a" | "/docs/Breadcrumb/a/b" | "/docs/Breadcrumb/a/b/c" | "/docs/Breadcrumb/a/b/c/d" | "/docs/Card" | ... 97 more ... | `/${string}/help/`',
 					},
 					{
 						name: 'DOCS_API_PATH',
