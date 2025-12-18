@@ -247,7 +247,7 @@ describe('vite_plugin_library_well_known', () => {
 
 			// Should not throw - just doesn't emit anything
 			assert.doesNotThrow(() => {
-				(plugin.generateBundle as (this: typeof context) => void).call(context);
+				(plugin.generateBundle as any).call(context);
 			});
 			assert.strictEqual(emitFile.mock.calls.length, 0);
 		});
