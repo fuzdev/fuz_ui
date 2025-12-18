@@ -64,7 +64,7 @@ export const library_json: LibraryJson = {
 			'@changesets/changelog-git': '^0.2.1',
 			'@fuzdev/fuz_code': '^0.38.0',
 			'@fuzdev/fuz_css': '^0.42.0',
-			'@fuzdev/fuz_util': '^0.43.0',
+			'@fuzdev/fuz_util': '^0.45.0',
 			'@ryanatkn/eslint-config': '^0.9.0',
 			'@ryanatkn/gro': '^0.181.0',
 			'@sveltejs/adapter-static': '^3.0.10',
@@ -2104,7 +2104,7 @@ export const library_json: LibraryJson = {
 								name: 'constructor',
 								kind: 'constructor',
 								type_signature:
-									'(module: Module, declaration_json: { [x: string]: unknown; name: string; kind: "function" | "type" | "json" | "variable" | "class" | "constructor" | "component" | "css"; doc_comment?: string | undefined; ... 18 more ...; alias_of?: { ...; } | undefined; }): Declaration',
+									'(module: Module, declaration_json: { [x: string]: unknown; name: string; kind: "function" | "json" | "type" | "variable" | "class" | "constructor" | "component" | "css"; doc_comment?: string | undefined; ... 18 more ...; alias_of?: { ...; } | undefined; }): Declaration',
 								parameters: [
 									{
 										name: 'module',
@@ -2112,7 +2112,7 @@ export const library_json: LibraryJson = {
 									},
 									{
 										name: 'declaration_json',
-										type: '{ [x: string]: unknown; name: string; kind: "function" | "type" | "json" | "variable" | "class" | "constructor" | "component" | "css"; doc_comment?: string | undefined; type_signature?: string | undefined; ... 17 more ...; alias_of?: { ...; } | undefined; }',
+										type: '{ [x: string]: unknown; name: string; kind: "function" | "json" | "type" | "variable" | "class" | "constructor" | "component" | "css"; doc_comment?: string | undefined; type_signature?: string | undefined; ... 17 more ...; alias_of?: { ...; } | undefined; }',
 									},
 								],
 							},
@@ -3359,12 +3359,12 @@ export const library_json: LibraryJson = {
 						],
 						source_line: 54,
 						type_signature:
-							'(source_json: { [x: string]: unknown; name: string; version: string; modules?: { [x: string]: unknown; path: string; declarations?: { [x: string]: unknown; name: string; kind: "function" | "type" | "json" | "variable" | "class" | "constructor" | "component" | "css"; ... 19 more ...; alias_of?: { ...; } | undefined; }[] | undefined; module_comment?: string | undefined; dependencies?: string[] | undefined; dependents?: string[] | undefined; }[] | undefined; }, log: Logger): void',
+							'(source_json: { [x: string]: unknown; name: string; version: string; modules?: { [x: string]: unknown; path: string; declarations?: { [x: string]: unknown; name: string; kind: "function" | "json" | "type" | "variable" | "class" | "constructor" | "component" | "css"; ... 19 more ...; alias_of?: { ...; } | undefined; }[] | undefined; module_comment?: string | undefined; dependencies?: string[] | undefined; dependents?: string[] | undefined; }[] | undefined; }, log: Logger): void',
 						return_type: 'void',
 						parameters: [
 							{
 								name: 'source_json',
-								type: '{ [x: string]: unknown; name: string; version: string; modules?: { [x: string]: unknown; path: string; declarations?: { [x: string]: unknown; name: string; kind: "function" | "type" | "json" | "variable" | "class" | "constructor" | "component" | "css"; ... 19 more ...; alias_of?: { ...; } | undefined; }[] | undefine...',
+								type: '{ [x: string]: unknown; name: string; version: string; modules?: { [x: string]: unknown; path: string; declarations?: { [x: string]: unknown; name: string; kind: "function" | "json" | "type" | "variable" | "class" | "constructor" | "component" | "css"; ... 19 more ...; alias_of?: { ...; } | undefined; }[] | undefine...',
 							},
 							{
 								name: 'log',
@@ -3379,13 +3379,13 @@ export const library_json: LibraryJson = {
 							'Sort modules alphabetically by path for deterministic output and cleaner diffs.',
 						source_line: 100,
 						type_signature:
-							'(modules: { [x: string]: unknown; path: string; declarations?: { [x: string]: unknown; name: string; kind: "function" | "type" | "json" | "variable" | "class" | "constructor" | "component" | "css"; doc_comment?: string | undefined; ... 18 more ...; alias_of?: { ...; } | undefined; }[] | undefined; module_comment?: string | undefined; dependencies?: string[] | undefined; dependents?: string[] | undefined; }[]): { ...; }[]',
+							'(modules: { [x: string]: unknown; path: string; declarations?: { [x: string]: unknown; name: string; kind: "function" | "json" | "type" | "variable" | "class" | "constructor" | "component" | "css"; doc_comment?: string | undefined; ... 18 more ...; alias_of?: { ...; } | undefined; }[] | undefined; module_comment?: string | undefined; dependencies?: string[] | undefined; dependents?: string[] | undefined; }[]): { ...; }[]',
 						return_type:
-							'{ [x: string]: unknown; path: string; declarations?: { [x: string]: unknown; name: string; kind: "function" | "type" | "json" | "variable" | "class" | "constructor" | "component" | "css"; doc_comment?: string | undefined; ... 18 more ...; alias_of?: { ...; } | undefined; }[] | undefined; module_comment?: string | un...',
+							'{ [x: string]: unknown; path: string; declarations?: { [x: string]: unknown; name: string; kind: "function" | "json" | "type" | "variable" | "class" | "constructor" | "component" | "css"; doc_comment?: string | undefined; ... 18 more ...; alias_of?: { ...; } | undefined; }[] | undefined; module_comment?: string | un...',
 						parameters: [
 							{
 								name: 'modules',
-								type: '{ [x: string]: unknown; path: string; declarations?: { [x: string]: unknown; name: string; kind: "function" | "type" | "json" | "variable" | "class" | "constructor" | "component" | "css"; doc_comment?: string | undefined; ... 18 more ...; alias_of?: { ...; } | undefined; }[] | undefined; module_comment?: string | un...',
+								type: '{ [x: string]: unknown; path: string; declarations?: { [x: string]: unknown; name: string; kind: "function" | "json" | "type" | "variable" | "class" | "constructor" | "component" | "css"; doc_comment?: string | undefined; ... 18 more ...; alias_of?: { ...; } | undefined; }[] | undefined; module_comment?: string | un...',
 							},
 						],
 					},
@@ -3396,16 +3396,16 @@ export const library_json: LibraryJson = {
 							'Generate the library.ts file content with library_json export.\nParses at generation time so runtime only needs the pre-computed result.',
 						source_line: 108,
 						type_signature:
-							'(package_json: { [x: string]: unknown; name: string; version: string; private?: boolean | undefined; public?: boolean | undefined; description?: string | undefined; motto?: string | undefined; glyph?: string | undefined; ... 24 more ...; exports?: string | ... 2 more ... | undefined; }, source_json: { ...; }): string',
+							'(package_json: { [x: string]: unknown; name: string; version: string; private?: boolean | undefined; description?: string | undefined; motto?: string | undefined; glyph?: string | undefined; logo?: string | undefined; ... 23 more ...; exports?: string | ... 2 more ... | undefined; }, source_json: { ...; }): string',
 						return_type: 'string',
 						parameters: [
 							{
 								name: 'package_json',
-								type: '{ [x: string]: unknown; name: string; version: string; private?: boolean | undefined; public?: boolean | undefined; description?: string | undefined; motto?: string | undefined; glyph?: string | undefined; ... 24 more ...; exports?: string | ... 2 more ... | undefined; }',
+								type: '{ [x: string]: unknown; name: string; version: string; private?: boolean | undefined; description?: string | undefined; motto?: string | undefined; glyph?: string | undefined; logo?: string | undefined; ... 23 more ...; exports?: string | ... 2 more ... | undefined; }',
 							},
 							{
 								name: 'source_json',
-								type: '{ [x: string]: unknown; name: string; version: string; modules?: { [x: string]: unknown; path: string; declarations?: { [x: string]: unknown; name: string; kind: "function" | "type" | "json" | "variable" | "class" | "constructor" | "component" | "css"; ... 19 more ...; alias_of?: { ...; } | undefined; }[] | undefine...',
+								type: '{ [x: string]: unknown; name: string; version: string; modules?: { [x: string]: unknown; path: string; declarations?: { [x: string]: unknown; name: string; kind: "function" | "json" | "type" | "variable" | "class" | "constructor" | "component" | "css"; ... 19 more ...; alias_of?: { ...; } | undefined; }[] | undefine...',
 							},
 						],
 					},
@@ -3437,7 +3437,7 @@ export const library_json: LibraryJson = {
 						type_signature:
 							'(disknode: Disknode, module_path: string, checker: TypeChecker): { [x: string]: unknown; path: string; declarations?: { [x: string]: unknown; name: string; kind: "function" | ... 6 more ... | "css"; ... 19 more ...; alias_of?: { ...; } | undefined; }[] | undefined; module_comment?: string | undefined; dependencies?: string[] | undefined; dependents?: string[] | undefined; }',
 						return_type:
-							'{ [x: string]: unknown; path: string; declarations?: { [x: string]: unknown; name: string; kind: "function" | "type" | "json" | "variable" | "class" | "constructor" | "component" | "css"; doc_comment?: string | undefined; ... 18 more ...; alias_of?: { ...; } | undefined; }[] | undefined; module_comment?: string | un...',
+							'{ [x: string]: unknown; path: string; declarations?: { [x: string]: unknown; name: string; kind: "function" | "json" | "type" | "variable" | "class" | "constructor" | "component" | "css"; doc_comment?: string | undefined; ... 18 more ...; alias_of?: { ...; } | undefined; }[] | undefined; module_comment?: string | un...',
 						parameters: [
 							{
 								name: 'disknode',
@@ -3665,12 +3665,12 @@ export const library_json: LibraryJson = {
 						doc_comment: 'Check if a package is published to npm.',
 						source_line: 59,
 						type_signature:
-							'(package_json: { [x: string]: unknown; name: string; version: string; private?: boolean | undefined; public?: boolean | undefined; description?: string | undefined; motto?: string | undefined; glyph?: string | undefined; ... 24 more ...; exports?: string | ... 2 more ... | undefined; }): boolean',
+							'(package_json: { [x: string]: unknown; name: string; version: string; private?: boolean | undefined; description?: string | undefined; motto?: string | undefined; glyph?: string | undefined; logo?: string | undefined; ... 23 more ...; exports?: string | ... 2 more ... | undefined; }): boolean',
 						return_type: 'boolean',
 						parameters: [
 							{
 								name: 'package_json',
-								type: '{ [x: string]: unknown; name: string; version: string; private?: boolean | undefined; public?: boolean | undefined; description?: string | undefined; motto?: string | undefined; glyph?: string | undefined; ... 24 more ...; exports?: string | ... 2 more ... | undefined; }',
+								type: '{ [x: string]: unknown; name: string; version: string; private?: boolean | undefined; description?: string | undefined; motto?: string | undefined; glyph?: string | undefined; logo?: string | undefined; ... 23 more ...; exports?: string | ... 2 more ... | undefined; }',
 							},
 						],
 					},
@@ -4853,7 +4853,7 @@ export const library_json: LibraryJson = {
 								name: 'constructor',
 								kind: 'constructor',
 								type_signature:
-									'(library: Library, module_json: { [x: string]: unknown; path: string; declarations?: { [x: string]: unknown; name: string; kind: "function" | "type" | "json" | "variable" | "class" | "constructor" | "component" | "css"; ... 19 more ...; alias_of?: { ...; } | undefined; }[] | undefined; module_comment?: string | undefined; dependencies?: string[] | undefined; dependents?: string[] | undefined; }): Module',
+									'(library: Library, module_json: { [x: string]: unknown; path: string; declarations?: { [x: string]: unknown; name: string; kind: "function" | "json" | "type" | "variable" | "class" | "constructor" | "component" | "css"; ... 19 more ...; alias_of?: { ...; } | undefined; }[] | undefined; module_comment?: string | undefined; dependencies?: string[] | undefined; dependents?: string[] | undefined; }): Module',
 								parameters: [
 									{
 										name: 'library',
@@ -4861,7 +4861,7 @@ export const library_json: LibraryJson = {
 									},
 									{
 										name: 'module_json',
-										type: '{ [x: string]: unknown; path: string; declarations?: { [x: string]: unknown; name: string; kind: "function" | "type" | "json" | "variable" | "class" | "constructor" | "component" | "css"; doc_comment?: string | undefined; ... 18 more ...; alias_of?: { ...; } | undefined; }[] | undefined; module_comment?: string | un...',
+										type: '{ [x: string]: unknown; path: string; declarations?: { [x: string]: unknown; name: string; kind: "function" | "json" | "type" | "variable" | "class" | "constructor" | "component" | "css"; doc_comment?: string | undefined; ... 18 more ...; alias_of?: { ...; } | undefined; }[] | undefined; module_comment?: string | un...',
 									},
 								],
 							},
@@ -5179,9 +5179,9 @@ export const library_json: LibraryJson = {
 						doc_comment: 'Analyze a Svelte component from its svelte2tsx transformation.',
 						source_line: 27,
 						type_signature:
-							'(ts_code: string, source_file: SourceFile, checker: TypeChecker, component_name: string): { [x: string]: unknown; name: string; kind: "function" | "type" | "json" | ... 4 more ... | "css"; ... 19 more ...; alias_of?: { ...; } | undefined; }',
+							'(ts_code: string, source_file: SourceFile, checker: TypeChecker, component_name: string): { [x: string]: unknown; name: string; kind: "function" | "json" | "type" | ... 4 more ... | "css"; ... 19 more ...; alias_of?: { ...; } | undefined; }',
 						return_type:
-							'{ [x: string]: unknown; name: string; kind: "function" | "type" | "json" | "variable" | "class" | "constructor" | "component" | "css"; doc_comment?: string | undefined; type_signature?: string | undefined; ... 17 more ...; alias_of?: { ...; } | undefined; }',
+							'{ [x: string]: unknown; name: string; kind: "function" | "json" | "type" | "variable" | "class" | "constructor" | "component" | "css"; doc_comment?: string | undefined; type_signature?: string | undefined; ... 17 more ...; alias_of?: { ...; } | undefined; }',
 						parameters: [
 							{
 								name: 'ts_code',
@@ -5208,9 +5208,9 @@ export const library_json: LibraryJson = {
 							'Analyze a Svelte component file from disk.\n\nThis is a high-level function that handles the complete workflow:\n1. Read the Svelte source from disk\n2. Transform to TypeScript via svelte2tsx\n3. Extract component metadata (props, documentation)\n\nSuitable for use in documentation generators, build tools, and analysis.',
 						source_line: 278,
 						type_signature:
-							'(file_path: string, module_path: string, checker: TypeChecker): { [x: string]: unknown; name: string; kind: "function" | "type" | "json" | "variable" | "class" | "constructor" | "component" | "css"; ... 19 more ...; alias_of?: { ...; } | undefined; }',
+							'(file_path: string, module_path: string, checker: TypeChecker): { [x: string]: unknown; name: string; kind: "function" | "json" | "type" | "variable" | "class" | "constructor" | "component" | "css"; ... 19 more ...; alias_of?: { ...; } | undefined; }',
 						return_type:
-							'{ [x: string]: unknown; name: string; kind: "function" | "type" | "json" | "variable" | "class" | "constructor" | "component" | "css"; doc_comment?: string | undefined; type_signature?: string | undefined; ... 17 more ...; alias_of?: { ...; } | undefined; }',
+							'{ [x: string]: unknown; name: string; kind: "function" | "json" | "type" | "variable" | "class" | "constructor" | "component" | "css"; doc_comment?: string | undefined; type_signature?: string | undefined; ... 17 more ...; alias_of?: { ...; } | undefined; }',
 						return_description: 'Complete declaration metadata for the component',
 						parameters: [
 							{
@@ -5814,9 +5814,9 @@ export const library_json: LibraryJson = {
 						doc_comment: 'Infer declaration kind from symbol and node.',
 						source_line: 59,
 						type_signature:
-							'(symbol: Symbol, node: Node): "function" | "type" | "json" | "variable" | "class" | "constructor" | "component" | "css"',
+							'(symbol: Symbol, node: Node): "function" | "json" | "type" | "variable" | "class" | "constructor" | "component" | "css"',
 						return_type:
-							'"function" | "type" | "json" | "variable" | "class" | "constructor" | "component" | "css"',
+							'"function" | "json" | "type" | "variable" | "class" | "constructor" | "component" | "css"',
 						parameters: [
 							{
 								name: 'symbol',
@@ -5835,7 +5835,7 @@ export const library_json: LibraryJson = {
 							'Extract function/method information including parameters\nwith descriptions and default values.',
 						source_line: 89,
 						type_signature:
-							'(node: Node, symbol: Symbol, checker: TypeChecker, declaration: { [x: string]: unknown; name: string; kind: "function" | "type" | "json" | "variable" | "class" | "constructor" | "component" | "css"; ... 19 more ...; alias_of?: { ...; } | undefined; }, tsdoc: TsdocParsedComment | undefined): void',
+							'(node: Node, symbol: Symbol, checker: TypeChecker, declaration: { [x: string]: unknown; name: string; kind: "function" | "json" | "type" | "variable" | "class" | "constructor" | "component" | "css"; ... 19 more ...; alias_of?: { ...; } | undefined; }, tsdoc: TsdocParsedComment | undefined): void',
 						return_type: 'void',
 						parameters: [
 							{
@@ -5852,7 +5852,7 @@ export const library_json: LibraryJson = {
 							},
 							{
 								name: 'declaration',
-								type: '{ [x: string]: unknown; name: string; kind: "function" | "type" | "json" | "variable" | "class" | "constructor" | "component" | "css"; doc_comment?: string | undefined; type_signature?: string | undefined; ... 17 more ...; alias_of?: { ...; } | undefined; }',
+								type: '{ [x: string]: unknown; name: string; kind: "function" | "json" | "type" | "variable" | "class" | "constructor" | "component" | "css"; doc_comment?: string | undefined; type_signature?: string | undefined; ... 17 more ...; alias_of?: { ...; } | undefined; }',
 							},
 							{
 								name: 'tsdoc',
@@ -5866,7 +5866,7 @@ export const library_json: LibraryJson = {
 						doc_comment: 'Extract type/interface information with rich property metadata.',
 						source_line: 162,
 						type_signature:
-							'(node: Node, _symbol: Symbol, checker: TypeChecker, declaration: { [x: string]: unknown; name: string; kind: "function" | "type" | "json" | "variable" | "class" | "constructor" | "component" | "css"; ... 19 more ...; alias_of?: { ...; } | undefined; }): void',
+							'(node: Node, _symbol: Symbol, checker: TypeChecker, declaration: { [x: string]: unknown; name: string; kind: "function" | "json" | "type" | "variable" | "class" | "constructor" | "component" | "css"; ... 19 more ...; alias_of?: { ...; } | undefined; }): void',
 						return_type: 'void',
 						parameters: [
 							{
@@ -5883,7 +5883,7 @@ export const library_json: LibraryJson = {
 							},
 							{
 								name: 'declaration',
-								type: '{ [x: string]: unknown; name: string; kind: "function" | "type" | "json" | "variable" | "class" | "constructor" | "component" | "css"; doc_comment?: string | undefined; type_signature?: string | undefined; ... 17 more ...; alias_of?: { ...; } | undefined; }',
+								type: '{ [x: string]: unknown; name: string; kind: "function" | "json" | "type" | "variable" | "class" | "constructor" | "component" | "css"; doc_comment?: string | undefined; type_signature?: string | undefined; ... 17 more ...; alias_of?: { ...; } | undefined; }',
 							},
 						],
 					},
@@ -5893,7 +5893,7 @@ export const library_json: LibraryJson = {
 						doc_comment: 'Extract class information with rich member metadata.',
 						source_line: 226,
 						type_signature:
-							'(node: Node, _symbol: Symbol, checker: TypeChecker, declaration: { [x: string]: unknown; name: string; kind: "function" | "type" | "json" | "variable" | "class" | "constructor" | "component" | "css"; ... 19 more ...; alias_of?: { ...; } | undefined; }): void',
+							'(node: Node, _symbol: Symbol, checker: TypeChecker, declaration: { [x: string]: unknown; name: string; kind: "function" | "json" | "type" | "variable" | "class" | "constructor" | "component" | "css"; ... 19 more ...; alias_of?: { ...; } | undefined; }): void',
 						return_type: 'void',
 						parameters: [
 							{
@@ -5910,7 +5910,7 @@ export const library_json: LibraryJson = {
 							},
 							{
 								name: 'declaration',
-								type: '{ [x: string]: unknown; name: string; kind: "function" | "type" | "json" | "variable" | "class" | "constructor" | "component" | "css"; doc_comment?: string | undefined; type_signature?: string | undefined; ... 17 more ...; alias_of?: { ...; } | undefined; }',
+								type: '{ [x: string]: unknown; name: string; kind: "function" | "json" | "type" | "variable" | "class" | "constructor" | "component" | "css"; doc_comment?: string | undefined; type_signature?: string | undefined; ... 17 more ...; alias_of?: { ...; } | undefined; }',
 							},
 						],
 					},
@@ -5920,7 +5920,7 @@ export const library_json: LibraryJson = {
 						doc_comment: 'Extract variable information.',
 						source_line: 381,
 						type_signature:
-							'(node: Node, symbol: Symbol, checker: TypeChecker, declaration: { [x: string]: unknown; name: string; kind: "function" | "type" | "json" | "variable" | "class" | "constructor" | "component" | "css"; ... 19 more ...; alias_of?: { ...; } | undefined; }): void',
+							'(node: Node, symbol: Symbol, checker: TypeChecker, declaration: { [x: string]: unknown; name: string; kind: "function" | "json" | "type" | "variable" | "class" | "constructor" | "component" | "css"; ... 19 more ...; alias_of?: { ...; } | undefined; }): void',
 						return_type: 'void',
 						parameters: [
 							{
@@ -5937,7 +5937,7 @@ export const library_json: LibraryJson = {
 							},
 							{
 								name: 'declaration',
-								type: '{ [x: string]: unknown; name: string; kind: "function" | "type" | "json" | "variable" | "class" | "constructor" | "component" | "css"; doc_comment?: string | undefined; type_signature?: string | undefined; ... 17 more ...; alias_of?: { ...; } | undefined; }',
+								type: '{ [x: string]: unknown; name: string; kind: "function" | "json" | "type" | "variable" | "class" | "constructor" | "component" | "css"; doc_comment?: string | undefined; type_signature?: string | undefined; ... 17 more ...; alias_of?: { ...; } | undefined; }',
 							},
 						],
 					},
@@ -6202,12 +6202,12 @@ export const library_json: LibraryJson = {
 							'Apply parsed TSDoc metadata to a declaration.\n\nConsolidates the common pattern of assigning TSDoc fields to declarations,\nwith conditional assignment for array fields (only if non-empty).',
 						source_line: 237,
 						type_signature:
-							'(declaration: { [x: string]: unknown; name: string; kind: "function" | "type" | "json" | "variable" | "class" | "constructor" | "component" | "css"; doc_comment?: string | undefined; type_signature?: string | undefined; ... 17 more ...; alias_of?: { ...; } | undefined; }, tsdoc: TsdocParsedComment | undefined): void',
+							'(declaration: { [x: string]: unknown; name: string; kind: "function" | "json" | "type" | "variable" | "class" | "constructor" | "component" | "css"; doc_comment?: string | undefined; type_signature?: string | undefined; ... 17 more ...; alias_of?: { ...; } | undefined; }, tsdoc: TsdocParsedComment | undefined): void',
 						return_type: 'void',
 						parameters: [
 							{
 								name: 'declaration',
-								type: '{ [x: string]: unknown; name: string; kind: "function" | "type" | "json" | "variable" | "class" | "constructor" | "component" | "css"; doc_comment?: string | undefined; type_signature?: string | undefined; ... 17 more ...; alias_of?: { ...; } | undefined; }',
+								type: '{ [x: string]: unknown; name: string; kind: "function" | "json" | "type" | "variable" | "class" | "constructor" | "component" | "css"; doc_comment?: string | undefined; type_signature?: string | undefined; ... 17 more ...; alias_of?: { ...; } | undefined; }',
 								description: 'declaration object to update',
 							},
 							{
@@ -6241,13 +6241,13 @@ export const library_json: LibraryJson = {
 				dependents: ['DeclarationDetail.svelte'],
 			},
 			{
-				path: 'vite_plugin_well_known.ts',
+				path: 'vite_plugin_library_well_known.ts',
 				declarations: [
 					{
-						name: 'VitePluginWellKnownOptions',
+						name: 'VitePluginLibraryWellKnownOptions',
 						kind: 'type',
 						source_line: 6,
-						type_signature: 'VitePluginWellKnownOptions',
+						type_signature: 'VitePluginLibraryWellKnownOptions',
 						properties: [
 							{
 								name: 'library_path',
@@ -6258,20 +6258,20 @@ export const library_json: LibraryJson = {
 						],
 					},
 					{
-						name: 'vite_plugin_well_known',
+						name: 'vite_plugin_library_well_known',
 						kind: 'function',
 						doc_comment:
 							'Vite plugin that publishes `package.json` and `source.json` to `.well-known/`.\n\nRequires a generated library.ts file (created by `library_gen` from `gro gen`).\nThe plugin imports this file and publishes its metadata to `.well-known/` for\nboth dev and production builds.',
 						examples: [
-							"```ts\n// vite.config.ts\nimport {sveltekit} from '@sveltejs/kit/vite';\nimport {vite_plugin_well_known} from '@fuzdev/fuz_ui/vite_plugin_well_known.js';\n\nexport default {\n  plugins: [sveltekit(), vite_plugin_well_known()],\n};\n```",
+							"```ts\n// vite.config.ts\nimport {defineConfig} from 'vite';\nimport {sveltekit} from '@sveltejs/kit/vite';\nimport {vite_plugin_library_well_known} from '@fuzdev/fuz_ui/vite_plugin_library_well_known.js';\n\nexport default defineConfig({\n  plugins: [sveltekit(), vite_plugin_library_well_known()],\n});\n```",
 						],
-						source_line: 37,
-						type_signature: '(options?: VitePluginWellKnownOptions): Plugin<any>',
+						source_line: 38,
+						type_signature: '(options?: VitePluginLibraryWellKnownOptions): Plugin<any>',
 						return_type: 'Plugin<any>',
 						parameters: [
 							{
 								name: 'options',
-								type: 'VitePluginWellKnownOptions',
+								type: 'VitePluginLibraryWellKnownOptions',
 								default_value: '{}',
 							},
 						],

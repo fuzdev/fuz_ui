@@ -3,7 +3,7 @@ import {isAbsolute, join} from 'node:path';
 import {pathToFileURL} from 'node:url';
 import type {LibraryJson} from '@fuzdev/fuz_util/library_json.js';
 
-export interface VitePluginWellKnownOptions {
+export interface VitePluginLibraryWellKnownOptions {
 	/**
 	 * Path to the library.ts file (relative to vite.config.ts).
 	 * @default './src/routes/library.ts'
@@ -26,15 +26,18 @@ interface WellKnownContent {
  * @example
  * ```ts
  * // vite.config.ts
+ * import {defineConfig} from 'vite';
  * import {sveltekit} from '@sveltejs/kit/vite';
- * import {vite_plugin_well_known} from '@fuzdev/fuz_ui/vite_plugin_well_known.js';
+ * import {vite_plugin_library_well_known} from '@fuzdev/fuz_ui/vite_plugin_library_well_known.js';
  *
- * export default {
- *   plugins: [sveltekit(), vite_plugin_well_known()],
- * };
+ * export default defineConfig({
+ *   plugins: [sveltekit(), vite_plugin_library_well_known()],
+ * });
  * ```
  */
-export const vite_plugin_well_known = (options: VitePluginWellKnownOptions = {}): Plugin => {
+export const vite_plugin_library_well_known = (
+	options: VitePluginLibraryWellKnownOptions = {},
+): Plugin => {
 	const {library_path = './src/routes/library.ts'} = options;
 
 	const content: WellKnownContent = {
@@ -58,7 +61,7 @@ export const vite_plugin_well_known = (options: VitePluginWellKnownOptions = {})
 			library_json = module.library_json;
 		} catch (err) {
 			throw new Error(
-				`vite_plugin_well_known: failed to import library_json from "${library_path}"\n` +
+				`vite_plugin_library_well_known: failed to import library_json from "${library_path}"\n` +
 					`Resolved to: ${resolved_path}\n` +
 					`Make sure you've run \`gro gen\` to generate the library metadata.\n` +
 					`Error: ${err}`,
@@ -67,7 +70,7 @@ export const vite_plugin_well_known = (options: VitePluginWellKnownOptions = {})
 
 		if (!library_json) {
 			throw new Error(
-				`vite_plugin_well_known: library_json is undefined in "${library_path}"\n` +
+				`vite_plugin_library_well_known: library_json is undefined in "${library_path}"\n` +
 					`The file must export a \`library_json\` named export.`,
 			);
 		}
@@ -76,19 +79,19 @@ export const vite_plugin_well_known = (options: VitePluginWellKnownOptions = {})
 		try {
 			content.package_json = JSON.stringify(library_json.package_json, null, 2) + '\n';
 		} catch (err) {
-			throw new Error(`vite_plugin_well_known: failed to serialize package.json: ${err}`);
+			throw new Error(`vite_plugin_library_well_known: failed to serialize package.json: ${err}`);
 		}
 
 		// Serialize source.json
 		try {
 			content.source_json = JSON.stringify(library_json.source_json, null, 2) + '\n';
 		} catch (err) {
-			throw new Error(`vite_plugin_well_known: failed to serialize source.json: ${err}`);
+			throw new Error(`vite_plugin_library_well_known: failed to serialize source.json: ${err}`);
 		}
 	};
 
 	return {
-		name: 'vite_plugin_well_known',
+		name: 'vite_plugin_library_well_known',
 
 		async buildStart() {
 			await load_library();
