@@ -1,5 +1,5 @@
 import type {Plugin} from 'vite';
-import {posix, isAbsolute, join} from 'node:path';
+import {isAbsolute, join} from 'node:path';
 import {pathToFileURL} from 'node:url';
 import type {LibraryJson} from '@fuzdev/fuz_util/library_json.js';
 
@@ -42,10 +42,8 @@ export const vite_plugin_well_known = (options: VitePluginWellKnownOptions = {})
 		source_json: null,
 	};
 
-	let warn: (msg: string) => void = console.warn; // eslint-disable-line no-console
-
 	const load_library = async (): Promise<void> => {
-		let library_json: LibraryJson;
+		let library_json: LibraryJson | undefined;
 
 		// Resolve path relative to project root (cwd), not plugin location
 		const resolved_path = isAbsolute(library_path)
@@ -78,14 +76,14 @@ export const vite_plugin_well_known = (options: VitePluginWellKnownOptions = {})
 		try {
 			content.package_json = JSON.stringify(library_json.package_json, null, 2) + '\n';
 		} catch (err) {
-			warn(`vite_plugin_well_known: failed to serialize package.json: ${err}`);
+			throw new Error(`vite_plugin_well_known: failed to serialize package.json: ${err}`);
 		}
 
 		// Serialize source.json
 		try {
 			content.source_json = JSON.stringify(library_json.source_json, null, 2) + '\n';
 		} catch (err) {
-			warn(`vite_plugin_well_known: failed to serialize source.json: ${err}`);
+			throw new Error(`vite_plugin_well_known: failed to serialize source.json: ${err}`);
 		}
 	};
 
@@ -93,7 +91,6 @@ export const vite_plugin_well_known = (options: VitePluginWellKnownOptions = {})
 		name: 'vite_plugin_well_known',
 
 		async buildStart() {
-			warn = (msg) => this.warn(msg);
 			await load_library();
 		},
 
