@@ -32,7 +32,7 @@
 
 	<TomeSection>
 		<TomeSectionHeader text="Setup" />
-		<p>1. Create <code>src/routes/library.gen.json.ts</code>:</p>
+		<p>1. Create <code>src/routes/library.gen.ts</code>:</p>
 		<Code
 			class="mb_lg"
 			content={`import {library_gen} from '@fuzdev/fuz_ui/library_gen.js';
