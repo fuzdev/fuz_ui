@@ -28,25 +28,23 @@ import {
 	library_gen_collect_source_files,
 	library_gen_sort_modules,
 	library_gen_validate_no_duplicates,
-	library_gen_generate_ts,
+	library_gen_generate_json,
 	library_gen_analyze_svelte_file,
 	library_gen_analyze_typescript_file,
 } from './library_gen_helpers.js';
-
-export interface LibraryGenOptions {
-	filename?: string;
-}
 
 /**
  * Creates a Gen object for generating library metadata with full TypeScript analysis.
  *
  * Usage in a `.gen.ts` file:
+ *
  * ```ts
  * import {library_gen} from '@fuzdev/fuz_ui/library_gen.js';
+ *
  * export const gen = library_gen();
  * ```
  */
-export const library_gen = (options?: LibraryGenOptions): Gen => {
+export const library_gen = (): Gen => {
 	return {
 		generate: async ({log, filer}) => {
 			log.info('generating library metadata with full TypeScript analysis...');
@@ -151,10 +149,12 @@ export const library_gen = (options?: LibraryGenOptions): Gen => {
 
 			log.info('library metadata generation complete');
 
-			return {
-				content: library_gen_generate_ts(package_json, source_json),
-				...(options?.filename && {filename: options.filename}),
-			};
+			const {json_content, ts_content} = library_gen_generate_json(package_json, source_json);
+
+			// Return array of files:
+			// - library.json (default from .gen.json.ts naming)
+			// - library.ts (typed wrapper that validates with zod)
+			return [{content: ts_content}, {content: json_content, filename: 'library.json'}];
 		},
 	};
 };

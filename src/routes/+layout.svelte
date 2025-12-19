@@ -9,7 +9,7 @@
 	import Themed from '$lib/Themed.svelte';
 	import ContextmenuRoot from '$lib/ContextmenuRoot.svelte';
 	import {library_context, Library} from '$lib/library.svelte.js';
-	import {library_json} from './library.js';
+	import {library_json} from '$routes/library.js';
 	import Spiders from '$lib/Spiders.svelte';
 
 	const {

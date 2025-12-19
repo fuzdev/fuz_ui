@@ -21,6 +21,7 @@ import logos from '$routes/docs/logos/+page.svelte';
 import theming from '$routes/docs/theming/+page.svelte';
 import api from '$routes/docs/api/+page.svelte';
 import intersect from '$routes/docs/intersect/+page.svelte';
+import vite_plugin_library_well_known from '$routes/docs/vite_plugin_library_well_known/+page.svelte';
 import mdz from '$routes/docs/mdz/+page.svelte';
 
 // TODO maybe decouple `related` from `Tome` to get bidirectionality for free
@@ -77,6 +78,14 @@ export const tomes: Array<Tome> = [
 		related_tomes: ['LibraryDetail', 'LibrarySummary', 'Svg'],
 		related_modules: ['logos.ts'],
 		related_declarations: [],
+	},
+	{
+		name: 'vite_plugin_library_well_known',
+		category: 'helpers',
+		Component: vite_plugin_library_well_known,
+		related_tomes: ['api', 'LibraryDetail', 'LibrarySummary'],
+		related_modules: ['vite_plugin_library_well_known.ts', 'library_gen.ts'],
+		related_declarations: ['vite_plugin_library_well_known', 'library_gen'],
 	},
 	{
 		name: 'mdz',
@@ -154,7 +163,7 @@ export const tomes: Array<Tome> = [
 		name: 'LibraryDetail',
 		category: 'components',
 		Component: LibraryDetail,
-		related_tomes: ['api', 'logos', 'LibrarySummary'],
+		related_tomes: ['api', 'logos', 'LibrarySummary', 'vite_plugin_library_well_known'],
 		related_modules: [],
 		related_declarations: ['LibraryDetail'],
 	},
@@ -162,7 +171,7 @@ export const tomes: Array<Tome> = [
 		name: 'LibrarySummary',
 		category: 'components',
 		Component: LibrarySummary,
-		related_tomes: ['api', 'logos', 'LibraryDetail'],
+		related_tomes: ['api', 'logos', 'LibraryDetail', 'vite_plugin_library_well_known'],
 		related_modules: [],
 		related_declarations: ['LibrarySummary'],
 	},

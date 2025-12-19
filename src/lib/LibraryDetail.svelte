@@ -143,8 +143,10 @@
 								title="data"
 								href={url_well_known(library.homepage_url, 'package.json')}>package.json</a
 							>
-							<a class="chip" title="data" href={url_well_known(library.homepage_url, 'src.json')}
-								>src.json</a
+							<a
+								class="chip"
+								title="data"
+								href={url_well_known(library.homepage_url, 'library.json')}>library.json</a
 							>
 						</div>
 					{/if}
