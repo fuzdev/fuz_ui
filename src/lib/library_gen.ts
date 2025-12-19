@@ -19,11 +19,11 @@
  */
 
 import type {Gen} from '@ryanatkn/gro';
-import {load_package_json} from '@ryanatkn/gro/package_json.js';
+import {package_json_load} from '@ryanatkn/gro/package_json.js';
 import type {SourceJson} from '@fuzdev/fuz_util/source_json.js';
 
-import {ts_create_program, type ReExportInfo} from './ts_helpers.js';
-import {module_extract_path, module_is_svelte} from './module_helpers.js';
+import {ts_create_program, type ReExportInfo} from './ts_helpers.ts';
+import {module_extract_path, module_is_svelte} from './module_helpers.ts';
 import {
 	library_gen_collect_source_files,
 	library_gen_sort_modules,
@@ -31,7 +31,7 @@ import {
 	library_gen_generate_json,
 	library_gen_analyze_svelte_file,
 	library_gen_analyze_typescript_file,
-} from './library_gen_helpers.js';
+} from './library_gen_helpers.ts';
 
 /**
  * Creates a Gen object for generating library metadata with full TypeScript analysis.
@@ -53,7 +53,7 @@ export const library_gen = (): Gen => {
 			await filer.init();
 
 			// Read package.json
-			const package_json = await load_package_json();
+			const package_json = await package_json_load();
 
 			// Create TypeScript program
 			const program = ts_create_program(log);
