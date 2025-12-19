@@ -1,5 +1,12 @@
 # @fuzdev/fuz_ui
 
+## 0.173.0
+
+### Minor Changes
+
+- add `vite_plugin_library_well_known` ([#104](https://github.com/fuzdev/fuz_ui/pull/104))
+- migrate to rest props pattern from attrs ([#105](https://github.com/fuzdev/fuz_ui/pull/105))
+
 ## 0.172.0
 
 ### Minor Changes
