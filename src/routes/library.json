@@ -6075,7 +6075,7 @@
 					{
 						"name": "VitePluginLibraryWellKnownOptions",
 						"kind": "type",
-						"source_line": 9,
+						"source_line": 7,
 						"type_signature": "VitePluginLibraryWellKnownOptions",
 						"properties": [
 							{
@@ -6089,11 +6089,11 @@
 					{
 						"name": "vite_plugin_library_well_known",
 						"kind": "function",
-						"doc_comment": "Vite plugin that publishes `package.json` and `source.json` to `.well-known/`.\n\nRequires a generated library.json file (created by `library_gen` from `gro gen`).\nThe plugin reads this JSON file and publishes its metadata to `.well-known/` for\nboth dev and production builds.\n\nNote: This plugin respects SvelteKit's `base` path configuration, so `.well-known/`\nwill be served at `{base}.well-known/` (e.g., `/my-app/.well-known/`). This deviates\nfrom RFC 8615 which specifies `.well-known` should be at the domain root. This tradeoff\nallows the plugin to work correctly when apps are deployed to non-root paths.\n\nNote: CORS headers are only set for the dev server. For production, configure\nCORS at the server level (nginx, Caddy, etc.) if cross-origin access is needed.",
+						"doc_comment": "Vite plugin that publishes `package.json` and `library.json` to `.well-known/`.\n\nRequires a generated library.json file (created by `library_gen` from `gro gen`).\nThe plugin reads this JSON file and publishes its metadata to `.well-known/` for\nboth dev and production builds.\n\nNote: This plugin respects SvelteKit's `base` path configuration, so `.well-known/`\nwill be served at `{base}.well-known/` (e.g., `/my-app/.well-known/`). This deviates\nfrom RFC 8615 which specifies `.well-known` should be at the domain root. This tradeoff\nallows the plugin to work correctly when apps are deployed to non-root paths.\n\nNote: CORS headers are only set for the dev server. For production, configure\nCORS at the server level (nginx, Caddy, etc.) if cross-origin access is needed.",
 						"examples": [
 							"```ts\n// vite.config.ts\nimport {defineConfig} from 'vite';\nimport {sveltekit} from '@sveltejs/kit/vite';\nimport {vite_plugin_library_well_known} from '@fuzdev/fuz_ui/vite_plugin_library_well_known.js';\n\nexport default defineConfig({\n  plugins: [sveltekit(), vite_plugin_library_well_known()],\n});\n```"
 						],
-						"source_line": 56,
+						"source_line": 54,
 						"type_signature": "(options?: VitePluginLibraryWellKnownOptions): Plugin<any>",
 						"return_type": "Plugin<any>",
 						"parameters": [

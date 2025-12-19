@@ -96,7 +96,7 @@ documentation:
 
 Code generation flow:
 
-1. `library.gen.json.ts` (Gro genfile) - analyzes TypeScript/Svelte source with full
+1. `library.gen.ts` (Gro genfile) - analyzes TypeScript/Svelte source with full
    TSDoc support
 2. generates `library.json` + `library.ts` - serialized library metadata
    (`package_json` + `source_json`) with typed wrapper using zod validation
@@ -270,9 +270,9 @@ component helpers:
 
 library and API (generated in `src/routes/`):
 
-- `library.json` - generated library metadata (from `library.gen.json.ts`)
-- `library.ts` - typed wrapper with zod validation (from `library.gen.json.ts`)
-- `library.gen.json.ts` - library metadata generator (Gro genfile)
+- `library.json` - generated library metadata (from `library.gen.ts`)
+- `library.ts` - typed wrapper with zod validation (from `library.gen.ts`)
+- `library.gen.ts` - library metadata generator (Gro genfile)
 - `library.svelte.ts` - `Library` class wrapping library data
 - `declaration.svelte.ts` - `Declaration` class for code declarations
 - `module.svelte.ts` - `Module` class for source files
@@ -407,13 +407,13 @@ Usage in Fuz:
 ```svelte
 <!-- src/routes/docs/+layout.svelte -->
 <script>
-  import {Docs} from '@fuzdev/fuz_ui/Docs.svelte';
-  import {tomes} from './tomes.js';
-  import {library_json} from './library.js';
+	import {Docs} from '@fuzdev/fuz_ui/Docs.svelte';
+	import {tomes} from './tomes.js';
+	import {library_json} from './library.js';
 </script>
 
 <Docs {tomes} {library}>
-  {@render children()}
+	{@render children()}
 </Docs>
 ```
 
@@ -436,31 +436,33 @@ Tome system, alternative to "stories" for component docs:
 Creating a tome:
 
 1. **Define in registry**:
+
    ```typescript
    // src/routes/docs/tomes.ts
    export const tomes: Tome[] = [
-     {
-       name: "my_component",
-       category: "components",
-       component: lazy(() => import("./my_component/+page.svelte")),
-       related: ["other_component", "guide"],
-     },
+   	{
+   		name: 'my_component',
+   		category: 'components',
+   		component: lazy(() => import('./my_component/+page.svelte')),
+   		related: ['other_component', 'guide'],
+   	},
    ];
    ```
 
 2. **Create page**:
+
    ```svelte
    <!-- src/routes/docs/my_component/+page.svelte -->
    <script>
-     import {TomeContent} from '@fuzdev/fuz_ui/TomeContent.svelte';
-     import {get_tome_by_name} from '@fuzdev/fuz_ui/tome.js';
-     const tome = get_tome_by_name('my_component');
+   	import {TomeContent} from '@fuzdev/fuz_ui/TomeContent.svelte';
+   	import {get_tome_by_name} from '@fuzdev/fuz_ui/tome.js';
+   	const tome = get_tome_by_name('my_component');
    </script>
 
    <TomeContent {tome}>
-     <section>
-       <p>Documentation content...</p>
-     </section>
+   	<section>
+   		<p>Documentation content...</p>
+   	</section>
    </TomeContent>
    ```
 
@@ -472,27 +474,32 @@ support.
 Setup for consumer projects (opt-in):
 
 1. **Setup generation**:
+
    ```typescript
    // src/routes/library.gen.ts
-   export * from "@fuzdev/fuz_ui/library.gen.js";
+   export * from '@fuzdev/fuz_ui/library.gen.js';
    ```
 
 2. **Create API index route**:
+
    ```svelte
    <!-- src/routes/docs/api/+page.svelte -->
    <script>
-     import {ApiIndex} from '@fuzdev/fuz_ui/ApiIndex.svelte';
+   	import {ApiIndex} from '@fuzdev/fuz_ui/ApiIndex.svelte';
    </script>
+
    <ApiIndex />
    ```
 
 3. **Create module detail route**:
+
    ```svelte
    <!-- src/routes/docs/api/[...module_path]/+page.svelte -->
    <script>
-     import {ApiModule} from '@fuzdev/fuz_ui/ApiModule.svelte';
-     const {params} = $props();
+   	import {ApiModule} from '@fuzdev/fuz_ui/ApiModule.svelte';
+   	const {params} = $props();
    </script>
+
    <ApiModule module_path={params.module_path} />
    ```
 

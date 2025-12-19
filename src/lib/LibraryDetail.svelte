@@ -146,7 +146,7 @@
 							<a
 								class="chip"
 								title="data"
-								href={url_well_known(library.homepage_url, 'source.json')}>source.json</a
+								href={url_well_known(library.homepage_url, 'library.json')}>library.json</a
 							>
 						</div>
 					{/if}

@@ -12,7 +12,7 @@
 	const tome = get_tome_by_name(LIBRARY_ITEM_NAME);
 
 	const package_json_url = asset('/.well-known/package.json');
-	const source_json_url = asset('/.well-known/source.json');
+	const library_json_url = asset('/.well-known/library.json');
 </script>
 
 <TomeContent {tome}>
@@ -20,9 +20,9 @@
 		<p>
 			<DeclarationLink name="vite_plugin_library_well_known" /> publishes metadata to
 			<code>.well-known/</code>
-			in your build output, currently only <a href={package_json_url}><code>package.json</code></a>
+			in your build output: <a href={package_json_url}><code>package.json</code></a>
 			and
-			<a href={source_json_url}><code>source.json</code></a>.
+			<a href={library_json_url}><code>library.json</code></a>.
 		</p>
 		<p>
 			Requires a generated <code>library.json</code> file, as created by
@@ -62,11 +62,11 @@ export default defineConfig({
 		<p>The plugin emits two files to <code>.well-known/</code>:</p>
 		<ul>
 			<li>
-				<a href={package_json_url}><code>{package_json_url}</code></a> - package metadata
+				<a href={package_json_url}><code>{package_json_url}</code></a> - package metadata (lightweight)
 			</li>
 			<li>
-				<a href={source_json_url}><code>{source_json_url}</code></a> - library metadata with declarations,
-				JSDoc, type signatures
+				<a href={library_json_url}><code>{library_json_url}</code></a> - full library metadata with modules,
+				declarations, JSDoc, type signatures
 			</li>
 		</ul>
 	</TomeSection>
@@ -90,7 +90,7 @@ export default defineConfig({
 			Why <code>.well-known/</code>?
 		</TomeSectionHeader>
 		<p>
-			Writing to <code>.well-known/package.json</code> and <code>.well-known/source.json</code>
+			Writing to <code>.well-known/package.json</code> and <code>.well-known/library.json</code>
 			extends <a href="https://en.wikipedia.org/wiki/Well-known_URI">Well-known URIs</a> (<a
 				href="https://www.rfc-editor.org/rfc/rfc8615">RFC 8615</a
 			>) for JS packages to provide conventional metadata for deployed websites. A popular example

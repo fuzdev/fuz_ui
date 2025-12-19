@@ -170,7 +170,7 @@ describe('vite_plugin_library_well_known', () => {
 			const plugin = init_plugin(vite_plugin_library_well_known());
 			const handler = capture_middleware(plugin);
 
-			await handler({url: '/.well-known/source.json'}, mock_res, next);
+			await handler({url: '/.well-known/library.json'}, mock_res, next);
 
 			assert.strictEqual(mock_res.headers['Content-Type'], 'application/json');
 			assert.strictEqual(mock_res.headers['Cache-Control'], 'no-store');
@@ -223,11 +223,11 @@ describe('vite_plugin_library_well_known', () => {
 			assert.strictEqual(next.mock.calls.length, 1);
 		});
 
-		test('matches source.json path', async () => {
+		test('matches library.json path', async () => {
 			const plugin = init_plugin(vite_plugin_library_well_known());
 			const handler = capture_middleware(plugin);
 
-			await handler({url: '/.well-known/source.json'}, mock_res, next);
+			await handler({url: '/.well-known/library.json'}, mock_res, next);
 
 			assert.strictEqual(mock_res.statusCode, 503);
 			assert.strictEqual(next.mock.calls.length, 0);
@@ -258,8 +258,8 @@ describe('URL constructor behavior', () => {
 	// Documents URL API behavior we rely on - kept as reference
 
 	test('strips query and hash from pathname', () => {
-		const {pathname} = new URL('/.well-known/source.json?v=1#top', 'http://localhost');
-		assert.strictEqual(pathname, '/.well-known/source.json');
+		const {pathname} = new URL('/.well-known/library.json?v=1#top', 'http://localhost');
+		assert.strictEqual(pathname, '/.well-known/library.json');
 	});
 
 	test('preserves percent-encoded characters', () => {

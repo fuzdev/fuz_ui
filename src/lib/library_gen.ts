@@ -154,7 +154,7 @@ export const library_gen = (): Gen => {
 			// Return array of files:
 			// - library.json (default from .gen.json.ts naming)
 			// - library.ts (typed wrapper that validates with zod)
-			return [{content: json_content}, {content: ts_content, filename: 'library.ts'}];
+			return [{content: ts_content}, {content: json_content, filename: 'library.json'}];
 		},
 	};
 };
