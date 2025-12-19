@@ -1,5 +1,11 @@
 # @fuzdev/fuz_ui
 
+## 0.174.0
+
+### Minor Changes
+
+- upgrade gro ([1047623](https://github.com/fuzdev/fuz_ui/commit/1047623))
+
 ## 0.173.0
 
 ### Minor Changes
