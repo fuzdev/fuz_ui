@@ -62,11 +62,12 @@ export default defineConfig({
 		<p>The plugin emits two files to <code>.well-known/</code>:</p>
 		<ul>
 			<li>
-				<a href={package_json_url}><code>{package_json_url}</code></a> - package metadata (lightweight)
+				<a href={package_json_url}><code>{package_json_url}</code></a> - package metadata only, much
+				smaller than <code>library.json</code> for lightweight usage
 			</li>
 			<li>
-				<a href={library_json_url}><code>{library_json_url}</code></a> - full library metadata with modules,
-				declarations, JSDoc, type signatures
+				<a href={library_json_url}><code>{library_json_url}</code></a> - full library metadata
+				including <code>package.json</code>, modules, declarations, JSDoc, and type signatures
 			</li>
 		</ul>
 	</TomeSection>
