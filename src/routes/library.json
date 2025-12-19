@@ -3333,7 +3333,7 @@
 						"name": "library_gen_collect_source_files",
 						"kind": "function",
 						"doc_comment": "Collect and filter source files from filer.\n\nReturns disknodes for TypeScript/JS files and Svelte components from src/lib, excluding test files.\nReturns an empty array with a warning if no source files are found.",
-						"source_line": 158,
+						"source_line": 159,
 						"type_signature": "(files: Map<PathId, Disknode>, log: Logger): Disknode[]",
 						"return_type": "Disknode[]",
 						"parameters": [
@@ -3351,7 +3351,7 @@
 						"name": "library_gen_analyze_svelte_file",
 						"kind": "function",
 						"doc_comment": "Analyze a Svelte component file and extract metadata.\n\nUses `svelte_analyze_file` for core analysis, then adds\nGro-specific dependency information from the disknode.",
-						"source_line": 193,
+						"source_line": 194,
 						"type_signature": "(disknode: Disknode, module_path: string, checker: TypeChecker): { [x: string]: unknown; path: string; declarations?: { [x: string]: unknown; name: string; kind: \"function\" | ... 6 more ... | \"css\"; ... 19 more ...; alias_of?: { ...; } | undefined; }[] | undefined; module_comment?: string | undefined; dependencies?: string[] | undefined; dependents?: string[] | undefined; }",
 						"return_type": "{ [x: string]: unknown; path: string; declarations?: { [x: string]: unknown; name: string; kind: \"function\" | \"json\" | \"type\" | \"variable\" | \"class\" | \"constructor\" | \"component\" | \"css\"; doc_comment?: string | undefined; ... 18 more ...; alias_of?: { ...; } | undefined; }[] | undefined; module_comment?: string | un...",
 						"parameters": [
@@ -3373,7 +3373,7 @@
 						"name": "library_gen_analyze_typescript_file",
 						"kind": "function",
 						"doc_comment": "Analyze a TypeScript file and extract all declarations.\n\nUses `ts_analyze_module_exports` for core analysis, then adds\nGro-specific dependency information from the disknode.\n\nReturns both the module metadata and re-export information for post-processing.",
-						"source_line": 220,
+						"source_line": 221,
 						"type_signature": "(disknode: Disknode, source_file: SourceFile, module_path: string, checker: TypeChecker): TsFileAnalysis",
 						"return_type": "TsFileAnalysis",
 						"parameters": [
@@ -3399,7 +3399,7 @@
 						"name": "library_gen_extract_dependencies",
 						"kind": "function",
 						"doc_comment": "Extract dependencies and dependents for a module from the filer's dependency graph.\n\nFilters to only include source modules from src/lib (excludes external packages, node_modules, tests).\nReturns sorted arrays of module paths (relative to src/lib) for deterministic output.",
-						"source_line": 259,
+						"source_line": 260,
 						"type_signature": "(disknode: Disknode): { dependencies: string[]; dependents: string[]; }",
 						"return_type": "{ dependencies: string[]; dependents: string[]; }",
 						"parameters": [
