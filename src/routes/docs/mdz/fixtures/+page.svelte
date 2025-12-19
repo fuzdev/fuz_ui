@@ -9,7 +9,7 @@
 
 	const {data} = $props();
 
-	const format_json = (obj: unknown): string => JSON.stringify(obj, null, 2);
+	const format_json = (obj: unknown): string => JSON.stringify(obj, null, '\t');
 </script>
 
 <main class="p_xl mx_auto width_upto_md">

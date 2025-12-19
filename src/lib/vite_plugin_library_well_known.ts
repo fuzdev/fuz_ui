@@ -109,8 +109,8 @@ export const vite_plugin_library_well_known = (
 		}
 		const library_json = raw as LibraryJson;
 
-		content.package_json = JSON.stringify(library_json.package_json, null, 2) + '\n';
-		content.library_json = JSON.stringify(library_json, null, 2) + '\n';
+		content.package_json = JSON.stringify(library_json.package_json, null, '\t') + '\n';
+		content.library_json = JSON.stringify(library_json, null, '\t') + '\n';
 	};
 
 	return {
