@@ -1,6 +1,6 @@
 {
   "name": "@fuzdev/fuz_ui",
-  "version": "0.172.0",
+  "version": "0.173.0",
   "modules": [
     {
       "path": "alert.ts",
@@ -449,7 +449,11 @@
           "kind": "function"
         },
         {
-          "name": "library_gen_generate_ts",
+          "name": "LibraryGenOutput",
+          "kind": "type"
+        },
+        {
+          "name": "library_gen_generate_json",
           "kind": "function"
         },
         {
@@ -473,10 +477,6 @@
     {
       "path": "library_gen.ts",
       "declarations": [
-        {
-          "name": "LibraryGenOptions",
-          "kind": "type"
-        },
         {
           "name": "library_gen",
           "kind": "function"
@@ -938,6 +938,19 @@
         },
         {
           "name": "tsdoc_apply_to_declaration",
+          "kind": "function"
+        }
+      ]
+    },
+    {
+      "path": "vite_plugin_library_well_known.ts",
+      "declarations": [
+        {
+          "name": "VitePluginLibraryWellKnownOptions",
+          "kind": "type"
+        },
+        {
+          "name": "vite_plugin_library_well_known",
           "kind": "function"
         }
       ]
