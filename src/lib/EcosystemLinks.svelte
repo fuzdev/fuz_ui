@@ -2,14 +2,14 @@
 	const {
 		selected,
 	}: {
-		selected?: 'www.fuz.dev';
+		selected?: 'fuz.dev';
 	} = $props();
 </script>
 
 <ul>
 	<li>
-		<a rel="me" href="https://www.fuz.dev/" class:selected={selected === 'www.fuz.dev'}>fuz.dev</a>
-		- the Fuz project homepage{#if selected === 'www.fuz.dev'}, you are here{/if}
+		<a rel="me" href="https://www.fuz.dev/" class:selected={selected === 'fuz.dev'}>fuz.dev</a>
+		- the Fuz project homepage{#if selected === 'fuz.dev'}, you are here{/if}
 	</li>
 	<li>
 		GitHub as <a rel="me" href="https://github.com/fuzdev">@fuzdev</a>
