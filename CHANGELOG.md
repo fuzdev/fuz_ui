@@ -1,5 +1,11 @@
 # @fuzdev/fuz_ui
 
+## 0.175.0
+
+### Minor Changes
+
+- rename repo `fuz.dev` from `www.fuz.dev` ([37ad5fc](https://github.com/fuzdev/fuz_ui/commit/37ad5fc))
+
 ## 0.174.0
 
 ### Minor Changes
