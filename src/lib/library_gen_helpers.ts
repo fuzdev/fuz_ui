@@ -19,7 +19,7 @@
 
 import type {PackageJson} from '@fuzdev/fuz_util/package_json.js';
 import type {Logger} from '@fuzdev/fuz_util/log.js';
-import type {ModuleJson, SourceJson} from '@fuzdev/fuz_util/source_json.js';
+import type {DeclarationJson, ModuleJson, SourceJson} from '@fuzdev/fuz_util/source_json.js';
 import {library_json_parse, type LibraryJson} from '@fuzdev/fuz_util/library_json.js';
 import type ts from 'typescript';
 
@@ -46,58 +46,57 @@ export interface TsFileAnalysis {
 }
 
 /**
- * Location of a declaration in a module.
+ * A duplicate declaration with its full metadata and module path.
  */
-export interface DeclarationLocation {
+export interface DuplicateDeclaration {
+	/** The full declaration metadata. */
+	declaration: DeclarationJson;
+	/** Module path where this declaration is defined. */
 	module: string;
-	kind: string;
-	/** Source line number (1-based), if available. */
-	source_line?: number;
 }
 
 /**
  * Find duplicate declaration names across modules.
  *
- * Returns a Map of declaration names to their locations (only includes duplicates).
+ * Returns a Map of declaration names to their full metadata (only includes duplicates).
  * Callers can decide how to handle duplicates (throw, warn, ignore).
  *
  * @example
  * const duplicates = library_gen_find_duplicates(source_json);
  * if (duplicates.size > 0) {
- *   for (const [name, locations] of duplicates) {
- *     console.error(`"${name}" found in: ${locations.map(l => l.module).join(', ')}`);
+ *   for (const [name, occurrences] of duplicates) {
+ *     console.error(`"${name}" found in:`);
+ *     for (const {declaration, module} of occurrences) {
+ *       console.error(`  - ${module}:${declaration.source_line} (${declaration.kind})`);
+ *     }
  *   }
  *   throw new Error(`Found ${duplicates.size} duplicate declaration names`);
  * }
  */
 export const library_gen_find_duplicates = (
 	source_json: SourceJson,
-): Map<string, Array<DeclarationLocation>> => {
-	const all_locations: Map<string, Array<DeclarationLocation>> = new Map();
+): Map<string, Array<DuplicateDeclaration>> => {
+	const all_occurrences: Map<string, Array<DuplicateDeclaration>> = new Map();
 
-	// Collect all declaration names and their locations
+	// Collect all declaration names and their full metadata
 	for (const mod of source_json.modules ?? []) {
 		for (const declaration of mod.declarations ?? []) {
 			const name = declaration.name;
-			if (!all_locations.has(name)) {
-				all_locations.set(name, []);
+			if (!all_occurrences.has(name)) {
+				all_occurrences.set(name, []);
 			}
-			const location: DeclarationLocation = {
+			all_occurrences.get(name)!.push({
+				declaration,
 				module: mod.path,
-				kind: declaration.kind,
-			};
-			if (declaration.source_line !== undefined) {
-				location.source_line = declaration.source_line;
-			}
-			all_locations.get(name)!.push(location);
+			});
 		}
 	}
 
 	// Filter to only duplicates
-	const duplicates: Map<string, Array<DeclarationLocation>> = new Map();
-	for (const [name, locations] of all_locations) {
-		if (locations.length > 1) {
-			duplicates.set(name, locations);
+	const duplicates: Map<string, Array<DuplicateDeclaration>> = new Map();
+	for (const [name, occurrences] of all_occurrences) {
+		if (occurrences.length > 1) {
+			duplicates.set(name, occurrences);
 		}
 	}
 
@@ -225,7 +224,7 @@ export const library_gen_analyze_svelte_file = (
 	options: ModuleSourceOptions,
 ): ModuleJson => {
 	// Use the extracted helper for core analysis
-	const declaration_json = svelte_analyze_file(source_file.id, module_path, checker);
+	const declaration_json = svelte_analyze_file(source_file, module_path, checker);
 
 	// Extract dependencies and dependents if provided
 	const {dependencies, dependents} = library_gen_extract_dependencies(source_file, options);

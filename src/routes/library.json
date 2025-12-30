@@ -3263,40 +3263,36 @@
 						]
 					},
 					{
-						"name": "DeclarationLocation",
+						"name": "DuplicateDeclaration",
 						"kind": "type",
-						"doc_comment": "Location of a declaration in a module.",
+						"doc_comment": "A duplicate declaration with its full metadata and module path.",
 						"source_line": 51,
-						"type_signature": "DeclarationLocation",
+						"type_signature": "DuplicateDeclaration",
 						"properties": [
+							{
+								"name": "declaration",
+								"kind": "variable",
+								"type_signature": "DeclarationJson",
+								"doc_comment": "The full declaration metadata."
+							},
 							{
 								"name": "module",
 								"kind": "variable",
-								"type_signature": "string"
-							},
-							{
-								"name": "kind",
-								"kind": "variable",
-								"type_signature": "string"
-							},
-							{
-								"name": "source_line",
-								"kind": "variable",
-								"type_signature": "number",
-								"doc_comment": "Source line number (1-based), if available."
+								"type_signature": "string",
+								"doc_comment": "Module path where this declaration is defined."
 							}
 						]
 					},
 					{
 						"name": "library_gen_find_duplicates",
 						"kind": "function",
-						"doc_comment": "Find duplicate declaration names across modules.\n\nReturns a Map of declaration names to their locations (only includes duplicates).\nCallers can decide how to handle duplicates (throw, warn, ignore).",
+						"doc_comment": "Find duplicate declaration names across modules.\n\nReturns a Map of declaration names to their full metadata (only includes duplicates).\nCallers can decide how to handle duplicates (throw, warn, ignore).",
 						"examples": [
-							"const duplicates = library_gen_find_duplicates(source_json);\nif (duplicates.size > 0) {\n  for (const [name, locations] of duplicates) {\n    console.error(`\"${name}\" found in: ${locations.map(l => l.module).join(', ')}`);\n  }\n  throw new Error(`Found ${duplicates.size} duplicate declaration names`);\n}"
+							"const duplicates = library_gen_find_duplicates(source_json);\nif (duplicates.size > 0) {\n  for (const [name, occurrences] of duplicates) {\n    console.error(`\"${name}\" found in:`);\n    for (const {declaration, module} of occurrences) {\n      console.error(`  - ${module}:${declaration.source_line} (${declaration.kind})`);\n    }\n  }\n  throw new Error(`Found ${duplicates.size} duplicate declaration names`);\n}"
 						],
-						"source_line": 73,
+						"source_line": 76,
 						"type_signature": "(source_json: { [x: string]: unknown; name: string; version: string; modules?: { [x: string]: unknown; path: string; declarations?: { [x: string]: unknown; name: string; kind: \"function\" | \"json\" | \"type\" | \"variable\" | \"class\" | \"constructor\" | \"component\" | \"css\"; ... 19 more ...; alias_of?: { ...; } | undefined; }[] | undefined; module_comment?: string | undefined; dependencies?: string[] | undefined; dependents?: string[] | undefined; }[] | undefined; }): Map<...>",
-						"return_type": "Map<string, DeclarationLocation[]>",
+						"return_type": "Map<string, DuplicateDeclaration[]>",
 						"parameters": [
 							{
 								"name": "source_json",
@@ -3308,7 +3304,7 @@
 						"name": "library_gen_sort_modules",
 						"kind": "function",
 						"doc_comment": "Sort modules alphabetically by path for deterministic output and cleaner diffs.",
-						"source_line": 110,
+						"source_line": 109,
 						"type_signature": "(modules: { [x: string]: unknown; path: string; declarations?: { [x: string]: unknown; name: string; kind: \"function\" | \"json\" | \"type\" | \"variable\" | \"class\" | \"constructor\" | \"component\" | \"css\"; doc_comment?: string | undefined; ... 18 more ...; alias_of?: { ...; } | undefined; }[] | undefined; module_comment?: string | undefined; dependencies?: string[] | undefined; dependents?: string[] | undefined; }[]): { ...; }[]",
 						"return_type": "{ [x: string]: unknown; path: string; declarations?: { [x: string]: unknown; name: string; kind: \"function\" | \"json\" | \"type\" | \"variable\" | \"class\" | \"constructor\" | \"component\" | \"css\"; doc_comment?: string | undefined; ... 18 more ...; alias_of?: { ...; } | undefined; }[] | undefined; module_comment?: string | un...",
 						"parameters": [
@@ -3322,7 +3318,7 @@
 						"name": "LibraryGenOutput",
 						"kind": "type",
 						"doc_comment": "Result of generating library files.\nContains both the JSON data and the TypeScript wrapper file.",
-						"source_line": 118,
+						"source_line": 117,
 						"type_signature": "LibraryGenOutput",
 						"properties": [
 							{
@@ -3343,7 +3339,7 @@
 						"name": "library_gen_generate_json",
 						"kind": "function",
 						"doc_comment": "Generate the library.json and library.ts file contents.\nParses at generation time so runtime only needs the pre-computed result.\n\nReturns JSON + .ts wrapper because:\n- JSON is natively importable by Node.js and Vite without TypeScript loaders\n- Works in CI environments that don't have TS compilation\n- The .ts wrapper validates with zod and exports with proper types\n  (JSON imports get widened types like `string` instead of literal unions)",
-						"source_line": 135,
+						"source_line": 134,
 						"type_signature": "(package_json: { [x: string]: unknown; name: string; version: string; private?: boolean | undefined; description?: string | undefined; motto?: string | undefined; glyph?: string | undefined; logo?: string | undefined; ... 23 more ...; exports?: string | ... 2 more ... | undefined; }, source_json: { ...; }): LibraryGenOutput",
 						"return_type": "LibraryGenOutput",
 						"parameters": [
@@ -3361,7 +3357,7 @@
 						"name": "library_gen_collect_source_files",
 						"kind": "function",
 						"doc_comment": "Collect and filter source files.\n\nReturns source files for TypeScript/JS files and Svelte components, excluding test files.\nReturns an empty array with a warning if no source files are found.\n\nNote: Only `.ts`, `.js`, and `.svelte` files are supported. The `options.extensions`\nfilters within these types (e.g., `['.ts']` to exclude .js and .svelte).\nOther extensions like `.css` are ignored even if added to options.",
-						"source_line": 177,
+						"source_line": 176,
 						"type_signature": "(files: Iterable<SourceFileInfo>, options: ModuleSourceOptions, log?: Logger | undefined): SourceFileInfo[]",
 						"return_type": "SourceFileInfo[]",
 						"parameters": [
@@ -3387,7 +3383,7 @@
 						"name": "library_gen_analyze_svelte_file",
 						"kind": "function",
 						"doc_comment": "Analyze a Svelte component file and extract metadata.\n\nUses `svelte_analyze_file` for core analysis, then adds\ndependency information from the source file info if available.",
-						"source_line": 221,
+						"source_line": 220,
 						"type_signature": "(source_file: SourceFileInfo, module_path: string, checker: TypeChecker, options: ModuleSourceOptions): { [x: string]: unknown; ... 4 more ...; dependents?: string[] | undefined; }",
 						"return_type": "{ [x: string]: unknown; path: string; declarations?: { [x: string]: unknown; name: string; kind: \"function\" | \"json\" | \"type\" | \"variable\" | \"class\" | \"constructor\" | \"component\" | \"css\"; doc_comment?: string | undefined; ... 18 more ...; alias_of?: { ...; } | undefined; }[] | undefined; module_comment?: string | un...",
 						"parameters": [
@@ -3417,7 +3413,7 @@
 						"name": "library_gen_analyze_typescript_file",
 						"kind": "function",
 						"doc_comment": "Analyze a TypeScript file and extract all declarations.\n\nUses `ts_analyze_module_exports` for core analysis, then adds\ndependency information from the source file info if available.\n\nReturns both the module metadata and re-export information for post-processing.",
-						"source_line": 255,
+						"source_line": 254,
 						"type_signature": "(source_file_info: SourceFileInfo, ts_source_file: SourceFile, module_path: string, checker: TypeChecker, options: ModuleSourceOptions): TsFileAnalysis",
 						"return_type": "TsFileAnalysis",
 						"parameters": [
@@ -3452,7 +3448,7 @@
 						"name": "library_gen_extract_dependencies",
 						"kind": "function",
 						"doc_comment": "Extract dependencies and dependents for a module from source file info.\n\nFilters to only include source modules (excludes external packages, node_modules, tests).\nReturns sorted arrays of module paths (relative to source_root) for deterministic output.\n\nIf no dependencies/dependents are provided in the source file info, returns empty arrays.",
-						"source_line": 301,
+						"source_line": 300,
 						"type_signature": "(source_file: SourceFileInfo, options: ModuleSourceOptions): { dependencies: string[]; dependents: string[]; }",
 						"return_type": "{ dependencies: string[]; dependents: string[]; }",
 						"parameters": [
@@ -5206,21 +5202,21 @@
 					{
 						"name": "svelte_analyze_file",
 						"kind": "function",
-						"doc_comment": "Analyze a Svelte component file from disk.\n\nThis is a high-level function that handles the complete workflow:\n1. Read the Svelte source from disk\n2. Transform to TypeScript via svelte2tsx\n3. Extract component metadata (props, documentation)\n\nSuitable for use in documentation generators, build tools, and analysis.",
+						"doc_comment": "Analyze a Svelte component file.\n\nThis is a high-level function that handles the complete workflow:\n1. Read the Svelte source (from `source_file.content` or disk)\n2. Transform to TypeScript via svelte2tsx\n3. Extract component metadata (props, documentation)\n\nSuitable for use in documentation generators, build tools, and analysis.",
 						"source_line": 280,
-						"type_signature": "(file_path: string, module_path: string, checker: TypeChecker): { [x: string]: unknown; name: string; kind: \"function\" | \"json\" | \"type\" | \"variable\" | \"class\" | \"constructor\" | \"component\" | \"css\"; ... 19 more ...; alias_of?: { ...; } | undefined; }",
+						"type_signature": "(source_file: SourceFileInfo, module_path: string, checker: TypeChecker): { [x: string]: unknown; name: string; kind: \"function\" | \"json\" | \"type\" | \"variable\" | \"class\" | \"constructor\" | \"component\" | \"css\"; ... 19 more ...; alias_of?: { ...; } | undefined; }",
 						"return_type": "{ [x: string]: unknown; name: string; kind: \"function\" | \"json\" | \"type\" | \"variable\" | \"class\" | \"constructor\" | \"component\" | \"css\"; doc_comment?: string | undefined; type_signature?: string | undefined; ... 17 more ...; alias_of?: { ...; } | undefined; }",
 						"return_description": "Complete declaration metadata for the component",
 						"parameters": [
 							{
-								"name": "file_path",
-								"type": "string",
-								"description": "Absolute path to the .svelte file"
+								"name": "source_file",
+								"type": "SourceFileInfo",
+								"description": "Source file info with path and optional pre-read content"
 							},
 							{
 								"name": "module_path",
 								"type": "string",
-								"description": "Module path relative to src/lib (e.g., 'Alert.svelte')"
+								"description": "Module path relative to source root (e.g., 'Alert.svelte')"
 							},
 							{
 								"name": "checker",

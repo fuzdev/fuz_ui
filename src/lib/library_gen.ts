@@ -191,11 +191,12 @@ export const library_gen = (options?: LibraryGenOptions): Gen => {
 				const duplicates = library_gen_find_duplicates(source_json);
 				if (duplicates.size > 0) {
 					log.error('Duplicate declaration names detected in flat namespace:');
-					for (const [name, locations] of duplicates) {
+					for (const [name, occurrences] of duplicates) {
 						log.error(`  "${name}" found in:`);
-						for (const {module, kind, source_line} of locations) {
-							const line_info = source_line !== undefined ? `:${source_line}` : '';
-							log.error(`    - ${module}${line_info} (${kind})`);
+						for (const {declaration, module} of occurrences) {
+							const line_info =
+								declaration.source_line !== undefined ? `:${declaration.source_line}` : '';
+							log.error(`    - ${module}${line_info} (${declaration.kind})`);
 						}
 					}
 					throw new Error(

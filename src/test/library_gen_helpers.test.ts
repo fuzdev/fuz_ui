@@ -139,10 +139,12 @@ describe('library_gen_find_duplicates', () => {
 			assert.strictEqual(duplicates.size, 1);
 			assert.ok(duplicates.has('Duplicate'));
 
-			const locations = duplicates.get('Duplicate')!;
-			assert.strictEqual(locations.length, 2);
-			assert.ok(locations.some((l) => l.module === 'foo.ts' && l.kind === 'type'));
-			assert.ok(locations.some((l) => l.module === 'bar.ts' && l.kind === 'component'));
+			const occurrences = duplicates.get('Duplicate')!;
+			assert.strictEqual(occurrences.length, 2);
+			assert.ok(occurrences.some((o) => o.module === 'foo.ts' && o.declaration.kind === 'type'));
+			assert.ok(
+				occurrences.some((o) => o.module === 'bar.ts' && o.declaration.kind === 'component'),
+			);
 		});
 
 		test('multiple duplicates', () => {
@@ -174,24 +176,28 @@ describe('library_gen_find_duplicates', () => {
 			const duplicates = library_gen_find_duplicates(source_json);
 
 			assert.strictEqual(duplicates.size, 1);
-			const locations = duplicates.get('Common')!;
-			assert.strictEqual(locations.length, 3);
-			assert.ok(locations.some((l) => l.module === 'a.ts'));
-			assert.ok(locations.some((l) => l.module === 'b.ts'));
-			assert.ok(locations.some((l) => l.module === 'c.ts'));
+			const occurrences = duplicates.get('Common')!;
+			assert.strictEqual(occurrences.length, 3);
+			assert.ok(occurrences.some((o) => o.module === 'a.ts'));
+			assert.ok(occurrences.some((o) => o.module === 'b.ts'));
+			assert.ok(occurrences.some((o) => o.module === 'c.ts'));
 		});
 
-		test('includes kind information for each location', () => {
+		test('includes full declaration for each occurrence', () => {
 			const source_json = create_mock_source_json([
 				create_mock_module('helpers.ts', [{name: 'Foo', kind: 'function'}]),
 				create_mock_module('Foo.svelte', [{name: 'Foo', kind: 'component'}]),
 			]);
 
 			const duplicates = library_gen_find_duplicates(source_json);
-			const locations = duplicates.get('Foo')!;
+			const occurrences = duplicates.get('Foo')!;
 
-			assert.ok(locations.some((l) => l.kind === 'function'));
-			assert.ok(locations.some((l) => l.kind === 'component'));
+			assert.ok(occurrences.some((o) => o.declaration.kind === 'function'));
+			assert.ok(occurrences.some((o) => o.declaration.kind === 'component'));
+			// Verify full declaration is available
+			for (const o of occurrences) {
+				assert.ok(o.declaration.name === 'Foo');
+			}
 		});
 	});
 
@@ -206,14 +212,14 @@ describe('library_gen_find_duplicates', () => {
 
 			assert.strictEqual(duplicates.size, 1);
 			assert.ok(duplicates.has('DocsLink'));
-			const locations = duplicates.get('DocsLink')!;
-			assert.ok(locations.some((l) => l.module === 'docs_helpers.svelte.ts'));
-			assert.ok(locations.some((l) => l.module === 'DocsLink.svelte'));
+			const occurrences = duplicates.get('DocsLink')!;
+			assert.ok(occurrences.some((o) => o.module === 'docs_helpers.svelte.ts'));
+			assert.ok(occurrences.some((o) => o.module === 'DocsLink.svelte'));
 		});
 	});
 
 	describe('source_line tracking', () => {
-		test('includes source_line when available', () => {
+		test('includes source_line when available in declaration', () => {
 			const source_json: SourceJson = {
 				name: '@test/package',
 				version: '1.0.0',
@@ -230,14 +236,14 @@ describe('library_gen_find_duplicates', () => {
 			};
 
 			const duplicates = library_gen_find_duplicates(source_json);
-			const locations = duplicates.get('Duplicate')!;
+			const occurrences = duplicates.get('Duplicate')!;
 
-			assert.strictEqual(locations.length, 2);
-			assert.ok(locations.some((l) => l.module === 'foo.ts' && l.source_line === 10));
-			assert.ok(locations.some((l) => l.module === 'bar.ts' && l.source_line === 25));
+			assert.strictEqual(occurrences.length, 2);
+			assert.ok(occurrences.some((o) => o.module === 'foo.ts' && o.declaration.source_line === 10));
+			assert.ok(occurrences.some((o) => o.module === 'bar.ts' && o.declaration.source_line === 25));
 		});
 
-		test('omits source_line when not available', () => {
+		test('handles missing source_line in declaration', () => {
 			const source_json: SourceJson = {
 				name: '@test/package',
 				version: '1.0.0',
@@ -254,13 +260,13 @@ describe('library_gen_find_duplicates', () => {
 			};
 
 			const duplicates = library_gen_find_duplicates(source_json);
-			const locations = duplicates.get('Duplicate')!;
+			const occurrences = duplicates.get('Duplicate')!;
 
-			const foo_location = locations.find((l) => l.module === 'foo.ts')!;
-			const bar_location = locations.find((l) => l.module === 'bar.ts')!;
+			const foo_occurrence = occurrences.find((o) => o.module === 'foo.ts')!;
+			const bar_occurrence = occurrences.find((o) => o.module === 'bar.ts')!;
 
-			assert.isUndefined(foo_location.source_line);
-			assert.strictEqual(bar_location.source_line, 25);
+			assert.isUndefined(foo_occurrence.declaration.source_line);
+			assert.strictEqual(bar_occurrence.declaration.source_line, 25);
 		});
 	});
 });

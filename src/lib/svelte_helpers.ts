@@ -23,7 +23,7 @@ import {svelte2tsx} from 'svelte2tsx';
 import type {DeclarationJson, ComponentPropInfo} from '@fuzdev/fuz_util/source_json.js';
 
 import {tsdoc_parse, tsdoc_apply_to_declaration} from './tsdoc_helpers.js';
-import {module_get_component_name} from './module_helpers.js';
+import {type SourceFileInfo, module_get_component_name} from './module_helpers.js';
 
 /**
  * Analyze a Svelte component from its svelte2tsx transformation.
@@ -263,33 +263,33 @@ const svelte_extract_props = (
 };
 
 /**
- * Analyze a Svelte component file from disk.
+ * Analyze a Svelte component file.
  *
  * This is a high-level function that handles the complete workflow:
- * 1. Read the Svelte source from disk
+ * 1. Read the Svelte source (from `source_file.content` or disk)
  * 2. Transform to TypeScript via svelte2tsx
  * 3. Extract component metadata (props, documentation)
  *
  * Suitable for use in documentation generators, build tools, and analysis.
  *
- * @param file_path Absolute path to the .svelte file
- * @param module_path Module path relative to src/lib (e.g., 'Alert.svelte')
+ * @param source_file Source file info with path and optional pre-read content
+ * @param module_path Module path relative to source root (e.g., 'Alert.svelte')
  * @param checker TypeScript type checker for type resolution
  * @returns Complete declaration metadata for the component
  */
 export const svelte_analyze_file = (
-	file_path: string,
+	source_file: SourceFileInfo,
 	module_path: string,
 	checker: ts.TypeChecker,
 ): DeclarationJson => {
-	const svelte_source = readFileSync(file_path, 'utf-8');
+	const svelte_source = source_file.content ?? readFileSync(source_file.id, 'utf-8');
 
 	// Check if component uses TypeScript
 	const is_ts_file = svelte_source.includes('lang="ts"');
 
 	// Transform Svelte to TS
 	const ts_result = svelte2tsx(svelte_source, {
-		filename: file_path,
+		filename: source_file.id,
 		isTsFile: is_ts_file,
 		emitOnTemplateError: true, // Handle malformed templates gracefully
 	});
@@ -298,7 +298,12 @@ export const svelte_analyze_file = (
 	const component_name = module_get_component_name(module_path);
 
 	// Create a temporary source file from the original Svelte content for JSDoc extraction
-	const temp_source = ts.createSourceFile(file_path, svelte_source, ts.ScriptTarget.Latest, true);
+	const temp_source = ts.createSourceFile(
+		source_file.id,
+		svelte_source,
+		ts.ScriptTarget.Latest,
+		true,
+	);
 
 	// Analyze the component using the existing lower-level function
 	return svelte_analyze_component(ts_result.code, temp_source, checker, component_name);
