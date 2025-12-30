@@ -46,6 +46,21 @@ export interface ModuleSourceOptions {
 	extensions: Array<string>;
 	/** Patterns to exclude (matched against full path). */
 	exclude_patterns: Array<RegExp>;
+	/**
+	 * Reject paths from nested source directories.
+	 *
+	 * When true, validates that source_paths match starting from the first `/src/`
+	 * in the path. This prevents including files from nested repositories
+	 * (e.g., test fixtures containing full projects).
+	 *
+	 * @default true
+	 *
+	 * @example
+	 * // With reject_nested_source_dirs: true (default)
+	 * // ✓ /project/src/lib/foo.ts - first /src/ leads to /src/lib/
+	 * // ✗ /project/src/fixtures/repos/bar/src/lib/x.ts - first /src/ leads to /src/fixtures/
+	 */
+	reject_nested_source_dirs: boolean;
 }
 
 /**
@@ -56,6 +71,7 @@ export const MODULE_SOURCE_DEFAULTS: ModuleSourceOptions = {
 	source_paths: ['/src/lib/'],
 	extensions: ['.ts', '.js', '.svelte'],
 	exclude_patterns: [/\.test\.ts$/],
+	reject_nested_source_dirs: true,
 };
 
 /**
@@ -115,8 +131,8 @@ export const module_is_test = (path: string): boolean => path.endsWith('.test.ts
  *
  * Checks source directory paths, file extensions, and exclusion patterns.
  *
- * Rejects nested repo paths by ensuring the first `/src/` leads to the source directory
- * (e.g. rejects `/src/fixtures/repos/foo/src/lib/index.ts` because `/src/fixtures/` ≠ `/src/lib/`).
+ * When `reject_nested_source_dirs` is true, rejects nested repo paths by ensuring
+ * source_paths match starting from the first `/src/` in the path.
  *
  * @param path Full path to check
  * @param options Module source options for filtering
@@ -124,15 +140,25 @@ export const module_is_test = (path: string): boolean => path.endsWith('.test.ts
  */
 export const module_matches_source = (path: string, options: ModuleSourceOptions): boolean => {
 	// Check if path is in one of the source directories
-	// The first /src/ in the path must lead directly to the source directory
-	// This rejects nested repos like /src/fixtures/repos/foo/src/lib/
 	const in_source_dir = options.source_paths.some((source_path) => {
 		if (!path.includes(source_path)) return false;
-		// Find the first /src/ and verify it's part of the source_path
-		const first_src_index = path.indexOf('/src/');
-		if (first_src_index === -1) return false;
-		// The source_path should start at that position
-		return path.substring(first_src_index).startsWith(source_path);
+
+		// If nested source dir rejection is enabled and path contains /src/,
+		// verify the first /src/ leads to source_path.
+		// This rejects nested repos like /src/fixtures/repos/foo/src/lib/
+		// Paths without /src/ skip this check (the nested repo problem doesn't apply).
+		if (options.reject_nested_source_dirs) {
+			const first_src_index = path.indexOf('/src/');
+			if (first_src_index !== -1) {
+				// The source_path should start at the /src/ position
+				if (!path.substring(first_src_index).startsWith(source_path)) {
+					return false;
+				}
+			}
+		}
+
+		// No nested source dir rejection - just check path contains source_path
+		return true;
 	});
 	if (!in_source_dir) return false;
 

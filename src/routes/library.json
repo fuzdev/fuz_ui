@@ -4622,6 +4622,12 @@
 								"kind": "variable",
 								"type_signature": "Array<RegExp>",
 								"doc_comment": "Patterns to exclude (matched against full path)."
+							},
+							{
+								"name": "reject_nested_source_dirs",
+								"kind": "variable",
+								"type_signature": "boolean",
+								"doc_comment": "Reject paths from nested source directories.\n\nWhen true, validates that source_paths match starting from the first `/src/`\nin the path. This prevents including files from nested repositories\n(e.g., test fixtures containing full projects)."
 							}
 						]
 					},
@@ -4629,7 +4635,7 @@
 						"name": "MODULE_SOURCE_DEFAULTS",
 						"kind": "variable",
 						"doc_comment": "Default options for standard SvelteKit library structure.",
-						"source_line": 54,
+						"source_line": 69,
 						"type_signature": "ModuleSourceOptions"
 					},
 					{
@@ -4639,7 +4645,7 @@
 						"examples": [
 							"module_extract_path('/home/user/project/src/lib/foo.ts', MODULE_SOURCE_DEFAULTS) // => 'foo.ts'\nmodule_extract_path('/home/user/project/src/lib/nested/bar.svelte', MODULE_SOURCE_DEFAULTS) // => 'nested/bar.svelte'\nmodule_extract_path('/home/user/project/src/routes/foo.ts', {...MODULE_SOURCE_DEFAULTS, source_root: '/src/routes/'}) // => 'foo.ts'"
 						],
-						"source_line": 72,
+						"source_line": 88,
 						"type_signature": "(source_id: string, options: ModuleSourceOptions): string",
 						"return_type": "string",
 						"parameters": [
@@ -4662,7 +4668,7 @@
 						"examples": [
 							"module_get_component_name('Alert.svelte') // => 'Alert'\nmodule_get_component_name('components/Button.svelte') // => 'Button'"
 						],
-						"source_line": 86,
+						"source_line": 102,
 						"type_signature": "(module_path: string): string",
 						"return_type": "string",
 						"parameters": [
@@ -4677,7 +4683,7 @@
 						"kind": "function",
 						"doc_comment": "Convert module path to module key format (with ./ prefix).",
 						"examples": ["module_get_key('foo.ts') // => './foo.ts'"],
-						"source_line": 95,
+						"source_line": 111,
 						"type_signature": "(module_path: string): string",
 						"return_type": "string",
 						"parameters": [
@@ -4691,7 +4697,7 @@
 						"name": "module_is_typescript",
 						"kind": "function",
 						"doc_comment": "Check if a path is a TypeScript or JavaScript file.\n\nIncludes both `.ts` and `.js` files since JS files are valid in TS projects.",
-						"source_line": 102,
+						"source_line": 118,
 						"type_signature": "(path: string): boolean",
 						"return_type": "boolean",
 						"parameters": [
@@ -4704,7 +4710,7 @@
 					{
 						"name": "module_is_svelte",
 						"kind": "function",
-						"source_line": 105,
+						"source_line": 121,
 						"type_signature": "(path: string): boolean",
 						"return_type": "boolean",
 						"parameters": [
@@ -4717,7 +4723,7 @@
 					{
 						"name": "module_is_css",
 						"kind": "function",
-						"source_line": 107,
+						"source_line": 123,
 						"type_signature": "(path: string): boolean",
 						"return_type": "boolean",
 						"parameters": [
@@ -4730,7 +4736,7 @@
 					{
 						"name": "module_is_json",
 						"kind": "function",
-						"source_line": 109,
+						"source_line": 125,
 						"type_signature": "(path: string): boolean",
 						"return_type": "boolean",
 						"parameters": [
@@ -4743,7 +4749,7 @@
 					{
 						"name": "module_is_test",
 						"kind": "function",
-						"source_line": 111,
+						"source_line": 127,
 						"type_signature": "(path: string): boolean",
 						"return_type": "boolean",
 						"parameters": [
@@ -4756,8 +4762,8 @@
 					{
 						"name": "module_matches_source",
 						"kind": "function",
-						"doc_comment": "Check if a path matches source criteria.\n\nChecks source directory paths, file extensions, and exclusion patterns.\n\nRejects nested repo paths by ensuring the first `/src/` leads to the source directory\n(e.g. rejects `/src/fixtures/repos/foo/src/lib/index.ts` because `/src/fixtures/` ≠ `/src/lib/`).",
-						"source_line": 125,
+						"doc_comment": "Check if a path matches source criteria.\n\nChecks source directory paths, file extensions, and exclusion patterns.\n\nWhen `reject_nested_source_dirs` is true, rejects nested repo paths by ensuring\nsource_paths match starting from the first `/src/` in the path.",
+						"source_line": 141,
 						"type_signature": "(path: string, options: ModuleSourceOptions): boolean",
 						"return_type": "boolean",
 						"return_description": "True if the path matches all criteria",

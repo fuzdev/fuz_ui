@@ -180,6 +180,10 @@ describe('MODULE_SOURCE_DEFAULTS', () => {
 		assert.isTrue(MODULE_SOURCE_DEFAULTS.exclude_patterns[0]!.test('foo.test.ts'));
 		assert.isFalse(MODULE_SOURCE_DEFAULTS.exclude_patterns[0]!.test('foo.ts'));
 	});
+
+	test('has expected default reject_nested_source_dirs', () => {
+		assert.strictEqual(MODULE_SOURCE_DEFAULTS.reject_nested_source_dirs, true);
+	});
 });
 
 describe('module_matches_source', () => {
@@ -340,6 +344,37 @@ describe('module_matches_source', () => {
 					MODULE_SOURCE_DEFAULTS,
 				),
 			);
+		});
+	});
+
+	describe('with reject_nested_source_dirs', () => {
+		test('false disables nested repo detection', () => {
+			const options: ModuleSourceOptions = {
+				...MODULE_SOURCE_DEFAULTS,
+				reject_nested_source_dirs: false,
+			};
+
+			// With detection disabled, nested repo paths are accepted
+			assert.isTrue(
+				module_matches_source(
+					'/home/user/project/src/fixtures/repos/repo_a/src/lib/index.ts',
+					options,
+				),
+			);
+		});
+
+		test('non-src structures work (no /src/ in path skips check)', () => {
+			// Project using /packages/ instead of /src/
+			const options: ModuleSourceOptions = {
+				source_root: '/packages/core/lib/',
+				source_paths: ['/packages/core/lib/'],
+				extensions: ['.ts'],
+				exclude_patterns: [],
+				reject_nested_source_dirs: true,
+			};
+
+			// Accepts paths without /src/ - the nested check is skipped
+			assert.isTrue(module_matches_source('/home/user/project/packages/core/lib/foo.ts', options));
 		});
 	});
 });
