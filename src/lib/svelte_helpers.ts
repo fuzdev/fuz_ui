@@ -23,7 +23,16 @@ import {svelte2tsx} from 'svelte2tsx';
 import type {DeclarationJson, ComponentPropInfo} from '@fuzdev/fuz_util/source_json.js';
 
 import {tsdoc_parse, tsdoc_apply_to_declaration} from './tsdoc_helpers.js';
+import {ts_extract_module_comment} from './ts_helpers.js';
 import {type SourceFileInfo, module_get_component_name} from './module_helpers.js';
+
+/** Result of analyzing a Svelte file. */
+export interface SvelteFileAnalysis {
+	/** The component declaration metadata. */
+	declaration: DeclarationJson;
+	/** Module-level documentation comment, if present. */
+	module_comment?: string;
+}
 
 /**
  * Analyze a Svelte component from its svelte2tsx transformation.
@@ -263,25 +272,62 @@ const svelte_extract_props = (
 };
 
 /**
+ * Extract the content of the main `<script>` tag from Svelte source.
+ *
+ * Matches `<script>` or `<script lang="ts">` but not `<script module>`.
+ * Returns undefined if no matching script tag is found.
+ */
+export const svelte_extract_script_content = (svelte_source: string): string | undefined => {
+	// Match <script> or <script lang="ts"> but not <script module>
+	// Captures the content between opening and closing tags
+	const script_regex = /<script(?:\s+lang=["']ts["'])?(?:\s*)>([^]*?)<\/script>/i;
+	const match = script_regex.exec(svelte_source);
+	return match?.[1];
+};
+
+/**
+ * Extract module-level comment from Svelte script content.
+ *
+ * Uses the same blank-line heuristic as TypeScript module comments:
+ * a JSDoc comment (`/** ... *\/`) followed by a blank line is considered
+ * a module-level comment rather than a declaration comment.
+ *
+ * @param script_content The content of the `<script>` tag
+ * @returns The cleaned module comment text, or undefined if none found
+ */
+export const svelte_extract_module_comment = (script_content: string): string | undefined => {
+	// Parse the script content as TypeScript and reuse the shared extraction logic
+	const source_file = ts.createSourceFile(
+		'script.ts',
+		script_content,
+		ts.ScriptTarget.Latest,
+		true,
+		ts.ScriptKind.TS,
+	);
+	return ts_extract_module_comment(source_file);
+};
+
+/**
  * Analyze a Svelte component file.
  *
  * This is a high-level function that handles the complete workflow:
  * 1. Read the Svelte source (from `source_file.content` or disk)
  * 2. Transform to TypeScript via svelte2tsx
  * 3. Extract component metadata (props, documentation)
+ * 4. Extract module-level documentation
  *
  * Suitable for use in documentation generators, build tools, and analysis.
  *
  * @param source_file Source file info with path and optional pre-read content
  * @param module_path Module path relative to source root (e.g., 'Alert.svelte')
  * @param checker TypeScript type checker for type resolution
- * @returns Complete declaration metadata for the component
+ * @returns Component declaration and optional module-level comment
  */
 export const svelte_analyze_file = (
 	source_file: SourceFileInfo,
 	module_path: string,
 	checker: ts.TypeChecker,
-): DeclarationJson => {
+): SvelteFileAnalysis => {
 	const svelte_source = source_file.content ?? readFileSync(source_file.id, 'utf-8');
 
 	// Check if component uses TypeScript
@@ -306,5 +352,16 @@ export const svelte_analyze_file = (
 	);
 
 	// Analyze the component using the existing lower-level function
-	return svelte_analyze_component(ts_result.code, temp_source, checker, component_name);
+	const declaration = svelte_analyze_component(
+		ts_result.code,
+		temp_source,
+		checker,
+		component_name,
+	);
+
+	// Extract module-level comment from the script content
+	const script_content = svelte_extract_script_content(svelte_source);
+	const module_comment = script_content ? svelte_extract_module_comment(script_content) : undefined;
+
+	return {declaration, module_comment};
 };

@@ -257,3 +257,23 @@ export const tsdoc_apply_to_declaration = (
 		declaration.since = tsdoc.since;
 	}
 };
+
+/**
+ * Clean raw JSDoc comment text by removing comment markers and leading asterisks.
+ *
+ * Transforms `/** ... *\/` style comments into clean text.
+ *
+ * @param comment_text The raw comment text including `/**` and `*\/` markers
+ * @returns Cleaned comment text, or undefined if empty after cleaning
+ */
+export const tsdoc_clean_comment = (comment_text: string): string | undefined => {
+	const text = comment_text
+		.replace(/^\/\*\*/, '')
+		.replace(/\*\/$/, '')
+		.split('\n')
+		.map((line) => line.replace(/^\s*\*\s?/, ''))
+		.join('\n')
+		.trim();
+
+	return text || undefined;
+};

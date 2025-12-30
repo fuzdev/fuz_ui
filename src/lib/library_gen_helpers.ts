@@ -224,14 +224,15 @@ export const library_gen_analyze_svelte_file = (
 	options: ModuleSourceOptions,
 ): ModuleJson => {
 	// Use the extracted helper for core analysis
-	const declaration_json = svelte_analyze_file(source_file, module_path, checker);
+	const {declaration, module_comment} = svelte_analyze_file(source_file, module_path, checker);
 
 	// Extract dependencies and dependents if provided
 	const {dependencies, dependents} = library_gen_extract_dependencies(source_file, options);
 
 	return {
 		path: module_path,
-		declarations: [declaration_json],
+		declarations: [declaration],
+		module_comment,
 		dependencies: dependencies.length > 0 ? dependencies : undefined,
 		dependents: dependents.length > 0 ? dependents : undefined,
 	};

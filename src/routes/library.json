@@ -82,8 +82,8 @@
 			"eslint-plugin-svelte": "^3.13.1",
 			"esm-env": "^1.2.2",
 			"jsdom": "^27.2.0",
-			"prettier": "^3.6.2",
-			"prettier-plugin-svelte": "^3.4.0",
+			"prettier": "^3.7.4",
+			"prettier-plugin-svelte": "^3.4.1",
 			"svelte": "^5.45.6",
 			"svelte-check": "^4.3.4",
 			"svelte2tsx": "^0.7.45",
@@ -173,6 +173,7 @@
 						"source_line": 1
 					}
 				],
+				"module_comment": "@see https://www.w3.org/WAI/ARIA/apg/patterns/alert/",
 				"dependencies": ["alert.ts"]
 			},
 			{
@@ -2142,6 +2143,7 @@
 						"source_line": 1
 					}
 				],
+				"module_comment": "Like `details` but renders children lazily by default.",
 				"dependents": ["DeclarationDetail.svelte"]
 			},
 			{
@@ -3413,7 +3415,7 @@
 						"name": "library_gen_analyze_typescript_file",
 						"kind": "function",
 						"doc_comment": "Analyze a TypeScript file and extract all declarations.\n\nUses `ts_analyze_module_exports` for core analysis, then adds\ndependency information from the source file info if available.\n\nReturns both the module metadata and re-export information for post-processing.",
-						"source_line": 254,
+						"source_line": 255,
 						"type_signature": "(source_file_info: SourceFileInfo, ts_source_file: SourceFile, module_path: string, checker: TypeChecker, options: ModuleSourceOptions): TsFileAnalysis",
 						"return_type": "TsFileAnalysis",
 						"parameters": [
@@ -3448,7 +3450,7 @@
 						"name": "library_gen_extract_dependencies",
 						"kind": "function",
 						"doc_comment": "Extract dependencies and dependents for a module from source file info.\n\nFilters to only include source modules (excludes external packages, node_modules, tests).\nReturns sorted arrays of module paths (relative to source_root) for deterministic output.\n\nIf no dependencies/dependents are provided in the source file info, returns empty arrays.",
-						"source_line": 300,
+						"source_line": 301,
 						"type_signature": "(source_file: SourceFileInfo, options: ModuleSourceOptions): { dependencies: string[]; dependents: string[]; }",
 						"return_type": "{ dependencies: string[]; dependents: string[]; }",
 						"parameters": [
@@ -5174,10 +5176,31 @@
 				"path": "svelte_helpers.ts",
 				"declarations": [
 					{
+						"name": "SvelteFileAnalysis",
+						"kind": "type",
+						"doc_comment": "Result of analyzing a Svelte file.",
+						"source_line": 30,
+						"type_signature": "SvelteFileAnalysis",
+						"properties": [
+							{
+								"name": "declaration",
+								"kind": "variable",
+								"type_signature": "DeclarationJson",
+								"doc_comment": "The component declaration metadata."
+							},
+							{
+								"name": "module_comment",
+								"kind": "variable",
+								"type_signature": "string",
+								"doc_comment": "Module-level documentation comment, if present."
+							}
+						]
+					},
+					{
 						"name": "svelte_analyze_component",
 						"kind": "function",
 						"doc_comment": "Analyze a Svelte component from its svelte2tsx transformation.",
-						"source_line": 31,
+						"source_line": 40,
 						"type_signature": "(ts_code: string, source_file: SourceFile, checker: TypeChecker, component_name: string): { [x: string]: unknown; name: string; kind: \"function\" | \"json\" | \"type\" | ... 4 more ... | \"css\"; ... 19 more ...; alias_of?: { ...; } | undefined; }",
 						"return_type": "{ [x: string]: unknown; name: string; kind: \"function\" | \"json\" | \"type\" | \"variable\" | \"class\" | \"constructor\" | \"component\" | \"css\"; doc_comment?: string | undefined; type_signature?: string | undefined; ... 17 more ...; alias_of?: { ...; } | undefined; }",
 						"parameters": [
@@ -5200,13 +5223,43 @@
 						]
 					},
 					{
+						"name": "svelte_extract_script_content",
+						"kind": "function",
+						"doc_comment": "Extract the content of the main `<script>` tag from Svelte source.\n\nMatches `<script>` or `<script lang=\"ts\">` but not `<script module>`.\nReturns undefined if no matching script tag is found.",
+						"source_line": 280,
+						"type_signature": "(svelte_source: string): string | undefined",
+						"return_type": "string | undefined",
+						"parameters": [
+							{
+								"name": "svelte_source",
+								"type": "string"
+							}
+						]
+					},
+					{
+						"name": "svelte_extract_module_comment",
+						"kind": "function",
+						"doc_comment": "Extract module-level comment from Svelte script content.\n\nUses the same blank-line heuristic as TypeScript module comments:\na JSDoc comment (`/** ... *\\/`) followed by a blank line is considered\na module-level comment rather than a declaration comment.",
+						"source_line": 298,
+						"type_signature": "(script_content: string): string | undefined",
+						"return_type": "string | undefined",
+						"return_description": "The cleaned module comment text, or undefined if none found",
+						"parameters": [
+							{
+								"name": "script_content",
+								"type": "string",
+								"description": "The content of the `<script>` tag"
+							}
+						]
+					},
+					{
 						"name": "svelte_analyze_file",
 						"kind": "function",
-						"doc_comment": "Analyze a Svelte component file.\n\nThis is a high-level function that handles the complete workflow:\n1. Read the Svelte source (from `source_file.content` or disk)\n2. Transform to TypeScript via svelte2tsx\n3. Extract component metadata (props, documentation)\n\nSuitable for use in documentation generators, build tools, and analysis.",
-						"source_line": 280,
-						"type_signature": "(source_file: SourceFileInfo, module_path: string, checker: TypeChecker): { [x: string]: unknown; name: string; kind: \"function\" | \"json\" | \"type\" | \"variable\" | \"class\" | \"constructor\" | \"component\" | \"css\"; ... 19 more ...; alias_of?: { ...; } | undefined; }",
-						"return_type": "{ [x: string]: unknown; name: string; kind: \"function\" | \"json\" | \"type\" | \"variable\" | \"class\" | \"constructor\" | \"component\" | \"css\"; doc_comment?: string | undefined; type_signature?: string | undefined; ... 17 more ...; alias_of?: { ...; } | undefined; }",
-						"return_description": "Complete declaration metadata for the component",
+						"doc_comment": "Analyze a Svelte component file.\n\nThis is a high-level function that handles the complete workflow:\n1. Read the Svelte source (from `source_file.content` or disk)\n2. Transform to TypeScript via svelte2tsx\n3. Extract component metadata (props, documentation)\n4. Extract module-level documentation\n\nSuitable for use in documentation generators, build tools, and analysis.",
+						"source_line": 326,
+						"type_signature": "(source_file: SourceFileInfo, module_path: string, checker: TypeChecker): SvelteFileAnalysis",
+						"return_type": "SvelteFileAnalysis",
+						"return_description": "Component declaration and optional module-level comment",
 						"parameters": [
 							{
 								"name": "source_file",
@@ -5227,7 +5280,7 @@
 					}
 				],
 				"module_comment": "Svelte component analysis helpers.\n\nExtracts metadata from Svelte components using svelte2tsx transformations:\n\n- Component props with types and JSDoc\n- Component-level documentation\n- Type information\n\nWorkflow: Transform Svelte to TypeScript via svelte2tsx, parse the transformed\nTypeScript with the TS Compiler API, extract component-level JSDoc from original source.\n\nRequires svelte2tsx 0.7.x (Svelte 5 compatible). The transformed output format\nis version-specific - other versions may produce different AST structures.\nVersion constraint is enforced via peerDependencies in package.json.\n\nAll functions are prefixed with `svelte_` for clarity.",
-				"dependencies": ["module_helpers.ts", "tsdoc_helpers.ts"],
+				"dependencies": ["module_helpers.ts", "ts_helpers.ts", "tsdoc_helpers.ts"],
 				"dependents": ["library_gen_helpers.ts"]
 			},
 			{
@@ -5372,6 +5425,7 @@
 						"source_line": 1
 					}
 				],
+				"module_comment": "`Themed` adds global color scheme and theme support to the page.\nIt also sets in the Svelte context a reactive `themer` containing the theme and color scheme.",
 				"dependencies": ["rune_helpers.svelte.ts", "themer.svelte.ts"]
 			},
 			{
@@ -6056,7 +6110,7 @@
 						"name": "TsProgramOptions",
 						"kind": "type",
 						"doc_comment": "Options for creating a TypeScript program.",
-						"source_line": 682,
+						"source_line": 661,
 						"type_signature": "TsProgramOptions",
 						"properties": [
 							{
@@ -6089,7 +6143,7 @@
 								"description": "if tsconfig.json is not found"
 							}
 						],
-						"source_line": 698,
+						"source_line": 677,
 						"type_signature": "(log: { info: (message: string) => void; }, options?: TsProgramOptions | undefined): Program",
 						"return_type": "Program",
 						"parameters": [
@@ -6109,7 +6163,7 @@
 				],
 				"module_comment": "TypeScript compiler API helpers for extracting metadata from source code.\n\nAll functions are prefixed with `ts_` for clarity.",
 				"dependencies": ["module_helpers.ts", "tsdoc_helpers.ts"],
-				"dependents": ["library_gen.ts", "library_gen_helpers.ts"]
+				"dependents": ["library_gen.ts", "library_gen_helpers.ts", "svelte_helpers.ts"]
 			},
 			{
 				"path": "tsdoc_helpers.ts",
@@ -6220,6 +6274,22 @@
 								"name": "tsdoc",
 								"type": "TsdocParsedComment | undefined",
 								"description": "parsed TSDoc comment (if available)"
+							}
+						]
+					},
+					{
+						"name": "tsdoc_clean_comment",
+						"kind": "function",
+						"doc_comment": "Clean raw JSDoc comment text by removing comment markers and leading asterisks.\n\nTransforms `/** ... *\\/` style comments into clean text.",
+						"source_line": 269,
+						"type_signature": "(comment_text: string): string | undefined",
+						"return_type": "string | undefined",
+						"return_description": "Cleaned comment text, or undefined if empty after cleaning",
+						"parameters": [
+							{
+								"name": "comment_text",
+								"type": "string",
+								"description": "The raw comment text including `/**` and `*\\/` markers"
 							}
 						]
 					}

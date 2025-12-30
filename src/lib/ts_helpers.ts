@@ -11,7 +11,7 @@ import type {
 	DeclarationKind,
 } from '@fuzdev/fuz_util/source_json.js';
 
-import {tsdoc_parse, tsdoc_apply_to_declaration} from './tsdoc_helpers.js';
+import {tsdoc_parse, tsdoc_apply_to_declaration, tsdoc_clean_comment} from './tsdoc_helpers.js';
 import {
 	type ModuleSourceOptions,
 	module_extract_path,
@@ -622,11 +622,11 @@ export const ts_extract_module_comment = (source_file: ts.SourceFile): string | 
 			if (first_statement) {
 				const between = full_text.substring(comment.end, first_statement.getStart());
 				if (between.includes('\n\n')) {
-					return extract_and_clean_jsdoc(full_text, comment);
+					return tsdoc_clean_comment(comment_text);
 				}
 			} else {
 				// No statements, just return the comment
-				return extract_and_clean_jsdoc(full_text, comment);
+				return tsdoc_clean_comment(comment_text);
 			}
 		}
 	}
@@ -647,33 +647,12 @@ export const ts_extract_module_comment = (source_file: ts.SourceFile): string | 
 			// Check if there's a blank line between comment and statement
 			const between = full_text.substring(comment.end, statement_pos);
 			if (between.includes('\n\n')) {
-				return extract_and_clean_jsdoc(full_text, comment);
+				return tsdoc_clean_comment(comment_text);
 			}
 		}
 	}
 
 	return undefined;
-};
-
-/**
- * Extract and clean JSDoc comment text.
- */
-const extract_and_clean_jsdoc = (
-	full_text: string,
-	comment: {pos: number; end: number},
-): string | undefined => {
-	let text = full_text.substring(comment.pos, comment.end);
-
-	// Clean comment markers
-	text = text
-		.replace(/^\/\*\*/, '')
-		.replace(/\*\/$/, '')
-		.split('\n')
-		.map((line) => line.replace(/^\s*\*\s?/, ''))
-		.join('\n')
-		.trim();
-
-	return text || undefined;
 };
 
 /**
