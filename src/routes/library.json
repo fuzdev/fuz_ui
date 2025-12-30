@@ -6424,8 +6424,8 @@
 					{
 						"name": "ts_analyze_module_exports",
 						"kind": "function",
-						"doc_comment": "Analyze all exports from a TypeScript source file.\n\nExtracts the module-level comment and all exported declarations with\ncomplete metadata. Handles re-exports by:\n- Same-name re-exports: tracked in `re_exports` for `also_exported_from` building\n- Renamed re-exports: included as new declarations with `alias_of` metadata\n- Star exports (`export * from`): tracked in `star_exports` for namespace-level info\n\nThis is a high-level function suitable for building documentation, API explorers, or analysis tools.",
-						"source_line": 591,
+						"doc_comment": "Analyze all exports from a TypeScript source file.\n\nExtracts the module-level comment and all exported declarations with\ncomplete metadata. Handles re-exports by:\n- Same-name re-exports: tracked in `re_exports` for `also_exported_from` building\n- Renamed re-exports: included as new declarations with `alias_of` metadata\n- Star exports (`export * from`): tracked in `star_exports` for namespace-level info\n\nThis is a mid-level function (above `ts_extract_*`, below `library_gen`)\nsuitable for building documentation, API explorers, or analysis tools.\nFor standard SvelteKit library layouts, use `MODULE_SOURCE_DEFAULTS` for the options parameter.",
+						"source_line": 593,
 						"type_signature": "(source_file: SourceFile, checker: TypeChecker, options: ModuleSourceOptions, ctx: AnalysisContext): ModuleExportsAnalysis",
 						"return_type": "ModuleExportsAnalysis",
 						"return_description": "Module comment, declarations, re-exports, and star exports",
@@ -6443,12 +6443,12 @@
 							{
 								"name": "options",
 								"type": "ModuleSourceOptions",
-								"description": "Module source options for path extraction in re-exports"
+								"description": "Module source options for path extraction in re-exports (use `MODULE_SOURCE_DEFAULTS` for standard layouts)"
 							},
 							{
 								"name": "ctx",
 								"type": "AnalysisContext",
-								"description": "Optional analysis context for collecting diagnostics"
+								"description": "Analysis context for collecting diagnostics"
 							}
 						]
 					},
@@ -6456,7 +6456,7 @@
 						"name": "ts_extract_module_comment",
 						"kind": "function",
 						"doc_comment": "Extract module-level comment.\n\nOnly accepts JSDoc/TSDoc comments (`/** ... *\\/`) followed by a blank line to distinguish\nthem from identifier-level comments. This prevents accidentally treating function/class\ncomments as module comments. Module comments can appear after imports.",
-						"source_line": 729,
+						"source_line": 731,
 						"type_signature": "(source_file: SourceFile): string | undefined",
 						"return_type": "string | undefined",
 						"parameters": [
@@ -6470,7 +6470,7 @@
 						"name": "TsProgramOptions",
 						"kind": "type",
 						"doc_comment": "Options for creating a TypeScript program.",
-						"source_line": 780,
+						"source_line": 782,
 						"type_signature": "TsProgramOptions",
 						"properties": [
 							{
@@ -6503,7 +6503,7 @@
 								"description": "if tsconfig.json is not found"
 							}
 						],
-						"source_line": 796,
+						"source_line": 798,
 						"type_signature": "(log: { info: (message: string) => void; }, options?: TsProgramOptions | undefined): Program",
 						"return_type": "Program",
 						"parameters": [

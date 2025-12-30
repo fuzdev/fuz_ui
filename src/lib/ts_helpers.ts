@@ -580,12 +580,14 @@ export interface ModuleExportsAnalysis {
  * - Renamed re-exports: included as new declarations with `alias_of` metadata
  * - Star exports (`export * from`): tracked in `star_exports` for namespace-level info
  *
- * This is a high-level function suitable for building documentation, API explorers, or analysis tools.
+ * This is a mid-level function (above `ts_extract_*`, below `library_gen`)
+ * suitable for building documentation, API explorers, or analysis tools.
+ * For standard SvelteKit library layouts, use `MODULE_SOURCE_DEFAULTS` for the options parameter.
  *
  * @param source_file The TypeScript source file to analyze
  * @param checker The TypeScript type checker
- * @param options Module source options for path extraction in re-exports
- * @param ctx Optional analysis context for collecting diagnostics
+ * @param options Module source options for path extraction in re-exports (use `MODULE_SOURCE_DEFAULTS` for standard layouts)
+ * @param ctx Analysis context for collecting diagnostics
  * @returns Module comment, declarations, re-exports, and star exports
  */
 export const ts_analyze_module_exports = (
