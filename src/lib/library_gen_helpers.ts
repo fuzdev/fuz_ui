@@ -33,6 +33,7 @@ import {
 	module_is_svelte,
 	module_matches_source,
 } from './module_helpers.js';
+import type {AnalysisContext} from './analysis_context.js';
 
 /**
  * Result of analyzing a TypeScript file.
@@ -216,15 +217,17 @@ export const library_gen_collect_source_files = (
  * @param module_path The module path (relative to source root)
  * @param checker TypeScript type checker
  * @param options Module source options for path extraction
+ * @param ctx Optional analysis context for collecting diagnostics
  */
 export const library_gen_analyze_svelte_file = (
 	source_file: SourceFileInfo,
 	module_path: string,
 	checker: ts.TypeChecker,
 	options: ModuleSourceOptions,
+	ctx: AnalysisContext,
 ): ModuleJson => {
 	// Use the extracted helper for core analysis
-	const {declaration, module_comment} = svelte_analyze_file(source_file, module_path, checker);
+	const {declaration, module_comment} = svelte_analyze_file(source_file, module_path, checker, ctx);
 
 	// Extract dependencies and dependents if provided
 	const {dependencies, dependents} = library_gen_extract_dependencies(source_file, options);
@@ -251,6 +254,7 @@ export const library_gen_analyze_svelte_file = (
  * @param module_path The module path (relative to source root)
  * @param checker TypeScript type checker
  * @param options Module source options for path extraction
+ * @param ctx Optional analysis context for collecting diagnostics
  */
 export const library_gen_analyze_typescript_file = (
 	source_file_info: SourceFileInfo,
@@ -258,12 +262,14 @@ export const library_gen_analyze_typescript_file = (
 	module_path: string,
 	checker: ts.TypeChecker,
 	options: ModuleSourceOptions,
+	ctx: AnalysisContext,
 ): TsFileAnalysis => {
 	// Use the extracted helper for core analysis
 	const {module_comment, declarations, re_exports} = ts_analyze_module_exports(
 		ts_source_file,
 		checker,
 		options,
+		ctx,
 	);
 
 	const mod: ModuleJson = {

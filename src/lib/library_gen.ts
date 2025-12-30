@@ -42,6 +42,7 @@ import {
 	library_gen_analyze_svelte_file,
 	library_gen_analyze_typescript_file,
 } from './library_gen_helpers.js';
+import {AnalysisContext, format_diagnostic} from './analysis_context.js';
 
 /** Options for library generation. */
 export interface LibraryGenOptions {
@@ -90,8 +91,10 @@ export const library_gen = (options?: LibraryGenOptions): Gen => {
 
 			// Create TypeScript program
 			const program = ts_create_program(log);
-
 			const checker = program.getTypeChecker();
+
+			// Create analysis context for collecting diagnostics
+			const ctx = new AnalysisContext();
 
 			// Convert Gro's filer files to build-tool agnostic SourceFileInfo
 			const all_source_files: Array<SourceFileInfo> = [];
@@ -126,6 +129,7 @@ export const library_gen = (options?: LibraryGenOptions): Gen => {
 						module_path,
 						checker,
 						source_options,
+						ctx,
 					);
 					source_json.modules!.push(mod);
 				} else {
@@ -143,6 +147,7 @@ export const library_gen = (options?: LibraryGenOptions): Gen => {
 						module_path,
 						checker,
 						source_options,
+						ctx,
 					);
 					source_json.modules!.push(mod);
 
@@ -206,6 +211,27 @@ export const library_gen = (options?: LibraryGenOptions): Gen => {
 							'(2) add /** @nodocs */ to exclude from documentation. ' +
 							'See CLAUDE.md "Declaration namespacing" section for details.',
 					);
+				}
+			}
+
+			// Report any analysis diagnostics
+			if (ctx.diagnostics.length > 0) {
+				const errors = ctx.errors();
+				const warnings = ctx.warnings();
+				const format_options = {strip_base: process.cwd()};
+
+				if (errors.length > 0) {
+					log.error(`Analysis completed with ${errors.length} error(s):`);
+					for (const diagnostic of errors) {
+						log.error(`  ${format_diagnostic(diagnostic, format_options)}`);
+					}
+				}
+
+				if (warnings.length > 0) {
+					log.warn(`Analysis completed with ${warnings.length} warning(s):`);
+					for (const diagnostic of warnings) {
+						log.warn(`  ${format_diagnostic(diagnostic, format_options)}`);
+					}
 				}
 			}
 

@@ -1,0 +1,197 @@
+/**
+ * Diagnostic collection for source analysis.
+ *
+ * Provides structured error/warning collection during TypeScript and Svelte
+ * analysis, replacing silent catch blocks with actionable diagnostics.
+ *
+ * @example
+ * const ctx = new AnalysisContext();
+ * // ... analysis functions add diagnostics via ctx.add(...)
+ * if (ctx.has_errors()) {
+ *   for (const err of ctx.errors()) {
+ *     console.error(`${err.file}:${err.line}: ${err.message}`);
+ *   }
+ * }
+ */
+
+/**
+ * Diagnostic severity levels.
+ *
+ * - `error`: Analysis failed, declaration may be incomplete or missing data
+ * - `warning`: Partial success, something seems off but analysis continued
+ */
+export type Diagnostic_Severity = 'error' | 'warning';
+
+/**
+ * Discriminant for diagnostic types.
+ */
+export type Diagnostic_Kind =
+	| 'type_extraction_failed'
+	| 'signature_analysis_failed'
+	| 'class_member_failed'
+	| 'svelte_prop_failed';
+
+/**
+ * Base diagnostic fields shared by all diagnostic types.
+ */
+export interface Base_Diagnostic {
+	kind: Diagnostic_Kind;
+	/** File path relative to project root (display with './' prefix). */
+	file: string;
+	/** Line number (1-based), or null if location unavailable. */
+	line: number | null;
+	/** Column number (1-based), or null if location unavailable. */
+	column: number | null;
+	/** Human-readable description of the issue. */
+	message: string;
+	severity: Diagnostic_Severity;
+}
+
+/**
+ * Type extraction failed (e.g., complex or recursive types).
+ */
+export interface Type_Extraction_Diagnostic extends Base_Diagnostic {
+	kind: 'type_extraction_failed';
+	/** Name of the symbol whose type couldn't be extracted. */
+	symbol_name: string;
+}
+
+/**
+ * Function/method signature analysis failed.
+ */
+export interface Signature_Analysis_Diagnostic extends Base_Diagnostic {
+	kind: 'signature_analysis_failed';
+	/** Name of the function or method. */
+	function_name: string;
+}
+
+/**
+ * Class member analysis failed.
+ */
+export interface Class_Member_Diagnostic extends Base_Diagnostic {
+	kind: 'class_member_failed';
+	/** Name of the class. */
+	class_name: string;
+	/** Name of the member that failed. */
+	member_name: string;
+}
+
+/**
+ * Svelte prop type resolution failed.
+ */
+export interface Svelte_Prop_Diagnostic extends Base_Diagnostic {
+	kind: 'svelte_prop_failed';
+	/** Name of the component. */
+	component_name: string;
+	/** Name of the prop. */
+	prop_name: string;
+}
+
+/**
+ * Union of all diagnostic types.
+ */
+export type Diagnostic =
+	| Type_Extraction_Diagnostic
+	| Signature_Analysis_Diagnostic
+	| Class_Member_Diagnostic
+	| Svelte_Prop_Diagnostic;
+
+/**
+ * Context for collecting diagnostics during source analysis.
+ *
+ * Thread an instance through analysis functions to collect errors and warnings
+ * without halting analysis. After analysis completes, check `has_errors()` and
+ * report collected diagnostics.
+ *
+ * @example
+ * const ctx = new AnalysisContext();
+ * ts_analyze_module_exports(source_file, checker, options, ctx);
+ * if (ctx.has_errors()) {
+ *   console.error('Analysis completed with errors:');
+ *   for (const d of ctx.errors()) {
+ *     console.error(format_diagnostic(d));
+ *   }
+ * }
+ */
+export class AnalysisContext {
+	readonly diagnostics: Array<Diagnostic> = [];
+
+	/**
+	 * Add a diagnostic to the collection.
+	 */
+	add(diagnostic: Diagnostic): void {
+		this.diagnostics.push(diagnostic);
+	}
+
+	/**
+	 * Check if any errors were collected.
+	 */
+	has_errors(): boolean {
+		return this.diagnostics.some((d) => d.severity === 'error');
+	}
+
+	/**
+	 * Check if any warnings were collected.
+	 */
+	has_warnings(): boolean {
+		return this.diagnostics.some((d) => d.severity === 'warning');
+	}
+
+	/**
+	 * Get all error diagnostics.
+	 */
+	errors(): Array<Diagnostic> {
+		return this.diagnostics.filter((d) => d.severity === 'error');
+	}
+
+	/**
+	 * Get all warning diagnostics.
+	 */
+	warnings(): Array<Diagnostic> {
+		return this.diagnostics.filter((d) => d.severity === 'warning');
+	}
+
+	/**
+	 * Get diagnostics of a specific kind.
+	 */
+	by_kind<K extends Diagnostic_Kind>(kind: K): Array<Extract<Diagnostic, {kind: K}>> {
+		return this.diagnostics.filter((d) => d.kind === kind) as Array<Extract<Diagnostic, {kind: K}>>;
+	}
+}
+
+/**
+ * Options for formatting diagnostics.
+ */
+export interface Format_Diagnostic_Options {
+	/** Prefix for file path (default: './'). */
+	prefix?: string;
+	/** Base path to strip from absolute file paths (e.g., process.cwd()). */
+	strip_base?: string;
+}
+
+/**
+ * Format a diagnostic for display.
+ *
+ * @param diagnostic The diagnostic to format
+ * @param options Formatting options
+ * @returns Formatted string like './file.ts:10:5: error: message'
+ */
+export const format_diagnostic = (
+	diagnostic: Diagnostic,
+	options?: Format_Diagnostic_Options,
+): string => {
+	const prefix = options?.prefix ?? './';
+	const strip_base = options?.strip_base;
+
+	let file = diagnostic.file;
+	if (strip_base && file.startsWith(strip_base)) {
+		file = file.slice(strip_base.length);
+		// Remove leading slash if present
+		if (file.startsWith('/')) file = file.slice(1);
+	}
+
+	const {line, column, severity, message} = diagnostic;
+	const location = line !== null ? (column !== null ? `${line}:${column}` : `${line}`) : '';
+	const file_part = location ? `${prefix}${file}:${location}` : `${prefix}${file}`;
+	return `${file_part}: ${severity}: ${message}`;
+};

@@ -17,6 +17,21 @@ import {
 	module_extract_path,
 	module_matches_source,
 } from './module_helpers.js';
+import type {AnalysisContext} from './analysis_context.js';
+
+/**
+ * Extract line and column from a TypeScript node.
+ * Returns 1-based line and column numbers.
+ */
+const ts_get_node_location = (node: ts.Node): {file: string; line: number; column: number} => {
+	const source_file = node.getSourceFile();
+	const {line, character} = source_file.getLineAndCharacterOfPosition(node.getStart());
+	return {
+		file: source_file.fileName,
+		line: line + 1, // Convert to 1-based
+		column: character + 1, // Convert to 1-based
+	};
+};
 
 const ts_parse_generic_param = (param: ts.TypeParameterDeclaration): GenericParamInfo => {
 	const result: GenericParamInfo = {
@@ -97,6 +112,7 @@ export const ts_extract_function_info = (
 	checker: ts.TypeChecker,
 	declaration: DeclarationJson,
 	tsdoc: ReturnType<typeof tsdoc_parse>,
+	ctx: AnalysisContext,
 ): void => {
 	try {
 		const type = checker.getTypeOfSymbolAtLocation(symbol, node);
@@ -156,8 +172,17 @@ export const ts_extract_function_info = (
 				};
 			});
 		}
-	} catch (_err) {
-		// Ignore: Type checker errors are expected when analyzing incomplete or complex signatures
+	} catch (err) {
+		const loc = ts_get_node_location(node);
+		ctx.add({
+			kind: 'signature_analysis_failed',
+			file: loc.file,
+			line: loc.line,
+			column: loc.column,
+			message: `Failed to analyze signature for "${symbol.name}": ${err instanceof Error ? err.message : String(err)}`,
+			severity: 'warning',
+			function_name: symbol.name,
+		});
 	}
 
 	// Extract generic type parameters
@@ -179,12 +204,22 @@ export const ts_extract_type_info = (
 	_symbol: ts.Symbol,
 	checker: ts.TypeChecker,
 	declaration: DeclarationJson,
+	ctx: AnalysisContext,
 ): void => {
 	try {
 		const type = checker.getTypeAtLocation(node);
 		declaration.type_signature = checker.typeToString(type);
-	} catch (_err) {
-		// Ignore: Type checker may fail on complex or recursive types
+	} catch (err) {
+		const loc = ts_get_node_location(node);
+		ctx.add({
+			kind: 'type_extraction_failed',
+			file: loc.file,
+			line: loc.line,
+			column: loc.column,
+			message: `Failed to extract type for "${declaration.name}": ${err instanceof Error ? err.message : String(err)}`,
+			severity: 'warning',
+			symbol_name: declaration.name,
+		});
 	}
 
 	if (ts.isTypeAliasDeclaration(node) || ts.isInterfaceDeclaration(node)) {
@@ -244,6 +279,7 @@ export const ts_extract_class_info = (
 	_symbol: ts.Symbol,
 	checker: ts.TypeChecker,
 	declaration: DeclarationJson,
+	ctx: AnalysisContext,
 ): void => {
 	if (!ts.isClassDeclaration(node)) return;
 
@@ -392,8 +428,19 @@ export const ts_extract_class_info = (
 						}
 					}
 				}
-			} catch (_err) {
-				// Ignore: Type checker may fail on complex member signatures
+			} catch (err) {
+				const loc = ts_get_node_location(member);
+				const class_name = node.name?.text ?? '<anonymous>';
+				ctx.add({
+					kind: 'class_member_failed',
+					file: loc.file,
+					line: loc.line,
+					column: loc.column,
+					message: `Failed to analyze member "${member_name}" in class "${class_name}": ${err instanceof Error ? err.message : String(err)}`,
+					severity: 'warning',
+					class_name,
+					member_name,
+				});
 			}
 
 			declaration.members.push(member_declaration);
@@ -412,12 +459,22 @@ export const ts_extract_variable_info = (
 	symbol: ts.Symbol,
 	checker: ts.TypeChecker,
 	declaration: DeclarationJson,
+	ctx: AnalysisContext,
 ): void => {
 	try {
 		const type = checker.getTypeOfSymbolAtLocation(symbol, node);
 		declaration.type_signature = checker.typeToString(type);
-	} catch (_err) {
-		// Ignore: Type checker may fail on complex variable types
+	} catch (err) {
+		const loc = ts_get_node_location(node);
+		ctx.add({
+			kind: 'type_extraction_failed',
+			file: loc.file,
+			line: loc.line,
+			column: loc.column,
+			message: `Failed to extract type for variable "${symbol.name}": ${err instanceof Error ? err.message : String(err)}`,
+			severity: 'warning',
+			symbol_name: symbol.name,
+		});
 	}
 };
 
@@ -441,12 +498,14 @@ export interface TsDeclarationAnalysis {
  * @param symbol The TypeScript symbol to analyze
  * @param source_file The source file containing the symbol
  * @param checker The TypeScript type checker
+ * @param ctx Optional analysis context for collecting diagnostics
  * @returns Complete declaration metadata including docs, types, and parameters, plus nodocs flag
  */
 export const ts_analyze_declaration = (
 	symbol: ts.Symbol,
 	source_file: ts.SourceFile,
 	checker: ts.TypeChecker,
+	ctx: AnalysisContext,
 ): TsDeclarationAnalysis => {
 	const name = symbol.name;
 	const decl_node = symbol.valueDeclaration || symbol.declarations?.[0];
@@ -475,13 +534,13 @@ export const ts_analyze_declaration = (
 
 	// Extract type-specific info
 	if (result.kind === 'function') {
-		ts_extract_function_info(decl_node, symbol, checker, result, tsdoc);
+		ts_extract_function_info(decl_node, symbol, checker, result, tsdoc, ctx);
 	} else if (result.kind === 'type') {
-		ts_extract_type_info(decl_node, symbol, checker, result);
+		ts_extract_type_info(decl_node, symbol, checker, result, ctx);
 	} else if (result.kind === 'class') {
-		ts_extract_class_info(decl_node, symbol, checker, result);
+		ts_extract_class_info(decl_node, symbol, checker, result, ctx);
 	} else if (result.kind === 'variable') {
-		ts_extract_variable_info(decl_node, symbol, checker, result);
+		ts_extract_variable_info(decl_node, symbol, checker, result, ctx);
 	}
 
 	return {declaration: result, nodocs};
@@ -508,6 +567,8 @@ export interface ModuleExportsAnalysis {
 	declarations: Array<DeclarationJson>;
 	/** Same-name re-exports (for building also_exported_from in post-processing). */
 	re_exports: Array<ReExportInfo>;
+	/** Star exports (`export * from './module'`) - module paths that are fully re-exported. */
+	star_exports: Array<string>;
 }
 
 /**
@@ -517,24 +578,76 @@ export interface ModuleExportsAnalysis {
  * complete metadata. Handles re-exports by:
  * - Same-name re-exports: tracked in `re_exports` for `also_exported_from` building
  * - Renamed re-exports: included as new declarations with `alias_of` metadata
+ * - Star exports (`export * from`): tracked in `star_exports` for namespace-level info
  *
  * This is a high-level function suitable for building documentation, API explorers, or analysis tools.
  *
  * @param source_file The TypeScript source file to analyze
  * @param checker The TypeScript type checker
  * @param options Module source options for path extraction in re-exports
- * @returns Module comment, array of analyzed declarations, and re-export information
+ * @param ctx Optional analysis context for collecting diagnostics
+ * @returns Module comment, declarations, re-exports, and star exports
  */
 export const ts_analyze_module_exports = (
 	source_file: ts.SourceFile,
 	checker: ts.TypeChecker,
 	options: ModuleSourceOptions,
+	ctx: AnalysisContext,
 ): ModuleExportsAnalysis => {
 	const declarations: Array<DeclarationJson> = [];
 	const re_exports: Array<ReExportInfo> = [];
+	const star_exports: Array<string> = [];
 
 	// Extract module-level comment
 	const module_comment = ts_extract_module_comment(source_file);
+
+	// Extract star exports (export * from './module')
+	for (const statement of source_file.statements) {
+		if (
+			ts.isExportDeclaration(statement) &&
+			!statement.exportClause && // No exportClause means `export *`
+			statement.moduleSpecifier &&
+			ts.isStringLiteral(statement.moduleSpecifier)
+		) {
+			const specifier = statement.moduleSpecifier.text;
+
+			// Only handle relative imports (starting with ./ or ../)
+			if (specifier.startsWith('./') || specifier.startsWith('../')) {
+				// Get the directory of the current source file
+				const source_dir = source_file.fileName.substring(0, source_file.fileName.lastIndexOf('/'));
+
+				// Resolve relative path (normalize .js to .ts for resolution)
+				let resolved_specifier = specifier.replace(/\.js$/, '.ts');
+				if (!resolved_specifier.endsWith('.ts')) {
+					resolved_specifier += '.ts';
+				}
+
+				// Simple path resolution for relative imports
+				let resolved_path: string;
+				if (resolved_specifier.startsWith('./')) {
+					resolved_path = source_dir + resolved_specifier.substring(1);
+				} else {
+					// Handle ../ by going up directories
+					const parts = source_dir.split('/');
+					const rel_parts = resolved_specifier.split('/');
+					for (const part of rel_parts) {
+						if (part === '..') {
+							parts.pop();
+						} else if (part !== '.') {
+							parts.push(part);
+						}
+					}
+					resolved_path = parts.join('/');
+				}
+
+				// Only include star exports from source modules (not node_modules)
+				if (module_matches_source(resolved_path, options)) {
+					star_exports.push(module_extract_path(resolved_path, options));
+				}
+			}
+			// Non-relative imports (bare specifiers like 'svelte') are external - skip them
+		}
+	}
 
 	// Get all exported symbols
 	const symbol = checker.getSymbolAtLocation(source_file);
@@ -586,7 +699,12 @@ export const ts_analyze_module_exports = (
 			}
 
 			// Normal export or within-file alias - declared in this file
-			const {declaration, nodocs} = ts_analyze_declaration(export_symbol, source_file, checker);
+			const {declaration, nodocs} = ts_analyze_declaration(
+				export_symbol,
+				source_file,
+				checker,
+				ctx,
+			);
 			// Skip @nodocs declarations - they're excluded from documentation
 			if (nodocs) continue;
 			declarations.push(declaration);
@@ -597,6 +715,7 @@ export const ts_analyze_module_exports = (
 		module_comment,
 		declarations,
 		re_exports,
+		star_exports,
 	};
 };
 

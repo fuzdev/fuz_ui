@@ -10,6 +10,7 @@ import {
 	svelte_extract_module_comment,
 } from '$lib/svelte_helpers.js';
 import {ts_create_program} from '$lib/ts_helpers.js';
+import {AnalysisContext} from '$lib/analysis_context.js';
 import {
 	load_fixtures,
 	validate_component_structure,
@@ -56,7 +57,17 @@ describe('svelte component analyzer (fixture-based)', () => {
 			const component_name = fixture_name_to_component_name(fixture.name);
 
 			// Analyze the component
-			const result = svelte_analyze_component(ts_result.code, temp_source, checker, component_name);
+			const module_path = `${component_name}.svelte`;
+			const ctx = new AnalysisContext();
+			const result = svelte_analyze_component(
+				ts_result.code,
+				temp_source,
+				checker,
+				component_name,
+				module_path,
+				null,
+				ctx,
+			);
 
 			// Compare with expected (normalize to match JSON serialization)
 			assert.deepEqual(
@@ -79,7 +90,12 @@ describe('svelte_analyze_file', () => {
 		const file_path = join(FIXTURES_DIR, 'props_basic/input.svelte');
 		const module_path = 'PropsBasic.svelte';
 
-		const {declaration} = svelte_analyze_file({id: file_path}, module_path, checker);
+		const {declaration} = svelte_analyze_file(
+			{id: file_path},
+			module_path,
+			checker,
+			new AnalysisContext(),
+		);
 
 		assert.strictEqual(declaration.name, 'PropsBasic');
 		assert.strictEqual(declaration.kind, 'component');
@@ -95,7 +111,12 @@ describe('svelte_analyze_file', () => {
 		const file_path = join(FIXTURES_DIR, 'props_basic/input.svelte');
 		const module_path = 'PropsBasic.svelte';
 
-		const {declaration} = svelte_analyze_file({id: file_path}, module_path, checker);
+		const {declaration} = svelte_analyze_file(
+			{id: file_path},
+			module_path,
+			checker,
+			new AnalysisContext(),
+		);
 
 		// The component has JSDoc in the script block - extraction depends on svelte2tsx behavior
 		// Just verify we get a valid component back (doc_comment extraction is tested in fixture tests)
@@ -107,7 +128,12 @@ describe('svelte_analyze_file', () => {
 		const file_path = join(FIXTURES_DIR, 'component_with_jsdoc/input.svelte');
 		const module_path = 'ComponentJsdoc.svelte';
 
-		const {declaration} = svelte_analyze_file({id: file_path}, module_path, checker);
+		const {declaration} = svelte_analyze_file(
+			{id: file_path},
+			module_path,
+			checker,
+			new AnalysisContext(),
+		);
 
 		assert.strictEqual(declaration.name, 'ComponentJsdoc');
 		assert.strictEqual(declaration.kind, 'component');
@@ -117,7 +143,12 @@ describe('svelte_analyze_file', () => {
 		const file_path = join(FIXTURES_DIR, 'component_no_props/input.svelte');
 		const module_path = 'ComponentNoProps.svelte';
 
-		const {declaration} = svelte_analyze_file({id: file_path}, module_path, checker);
+		const {declaration} = svelte_analyze_file(
+			{id: file_path},
+			module_path,
+			checker,
+			new AnalysisContext(),
+		);
 
 		assert.strictEqual(declaration.name, 'ComponentNoProps');
 		assert.strictEqual(declaration.kind, 'component');
@@ -129,7 +160,12 @@ describe('svelte_analyze_file', () => {
 		const file_path = join(FIXTURES_DIR, 'props_with_descriptions/input.svelte');
 		const module_path = 'PropsDescriptions.svelte';
 
-		const {declaration} = svelte_analyze_file({id: file_path}, module_path, checker);
+		const {declaration} = svelte_analyze_file(
+			{id: file_path},
+			module_path,
+			checker,
+			new AnalysisContext(),
+		);
 
 		assert.ok(declaration.props);
 		// This fixture has name, age, active props
@@ -142,7 +178,12 @@ describe('svelte_analyze_file', () => {
 		const file_path = join(FIXTURES_DIR, 'props_optional/input.svelte');
 		const module_path = 'PropsOptional.svelte';
 
-		const {declaration} = svelte_analyze_file({id: file_path}, module_path, checker);
+		const {declaration} = svelte_analyze_file(
+			{id: file_path},
+			module_path,
+			checker,
+			new AnalysisContext(),
+		);
 
 		assert.ok(declaration.props);
 		// Should have at least one optional prop
@@ -154,7 +195,12 @@ describe('svelte_analyze_file', () => {
 		const file_path = join(FIXTURES_DIR, 'props_bindable/input.svelte');
 		const module_path = 'PropsBindable.svelte';
 
-		const {declaration} = svelte_analyze_file({id: file_path}, module_path, checker);
+		const {declaration} = svelte_analyze_file(
+			{id: file_path},
+			module_path,
+			checker,
+			new AnalysisContext(),
+		);
 
 		assert.ok(declaration.props);
 		// Should have at least one bindable prop
@@ -170,6 +216,7 @@ describe('svelte_analyze_file', () => {
 			{id: file_path},
 			'components/Button.svelte',
 			checker,
+			new AnalysisContext(),
 		);
 		assert.strictEqual(declaration1.name, 'Button');
 
@@ -178,6 +225,7 @@ describe('svelte_analyze_file', () => {
 			{id: file_path},
 			'Alert.svelte',
 			checker,
+			new AnalysisContext(),
 		);
 		assert.strictEqual(declaration2.name, 'Alert');
 	});
@@ -187,7 +235,12 @@ describe('svelte_analyze_file', () => {
 		const file_path = join(FIXTURES_DIR, 'props_basic/input.svelte');
 		const module_path = 'TypeScript_Component.svelte';
 
-		const {declaration} = svelte_analyze_file({id: file_path}, module_path, checker);
+		const {declaration} = svelte_analyze_file(
+			{id: file_path},
+			module_path,
+			checker,
+			new AnalysisContext(),
+		);
 
 		assert.strictEqual(declaration.kind, 'component');
 		// Should have typed props
@@ -202,7 +255,12 @@ describe('svelte_analyze_file', () => {
 		const file_path = join(FIXTURES_DIR, 'component_basic/input.svelte');
 		const module_path = 'JavaScript_Component.svelte';
 
-		const {declaration} = svelte_analyze_file({id: file_path}, module_path, checker);
+		const {declaration} = svelte_analyze_file(
+			{id: file_path},
+			module_path,
+			checker,
+			new AnalysisContext(),
+		);
 
 		assert.strictEqual(declaration.name, 'JavaScript_Component');
 		assert.strictEqual(declaration.kind, 'component');
@@ -220,6 +278,7 @@ describe('svelte_analyze_file', () => {
 			{id: '/fake/path/Test.svelte', content: svelte_content},
 			'Test.svelte',
 			checker,
+			new AnalysisContext(),
 		);
 
 		assert.strictEqual(declaration.name, 'Test');
@@ -469,6 +528,7 @@ let {name}: {name: string} = $props();
 			{id: '/fake/path/Greeting.svelte', content: svelte_content},
 			'Greeting.svelte',
 			checker,
+			new AnalysisContext(),
 		);
 
 		assert.strictEqual(declaration.name, 'Greeting');
@@ -486,6 +546,7 @@ let {name}: {name: string} = $props();
 			{id: '/fake/path/Simple.svelte', content: svelte_content},
 			'Simple.svelte',
 			checker,
+			new AnalysisContext(),
 		);
 
 		assert.isUndefined(module_comment);
@@ -506,6 +567,7 @@ let {name}: {name: string} = $props();
 			{id: '/fake/path/Dual.svelte', content: svelte_content},
 			'Dual.svelte',
 			checker,
+			new AnalysisContext(),
 		);
 
 		assert.ok(module_comment);
@@ -515,5 +577,249 @@ let {name}: {name: string} = $props();
 		// Component doc should be separate
 		assert.ok(declaration.doc_comment);
 		assert.include(declaration.doc_comment, 'Component documentation');
+	});
+});
+
+describe('svelte_analyze_file diagnostic collection', () => {
+	test('analysis context is threaded through correctly', () => {
+		const svelte_content = `<script lang="ts">
+let {name, count}: {name: string; count: number} = $props();
+</script>
+<p>Hello {name}, count: {count}</p>`;
+
+		const ctx = new AnalysisContext();
+		const {declaration} = svelte_analyze_file(
+			{id: '/fake/path/Valid.svelte', content: svelte_content},
+			'Valid.svelte',
+			checker,
+			ctx,
+		);
+
+		// Valid component should produce no diagnostics
+		assert.strictEqual(ctx.diagnostics.length, 0);
+		assert.strictEqual(ctx.has_errors(), false);
+		assert.strictEqual(ctx.has_warnings(), false);
+
+		// Component should be successfully analyzed
+		assert.strictEqual(declaration.kind, 'component');
+		assert.ok(declaration.props);
+		assert.strictEqual(declaration.props.length, 2);
+	});
+
+	test('handles component with empty script tag', () => {
+		const svelte_content = `<script lang="ts"></script>
+<p>Static content</p>`;
+
+		const ctx = new AnalysisContext();
+		const {declaration} = svelte_analyze_file(
+			{id: '/fake/path/Empty.svelte', content: svelte_content},
+			'Empty.svelte',
+			checker,
+			ctx,
+		);
+
+		assert.strictEqual(declaration.name, 'Empty');
+		assert.strictEqual(declaration.kind, 'component');
+		// No props expected
+		assert.ok(!declaration.props || declaration.props.length === 0);
+	});
+
+	test('handles component with only template (no script)', () => {
+		const svelte_content = `<p>Just a template, no script</p>`;
+
+		const ctx = new AnalysisContext();
+		const {declaration, module_comment} = svelte_analyze_file(
+			{id: '/fake/path/NoScript.svelte', content: svelte_content},
+			'NoScript.svelte',
+			checker,
+			ctx,
+		);
+
+		assert.strictEqual(declaration.name, 'NoScript');
+		assert.strictEqual(declaration.kind, 'component');
+		// No script means no module comment
+		assert.isUndefined(module_comment);
+	});
+
+	test('handles component with module context only', () => {
+		const svelte_content = `<script module>
+export const shared_value = 'shared';
+</script>
+<p>Module context only</p>`;
+
+		const ctx = new AnalysisContext();
+		const {declaration} = svelte_analyze_file(
+			{id: '/fake/path/ModuleOnly.svelte', content: svelte_content},
+			'ModuleOnly.svelte',
+			checker,
+			ctx,
+		);
+
+		assert.strictEqual(declaration.name, 'ModuleOnly');
+		assert.strictEqual(declaration.kind, 'component');
+		// No instance script means no props
+		assert.ok(!declaration.props || declaration.props.length === 0);
+	});
+
+	test('handles component with both script types', () => {
+		const svelte_content = `<script module>
+export const CONSTANT = 'value';
+</script>
+<script lang="ts">
+let {name}: {name: string} = $props();
+</script>
+<p>Hello {name}</p>`;
+
+		const ctx = new AnalysisContext();
+		const {declaration} = svelte_analyze_file(
+			{id: '/fake/path/Both.svelte', content: svelte_content},
+			'Both.svelte',
+			checker,
+			ctx,
+		);
+
+		assert.strictEqual(declaration.name, 'Both');
+		assert.strictEqual(declaration.kind, 'component');
+		// Should extract props from instance script
+		assert.ok(declaration.props);
+		assert.strictEqual(declaration.props.length, 1);
+		assert.strictEqual(declaration.props[0]!.name, 'name');
+	});
+
+	test('handles component with untyped props gracefully', () => {
+		// Component with props that lack explicit type annotations
+		// svelte2tsx doesn't generate $$ComponentProps without type annotation
+		const svelte_content = `<script lang="ts">
+let {untyped_prop} = $props();
+</script>
+<p>{untyped_prop}</p>`;
+
+		const ctx = new AnalysisContext();
+		const {declaration} = svelte_analyze_file(
+			{id: '/fake/path/Untyped.svelte', content: svelte_content},
+			'Untyped.svelte',
+			checker,
+			ctx,
+		);
+
+		assert.strictEqual(declaration.name, 'Untyped');
+		assert.strictEqual(declaration.kind, 'component');
+		// Without type annotation, svelte2tsx doesn't generate $$ComponentProps
+		// so props may be empty or undefined - this is expected behavior
+		// The component still analyzes successfully
+		assert.ok(!declaration.props || declaration.props.length === 0);
+	});
+
+	test('handles complex intersection type props', () => {
+		const file_path = join(FIXTURES_DIR, 'types_intersection/input.svelte');
+		const module_path = 'TypesIntersection.svelte';
+
+		const ctx = new AnalysisContext();
+		const {declaration} = svelte_analyze_file({id: file_path}, module_path, checker, ctx);
+
+		assert.strictEqual(declaration.kind, 'component');
+		// Should extract props from intersection type without errors
+		assert.ok(declaration.props);
+	});
+
+	test('throws on severely malformed template with clear error', () => {
+		// JS parse errors in expressions are not recoverable
+		const svelte_content = `<script lang="ts">
+let {name}: {name: string} = $props();
+</script>
+<p>{name</p>`;
+		// Note: missing closing brace in template expression
+
+		const ctx = new AnalysisContext();
+
+		// svelte2tsx throws directly on JS parse errors
+		assert.throws(
+			() =>
+				svelte_analyze_file(
+					{id: '/fake/path/Malformed.svelte', content: svelte_content},
+					'Malformed.svelte',
+					checker,
+					ctx,
+				),
+			/Unterminated regular expression/,
+		);
+	});
+});
+
+describe('svelte_analyze_file edge cases', () => {
+	test('extracts source_line for component declaration', () => {
+		const svelte_content = `<script lang="ts">
+let {value}: {value: number} = $props();
+</script>
+<p>{value}</p>`;
+
+		const {declaration} = svelte_analyze_file(
+			{id: '/fake/path/WithLine.svelte', content: svelte_content},
+			'WithLine.svelte',
+			checker,
+			new AnalysisContext(),
+		);
+
+		// Component should have source_line (typically 1 for components)
+		assert.ok(declaration.source_line);
+		assert.strictEqual(declaration.source_line, 1);
+	});
+
+	test('handles script with only comments', () => {
+		const svelte_content = `<script lang="ts">
+// Just a comment, no code
+/* Another comment */
+</script>
+<p>Content</p>`;
+
+		const ctx = new AnalysisContext();
+		const {declaration} = svelte_analyze_file(
+			{id: '/fake/path/Comments.svelte', content: svelte_content},
+			'Comments.svelte',
+			checker,
+			ctx,
+		);
+
+		assert.strictEqual(declaration.name, 'Comments');
+		assert.strictEqual(declaration.kind, 'component');
+	});
+
+	test('handles script with imports only', () => {
+		const svelte_content = `<script lang="ts">
+import {onMount} from 'svelte';
+</script>
+<p>No props, just imports</p>`;
+
+		const ctx = new AnalysisContext();
+		const {declaration} = svelte_analyze_file(
+			{id: '/fake/path/ImportsOnly.svelte', content: svelte_content},
+			'ImportsOnly.svelte',
+			checker,
+			ctx,
+		);
+
+		assert.strictEqual(declaration.name, 'ImportsOnly');
+		assert.ok(!declaration.props || declaration.props.length === 0);
+	});
+
+	test('preserves prop order from source', () => {
+		const svelte_content = `<script lang="ts">
+let {first, second, third}: {first: string; second: number; third: boolean} = $props();
+</script>
+<p>{first} {second} {third}</p>`;
+
+		const {declaration} = svelte_analyze_file(
+			{id: '/fake/path/PropOrder.svelte', content: svelte_content},
+			'PropOrder.svelte',
+			checker,
+			new AnalysisContext(),
+		);
+
+		assert.ok(declaration.props);
+		assert.strictEqual(declaration.props.length, 3);
+		// Verify order is preserved
+		assert.strictEqual(declaration.props[0]!.name, 'first');
+		assert.strictEqual(declaration.props[1]!.name, 'second');
+		assert.strictEqual(declaration.props[2]!.name, 'third');
 	});
 });

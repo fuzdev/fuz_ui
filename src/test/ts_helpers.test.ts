@@ -4,6 +4,7 @@ import type {DeclarationJson} from '@fuzdev/fuz_util/source_json.js';
 
 import {ts_analyze_module_exports, ts_create_program} from '$lib/ts_helpers.js';
 import {MODULE_SOURCE_DEFAULTS} from '$lib/module_helpers.js';
+import {AnalysisContext} from '$lib/analysis_context.js';
 import {
 	load_fixtures,
 	validate_declaration_structure,
@@ -100,7 +101,12 @@ export type Baz = { value: number };
 		const source_file = ts.createSourceFile('test.ts', source_code, ts.ScriptTarget.Latest, true);
 		const {checker} = create_test_program(source_file, 'test.ts');
 
-		const result = ts_analyze_module_exports(source_file, checker, MODULE_SOURCE_DEFAULTS);
+		const result = ts_analyze_module_exports(
+			source_file,
+			checker,
+			MODULE_SOURCE_DEFAULTS,
+			new AnalysisContext(),
+		);
 
 		// Should have module comment
 		assert.strictEqual(result.module_comment, 'Test module with exports.');
@@ -126,7 +132,12 @@ const internal = 'not exported';
 		const source_file = ts.createSourceFile('empty.ts', source_code, ts.ScriptTarget.Latest, true);
 		const {checker} = create_test_program(source_file, 'empty.ts');
 
-		const result = ts_analyze_module_exports(source_file, checker, MODULE_SOURCE_DEFAULTS);
+		const result = ts_analyze_module_exports(
+			source_file,
+			checker,
+			MODULE_SOURCE_DEFAULTS,
+			new AnalysisContext(),
+		);
 
 		assert.strictEqual(result.module_comment, 'Module with no exports.');
 		assert.strictEqual(result.declarations.length, 0);
@@ -146,7 +157,12 @@ export const bar = 123;
 		);
 		const {checker} = create_test_program(source_file, 'no_comment.ts');
 
-		const result = ts_analyze_module_exports(source_file, checker, MODULE_SOURCE_DEFAULTS);
+		const result = ts_analyze_module_exports(
+			source_file,
+			checker,
+			MODULE_SOURCE_DEFAULTS,
+			new AnalysisContext(),
+		);
 
 		assert.isUndefined(result.module_comment);
 		assert.strictEqual(result.declarations.length, 2);
@@ -168,7 +184,12 @@ export function add(a: number, b: number): number {
 		const source_file = ts.createSourceFile('math.ts', source_code, ts.ScriptTarget.Latest, true);
 		const {checker} = create_test_program(source_file, 'math.ts');
 
-		const result = ts_analyze_module_exports(source_file, checker, MODULE_SOURCE_DEFAULTS);
+		const result = ts_analyze_module_exports(
+			source_file,
+			checker,
+			MODULE_SOURCE_DEFAULTS,
+			new AnalysisContext(),
+		);
 
 		assert.strictEqual(result.declarations.length, 1);
 
@@ -205,7 +226,12 @@ export class Counter {
 		);
 		const {checker} = create_test_program(source_file, 'counter.ts');
 
-		const result = ts_analyze_module_exports(source_file, checker, MODULE_SOURCE_DEFAULTS);
+		const result = ts_analyze_module_exports(
+			source_file,
+			checker,
+			MODULE_SOURCE_DEFAULTS,
+			new AnalysisContext(),
+		);
 
 		assert.strictEqual(result.declarations.length, 1);
 
@@ -233,7 +259,12 @@ export interface Config {
 		const source_file = ts.createSourceFile('config.ts', source_code, ts.ScriptTarget.Latest, true);
 		const {checker} = create_test_program(source_file, 'config.ts');
 
-		const result = ts_analyze_module_exports(source_file, checker, MODULE_SOURCE_DEFAULTS);
+		const result = ts_analyze_module_exports(
+			source_file,
+			checker,
+			MODULE_SOURCE_DEFAULTS,
+			new AnalysisContext(),
+		);
 
 		assert.strictEqual(result.declarations.length, 1);
 
@@ -258,7 +289,12 @@ export { internal_value as exported_value };
 		);
 		const {checker} = create_test_program(source_file, 'reexport.ts');
 
-		const result = ts_analyze_module_exports(source_file, checker, MODULE_SOURCE_DEFAULTS);
+		const result = ts_analyze_module_exports(
+			source_file,
+			checker,
+			MODULE_SOURCE_DEFAULTS,
+			new AnalysisContext(),
+		);
 
 		// Should have the re-exported value
 		assert.strictEqual(result.declarations.length, 1);
@@ -293,7 +329,12 @@ export class Service {
 		const source_file = ts.createSourceFile('mixed.ts', source_code, ts.ScriptTarget.Latest, true);
 		const {checker} = create_test_program(source_file, 'mixed.ts');
 
-		const result = ts_analyze_module_exports(source_file, checker, MODULE_SOURCE_DEFAULTS);
+		const result = ts_analyze_module_exports(
+			source_file,
+			checker,
+			MODULE_SOURCE_DEFAULTS,
+			new AnalysisContext(),
+		);
 
 		// Should have 5 identifiers of different kinds
 		assert.strictEqual(result.declarations.length, 5);
@@ -347,7 +388,12 @@ export function public_function(): string {
 		const source_file = ts.createSourceFile('nodocs.ts', source_code, ts.ScriptTarget.Latest, true);
 		const {checker} = create_test_program(source_file, 'nodocs.ts');
 
-		const result = ts_analyze_module_exports(source_file, checker, MODULE_SOURCE_DEFAULTS);
+		const result = ts_analyze_module_exports(
+			source_file,
+			checker,
+			MODULE_SOURCE_DEFAULTS,
+			new AnalysisContext(),
+		);
 
 		// Should only have 2 public identifiers (nodocs ones excluded)
 		assert.strictEqual(result.declarations.length, 2);
@@ -383,7 +429,12 @@ export const local_value = 'local';
 		]);
 
 		const index_file = source_files.get('/src/lib/index.ts')!;
-		const result = ts_analyze_module_exports(index_file, checker, MODULE_SOURCE_DEFAULTS);
+		const result = ts_analyze_module_exports(
+			index_file,
+			checker,
+			MODULE_SOURCE_DEFAULTS,
+			new AnalysisContext(),
+		);
 
 		// index.ts should only have local_value as a direct export
 		// helper and CONSTANT are re-exports and should be in re_exports array
@@ -424,7 +475,12 @@ export {internal_impl as public_api} from './internal.js';
 		]);
 
 		const public_file = source_files.get('/src/lib/public.ts')!;
-		const result = ts_analyze_module_exports(public_file, checker, MODULE_SOURCE_DEFAULTS);
+		const result = ts_analyze_module_exports(
+			public_file,
+			checker,
+			MODULE_SOURCE_DEFAULTS,
+			new AnalysisContext(),
+		);
 
 		// Renamed re-export creates a NEW declaration with alias_of
 		assert.strictEqual(result.declarations.length, 1);
@@ -464,7 +520,12 @@ export {util_b as renamed_util} from './utils.js';
 		]);
 
 		const mixed_file = source_files.get('/src/lib/mixed.ts')!;
-		const result = ts_analyze_module_exports(mixed_file, checker, MODULE_SOURCE_DEFAULTS);
+		const result = ts_analyze_module_exports(
+			mixed_file,
+			checker,
+			MODULE_SOURCE_DEFAULTS,
+			new AnalysisContext(),
+		);
 
 		// Should have 3 identifiers: direct_fn, DirectType, renamed_util
 		assert.strictEqual(result.declarations.length, 3);
@@ -542,5 +603,327 @@ describe('ts_create_program with TsProgramOptions', () => {
 			() => ts_create_program(log, {tsconfig: 'nonexistent.config.json'}),
 			/No nonexistent\.config\.json found/,
 		);
+	});
+});
+
+describe('diagnostic collection in ts_analyze_module_exports', () => {
+	test('collects diagnostics without halting analysis', () => {
+		// A module with valid exports - should produce no diagnostics
+		const source_code = `
+export const value = 42;
+export function fn(): string { return 'test'; }
+`;
+
+		const source_file = ts.createSourceFile('test.ts', source_code, ts.ScriptTarget.Latest, true);
+		const {checker} = create_test_program(source_file, 'test.ts');
+		const ctx = new AnalysisContext();
+
+		const result = ts_analyze_module_exports(source_file, checker, MODULE_SOURCE_DEFAULTS, ctx);
+
+		// Should have successful analysis
+		assert.strictEqual(result.declarations.length, 2);
+		// No diagnostics for valid code
+		assert.strictEqual(ctx.diagnostics.length, 0);
+	});
+
+	test('analysis context is threaded through to all declarations', () => {
+		// Multiple exports - context should be used for each
+		const source_code = `
+export const a = 1;
+export const b = 2;
+export const c = 3;
+export function fn(): number { return 1; }
+export class MyClass {
+	value: number = 0;
+}
+`;
+
+		const source_file = ts.createSourceFile('multi.ts', source_code, ts.ScriptTarget.Latest, true);
+		const {checker} = create_test_program(source_file, 'multi.ts');
+		const ctx = new AnalysisContext();
+
+		const result = ts_analyze_module_exports(source_file, checker, MODULE_SOURCE_DEFAULTS, ctx);
+
+		// All declarations should be extracted successfully
+		assert.strictEqual(result.declarations.length, 5);
+		// No diagnostics for valid code
+		assert.strictEqual(ctx.has_errors(), false);
+		assert.strictEqual(ctx.has_warnings(), false);
+	});
+
+	test('extracts source_line for each declaration', () => {
+		const source_code = `
+export const first = 1;
+
+export const second = 2;
+
+export function third(): void {}
+`;
+
+		const source_file = ts.createSourceFile('lines.ts', source_code, ts.ScriptTarget.Latest, true);
+		const {checker} = create_test_program(source_file, 'lines.ts');
+		const ctx = new AnalysisContext();
+
+		const result = ts_analyze_module_exports(source_file, checker, MODULE_SOURCE_DEFAULTS, ctx);
+
+		// Each declaration should have a source_line
+		for (const decl of result.declarations) {
+			assert.ok(decl.source_line, `Declaration ${decl.name} should have source_line`);
+			assert.ok(decl.source_line > 0, `source_line should be positive for ${decl.name}`);
+		}
+
+		// Verify relative ordering (second comes after first)
+		const first_decl = result.declarations.find((d) => d.name === 'first')!;
+		const second_decl = result.declarations.find((d) => d.name === 'second')!;
+		assert.ok(second_decl.source_line! > first_decl.source_line!);
+	});
+});
+
+describe('re-export chains', () => {
+	test('handles re-export chain (A → B → C)', () => {
+		// C.ts exports original, B.ts re-exports from C, A.ts re-exports from B
+		const {checker, source_files} = create_multi_file_program([
+			{
+				path: '/src/lib/c.ts',
+				content: `
+/** Original declaration in C. */
+export const original = 'from C';
+`,
+			},
+			{
+				path: '/src/lib/b.ts',
+				content: `
+// Re-export from C
+export {original} from './c.js';
+`,
+			},
+			{
+				path: '/src/lib/a.ts',
+				content: `
+// Re-export from B (which re-exports from C)
+export {original} from './b.js';
+`,
+			},
+		]);
+
+		const ctx = new AnalysisContext();
+
+		// Analyze C - should have the original declaration
+		const c_file = source_files.get('/src/lib/c.ts')!;
+		const c_result = ts_analyze_module_exports(c_file, checker, MODULE_SOURCE_DEFAULTS, ctx);
+		assert.strictEqual(c_result.declarations.length, 1);
+		assert.strictEqual(c_result.declarations[0]!.name, 'original');
+		assert.strictEqual(c_result.re_exports.length, 0);
+
+		// Analyze B - should track re-export from C
+		const b_file = source_files.get('/src/lib/b.ts')!;
+		const b_result = ts_analyze_module_exports(b_file, checker, MODULE_SOURCE_DEFAULTS, ctx);
+		assert.strictEqual(b_result.declarations.length, 0); // No direct declarations
+		assert.strictEqual(b_result.re_exports.length, 1);
+		assert.strictEqual(b_result.re_exports[0]!.name, 'original');
+		assert.strictEqual(b_result.re_exports[0]!.original_module, 'c.ts');
+
+		// Analyze A - TypeScript resolves re-export chains to original source
+		const a_file = source_files.get('/src/lib/a.ts')!;
+		const a_result = ts_analyze_module_exports(a_file, checker, MODULE_SOURCE_DEFAULTS, ctx);
+		assert.strictEqual(a_result.declarations.length, 0);
+		assert.strictEqual(a_result.re_exports.length, 1);
+		assert.strictEqual(a_result.re_exports[0]!.name, 'original');
+		// TypeScript's getAliasedSymbol resolves to the ORIGINAL source (C), not intermediate (B)
+		// This is expected behavior - re-export chains resolve to origin
+		assert.strictEqual(a_result.re_exports[0]!.original_module, 'c.ts');
+	});
+
+	test('handles mixed direct exports and re-export chains', () => {
+		const {checker, source_files} = create_multi_file_program([
+			{
+				path: '/src/lib/base.ts',
+				content: `
+export const base_value = 'base';
+`,
+			},
+			{
+				path: '/src/lib/combined.ts',
+				content: `
+// Direct export
+export const local_value = 'local';
+
+// Re-export from base
+export {base_value} from './base.js';
+`,
+			},
+		]);
+
+		const ctx = new AnalysisContext();
+		const combined_file = source_files.get('/src/lib/combined.ts')!;
+		const result = ts_analyze_module_exports(combined_file, checker, MODULE_SOURCE_DEFAULTS, ctx);
+
+		// Should have local_value as direct declaration
+		assert.strictEqual(result.declarations.length, 1);
+		assert.strictEqual(result.declarations[0]!.name, 'local_value');
+
+		// Should have base_value as re-export
+		assert.strictEqual(result.re_exports.length, 1);
+		assert.strictEqual(result.re_exports[0]!.name, 'base_value');
+	});
+});
+
+describe('star exports tracking', () => {
+	test('detects export * from statements', () => {
+		const {checker, source_files} = create_multi_file_program([
+			{
+				path: '/src/lib/helpers.ts',
+				content: `
+export const helper_a = 'a';
+export const helper_b = 'b';
+export function helper_fn(): void {}
+`,
+			},
+			{
+				path: '/src/lib/index.ts',
+				content: `
+// Star export - re-exports all from helpers
+export * from './helpers.js';
+
+// Direct export
+export const index_value = 'index';
+`,
+			},
+		]);
+
+		const ctx = new AnalysisContext();
+		const index_file = source_files.get('/src/lib/index.ts')!;
+		const result = ts_analyze_module_exports(index_file, checker, MODULE_SOURCE_DEFAULTS, ctx);
+
+		// star_exports should contain helpers.ts
+		assert.strictEqual(result.star_exports.length, 1);
+		assert.strictEqual(result.star_exports[0], 'helpers.ts');
+
+		// Direct export should be in declarations
+		assert.ok(result.declarations.some((d) => d.name === 'index_value'));
+
+		// TypeScript expands export * to individual symbols via getExportsOfModule,
+		// which are then tracked as re_exports (same-name re-exports from source modules)
+		// The count depends on how TypeScript resolves the star export
+		// At minimum, we've verified the star_exports array captures the namespace-level info
+	});
+
+	test('handles multiple star exports', () => {
+		const {checker, source_files} = create_multi_file_program([
+			{
+				path: '/src/lib/utils_a.ts',
+				content: `export const util_a = 'a';`,
+			},
+			{
+				path: '/src/lib/utils_b.ts',
+				content: `export const util_b = 'b';`,
+			},
+			{
+				path: '/src/lib/barrel.ts',
+				content: `
+export * from './utils_a.js';
+export * from './utils_b.js';
+`,
+			},
+		]);
+
+		const ctx = new AnalysisContext();
+		const barrel_file = source_files.get('/src/lib/barrel.ts')!;
+		const result = ts_analyze_module_exports(barrel_file, checker, MODULE_SOURCE_DEFAULTS, ctx);
+
+		// Should have both star exports
+		assert.strictEqual(result.star_exports.length, 2);
+		assert.include(result.star_exports, 'utils_a.ts');
+		assert.include(result.star_exports, 'utils_b.ts');
+	});
+
+	test('excludes star exports from external modules', () => {
+		// When export * from a node_modules package, it shouldn't appear in star_exports
+		const source_code = `
+// This would be a star export from an external package
+// We can't easily test this without actual node_modules,
+// but we verify the logic works for source modules only
+export const local = 'value';
+`;
+
+		const source_file = ts.createSourceFile('test.ts', source_code, ts.ScriptTarget.Latest, true);
+		const {checker} = create_test_program(source_file, 'test.ts');
+		const ctx = new AnalysisContext();
+
+		const result = ts_analyze_module_exports(source_file, checker, MODULE_SOURCE_DEFAULTS, ctx);
+
+		// No star exports in this simple case
+		assert.strictEqual(result.star_exports.length, 0);
+	});
+
+	test('mixed star exports and named re-exports', () => {
+		const {checker, source_files} = create_multi_file_program([
+			{
+				path: '/src/lib/types.ts',
+				content: `
+export type Config = { value: string };
+export type Options = { enabled: boolean };
+`,
+			},
+			{
+				path: '/src/lib/utils.ts',
+				content: `
+export const util_fn = (): void => {};
+`,
+			},
+			{
+				path: '/src/lib/combined.ts',
+				content: `
+// Star export
+export * from './types.js';
+
+// Named re-export
+export {util_fn} from './utils.js';
+
+// Direct export
+export const combined_value = 'combined';
+`,
+			},
+		]);
+
+		const ctx = new AnalysisContext();
+		const combined_file = source_files.get('/src/lib/combined.ts')!;
+		const result = ts_analyze_module_exports(combined_file, checker, MODULE_SOURCE_DEFAULTS, ctx);
+
+		// Star export for types.ts
+		assert.strictEqual(result.star_exports.length, 1);
+		assert.strictEqual(result.star_exports[0], 'types.ts');
+
+		// Named re-export for util_fn
+		assert.ok(result.re_exports.some((r) => r.name === 'util_fn'));
+
+		// Direct declaration
+		assert.ok(result.declarations.some((d) => d.name === 'combined_value'));
+
+		// The star_exports array provides namespace-level info about types.ts
+		// Individual type exports (Config, Options) may or may not appear in re_exports
+		// depending on TypeScript's expansion behavior
+	});
+
+	test('star exports return empty array when no star exports present', () => {
+		const source_code = `
+export const value = 42;
+export function fn(): void {}
+`;
+
+		const source_file = ts.createSourceFile(
+			'no_star.ts',
+			source_code,
+			ts.ScriptTarget.Latest,
+			true,
+		);
+		const {checker} = create_test_program(source_file, 'no_star.ts');
+		const ctx = new AnalysisContext();
+
+		const result = ts_analyze_module_exports(source_file, checker, MODULE_SOURCE_DEFAULTS, ctx);
+
+		// star_exports should be empty array, not undefined
+		assert.ok(Array.isArray(result.star_exports));
+		assert.strictEqual(result.star_exports.length, 0);
 	});
 });

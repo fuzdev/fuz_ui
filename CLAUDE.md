@@ -143,6 +143,10 @@ Supporting helpers (three-layer architecture):
   declarations from documentation and flat namespace validation)
   - `tsdoc_parse` - extract structured TSDoc from a node
   - `tsdoc_apply_to_declaration` - apply parsed TSDoc to a declaration
+- `analysis_context.ts` - diagnostic collection during analysis
+  - `AnalysisContext` - accumulates errors/warnings without halting analysis
+  - `Diagnostic` types - structured diagnostics with file, line, column
+  - `format_diagnostic` - formats diagnostics for display
 
 **Mid-level** (domain utilities):
 
@@ -348,9 +352,9 @@ for validation and code generation.
 Fuz uses distinctive naming conventions compared to typical TypeScript/Svelte
 projects:
 
-- `snake_case` for most identifiers (files, variables, functions, types) instead
-  of camelCase
-- `PascalCase` for types, class names, and Svelte components
+- `snake_case` for most identifiers (files, variables, functions) instead of
+  camelCase
+- `PascalCase` for types, classes, and Svelte components
 - explicit file extensions in all imports
 - tab indentation, 100 character line width
 - tends toward flat file structure with co-located related code
