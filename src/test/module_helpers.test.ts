@@ -386,6 +386,7 @@ describe('module_extract_dependencies', () => {
 		test('extracts dependencies from source modules', () => {
 			const source_file: SourceFileInfo = {
 				id: '/home/user/project/src/lib/foo.ts',
+				content: '',
 				dependencies: ['/home/user/project/src/lib/bar.ts', '/home/user/project/src/lib/baz.ts'],
 			};
 
@@ -398,6 +399,7 @@ describe('module_extract_dependencies', () => {
 		test('extracts dependents from source modules', () => {
 			const source_file: SourceFileInfo = {
 				id: '/home/user/project/src/lib/foo.ts',
+				content: '',
 				dependents: [
 					'/home/user/project/src/lib/consumer1.ts',
 					'/home/user/project/src/lib/consumer2.ts',
@@ -413,6 +415,7 @@ describe('module_extract_dependencies', () => {
 		test('extracts both dependencies and dependents', () => {
 			const source_file: SourceFileInfo = {
 				id: '/home/user/project/src/lib/foo.ts',
+				content: '',
 				dependencies: ['/home/user/project/src/lib/dep.ts'],
 				dependents: ['/home/user/project/src/lib/consumer.ts'],
 			};
@@ -428,6 +431,7 @@ describe('module_extract_dependencies', () => {
 		test('excludes external packages (node_modules)', () => {
 			const source_file: SourceFileInfo = {
 				id: '/home/user/project/src/lib/foo.ts',
+				content: '',
 				dependencies: [
 					'/home/user/project/src/lib/bar.ts',
 					'/home/user/project/node_modules/svelte/index.js',
@@ -443,6 +447,7 @@ describe('module_extract_dependencies', () => {
 		test('excludes test files', () => {
 			const source_file: SourceFileInfo = {
 				id: '/home/user/project/src/lib/foo.ts',
+				content: '',
 				dependencies: [
 					'/home/user/project/src/lib/bar.ts',
 					'/home/user/project/src/lib/bar.test.ts',
@@ -457,6 +462,7 @@ describe('module_extract_dependencies', () => {
 		test('excludes files outside source paths', () => {
 			const source_file: SourceFileInfo = {
 				id: '/home/user/project/src/lib/foo.ts',
+				content: '',
 				dependencies: [
 					'/home/user/project/src/lib/bar.ts',
 					'/home/user/project/src/routes/page.svelte',
@@ -474,6 +480,7 @@ describe('module_extract_dependencies', () => {
 		test('returns dependencies sorted alphabetically', () => {
 			const source_file: SourceFileInfo = {
 				id: '/home/user/project/src/lib/foo.ts',
+				content: '',
 				dependencies: [
 					'/home/user/project/src/lib/zebra.ts',
 					'/home/user/project/src/lib/alpha.ts',
@@ -489,6 +496,7 @@ describe('module_extract_dependencies', () => {
 		test('returns dependents sorted alphabetically', () => {
 			const source_file: SourceFileInfo = {
 				id: '/home/user/project/src/lib/foo.ts',
+				content: '',
 				dependents: [
 					'/home/user/project/src/lib/z.ts',
 					'/home/user/project/src/lib/a.ts',
@@ -506,6 +514,7 @@ describe('module_extract_dependencies', () => {
 		test('handles undefined dependencies', () => {
 			const source_file: SourceFileInfo = {
 				id: '/home/user/project/src/lib/foo.ts',
+				content: '',
 			};
 
 			const result = module_extract_dependencies(source_file, MODULE_SOURCE_DEFAULTS);
@@ -517,6 +526,7 @@ describe('module_extract_dependencies', () => {
 		test('handles empty arrays', () => {
 			const source_file: SourceFileInfo = {
 				id: '/home/user/project/src/lib/foo.ts',
+				content: '',
 				dependencies: [],
 				dependents: [],
 			};
@@ -538,6 +548,7 @@ describe('module_extract_dependencies', () => {
 
 			const source_file: SourceFileInfo = {
 				id: '/home/user/project/src/routes/page.svelte',
+				content: '',
 				dependencies: [
 					'/home/user/project/src/routes/Header.svelte',
 					'/home/user/project/src/lib/util.ts', // excluded - wrong path

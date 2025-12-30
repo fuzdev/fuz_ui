@@ -551,30 +551,24 @@ export {util_b as renamed_util} from './utils.js';
 
 describe('ts_create_program with TsProgramOptions', () => {
 	test('creates program with default options', () => {
-		const log = {info: () => undefined};
-
 		// Uses current directory and default tsconfig.json
-		const program = ts_create_program(log);
+		const program = ts_create_program();
 
 		assert.ok(program);
 		assert.ok(program.getSourceFiles().length > 0);
 	});
 
 	test('creates program with explicit root', () => {
-		const log = {info: () => undefined};
-
 		// Explicit root pointing to project directory
-		const program = ts_create_program(log, {root: './'});
+		const program = ts_create_program({root: './'});
 
 		assert.ok(program);
 		assert.ok(program.getSourceFiles().length > 0);
 	});
 
 	test('creates program with custom compiler options', () => {
-		const log = {info: () => undefined};
-
 		// Override strict mode
-		const program = ts_create_program(log, {
+		const program = ts_create_program({
 			compiler_options: {
 				strict: false,
 			},
@@ -586,21 +580,14 @@ describe('ts_create_program with TsProgramOptions', () => {
 	});
 
 	test('throws when tsconfig not found', () => {
-		const log = {info: () => undefined};
-
 		// Non-existent directory
-		assert.throws(
-			() => ts_create_program(log, {root: '/non/existent/path'}),
-			/No tsconfig\.json found/,
-		);
+		assert.throws(() => ts_create_program({root: '/non/existent/path'}), /No tsconfig\.json found/);
 	});
 
 	test('throws with custom tsconfig name when not found', () => {
-		const log = {info: () => undefined};
-
 		// Try to use a non-existent custom tsconfig name
 		assert.throws(
-			() => ts_create_program(log, {tsconfig: 'nonexistent.config.json'}),
+			() => ts_create_program({tsconfig: 'nonexistent.config.json'}),
 			/No nonexistent\.config\.json found/,
 		);
 	});

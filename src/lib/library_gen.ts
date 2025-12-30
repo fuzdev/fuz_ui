@@ -26,7 +26,7 @@ import {package_json_load} from '@ryanatkn/gro/package_json.js';
 import type {Disknode} from '@ryanatkn/gro/disknode.js';
 import type {SourceJson} from '@fuzdev/fuz_util/source_json.js';
 
-import {ts_create_program, ts_analyze_module, type ReExportInfo} from './ts_helpers.js';
+import {ts_create_program, ts_analyze_module} from './ts_helpers.js';
 import {svelte_analyze_module} from './svelte_helpers.js';
 import {
 	type SourceFileInfo,
@@ -39,8 +39,10 @@ import {
 	library_collect_source_files,
 	library_sort_modules,
 	library_find_duplicates,
-	library_generate_json,
+	library_merge_re_exports,
+	type CollectedReExport,
 } from './library_gen_helpers.js';
+import {library_generate_json} from './library_gen_output.js';
 import {AnalysisContext, format_diagnostic} from './analysis_context.js';
 
 /** Options for library generation. */
@@ -53,13 +55,22 @@ export interface LibraryGenOptions {
 
 /**
  * Convert Gro's Disknode to the build-tool agnostic SourceFileInfo interface.
+ *
+ * @throws Error if disknode has no content (should be loaded by Gro filer)
  */
-const source_file_from_disknode = (disknode: Disknode): SourceFileInfo => ({
-	id: disknode.id,
-	content: disknode.contents ?? undefined,
-	dependencies: disknode.dependencies.keys(),
-	dependents: disknode.dependents.keys(),
-});
+const source_file_from_disknode = (disknode: Disknode): SourceFileInfo => {
+	if (disknode.contents == null) {
+		throw new Error(
+			`Source file has no content: ${disknode.id} (ensure Gro filer loads file contents)`,
+		);
+	}
+	return {
+		id: disknode.id,
+		content: disknode.contents,
+		dependencies: disknode.dependencies.keys(),
+		dependents: disknode.dependents.keys(),
+	};
+};
 
 /**
  * Creates a Gen object for generating library metadata with full TypeScript analysis.
@@ -89,7 +100,7 @@ export const library_gen = (options?: LibraryGenOptions): Gen => {
 			const package_json = await package_json_load();
 
 			// Create TypeScript program
-			const program = ts_create_program(log);
+			const program = ts_create_program(undefined, log);
 			const checker = program.getTypeChecker();
 
 			// Create analysis context for collecting diagnostics
@@ -112,9 +123,9 @@ export const library_gen = (options?: LibraryGenOptions): Gen => {
 				modules: [],
 			};
 
-			// Collect all re-exports: Map<declaration_name, Set<re_exporting_module_path>>
-			// The Set tracks which modules re-export each declaration
-			const all_re_exports: Array<{re_exporting_module: string; re_export: ReExportInfo}> = [];
+			// Collect re-exports for phase 2 merging
+			// See library_merge_re_exports for the two-phase resolution strategy
+			const collected_re_exports: Array<CollectedReExport> = [];
 
 			for (const source_file of source_files) {
 				const source_id = source_file.id;
@@ -144,40 +155,15 @@ export const library_gen = (options?: LibraryGenOptions): Gen => {
 					);
 					source_json.modules!.push(mod);
 
-					// Collect re-exports for post-processing
+					// Collect re-exports for phase 2 merging
 					for (const re_export of re_exports) {
-						all_re_exports.push({re_exporting_module: module_path, re_export});
+						collected_re_exports.push({re_exporting_module: module_path, re_export});
 					}
 				}
 			}
 
 			// Phase 2: Build also_exported_from arrays from re-export data
-			// Group re-exports by original module and declaration name
-			const re_export_map: Map<string, Map<string, Array<string>>> = new Map();
-			for (const {re_exporting_module, re_export} of all_re_exports) {
-				const {name, original_module} = re_export;
-				if (!re_export_map.has(original_module)) {
-					re_export_map.set(original_module, new Map());
-				}
-				const module_map = re_export_map.get(original_module)!;
-				if (!module_map.has(name)) {
-					module_map.set(name, []);
-				}
-				module_map.get(name)!.push(re_exporting_module);
-			}
-
-			// Merge into original declarations
-			for (const mod of source_json.modules ?? []) {
-				const module_re_exports = re_export_map.get(mod.path);
-				if (!module_re_exports) continue;
-
-				for (const declaration of mod.declarations ?? []) {
-					const re_exporters = module_re_exports.get(declaration.name);
-					if (re_exporters?.length) {
-						declaration.also_exported_from = re_exporters.sort();
-					}
-				}
-			}
+			library_merge_re_exports(source_json, collected_re_exports);
 
 			// Sort modules alphabetically for deterministic output and cleaner diffs
 			source_json.modules = source_json.modules

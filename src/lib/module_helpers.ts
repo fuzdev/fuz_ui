@@ -8,16 +8,19 @@
  */
 
 /**
- * Minimal file information for source analysis.
+ * File information for source analysis.
  *
  * Can be constructed from Gro's Disknode or from plain file system access.
  * This abstraction enables non-Gro usage while keeping Gro support via adapter.
+ *
+ * Note: `content` is required to keep analysis functions pure (no hidden I/O).
+ * Callers are responsible for reading file content before analysis.
  */
 export interface SourceFileInfo {
 	/** Absolute path to the file. */
 	id: string;
-	/** Optional pre-read content (avoids re-reading from disk). */
-	content?: string;
+	/** File content (required - analysis functions don't read from disk). */
+	content: string;
 	/** Module paths this file imports (optional, for dependency tracking). */
 	dependencies?: Iterable<string>;
 	/** Module paths that import this file (optional, for dependent tracking). */

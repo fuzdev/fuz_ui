@@ -2,6 +2,7 @@ import {test, assert, describe, beforeAll} from 'vitest';
 import ts from 'typescript';
 import {svelte2tsx} from 'svelte2tsx';
 import {join} from 'node:path';
+import {readFileSync} from 'node:fs';
 
 import {
 	svelte_analyze_component,
@@ -21,6 +22,9 @@ import {normalize_json} from './test_helpers.js';
 
 const FIXTURES_DIR = join(import.meta.dirname, 'fixtures/svelte');
 
+/** Read fixture file content for analysis. */
+const read_fixture = (file_path: string): string => readFileSync(file_path, 'utf-8');
+
 let fixtures: Array<SvelteFixture> = [];
 let checker: ts.TypeChecker;
 
@@ -28,7 +32,7 @@ beforeAll(async () => {
 	fixtures = await load_fixtures();
 
 	// Create TypeScript program for type checking
-	const program = ts_create_program({info: () => undefined});
+	const program = ts_create_program();
 	checker = program.getTypeChecker();
 });
 
@@ -91,7 +95,7 @@ describe('svelte_analyze_file', () => {
 		const module_path = 'PropsBasic.svelte';
 
 		const {declaration} = svelte_analyze_file(
-			{id: file_path},
+			{id: file_path, content: read_fixture(file_path)},
 			module_path,
 			checker,
 			new AnalysisContext(),
@@ -112,7 +116,7 @@ describe('svelte_analyze_file', () => {
 		const module_path = 'PropsBasic.svelte';
 
 		const {declaration} = svelte_analyze_file(
-			{id: file_path},
+			{id: file_path, content: read_fixture(file_path)},
 			module_path,
 			checker,
 			new AnalysisContext(),
@@ -129,7 +133,7 @@ describe('svelte_analyze_file', () => {
 		const module_path = 'ComponentJsdoc.svelte';
 
 		const {declaration} = svelte_analyze_file(
-			{id: file_path},
+			{id: file_path, content: read_fixture(file_path)},
 			module_path,
 			checker,
 			new AnalysisContext(),
@@ -144,7 +148,7 @@ describe('svelte_analyze_file', () => {
 		const module_path = 'ComponentNoProps.svelte';
 
 		const {declaration} = svelte_analyze_file(
-			{id: file_path},
+			{id: file_path, content: read_fixture(file_path)},
 			module_path,
 			checker,
 			new AnalysisContext(),
@@ -161,7 +165,7 @@ describe('svelte_analyze_file', () => {
 		const module_path = 'PropsDescriptions.svelte';
 
 		const {declaration} = svelte_analyze_file(
-			{id: file_path},
+			{id: file_path, content: read_fixture(file_path)},
 			module_path,
 			checker,
 			new AnalysisContext(),
@@ -179,7 +183,7 @@ describe('svelte_analyze_file', () => {
 		const module_path = 'PropsOptional.svelte';
 
 		const {declaration} = svelte_analyze_file(
-			{id: file_path},
+			{id: file_path, content: read_fixture(file_path)},
 			module_path,
 			checker,
 			new AnalysisContext(),
@@ -196,7 +200,7 @@ describe('svelte_analyze_file', () => {
 		const module_path = 'PropsBindable.svelte';
 
 		const {declaration} = svelte_analyze_file(
-			{id: file_path},
+			{id: file_path, content: read_fixture(file_path)},
 			module_path,
 			checker,
 			new AnalysisContext(),
@@ -210,10 +214,11 @@ describe('svelte_analyze_file', () => {
 
 	test('extracts correct module path as component name', () => {
 		const file_path = join(FIXTURES_DIR, 'props_basic/input.svelte');
+		const content = read_fixture(file_path);
 
 		// Test with nested path
 		const {declaration: declaration1} = svelte_analyze_file(
-			{id: file_path},
+			{id: file_path, content},
 			'components/Button.svelte',
 			checker,
 			new AnalysisContext(),
@@ -222,7 +227,7 @@ describe('svelte_analyze_file', () => {
 
 		// Test with simple path
 		const {declaration: declaration2} = svelte_analyze_file(
-			{id: file_path},
+			{id: file_path, content},
 			'Alert.svelte',
 			checker,
 			new AnalysisContext(),
@@ -236,7 +241,7 @@ describe('svelte_analyze_file', () => {
 		const module_path = 'TypeScript_Component.svelte';
 
 		const {declaration} = svelte_analyze_file(
-			{id: file_path},
+			{id: file_path, content: read_fixture(file_path)},
 			module_path,
 			checker,
 			new AnalysisContext(),
@@ -256,7 +261,7 @@ describe('svelte_analyze_file', () => {
 		const module_path = 'JavaScript_Component.svelte';
 
 		const {declaration} = svelte_analyze_file(
-			{id: file_path},
+			{id: file_path, content: read_fixture(file_path)},
 			module_path,
 			checker,
 			new AnalysisContext(),
@@ -715,7 +720,12 @@ let {untyped_prop} = $props();
 		const module_path = 'TypesIntersection.svelte';
 
 		const ctx = new AnalysisContext();
-		const {declaration} = svelte_analyze_file({id: file_path}, module_path, checker, ctx);
+		const {declaration} = svelte_analyze_file(
+			{id: file_path, content: read_fixture(file_path)},
+			module_path,
+			checker,
+			ctx,
+		);
 
 		assert.strictEqual(declaration.kind, 'component');
 		// Should extract props from intersection type without errors

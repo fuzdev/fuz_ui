@@ -5,9 +5,11 @@ import type {SourceJson, ModuleJson, DeclarationKind} from '@fuzdev/fuz_util/sou
 import {
 	library_find_duplicates,
 	library_sort_modules,
-	library_generate_json,
 	library_collect_source_files,
+	library_merge_re_exports,
+	type CollectedReExport,
 } from '$lib/library_gen_helpers.js';
+import {library_generate_json} from '$lib/library_gen_output.js';
 import {
 	type SourceFileInfo,
 	MODULE_SOURCE_DEFAULTS,
@@ -466,9 +468,9 @@ describe('library_collect_source_files', () => {
 	describe('basic functionality', () => {
 		test('collects TypeScript files from src/lib', () => {
 			const files: Array<SourceFileInfo> = [
-				{id: '/home/user/project/src/lib/foo.ts'},
-				{id: '/home/user/project/src/lib/bar.ts'},
-				{id: '/home/user/project/src/lib/baz.ts'},
+				{id: '/home/user/project/src/lib/foo.ts', content: ''},
+				{id: '/home/user/project/src/lib/bar.ts', content: ''},
+				{id: '/home/user/project/src/lib/baz.ts', content: ''},
 			];
 
 			const result = library_collect_source_files(files, MODULE_SOURCE_DEFAULTS);
@@ -481,8 +483,8 @@ describe('library_collect_source_files', () => {
 
 		test('collects Svelte files from src/lib', () => {
 			const files: Array<SourceFileInfo> = [
-				{id: '/home/user/project/src/lib/Button.svelte'},
-				{id: '/home/user/project/src/lib/Card.svelte'},
+				{id: '/home/user/project/src/lib/Button.svelte', content: ''},
+				{id: '/home/user/project/src/lib/Card.svelte', content: ''},
 			];
 
 			const result = library_collect_source_files(files, MODULE_SOURCE_DEFAULTS);
@@ -494,8 +496,8 @@ describe('library_collect_source_files', () => {
 
 		test('collects JavaScript files from src/lib', () => {
 			const files: Array<SourceFileInfo> = [
-				{id: '/home/user/project/src/lib/utils.js'},
-				{id: '/home/user/project/src/lib/helpers.js'},
+				{id: '/home/user/project/src/lib/utils.js', content: ''},
+				{id: '/home/user/project/src/lib/helpers.js', content: ''},
 			];
 
 			const result = library_collect_source_files(files, MODULE_SOURCE_DEFAULTS);
@@ -505,9 +507,9 @@ describe('library_collect_source_files', () => {
 
 		test('collects mixed file types', () => {
 			const files: Array<SourceFileInfo> = [
-				{id: '/home/user/project/src/lib/foo.ts'},
-				{id: '/home/user/project/src/lib/Button.svelte'},
-				{id: '/home/user/project/src/lib/utils.js'},
+				{id: '/home/user/project/src/lib/foo.ts', content: ''},
+				{id: '/home/user/project/src/lib/Button.svelte', content: ''},
+				{id: '/home/user/project/src/lib/utils.js', content: ''},
 			];
 
 			const result = library_collect_source_files(files, MODULE_SOURCE_DEFAULTS);
@@ -519,10 +521,10 @@ describe('library_collect_source_files', () => {
 	describe('filtering', () => {
 		test('excludes test files', () => {
 			const files: Array<SourceFileInfo> = [
-				{id: '/home/user/project/src/lib/foo.ts'},
-				{id: '/home/user/project/src/lib/foo.test.ts'},
-				{id: '/home/user/project/src/lib/bar.ts'},
-				{id: '/home/user/project/src/lib/bar.test.ts'},
+				{id: '/home/user/project/src/lib/foo.ts', content: ''},
+				{id: '/home/user/project/src/lib/foo.test.ts', content: ''},
+				{id: '/home/user/project/src/lib/bar.ts', content: ''},
+				{id: '/home/user/project/src/lib/bar.test.ts', content: ''},
 			];
 
 			const result = library_collect_source_files(files, MODULE_SOURCE_DEFAULTS);
@@ -533,10 +535,10 @@ describe('library_collect_source_files', () => {
 
 		test('excludes files outside source paths', () => {
 			const files: Array<SourceFileInfo> = [
-				{id: '/home/user/project/src/lib/foo.ts'},
-				{id: '/home/user/project/src/routes/page.svelte'},
-				{id: '/home/user/project/src/test/helpers.ts'},
-				{id: '/home/user/project/node_modules/pkg/index.ts'},
+				{id: '/home/user/project/src/lib/foo.ts', content: ''},
+				{id: '/home/user/project/src/routes/page.svelte', content: ''},
+				{id: '/home/user/project/src/test/helpers.ts', content: ''},
+				{id: '/home/user/project/node_modules/pkg/index.ts', content: ''},
 			];
 
 			const result = library_collect_source_files(files, MODULE_SOURCE_DEFAULTS);
@@ -547,10 +549,10 @@ describe('library_collect_source_files', () => {
 
 		test('excludes unsupported file types', () => {
 			const files: Array<SourceFileInfo> = [
-				{id: '/home/user/project/src/lib/foo.ts'},
-				{id: '/home/user/project/src/lib/styles.css'},
-				{id: '/home/user/project/src/lib/data.json'},
-				{id: '/home/user/project/src/lib/readme.md'},
+				{id: '/home/user/project/src/lib/foo.ts', content: ''},
+				{id: '/home/user/project/src/lib/styles.css', content: ''},
+				{id: '/home/user/project/src/lib/data.json', content: ''},
+				{id: '/home/user/project/src/lib/readme.md', content: ''},
 			];
 
 			const result = library_collect_source_files(files, MODULE_SOURCE_DEFAULTS);
@@ -561,9 +563,9 @@ describe('library_collect_source_files', () => {
 
 		test('excludes nested repo paths', () => {
 			const files: Array<SourceFileInfo> = [
-				{id: '/home/user/project/src/lib/foo.ts'},
-				{id: '/home/user/project/src/fixtures/repos/repo_a/src/lib/index.ts'},
-				{id: '/home/user/project/src/test/fixtures/repos/repo_b/src/lib/bar.ts'},
+				{id: '/home/user/project/src/lib/foo.ts', content: ''},
+				{id: '/home/user/project/src/fixtures/repos/repo_a/src/lib/index.ts', content: ''},
+				{id: '/home/user/project/src/test/fixtures/repos/repo_b/src/lib/bar.ts', content: ''},
 			];
 
 			const result = library_collect_source_files(files, MODULE_SOURCE_DEFAULTS);
@@ -576,8 +578,8 @@ describe('library_collect_source_files', () => {
 	describe('custom options', () => {
 		test('uses custom source_paths', () => {
 			const files: Array<SourceFileInfo> = [
-				{id: '/home/user/project/src/lib/foo.ts'},
-				{id: '/home/user/project/src/routes/page.svelte'},
+				{id: '/home/user/project/src/lib/foo.ts', content: ''},
+				{id: '/home/user/project/src/routes/page.svelte', content: ''},
 			];
 
 			const options: ModuleSourceOptions = {
@@ -594,9 +596,9 @@ describe('library_collect_source_files', () => {
 
 		test('uses custom extensions filter', () => {
 			const files: Array<SourceFileInfo> = [
-				{id: '/home/user/project/src/lib/foo.ts'},
-				{id: '/home/user/project/src/lib/Button.svelte'},
-				{id: '/home/user/project/src/lib/utils.js'},
+				{id: '/home/user/project/src/lib/foo.ts', content: ''},
+				{id: '/home/user/project/src/lib/Button.svelte', content: ''},
+				{id: '/home/user/project/src/lib/utils.js', content: ''},
 			];
 
 			const options: ModuleSourceOptions = {
@@ -612,9 +614,9 @@ describe('library_collect_source_files', () => {
 
 		test('uses custom exclude_patterns', () => {
 			const files: Array<SourceFileInfo> = [
-				{id: '/home/user/project/src/lib/foo.ts'},
-				{id: '/home/user/project/src/lib/internal/secret.ts'},
-				{id: '/home/user/project/src/lib/bar.ts'},
+				{id: '/home/user/project/src/lib/foo.ts', content: ''},
+				{id: '/home/user/project/src/lib/internal/secret.ts', content: ''},
+				{id: '/home/user/project/src/lib/bar.ts', content: ''},
 			];
 
 			const options: ModuleSourceOptions = {
@@ -632,9 +634,9 @@ describe('library_collect_source_files', () => {
 	describe('sorting and determinism', () => {
 		test('returns files sorted alphabetically by id', () => {
 			const files: Array<SourceFileInfo> = [
-				{id: '/home/user/project/src/lib/zebra.ts'},
-				{id: '/home/user/project/src/lib/alpha.ts'},
-				{id: '/home/user/project/src/lib/beta.ts'},
+				{id: '/home/user/project/src/lib/zebra.ts', content: ''},
+				{id: '/home/user/project/src/lib/alpha.ts', content: ''},
+				{id: '/home/user/project/src/lib/beta.ts', content: ''},
 			];
 
 			const result = library_collect_source_files(files, MODULE_SOURCE_DEFAULTS);
@@ -646,9 +648,9 @@ describe('library_collect_source_files', () => {
 
 		test('produces deterministic output on multiple calls', () => {
 			const files: Array<SourceFileInfo> = [
-				{id: '/home/user/project/src/lib/c.ts'},
-				{id: '/home/user/project/src/lib/a.ts'},
-				{id: '/home/user/project/src/lib/b.ts'},
+				{id: '/home/user/project/src/lib/c.ts', content: ''},
+				{id: '/home/user/project/src/lib/a.ts', content: ''},
+				{id: '/home/user/project/src/lib/b.ts', content: ''},
 			];
 
 			const result1 = library_collect_source_files(files, MODULE_SOURCE_DEFAULTS);
@@ -670,8 +672,8 @@ describe('library_collect_source_files', () => {
 
 		test('returns empty array when no files match', () => {
 			const files: Array<SourceFileInfo> = [
-				{id: '/home/user/project/src/routes/page.svelte'},
-				{id: '/home/user/project/node_modules/pkg/index.ts'},
+				{id: '/home/user/project/src/routes/page.svelte', content: ''},
+				{id: '/home/user/project/node_modules/pkg/index.ts', content: ''},
 			];
 
 			const result = library_collect_source_files(files, MODULE_SOURCE_DEFAULTS);
@@ -698,12 +700,245 @@ describe('library_collect_source_files', () => {
 		});
 
 		test('works without logger (logger is optional)', () => {
-			const files: Array<SourceFileInfo> = [{id: '/home/user/project/src/lib/foo.ts'}];
+			const files: Array<SourceFileInfo> = [{id: '/home/user/project/src/lib/foo.ts', content: ''}];
 
 			// Should not throw
 			const result = library_collect_source_files(files, MODULE_SOURCE_DEFAULTS);
 
 			assert.strictEqual(result.length, 1);
+		});
+	});
+});
+
+describe('library_merge_re_exports', () => {
+	describe('basic functionality', () => {
+		test('merges single re-export into original declaration', () => {
+			const source_json: SourceJson = {
+				name: '@test/package',
+				version: '1.0.0',
+				modules: [
+					{
+						path: 'helpers.ts',
+						declarations: [{name: 'helper', kind: 'function'}],
+					},
+					{
+						path: 'index.ts',
+						declarations: [{name: 'local', kind: 'variable'}],
+					},
+				],
+			};
+
+			const collected_re_exports: Array<CollectedReExport> = [
+				{
+					re_exporting_module: 'index.ts',
+					re_export: {name: 'helper', original_module: 'helpers.ts'},
+				},
+			];
+
+			library_merge_re_exports(source_json, collected_re_exports);
+
+			const helpers_module = source_json.modules!.find((m) => m.path === 'helpers.ts')!;
+			const helper_decl = helpers_module.declarations!.find((d) => d.name === 'helper')!;
+
+			assert.deepStrictEqual(helper_decl.also_exported_from, ['index.ts']);
+		});
+
+		test('merges multiple re-exports for same declaration', () => {
+			const source_json: SourceJson = {
+				name: '@test/package',
+				version: '1.0.0',
+				modules: [
+					{
+						path: 'core.ts',
+						declarations: [{name: 'util', kind: 'function'}],
+					},
+				],
+			};
+
+			const collected_re_exports: Array<CollectedReExport> = [
+				{
+					re_exporting_module: 'index.ts',
+					re_export: {name: 'util', original_module: 'core.ts'},
+				},
+				{
+					re_exporting_module: 'public.ts',
+					re_export: {name: 'util', original_module: 'core.ts'},
+				},
+			];
+
+			library_merge_re_exports(source_json, collected_re_exports);
+
+			const core_module = source_json.modules!.find((m) => m.path === 'core.ts')!;
+			const util_decl = core_module.declarations!.find((d) => d.name === 'util')!;
+
+			// Should be sorted alphabetically
+			assert.deepStrictEqual(util_decl.also_exported_from, ['index.ts', 'public.ts']);
+		});
+
+		test('handles multiple declarations from same module', () => {
+			const source_json: SourceJson = {
+				name: '@test/package',
+				version: '1.0.0',
+				modules: [
+					{
+						path: 'helpers.ts',
+						declarations: [
+							{name: 'foo', kind: 'function'},
+							{name: 'bar', kind: 'function'},
+						],
+					},
+				],
+			};
+
+			const collected_re_exports: Array<CollectedReExport> = [
+				{
+					re_exporting_module: 'index.ts',
+					re_export: {name: 'foo', original_module: 'helpers.ts'},
+				},
+				{
+					re_exporting_module: 'index.ts',
+					re_export: {name: 'bar', original_module: 'helpers.ts'},
+				},
+			];
+
+			library_merge_re_exports(source_json, collected_re_exports);
+
+			const helpers_module = source_json.modules!.find((m) => m.path === 'helpers.ts')!;
+			const foo_decl = helpers_module.declarations!.find((d) => d.name === 'foo')!;
+			const bar_decl = helpers_module.declarations!.find((d) => d.name === 'bar')!;
+
+			assert.deepStrictEqual(foo_decl.also_exported_from, ['index.ts']);
+			assert.deepStrictEqual(bar_decl.also_exported_from, ['index.ts']);
+		});
+	});
+
+	describe('edge cases', () => {
+		test('handles empty collected_re_exports', () => {
+			const source_json: SourceJson = {
+				name: '@test/package',
+				version: '1.0.0',
+				modules: [
+					{
+						path: 'helpers.ts',
+						declarations: [{name: 'helper', kind: 'function'}],
+					},
+				],
+			};
+
+			// Should not throw
+			library_merge_re_exports(source_json, []);
+
+			const helpers_module = source_json.modules!.find((m) => m.path === 'helpers.ts')!;
+			const helper_decl = helpers_module.declarations!.find((d) => d.name === 'helper')!;
+
+			assert.isUndefined(helper_decl.also_exported_from);
+		});
+
+		test('handles undefined modules in source_json', () => {
+			const source_json: SourceJson = {
+				name: '@test/package',
+				version: '1.0.0',
+			};
+
+			const collected_re_exports: Array<CollectedReExport> = [
+				{
+					re_exporting_module: 'index.ts',
+					re_export: {name: 'foo', original_module: 'helpers.ts'},
+				},
+			];
+
+			// Should not throw
+			library_merge_re_exports(source_json, collected_re_exports);
+		});
+
+		test('ignores re-exports for non-existent modules', () => {
+			const source_json: SourceJson = {
+				name: '@test/package',
+				version: '1.0.0',
+				modules: [
+					{
+						path: 'helpers.ts',
+						declarations: [{name: 'helper', kind: 'function'}],
+					},
+				],
+			};
+
+			const collected_re_exports: Array<CollectedReExport> = [
+				{
+					re_exporting_module: 'index.ts',
+					re_export: {name: 'foo', original_module: 'nonexistent.ts'},
+				},
+			];
+
+			// Should not throw
+			library_merge_re_exports(source_json, collected_re_exports);
+
+			// Original module should not be affected
+			const helpers_module = source_json.modules!.find((m) => m.path === 'helpers.ts')!;
+			assert.isUndefined(helpers_module.declarations![0]!.also_exported_from);
+		});
+
+		test('ignores re-exports for non-existent declarations', () => {
+			const source_json: SourceJson = {
+				name: '@test/package',
+				version: '1.0.0',
+				modules: [
+					{
+						path: 'helpers.ts',
+						declarations: [{name: 'helper', kind: 'function'}],
+					},
+				],
+			};
+
+			const collected_re_exports: Array<CollectedReExport> = [
+				{
+					re_exporting_module: 'index.ts',
+					re_export: {name: 'nonexistent', original_module: 'helpers.ts'},
+				},
+			];
+
+			// Should not throw
+			library_merge_re_exports(source_json, collected_re_exports);
+
+			// Original declaration should not be affected
+			const helpers_module = source_json.modules!.find((m) => m.path === 'helpers.ts')!;
+			assert.isUndefined(helpers_module.declarations![0]!.also_exported_from);
+		});
+
+		test('sorts re-exporters alphabetically for determinism', () => {
+			const source_json: SourceJson = {
+				name: '@test/package',
+				version: '1.0.0',
+				modules: [
+					{
+						path: 'core.ts',
+						declarations: [{name: 'util', kind: 'function'}],
+					},
+				],
+			};
+
+			// Add in non-alphabetical order
+			const collected_re_exports: Array<CollectedReExport> = [
+				{
+					re_exporting_module: 'zebra.ts',
+					re_export: {name: 'util', original_module: 'core.ts'},
+				},
+				{
+					re_exporting_module: 'alpha.ts',
+					re_export: {name: 'util', original_module: 'core.ts'},
+				},
+				{
+					re_exporting_module: 'beta.ts',
+					re_export: {name: 'util', original_module: 'core.ts'},
+				},
+			];
+
+			library_merge_re_exports(source_json, collected_re_exports);
+
+			const core_module = source_json.modules!.find((m) => m.path === 'core.ts')!;
+			const util_decl = core_module.declarations!.find((d) => d.name === 'util')!;
+
+			assert.deepStrictEqual(util_decl.also_exported_from, ['alpha.ts', 'beta.ts', 'zebra.ts']);
 		});
 	});
 });

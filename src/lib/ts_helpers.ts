@@ -11,6 +11,7 @@ import type {
 	DeclarationKind,
 	ModuleJson,
 } from '@fuzdev/fuz_util/source_json.js';
+import type {Logger} from '@fuzdev/fuz_util/log.js';
 
 import {tsdoc_parse, tsdoc_apply_to_declaration, tsdoc_clean_comment} from './tsdoc_helpers.js';
 import {
@@ -794,14 +795,11 @@ export interface TsProgramOptions {
 /**
  * Create TypeScript program for analysis.
  *
- * @param log Logger for info messages
  * @param options Configuration options for program creation
+ * @param log Optional logger for info messages
  * @throws Error if tsconfig.json is not found
  */
-export const ts_create_program = (
-	log: {info: (message: string) => void},
-	options?: TsProgramOptions,
-): ts.Program => {
+export const ts_create_program = (options?: TsProgramOptions, log?: Logger): ts.Program => {
 	const root = options?.root ?? './';
 	const tsconfig_name = options?.tsconfig ?? 'tsconfig.json';
 
@@ -810,7 +808,7 @@ export const ts_create_program = (
 		throw new Error(`No ${tsconfig_name} found in ${root}`);
 	}
 
-	log.info(`using ${config_path}`);
+	log?.info(`using ${config_path}`);
 
 	const config_file = ts.readConfigFile(config_path, ts.sys.readFile);
 	const parsed_config = ts.parseJsonConfigFileContent(config_file.config, ts.sys, root);

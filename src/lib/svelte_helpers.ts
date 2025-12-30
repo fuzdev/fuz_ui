@@ -18,7 +18,6 @@
  */
 
 import ts from 'typescript';
-import {readFileSync} from 'node:fs';
 import {svelte2tsx} from 'svelte2tsx';
 import {TraceMap, originalPositionFor} from '@jridgewell/trace-mapping';
 import type {DeclarationJson, ComponentPropInfo, ModuleJson} from '@fuzdev/fuz_util/source_json.js';
@@ -400,17 +399,16 @@ export const svelte_extract_module_comment = (script_content: string): string | 
  * Analyze a Svelte component file.
  *
  * This is a high-level function that handles the complete workflow:
- * 1. Read the Svelte source (from `source_file.content` or disk)
- * 2. Transform to TypeScript via svelte2tsx
- * 3. Extract component metadata (props, documentation)
- * 4. Extract module-level documentation
+ * 1. Transform Svelte source to TypeScript via svelte2tsx
+ * 2. Extract component metadata (props, documentation)
+ * 3. Extract module-level documentation
  *
  * Suitable for use in documentation generators, build tools, and analysis.
  *
- * @param source_file Source file info with path and optional pre-read content
+ * @param source_file Source file info with path and content
  * @param module_path Module path relative to source root (e.g., 'Alert.svelte')
  * @param checker TypeScript type checker for type resolution
- * @param ctx Optional analysis context for collecting diagnostics
+ * @param ctx Analysis context for collecting diagnostics
  * @returns Component declaration and optional module-level comment
  */
 export const svelte_analyze_file = (
@@ -419,7 +417,7 @@ export const svelte_analyze_file = (
 	checker: ts.TypeChecker,
 	ctx: AnalysisContext,
 ): SvelteFileAnalysis => {
-	const svelte_source = source_file.content ?? readFileSync(source_file.id, 'utf-8');
+	const svelte_source = source_file.content;
 
 	// Check if component uses TypeScript
 	const is_ts_file = svelte_source.includes('lang="ts"');
