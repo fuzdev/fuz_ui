@@ -11,27 +11,55 @@
  * - Dependency graphs
  * - Svelte component props
  *
+ * This file contains Gro-specific integration. The actual analysis logic is in
+ * build-tool agnostic helpers that work with `SourceFileInfo`.
+ *
  * @see @fuzdev/fuz_util/source_json.js for type definitions
- * @see src/lib/library_gen_helpers.ts for buildtime-only helpers
- * @see src/lib/tsdoc_helpers.ts for JSDoc/TSDoc parsing
- * @see src/lib/ts_helpers.ts for TypeScript analysis
- * @see src/lib/svelte_helpers.ts for Svelte component analysis
+ * @see `library_gen_helpers.ts` for build-tool agnostic helpers
+ * @see `tsdoc_helpers.ts` for JSDoc/TSDoc parsing
+ * @see `ts_helpers.ts` for TypeScript analysis
+ * @see `svelte_helpers.ts` for Svelte component analysis
  */
 
 import type {Gen} from '@ryanatkn/gro';
 import {package_json_load} from '@ryanatkn/gro/package_json.js';
+import type {Disknode} from '@ryanatkn/gro/disknode.js';
 import type {SourceJson} from '@fuzdev/fuz_util/source_json.js';
 
-import {ts_create_program, type ReExportInfo} from './ts_helpers.ts';
-import {module_extract_path, module_is_svelte} from './module_helpers.ts';
+import {ts_create_program, type ReExportInfo} from './ts_helpers.js';
+import {
+	type SourceFileInfo,
+	type ModuleSourceOptions,
+	MODULE_SOURCE_DEFAULTS,
+	module_extract_path,
+	module_is_svelte,
+} from './module_helpers.js';
 import {
 	library_gen_collect_source_files,
 	library_gen_sort_modules,
-	library_gen_validate_no_duplicates,
+	library_gen_find_duplicates,
 	library_gen_generate_json,
 	library_gen_analyze_svelte_file,
 	library_gen_analyze_typescript_file,
-} from './library_gen_helpers.ts';
+} from './library_gen_helpers.js';
+
+/** Options for library generation. */
+export interface LibraryGenOptions {
+	/** Module source options for filtering and path extraction. */
+	source?: ModuleSourceOptions;
+	/** Whether to enforce flat namespace (fail on duplicate names). @default true */
+	enforce_flat_namespace?: boolean;
+}
+
+/**
+ * Convert Gro's Disknode to the build-tool agnostic SourceFileInfo interface.
+ */
+const source_file_from_disknode = (disknode: Disknode): SourceFileInfo => ({
+	id: disknode.id,
+	content: disknode.contents ?? undefined,
+	dependencies: disknode.dependencies.keys(),
+	dependents: disknode.dependents.keys(),
+});
 
 /**
  * Creates a Gen object for generating library metadata with full TypeScript analysis.
@@ -43,8 +71,13 @@ import {
  *
  * export const gen = library_gen();
  * ```
+ *
+ * @param options Optional generation options
  */
-export const library_gen = (): Gen => {
+export const library_gen = (options?: LibraryGenOptions): Gen => {
+	const source_options = options?.source ?? MODULE_SOURCE_DEFAULTS;
+	const enforce_flat_namespace = options?.enforce_flat_namespace ?? true;
+
 	return {
 		generate: async ({log, filer}) => {
 			log.info('generating library metadata with full TypeScript analysis...');
@@ -57,14 +90,17 @@ export const library_gen = (): Gen => {
 
 			// Create TypeScript program
 			const program = ts_create_program(log);
-			if (!program) {
-				throw new Error('Failed to create TypeScript program - cannot generate library metadata');
-			}
 
 			const checker = program.getTypeChecker();
 
-			// Collect source files from filer
-			const source_disknodes = library_gen_collect_source_files(filer.files, log);
+			// Convert Gro's filer files to build-tool agnostic SourceFileInfo
+			const all_source_files: Array<SourceFileInfo> = [];
+			for (const disknode of filer.files.values()) {
+				all_source_files.push(source_file_from_disknode(disknode));
+			}
+
+			// Collect and filter source files
+			const source_files = library_gen_collect_source_files(all_source_files, source_options, log);
 
 			// Build source_json with array-based modules
 			// Phase 1: Analyze all modules and collect re-exports
@@ -78,29 +114,35 @@ export const library_gen = (): Gen => {
 			// The Set tracks which modules re-export each declaration
 			const all_re_exports: Array<{re_exporting_module: string; re_export: ReExportInfo}> = [];
 
-			for (const disknode of source_disknodes) {
-				const source_id = disknode.id;
-				const module_path = module_extract_path(source_id);
+			for (const source_file of source_files) {
+				const source_id = source_file.id;
+				const module_path = module_extract_path(source_id, source_options);
 				const is_svelte = module_is_svelte(module_path);
 
 				// Handle Svelte files separately (before trying to get TypeScript source file)
 				if (is_svelte) {
-					const mod = library_gen_analyze_svelte_file(disknode, module_path, checker);
+					const mod = library_gen_analyze_svelte_file(
+						source_file,
+						module_path,
+						checker,
+						source_options,
+					);
 					source_json.modules!.push(mod);
 				} else {
 					// For TypeScript/JS files, get the source file from the program
-					const source_file = program.getSourceFile(source_id);
-					if (!source_file) {
+					const ts_source_file = program.getSourceFile(source_id);
+					if (!ts_source_file) {
 						log.warn(`Could not get source file: ${source_id}`);
 						continue;
 					}
 
 					// May throw, which we want to see
 					const {module: mod, re_exports} = library_gen_analyze_typescript_file(
-						disknode,
 						source_file,
+						ts_source_file,
 						module_path,
 						checker,
+						source_options,
 					);
 					source_json.modules!.push(mod);
 
@@ -145,7 +187,26 @@ export const library_gen = (): Gen => {
 				: undefined;
 
 			// Validate no duplicate declaration names across modules
-			library_gen_validate_no_duplicates(source_json, log);
+			if (enforce_flat_namespace) {
+				const duplicates = library_gen_find_duplicates(source_json);
+				if (duplicates.size > 0) {
+					log.error('Duplicate declaration names detected in flat namespace:');
+					for (const [name, locations] of duplicates) {
+						log.error(`  "${name}" found in:`);
+						for (const {module, kind, source_line} of locations) {
+							const line_info = source_line !== undefined ? `:${source_line}` : '';
+							log.error(`    - ${module}${line_info} (${kind})`);
+						}
+					}
+					throw new Error(
+						`Found ${duplicates.size} duplicate declaration name${duplicates.size === 1 ? '' : 's'} across modules. ` +
+							'The flat namespace requires unique names. To resolve: ' +
+							'(1) rename one of the conflicting declarations, or ' +
+							'(2) add /** @nodocs */ to exclude from documentation. ' +
+							'See CLAUDE.md "Declaration namespacing" section for details.',
+					);
+				}
+			}
 
 			log.info('library metadata generation complete');
 

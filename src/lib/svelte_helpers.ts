@@ -10,6 +10,10 @@
  * Workflow: Transform Svelte to TypeScript via svelte2tsx, parse the transformed
  * TypeScript with the TS Compiler API, extract component-level JSDoc from original source.
  *
+ * Requires svelte2tsx 0.7.x (Svelte 5 compatible). The transformed output format
+ * is version-specific - other versions may produce different AST structures.
+ * Version constraint is enforced via peerDependencies in package.json.
+ *
  * All functions are prefixed with `svelte_` for clarity.
  */
 
@@ -60,9 +64,7 @@ export const svelte_analyze_component = (
 		const start_pos = source_file.getLineAndCharacterOfPosition(0);
 		result.source_line = start_pos.line + 1;
 	} catch (error) {
-		// If analysis fails, return basic component info
-		// eslint-disable-next-line no-console
-		console.error(`Error analyzing Svelte component ${component_name}:`, error);
+		throw new Error(`Failed to analyze Svelte component ${component_name}`, {cause: error});
 	}
 
 	return result;

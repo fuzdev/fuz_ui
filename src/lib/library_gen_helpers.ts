@@ -1,17 +1,17 @@
 /**
  * Build-time helpers for library metadata generation.
  *
- * These functions handle Gro-specific concerns like file collection and dependency
- * graph extraction. Core analysis logic has been extracted to reusable helpers:
+ * These functions are build-tool agnostic, working with the `SourceFileInfo` interface.
+ * Core analysis logic has been extracted to reusable helpers:
  *
  * - `ts_helpers.ts` - `ts_analyze_module_exports`
  * - `svelte_helpers.ts` - `svelte_analyze_file`
- * - `module_helpers.ts` - path utilities and source detection
+ * - `module_helpers.ts` - path utilities, source detection, and `SourceFileInfo`
  *
  * Design philosophy: Fail fast with clear errors rather than silently producing invalid
  * metadata. All validation errors halt the build immediately with actionable messages.
  *
- * @see library_gen.ts for the main generation task
+ * @see library_gen.ts for the main generation task (Gro-specific)
  * @see @fuzdev/fuz_util/source_json.js for type definitions
  * @see ts_helpers.ts for reusable TypeScript analysis
  * @see svelte_helpers.ts for reusable Svelte component analysis
@@ -21,13 +21,13 @@ import type {PackageJson} from '@fuzdev/fuz_util/package_json.js';
 import type {Logger} from '@fuzdev/fuz_util/log.js';
 import type {ModuleJson, SourceJson} from '@fuzdev/fuz_util/source_json.js';
 import {library_json_parse, type LibraryJson} from '@fuzdev/fuz_util/library_json.js';
-import type {Disknode} from '@ryanatkn/gro/disknode.js';
 import type ts from 'typescript';
-import type {PathId} from '@fuzdev/fuz_util/path.js';
 
 import {ts_analyze_module_exports, type ReExportInfo} from './ts_helpers.js';
 import {svelte_analyze_file} from './svelte_helpers.js';
 import {
+	type SourceFileInfo,
+	type ModuleSourceOptions,
 	module_extract_path,
 	module_is_typescript,
 	module_is_svelte,
@@ -46,52 +46,62 @@ export interface TsFileAnalysis {
 }
 
 /**
- * Validates that no declaration names are duplicated across modules.
- * The flat namespace is intentional - duplicates should fail fast.
- *
- * @throws Error if duplicate declaration names are found
+ * Location of a declaration in a module.
  */
-export const library_gen_validate_no_duplicates = (source_json: SourceJson, log: Logger): void => {
-	const declaration_locations: Map<string, Array<{module: string; kind: string}>> = new Map();
+export interface DeclarationLocation {
+	module: string;
+	kind: string;
+	/** Source line number (1-based), if available. */
+	source_line?: number;
+}
+
+/**
+ * Find duplicate declaration names across modules.
+ *
+ * Returns a Map of declaration names to their locations (only includes duplicates).
+ * Callers can decide how to handle duplicates (throw, warn, ignore).
+ *
+ * @example
+ * const duplicates = library_gen_find_duplicates(source_json);
+ * if (duplicates.size > 0) {
+ *   for (const [name, locations] of duplicates) {
+ *     console.error(`"${name}" found in: ${locations.map(l => l.module).join(', ')}`);
+ *   }
+ *   throw new Error(`Found ${duplicates.size} duplicate declaration names`);
+ * }
+ */
+export const library_gen_find_duplicates = (
+	source_json: SourceJson,
+): Map<string, Array<DeclarationLocation>> => {
+	const all_locations: Map<string, Array<DeclarationLocation>> = new Map();
 
 	// Collect all declaration names and their locations
 	for (const mod of source_json.modules ?? []) {
 		for (const declaration of mod.declarations ?? []) {
 			const name = declaration.name;
-			if (!declaration_locations.has(name)) {
-				declaration_locations.set(name, []);
+			if (!all_locations.has(name)) {
+				all_locations.set(name, []);
 			}
-			declaration_locations.get(name)!.push({
+			const location: DeclarationLocation = {
 				module: mod.path,
 				kind: declaration.kind,
-			});
-		}
-	}
-
-	// Check for duplicates
-	const duplicates: Array<{name: string; locations: Array<{module: string; kind: string}>}> = [];
-	for (const [name, locations] of declaration_locations.entries()) {
-		if (locations.length > 1) {
-			duplicates.push({name, locations});
-		}
-	}
-
-	if (duplicates.length > 0) {
-		log.error('Duplicate declaration names detected in flat namespace:');
-		for (const {name, locations} of duplicates) {
-			log.error(`  "${name}" found in:`);
-			for (const {module, kind} of locations) {
-				log.error(`    - ${module} (${kind})`);
+			};
+			if (declaration.source_line !== undefined) {
+				location.source_line = declaration.source_line;
 			}
+			all_locations.get(name)!.push(location);
 		}
-		throw new Error(
-			`Found ${duplicates.length} duplicate declaration name${duplicates.length === 1 ? '' : 's'} across modules. ` +
-				'The flat namespace requires unique names. To resolve: ' +
-				'(1) rename one of the conflicting declarations, or ' +
-				'(2) add /** @nodocs */ to exclude from documentation. ' +
-				'See CLAUDE.md "Declaration namespacing" section for details.',
-		);
 	}
+
+	// Filter to only duplicates
+	const duplicates: Map<string, Array<DeclarationLocation>> = new Map();
+	for (const [name, locations] of all_locations) {
+		if (locations.length > 1) {
+			duplicates.set(name, locations);
+		}
+	}
+
+	return duplicates;
 };
 
 /**
@@ -151,56 +161,74 @@ ${banner}
 };
 
 /**
- * Collect and filter source files from filer.
+ * Collect and filter source files.
  *
- * Returns disknodes for TypeScript/JS files and Svelte components from src/lib, excluding test files.
+ * Returns source files for TypeScript/JS files and Svelte components, excluding test files.
  * Returns an empty array with a warning if no source files are found.
+ *
+ * Note: Only `.ts`, `.js`, and `.svelte` files are supported. The `options.extensions`
+ * filters within these types (e.g., `['.ts']` to exclude .js and .svelte).
+ * Other extensions like `.css` are ignored even if added to options.
+ *
+ * @param files Iterable of source file info (from Gro filer, file system, or other source)
+ * @param options Module source options for filtering
+ * @param log Optional logger for status messages
  */
 export const library_gen_collect_source_files = (
-	files: Map<PathId, Disknode>,
-	log: Logger,
-): Array<Disknode> => {
-	log.info(`filer has ${files.size} files total`);
+	files: Iterable<SourceFileInfo>,
+	options: ModuleSourceOptions,
+	log?: Logger,
+): Array<SourceFileInfo> => {
+	const all_files = Array.from(files);
+	log?.info(`received ${all_files.length} files total`);
 
-	const source_disknodes: Array<Disknode> = [];
-	for (const [id, disknode] of files.entries()) {
-		if (module_matches_source(id)) {
+	const source_files: Array<SourceFileInfo> = [];
+	for (const file of all_files) {
+		if (module_matches_source(file.id, options)) {
 			// Include TypeScript/JS files and Svelte components
-			if (module_is_typescript(id) || module_is_svelte(id)) {
-				source_disknodes.push(disknode);
+			if (module_is_typescript(file.id) || module_is_svelte(file.id)) {
+				source_files.push(file);
 			}
 		}
 	}
 
-	log.info(`found ${source_disknodes.length} source files to analyze`);
+	log?.info(`found ${source_files.length} source files to analyze`);
 
-	if (source_disknodes.length === 0) {
-		log.warn('No source files found in src/lib - generating empty library metadata');
+	if (source_files.length === 0) {
+		log?.warn(
+			`No source files found in ${options.source_root} - generating empty library metadata`,
+		);
 		return [];
 	}
 
 	// Sort for deterministic output (stable alphabetical module ordering)
-	source_disknodes.sort((a, b) => a.id.localeCompare(b.id));
+	source_files.sort((a, b) => a.id.localeCompare(b.id));
 
-	return source_disknodes;
+	return source_files;
 };
 
 /**
  * Analyze a Svelte component file and extract metadata.
  *
  * Uses `svelte_analyze_file` for core analysis, then adds
- * Gro-specific dependency information from the disknode.
+ * dependency information from the source file info if available.
+ *
+ * @param source_file The source file info
+ * @param module_path The module path (relative to source root)
+ * @param checker TypeScript type checker
+ * @param options Module source options for path extraction
  */
 export const library_gen_analyze_svelte_file = (
-	disknode: Disknode,
+	source_file: SourceFileInfo,
 	module_path: string,
 	checker: ts.TypeChecker,
+	options: ModuleSourceOptions,
 ): ModuleJson => {
 	// Use the extracted helper for core analysis
-	const declaration_json = svelte_analyze_file(disknode.id, module_path, checker);
+	const declaration_json = svelte_analyze_file(source_file.id, module_path, checker);
 
-	// Extract dependencies and dependents (Gro-specific)
-	const {dependencies, dependents} = library_gen_extract_dependencies(disknode);
+	// Extract dependencies and dependents if provided
+	const {dependencies, dependents} = library_gen_extract_dependencies(source_file, options);
 
 	return {
 		path: module_path,
@@ -214,20 +242,28 @@ export const library_gen_analyze_svelte_file = (
  * Analyze a TypeScript file and extract all declarations.
  *
  * Uses `ts_analyze_module_exports` for core analysis, then adds
- * Gro-specific dependency information from the disknode.
+ * dependency information from the source file info if available.
  *
  * Returns both the module metadata and re-export information for post-processing.
+ *
+ * @param source_file_info The source file info
+ * @param ts_source_file TypeScript source file from the program
+ * @param module_path The module path (relative to source root)
+ * @param checker TypeScript type checker
+ * @param options Module source options for path extraction
  */
 export const library_gen_analyze_typescript_file = (
-	disknode: Disknode,
-	source_file: ts.SourceFile,
+	source_file_info: SourceFileInfo,
+	ts_source_file: ts.SourceFile,
 	module_path: string,
 	checker: ts.TypeChecker,
+	options: ModuleSourceOptions,
 ): TsFileAnalysis => {
 	// Use the extracted helper for core analysis
 	const {module_comment, declarations, re_exports} = ts_analyze_module_exports(
-		source_file,
+		ts_source_file,
 		checker,
+		options,
 	);
 
 	const mod: ModuleJson = {
@@ -239,8 +275,8 @@ export const library_gen_analyze_typescript_file = (
 		mod.module_comment = module_comment;
 	}
 
-	// Extract dependencies and dependents (Gro-specific)
-	const {dependencies, dependents} = library_gen_extract_dependencies(disknode);
+	// Extract dependencies and dependents if provided
+	const {dependencies, dependents} = library_gen_extract_dependencies(source_file_info, options);
 	if (dependencies.length > 0) {
 		mod.dependencies = dependencies;
 	}
@@ -252,28 +288,38 @@ export const library_gen_analyze_typescript_file = (
 };
 
 /**
- * Extract dependencies and dependents for a module from the filer's dependency graph.
+ * Extract dependencies and dependents for a module from source file info.
  *
- * Filters to only include source modules from src/lib (excludes external packages, node_modules, tests).
- * Returns sorted arrays of module paths (relative to src/lib) for deterministic output.
+ * Filters to only include source modules (excludes external packages, node_modules, tests).
+ * Returns sorted arrays of module paths (relative to source_root) for deterministic output.
+ *
+ * If no dependencies/dependents are provided in the source file info, returns empty arrays.
+ *
+ * @param source_file The source file info to extract dependencies from
+ * @param options Module source options for filtering and path extraction
  */
 export const library_gen_extract_dependencies = (
-	disknode: Disknode,
+	source_file: SourceFileInfo,
+	options: ModuleSourceOptions,
 ): {dependencies: Array<string>; dependents: Array<string>} => {
 	const dependencies: Array<string> = [];
 	const dependents: Array<string> = [];
 
-	// Extract dependencies (files this module imports)
-	for (const dep_id of disknode.dependencies.keys()) {
-		if (module_matches_source(dep_id)) {
-			dependencies.push(module_extract_path(dep_id));
+	// Extract dependencies (files this module imports) if provided
+	if (source_file.dependencies) {
+		for (const dep_id of source_file.dependencies) {
+			if (module_matches_source(dep_id, options)) {
+				dependencies.push(module_extract_path(dep_id, options));
+			}
 		}
 	}
 
-	// Extract dependents (files that import this module)
-	for (const dependent_id of disknode.dependents.keys()) {
-		if (module_matches_source(dependent_id)) {
-			dependents.push(module_extract_path(dependent_id));
+	// Extract dependents (files that import this module) if provided
+	if (source_file.dependents) {
+		for (const dependent_id of source_file.dependents) {
+			if (module_matches_source(dependent_id, options)) {
+				dependents.push(module_extract_path(dependent_id, options));
+			}
 		}
 	}
 

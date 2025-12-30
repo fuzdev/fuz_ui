@@ -135,6 +135,7 @@ Supporting helpers (three-layer architecture):
 - `ts_helpers.ts` - TypeScript compiler API utilities
   - `ts_analyze_declaration` - analyze a symbol with full metadata (reusable)
   - `ts_analyze_module_exports` - analyze all exports from a source file (reusable)
+  - `ts_create_program` - create TypeScript program with `TsProgramOptions`
   - `ts_extract_*` - lower-level extraction functions for specific constructs
 - `tsdoc_helpers.ts` - JSDoc/TSDoc parsing (supports standard tags: `@param`,
   `@returns`, `@throws`, `@example`, `@deprecated`, `@see`, `@since`, `@nodocs`,
@@ -149,6 +150,7 @@ Supporting helpers (three-layer architecture):
   - `svelte_analyze_file` - analyze a .svelte file from disk (reusable)
   - `svelte_analyze_component` - analyze from svelte2tsx output
 - `module_helpers.ts` - module path utilities and source detection
+  - `SourceFileInfo` - build-tool agnostic file info interface
   - `module_matches_source` - configurable source detection predicate
   - `module_is_typescript`, `module_is_svelte` - simple extension predicates
   - `module_extract_path`, `module_get_component_name` - path utilities
@@ -157,13 +159,13 @@ Supporting helpers (three-layer architecture):
 - `library_helpers.ts` - URL builders (`url_github_file`, `url_api_declaration`,
   `url_api_module`, etc.)
 
-**High-level** (Gro-specific orchestration):
+**High-level** (orchestration):
 
-- `library_gen_helpers.ts` - build-time generation helpers
-  - `library_gen_collect_source_files` - collect files from Gro's filer
-  - `library_gen_extract_dependencies` - extract dependency graph from disknode
-  - `library_gen_validate_no_duplicates` - flat namespace validation
-  - `library_gen_analyze_*` - thin wrappers adding Gro-specific concerns
+- `library_gen_helpers.ts` - build-tool agnostic generation helpers
+  - `library_gen_collect_source_files` - collect and filter source files
+  - `library_gen_extract_dependencies` - extract dependency graph from `SourceFileInfo`
+  - `library_gen_find_duplicates` - find duplicate names (returns Map of duplicates)
+  - `library_gen_analyze_*` - file analysis wrappers
 - `library_gen.ts` - the Gro genfile that orchestrates generation
 
 The reusable functions (`ts_analyze_*`, `svelte_analyze_file`) can be used
@@ -292,7 +294,7 @@ TypeScript and Svelte analysis:
   - predicates: `module_matches_source`, `module_is_typescript`, `module_is_svelte`
   - utilities: `module_extract_path`, `module_get_component_name`
   - configuration: `ModuleSourceOptions`, `MODULE_SOURCE_DEFAULTS`
-- `library_gen_helpers.ts` - Gro-specific build-time helpers
+- `library_gen_helpers.ts` - build-tool agnostic generation helpers
 
 browser and DOM:
 

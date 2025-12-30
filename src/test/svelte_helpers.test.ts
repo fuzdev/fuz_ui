@@ -22,10 +22,7 @@ beforeAll(async () => {
 	fixtures = await load_fixtures();
 
 	// Create TypeScript program for type checking
-	const program = ts_create_program({warn: () => undefined});
-	if (!program) {
-		throw new Error('Failed to create TypeScript program');
-	}
+	const program = ts_create_program({info: () => undefined});
 	checker = program.getTypeChecker();
 });
 

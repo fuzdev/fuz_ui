@@ -2,7 +2,8 @@ import {test, assert, describe, beforeAll} from 'vitest';
 import ts from 'typescript';
 import type {DeclarationJson} from '@fuzdev/fuz_util/source_json.js';
 
-import {ts_analyze_module_exports} from '$lib/ts_helpers.js';
+import {ts_analyze_module_exports, ts_create_program} from '$lib/ts_helpers.js';
+import {MODULE_SOURCE_DEFAULTS} from '$lib/module_helpers.js';
 import {
 	load_fixtures,
 	validate_declaration_structure,
@@ -99,7 +100,7 @@ export type Baz = { value: number };
 		const source_file = ts.createSourceFile('test.ts', source_code, ts.ScriptTarget.Latest, true);
 		const {checker} = create_test_program(source_file, 'test.ts');
 
-		const result = ts_analyze_module_exports(source_file, checker);
+		const result = ts_analyze_module_exports(source_file, checker, MODULE_SOURCE_DEFAULTS);
 
 		// Should have module comment
 		assert.strictEqual(result.module_comment, 'Test module with exports.');
@@ -125,7 +126,7 @@ const internal = 'not exported';
 		const source_file = ts.createSourceFile('empty.ts', source_code, ts.ScriptTarget.Latest, true);
 		const {checker} = create_test_program(source_file, 'empty.ts');
 
-		const result = ts_analyze_module_exports(source_file, checker);
+		const result = ts_analyze_module_exports(source_file, checker, MODULE_SOURCE_DEFAULTS);
 
 		assert.strictEqual(result.module_comment, 'Module with no exports.');
 		assert.strictEqual(result.declarations.length, 0);
@@ -145,7 +146,7 @@ export const bar = 123;
 		);
 		const {checker} = create_test_program(source_file, 'no_comment.ts');
 
-		const result = ts_analyze_module_exports(source_file, checker);
+		const result = ts_analyze_module_exports(source_file, checker, MODULE_SOURCE_DEFAULTS);
 
 		assert.isUndefined(result.module_comment);
 		assert.strictEqual(result.declarations.length, 2);
@@ -167,7 +168,7 @@ export function add(a: number, b: number): number {
 		const source_file = ts.createSourceFile('math.ts', source_code, ts.ScriptTarget.Latest, true);
 		const {checker} = create_test_program(source_file, 'math.ts');
 
-		const result = ts_analyze_module_exports(source_file, checker);
+		const result = ts_analyze_module_exports(source_file, checker, MODULE_SOURCE_DEFAULTS);
 
 		assert.strictEqual(result.declarations.length, 1);
 
@@ -204,7 +205,7 @@ export class Counter {
 		);
 		const {checker} = create_test_program(source_file, 'counter.ts');
 
-		const result = ts_analyze_module_exports(source_file, checker);
+		const result = ts_analyze_module_exports(source_file, checker, MODULE_SOURCE_DEFAULTS);
 
 		assert.strictEqual(result.declarations.length, 1);
 
@@ -232,7 +233,7 @@ export interface Config {
 		const source_file = ts.createSourceFile('config.ts', source_code, ts.ScriptTarget.Latest, true);
 		const {checker} = create_test_program(source_file, 'config.ts');
 
-		const result = ts_analyze_module_exports(source_file, checker);
+		const result = ts_analyze_module_exports(source_file, checker, MODULE_SOURCE_DEFAULTS);
 
 		assert.strictEqual(result.declarations.length, 1);
 
@@ -257,7 +258,7 @@ export { internal_value as exported_value };
 		);
 		const {checker} = create_test_program(source_file, 'reexport.ts');
 
-		const result = ts_analyze_module_exports(source_file, checker);
+		const result = ts_analyze_module_exports(source_file, checker, MODULE_SOURCE_DEFAULTS);
 
 		// Should have the re-exported value
 		assert.strictEqual(result.declarations.length, 1);
@@ -292,7 +293,7 @@ export class Service {
 		const source_file = ts.createSourceFile('mixed.ts', source_code, ts.ScriptTarget.Latest, true);
 		const {checker} = create_test_program(source_file, 'mixed.ts');
 
-		const result = ts_analyze_module_exports(source_file, checker);
+		const result = ts_analyze_module_exports(source_file, checker, MODULE_SOURCE_DEFAULTS);
 
 		// Should have 5 identifiers of different kinds
 		assert.strictEqual(result.declarations.length, 5);
@@ -346,7 +347,7 @@ export function public_function(): string {
 		const source_file = ts.createSourceFile('nodocs.ts', source_code, ts.ScriptTarget.Latest, true);
 		const {checker} = create_test_program(source_file, 'nodocs.ts');
 
-		const result = ts_analyze_module_exports(source_file, checker);
+		const result = ts_analyze_module_exports(source_file, checker, MODULE_SOURCE_DEFAULTS);
 
 		// Should only have 2 public identifiers (nodocs ones excluded)
 		assert.strictEqual(result.declarations.length, 2);
@@ -382,7 +383,7 @@ export const local_value = 'local';
 		]);
 
 		const index_file = source_files.get('/src/lib/index.ts')!;
-		const result = ts_analyze_module_exports(index_file, checker);
+		const result = ts_analyze_module_exports(index_file, checker, MODULE_SOURCE_DEFAULTS);
 
 		// index.ts should only have local_value as a direct export
 		// helper and CONSTANT are re-exports and should be in re_exports array
@@ -423,7 +424,7 @@ export {internal_impl as public_api} from './internal.js';
 		]);
 
 		const public_file = source_files.get('/src/lib/public.ts')!;
-		const result = ts_analyze_module_exports(public_file, checker);
+		const result = ts_analyze_module_exports(public_file, checker, MODULE_SOURCE_DEFAULTS);
 
 		// Renamed re-export creates a NEW declaration with alias_of
 		assert.strictEqual(result.declarations.length, 1);
@@ -463,7 +464,7 @@ export {util_b as renamed_util} from './utils.js';
 		]);
 
 		const mixed_file = source_files.get('/src/lib/mixed.ts')!;
-		const result = ts_analyze_module_exports(mixed_file, checker);
+		const result = ts_analyze_module_exports(mixed_file, checker, MODULE_SOURCE_DEFAULTS);
 
 		// Should have 3 identifiers: direct_fn, DirectType, renamed_util
 		assert.strictEqual(result.declarations.length, 3);
@@ -484,5 +485,62 @@ export {util_b as renamed_util} from './utils.js';
 		assert.strictEqual(result.re_exports.length, 1);
 		assert.strictEqual(result.re_exports[0]!.name, 'util_a');
 		assert.strictEqual(result.re_exports[0]!.original_module, 'utils.ts');
+	});
+});
+
+describe('ts_create_program with TsProgramOptions', () => {
+	test('creates program with default options', () => {
+		const log = {info: () => undefined};
+
+		// Uses current directory and default tsconfig.json
+		const program = ts_create_program(log);
+
+		assert.ok(program);
+		assert.ok(program.getSourceFiles().length > 0);
+	});
+
+	test('creates program with explicit root', () => {
+		const log = {info: () => undefined};
+
+		// Explicit root pointing to project directory
+		const program = ts_create_program(log, {root: './'});
+
+		assert.ok(program);
+		assert.ok(program.getSourceFiles().length > 0);
+	});
+
+	test('creates program with custom compiler options', () => {
+		const log = {info: () => undefined};
+
+		// Override strict mode
+		const program = ts_create_program(log, {
+			compiler_options: {
+				strict: false,
+			},
+		});
+
+		assert.ok(program);
+		// Verify program was created (compiler options are merged)
+		assert.ok(program.getSourceFiles().length > 0);
+	});
+
+	test('throws when tsconfig not found', () => {
+		const log = {info: () => undefined};
+
+		// Non-existent directory
+		assert.throws(
+			() => ts_create_program(log, {root: '/non/existent/path'}),
+			/No tsconfig\.json found/,
+		);
+	});
+
+	test('throws with custom tsconfig name when not found', () => {
+		const log = {info: () => undefined};
+
+		// Try to use a non-existent custom tsconfig name
+		assert.throws(
+			() => ts_create_program(log, {tsconfig: 'nonexistent.config.json'}),
+			/No nonexistent\.config\.json found/,
+		);
 	});
 });

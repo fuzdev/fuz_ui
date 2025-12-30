@@ -13,9 +13,6 @@ export const task: Task = {
 	run: async ({log}) => {
 		// Create a TypeScript program to get a type checker
 		const program = ts_create_program(log);
-		if (!program) {
-			throw new Error('Failed to create TypeScript program - cannot generate svelte fixtures');
-		}
 		const checker = program.getTypeChecker();
 
 		await run_update_task(

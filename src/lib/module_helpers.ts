@@ -8,39 +8,72 @@
  */
 
 /**
- * Configuration for module source detection.
+ * Minimal file information for source analysis.
  *
- * Allows customizing which paths are considered source modules,
- * useful for projects with non-standard directory structures.
+ * Can be constructed from Gro's Disknode or from plain file system access.
+ * This abstraction enables non-Gro usage while keeping Gro support via adapter.
  */
-export interface ModuleSourceOptions {
-	/** Source directory paths to include. @default ['/src/lib/'] */
-	source_paths?: Array<string>;
-	/** File extensions to analyze. @default ['.ts', '.js', '.svelte'] */
-	extensions?: Array<string>;
-	/** Patterns to exclude (matched against full path). @default [/\.test\.ts$/] */
-	exclude_patterns?: Array<RegExp>;
+export interface SourceFileInfo {
+	/** Absolute path to the file. */
+	id: string;
+	/** Optional pre-read content (avoids re-reading from disk). */
+	content?: string;
+	/** Module paths this file imports (optional, for dependency tracking). */
+	dependencies?: Iterable<string>;
+	/** Module paths that import this file (optional, for dependent tracking). */
+	dependents?: Iterable<string>;
 }
 
 /**
- * Default options for module source detection.
+ * Configuration for module source detection and path extraction.
+ *
+ * All fields are required - use `MODULE_SOURCE_DEFAULTS` as a starting point
+ * and override what you need.
+ *
+ * @example
+ * const options: ModuleSourceOptions = {
+ *   ...MODULE_SOURCE_DEFAULTS,
+ *   source_root: '/src/routes/',
+ *   source_paths: ['/src/routes/'],
+ * };
  */
-export const MODULE_SOURCE_DEFAULTS: Required<ModuleSourceOptions> = {
+export interface ModuleSourceOptions {
+	/** Source root for extracting relative paths (e.g., '/src/lib/'). */
+	source_root: string;
+	/** Source directory paths to include in filtering. */
+	source_paths: Array<string>;
+	/** File extensions to include (subset of supported: .ts, .js, .svelte). */
+	extensions: Array<string>;
+	/** Patterns to exclude (matched against full path). */
+	exclude_patterns: Array<RegExp>;
+}
+
+/**
+ * Default options for standard SvelteKit library structure.
+ */
+export const MODULE_SOURCE_DEFAULTS: ModuleSourceOptions = {
+	source_root: '/src/lib/',
 	source_paths: ['/src/lib/'],
 	extensions: ['.ts', '.js', '.svelte'],
 	exclude_patterns: [/\.test\.ts$/],
 };
 
 /**
- * Extract module path relative to src/lib from absolute source ID.
+ * Extract module path relative to source root from absolute source ID.
+ *
+ * @param source_id Absolute path to the source file
+ * @param options Module source options for path extraction
  *
  * @example
- * module_extract_path('/home/user/project/src/lib/foo.ts') // => 'foo.ts'
- * module_extract_path('/home/user/project/src/lib/nested/bar.svelte') // => 'nested/bar.svelte'
+ * module_extract_path('/home/user/project/src/lib/foo.ts', MODULE_SOURCE_DEFAULTS) // => 'foo.ts'
+ * module_extract_path('/home/user/project/src/lib/nested/bar.svelte', MODULE_SOURCE_DEFAULTS) // => 'nested/bar.svelte'
+ * module_extract_path('/home/user/project/src/routes/foo.ts', {...MODULE_SOURCE_DEFAULTS, source_root: '/src/routes/'}) // => 'foo.ts'
  */
-export const module_extract_path = (source_id: string): string => {
-	const lib_index = source_id.indexOf('/src/lib/');
-	return lib_index !== -1 ? source_id.substring(lib_index + 9) : source_id;
+export const module_extract_path = (source_id: string, options: ModuleSourceOptions): string => {
+	const root_index = source_id.indexOf(options.source_root);
+	return root_index !== -1
+		? source_id.substring(root_index + options.source_root.length)
+		: source_id;
 };
 
 /**
@@ -61,8 +94,13 @@ export const module_get_component_name = (module_path: string): string =>
  */
 export const module_get_key = (module_path: string): string => `./${module_path}`;
 
+/**
+ * Check if a path is a TypeScript or JavaScript file.
+ *
+ * Includes both `.ts` and `.js` files since JS files are valid in TS projects.
+ */
 export const module_is_typescript = (path: string): boolean =>
-	path.endsWith('.ts') || path.endsWith('.js'); // hackyy but fine?
+	path.endsWith('.ts') || path.endsWith('.js');
 
 export const module_is_svelte = (path: string): boolean => path.endsWith('.svelte');
 
@@ -76,22 +114,19 @@ export const module_is_test = (path: string): boolean => path.endsWith('.test.ts
  * Check if a path matches source criteria.
  *
  * Checks source directory paths, file extensions, and exclusion patterns.
- * Uses defaults if no options provided.
  *
  * Rejects nested repo paths by ensuring the first `/src/` leads to the source directory
  * (e.g. rejects `/src/fixtures/repos/foo/src/lib/index.ts` because `/src/fixtures/` ≠ `/src/lib/`).
  *
  * @param path Full path to check
- * @param options Configuration options (uses defaults if not provided)
+ * @param options Module source options for filtering
  * @returns True if the path matches all criteria
  */
-export const module_matches_source = (path: string, options?: ModuleSourceOptions): boolean => {
-	const opts = {...MODULE_SOURCE_DEFAULTS, ...options};
-
+export const module_matches_source = (path: string, options: ModuleSourceOptions): boolean => {
 	// Check if path is in one of the source directories
 	// The first /src/ in the path must lead directly to the source directory
 	// This rejects nested repos like /src/fixtures/repos/foo/src/lib/
-	const in_source_dir = opts.source_paths.some((source_path) => {
+	const in_source_dir = options.source_paths.some((source_path) => {
 		if (!path.includes(source_path)) return false;
 		// Find the first /src/ and verify it's part of the source_path
 		const first_src_index = path.indexOf('/src/');
@@ -102,11 +137,11 @@ export const module_matches_source = (path: string, options?: ModuleSourceOption
 	if (!in_source_dir) return false;
 
 	// Check if extension matches
-	const has_valid_extension = opts.extensions.some((ext) => path.endsWith(ext));
+	const has_valid_extension = options.extensions.some((ext) => path.endsWith(ext));
 	if (!has_valid_extension) return false;
 
 	// Check exclusion patterns
-	const is_excluded = opts.exclude_patterns.some((pattern) => pattern.test(path));
+	const is_excluded = options.exclude_patterns.some((pattern) => pattern.test(path));
 	if (is_excluded) return false;
 
 	return true;

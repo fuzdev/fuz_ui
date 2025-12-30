@@ -12,7 +12,11 @@ import type {
 } from '@fuzdev/fuz_util/source_json.js';
 
 import {tsdoc_parse, tsdoc_apply_to_declaration} from './tsdoc_helpers.js';
-import {module_extract_path, module_matches_source} from './module_helpers.js';
+import {
+	type ModuleSourceOptions,
+	module_extract_path,
+	module_matches_source,
+} from './module_helpers.js';
 
 const ts_parse_generic_param = (param: ts.TypeParameterDeclaration): GenericParamInfo => {
 	const result: GenericParamInfo = {
@@ -84,6 +88,7 @@ export const ts_infer_declaration_kind = (symbol: ts.Symbol, node: ts.Node): Dec
  * Extract function/method information including parameters
  * with descriptions and default values.
  *
+ * @internal Use `ts_analyze_declaration` for high-level analysis.
  * @mutates declaration - adds type_signature, return_type, return_description, throws, since, parameters, generic_params
  */
 export const ts_extract_function_info = (
@@ -120,7 +125,16 @@ export const ts_extract_function_info = (
 			// Extract parameters with descriptions and default values
 			declaration.parameters = sig.parameters.map((param) => {
 				const param_decl = param.valueDeclaration;
-				const param_type = checker.getTypeOfSymbolAtLocation(param, param_decl!);
+
+				// Get type - use declaration location if available, otherwise get declared type
+				let type_string = 'unknown';
+				if (param_decl) {
+					const param_type = checker.getTypeOfSymbolAtLocation(param, param_decl);
+					type_string = checker.typeToString(param_type);
+				} else {
+					const param_type = checker.getDeclaredTypeOfSymbol(param);
+					type_string = checker.typeToString(param_type);
+				}
 
 				// Get TSDoc description for this parameter
 				const description = tsdoc?.params.get(param.name);
@@ -135,7 +149,7 @@ export const ts_extract_function_info = (
 
 				return {
 					name: param.name,
-					type: checker.typeToString(param_type),
+					type: type_string,
 					...(optional && {optional}),
 					description,
 					default_value,
@@ -157,6 +171,7 @@ export const ts_extract_function_info = (
 /**
  * Extract type/interface information with rich property metadata.
  *
+ * @internal Use `ts_analyze_declaration` for high-level analysis.
  * @mutates declaration - adds type_signature, generic_params, extends, properties
  */
 export const ts_extract_type_info = (
@@ -221,6 +236,7 @@ export const ts_extract_type_info = (
 /**
  * Extract class information with rich member metadata.
  *
+ * @internal Use `ts_analyze_declaration` for high-level analysis.
  * @mutates declaration - adds extends, implements, generic_params, members
  */
 export const ts_extract_class_info = (
@@ -294,10 +310,13 @@ export const ts_extract_class_info = (
 
 					if (is_constructor) {
 						// For constructors, get construct signatures from the class symbol
-						const class_symbol = checker.getSymbolAtLocation(node.name!);
-						if (class_symbol) {
-							const class_type = checker.getTypeOfSymbolAtLocation(class_symbol, node);
-							signatures = class_type.getConstructSignatures();
+						// Skip anonymous classes (no name)
+						if (node.name) {
+							const class_symbol = checker.getSymbolAtLocation(node.name);
+							if (class_symbol) {
+								const class_type = checker.getTypeOfSymbolAtLocation(class_symbol, node);
+								signatures = class_type.getConstructSignatures();
+							}
 						}
 					} else {
 						// For methods, get call signatures from the method symbol
@@ -329,7 +348,16 @@ export const ts_extract_class_info = (
 						// Extract parameters with descriptions and default values
 						member_declaration.parameters = sig.parameters.map((param) => {
 							const param_decl = param.valueDeclaration;
-							const param_type = checker.getTypeOfSymbolAtLocation(param, param_decl!);
+
+							// Get type - use declaration location if available, otherwise get declared type
+							let type_string = 'unknown';
+							if (param_decl) {
+								const param_type = checker.getTypeOfSymbolAtLocation(param, param_decl);
+								type_string = checker.typeToString(param_type);
+							} else {
+								const param_type = checker.getDeclaredTypeOfSymbol(param);
+								type_string = checker.typeToString(param_type);
+							}
 
 							// Get TSDoc description for this parameter
 							const description = member_tsdoc?.params.get(param.name);
@@ -348,7 +376,7 @@ export const ts_extract_class_info = (
 
 							return {
 								name: param.name,
-								type: checker.typeToString(param_type),
+								type: type_string,
 								...(optional && {optional}),
 								description,
 								default_value,
@@ -376,6 +404,7 @@ export const ts_extract_class_info = (
 /**
  * Extract variable information.
  *
+ * @internal Use `ts_analyze_declaration` for high-level analysis.
  * @mutates declaration - adds type_signature
  */
 export const ts_extract_variable_info = (
@@ -493,11 +522,13 @@ export interface ModuleExportsAnalysis {
  *
  * @param source_file The TypeScript source file to analyze
  * @param checker The TypeScript type checker
+ * @param options Module source options for path extraction in re-exports
  * @returns Module comment, array of analyzed declarations, and re-export information
  */
 export const ts_analyze_module_exports = (
 	source_file: ts.SourceFile,
 	checker: ts.TypeChecker,
+	options: ModuleSourceOptions,
 ): ModuleExportsAnalysis => {
 	const declarations: Array<DeclarationJson> = [];
 	const re_exports: Array<ReExportInfo> = [];
@@ -524,8 +555,8 @@ export const ts_analyze_module_exports = (
 					// Check if this is a CROSS-FILE re-export (original in different file)
 					if (original_source.fileName !== source_file.fileName) {
 						// Only track if the original is from a source module (not node_modules)
-						if (module_matches_source(original_source.fileName)) {
-							const original_module = module_extract_path(original_source.fileName);
+						if (module_matches_source(original_source.fileName, options)) {
+							const original_module = module_extract_path(original_source.fileName, options);
 							const original_name = aliased_symbol.name;
 							const is_renamed = export_symbol.name !== original_name;
 
@@ -646,17 +677,45 @@ const extract_and_clean_jsdoc = (
 };
 
 /**
- * Create TypeScript program for analysis.
+ * Options for creating a TypeScript program.
  */
-export const ts_create_program = (log: {warn: (message: string) => void}): ts.Program | null => {
-	const config_path = ts.findConfigFile('./', ts.sys.fileExists, 'tsconfig.json');
+export interface TsProgramOptions {
+	/** Project root directory. @default './' */
+	root?: string;
+	/** Path to tsconfig.json (relative to root). @default 'tsconfig.json' */
+	tsconfig?: string;
+	/** Override compiler options. */
+	compiler_options?: ts.CompilerOptions;
+}
+
+/**
+ * Create TypeScript program for analysis.
+ *
+ * @param log Logger for info messages
+ * @param options Configuration options for program creation
+ * @throws Error if tsconfig.json is not found
+ */
+export const ts_create_program = (
+	log: {info: (message: string) => void},
+	options?: TsProgramOptions,
+): ts.Program => {
+	const root = options?.root ?? './';
+	const tsconfig_name = options?.tsconfig ?? 'tsconfig.json';
+
+	const config_path = ts.findConfigFile(root, ts.sys.fileExists, tsconfig_name);
 	if (!config_path) {
-		log.warn('No tsconfig.json found');
-		return null;
+		throw new Error(`No ${tsconfig_name} found in ${root}`);
 	}
 
-	const config_file = ts.readConfigFile(config_path, ts.sys.readFile);
-	const parsed_config = ts.parseJsonConfigFileContent(config_file.config, ts.sys, './');
+	log.info(`using ${config_path}`);
 
-	return ts.createProgram(parsed_config.fileNames, parsed_config.options);
+	const config_file = ts.readConfigFile(config_path, ts.sys.readFile);
+	const parsed_config = ts.parseJsonConfigFileContent(config_file.config, ts.sys, root);
+
+	// Merge compiler options if provided
+	const compiler_options = options?.compiler_options
+		? {...parsed_config.options, ...options.compiler_options}
+		: parsed_config.options;
+
+	return ts.createProgram(parsed_config.fileNames, compiler_options);
 };
