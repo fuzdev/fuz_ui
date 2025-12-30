@@ -21,11 +21,16 @@ import ts from 'typescript';
 import {readFileSync} from 'node:fs';
 import {svelte2tsx} from 'svelte2tsx';
 import {TraceMap, originalPositionFor} from '@jridgewell/trace-mapping';
-import type {DeclarationJson, ComponentPropInfo} from '@fuzdev/fuz_util/source_json.js';
+import type {DeclarationJson, ComponentPropInfo, ModuleJson} from '@fuzdev/fuz_util/source_json.js';
 
 import {tsdoc_parse, tsdoc_apply_to_declaration} from './tsdoc_helpers.js';
 import {ts_extract_module_comment} from './ts_helpers.js';
-import {type SourceFileInfo, module_get_component_name} from './module_helpers.js';
+import {
+	type SourceFileInfo,
+	type ModuleSourceOptions,
+	module_get_component_name,
+	module_extract_dependencies,
+} from './module_helpers.js';
 import type {AnalysisContext} from './analysis_context.js';
 
 /** Result of analyzing a Svelte file. */
@@ -465,4 +470,42 @@ export const svelte_analyze_file = (
 	const module_comment = script_content ? svelte_extract_module_comment(script_content) : undefined;
 
 	return {declaration, module_comment};
+};
+
+/**
+ * Analyze a Svelte component file and extract module metadata.
+ *
+ * Wraps `svelte_analyze_file` and adds dependency information
+ * from the source file info if available.
+ *
+ * This is a high-level function suitable for building documentation or library metadata.
+ * For lower-level analysis, use `svelte_analyze_file` directly.
+ *
+ * @param source_file The source file info (from Gro filer, file system, or other source)
+ * @param module_path The module path (relative to source root)
+ * @param checker TypeScript type checker
+ * @param options Module source options for path extraction (use `MODULE_SOURCE_DEFAULTS` for standard layouts)
+ * @param ctx Analysis context for collecting diagnostics
+ * @returns Module metadata for inclusion in source_json
+ */
+export const svelte_analyze_module = (
+	source_file: SourceFileInfo,
+	module_path: string,
+	checker: ts.TypeChecker,
+	options: ModuleSourceOptions,
+	ctx: AnalysisContext,
+): ModuleJson => {
+	// Use the existing helper for core analysis
+	const {declaration, module_comment} = svelte_analyze_file(source_file, module_path, checker, ctx);
+
+	// Extract dependencies and dependents if provided
+	const {dependencies, dependents} = module_extract_dependencies(source_file, options);
+
+	return {
+		path: module_path,
+		declarations: [declaration],
+		module_comment,
+		dependencies: dependencies.length > 0 ? dependencies : undefined,
+		dependents: dependents.length > 0 ? dependents : undefined,
+	};
 };

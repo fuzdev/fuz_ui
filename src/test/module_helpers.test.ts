@@ -2,6 +2,7 @@ import {test, assert, describe} from 'vitest';
 
 import {
 	module_extract_path,
+	module_extract_dependencies,
 	module_get_component_name,
 	module_get_key,
 	module_is_typescript,
@@ -12,6 +13,7 @@ import {
 	module_matches_source,
 	MODULE_SOURCE_DEFAULTS,
 	type ModuleSourceOptions,
+	type SourceFileInfo,
 } from '$lib/module_helpers.js';
 
 describe('module_extract_path', () => {
@@ -375,6 +377,177 @@ describe('module_matches_source', () => {
 
 			// Accepts paths without /src/ - the nested check is skipped
 			assert.isTrue(module_matches_source('/home/user/project/packages/core/lib/foo.ts', options));
+		});
+	});
+});
+
+describe('module_extract_dependencies', () => {
+	describe('basic extraction', () => {
+		test('extracts dependencies from source modules', () => {
+			const source_file: SourceFileInfo = {
+				id: '/home/user/project/src/lib/foo.ts',
+				dependencies: ['/home/user/project/src/lib/bar.ts', '/home/user/project/src/lib/baz.ts'],
+			};
+
+			const result = module_extract_dependencies(source_file, MODULE_SOURCE_DEFAULTS);
+
+			assert.deepStrictEqual(result.dependencies, ['bar.ts', 'baz.ts']);
+			assert.deepStrictEqual(result.dependents, []);
+		});
+
+		test('extracts dependents from source modules', () => {
+			const source_file: SourceFileInfo = {
+				id: '/home/user/project/src/lib/foo.ts',
+				dependents: [
+					'/home/user/project/src/lib/consumer1.ts',
+					'/home/user/project/src/lib/consumer2.ts',
+				],
+			};
+
+			const result = module_extract_dependencies(source_file, MODULE_SOURCE_DEFAULTS);
+
+			assert.deepStrictEqual(result.dependencies, []);
+			assert.deepStrictEqual(result.dependents, ['consumer1.ts', 'consumer2.ts']);
+		});
+
+		test('extracts both dependencies and dependents', () => {
+			const source_file: SourceFileInfo = {
+				id: '/home/user/project/src/lib/foo.ts',
+				dependencies: ['/home/user/project/src/lib/dep.ts'],
+				dependents: ['/home/user/project/src/lib/consumer.ts'],
+			};
+
+			const result = module_extract_dependencies(source_file, MODULE_SOURCE_DEFAULTS);
+
+			assert.deepStrictEqual(result.dependencies, ['dep.ts']);
+			assert.deepStrictEqual(result.dependents, ['consumer.ts']);
+		});
+	});
+
+	describe('filtering', () => {
+		test('excludes external packages (node_modules)', () => {
+			const source_file: SourceFileInfo = {
+				id: '/home/user/project/src/lib/foo.ts',
+				dependencies: [
+					'/home/user/project/src/lib/bar.ts',
+					'/home/user/project/node_modules/svelte/index.js',
+					'/home/user/project/node_modules/@fuzdev/fuz_util/index.js',
+				],
+			};
+
+			const result = module_extract_dependencies(source_file, MODULE_SOURCE_DEFAULTS);
+
+			assert.deepStrictEqual(result.dependencies, ['bar.ts']);
+		});
+
+		test('excludes test files', () => {
+			const source_file: SourceFileInfo = {
+				id: '/home/user/project/src/lib/foo.ts',
+				dependencies: [
+					'/home/user/project/src/lib/bar.ts',
+					'/home/user/project/src/lib/bar.test.ts',
+				],
+			};
+
+			const result = module_extract_dependencies(source_file, MODULE_SOURCE_DEFAULTS);
+
+			assert.deepStrictEqual(result.dependencies, ['bar.ts']);
+		});
+
+		test('excludes files outside source paths', () => {
+			const source_file: SourceFileInfo = {
+				id: '/home/user/project/src/lib/foo.ts',
+				dependencies: [
+					'/home/user/project/src/lib/bar.ts',
+					'/home/user/project/src/routes/page.svelte',
+					'/home/user/project/src/test/helper.ts',
+				],
+			};
+
+			const result = module_extract_dependencies(source_file, MODULE_SOURCE_DEFAULTS);
+
+			assert.deepStrictEqual(result.dependencies, ['bar.ts']);
+		});
+	});
+
+	describe('sorting', () => {
+		test('returns dependencies sorted alphabetically', () => {
+			const source_file: SourceFileInfo = {
+				id: '/home/user/project/src/lib/foo.ts',
+				dependencies: [
+					'/home/user/project/src/lib/zebra.ts',
+					'/home/user/project/src/lib/alpha.ts',
+					'/home/user/project/src/lib/beta.ts',
+				],
+			};
+
+			const result = module_extract_dependencies(source_file, MODULE_SOURCE_DEFAULTS);
+
+			assert.deepStrictEqual(result.dependencies, ['alpha.ts', 'beta.ts', 'zebra.ts']);
+		});
+
+		test('returns dependents sorted alphabetically', () => {
+			const source_file: SourceFileInfo = {
+				id: '/home/user/project/src/lib/foo.ts',
+				dependents: [
+					'/home/user/project/src/lib/z.ts',
+					'/home/user/project/src/lib/a.ts',
+					'/home/user/project/src/lib/m.ts',
+				],
+			};
+
+			const result = module_extract_dependencies(source_file, MODULE_SOURCE_DEFAULTS);
+
+			assert.deepStrictEqual(result.dependents, ['a.ts', 'm.ts', 'z.ts']);
+		});
+	});
+
+	describe('edge cases', () => {
+		test('handles undefined dependencies', () => {
+			const source_file: SourceFileInfo = {
+				id: '/home/user/project/src/lib/foo.ts',
+			};
+
+			const result = module_extract_dependencies(source_file, MODULE_SOURCE_DEFAULTS);
+
+			assert.deepStrictEqual(result.dependencies, []);
+			assert.deepStrictEqual(result.dependents, []);
+		});
+
+		test('handles empty arrays', () => {
+			const source_file: SourceFileInfo = {
+				id: '/home/user/project/src/lib/foo.ts',
+				dependencies: [],
+				dependents: [],
+			};
+
+			const result = module_extract_dependencies(source_file, MODULE_SOURCE_DEFAULTS);
+
+			assert.deepStrictEqual(result.dependencies, []);
+			assert.deepStrictEqual(result.dependents, []);
+		});
+
+		test('works with custom source options', () => {
+			const options: ModuleSourceOptions = {
+				source_root: '/src/routes/',
+				source_paths: ['/src/routes/'],
+				extensions: ['.svelte'],
+				exclude_patterns: [],
+				reject_nested_source_dirs: true,
+			};
+
+			const source_file: SourceFileInfo = {
+				id: '/home/user/project/src/routes/page.svelte',
+				dependencies: [
+					'/home/user/project/src/routes/Header.svelte',
+					'/home/user/project/src/lib/util.ts', // excluded - wrong path
+					'/home/user/project/src/routes/Footer.svelte',
+				],
+			};
+
+			const result = module_extract_dependencies(source_file, options);
+
+			assert.deepStrictEqual(result.dependencies, ['Footer.svelte', 'Header.svelte']);
 		});
 	});
 });

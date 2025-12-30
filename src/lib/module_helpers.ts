@@ -172,3 +172,44 @@ export const module_matches_source = (path: string, options: ModuleSourceOptions
 
 	return true;
 };
+
+/**
+ * Extract dependencies and dependents for a module from source file info.
+ *
+ * Filters to only include source modules (excludes external packages, node_modules, tests).
+ * Returns sorted arrays of module paths (relative to source_root) for deterministic output.
+ *
+ * @param source_file The source file info to extract dependencies from
+ * @param options Module source options for filtering and path extraction
+ */
+export const module_extract_dependencies = (
+	source_file: SourceFileInfo,
+	options: ModuleSourceOptions,
+): {dependencies: Array<string>; dependents: Array<string>} => {
+	const dependencies: Array<string> = [];
+	const dependents: Array<string> = [];
+
+	// Extract dependencies (files this module imports) if provided
+	if (source_file.dependencies) {
+		for (const dep_id of source_file.dependencies) {
+			if (module_matches_source(dep_id, options)) {
+				dependencies.push(module_extract_path(dep_id, options));
+			}
+		}
+	}
+
+	// Extract dependents (files that import this module) if provided
+	if (source_file.dependents) {
+		for (const dependent_id of source_file.dependents) {
+			if (module_matches_source(dependent_id, options)) {
+				dependents.push(module_extract_path(dependent_id, options));
+			}
+		}
+	}
+
+	// Sort for deterministic output
+	dependencies.sort();
+	dependents.sort();
+
+	return {dependencies, dependents};
+};

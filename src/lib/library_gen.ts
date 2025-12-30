@@ -26,7 +26,8 @@ import {package_json_load} from '@ryanatkn/gro/package_json.js';
 import type {Disknode} from '@ryanatkn/gro/disknode.js';
 import type {SourceJson} from '@fuzdev/fuz_util/source_json.js';
 
-import {ts_create_program, type ReExportInfo} from './ts_helpers.js';
+import {ts_create_program, ts_analyze_module, type ReExportInfo} from './ts_helpers.js';
+import {svelte_analyze_module} from './svelte_helpers.js';
 import {
 	type SourceFileInfo,
 	type ModuleSourceOptions,
@@ -35,12 +36,10 @@ import {
 	module_is_svelte,
 } from './module_helpers.js';
 import {
-	library_gen_collect_source_files,
-	library_gen_sort_modules,
-	library_gen_find_duplicates,
-	library_gen_generate_json,
-	library_gen_analyze_svelte_file,
-	library_gen_analyze_typescript_file,
+	library_collect_source_files,
+	library_sort_modules,
+	library_find_duplicates,
+	library_generate_json,
 } from './library_gen_helpers.js';
 import {AnalysisContext, format_diagnostic} from './analysis_context.js';
 
@@ -103,7 +102,7 @@ export const library_gen = (options?: LibraryGenOptions): Gen => {
 			}
 
 			// Collect and filter source files
-			const source_files = library_gen_collect_source_files(all_source_files, source_options, log);
+			const source_files = library_collect_source_files(all_source_files, source_options, log);
 
 			// Build source_json with array-based modules
 			// Phase 1: Analyze all modules and collect re-exports
@@ -124,13 +123,7 @@ export const library_gen = (options?: LibraryGenOptions): Gen => {
 
 				// Handle Svelte files separately (before trying to get TypeScript source file)
 				if (is_svelte) {
-					const mod = library_gen_analyze_svelte_file(
-						source_file,
-						module_path,
-						checker,
-						source_options,
-						ctx,
-					);
+					const mod = svelte_analyze_module(source_file, module_path, checker, source_options, ctx);
 					source_json.modules!.push(mod);
 				} else {
 					// For TypeScript/JS files, get the source file from the program
@@ -141,7 +134,7 @@ export const library_gen = (options?: LibraryGenOptions): Gen => {
 					}
 
 					// May throw, which we want to see
-					const {module: mod, re_exports} = library_gen_analyze_typescript_file(
+					const {module: mod, re_exports} = ts_analyze_module(
 						source_file,
 						ts_source_file,
 						module_path,
@@ -188,12 +181,12 @@ export const library_gen = (options?: LibraryGenOptions): Gen => {
 
 			// Sort modules alphabetically for deterministic output and cleaner diffs
 			source_json.modules = source_json.modules
-				? library_gen_sort_modules(source_json.modules)
+				? library_sort_modules(source_json.modules)
 				: undefined;
 
 			// Validate no duplicate declaration names across modules
 			if (enforce_flat_namespace) {
-				const duplicates = library_gen_find_duplicates(source_json);
+				const duplicates = library_find_duplicates(source_json);
 				if (duplicates.size > 0) {
 					log.error('Duplicate declaration names detected in flat namespace:');
 					for (const [name, occurrences] of duplicates) {
@@ -237,7 +230,7 @@ export const library_gen = (options?: LibraryGenOptions): Gen => {
 
 			log.info('library metadata generation complete');
 
-			const {json_content, ts_content} = library_gen_generate_json(package_json, source_json);
+			const {json_content, ts_content} = library_generate_json(package_json, source_json);
 
 			// Return array of files:
 			// - library.json (default from .gen.json.ts naming)

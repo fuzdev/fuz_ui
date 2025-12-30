@@ -3,11 +3,10 @@ import type {PackageJson} from '@fuzdev/fuz_util/package_json.js';
 import type {SourceJson, ModuleJson, DeclarationKind} from '@fuzdev/fuz_util/source_json.js';
 
 import {
-	library_gen_find_duplicates,
-	library_gen_sort_modules,
-	library_gen_generate_json,
-	library_gen_extract_dependencies,
-	library_gen_collect_source_files,
+	library_find_duplicates,
+	library_sort_modules,
+	library_generate_json,
+	library_collect_source_files,
 } from '$lib/library_gen_helpers.js';
 import {
 	type SourceFileInfo,
@@ -53,16 +52,7 @@ const create_mock_module = (
 	};
 };
 
-/**
- * Create a mock SourceFileInfo for testing.
- */
-const create_mock_source_file = (
-	id: string,
-	dependencies: Array<string> = [],
-	dependents: Array<string> = [],
-): SourceFileInfo => ({id, dependencies, dependents});
-
-describe('library_gen_find_duplicates', () => {
+describe('library_find_duplicates', () => {
 	describe('no duplicates - returns empty Map', () => {
 		test('unique declarations across modules', () => {
 			const source_json = create_mock_source_json([
@@ -76,7 +66,7 @@ describe('library_gen_find_duplicates', () => {
 				]),
 			]);
 
-			const duplicates = library_gen_find_duplicates(source_json);
+			const duplicates = library_find_duplicates(source_json);
 
 			assert.strictEqual(duplicates.size, 0);
 		});
@@ -84,7 +74,7 @@ describe('library_gen_find_duplicates', () => {
 		test('empty modules array', () => {
 			const source_json = create_mock_source_json([]);
 
-			const duplicates = library_gen_find_duplicates(source_json);
+			const duplicates = library_find_duplicates(source_json);
 
 			assert.strictEqual(duplicates.size, 0);
 		});
@@ -95,7 +85,7 @@ describe('library_gen_find_duplicates', () => {
 				{path: 'also_empty.ts', declarations: []},
 			]);
 
-			const duplicates = library_gen_find_duplicates(source_json);
+			const duplicates = library_find_duplicates(source_json);
 
 			assert.strictEqual(duplicates.size, 0);
 		});
@@ -106,7 +96,7 @@ describe('library_gen_find_duplicates', () => {
 				version: '1.0.0',
 			};
 
-			const duplicates = library_gen_find_duplicates(source_json);
+			const duplicates = library_find_duplicates(source_json);
 
 			assert.strictEqual(duplicates.size, 0);
 		});
@@ -121,7 +111,7 @@ describe('library_gen_find_duplicates', () => {
 				]),
 			]);
 
-			const duplicates = library_gen_find_duplicates(source_json);
+			const duplicates = library_find_duplicates(source_json);
 
 			assert.strictEqual(duplicates.size, 0);
 		});
@@ -134,7 +124,7 @@ describe('library_gen_find_duplicates', () => {
 				create_mock_module('bar.ts', [{name: 'Duplicate', kind: 'component'}]),
 			]);
 
-			const duplicates = library_gen_find_duplicates(source_json);
+			const duplicates = library_find_duplicates(source_json);
 
 			assert.strictEqual(duplicates.size, 1);
 			assert.ok(duplicates.has('Duplicate'));
@@ -159,7 +149,7 @@ describe('library_gen_find_duplicates', () => {
 				]),
 			]);
 
-			const duplicates = library_gen_find_duplicates(source_json);
+			const duplicates = library_find_duplicates(source_json);
 
 			assert.strictEqual(duplicates.size, 2);
 			assert.ok(duplicates.has('Dup1'));
@@ -173,7 +163,7 @@ describe('library_gen_find_duplicates', () => {
 				create_mock_module('c.ts', [{name: 'Common', kind: 'class'}]),
 			]);
 
-			const duplicates = library_gen_find_duplicates(source_json);
+			const duplicates = library_find_duplicates(source_json);
 
 			assert.strictEqual(duplicates.size, 1);
 			const occurrences = duplicates.get('Common')!;
@@ -189,7 +179,7 @@ describe('library_gen_find_duplicates', () => {
 				create_mock_module('Foo.svelte', [{name: 'Foo', kind: 'component'}]),
 			]);
 
-			const duplicates = library_gen_find_duplicates(source_json);
+			const duplicates = library_find_duplicates(source_json);
 			const occurrences = duplicates.get('Foo')!;
 
 			assert.ok(occurrences.some((o) => o.declaration.kind === 'function'));
@@ -208,7 +198,7 @@ describe('library_gen_find_duplicates', () => {
 				create_mock_module('DocsLink.svelte', [{name: 'DocsLink', kind: 'component'}]),
 			]);
 
-			const duplicates = library_gen_find_duplicates(source_json);
+			const duplicates = library_find_duplicates(source_json);
 
 			assert.strictEqual(duplicates.size, 1);
 			assert.ok(duplicates.has('DocsLink'));
@@ -235,7 +225,7 @@ describe('library_gen_find_duplicates', () => {
 				],
 			};
 
-			const duplicates = library_gen_find_duplicates(source_json);
+			const duplicates = library_find_duplicates(source_json);
 			const occurrences = duplicates.get('Duplicate')!;
 
 			assert.strictEqual(occurrences.length, 2);
@@ -259,7 +249,7 @@ describe('library_gen_find_duplicates', () => {
 				],
 			};
 
-			const duplicates = library_gen_find_duplicates(source_json);
+			const duplicates = library_find_duplicates(source_json);
 			const occurrences = duplicates.get('Duplicate')!;
 
 			const foo_occurrence = occurrences.find((o) => o.module === 'foo.ts')!;
@@ -271,7 +261,7 @@ describe('library_gen_find_duplicates', () => {
 	});
 });
 
-describe('library_gen_sort_modules', () => {
+describe('library_sort_modules', () => {
 	test('sorts modules alphabetically by path', () => {
 		const modules: Array<ModuleJson> = [
 			{path: 'zebra.ts', declarations: []},
@@ -279,7 +269,7 @@ describe('library_gen_sort_modules', () => {
 			{path: 'beta.ts', declarations: []},
 		];
 
-		const sorted = library_gen_sort_modules(modules);
+		const sorted = library_sort_modules(modules);
 
 		assert.strictEqual(sorted[0]!.path, 'alpha.ts');
 		assert.strictEqual(sorted[1]!.path, 'beta.ts');
@@ -293,7 +283,7 @@ describe('library_gen_sort_modules', () => {
 			{path: 'b.ts', declarations: []},
 		];
 
-		const sorted = library_gen_sort_modules(modules);
+		const sorted = library_sort_modules(modules);
 
 		// Original array should not be mutated
 		assert.strictEqual(modules[0]!.path, 'c.ts');
@@ -307,13 +297,13 @@ describe('library_gen_sort_modules', () => {
 	});
 
 	test('handles empty array', () => {
-		const sorted = library_gen_sort_modules([]);
+		const sorted = library_sort_modules([]);
 		assert.strictEqual(sorted.length, 0);
 	});
 
 	test('handles single module', () => {
 		const modules: Array<ModuleJson> = [{path: 'single.ts', declarations: []}];
-		const sorted = library_gen_sort_modules(modules);
+		const sorted = library_sort_modules(modules);
 		assert.strictEqual(sorted.length, 1);
 		assert.strictEqual(sorted[0]!.path, 'single.ts');
 	});
@@ -324,7 +314,7 @@ describe('library_gen_sort_modules', () => {
 			{path: 'same.ts', declarations: [{name: 'second', kind: 'function'}]},
 		];
 
-		const sorted = library_gen_sort_modules(modules);
+		const sorted = library_sort_modules(modules);
 
 		// Should maintain original order for identical paths
 		assert.strictEqual(sorted[0]!.declarations![0]!.name, 'first');
@@ -332,7 +322,7 @@ describe('library_gen_sort_modules', () => {
 	});
 });
 
-describe('library_gen_generate_json', () => {
+describe('library_generate_json', () => {
 	// Helper to create valid package_json for tests (library_json_parse requires repository)
 	const create_test_package_json = (overrides: Partial<PackageJson> = {}): PackageJson => ({
 		name: '@test/package',
@@ -355,7 +345,7 @@ describe('library_gen_generate_json', () => {
 			],
 		};
 
-		const result = library_gen_generate_json(package_json, source_json);
+		const result = library_generate_json(package_json, source_json);
 
 		// Check we get both outputs
 		assert.ok(result.json_content);
@@ -385,7 +375,7 @@ describe('library_gen_generate_json', () => {
 			version: '2.0.0',
 		};
 
-		const result = library_gen_generate_json(package_json, source_json);
+		const result = library_generate_json(package_json, source_json);
 		const parsed = JSON.parse(result.json_content);
 
 		// Verify library_json contains parsed data
@@ -412,7 +402,7 @@ describe('library_gen_generate_json', () => {
 			],
 		};
 
-		const result = library_gen_generate_json(package_json, source_json);
+		const result = library_generate_json(package_json, source_json);
 		const parsed = JSON.parse(result.json_content);
 
 		// Verify source_json is included
@@ -431,7 +421,7 @@ describe('library_gen_generate_json', () => {
 			version: '1.0.0',
 		};
 
-		const result = library_gen_generate_json(package_json, source_json);
+		const result = library_generate_json(package_json, source_json);
 
 		// Should use tabs for indentation
 		assert.ok(result.json_content.includes('\t"package_json"'), 'Expected tab-indented JSON');
@@ -446,7 +436,7 @@ describe('library_gen_generate_json', () => {
 			modules: [],
 		};
 
-		const result = library_gen_generate_json(package_json, source_json);
+		const result = library_generate_json(package_json, source_json);
 		const parsed = JSON.parse(result.json_content);
 
 		assert.deepStrictEqual(parsed.source_json.modules, []);
@@ -460,7 +450,7 @@ describe('library_gen_generate_json', () => {
 			version: '1.0.0',
 		};
 
-		const result = library_gen_generate_json(package_json, source_json);
+		const result = library_generate_json(package_json, source_json);
 		const parsed = JSON.parse(result.json_content);
 
 		assert.ok(parsed.package_json);
@@ -468,295 +458,11 @@ describe('library_gen_generate_json', () => {
 	});
 });
 
-describe('library_gen_extract_dependencies', () => {
-	describe('basic functionality', () => {
-		test('extracts both dependencies and dependents from source modules', () => {
-			const source_file = create_mock_source_file(
-				'/home/user/project/src/lib/foo.ts',
-				['/home/user/project/src/lib/bar.ts', '/home/user/project/src/lib/baz.svelte'],
-				['/home/user/project/src/lib/qux.ts', '/home/user/project/src/lib/Quux.svelte'],
-			);
+// Note: library_gen_extract_dependencies tests were removed.
+// Dependency extraction is now handled internally by ts_analyze_module and svelte_analyze_module.
+// Testing occurs through integration tests via the higher-level analysis functions.
 
-			const result = library_gen_extract_dependencies(source_file, MODULE_SOURCE_DEFAULTS);
-
-			assert.deepStrictEqual(result.dependencies, ['bar.ts', 'baz.svelte']);
-			assert.deepStrictEqual(result.dependents, ['Quux.svelte', 'qux.ts']);
-		});
-
-		test('returns empty arrays when no dependencies or dependents', () => {
-			const source_file = create_mock_source_file('/home/user/project/src/lib/standalone.ts');
-
-			const result = library_gen_extract_dependencies(source_file, MODULE_SOURCE_DEFAULTS);
-
-			assert.deepStrictEqual(result.dependencies, []);
-			assert.deepStrictEqual(result.dependents, []);
-		});
-
-		test('handles module with only dependencies', () => {
-			const source_file = create_mock_source_file(
-				'/home/user/project/src/lib/consumer.ts',
-				['/home/user/project/src/lib/dependency.ts'],
-				[],
-			);
-
-			const result = library_gen_extract_dependencies(source_file, MODULE_SOURCE_DEFAULTS);
-
-			assert.deepStrictEqual(result.dependencies, ['dependency.ts']);
-			assert.deepStrictEqual(result.dependents, []);
-		});
-
-		test('handles module with only dependents', () => {
-			const source_file = create_mock_source_file(
-				'/home/user/project/src/lib/provider.ts',
-				[],
-				['/home/user/project/src/lib/consumer.ts'],
-			);
-
-			const result = library_gen_extract_dependencies(source_file, MODULE_SOURCE_DEFAULTS);
-
-			assert.deepStrictEqual(result.dependencies, []);
-			assert.deepStrictEqual(result.dependents, ['consumer.ts']);
-		});
-	});
-
-	describe('filtering - only includes src/lib modules', () => {
-		test('excludes external node_modules dependencies', () => {
-			const source_file = create_mock_source_file(
-				'/home/user/project/src/lib/app.ts',
-				[
-					'/home/user/project/src/lib/local.ts',
-					'/home/user/project/node_modules/svelte/index.js',
-					'/home/user/project/node_modules/@fuzdev/fuz_util/object.js',
-				],
-				[],
-			);
-
-			const result = library_gen_extract_dependencies(source_file, MODULE_SOURCE_DEFAULTS);
-
-			// Should only include src/lib modules
-			assert.deepStrictEqual(result.dependencies, ['local.ts']);
-		});
-
-		test('excludes test files from dependencies', () => {
-			const source_file = create_mock_source_file(
-				'/home/user/project/src/lib/component.svelte',
-				['/home/user/project/src/lib/helpers.ts', '/home/user/project/src/test/fixtures/mock.ts'],
-				[],
-			);
-
-			const result = library_gen_extract_dependencies(source_file, MODULE_SOURCE_DEFAULTS);
-
-			// Should exclude src/test
-			assert.deepStrictEqual(result.dependencies, ['helpers.ts']);
-		});
-
-		test('excludes test files from dependents', () => {
-			const source_file = create_mock_source_file(
-				'/home/user/project/src/lib/utils.ts',
-				[],
-				['/home/user/project/src/lib/app.ts', '/home/user/project/src/test/utils.test.ts'],
-			);
-
-			const result = library_gen_extract_dependencies(source_file, MODULE_SOURCE_DEFAULTS);
-
-			// Should exclude test files
-			assert.deepStrictEqual(result.dependents, ['app.ts']);
-		});
-
-		test('excludes routes directory', () => {
-			const source_file = create_mock_source_file(
-				'/home/user/project/src/lib/component.svelte',
-				[],
-				['/home/user/project/src/lib/other.svelte', '/home/user/project/src/routes/index.svelte'],
-			);
-
-			const result = library_gen_extract_dependencies(source_file, MODULE_SOURCE_DEFAULTS);
-
-			// Should only include src/lib modules
-			assert.deepStrictEqual(result.dependents, ['other.svelte']);
-		});
-	});
-
-	describe('path extraction', () => {
-		test('extracts relative module paths correctly', () => {
-			const source_file = create_mock_source_file(
-				'/home/user/project/src/lib/components/Button.svelte',
-				['/home/user/project/src/lib/styles/theme.ts'],
-				['/home/user/project/src/lib/layouts/Layout.svelte'],
-			);
-
-			const result = library_gen_extract_dependencies(source_file, MODULE_SOURCE_DEFAULTS);
-
-			assert.deepStrictEqual(result.dependencies, ['styles/theme.ts']);
-			assert.deepStrictEqual(result.dependents, ['layouts/Layout.svelte']);
-		});
-
-		test('handles deeply nested module paths', () => {
-			const source_file = create_mock_source_file(
-				'/home/user/project/src/lib/deep/nested/module.ts',
-				['/home/user/project/src/lib/deep/nested/sibling.ts'],
-				['/home/user/project/src/lib/other/path/consumer.ts'],
-			);
-
-			const result = library_gen_extract_dependencies(source_file, MODULE_SOURCE_DEFAULTS);
-
-			assert.deepStrictEqual(result.dependencies, ['deep/nested/sibling.ts']);
-			assert.deepStrictEqual(result.dependents, ['other/path/consumer.ts']);
-		});
-
-		test('extracts paths with custom options', () => {
-			// Custom options with deeper source root
-			const source_file = create_mock_source_file(
-				'/home/user/project/src/lib/deep/index.ts',
-				['/home/user/project/src/lib/deep/utils.ts'],
-				['/home/user/project/src/lib/deep/app.ts'],
-			);
-
-			// Using custom options with a deeper source_root
-			const options = {
-				...MODULE_SOURCE_DEFAULTS,
-				source_root: '/src/lib/deep/',
-				source_paths: ['/src/lib/deep/'],
-			};
-			const result = library_gen_extract_dependencies(source_file, options);
-
-			assert.deepStrictEqual(result.dependencies, ['utils.ts']);
-			assert.deepStrictEqual(result.dependents, ['app.ts']);
-		});
-	});
-
-	describe('sorting', () => {
-		test('sorts dependencies alphabetically', () => {
-			const source_file = create_mock_source_file(
-				'/home/user/project/src/lib/app.ts',
-				[
-					'/home/user/project/src/lib/zebra.ts',
-					'/home/user/project/src/lib/alpha.ts',
-					'/home/user/project/src/lib/beta.ts',
-				],
-				[],
-			);
-
-			const result = library_gen_extract_dependencies(source_file, MODULE_SOURCE_DEFAULTS);
-
-			assert.deepStrictEqual(result.dependencies, ['alpha.ts', 'beta.ts', 'zebra.ts']);
-		});
-
-		test('sorts dependents alphabetically', () => {
-			const source_file = create_mock_source_file(
-				'/home/user/project/src/lib/utils.ts',
-				[],
-				[
-					'/home/user/project/src/lib/zoo.ts',
-					'/home/user/project/src/lib/aardvark.ts',
-					'/home/user/project/src/lib/middle.ts',
-				],
-			);
-
-			const result = library_gen_extract_dependencies(source_file, MODULE_SOURCE_DEFAULTS);
-
-			assert.deepStrictEqual(result.dependents, ['aardvark.ts', 'middle.ts', 'zoo.ts']);
-		});
-
-		test('sorts case-insensitively for consistency', () => {
-			const source_file = create_mock_source_file(
-				'/home/user/project/src/lib/app.ts',
-				[
-					'/home/user/project/src/lib/Zebra.svelte',
-					'/home/user/project/src/lib/alpha.ts',
-					'/home/user/project/src/lib/Beta.svelte',
-				],
-				[],
-			);
-
-			const result = library_gen_extract_dependencies(source_file, MODULE_SOURCE_DEFAULTS);
-
-			// Standard localeCompare should handle case properly
-			assert.strictEqual(result.dependencies.length, 3);
-			assert.ok(result.dependencies.includes('alpha.ts'));
-			assert.ok(result.dependencies.includes('Beta.svelte'));
-			assert.ok(result.dependencies.includes('Zebra.svelte'));
-		});
-	});
-
-	describe('edge cases', () => {
-		test('handles SourceFileInfo without dependencies property', () => {
-			const source_file: SourceFileInfo = {id: '/home/user/project/src/lib/standalone.ts'};
-
-			const result = library_gen_extract_dependencies(source_file, MODULE_SOURCE_DEFAULTS);
-
-			assert.deepStrictEqual(result.dependencies, []);
-			assert.deepStrictEqual(result.dependents, []);
-		});
-
-		test('handles svelte components with .svelte extension', () => {
-			const source_file = create_mock_source_file(
-				'/home/user/project/src/lib/App.svelte',
-				['/home/user/project/src/lib/Button.svelte'],
-				['/home/user/project/src/lib/Layout.svelte'],
-			);
-
-			const result = library_gen_extract_dependencies(source_file, MODULE_SOURCE_DEFAULTS);
-
-			assert.deepStrictEqual(result.dependencies, ['Button.svelte']);
-			assert.deepStrictEqual(result.dependents, ['Layout.svelte']);
-		});
-
-		test('handles mixed file types', () => {
-			const source_file = create_mock_source_file(
-				'/home/user/project/src/lib/component.svelte',
-				[
-					'/home/user/project/src/lib/utils.ts',
-					'/home/user/project/src/lib/types.ts',
-					'/home/user/project/src/lib/Other.svelte',
-				],
-				[],
-			);
-
-			const result = library_gen_extract_dependencies(source_file, MODULE_SOURCE_DEFAULTS);
-
-			assert.deepStrictEqual(result.dependencies, ['Other.svelte', 'types.ts', 'utils.ts']);
-		});
-
-		test('handles modules at src/lib root', () => {
-			const source_file = create_mock_source_file(
-				'/home/user/project/src/lib/index.ts',
-				['/home/user/project/src/lib/exports.ts'],
-				[],
-			);
-
-			const result = library_gen_extract_dependencies(source_file, MODULE_SOURCE_DEFAULTS);
-
-			assert.deepStrictEqual(result.dependencies, ['exports.ts']);
-		});
-
-		test('deterministic output - multiple runs produce same results', () => {
-			const source_file = create_mock_source_file(
-				'/home/user/project/src/lib/app.ts',
-				[
-					'/home/user/project/src/lib/c.ts',
-					'/home/user/project/src/lib/a.ts',
-					'/home/user/project/src/lib/b.ts',
-				],
-				[
-					'/home/user/project/src/lib/z.ts',
-					'/home/user/project/src/lib/x.ts',
-					'/home/user/project/src/lib/y.ts',
-				],
-			);
-
-			const result1 = library_gen_extract_dependencies(source_file, MODULE_SOURCE_DEFAULTS);
-			const result2 = library_gen_extract_dependencies(source_file, MODULE_SOURCE_DEFAULTS);
-
-			assert.deepStrictEqual(result1.dependencies, result2.dependencies);
-			assert.deepStrictEqual(result1.dependents, result2.dependents);
-			assert.deepStrictEqual(result1.dependencies, ['a.ts', 'b.ts', 'c.ts']);
-			assert.deepStrictEqual(result1.dependents, ['x.ts', 'y.ts', 'z.ts']);
-		});
-	});
-});
-
-describe('library_gen_collect_source_files', () => {
+describe('library_collect_source_files', () => {
 	describe('basic functionality', () => {
 		test('collects TypeScript files from src/lib', () => {
 			const files: Array<SourceFileInfo> = [
@@ -765,7 +471,7 @@ describe('library_gen_collect_source_files', () => {
 				{id: '/home/user/project/src/lib/baz.ts'},
 			];
 
-			const result = library_gen_collect_source_files(files, MODULE_SOURCE_DEFAULTS);
+			const result = library_collect_source_files(files, MODULE_SOURCE_DEFAULTS);
 
 			assert.strictEqual(result.length, 3);
 			assert.ok(result.some((f) => f.id.endsWith('foo.ts')));
@@ -779,7 +485,7 @@ describe('library_gen_collect_source_files', () => {
 				{id: '/home/user/project/src/lib/Card.svelte'},
 			];
 
-			const result = library_gen_collect_source_files(files, MODULE_SOURCE_DEFAULTS);
+			const result = library_collect_source_files(files, MODULE_SOURCE_DEFAULTS);
 
 			assert.strictEqual(result.length, 2);
 			assert.ok(result.some((f) => f.id.endsWith('Button.svelte')));
@@ -792,7 +498,7 @@ describe('library_gen_collect_source_files', () => {
 				{id: '/home/user/project/src/lib/helpers.js'},
 			];
 
-			const result = library_gen_collect_source_files(files, MODULE_SOURCE_DEFAULTS);
+			const result = library_collect_source_files(files, MODULE_SOURCE_DEFAULTS);
 
 			assert.strictEqual(result.length, 2);
 		});
@@ -804,7 +510,7 @@ describe('library_gen_collect_source_files', () => {
 				{id: '/home/user/project/src/lib/utils.js'},
 			];
 
-			const result = library_gen_collect_source_files(files, MODULE_SOURCE_DEFAULTS);
+			const result = library_collect_source_files(files, MODULE_SOURCE_DEFAULTS);
 
 			assert.strictEqual(result.length, 3);
 		});
@@ -819,7 +525,7 @@ describe('library_gen_collect_source_files', () => {
 				{id: '/home/user/project/src/lib/bar.test.ts'},
 			];
 
-			const result = library_gen_collect_source_files(files, MODULE_SOURCE_DEFAULTS);
+			const result = library_collect_source_files(files, MODULE_SOURCE_DEFAULTS);
 
 			assert.strictEqual(result.length, 2);
 			assert.ok(result.every((f) => !f.id.includes('.test.ts')));
@@ -833,7 +539,7 @@ describe('library_gen_collect_source_files', () => {
 				{id: '/home/user/project/node_modules/pkg/index.ts'},
 			];
 
-			const result = library_gen_collect_source_files(files, MODULE_SOURCE_DEFAULTS);
+			const result = library_collect_source_files(files, MODULE_SOURCE_DEFAULTS);
 
 			assert.strictEqual(result.length, 1);
 			assert.strictEqual(result[0]!.id, '/home/user/project/src/lib/foo.ts');
@@ -847,7 +553,7 @@ describe('library_gen_collect_source_files', () => {
 				{id: '/home/user/project/src/lib/readme.md'},
 			];
 
-			const result = library_gen_collect_source_files(files, MODULE_SOURCE_DEFAULTS);
+			const result = library_collect_source_files(files, MODULE_SOURCE_DEFAULTS);
 
 			assert.strictEqual(result.length, 1);
 			assert.strictEqual(result[0]!.id, '/home/user/project/src/lib/foo.ts');
@@ -860,7 +566,7 @@ describe('library_gen_collect_source_files', () => {
 				{id: '/home/user/project/src/test/fixtures/repos/repo_b/src/lib/bar.ts'},
 			];
 
-			const result = library_gen_collect_source_files(files, MODULE_SOURCE_DEFAULTS);
+			const result = library_collect_source_files(files, MODULE_SOURCE_DEFAULTS);
 
 			assert.strictEqual(result.length, 1);
 			assert.strictEqual(result[0]!.id, '/home/user/project/src/lib/foo.ts');
@@ -880,7 +586,7 @@ describe('library_gen_collect_source_files', () => {
 				source_paths: ['/src/routes/'],
 			};
 
-			const result = library_gen_collect_source_files(files, options);
+			const result = library_collect_source_files(files, options);
 
 			assert.strictEqual(result.length, 1);
 			assert.strictEqual(result[0]!.id, '/home/user/project/src/routes/page.svelte');
@@ -898,7 +604,7 @@ describe('library_gen_collect_source_files', () => {
 				extensions: ['.ts'], // only TypeScript
 			};
 
-			const result = library_gen_collect_source_files(files, options);
+			const result = library_collect_source_files(files, options);
 
 			assert.strictEqual(result.length, 1);
 			assert.strictEqual(result[0]!.id, '/home/user/project/src/lib/foo.ts');
@@ -916,7 +622,7 @@ describe('library_gen_collect_source_files', () => {
 				exclude_patterns: [/\/internal\//],
 			};
 
-			const result = library_gen_collect_source_files(files, options);
+			const result = library_collect_source_files(files, options);
 
 			assert.strictEqual(result.length, 2);
 			assert.ok(result.every((f) => !f.id.includes('/internal/')));
@@ -931,7 +637,7 @@ describe('library_gen_collect_source_files', () => {
 				{id: '/home/user/project/src/lib/beta.ts'},
 			];
 
-			const result = library_gen_collect_source_files(files, MODULE_SOURCE_DEFAULTS);
+			const result = library_collect_source_files(files, MODULE_SOURCE_DEFAULTS);
 
 			assert.strictEqual(result[0]!.id, '/home/user/project/src/lib/alpha.ts');
 			assert.strictEqual(result[1]!.id, '/home/user/project/src/lib/beta.ts');
@@ -945,8 +651,8 @@ describe('library_gen_collect_source_files', () => {
 				{id: '/home/user/project/src/lib/b.ts'},
 			];
 
-			const result1 = library_gen_collect_source_files(files, MODULE_SOURCE_DEFAULTS);
-			const result2 = library_gen_collect_source_files(files, MODULE_SOURCE_DEFAULTS);
+			const result1 = library_collect_source_files(files, MODULE_SOURCE_DEFAULTS);
+			const result2 = library_collect_source_files(files, MODULE_SOURCE_DEFAULTS);
 
 			assert.deepStrictEqual(
 				result1.map((f) => f.id),
@@ -957,7 +663,7 @@ describe('library_gen_collect_source_files', () => {
 
 	describe('edge cases', () => {
 		test('returns empty array for empty input', () => {
-			const result = library_gen_collect_source_files([], MODULE_SOURCE_DEFAULTS);
+			const result = library_collect_source_files([], MODULE_SOURCE_DEFAULTS);
 
 			assert.strictEqual(result.length, 0);
 		});
@@ -968,7 +674,7 @@ describe('library_gen_collect_source_files', () => {
 				{id: '/home/user/project/node_modules/pkg/index.ts'},
 			];
 
-			const result = library_gen_collect_source_files(files, MODULE_SOURCE_DEFAULTS);
+			const result = library_collect_source_files(files, MODULE_SOURCE_DEFAULTS);
 
 			assert.strictEqual(result.length, 0);
 		});
@@ -983,7 +689,7 @@ describe('library_gen_collect_source_files', () => {
 				},
 			];
 
-			const result = library_gen_collect_source_files(files, MODULE_SOURCE_DEFAULTS);
+			const result = library_collect_source_files(files, MODULE_SOURCE_DEFAULTS);
 
 			assert.strictEqual(result.length, 1);
 			assert.strictEqual(result[0]!.content, 'export const foo = 42;');
@@ -995,7 +701,7 @@ describe('library_gen_collect_source_files', () => {
 			const files: Array<SourceFileInfo> = [{id: '/home/user/project/src/lib/foo.ts'}];
 
 			// Should not throw
-			const result = library_gen_collect_source_files(files, MODULE_SOURCE_DEFAULTS);
+			const result = library_collect_source_files(files, MODULE_SOURCE_DEFAULTS);
 
 			assert.strictEqual(result.length, 1);
 		});

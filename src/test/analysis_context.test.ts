@@ -4,18 +4,18 @@ import {
 	AnalysisContext,
 	format_diagnostic,
 	type Diagnostic,
-	type Type_Extraction_Diagnostic,
-	type Signature_Analysis_Diagnostic,
-	type Class_Member_Diagnostic,
-	type Svelte_Prop_Diagnostic,
+	type TypeExtractionDiagnostic,
+	type SignatureAnalysisDiagnostic,
+	type ClassMemberDiagnostic,
+	type SveltePropDiagnostic,
 } from '$lib/analysis_context.js';
 
 /**
  * Create a type extraction diagnostic for testing.
  */
 const create_type_diagnostic = (
-	overrides: Partial<Type_Extraction_Diagnostic> = {},
-): Type_Extraction_Diagnostic => ({
+	overrides: Partial<TypeExtractionDiagnostic> = {},
+): TypeExtractionDiagnostic => ({
 	kind: 'type_extraction_failed',
 	file: '/src/lib/test.ts',
 	line: 10,
@@ -30,8 +30,8 @@ const create_type_diagnostic = (
  * Create a signature analysis diagnostic for testing.
  */
 const create_signature_diagnostic = (
-	overrides: Partial<Signature_Analysis_Diagnostic> = {},
-): Signature_Analysis_Diagnostic => ({
+	overrides: Partial<SignatureAnalysisDiagnostic> = {},
+): SignatureAnalysisDiagnostic => ({
 	kind: 'signature_analysis_failed',
 	file: '/src/lib/helpers.ts',
 	line: 25,
@@ -46,8 +46,8 @@ const create_signature_diagnostic = (
  * Create a class member diagnostic for testing.
  */
 const create_class_member_diagnostic = (
-	overrides: Partial<Class_Member_Diagnostic> = {},
-): Class_Member_Diagnostic => ({
+	overrides: Partial<ClassMemberDiagnostic> = {},
+): ClassMemberDiagnostic => ({
 	kind: 'class_member_failed',
 	file: '/src/lib/MyClass.ts',
 	line: 50,
@@ -63,8 +63,8 @@ const create_class_member_diagnostic = (
  * Create a Svelte prop diagnostic for testing.
  */
 const create_svelte_prop_diagnostic = (
-	overrides: Partial<Svelte_Prop_Diagnostic> = {},
-): Svelte_Prop_Diagnostic => ({
+	overrides: Partial<SveltePropDiagnostic> = {},
+): SveltePropDiagnostic => ({
 	kind: 'svelte_prop_failed',
 	file: 'Button.svelte',
 	line: 5,

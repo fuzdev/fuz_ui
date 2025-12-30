@@ -20,12 +20,12 @@
  * - `error`: Analysis failed, declaration may be incomplete or missing data
  * - `warning`: Partial success, something seems off but analysis continued
  */
-export type Diagnostic_Severity = 'error' | 'warning';
+export type DiagnosticSeverity = 'error' | 'warning';
 
 /**
  * Discriminant for diagnostic types.
  */
-export type Diagnostic_Kind =
+export type DiagnosticKind =
 	| 'type_extraction_failed'
 	| 'signature_analysis_failed'
 	| 'class_member_failed'
@@ -34,8 +34,8 @@ export type Diagnostic_Kind =
 /**
  * Base diagnostic fields shared by all diagnostic types.
  */
-export interface Base_Diagnostic {
-	kind: Diagnostic_Kind;
+export interface BaseDiagnostic {
+	kind: DiagnosticKind;
 	/** File path relative to project root (display with './' prefix). */
 	file: string;
 	/** Line number (1-based), or null if location unavailable. */
@@ -44,13 +44,13 @@ export interface Base_Diagnostic {
 	column: number | null;
 	/** Human-readable description of the issue. */
 	message: string;
-	severity: Diagnostic_Severity;
+	severity: DiagnosticSeverity;
 }
 
 /**
  * Type extraction failed (e.g., complex or recursive types).
  */
-export interface Type_Extraction_Diagnostic extends Base_Diagnostic {
+export interface TypeExtractionDiagnostic extends BaseDiagnostic {
 	kind: 'type_extraction_failed';
 	/** Name of the symbol whose type couldn't be extracted. */
 	symbol_name: string;
@@ -59,7 +59,7 @@ export interface Type_Extraction_Diagnostic extends Base_Diagnostic {
 /**
  * Function/method signature analysis failed.
  */
-export interface Signature_Analysis_Diagnostic extends Base_Diagnostic {
+export interface SignatureAnalysisDiagnostic extends BaseDiagnostic {
 	kind: 'signature_analysis_failed';
 	/** Name of the function or method. */
 	function_name: string;
@@ -68,7 +68,7 @@ export interface Signature_Analysis_Diagnostic extends Base_Diagnostic {
 /**
  * Class member analysis failed.
  */
-export interface Class_Member_Diagnostic extends Base_Diagnostic {
+export interface ClassMemberDiagnostic extends BaseDiagnostic {
 	kind: 'class_member_failed';
 	/** Name of the class. */
 	class_name: string;
@@ -79,7 +79,7 @@ export interface Class_Member_Diagnostic extends Base_Diagnostic {
 /**
  * Svelte prop type resolution failed.
  */
-export interface Svelte_Prop_Diagnostic extends Base_Diagnostic {
+export interface SveltePropDiagnostic extends BaseDiagnostic {
 	kind: 'svelte_prop_failed';
 	/** Name of the component. */
 	component_name: string;
@@ -91,10 +91,10 @@ export interface Svelte_Prop_Diagnostic extends Base_Diagnostic {
  * Union of all diagnostic types.
  */
 export type Diagnostic =
-	| Type_Extraction_Diagnostic
-	| Signature_Analysis_Diagnostic
-	| Class_Member_Diagnostic
-	| Svelte_Prop_Diagnostic;
+	| TypeExtractionDiagnostic
+	| SignatureAnalysisDiagnostic
+	| ClassMemberDiagnostic
+	| SveltePropDiagnostic;
 
 /**
  * Context for collecting diagnostics during source analysis.
@@ -154,7 +154,7 @@ export class AnalysisContext {
 	/**
 	 * Get diagnostics of a specific kind.
 	 */
-	by_kind<K extends Diagnostic_Kind>(kind: K): Array<Extract<Diagnostic, {kind: K}>> {
+	by_kind<K extends DiagnosticKind>(kind: K): Array<Extract<Diagnostic, {kind: K}>> {
 		return this.diagnostics.filter((d) => d.kind === kind) as Array<Extract<Diagnostic, {kind: K}>>;
 	}
 }
@@ -162,7 +162,7 @@ export class AnalysisContext {
 /**
  * Options for formatting diagnostics.
  */
-export interface Format_Diagnostic_Options {
+export interface FormatDiagnosticOptions {
 	/** Prefix for file path (default: './'). */
 	prefix?: string;
 	/** Base path to strip from absolute file paths (e.g., process.cwd()). */
@@ -178,7 +178,7 @@ export interface Format_Diagnostic_Options {
  */
 export const format_diagnostic = (
 	diagnostic: Diagnostic,
-	options?: Format_Diagnostic_Options,
+	options?: FormatDiagnosticOptions,
 ): string => {
 	const prefix = options?.prefix ?? './';
 	const strip_base = options?.strip_base;

@@ -9,11 +9,14 @@ import type {
 	DeclarationJson,
 	GenericParamInfo,
 	DeclarationKind,
+	ModuleJson,
 } from '@fuzdev/fuz_util/source_json.js';
 
 import {tsdoc_parse, tsdoc_apply_to_declaration, tsdoc_clean_comment} from './tsdoc_helpers.js';
 import {
 	type ModuleSourceOptions,
+	type SourceFileInfo,
+	module_extract_dependencies,
 	module_extract_path,
 	module_matches_source,
 } from './module_helpers.js';
@@ -818,4 +821,69 @@ export const ts_create_program = (
 		: parsed_config.options;
 
 	return ts.createProgram(parsed_config.fileNames, compiler_options);
+};
+
+/**
+ * Result of analyzing a TypeScript module.
+ * Includes both the module metadata and re-export information for post-processing.
+ */
+export interface TypeScriptModuleAnalysis {
+	/** Module metadata for inclusion in source_json. */
+	module: ModuleJson;
+	/** Re-exports from this module for building also_exported_from. */
+	re_exports: Array<ReExportInfo>;
+}
+
+/**
+ * Analyze a TypeScript file and extract module metadata.
+ *
+ * Wraps `ts_analyze_module_exports` and adds dependency information
+ * from the source file info if available.
+ *
+ * This is a high-level function suitable for building documentation or library metadata.
+ * For lower-level analysis, use `ts_analyze_module_exports` directly.
+ *
+ * @param source_file_info The source file info (from Gro filer, file system, or other source)
+ * @param ts_source_file TypeScript source file from the program
+ * @param module_path The module path (relative to source root)
+ * @param checker TypeScript type checker
+ * @param options Module source options for path extraction (use `MODULE_SOURCE_DEFAULTS` for standard layouts)
+ * @param ctx Analysis context for collecting diagnostics
+ * @returns Module metadata and re-export information
+ */
+export const ts_analyze_module = (
+	source_file_info: SourceFileInfo,
+	ts_source_file: ts.SourceFile,
+	module_path: string,
+	checker: ts.TypeChecker,
+	options: ModuleSourceOptions,
+	ctx: AnalysisContext,
+): TypeScriptModuleAnalysis => {
+	// Use the mid-level helper for core analysis
+	const {module_comment, declarations, re_exports} = ts_analyze_module_exports(
+		ts_source_file,
+		checker,
+		options,
+		ctx,
+	);
+
+	const mod: ModuleJson = {
+		path: module_path,
+		declarations,
+	};
+
+	if (module_comment) {
+		mod.module_comment = module_comment;
+	}
+
+	// Extract dependencies and dependents if provided
+	const {dependencies, dependents} = module_extract_dependencies(source_file_info, options);
+	if (dependencies.length > 0) {
+		mod.dependencies = dependencies;
+	}
+	if (dependents.length > 0) {
+		mod.dependents = dependents;
+	}
+
+	return {module: mod, re_exports};
 };

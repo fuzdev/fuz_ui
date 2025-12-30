@@ -158,6 +158,7 @@ Supporting helpers (three-layer architecture):
   - `module_matches_source` - configurable source detection predicate
   - `module_is_typescript`, `module_is_svelte` - simple extension predicates
   - `module_extract_path`, `module_get_component_name` - path utilities
+  - `module_extract_dependencies` - extract filtered/sorted dependency lists
   - `ModuleSourceOptions`, `MODULE_SOURCE_DEFAULTS` - configuration
 - `src_json.ts` - type definitions for the metadata format
 - `library_helpers.ts` - URL builders (`url_github_file`, `url_api_declaration`,
@@ -296,7 +297,7 @@ TypeScript and Svelte analysis:
   - `tsdoc_parse`, `tsdoc_apply_to_declaration`
 - `module_helpers.ts` - module path utilities
   - predicates: `module_matches_source`, `module_is_typescript`, `module_is_svelte`
-  - utilities: `module_extract_path`, `module_get_component_name`
+  - utilities: `module_extract_path`, `module_get_component_name`, `module_extract_dependencies`
   - configuration: `ModuleSourceOptions`, `MODULE_SOURCE_DEFAULTS`
 - `library_gen_helpers.ts` - build-tool agnostic generation helpers
 

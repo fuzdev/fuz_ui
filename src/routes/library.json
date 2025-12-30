@@ -221,30 +221,30 @@
 				"path": "analysis_context.ts",
 				"declarations": [
 					{
-						"name": "Diagnostic_Severity",
+						"name": "DiagnosticSeverity",
 						"kind": "type",
 						"doc_comment": "Diagnostic severity levels.\n\n- `error`: Analysis failed, declaration may be incomplete or missing data\n- `warning`: Partial success, something seems off but analysis continued",
 						"source_line": 23,
-						"type_signature": "Diagnostic_Severity"
+						"type_signature": "DiagnosticSeverity"
 					},
 					{
-						"name": "Diagnostic_Kind",
+						"name": "DiagnosticKind",
 						"kind": "type",
 						"doc_comment": "Discriminant for diagnostic types.",
 						"source_line": 28,
-						"type_signature": "Diagnostic_Kind"
+						"type_signature": "DiagnosticKind"
 					},
 					{
-						"name": "Base_Diagnostic",
+						"name": "BaseDiagnostic",
 						"kind": "type",
 						"doc_comment": "Base diagnostic fields shared by all diagnostic types.",
 						"source_line": 37,
-						"type_signature": "Base_Diagnostic",
+						"type_signature": "BaseDiagnostic",
 						"properties": [
 							{
 								"name": "kind",
 								"kind": "variable",
-								"type_signature": "Diagnostic_Kind"
+								"type_signature": "DiagnosticKind"
 							},
 							{
 								"name": "file",
@@ -273,17 +273,17 @@
 							{
 								"name": "severity",
 								"kind": "variable",
-								"type_signature": "Diagnostic_Severity"
+								"type_signature": "DiagnosticSeverity"
 							}
 						]
 					},
 					{
-						"name": "Type_Extraction_Diagnostic",
+						"name": "TypeExtractionDiagnostic",
 						"kind": "type",
 						"doc_comment": "Type extraction failed (e.g., complex or recursive types).",
 						"source_line": 53,
-						"type_signature": "Type_Extraction_Diagnostic",
-						"extends": ["Base_Diagnostic"],
+						"type_signature": "TypeExtractionDiagnostic",
+						"extends": ["BaseDiagnostic"],
 						"properties": [
 							{
 								"name": "kind",
@@ -299,12 +299,12 @@
 						]
 					},
 					{
-						"name": "Signature_Analysis_Diagnostic",
+						"name": "SignatureAnalysisDiagnostic",
 						"kind": "type",
 						"doc_comment": "Function/method signature analysis failed.",
 						"source_line": 62,
-						"type_signature": "Signature_Analysis_Diagnostic",
-						"extends": ["Base_Diagnostic"],
+						"type_signature": "SignatureAnalysisDiagnostic",
+						"extends": ["BaseDiagnostic"],
 						"properties": [
 							{
 								"name": "kind",
@@ -320,12 +320,12 @@
 						]
 					},
 					{
-						"name": "Class_Member_Diagnostic",
+						"name": "ClassMemberDiagnostic",
 						"kind": "type",
 						"doc_comment": "Class member analysis failed.",
 						"source_line": 71,
-						"type_signature": "Class_Member_Diagnostic",
-						"extends": ["Base_Diagnostic"],
+						"type_signature": "ClassMemberDiagnostic",
+						"extends": ["BaseDiagnostic"],
 						"properties": [
 							{
 								"name": "kind",
@@ -347,12 +347,12 @@
 						]
 					},
 					{
-						"name": "Svelte_Prop_Diagnostic",
+						"name": "SveltePropDiagnostic",
 						"kind": "type",
 						"doc_comment": "Svelte prop type resolution failed.",
 						"source_line": 82,
-						"type_signature": "Svelte_Prop_Diagnostic",
-						"extends": ["Base_Diagnostic"],
+						"type_signature": "SveltePropDiagnostic",
+						"extends": ["BaseDiagnostic"],
 						"properties": [
 							{
 								"name": "kind",
@@ -444,8 +444,8 @@
 								"name": "by_kind",
 								"kind": "function",
 								"doc_comment": "Get diagnostics of a specific kind.",
-								"type_signature": "<K extends Diagnostic_Kind>(kind: K): (Extract<Type_Extraction_Diagnostic, { kind: K; }> | Extract<Signature_Analysis_Diagnostic, { ...; }> | Extract<...> | Extract<...>)[]",
-								"return_type": "(Extract<Type_Extraction_Diagnostic, { kind: K; }> | Extract<Signature_Analysis_Diagnostic, { kind: K; }> | Extract<...> | Extract<...>)[]",
+								"type_signature": "<K extends DiagnosticKind>(kind: K): (Extract<TypeExtractionDiagnostic, { kind: K; }> | Extract<SignatureAnalysisDiagnostic, { ...; }> | Extract<...> | Extract<...>)[]",
+								"return_type": "(Extract<TypeExtractionDiagnostic, { kind: K; }> | Extract<SignatureAnalysisDiagnostic, { kind: K; }> | Extract<...> | Extract<...>)[]",
 								"parameters": [
 									{
 										"name": "kind",
@@ -456,11 +456,11 @@
 						]
 					},
 					{
-						"name": "Format_Diagnostic_Options",
+						"name": "FormatDiagnosticOptions",
 						"kind": "type",
 						"doc_comment": "Options for formatting diagnostics.",
 						"source_line": 165,
-						"type_signature": "Format_Diagnostic_Options",
+						"type_signature": "FormatDiagnosticOptions",
 						"properties": [
 							{
 								"name": "prefix",
@@ -481,7 +481,7 @@
 						"kind": "function",
 						"doc_comment": "Format a diagnostic for display.",
 						"source_line": 179,
-						"type_signature": "(diagnostic: Diagnostic, options?: Format_Diagnostic_Options | undefined): string",
+						"type_signature": "(diagnostic: Diagnostic, options?: FormatDiagnosticOptions | undefined): string",
 						"return_type": "string",
 						"return_description": "Formatted string like './file.ts:10:5: error: message'",
 						"parameters": [
@@ -492,7 +492,7 @@
 							},
 							{
 								"name": "options",
-								"type": "Format_Diagnostic_Options | undefined",
+								"type": "FormatDiagnosticOptions | undefined",
 								"optional": true,
 								"description": "Formatting options"
 							}
@@ -3534,32 +3534,11 @@
 				"path": "library_gen_helpers.ts",
 				"declarations": [
 					{
-						"name": "TsFileAnalysis",
-						"kind": "type",
-						"doc_comment": "Result of analyzing a TypeScript file.\nIncludes both the module metadata and re-export information for post-processing.",
-						"source_line": 42,
-						"type_signature": "TsFileAnalysis",
-						"properties": [
-							{
-								"name": "module",
-								"kind": "variable",
-								"type_signature": "ModuleJson",
-								"doc_comment": "Module metadata for inclusion in source_json."
-							},
-							{
-								"name": "re_exports",
-								"kind": "variable",
-								"type_signature": "Array<ReExportInfo>",
-								"doc_comment": "Re-exports from this module for building also_exported_from."
-							}
-						]
-					},
-					{
-						"name": "DuplicateDeclaration",
+						"name": "DuplicateInfo",
 						"kind": "type",
 						"doc_comment": "A duplicate declaration with its full metadata and module path.",
-						"source_line": 52,
-						"type_signature": "DuplicateDeclaration",
+						"source_line": 34,
+						"type_signature": "DuplicateInfo",
 						"properties": [
 							{
 								"name": "declaration",
@@ -3576,15 +3555,15 @@
 						]
 					},
 					{
-						"name": "library_gen_find_duplicates",
+						"name": "library_find_duplicates",
 						"kind": "function",
 						"doc_comment": "Find duplicate declaration names across modules.\n\nReturns a Map of declaration names to their full metadata (only includes duplicates).\nCallers can decide how to handle duplicates (throw, warn, ignore).",
 						"examples": [
-							"const duplicates = library_gen_find_duplicates(source_json);\nif (duplicates.size > 0) {\n  for (const [name, occurrences] of duplicates) {\n    console.error(`\"${name}\" found in:`);\n    for (const {declaration, module} of occurrences) {\n      console.error(`  - ${module}:${declaration.source_line} (${declaration.kind})`);\n    }\n  }\n  throw new Error(`Found ${duplicates.size} duplicate declaration names`);\n}"
+							"const duplicates = library_find_duplicates(source_json);\nif (duplicates.size > 0) {\n  for (const [name, occurrences] of duplicates) {\n    console.error(`\"${name}\" found in:`);\n    for (const {declaration, module} of occurrences) {\n      console.error(`  - ${module}:${declaration.source_line} (${declaration.kind})`);\n    }\n  }\n  throw new Error(`Found ${duplicates.size} duplicate declaration names`);\n}"
 						],
-						"source_line": 77,
+						"source_line": 59,
 						"type_signature": "(source_json: { [x: string]: unknown; name: string; version: string; modules?: { [x: string]: unknown; path: string; declarations?: { [x: string]: unknown; name: string; kind: \"function\" | \"json\" | \"type\" | \"variable\" | \"class\" | \"constructor\" | \"component\" | \"css\"; ... 19 more ...; alias_of?: { ...; } | undefined; }[] | undefined; module_comment?: string | undefined; dependencies?: string[] | undefined; dependents?: string[] | undefined; }[] | undefined; }): Map<...>",
-						"return_type": "Map<string, DuplicateDeclaration[]>",
+						"return_type": "Map<string, DuplicateInfo[]>",
 						"parameters": [
 							{
 								"name": "source_json",
@@ -3593,10 +3572,10 @@
 						]
 					},
 					{
-						"name": "library_gen_sort_modules",
+						"name": "library_sort_modules",
 						"kind": "function",
 						"doc_comment": "Sort modules alphabetically by path for deterministic output and cleaner diffs.",
-						"source_line": 110,
+						"source_line": 92,
 						"type_signature": "(modules: { [x: string]: unknown; path: string; declarations?: { [x: string]: unknown; name: string; kind: \"function\" | \"json\" | \"type\" | \"variable\" | \"class\" | \"constructor\" | \"component\" | \"css\"; doc_comment?: string | undefined; ... 18 more ...; alias_of?: { ...; } | undefined; }[] | undefined; module_comment?: string | undefined; dependencies?: string[] | undefined; dependents?: string[] | undefined; }[]): { ...; }[]",
 						"return_type": "{ [x: string]: unknown; path: string; declarations?: { [x: string]: unknown; name: string; kind: \"function\" | \"json\" | \"type\" | \"variable\" | \"class\" | \"constructor\" | \"component\" | \"css\"; doc_comment?: string | undefined; ... 18 more ...; alias_of?: { ...; } | undefined; }[] | undefined; module_comment?: string | un...",
 						"parameters": [
@@ -3607,11 +3586,11 @@
 						]
 					},
 					{
-						"name": "LibraryGenOutput",
+						"name": "LibraryGenResult",
 						"kind": "type",
 						"doc_comment": "Result of generating library files.\nContains both the JSON data and the TypeScript wrapper file.",
-						"source_line": 118,
-						"type_signature": "LibraryGenOutput",
+						"source_line": 100,
+						"type_signature": "LibraryGenResult",
 						"properties": [
 							{
 								"name": "json_content",
@@ -3628,12 +3607,12 @@
 						]
 					},
 					{
-						"name": "library_gen_generate_json",
+						"name": "library_generate_json",
 						"kind": "function",
 						"doc_comment": "Generate the library.json and library.ts file contents.\nParses at generation time so runtime only needs the pre-computed result.\n\nReturns JSON + .ts wrapper because:\n- JSON is natively importable by Node.js and Vite without TypeScript loaders\n- Works in CI environments that don't have TS compilation\n- The .ts wrapper validates with zod and exports with proper types\n  (JSON imports get widened types like `string` instead of literal unions)",
-						"source_line": 135,
-						"type_signature": "(package_json: { [x: string]: unknown; name: string; version: string; private?: boolean | undefined; description?: string | undefined; motto?: string | undefined; glyph?: string | undefined; logo?: string | undefined; ... 23 more ...; exports?: string | ... 2 more ... | undefined; }, source_json: { ...; }): LibraryGenOutput",
-						"return_type": "LibraryGenOutput",
+						"source_line": 117,
+						"type_signature": "(package_json: { [x: string]: unknown; name: string; version: string; private?: boolean | undefined; description?: string | undefined; motto?: string | undefined; glyph?: string | undefined; logo?: string | undefined; ... 23 more ...; exports?: string | ... 2 more ... | undefined; }, source_json: { ...; }): LibraryGenResult",
+						"return_type": "LibraryGenResult",
 						"parameters": [
 							{
 								"name": "package_json",
@@ -3646,10 +3625,10 @@
 						]
 					},
 					{
-						"name": "library_gen_collect_source_files",
+						"name": "library_collect_source_files",
 						"kind": "function",
 						"doc_comment": "Collect and filter source files.\n\nReturns source files for TypeScript/JS files and Svelte components, excluding test files.\nReturns an empty array with a warning if no source files are found.\n\nNote: Only `.ts`, `.js`, and `.svelte` files are supported. The `options.extensions`\nfilters within these types (e.g., `['.ts']` to exclude .js and .svelte).\nOther extensions like `.css` are ignored even if added to options.",
-						"source_line": 177,
+						"source_line": 159,
 						"type_signature": "(files: Iterable<SourceFileInfo>, options: ModuleSourceOptions, log?: Logger | undefined): SourceFileInfo[]",
 						"return_type": "SourceFileInfo[]",
 						"parameters": [
@@ -3670,105 +3649,10 @@
 								"description": "Optional logger for status messages"
 							}
 						]
-					},
-					{
-						"name": "library_gen_analyze_svelte_file",
-						"kind": "function",
-						"doc_comment": "Analyze a Svelte component file and extract metadata.\n\nUses `svelte_analyze_file` for core analysis, then adds\ndependency information from the source file info if available.",
-						"source_line": 222,
-						"type_signature": "(source_file: SourceFileInfo, module_path: string, checker: TypeChecker, options: ModuleSourceOptions, ctx: AnalysisContext): { ...; }",
-						"return_type": "{ [x: string]: unknown; path: string; declarations?: { [x: string]: unknown; name: string; kind: \"function\" | \"json\" | \"type\" | \"variable\" | \"class\" | \"constructor\" | \"component\" | \"css\"; doc_comment?: string | undefined; ... 18 more ...; alias_of?: { ...; } | undefined; }[] | undefined; module_comment?: string | un...",
-						"parameters": [
-							{
-								"name": "source_file",
-								"type": "SourceFileInfo",
-								"description": "The source file info"
-							},
-							{
-								"name": "module_path",
-								"type": "string",
-								"description": "The module path (relative to source root)"
-							},
-							{
-								"name": "checker",
-								"type": "TypeChecker",
-								"description": "TypeScript type checker"
-							},
-							{
-								"name": "options",
-								"type": "ModuleSourceOptions",
-								"description": "Module source options for path extraction"
-							},
-							{
-								"name": "ctx",
-								"type": "AnalysisContext",
-								"description": "Optional analysis context for collecting diagnostics"
-							}
-						]
-					},
-					{
-						"name": "library_gen_analyze_typescript_file",
-						"kind": "function",
-						"doc_comment": "Analyze a TypeScript file and extract all declarations.\n\nUses `ts_analyze_module_exports` for core analysis, then adds\ndependency information from the source file info if available.\n\nReturns both the module metadata and re-export information for post-processing.",
-						"source_line": 259,
-						"type_signature": "(source_file_info: SourceFileInfo, ts_source_file: SourceFile, module_path: string, checker: TypeChecker, options: ModuleSourceOptions, ctx: AnalysisContext): TsFileAnalysis",
-						"return_type": "TsFileAnalysis",
-						"parameters": [
-							{
-								"name": "source_file_info",
-								"type": "SourceFileInfo",
-								"description": "The source file info"
-							},
-							{
-								"name": "ts_source_file",
-								"type": "SourceFile",
-								"description": "TypeScript source file from the program"
-							},
-							{
-								"name": "module_path",
-								"type": "string",
-								"description": "The module path (relative to source root)"
-							},
-							{
-								"name": "checker",
-								"type": "TypeChecker",
-								"description": "TypeScript type checker"
-							},
-							{
-								"name": "options",
-								"type": "ModuleSourceOptions",
-								"description": "Module source options for path extraction"
-							},
-							{
-								"name": "ctx",
-								"type": "AnalysisContext",
-								"description": "Optional analysis context for collecting diagnostics"
-							}
-						]
-					},
-					{
-						"name": "library_gen_extract_dependencies",
-						"kind": "function",
-						"doc_comment": "Extract dependencies and dependents for a module from source file info.\n\nFilters to only include source modules (excludes external packages, node_modules, tests).\nReturns sorted arrays of module paths (relative to source_root) for deterministic output.\n\nIf no dependencies/dependents are provided in the source file info, returns empty arrays.",
-						"source_line": 307,
-						"type_signature": "(source_file: SourceFileInfo, options: ModuleSourceOptions): { dependencies: string[]; dependents: string[]; }",
-						"return_type": "{ dependencies: string[]; dependents: string[]; }",
-						"parameters": [
-							{
-								"name": "source_file",
-								"type": "SourceFileInfo",
-								"description": "The source file info to extract dependencies from"
-							},
-							{
-								"name": "options",
-								"type": "ModuleSourceOptions",
-								"description": "Module source options for filtering and path extraction"
-							}
-						]
 					}
 				],
-				"module_comment": "Build-time helpers for library metadata generation.\n\nThese functions are build-tool agnostic, working with the `SourceFileInfo` interface.\nCore analysis logic has been extracted to reusable helpers:\n\n- `ts_helpers.ts` - `ts_analyze_module_exports`\n- `svelte_helpers.ts` - `svelte_analyze_file`\n- `module_helpers.ts` - path utilities, source detection, and `SourceFileInfo`\n\nDesign philosophy: Fail fast with clear errors rather than silently producing invalid\nmetadata. All validation errors halt the build immediately with actionable messages.\n\n@see library_gen.ts for the main generation task (Gro-specific)\n@see @fuzdev/fuz_util/source_json.js for type definitions\n@see ts_helpers.ts for reusable TypeScript analysis\n@see svelte_helpers.ts for reusable Svelte component analysis",
-				"dependencies": ["module_helpers.ts", "svelte_helpers.ts", "ts_helpers.ts"],
+				"module_comment": "Library metadata generation helpers.\n\nThese functions handle collection, validation, and output generation for library metadata.\nAnalysis functions have been moved to their respective domain helpers:\n\n- `ts_helpers.ts` - `ts_analyze_module` for TypeScript files\n- `svelte_helpers.ts` - `svelte_analyze_module` for Svelte components\n- `module_helpers.ts` - path utilities, source detection, and `SourceFileInfo`\n\nDesign philosophy: Fail fast with clear errors rather than silently producing invalid\nmetadata. All validation errors halt the build immediately with actionable messages.\n\n@see library_gen.ts for the main generation task (Gro-specific)\n@see @fuzdev/fuz_util/source_json.js for type definitions",
+				"dependencies": ["module_helpers.ts"],
 				"dependents": ["library_gen.ts"]
 			},
 			{
@@ -3778,7 +3662,7 @@
 						"name": "LibraryGenOptions",
 						"kind": "type",
 						"doc_comment": "Options for library generation.",
-						"source_line": 48,
+						"source_line": 47,
 						"type_signature": "LibraryGenOptions",
 						"properties": [
 							{
@@ -3799,7 +3683,7 @@
 						"name": "library_gen",
 						"kind": "function",
 						"doc_comment": "Creates a Gen object for generating library metadata with full TypeScript analysis.\n\nUsage in a `.gen.ts` file:\n\n```ts\nimport {library_gen} from '@fuzdev/fuz_ui/library_gen.js';\n\nexport const gen = library_gen();\n```",
-						"source_line": 78,
+						"source_line": 77,
 						"type_signature": "(options?: LibraryGenOptions | undefined): Gen",
 						"return_type": "Gen",
 						"parameters": [
@@ -3817,6 +3701,7 @@
 					"analysis_context.ts",
 					"library_gen_helpers.ts",
 					"module_helpers.ts",
+					"svelte_helpers.ts",
 					"ts_helpers.ts"
 				]
 			},
@@ -5084,6 +4969,26 @@
 								"description": "Module source options for filtering"
 							}
 						]
+					},
+					{
+						"name": "module_extract_dependencies",
+						"kind": "function",
+						"doc_comment": "Extract dependencies and dependents for a module from source file info.\n\nFilters to only include source modules (excludes external packages, node_modules, tests).\nReturns sorted arrays of module paths (relative to source_root) for deterministic output.",
+						"source_line": 185,
+						"type_signature": "(source_file: SourceFileInfo, options: ModuleSourceOptions): { dependencies: string[]; dependents: string[]; }",
+						"return_type": "{ dependencies: string[]; dependents: string[]; }",
+						"parameters": [
+							{
+								"name": "source_file",
+								"type": "SourceFileInfo",
+								"description": "The source file info to extract dependencies from"
+							},
+							{
+								"name": "options",
+								"type": "ModuleSourceOptions",
+								"description": "Module source options for filtering and path extraction"
+							}
+						]
 					}
 				],
 				"module_comment": "Module path and metadata helpers.\n\nProvides utilities for working with source module paths, file types,\nand import relationships in the package generation system.\n\nAll functions are prefixed with `module_` for clarity.",
@@ -5490,7 +5395,7 @@
 						"name": "SvelteFileAnalysis",
 						"kind": "type",
 						"doc_comment": "Result of analyzing a Svelte file.",
-						"source_line": 32,
+						"source_line": 37,
 						"type_signature": "SvelteFileAnalysis",
 						"properties": [
 							{
@@ -5511,7 +5416,7 @@
 						"name": "svelte_analyze_component",
 						"kind": "function",
 						"doc_comment": "Analyze a Svelte component from its svelte2tsx transformation.",
-						"source_line": 42,
+						"source_line": 47,
 						"type_signature": "(ts_code: string, source_file: SourceFile, checker: TypeChecker, component_name: string, file_path: string, source_map: TraceMap | null, ctx: AnalysisContext): { ...; }",
 						"return_type": "{ [x: string]: unknown; name: string; kind: \"function\" | \"json\" | \"type\" | \"variable\" | \"class\" | \"constructor\" | \"component\" | \"css\"; doc_comment?: string | undefined; type_signature?: string | undefined; ... 17 more ...; alias_of?: { ...; } | undefined; }",
 						"parameters": [
@@ -5549,7 +5454,7 @@
 						"name": "svelte_extract_script_content",
 						"kind": "function",
 						"doc_comment": "Extract the content of the main `<script>` tag from Svelte source.\n\nMatches `<script>` or `<script lang=\"ts\">` but not `<script module>`.\nReturns undefined if no matching script tag is found.",
-						"source_line": 364,
+						"source_line": 369,
 						"type_signature": "(svelte_source: string): string | undefined",
 						"return_type": "string | undefined",
 						"parameters": [
@@ -5563,7 +5468,7 @@
 						"name": "svelte_extract_module_comment",
 						"kind": "function",
 						"doc_comment": "Extract module-level comment from Svelte script content.\n\nUses the same blank-line heuristic as TypeScript module comments:\na JSDoc comment (`/** ... *\\/`) followed by a blank line is considered\na module-level comment rather than a declaration comment.",
-						"source_line": 382,
+						"source_line": 387,
 						"type_signature": "(script_content: string): string | undefined",
 						"return_type": "string | undefined",
 						"return_description": "The cleaned module comment text, or undefined if none found",
@@ -5579,7 +5484,7 @@
 						"name": "svelte_analyze_file",
 						"kind": "function",
 						"doc_comment": "Analyze a Svelte component file.\n\nThis is a high-level function that handles the complete workflow:\n1. Read the Svelte source (from `source_file.content` or disk)\n2. Transform to TypeScript via svelte2tsx\n3. Extract component metadata (props, documentation)\n4. Extract module-level documentation\n\nSuitable for use in documentation generators, build tools, and analysis.",
-						"source_line": 411,
+						"source_line": 416,
 						"type_signature": "(source_file: SourceFileInfo, module_path: string, checker: TypeChecker, ctx: AnalysisContext): SvelteFileAnalysis",
 						"return_type": "SvelteFileAnalysis",
 						"return_description": "Component declaration and optional module-level comment",
@@ -5605,11 +5510,47 @@
 								"description": "Optional analysis context for collecting diagnostics"
 							}
 						]
+					},
+					{
+						"name": "svelte_analyze_module",
+						"kind": "function",
+						"doc_comment": "Analyze a Svelte component file and extract module metadata.\n\nWraps `svelte_analyze_file` and adds dependency information\nfrom the source file info if available.\n\nThis is a high-level function suitable for building documentation or library metadata.\nFor lower-level analysis, use `svelte_analyze_file` directly.",
+						"source_line": 491,
+						"type_signature": "(source_file: SourceFileInfo, module_path: string, checker: TypeChecker, options: ModuleSourceOptions, ctx: AnalysisContext): { ...; }",
+						"return_type": "{ [x: string]: unknown; path: string; declarations?: { [x: string]: unknown; name: string; kind: \"function\" | \"json\" | \"type\" | \"variable\" | \"class\" | \"constructor\" | \"component\" | \"css\"; doc_comment?: string | undefined; ... 18 more ...; alias_of?: { ...; } | undefined; }[] | undefined; module_comment?: string | un...",
+						"return_description": "Module metadata for inclusion in source_json",
+						"parameters": [
+							{
+								"name": "source_file",
+								"type": "SourceFileInfo",
+								"description": "The source file info (from Gro filer, file system, or other source)"
+							},
+							{
+								"name": "module_path",
+								"type": "string",
+								"description": "The module path (relative to source root)"
+							},
+							{
+								"name": "checker",
+								"type": "TypeChecker",
+								"description": "TypeScript type checker"
+							},
+							{
+								"name": "options",
+								"type": "ModuleSourceOptions",
+								"description": "Module source options for path extraction (use `MODULE_SOURCE_DEFAULTS` for standard layouts)"
+							},
+							{
+								"name": "ctx",
+								"type": "AnalysisContext",
+								"description": "Analysis context for collecting diagnostics"
+							}
+						]
 					}
 				],
 				"module_comment": "Svelte component analysis helpers.\n\nExtracts metadata from Svelte components using svelte2tsx transformations:\n\n- Component props with types and JSDoc\n- Component-level documentation\n- Type information\n\nWorkflow: Transform Svelte to TypeScript via svelte2tsx, parse the transformed\nTypeScript with the TS Compiler API, extract component-level JSDoc from original source.\n\nRequires svelte2tsx 0.7.x (Svelte 5 compatible). The transformed output format\nis version-specific - other versions may produce different AST structures.\nVersion constraint is enforced via peerDependencies in package.json.\n\nAll functions are prefixed with `svelte_` for clarity.",
 				"dependencies": ["module_helpers.ts", "ts_helpers.ts", "tsdoc_helpers.ts"],
-				"dependents": ["library_gen_helpers.ts"]
+				"dependents": ["library_gen.ts"]
 			},
 			{
 				"path": "Svg.svelte",
@@ -6177,7 +6118,7 @@
 						"name": "ts_infer_declaration_kind",
 						"kind": "function",
 						"doc_comment": "Infer declaration kind from symbol and node.",
-						"source_line": 78,
+						"source_line": 81,
 						"type_signature": "(symbol: Symbol, node: Node): \"function\" | \"json\" | \"type\" | \"variable\" | \"class\" | \"constructor\" | \"component\" | \"css\"",
 						"return_type": "\"function\" | \"json\" | \"type\" | \"variable\" | \"class\" | \"constructor\" | \"component\" | \"css\"",
 						"parameters": [
@@ -6195,7 +6136,7 @@
 						"name": "ts_extract_function_info",
 						"kind": "function",
 						"doc_comment": "Extract function/method information including parameters\nwith descriptions and default values.",
-						"source_line": 109,
+						"source_line": 112,
 						"type_signature": "(node: Node, symbol: Symbol, checker: TypeChecker, declaration: { [x: string]: unknown; name: string; kind: \"function\" | \"json\" | \"type\" | \"variable\" | \"class\" | \"constructor\" | \"component\" | \"css\"; ... 19 more ...; alias_of?: { ...; } | undefined; }, tsdoc: TsdocParsedComment | undefined, ctx: AnalysisContext): void",
 						"return_type": "void",
 						"parameters": [
@@ -6229,7 +6170,7 @@
 						"name": "ts_extract_type_info",
 						"kind": "function",
 						"doc_comment": "Extract type/interface information with rich property metadata.",
-						"source_line": 202,
+						"source_line": 205,
 						"type_signature": "(node: Node, _symbol: Symbol, checker: TypeChecker, declaration: { [x: string]: unknown; name: string; kind: \"function\" | \"json\" | \"type\" | \"variable\" | \"class\" | \"constructor\" | \"component\" | \"css\"; ... 19 more ...; alias_of?: { ...; } | undefined; }, ctx: AnalysisContext): void",
 						"return_type": "void",
 						"parameters": [
@@ -6259,7 +6200,7 @@
 						"name": "ts_extract_class_info",
 						"kind": "function",
 						"doc_comment": "Extract class information with rich member metadata.",
-						"source_line": 277,
+						"source_line": 280,
 						"type_signature": "(node: Node, _symbol: Symbol, checker: TypeChecker, declaration: { [x: string]: unknown; name: string; kind: \"function\" | \"json\" | \"type\" | \"variable\" | \"class\" | \"constructor\" | \"component\" | \"css\"; ... 19 more ...; alias_of?: { ...; } | undefined; }, ctx: AnalysisContext): void",
 						"return_type": "void",
 						"parameters": [
@@ -6289,7 +6230,7 @@
 						"name": "ts_extract_variable_info",
 						"kind": "function",
 						"doc_comment": "Extract variable information.",
-						"source_line": 457,
+						"source_line": 460,
 						"type_signature": "(node: Node, symbol: Symbol, checker: TypeChecker, declaration: { [x: string]: unknown; name: string; kind: \"function\" | \"json\" | \"type\" | \"variable\" | \"class\" | \"constructor\" | \"component\" | \"css\"; ... 19 more ...; alias_of?: { ...; } | undefined; }, ctx: AnalysisContext): void",
 						"return_type": "void",
 						"parameters": [
@@ -6319,7 +6260,7 @@
 						"name": "TsDeclarationAnalysis",
 						"kind": "type",
 						"doc_comment": "Result of analyzing a single declaration.",
-						"source_line": 484,
+						"source_line": 487,
 						"type_signature": "TsDeclarationAnalysis",
 						"properties": [
 							{
@@ -6340,7 +6281,7 @@
 						"name": "ts_analyze_declaration",
 						"kind": "function",
 						"doc_comment": "Analyze a TypeScript symbol and extract rich metadata.\n\nThis is a high-level function that combines TSDoc parsing with TypeScript\ntype analysis to produce complete declaration metadata. Suitable for use\nin documentation generators, IDE integrations, and other tooling.",
-						"source_line": 504,
+						"source_line": 507,
 						"type_signature": "(symbol: Symbol, source_file: SourceFile, checker: TypeChecker, ctx: AnalysisContext): TsDeclarationAnalysis",
 						"return_type": "TsDeclarationAnalysis",
 						"return_description": "Complete declaration metadata including docs, types, and parameters, plus nodocs flag",
@@ -6371,7 +6312,7 @@
 						"name": "ReExportInfo",
 						"kind": "type",
 						"doc_comment": "Information about a same-name re-export.\nUsed for post-processing to build `also_exported_from` arrays.",
-						"source_line": 553,
+						"source_line": 556,
 						"type_signature": "ReExportInfo",
 						"properties": [
 							{
@@ -6392,7 +6333,7 @@
 						"name": "ModuleExportsAnalysis",
 						"kind": "type",
 						"doc_comment": "Result of analyzing a module's exports.",
-						"source_line": 563,
+						"source_line": 566,
 						"type_signature": "ModuleExportsAnalysis",
 						"properties": [
 							{
@@ -6425,7 +6366,7 @@
 						"name": "ts_analyze_module_exports",
 						"kind": "function",
 						"doc_comment": "Analyze all exports from a TypeScript source file.\n\nExtracts the module-level comment and all exported declarations with\ncomplete metadata. Handles re-exports by:\n- Same-name re-exports: tracked in `re_exports` for `also_exported_from` building\n- Renamed re-exports: included as new declarations with `alias_of` metadata\n- Star exports (`export * from`): tracked in `star_exports` for namespace-level info\n\nThis is a mid-level function (above `ts_extract_*`, below `library_gen`)\nsuitable for building documentation, API explorers, or analysis tools.\nFor standard SvelteKit library layouts, use `MODULE_SOURCE_DEFAULTS` for the options parameter.",
-						"source_line": 593,
+						"source_line": 596,
 						"type_signature": "(source_file: SourceFile, checker: TypeChecker, options: ModuleSourceOptions, ctx: AnalysisContext): ModuleExportsAnalysis",
 						"return_type": "ModuleExportsAnalysis",
 						"return_description": "Module comment, declarations, re-exports, and star exports",
@@ -6456,7 +6397,7 @@
 						"name": "ts_extract_module_comment",
 						"kind": "function",
 						"doc_comment": "Extract module-level comment.\n\nOnly accepts JSDoc/TSDoc comments (`/** ... *\\/`) followed by a blank line to distinguish\nthem from identifier-level comments. This prevents accidentally treating function/class\ncomments as module comments. Module comments can appear after imports.",
-						"source_line": 731,
+						"source_line": 734,
 						"type_signature": "(source_file: SourceFile): string | undefined",
 						"return_type": "string | undefined",
 						"parameters": [
@@ -6470,7 +6411,7 @@
 						"name": "TsProgramOptions",
 						"kind": "type",
 						"doc_comment": "Options for creating a TypeScript program.",
-						"source_line": 782,
+						"source_line": 785,
 						"type_signature": "TsProgramOptions",
 						"properties": [
 							{
@@ -6503,7 +6444,7 @@
 								"description": "if tsconfig.json is not found"
 							}
 						],
-						"source_line": 798,
+						"source_line": 801,
 						"type_signature": "(log: { info: (message: string) => void; }, options?: TsProgramOptions | undefined): Program",
 						"return_type": "Program",
 						"parameters": [
@@ -6519,11 +6460,73 @@
 								"description": "Configuration options for program creation"
 							}
 						]
+					},
+					{
+						"name": "TypeScriptModuleAnalysis",
+						"kind": "type",
+						"doc_comment": "Result of analyzing a TypeScript module.\nIncludes both the module metadata and re-export information for post-processing.",
+						"source_line": 830,
+						"type_signature": "TypeScriptModuleAnalysis",
+						"properties": [
+							{
+								"name": "module",
+								"kind": "variable",
+								"type_signature": "ModuleJson",
+								"doc_comment": "Module metadata for inclusion in source_json."
+							},
+							{
+								"name": "re_exports",
+								"kind": "variable",
+								"type_signature": "Array<ReExportInfo>",
+								"doc_comment": "Re-exports from this module for building also_exported_from."
+							}
+						]
+					},
+					{
+						"name": "ts_analyze_module",
+						"kind": "function",
+						"doc_comment": "Analyze a TypeScript file and extract module metadata.\n\nWraps `ts_analyze_module_exports` and adds dependency information\nfrom the source file info if available.\n\nThis is a high-level function suitable for building documentation or library metadata.\nFor lower-level analysis, use `ts_analyze_module_exports` directly.",
+						"source_line": 854,
+						"type_signature": "(source_file_info: SourceFileInfo, ts_source_file: SourceFile, module_path: string, checker: TypeChecker, options: ModuleSourceOptions, ctx: AnalysisContext): TypeScriptModuleAnalysis",
+						"return_type": "TypeScriptModuleAnalysis",
+						"return_description": "Module metadata and re-export information",
+						"parameters": [
+							{
+								"name": "source_file_info",
+								"type": "SourceFileInfo",
+								"description": "The source file info (from Gro filer, file system, or other source)"
+							},
+							{
+								"name": "ts_source_file",
+								"type": "SourceFile",
+								"description": "TypeScript source file from the program"
+							},
+							{
+								"name": "module_path",
+								"type": "string",
+								"description": "The module path (relative to source root)"
+							},
+							{
+								"name": "checker",
+								"type": "TypeChecker",
+								"description": "TypeScript type checker"
+							},
+							{
+								"name": "options",
+								"type": "ModuleSourceOptions",
+								"description": "Module source options for path extraction (use `MODULE_SOURCE_DEFAULTS` for standard layouts)"
+							},
+							{
+								"name": "ctx",
+								"type": "AnalysisContext",
+								"description": "Analysis context for collecting diagnostics"
+							}
+						]
 					}
 				],
 				"module_comment": "TypeScript compiler API helpers for extracting metadata from source code.\n\nAll functions are prefixed with `ts_` for clarity.",
 				"dependencies": ["module_helpers.ts", "tsdoc_helpers.ts"],
-				"dependents": ["library_gen.ts", "library_gen_helpers.ts", "svelte_helpers.ts"]
+				"dependents": ["library_gen.ts", "svelte_helpers.ts"]
 			},
 			{
 				"path": "tsdoc_helpers.ts",
