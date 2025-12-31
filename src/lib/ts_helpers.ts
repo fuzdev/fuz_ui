@@ -615,43 +615,23 @@ export const ts_analyze_module_exports = (
 			statement.moduleSpecifier &&
 			ts.isStringLiteral(statement.moduleSpecifier)
 		) {
-			const specifier = statement.moduleSpecifier.text;
+			// Use the type checker to resolve the module - it has already resolved all imports
+			// during program creation, so this leverages TypeScript's full module resolution
+			const module_symbol = checker.getSymbolAtLocation(statement.moduleSpecifier);
+			if (module_symbol) {
+				// Get the source file from the module symbol's declarations
+				const module_decl = module_symbol.valueDeclaration ?? module_symbol.declarations?.[0];
+				if (module_decl) {
+					const resolved_source = module_decl.getSourceFile();
+					const resolved_path = resolved_source.fileName;
 
-			// Only handle relative imports (starting with ./ or ../)
-			if (specifier.startsWith('./') || specifier.startsWith('../')) {
-				// Get the directory of the current source file
-				const source_dir = source_file.fileName.substring(0, source_file.fileName.lastIndexOf('/'));
-
-				// Resolve relative path (normalize .js to .ts for resolution)
-				let resolved_specifier = specifier.replace(/\.js$/, '.ts');
-				if (!resolved_specifier.endsWith('.ts')) {
-					resolved_specifier += '.ts';
-				}
-
-				// Simple path resolution for relative imports
-				let resolved_path: string;
-				if (resolved_specifier.startsWith('./')) {
-					resolved_path = source_dir + resolved_specifier.substring(1);
-				} else {
-					// Handle ../ by going up directories
-					const parts = source_dir.split('/');
-					const rel_parts = resolved_specifier.split('/');
-					for (const part of rel_parts) {
-						if (part === '..') {
-							parts.pop();
-						} else if (part !== '.') {
-							parts.push(part);
-						}
+					// Only include star exports from source modules (not node_modules)
+					if (module_matches_source(resolved_path, options)) {
+						star_exports.push(module_extract_path(resolved_path, options));
 					}
-					resolved_path = parts.join('/');
-				}
-
-				// Only include star exports from source modules (not node_modules)
-				if (module_matches_source(resolved_path, options)) {
-					star_exports.push(module_extract_path(resolved_path, options));
 				}
 			}
-			// Non-relative imports (bare specifiers like 'svelte') are external - skip them
+			// If module couldn't be resolved (external package, etc.), skip it
 		}
 	}
 
@@ -858,7 +838,7 @@ export const ts_analyze_module = (
 	ctx: AnalysisContext,
 ): TypeScriptModuleAnalysis => {
 	// Use the mid-level helper for core analysis
-	const {module_comment, declarations, re_exports} = ts_analyze_module_exports(
+	const {module_comment, declarations, re_exports, star_exports} = ts_analyze_module_exports(
 		ts_source_file,
 		checker,
 		options,
@@ -881,6 +861,11 @@ export const ts_analyze_module = (
 	}
 	if (dependents.length > 0) {
 		mod.dependents = dependents;
+	}
+
+	// Include star exports if present
+	if (star_exports.length > 0) {
+		mod.star_exports = star_exports;
 	}
 
 	return {module: mod, re_exports};

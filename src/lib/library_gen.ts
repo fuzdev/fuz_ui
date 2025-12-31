@@ -26,20 +26,19 @@ import {package_json_load} from '@ryanatkn/gro/package_json.js';
 import type {Disknode} from '@ryanatkn/gro/disknode.js';
 import type {SourceJson} from '@fuzdev/fuz_util/source_json.js';
 
-import {ts_create_program, ts_analyze_module} from './ts_helpers.js';
-import {svelte_analyze_module} from './svelte_helpers.js';
+import {ts_create_program} from './ts_helpers.js';
 import {
 	type SourceFileInfo,
 	type ModuleSourceOptions,
 	MODULE_SOURCE_DEFAULTS,
 	module_extract_path,
-	module_is_svelte,
 } from './module_helpers.js';
 import {
 	library_collect_source_files,
 	library_sort_modules,
 	library_find_duplicates,
 	library_merge_re_exports,
+	library_analyze_module,
 	type CollectedReExport,
 } from './library_gen_helpers.js';
 import {library_generate_json} from './library_gen_output.js';
@@ -101,7 +100,6 @@ export const library_gen = (options?: LibraryGenOptions): Gen => {
 
 			// Create TypeScript program
 			const program = ts_create_program(undefined, log);
-			const checker = program.getTypeChecker();
 
 			// Create analysis context for collecting diagnostics
 			const ctx = new AnalysisContext();
@@ -128,37 +126,24 @@ export const library_gen = (options?: LibraryGenOptions): Gen => {
 			const collected_re_exports: Array<CollectedReExport> = [];
 
 			for (const source_file of source_files) {
-				const source_id = source_file.id;
-				const module_path = module_extract_path(source_id, source_options);
-				const is_svelte = module_is_svelte(module_path);
+				const module_path = module_extract_path(source_file.id, source_options);
 
-				// Handle Svelte files separately (before trying to get TypeScript source file)
-				if (is_svelte) {
-					const mod = svelte_analyze_module(source_file, module_path, checker, source_options, ctx);
-					source_json.modules!.push(mod);
-				} else {
-					// For TypeScript/JS files, get the source file from the program
-					const ts_source_file = program.getSourceFile(source_id);
-					if (!ts_source_file) {
-						log.warn(`Could not get source file: ${source_id}`);
-						continue;
-					}
+				// Use unified analyzer that dispatches based on file type
+				const result = library_analyze_module(
+					source_file,
+					module_path,
+					program,
+					source_options,
+					ctx,
+					log,
+				);
+				if (!result) continue;
 
-					// May throw, which we want to see
-					const {module: mod, re_exports} = ts_analyze_module(
-						source_file,
-						ts_source_file,
-						module_path,
-						checker,
-						source_options,
-						ctx,
-					);
-					source_json.modules!.push(mod);
+				source_json.modules!.push(result.module);
 
-					// Collect re-exports for phase 2 merging
-					for (const re_export of re_exports) {
-						collected_re_exports.push({re_exporting_module: module_path, re_export});
-					}
+				// Collect re-exports for phase 2 merging
+				for (const re_export of result.re_exports) {
+					collected_re_exports.push({re_exporting_module: module_path, re_export});
 				}
 			}
 
