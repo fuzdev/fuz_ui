@@ -216,4 +216,3 @@ export const library_collect_source_files = (
 
 	return source_files;
 };
-
