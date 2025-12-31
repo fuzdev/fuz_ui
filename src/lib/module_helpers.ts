@@ -87,33 +87,74 @@ export const MODULE_SOURCE_DEFAULTS: ModuleSourceOptions = {
 };
 
 /**
- * Validate that `source_paths` entries are consistent with `source_root`.
+ * Validate `ModuleSourceOptions` format and consistency.
  *
- * Each `source_paths` entry must start with `source_root` to ensure
- * `module_extract_path` can correctly strip the prefix.
+ * Checks:
+ * 1. `source_root` has leading and trailing slashes (e.g., `/src/lib/`)
+ * 2. Each `source_paths` entry has leading and trailing slashes
+ * 3. Each `source_paths` entry starts with `source_root`
  *
- * @throws Error if any `source_paths` entry doesn't start with `source_root`
+ * The slash requirements ensure correct behavior:
+ * - Leading slash: required for `skip_nested_source_dirs` which searches for `/src/`
+ * - Trailing slash: prevents `/src/lib` from matching `/src/library/`
+ *
+ * @throws Error if validation fails
  *
  * @example
- * // Valid - source_paths within source_root
+ * // Valid
  * module_validate_source_options({
  *   source_root: '/src/',
  *   source_paths: ['/src/lib/', '/src/routes/'],
  *   ...
  * });
  *
- * // Invalid - throws error
+ * // Invalid - missing slashes
+ * module_validate_source_options({
+ *   source_root: 'src/lib',  // throws
+ *   ...
+ * });
+ *
+ * // Invalid - inconsistent paths
  * module_validate_source_options({
  *   source_root: '/src/lib/',
- *   source_paths: ['/src/routes/'],  // not within /src/lib/
+ *   source_paths: ['/src/routes/'],  // throws - not within /src/lib/
  *   ...
  * });
  */
 export const module_validate_source_options = (options: ModuleSourceOptions): void => {
-	for (const source_path of options.source_paths) {
-		if (!source_path.startsWith(options.source_root)) {
+	const {source_root, source_paths} = options;
+
+	// Validate source_root format
+	if (!source_root.startsWith('/')) {
+		throw new Error(
+			`source_root must start with "/": "${source_root}". ` +
+				`Leading slash is required for skip_nested_source_dirs to work correctly.`,
+		);
+	}
+	if (!source_root.endsWith('/')) {
+		throw new Error(
+			`source_root must end with "/": "${source_root}". ` +
+				`Trailing slash prevents false matches (e.g., "/src/lib" would match "/src/library/").`,
+		);
+	}
+
+	// Validate each source_path
+	for (const source_path of source_paths) {
+		if (!source_path.startsWith('/')) {
 			throw new Error(
-				`source_paths entry "${source_path}" must start with source_root "${options.source_root}". ` +
+				`source_paths entry must start with "/": "${source_path}". ` +
+					`Leading slash is required for skip_nested_source_dirs to work correctly.`,
+			);
+		}
+		if (!source_path.endsWith('/')) {
+			throw new Error(
+				`source_paths entry must end with "/": "${source_path}". ` +
+					`Trailing slash prevents false matches.`,
+			);
+		}
+		if (!source_path.startsWith(source_root)) {
+			throw new Error(
+				`source_paths entry "${source_path}" must start with source_root "${source_root}". ` +
 					`Files in source_paths are filtered, but module_extract_path uses source_root to compute module paths. ` +
 					`These must be consistent or module paths will be incorrect.`,
 			);

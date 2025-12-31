@@ -114,7 +114,7 @@ export type Baz = { value: number };
 		// Should have 3 identifiers
 		assert.strictEqual(result.declarations.length, 3);
 
-		const names = result.declarations.map((i) => i.name);
+		const names = result.declarations.map((i) => i.declaration.name);
 		assert.include(names, 'foo');
 		assert.include(names, 'bar');
 		assert.include(names, 'Baz');
@@ -193,7 +193,7 @@ export function add(a: number, b: number): number {
 
 		assert.strictEqual(result.declarations.length, 1);
 
-		const add_fn = result.declarations[0]!;
+		const add_fn = result.declarations[0]!.declaration;
 		assert.strictEqual(add_fn.name, 'add');
 		assert.strictEqual(add_fn.kind, 'function');
 		assert.strictEqual(add_fn.doc_comment, 'Adds two numbers.');
@@ -235,7 +235,7 @@ export class Counter {
 
 		assert.strictEqual(result.declarations.length, 1);
 
-		const counter = result.declarations[0]!;
+		const counter = result.declarations[0]!.declaration;
 		assert.strictEqual(counter.name, 'Counter');
 		assert.strictEqual(counter.kind, 'class');
 		assert.ok(counter.members);
@@ -268,7 +268,7 @@ export interface Config {
 
 		assert.strictEqual(result.declarations.length, 1);
 
-		const config = result.declarations[0]!;
+		const config = result.declarations[0]!.declaration;
 		assert.strictEqual(config.name, 'Config');
 		assert.strictEqual(config.kind, 'type');
 		assert.ok(config.properties);
@@ -298,7 +298,7 @@ export { internal_value as exported_value };
 
 		// Should have the re-exported value
 		assert.strictEqual(result.declarations.length, 1);
-		assert.strictEqual(result.declarations[0]!.name, 'exported_value');
+		assert.strictEqual(result.declarations[0]!.declaration.name, 'exported_value');
 	});
 
 	test('handles mixed export kinds in same module', () => {
@@ -339,7 +339,7 @@ export class Service {
 		// Should have 5 identifiers of different kinds
 		assert.strictEqual(result.declarations.length, 5);
 
-		const by_name = new Map(result.declarations.map((i) => [i.name, i]));
+		const by_name = new Map(result.declarations.map((i) => [i.declaration.name, i.declaration]));
 
 		// Check each kind
 		const version = by_name.get('VERSION');
@@ -363,7 +363,7 @@ export class Service {
 		assert.strictEqual(service.kind, 'class');
 	});
 
-	test('excludes @nodocs identifiers from exports', () => {
+	test('returns @nodocs identifiers with nodocs flag for consumer filtering', () => {
 		const source_code = `
 /**
  * Module with nodocs exports.
@@ -395,14 +395,26 @@ export function public_function(): string {
 			new AnalysisContext(),
 		);
 
-		// Should only have 2 public identifiers (nodocs ones excluded)
-		assert.strictEqual(result.declarations.length, 2);
+		// Should have ALL 4 identifiers - filtering is now consumer responsibility
+		assert.strictEqual(result.declarations.length, 4);
 
-		const names = result.declarations.map((i) => i.name);
+		const names = result.declarations.map((i) => i.declaration.name);
 		assert.include(names, 'public_value');
 		assert.include(names, 'public_function');
-		assert.notInclude(names, 'nodocs_helper');
-		assert.notInclude(names, 'NodocsType');
+		assert.include(names, 'nodocs_helper');
+		assert.include(names, 'NodocsType');
+
+		// Verify nodocs flags are correctly set
+		const by_name = new Map(result.declarations.map((d) => [d.declaration.name, d]));
+
+		assert.strictEqual(by_name.get('public_value')!.nodocs, false);
+		assert.strictEqual(by_name.get('public_function')!.nodocs, false);
+		assert.strictEqual(by_name.get('nodocs_helper')!.nodocs, true);
+		assert.strictEqual(by_name.get('NodocsType')!.nodocs, true);
+
+		// Consumer can filter like this:
+		const public_only = result.declarations.filter((d) => !d.nodocs);
+		assert.strictEqual(public_only.length, 2);
 	});
 
 	test('detects same-name re-exports and tracks in re_exports array', () => {
@@ -439,7 +451,7 @@ export const local_value = 'local';
 		// index.ts should only have local_value as a direct export
 		// helper and CONSTANT are re-exports and should be in re_exports array
 		assert.strictEqual(result.declarations.length, 1);
-		assert.strictEqual(result.declarations[0]!.name, 'local_value');
+		assert.strictEqual(result.declarations[0]!.declaration.name, 'local_value');
 
 		// re_exports should contain the two re-exported identifiers
 		assert.strictEqual(result.re_exports.length, 2);
@@ -484,7 +496,7 @@ export {internal_impl as public_api} from './internal.js';
 
 		// Renamed re-export creates a NEW declaration with alias_of
 		assert.strictEqual(result.declarations.length, 1);
-		const declaration = result.declarations[0]!;
+		const declaration = result.declarations[0]!.declaration;
 		assert.strictEqual(declaration.name, 'public_api');
 		assert.ok(declaration.alias_of);
 		assert.strictEqual(declaration.alias_of.module, 'internal.ts');
@@ -530,17 +542,17 @@ export {util_b as renamed_util} from './utils.js';
 		// Should have 3 identifiers: direct_fn, DirectType, renamed_util
 		assert.strictEqual(result.declarations.length, 3);
 
-		const names = result.declarations.map((i) => i.name);
+		const names = result.declarations.map((i) => i.declaration.name);
 		assert.include(names, 'direct_fn');
 		assert.include(names, 'DirectType');
 		assert.include(names, 'renamed_util');
 		assert.notInclude(names, 'util_a'); // same-name re-export excluded
 
 		// renamed_util should have alias_of
-		const renamed = result.declarations.find((i) => i.name === 'renamed_util');
-		assert.ok(renamed?.alias_of);
-		assert.strictEqual(renamed.alias_of.module, 'utils.ts');
-		assert.strictEqual(renamed.alias_of.name, 'util_b');
+		const renamed = result.declarations.find((i) => i.declaration.name === 'renamed_util');
+		assert.ok(renamed?.declaration.alias_of);
+		assert.strictEqual(renamed.declaration.alias_of.module, 'utils.ts');
+		assert.strictEqual(renamed.declaration.alias_of.name, 'util_b');
 
 		// re_exports should contain util_a
 		assert.strictEqual(result.re_exports.length, 1);
@@ -654,14 +666,16 @@ export function third(): void {}
 		const result = ts_analyze_module_exports(source_file, checker, MODULE_SOURCE_DEFAULTS, ctx);
 
 		// Each declaration should have a source_line
-		for (const decl of result.declarations) {
+		for (const {declaration: decl} of result.declarations) {
 			assert.ok(decl.source_line, `Declaration ${decl.name} should have source_line`);
 			assert.ok(decl.source_line > 0, `source_line should be positive for ${decl.name}`);
 		}
 
 		// Verify relative ordering (second comes after first)
-		const first_decl = result.declarations.find((d) => d.name === 'first')!;
-		const second_decl = result.declarations.find((d) => d.name === 'second')!;
+		const first_decl = result.declarations.find((d) => d.declaration.name === 'first')!.declaration;
+		const second_decl = result.declarations.find(
+			(d) => d.declaration.name === 'second',
+		)!.declaration;
 		assert.ok(second_decl.source_line! > first_decl.source_line!);
 	});
 });
@@ -699,7 +713,7 @@ export {original} from './b.js';
 		const c_file = source_files.get('/src/lib/c.ts')!;
 		const c_result = ts_analyze_module_exports(c_file, checker, MODULE_SOURCE_DEFAULTS, ctx);
 		assert.strictEqual(c_result.declarations.length, 1);
-		assert.strictEqual(c_result.declarations[0]!.name, 'original');
+		assert.strictEqual(c_result.declarations[0]!.declaration.name, 'original');
 		assert.strictEqual(c_result.re_exports.length, 0);
 
 		// Analyze B - should track re-export from C
@@ -747,7 +761,7 @@ export {base_value} from './base.js';
 
 		// Should have local_value as direct declaration
 		assert.strictEqual(result.declarations.length, 1);
-		assert.strictEqual(result.declarations[0]!.name, 'local_value');
+		assert.strictEqual(result.declarations[0]!.declaration.name, 'local_value');
 
 		// Should have base_value as re-export
 		assert.strictEqual(result.re_exports.length, 1);
@@ -787,7 +801,7 @@ export const index_value = 'index';
 		assert.strictEqual(result.star_exports[0], 'helpers.ts');
 
 		// Direct export should be in declarations
-		assert.ok(result.declarations.some((d) => d.name === 'index_value'));
+		assert.ok(result.declarations.some((d) => d.declaration.name === 'index_value'));
 
 		// TypeScript expands export * to individual symbols via getExportsOfModule,
 		// which are then tracked as re_exports (same-name re-exports from source modules)
@@ -885,7 +899,7 @@ export const combined_value = 'combined';
 		assert.ok(result.re_exports.some((r) => r.name === 'util_fn'));
 
 		// Direct declaration
-		assert.ok(result.declarations.some((d) => d.name === 'combined_value'));
+		assert.ok(result.declarations.some((d) => d.declaration.name === 'combined_value'));
 
 		// The star_exports array provides namespace-level info about types.ts
 		// Individual type exports (Config, Options) may or may not appear in re_exports

@@ -605,7 +605,79 @@ describe('module_validate_source_options', () => {
 		});
 	});
 
-	describe('invalid configurations', () => {
+	describe('source_root format validation', () => {
+		test('throws when source_root missing leading slash', () => {
+			const options: ModuleSourceOptions = {
+				...MODULE_SOURCE_DEFAULTS,
+				source_root: 'src/lib/',
+				source_paths: ['src/lib/'],
+			};
+
+			assert.throws(
+				() => module_validate_source_options(options),
+				/source_root must start with "\/"/,
+			);
+		});
+
+		test('throws when source_root missing trailing slash', () => {
+			const options: ModuleSourceOptions = {
+				...MODULE_SOURCE_DEFAULTS,
+				source_root: '/src/lib',
+				source_paths: ['/src/lib/'],
+			};
+
+			assert.throws(
+				() => module_validate_source_options(options),
+				/source_root must end with "\/"/,
+			);
+		});
+
+		test('error message explains trailing slash requirement', () => {
+			const options: ModuleSourceOptions = {
+				...MODULE_SOURCE_DEFAULTS,
+				source_root: '/src/lib',
+				source_paths: ['/src/lib/'],
+			};
+
+			try {
+				module_validate_source_options(options);
+				assert.fail('Expected error');
+			} catch (err) {
+				assert.ok(err instanceof Error);
+				assert.ok(err.message.includes('/src/library/'));
+			}
+		});
+	});
+
+	describe('source_paths format validation', () => {
+		test('throws when source_path missing leading slash', () => {
+			const options: ModuleSourceOptions = {
+				...MODULE_SOURCE_DEFAULTS,
+				source_root: '/src/',
+				source_paths: ['src/lib/'],
+			};
+
+			assert.throws(
+				() => module_validate_source_options(options),
+				/source_paths entry must start with "\/"/,
+			);
+		});
+
+		test('throws when source_path missing trailing slash', () => {
+			const options: ModuleSourceOptions = {
+				...MODULE_SOURCE_DEFAULTS,
+				source_root: '/src/',
+				source_paths: ['/src/lib'],
+			};
+
+			assert.throws(
+				() => module_validate_source_options(options),
+				/source_paths entry must end with "\/"/,
+			);
+		});
+	});
+
+	describe('source_root vs source_paths consistency', () => {
 		test('throws when source_path does not start with source_root', () => {
 			const options: ModuleSourceOptions = {
 				...MODULE_SOURCE_DEFAULTS,

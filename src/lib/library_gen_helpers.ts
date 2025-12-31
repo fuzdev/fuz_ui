@@ -21,7 +21,7 @@
 import type {Logger} from '@fuzdev/fuz_util/log.js';
 import type {DeclarationJson, ModuleJson, SourceJson} from '@fuzdev/fuz_util/source_json.js';
 
-import type {ReExportInfo} from './ts_helpers.js';
+import type {ReExportInfo} from './library_analysis.js';
 import {
 	type SourceFileInfo,
 	type ModuleSourceOptions,

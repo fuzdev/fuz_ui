@@ -1,11 +1,13 @@
 /**
- * Library source analysis - unified entry point.
+ * Library source analysis - unified entry point and shared types.
  *
  * Provides a single function for analyzing TypeScript and Svelte source files,
  * dispatching to the appropriate domain-specific analyzer.
  *
- * This is the main consumer-facing API for source analysis. For pipeline
- * orchestration (collection, validation, re-export merging), see `library_gen_helpers.ts`.
+ * This module also exports shared types used by both analyzers:
+ * - `DeclarationAnalysis` - A declaration with its nodocs flag
+ * - `ReExportInfo` - Information about a same-name re-export
+ * - `ModuleAnalysis` - Result of analyzing a module (unified structure)
  *
  * @example
  * ```ts
@@ -26,7 +28,11 @@
  * );
  *
  * if (result) {
- *   console.log('Module:', result.module);
+ *   // Filter out @nodocs declarations
+ *   const declarations = result.declarations
+ *     .filter(d => !d.nodocs)
+ *     .map(d => d.declaration);
+ *   console.log('Declarations:', declarations);
  * }
  * ```
  *
@@ -37,22 +43,63 @@
 
 import ts from 'typescript';
 import type {Logger} from '@fuzdev/fuz_util/log.js';
-import type {ModuleJson} from '@fuzdev/fuz_util/source_json.js';
+import type {DeclarationJson} from '@fuzdev/fuz_util/source_json.js';
 
-import {type ReExportInfo, ts_analyze_module} from './ts_helpers.js';
+import {ts_analyze_module} from './ts_helpers.js';
 import {svelte_analyze_module} from './svelte_helpers.js';
 import {type SourceFileInfo, type ModuleSourceOptions, module_is_svelte} from './module_helpers.js';
 import type {AnalysisContext} from './analysis_context.js';
 
+// =============================================================================
+// Shared Types
+// =============================================================================
+
 /**
- * Result of analyzing a single module (TypeScript or Svelte).
+ * Result of analyzing a single declaration.
+ * Used by both TypeScript and Svelte analyzers for uniform handling.
  */
-export interface ModuleAnalysisResult {
-	/** The analyzed module metadata. */
-	module: ModuleJson;
+export interface DeclarationAnalysis {
+	/** The analyzed declaration metadata. */
+	declaration: DeclarationJson;
+	/** Whether the declaration is marked @nodocs (should be excluded from documentation). */
+	nodocs: boolean;
+}
+
+/**
+ * Information about a same-name re-export.
+ * Used for post-processing to build `also_exported_from` arrays.
+ */
+export interface ReExportInfo {
+	/** Name of the re-exported declaration. */
+	name: string;
+	/** Module path (relative to src/lib) where the declaration is originally declared. */
+	original_module: string;
+}
+
+/**
+ * Result of analyzing a module (TypeScript or Svelte).
+ * Both analyzers return this same structure for uniform handling.
+ */
+export interface ModuleAnalysis {
+	/** Module path relative to source root. */
+	path: string;
+	/** Module-level documentation comment. */
+	module_comment?: string;
+	/** All declarations with nodocs flags - consumer filters based on policy. */
+	declarations: Array<DeclarationAnalysis>;
+	/** Dependencies (other source modules this module imports). */
+	dependencies?: Array<string>;
+	/** Dependents (other source modules that import this module). */
+	dependents?: Array<string>;
+	/** Star exports (`export * from './module'`) - TypeScript only. */
+	star_exports?: Array<string>;
 	/** Re-exports discovered during analysis (empty for Svelte components). */
 	re_exports: Array<ReExportInfo>;
 }
+
+// =============================================================================
+// Main API
+// =============================================================================
 
 /**
  * Analyze a source file and extract module metadata.
@@ -60,6 +107,9 @@ export interface ModuleAnalysisResult {
  * Unified entry point that dispatches to the appropriate analyzer based on file type:
  * - TypeScript/JavaScript files → `ts_analyze_module`
  * - Svelte components → `svelte_analyze_module`
+ *
+ * Returns raw analysis data including `nodocs` flags on declarations.
+ * Consumer is responsible for filtering based on their policy.
  *
  * This function can be called incrementally - consumers may cache results and
  * only re-analyze changed files. The TypeScript program should include all files
@@ -80,13 +130,12 @@ export const library_analyze_module = (
 	options: ModuleSourceOptions,
 	ctx: AnalysisContext,
 	log?: Logger,
-): ModuleAnalysisResult | undefined => {
+): ModuleAnalysis | undefined => {
 	const checker = program.getTypeChecker();
 
 	if (module_is_svelte(module_path)) {
-		// Svelte components don't have re-exports
-		const module = svelte_analyze_module(source_file, module_path, checker, options, ctx);
-		return {module, re_exports: []};
+		// Both analyzers return the same structure - just pass through
+		return svelte_analyze_module(source_file, module_path, checker, options, ctx);
 	}
 
 	// TypeScript/JavaScript file - need source file from program
@@ -96,13 +145,5 @@ export const library_analyze_module = (
 		return undefined;
 	}
 
-	const {module, re_exports} = ts_analyze_module(
-		source_file,
-		ts_source_file,
-		module_path,
-		checker,
-		options,
-		ctx,
-	);
-	return {module, re_exports};
+	return ts_analyze_module(source_file, ts_source_file, module_path, checker, options, ctx);
 };

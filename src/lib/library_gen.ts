@@ -25,7 +25,7 @@
 import type {Gen} from '@ryanatkn/gro';
 import {package_json_load} from '@ryanatkn/gro/package_json.js';
 import type {Disknode} from '@ryanatkn/gro/disknode.js';
-import type {SourceJson} from '@fuzdev/fuz_util/source_json.js';
+import type {SourceJson, ModuleJson} from '@fuzdev/fuz_util/source_json.js';
 
 import {ts_create_program} from './ts_helpers.js';
 import {
@@ -140,7 +140,17 @@ export const library_gen = (options?: LibraryGenOptions): Gen => {
 				);
 				if (!result) continue;
 
-				source_json.modules!.push(result.module);
+				// Build ModuleJson, filtering out @nodocs declarations
+				const module: ModuleJson = {
+					path: result.path,
+					declarations: result.declarations.filter((d) => !d.nodocs).map((d) => d.declaration),
+				};
+				if (result.module_comment) module.module_comment = result.module_comment;
+				if (result.dependencies) module.dependencies = result.dependencies;
+				if (result.dependents) module.dependents = result.dependents;
+				if (result.star_exports) module.star_exports = result.star_exports;
+
+				source_json.modules!.push(module);
 
 				// Collect re-exports for phase 2 merging
 				for (const re_export of result.re_exports) {
