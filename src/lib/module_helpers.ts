@@ -21,10 +21,17 @@ export interface SourceFileInfo {
 	id: string;
 	/** File content (required - analysis functions don't read from disk). */
 	content: string;
-	/** Module paths this file imports (optional, for dependency tracking). */
-	dependencies?: Iterable<string>;
-	/** Module paths that import this file (optional, for dependent tracking). */
-	dependents?: Iterable<string>;
+	/**
+	 * Absolute file paths of modules this file imports (optional).
+	 * Only include resolved local imports, not node_modules.
+	 * Order should be declaration order in source for deterministic output.
+	 */
+	dependencies?: ReadonlyArray<string>;
+	/**
+	 * Absolute file paths of modules that import this file (optional).
+	 * Only include resolved local imports, not node_modules.
+	 */
+	dependents?: ReadonlyArray<string>;
 }
 
 /**
@@ -50,20 +57,22 @@ export interface ModuleSourceOptions {
 	/** Patterns to exclude (matched against full path). */
 	exclude_patterns: Array<RegExp>;
 	/**
-	 * Reject paths from nested source directories.
+	 * Skip paths from nested source directories.
 	 *
-	 * When true, validates that source_paths match starting from the first `/src/`
-	 * in the path. This prevents including files from nested repositories
-	 * (e.g., test fixtures containing full projects).
+	 * When true, filters out files where the first `/src/` in the path doesn't
+	 * lead to one of the `source_paths`. This prevents including files from
+	 * nested repositories (e.g., test fixtures containing full projects).
+	 *
+	 * Files are silently skipped, not rejected with an error.
 	 *
 	 * @default true
 	 *
 	 * @example
-	 * // With reject_nested_source_dirs: true (default)
+	 * // With skip_nested_source_dirs: true (default)
 	 * // ✓ /project/src/lib/foo.ts - first /src/ leads to /src/lib/
-	 * // ✗ /project/src/fixtures/repos/bar/src/lib/x.ts - first /src/ leads to /src/fixtures/
+	 * // ✗ /project/src/fixtures/repos/bar/src/lib/x.ts - first /src/ leads to /src/fixtures/ (skipped)
 	 */
-	reject_nested_source_dirs: boolean;
+	skip_nested_source_dirs: boolean;
 }
 
 /**
@@ -74,7 +83,7 @@ export const MODULE_SOURCE_DEFAULTS: ModuleSourceOptions = {
 	source_paths: ['/src/lib/'],
 	extensions: ['.ts', '.js', '.svelte'],
 	exclude_patterns: [/\.test\.ts$/],
-	reject_nested_source_dirs: true,
+	skip_nested_source_dirs: true,
 };
 
 /**
@@ -134,7 +143,7 @@ export const module_is_test = (path: string): boolean => path.endsWith('.test.ts
  *
  * Checks source directory paths, file extensions, and exclusion patterns.
  *
- * When `reject_nested_source_dirs` is true, rejects nested repo paths by ensuring
+ * When `skip_nested_source_dirs` is true, skips nested repo paths by ensuring
  * source_paths match starting from the first `/src/` in the path.
  *
  * @param path Full path to check
@@ -146,11 +155,11 @@ export const module_matches_source = (path: string, options: ModuleSourceOptions
 	const in_source_dir = options.source_paths.some((source_path) => {
 		if (!path.includes(source_path)) return false;
 
-		// If nested source dir rejection is enabled and path contains /src/,
+		// If nested source dir skipping is enabled and path contains /src/,
 		// verify the first /src/ leads to source_path.
-		// This rejects nested repos like /src/fixtures/repos/foo/src/lib/
+		// This skips nested repos like /src/fixtures/repos/foo/src/lib/
 		// Paths without /src/ skip this check (the nested repo problem doesn't apply).
-		if (options.reject_nested_source_dirs) {
+		if (options.skip_nested_source_dirs) {
 			const first_src_index = path.indexOf('/src/');
 			if (first_src_index !== -1) {
 				// The source_path should start at the /src/ position
@@ -160,7 +169,7 @@ export const module_matches_source = (path: string, options: ModuleSourceOptions
 			}
 		}
 
-		// No nested source dir rejection - just check path contains source_path
+		// No nested source dir skipping - just check path contains source_path
 		return true;
 	});
 	if (!in_source_dir) return false;

@@ -166,15 +166,17 @@ Supporting helpers (three-layer architecture):
 
 **High-level** (orchestration):
 
-- `library_gen_helpers.ts` - build-tool agnostic generation helpers
-  - `library_gen_collect_source_files` - collect and filter source files
-  - `library_gen_extract_dependencies` - extract dependency graph from `SourceFileInfo`
-  - `library_gen_find_duplicates` - find duplicate names (returns Map of duplicates)
-  - `library_gen_analyze_*` - file analysis wrappers
+- `library_analysis.ts` - unified analysis entry point
+  - `library_analyze_module` - dispatches to ts/svelte analyzers (consumer-facing API)
+- `library_gen_helpers.ts` - pipeline orchestration (internal)
+  - `library_collect_source_files` - collect and filter source files
+  - `library_find_duplicates` - find duplicate names (returns Map of duplicates)
+  - `library_merge_re_exports` - resolve re-export relationships
+  - `library_sort_modules` - prepare deterministic output
 - `library_gen.ts` - the Gro genfile that orchestrates generation
 
-The reusable functions (`ts_analyze_*`, `svelte_analyze_file`) can be used
-outside of package generation for IDE integrations, linters, or custom tools.
+The reusable functions (`library_analyze_module`, `ts_analyze_*`, `svelte_analyze_file`)
+can be used outside of package generation for IDE integrations, linters, or custom tools.
 
 Documentation components:
 
@@ -299,7 +301,8 @@ TypeScript and Svelte analysis:
   - predicates: `module_matches_source`, `module_is_typescript`, `module_is_svelte`
   - utilities: `module_extract_path`, `module_get_component_name`, `module_extract_dependencies`
   - configuration: `ModuleSourceOptions`, `MODULE_SOURCE_DEFAULTS`
-- `library_gen_helpers.ts` - build-tool agnostic generation helpers
+- `library_analysis.ts` - unified analysis entry point (`library_analyze_module`)
+- `library_gen_helpers.ts` - pipeline orchestration helpers
 
 browser and DOM:
 

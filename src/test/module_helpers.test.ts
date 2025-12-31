@@ -183,8 +183,8 @@ describe('MODULE_SOURCE_DEFAULTS', () => {
 		assert.isFalse(MODULE_SOURCE_DEFAULTS.exclude_patterns[0]!.test('foo.ts'));
 	});
 
-	test('has expected default reject_nested_source_dirs', () => {
-		assert.strictEqual(MODULE_SOURCE_DEFAULTS.reject_nested_source_dirs, true);
+	test('has expected default skip_nested_source_dirs', () => {
+		assert.strictEqual(MODULE_SOURCE_DEFAULTS.skip_nested_source_dirs, true);
 	});
 });
 
@@ -349,11 +349,11 @@ describe('module_matches_source', () => {
 		});
 	});
 
-	describe('with reject_nested_source_dirs', () => {
+	describe('with skip_nested_source_dirs', () => {
 		test('false disables nested repo detection', () => {
 			const options: ModuleSourceOptions = {
 				...MODULE_SOURCE_DEFAULTS,
-				reject_nested_source_dirs: false,
+				skip_nested_source_dirs: false,
 			};
 
 			// With detection disabled, nested repo paths are accepted
@@ -372,7 +372,7 @@ describe('module_matches_source', () => {
 				source_paths: ['/packages/core/lib/'],
 				extensions: ['.ts'],
 				exclude_patterns: [],
-				reject_nested_source_dirs: true,
+				skip_nested_source_dirs: true,
 			};
 
 			// Accepts paths without /src/ - the nested check is skipped
@@ -543,7 +543,7 @@ describe('module_extract_dependencies', () => {
 				source_paths: ['/src/routes/'],
 				extensions: ['.svelte'],
 				exclude_patterns: [],
-				reject_nested_source_dirs: true,
+				skip_nested_source_dirs: true,
 			};
 
 			const source_file: SourceFileInfo = {

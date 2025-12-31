@@ -15,7 +15,8 @@
  * build-tool agnostic helpers that work with `SourceFileInfo`.
  *
  * @see @fuzdev/fuz_util/source_json.js for type definitions
- * @see `library_gen_helpers.ts` for build-tool agnostic helpers
+ * @see `library_analysis.ts` for the unified analysis entry point
+ * @see `library_gen_helpers.ts` for pipeline orchestration helpers
  * @see `tsdoc_helpers.ts` for JSDoc/TSDoc parsing
  * @see `ts_helpers.ts` for TypeScript analysis
  * @see `svelte_helpers.ts` for Svelte component analysis
@@ -33,12 +34,12 @@ import {
 	MODULE_SOURCE_DEFAULTS,
 	module_extract_path,
 } from './module_helpers.js';
+import {library_analyze_module} from './library_analysis.js';
 import {
 	library_collect_source_files,
 	library_sort_modules,
 	library_find_duplicates,
 	library_merge_re_exports,
-	library_analyze_module,
 	type CollectedReExport,
 } from './library_gen_helpers.js';
 import {library_generate_json} from './library_gen_output.js';
@@ -66,8 +67,8 @@ const source_file_from_disknode = (disknode: Disknode): SourceFileInfo => {
 	return {
 		id: disknode.id,
 		content: disknode.contents,
-		dependencies: disknode.dependencies.keys(),
-		dependents: disknode.dependents.keys(),
+		dependencies: [...disknode.dependencies.keys()],
+		dependents: [...disknode.dependents.keys()],
 	};
 };
 

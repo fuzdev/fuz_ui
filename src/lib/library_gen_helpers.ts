@@ -1,27 +1,27 @@
 /**
- * Library metadata generation helpers - orchestration.
+ * Library metadata generation helpers - pipeline orchestration.
  *
- * These functions handle collection, validation, and transformation of library metadata.
- * Analysis functions are in their respective domain helpers:
+ * These functions handle collection, validation, and transformation of library metadata
+ * during the generation pipeline. They are internal to the generation process.
  *
- * - `ts_helpers.ts` - `ts_analyze_module` for TypeScript files
- * - `svelte_helpers.ts` - `svelte_analyze_module` for Svelte components
- * - `module_helpers.ts` - path utilities, source detection, and `SourceFileInfo`
+ * For source analysis (the consumer-facing API), see `library_analysis.ts`.
  *
- * Design philosophy: Fail fast with clear errors rather than silently producing invalid
- * metadata. All validation errors halt the build immediately with actionable messages.
+ * Pipeline stages:
+ * 1. **Collection** - `library_collect_source_files` gathers and filters source files
+ * 2. **Analysis** - `library_analyze_module` (in library_analysis.ts) extracts metadata
+ * 3. **Validation** - `library_find_duplicates` checks flat namespace constraints
+ * 4. **Transformation** - `library_merge_re_exports` resolves re-export relationships
+ * 5. **Output** - `library_sort_modules` prepares deterministic output
  *
+ * @see library_analysis.ts for the analysis entry point
  * @see library_gen_output.ts for output file generation (JSON/TS wrapper)
  * @see library_gen.ts for the main generation task (Gro-specific)
- * @see @fuzdev/fuz_util/source_json.js for type definitions
  */
 
-import ts from 'typescript';
 import type {Logger} from '@fuzdev/fuz_util/log.js';
 import type {DeclarationJson, ModuleJson, SourceJson} from '@fuzdev/fuz_util/source_json.js';
 
-import {type ReExportInfo, ts_analyze_module} from './ts_helpers.js';
-import {svelte_analyze_module} from './svelte_helpers.js';
+import type {ReExportInfo} from './ts_helpers.js';
 import {
 	type SourceFileInfo,
 	type ModuleSourceOptions,
@@ -29,7 +29,6 @@ import {
 	module_is_svelte,
 	module_matches_source,
 } from './module_helpers.js';
-import type {AnalysisContext} from './analysis_context.js';
 
 /**
  * A duplicate declaration with its full metadata and module path.
@@ -218,61 +217,3 @@ export const library_collect_source_files = (
 	return source_files;
 };
 
-/**
- * Result of analyzing a single module (TypeScript or Svelte).
- */
-export interface ModuleAnalysisResult {
-	/** The analyzed module metadata. */
-	module: ModuleJson;
-	/** Re-exports discovered during analysis (empty for Svelte components). */
-	re_exports: Array<ReExportInfo>;
-}
-
-/**
- * Analyze a source file and extract module metadata.
- *
- * Unified entry point that dispatches to the appropriate analyzer based on file type:
- * - TypeScript/JavaScript files → `ts_analyze_module`
- * - Svelte components → `svelte_analyze_module`
- *
- * @param source_file The source file info with content and optional dependency data
- * @param module_path The module path relative to source root
- * @param program TypeScript program (used for type checking and source file lookup)
- * @param options Module source options for path extraction
- * @param ctx Analysis context for collecting diagnostics
- * @param log Optional logger for warnings
- * @returns Module metadata and re-exports, or undefined if source file not found in program
- */
-export const library_analyze_module = (
-	source_file: SourceFileInfo,
-	module_path: string,
-	program: ts.Program,
-	options: ModuleSourceOptions,
-	ctx: AnalysisContext,
-	log?: Logger,
-): ModuleAnalysisResult | undefined => {
-	const checker = program.getTypeChecker();
-
-	if (module_is_svelte(module_path)) {
-		// Svelte components don't have re-exports
-		const module = svelte_analyze_module(source_file, module_path, checker, options, ctx);
-		return {module, re_exports: []};
-	}
-
-	// TypeScript/JavaScript file - need source file from program
-	const ts_source_file = program.getSourceFile(source_file.id);
-	if (!ts_source_file) {
-		log?.warn(`Could not get source file from program: ${source_file.id}`);
-		return undefined;
-	}
-
-	const {module, re_exports} = ts_analyze_module(
-		source_file,
-		ts_source_file,
-		module_path,
-		checker,
-		options,
-		ctx,
-	);
-	return {module, re_exports};
-};

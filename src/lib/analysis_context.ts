@@ -4,6 +4,45 @@
  * Provides structured error/warning collection during TypeScript and Svelte
  * analysis, replacing silent catch blocks with actionable diagnostics.
  *
+ * ## Error Handling Contract
+ *
+ * Analysis functions follow a two-tier error model:
+ *
+ * **Accumulated (non-fatal)** - Collected in AnalysisContext, analysis continues:
+ * - Type resolution failures (complex generics, circular refs)
+ * - Missing or unparseable JSDoc
+ * - Individual member/prop extraction failures
+ * - The return value is still valid but may have partial data
+ *
+ * **Thrown (fatal)** - Analysis cannot continue for this file:
+ * - File not found or unreadable
+ * - Syntax errors preventing parsing
+ * - svelte2tsx transformation failures
+ * - Svelte version incompatibility
+ *
+ * ## Usage Pattern
+ *
+ * ```ts
+ * const ctx = new AnalysisContext();
+ * const results = files.map(f => {
+ *   try {
+ *     return library_analyze_module(f, ..., ctx);
+ *   } catch (e) {
+ *     // Fatal error - log and skip this file
+ *     console.error(`Failed to analyze ${f.id}: ${e}`);
+ *     return null;
+ *   }
+ * });
+ *
+ * // Results are valid even with accumulated errors
+ * // Check ctx for diagnostics to display to user
+ * if (ctx.has_errors()) {
+ *   for (const err of ctx.errors()) {
+ *     console.error(format_diagnostic(err));
+ *   }
+ * }
+ * ```
+ *
  * @example
  * const ctx = new AnalysisContext();
  * // ... analysis functions add diagnostics via ctx.add(...)

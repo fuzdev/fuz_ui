@@ -10,9 +10,9 @@
  * Workflow: Transform Svelte to TypeScript via svelte2tsx, parse the transformed
  * TypeScript with the TS Compiler API, extract component-level JSDoc from original source.
  *
- * Requires svelte2tsx 0.7.x (Svelte 5 compatible). The transformed output format
- * is version-specific - other versions may produce different AST structures.
- * Version constraint is enforced via peerDependencies in package.json.
+ * **Svelte 5 only**: The svelte2tsx output format changed significantly between versions.
+ * This module requires Svelte 5+ and will throw a clear error if an older version is detected.
+ * There is no Svelte 4 compatibility layer.
  *
  * All functions are prefixed with `svelte_` for clarity.
  */
@@ -20,6 +20,7 @@
 import ts from 'typescript';
 import {svelte2tsx} from 'svelte2tsx';
 import {TraceMap, originalPositionFor} from '@jridgewell/trace-mapping';
+import {VERSION} from 'svelte/compiler';
 import type {DeclarationJson, ComponentPropInfo, ModuleJson} from '@fuzdev/fuz_util/source_json.js';
 
 import {tsdoc_parse, tsdoc_apply_to_declaration} from './tsdoc_helpers.js';
@@ -31,6 +32,23 @@ import {
 	module_extract_dependencies,
 } from './module_helpers.js';
 import type {AnalysisContext} from './analysis_context.js';
+
+/**
+ * Assert Svelte 5+ is installed.
+ * Throws a clear error message if an older version is detected.
+ */
+const svelte_assert_version = (): void => {
+	const [major] = VERSION.split('.');
+	if (parseInt(major!, 10) < 5) {
+		throw new Error(
+			`Svelte ${VERSION} detected but Svelte 5+ is required for source analysis. ` +
+				`The svelte2tsx output format changed significantly between versions.`,
+		);
+	}
+};
+
+// Check version at module load time for fast failure
+svelte_assert_version();
 
 /** Result of analyzing a Svelte file. */
 export interface SvelteFileAnalysis {
