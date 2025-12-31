@@ -28,6 +28,7 @@ import {
 	module_is_typescript,
 	module_is_svelte,
 	module_matches_source,
+	module_validate_source_options,
 } from './module_helpers.js';
 
 /**
@@ -189,6 +190,9 @@ export const library_collect_source_files = (
 	options: ModuleSourceOptions,
 	log?: Logger,
 ): Array<SourceFileInfo> => {
+	// Validate options early to fail fast on misconfiguration
+	module_validate_source_options(options);
+
 	const all_files = Array.from(files);
 	log?.info(`received ${all_files.length} files total`);
 

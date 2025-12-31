@@ -3608,7 +3608,7 @@
 						"name": "DuplicateInfo",
 						"kind": "type",
 						"doc_comment": "A duplicate declaration with its full metadata and module path.",
-						"source_line": 36,
+						"source_line": 37,
 						"type_signature": "DuplicateInfo",
 						"properties": [
 							{
@@ -3632,7 +3632,7 @@
 						"examples": [
 							"const duplicates = library_find_duplicates(source_json);\nif (duplicates.size > 0) {\n  for (const [name, occurrences] of duplicates) {\n    console.error(`\"${name}\" found in:`);\n    for (const {declaration, module} of occurrences) {\n      console.error(`  - ${module}:${declaration.source_line} (${declaration.kind})`);\n    }\n  }\n  throw new Error(`Found ${duplicates.size} duplicate declaration names`);\n}"
 						],
-						"source_line": 61,
+						"source_line": 62,
 						"type_signature": "(source_json: { [x: string]: unknown; name: string; version: string; modules?: { [x: string]: unknown; path: string; declarations?: { [x: string]: unknown; name: string; kind: \"function\" | \"json\" | \"type\" | \"variable\" | \"class\" | \"constructor\" | \"component\" | \"css\"; ... 19 more ...; alias_of?: { ...; } | undefined; }[] | undefined; module_comment?: string | undefined; dependencies?: string[] | undefined; dependents?: string[] | undefined; }[] | undefined; }): Map<...>",
 						"return_type": "Map<string, DuplicateInfo[]>",
 						"parameters": [
@@ -3646,7 +3646,7 @@
 						"name": "library_sort_modules",
 						"kind": "function",
 						"doc_comment": "Sort modules alphabetically by path for deterministic output and cleaner diffs.",
-						"source_line": 94,
+						"source_line": 95,
 						"type_signature": "(modules: { [x: string]: unknown; path: string; declarations?: { [x: string]: unknown; name: string; kind: \"function\" | \"json\" | \"type\" | \"variable\" | \"class\" | \"constructor\" | \"component\" | \"css\"; doc_comment?: string | undefined; ... 18 more ...; alias_of?: { ...; } | undefined; }[] | undefined; module_comment?: string | undefined; dependencies?: string[] | undefined; dependents?: string[] | undefined; }[]): { ...; }[]",
 						"return_type": "{ [x: string]: unknown; path: string; declarations?: { [x: string]: unknown; name: string; kind: \"function\" | \"json\" | \"type\" | \"variable\" | \"class\" | \"constructor\" | \"component\" | \"css\"; doc_comment?: string | undefined; ... 18 more ...; alias_of?: { ...; } | undefined; }[] | undefined; module_comment?: string | un...",
 						"parameters": [
@@ -3660,7 +3660,7 @@
 						"name": "CollectedReExport",
 						"kind": "type",
 						"doc_comment": "A collected re-export with its source module context.\n\nUsed during the two-phase re-export resolution:\n1. Phase 1: Collect re-exports from each module during analysis\n2. Phase 2: Group by original module and merge into `also_exported_from`",
-						"source_line": 105,
+						"source_line": 106,
 						"type_signature": "CollectedReExport",
 						"properties": [
 							{
@@ -3684,7 +3684,7 @@
 						"examples": [
 							"// helpers.ts exports: foo, bar\n// index.ts does: export {foo, bar} from './helpers.js'\n//\n// After processing:\n// - helpers.ts foo declaration gets: also_exported_from: ['index.ts']\n// - helpers.ts bar declaration gets: also_exported_from: ['index.ts']"
 						],
-						"source_line": 136,
+						"source_line": 137,
 						"type_signature": "(source_json: { [x: string]: unknown; name: string; version: string; modules?: { [x: string]: unknown; path: string; declarations?: { [x: string]: unknown; name: string; kind: \"function\" | \"json\" | \"type\" | \"variable\" | \"class\" | \"constructor\" | \"component\" | \"css\"; ... 19 more ...; alias_of?: { ...; } | undefined; }[] | undefined; module_comment?: string | undefined; dependencies?: string[] | undefined; dependents?: string[] | undefined; }[] | undefined; }, collected_re_exports: CollectedReExport[]): void",
 						"return_type": "void",
 						"parameters": [
@@ -3704,7 +3704,7 @@
 						"name": "library_collect_source_files",
 						"kind": "function",
 						"doc_comment": "Collect and filter source files.\n\nReturns source files for TypeScript/JS files and Svelte components, excluding test files.\nReturns an empty array with a warning if no source files are found.\n\nNote: Only `.ts`, `.js`, and `.svelte` files are supported. The `options.extensions`\nfilters within these types (e.g., `['.ts']` to exclude .js and .svelte).\nOther extensions like `.css` are ignored even if added to options.",
-						"source_line": 187,
+						"source_line": 188,
 						"type_signature": "(files: Iterable<SourceFileInfo>, options: ModuleSourceOptions, log?: Logger | undefined): SourceFileInfo[]",
 						"return_type": "SourceFileInfo[]",
 						"parameters": [
@@ -4952,13 +4952,36 @@
 						"type_signature": "ModuleSourceOptions"
 					},
 					{
+						"name": "module_validate_source_options",
+						"kind": "function",
+						"doc_comment": "Validate that `source_paths` entries are consistent with `source_root`.\n\nEach `source_paths` entry must start with `source_root` to ensure\n`module_extract_path` can correctly strip the prefix.",
+						"examples": [
+							"// Valid - source_paths within source_root\nmodule_validate_source_options({\n  source_root: '/src/',\n  source_paths: ['/src/lib/', '/src/routes/'],\n  ...\n});\n\n// Invalid - throws error\nmodule_validate_source_options({\n  source_root: '/src/lib/',\n  source_paths: ['/src/routes/'],  // not within /src/lib/\n  ...\n});"
+						],
+						"throws": [
+							{
+								"type": "Error",
+								"description": "if any `source_paths` entry doesn't start with `source_root`"
+							}
+						],
+						"source_line": 112,
+						"type_signature": "(options: ModuleSourceOptions): void",
+						"return_type": "void",
+						"parameters": [
+							{
+								"name": "options",
+								"type": "ModuleSourceOptions"
+							}
+						]
+					},
+					{
 						"name": "module_extract_path",
 						"kind": "function",
 						"doc_comment": "Extract module path relative to source root from absolute source ID.",
 						"examples": [
 							"module_extract_path('/home/user/project/src/lib/foo.ts', MODULE_SOURCE_DEFAULTS) // => 'foo.ts'\nmodule_extract_path('/home/user/project/src/lib/nested/bar.svelte', MODULE_SOURCE_DEFAULTS) // => 'nested/bar.svelte'\nmodule_extract_path('/home/user/project/src/routes/foo.ts', {...MODULE_SOURCE_DEFAULTS, source_root: '/src/routes/'}) // => 'foo.ts'"
 						],
-						"source_line": 100,
+						"source_line": 135,
 						"type_signature": "(source_id: string, options: ModuleSourceOptions): string",
 						"return_type": "string",
 						"parameters": [
@@ -4981,7 +5004,7 @@
 						"examples": [
 							"module_get_component_name('Alert.svelte') // => 'Alert'\nmodule_get_component_name('components/Button.svelte') // => 'Button'"
 						],
-						"source_line": 114,
+						"source_line": 149,
 						"type_signature": "(module_path: string): string",
 						"return_type": "string",
 						"parameters": [
@@ -4996,7 +5019,7 @@
 						"kind": "function",
 						"doc_comment": "Convert module path to module key format (with ./ prefix).",
 						"examples": ["module_get_key('foo.ts') // => './foo.ts'"],
-						"source_line": 123,
+						"source_line": 158,
 						"type_signature": "(module_path: string): string",
 						"return_type": "string",
 						"parameters": [
@@ -5010,7 +5033,7 @@
 						"name": "module_is_typescript",
 						"kind": "function",
 						"doc_comment": "Check if a path is a TypeScript or JavaScript file.\n\nIncludes both `.ts` and `.js` files since JS files are valid in TS projects.",
-						"source_line": 130,
+						"source_line": 165,
 						"type_signature": "(path: string): boolean",
 						"return_type": "boolean",
 						"parameters": [
@@ -5023,7 +5046,7 @@
 					{
 						"name": "module_is_svelte",
 						"kind": "function",
-						"source_line": 133,
+						"source_line": 168,
 						"type_signature": "(path: string): boolean",
 						"return_type": "boolean",
 						"parameters": [
@@ -5036,7 +5059,7 @@
 					{
 						"name": "module_is_css",
 						"kind": "function",
-						"source_line": 135,
+						"source_line": 170,
 						"type_signature": "(path: string): boolean",
 						"return_type": "boolean",
 						"parameters": [
@@ -5049,7 +5072,7 @@
 					{
 						"name": "module_is_json",
 						"kind": "function",
-						"source_line": 137,
+						"source_line": 172,
 						"type_signature": "(path: string): boolean",
 						"return_type": "boolean",
 						"parameters": [
@@ -5062,7 +5085,7 @@
 					{
 						"name": "module_is_test",
 						"kind": "function",
-						"source_line": 139,
+						"source_line": 174,
 						"type_signature": "(path: string): boolean",
 						"return_type": "boolean",
 						"parameters": [
@@ -5076,7 +5099,7 @@
 						"name": "module_matches_source",
 						"kind": "function",
 						"doc_comment": "Check if a path matches source criteria.\n\nChecks source directory paths, file extensions, and exclusion patterns.\n\nWhen `skip_nested_source_dirs` is true, skips nested repo paths by ensuring\nsource_paths match starting from the first `/src/` in the path.",
-						"source_line": 153,
+						"source_line": 188,
 						"type_signature": "(path: string, options: ModuleSourceOptions): boolean",
 						"return_type": "boolean",
 						"return_description": "True if the path matches all criteria",
@@ -5097,7 +5120,7 @@
 						"name": "module_extract_dependencies",
 						"kind": "function",
 						"doc_comment": "Extract dependencies and dependents for a module from source file info.\n\nFilters to only include source modules (excludes external packages, node_modules, tests).\nReturns sorted arrays of module paths (relative to source_root) for deterministic output.",
-						"source_line": 197,
+						"source_line": 232,
 						"type_signature": "(source_file: SourceFileInfo, options: ModuleSourceOptions): { dependencies: string[]; dependents: string[]; }",
 						"return_type": "{ dependencies: string[]; dependents: string[]; }",
 						"parameters": [

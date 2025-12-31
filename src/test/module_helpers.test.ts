@@ -11,6 +11,7 @@ import {
 	module_is_json,
 	module_is_test,
 	module_matches_source,
+	module_validate_source_options,
 	MODULE_SOURCE_DEFAULTS,
 	type ModuleSourceOptions,
 	type SourceFileInfo,
@@ -559,6 +560,94 @@ describe('module_extract_dependencies', () => {
 			const result = module_extract_dependencies(source_file, options);
 
 			assert.deepStrictEqual(result.dependencies, ['Footer.svelte', 'Header.svelte']);
+		});
+	});
+});
+
+describe('module_validate_source_options', () => {
+	describe('valid configurations', () => {
+		test('accepts source_paths equal to source_root', () => {
+			const options: ModuleSourceOptions = {
+				...MODULE_SOURCE_DEFAULTS,
+				source_root: '/src/lib/',
+				source_paths: ['/src/lib/'],
+			};
+
+			// Should not throw
+			module_validate_source_options(options);
+		});
+
+		test('accepts source_paths within source_root', () => {
+			const options: ModuleSourceOptions = {
+				...MODULE_SOURCE_DEFAULTS,
+				source_root: '/src/',
+				source_paths: ['/src/lib/', '/src/routes/'],
+			};
+
+			// Should not throw
+			module_validate_source_options(options);
+		});
+
+		test('accepts single source_path starting with source_root', () => {
+			const options: ModuleSourceOptions = {
+				...MODULE_SOURCE_DEFAULTS,
+				source_root: '/src/',
+				source_paths: ['/src/lib/'],
+			};
+
+			// Should not throw
+			module_validate_source_options(options);
+		});
+
+		test('accepts MODULE_SOURCE_DEFAULTS', () => {
+			// Should not throw
+			module_validate_source_options(MODULE_SOURCE_DEFAULTS);
+		});
+	});
+
+	describe('invalid configurations', () => {
+		test('throws when source_path does not start with source_root', () => {
+			const options: ModuleSourceOptions = {
+				...MODULE_SOURCE_DEFAULTS,
+				source_root: '/src/lib/',
+				source_paths: ['/src/routes/'],
+			};
+
+			assert.throws(
+				() => module_validate_source_options(options),
+				/source_paths entry "\/src\/routes\/" must start with source_root "\/src\/lib\/"/,
+			);
+		});
+
+		test('throws when any source_path is invalid', () => {
+			const options: ModuleSourceOptions = {
+				...MODULE_SOURCE_DEFAULTS,
+				source_root: '/src/lib/',
+				source_paths: ['/src/lib/', '/src/routes/'], // second one is invalid
+			};
+
+			assert.throws(
+				() => module_validate_source_options(options),
+				/source_paths entry "\/src\/routes\/" must start with source_root/,
+			);
+		});
+
+		test('throws with helpful error message', () => {
+			const options: ModuleSourceOptions = {
+				...MODULE_SOURCE_DEFAULTS,
+				source_root: '/packages/core/',
+				source_paths: ['/src/lib/'],
+			};
+
+			try {
+				module_validate_source_options(options);
+				assert.fail('Expected error to be thrown');
+			} catch (err) {
+				assert.ok(err instanceof Error);
+				assert.ok(err.message.includes('source_paths entry'));
+				assert.ok(err.message.includes('must start with source_root'));
+				assert.ok(err.message.includes('module_extract_path'));
+			}
 		});
 	});
 });

@@ -87,6 +87,41 @@ export const MODULE_SOURCE_DEFAULTS: ModuleSourceOptions = {
 };
 
 /**
+ * Validate that `source_paths` entries are consistent with `source_root`.
+ *
+ * Each `source_paths` entry must start with `source_root` to ensure
+ * `module_extract_path` can correctly strip the prefix.
+ *
+ * @throws Error if any `source_paths` entry doesn't start with `source_root`
+ *
+ * @example
+ * // Valid - source_paths within source_root
+ * module_validate_source_options({
+ *   source_root: '/src/',
+ *   source_paths: ['/src/lib/', '/src/routes/'],
+ *   ...
+ * });
+ *
+ * // Invalid - throws error
+ * module_validate_source_options({
+ *   source_root: '/src/lib/',
+ *   source_paths: ['/src/routes/'],  // not within /src/lib/
+ *   ...
+ * });
+ */
+export const module_validate_source_options = (options: ModuleSourceOptions): void => {
+	for (const source_path of options.source_paths) {
+		if (!source_path.startsWith(options.source_root)) {
+			throw new Error(
+				`source_paths entry "${source_path}" must start with source_root "${options.source_root}". ` +
+					`Files in source_paths are filtered, but module_extract_path uses source_root to compute module paths. ` +
+					`These must be consistent or module paths will be incorrect.`,
+			);
+		}
+	}
+};
+
+/**
  * Extract module path relative to source root from absolute source ID.
  *
  * @param source_id Absolute path to the source file
