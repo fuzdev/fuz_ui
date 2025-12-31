@@ -13,8 +13,7 @@ export const task: Task = {
 	summary: 'generate expected.json files for svelte fixtures',
 	run: async ({log}) => {
 		// Create a TypeScript program to get a type checker
-		const program = ts_create_program(undefined, log);
-		const checker = program.getTypeChecker();
+		const {checker} = ts_create_program(undefined, log);
 
 		await run_update_task(
 			{

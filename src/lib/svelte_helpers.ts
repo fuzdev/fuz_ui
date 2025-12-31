@@ -61,16 +61,6 @@ export interface SvelteFileAnalysis {
 }
 
 /**
- * Result of analyzing a Svelte module.
- * Alias for `ModuleAnalysis` - the unified return type for both TS and Svelte analyzers.
- */
-export type SvelteModuleAnalysis = ModuleAnalysis;
-
-// =============================================================================
-// Main API
-// =============================================================================
-
-/**
  * Analyze a Svelte component file and extract module metadata.
  *
  * Wraps `svelte_analyze_file` and adds dependency information
@@ -79,7 +69,7 @@ export type SvelteModuleAnalysis = ModuleAnalysis;
  * This is a high-level function suitable for building documentation or library metadata.
  * For lower-level analysis, use `svelte_analyze_file` directly.
  *
- * Returns raw analysis data matching `TypeScriptModuleAnalysis` structure.
+ * Returns raw analysis data matching `ModuleAnalysis` structure.
  * Consumer decides filtering policy (Svelte components are never nodocs).
  *
  * @param source_file The source file info (from Gro filer, file system, or other source)
@@ -87,7 +77,7 @@ export type SvelteModuleAnalysis = ModuleAnalysis;
  * @param checker TypeScript type checker
  * @param options Module source options for path extraction (use `MODULE_SOURCE_DEFAULTS` for standard layouts)
  * @param ctx Analysis context for collecting diagnostics
- * @returns Module analysis matching TypeScriptModuleAnalysis structure
+ * @returns Module analysis matching ModuleAnalysis structure
  */
 export const svelte_analyze_module = (
 	source_file: SourceFileInfo,
@@ -95,7 +85,7 @@ export const svelte_analyze_module = (
 	checker: ts.TypeChecker,
 	options: ModuleSourceOptions,
 	ctx: AnalysisContext,
-): SvelteModuleAnalysis => {
+): ModuleAnalysis => {
 	// Use the existing helper for core analysis
 	const {declaration, module_comment} = svelte_analyze_file(source_file, module_path, checker, ctx);
 
@@ -107,9 +97,10 @@ export const svelte_analyze_module = (
 		module_comment,
 		// Wrap declaration in DeclarationAnalysis format (Svelte components are never nodocs)
 		declarations: [{declaration, nodocs: false}],
-		dependencies: dependencies.length > 0 ? dependencies : undefined,
-		dependents: dependents.length > 0 ? dependents : undefined,
-		re_exports: [], // Svelte components don't have re-exports
+		dependencies,
+		dependents,
+		star_exports: [],
+		re_exports: [],
 	};
 };
 
@@ -187,10 +178,6 @@ export const svelte_analyze_file = (
 
 	return {declaration, module_comment};
 };
-
-// =============================================================================
-// Secondary exports
-// =============================================================================
 
 /**
  * Analyze a Svelte component from its svelte2tsx transformation.
@@ -282,10 +269,6 @@ export const svelte_extract_module_comment = (script_content: string): string | 
 	);
 	return ts_extract_module_comment(source_file);
 };
-
-// =============================================================================
-// Private helpers
-// =============================================================================
 
 /**
  * Extract component-level TSDoc comment from svelte2tsx transformed output.

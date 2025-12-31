@@ -24,10 +24,6 @@ import type {AnalysisContext} from './analysis_context.js';
 // Import shared types from library_analysis (type-only import avoids circular runtime dependency)
 import type {DeclarationAnalysis, ReExportInfo, ModuleAnalysis} from './library_analysis.js';
 
-// =============================================================================
-// Types
-// =============================================================================
-
 /**
  * Options for creating a TypeScript program.
  */
@@ -41,10 +37,12 @@ export interface TsProgramOptions {
 }
 
 /**
- * Result of analyzing a TypeScript module.
- * Alias for `ModuleAnalysis` - the unified return type for both TS and Svelte analyzers.
+ * Result of creating a TypeScript program.
  */
-export type TypeScriptModuleAnalysis = ModuleAnalysis;
+export interface TsProgram {
+	program: ts.Program;
+	checker: ts.TypeChecker;
+}
 
 /**
  * Result of analyzing a module's exports.
@@ -60,18 +58,15 @@ export interface ModuleExportsAnalysis {
 	star_exports: Array<string>;
 }
 
-// =============================================================================
-// Main API
-// =============================================================================
-
 /**
  * Create TypeScript program for analysis.
  *
  * @param options Configuration options for program creation
  * @param log Optional logger for info messages
+ * @returns The program and type checker
  * @throws Error if tsconfig.json is not found
  */
-export const ts_create_program = (options?: TsProgramOptions, log?: Logger): ts.Program => {
+export const ts_create_program = (options?: TsProgramOptions, log?: Logger): TsProgram => {
 	const root = options?.root ?? './';
 	const tsconfig_name = options?.tsconfig ?? 'tsconfig.json';
 
@@ -90,7 +85,8 @@ export const ts_create_program = (options?: TsProgramOptions, log?: Logger): ts.
 		? {...parsed_config.options, ...options.compiler_options}
 		: parsed_config.options;
 
-	return ts.createProgram(parsed_config.fileNames, compiler_options);
+	const program = ts.createProgram(parsed_config.fileNames, compiler_options);
+	return {program, checker: program.getTypeChecker()};
 };
 
 /**
@@ -117,7 +113,7 @@ export const ts_analyze_module = (
 	checker: ts.TypeChecker,
 	options: ModuleSourceOptions,
 	ctx: AnalysisContext,
-): TypeScriptModuleAnalysis => {
+): ModuleAnalysis => {
 	// Use the mid-level helper for core analysis
 	const {module_comment, declarations, re_exports, star_exports} = ts_analyze_module_exports(
 		ts_source_file,
@@ -129,21 +125,16 @@ export const ts_analyze_module = (
 	// Extract dependencies and dependents if provided
 	const {dependencies, dependents} = module_extract_dependencies(source_file_info, options);
 
-	// Return raw analysis - consumer decides filtering policy (e.g., @nodocs)
 	return {
 		path: module_path,
 		module_comment,
 		declarations,
-		dependencies: dependencies.length > 0 ? dependencies : undefined,
-		dependents: dependents.length > 0 ? dependents : undefined,
-		star_exports: star_exports.length > 0 ? star_exports : undefined,
+		dependencies,
+		dependents,
+		star_exports,
 		re_exports,
 	};
 };
-
-// =============================================================================
-// Mid-level exports
-// =============================================================================
 
 /**
  * Analyze all exports from a TypeScript source file.
@@ -387,10 +378,6 @@ export const ts_extract_module_comment = (source_file: ts.SourceFile): string | 
 
 	return undefined;
 };
-
-// =============================================================================
-// Low-level exports (internal)
-// =============================================================================
 
 /**
  * Infer declaration kind from symbol and node.
@@ -797,10 +784,6 @@ export const ts_extract_variable_info = (
 		});
 	}
 };
-
-// =============================================================================
-// Private helpers
-// =============================================================================
 
 /**
  * Extract line and column from a TypeScript node.

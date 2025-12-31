@@ -2,7 +2,7 @@ import {test, assert, describe, beforeAll} from 'vitest';
 import ts from 'typescript';
 import type {DeclarationJson} from '@fuzdev/fuz_util/source_json.js';
 
-import {ts_analyze_module_exports, ts_create_program} from '$lib/ts_helpers.js';
+import {ts_analyze_module_exports, ts_analyze_module, ts_create_program} from '$lib/ts_helpers.js';
 import {MODULE_SOURCE_DEFAULTS} from '$lib/module_helpers.js';
 import {AnalysisContext} from '$lib/analysis_context.js';
 import {
@@ -564,15 +564,16 @@ export {util_b as renamed_util} from './utils.js';
 describe('ts_create_program with TsProgramOptions', () => {
 	test('creates program with default options', () => {
 		// Uses current directory and default tsconfig.json
-		const program = ts_create_program();
+		const {program, checker} = ts_create_program();
 
 		assert.ok(program);
+		assert.ok(checker);
 		assert.ok(program.getSourceFiles().length > 0);
 	});
 
 	test('creates program with explicit root', () => {
 		// Explicit root pointing to project directory
-		const program = ts_create_program({root: './'});
+		const {program} = ts_create_program({root: './'});
 
 		assert.ok(program);
 		assert.ok(program.getSourceFiles().length > 0);
@@ -580,7 +581,7 @@ describe('ts_create_program with TsProgramOptions', () => {
 
 	test('creates program with custom compiler options', () => {
 		// Override strict mode
-		const program = ts_create_program({
+		const {program} = ts_create_program({
 			compiler_options: {
 				strict: false,
 			},
@@ -926,5 +927,114 @@ export function fn(): void {}
 		// star_exports should be empty array, not undefined
 		assert.ok(Array.isArray(result.star_exports));
 		assert.strictEqual(result.star_exports.length, 0);
+	});
+});
+
+describe('ts_analyze_module with SourceFileInfo dependencies', () => {
+	test('passes dependencies from SourceFileInfo to result', () => {
+		const source_code = `export const value = 42;`;
+
+		const source_file = ts.createSourceFile(
+			'consumer.ts',
+			source_code,
+			ts.ScriptTarget.Latest,
+			true,
+		);
+		const {checker} = create_test_program(source_file, 'consumer.ts');
+		const ctx = new AnalysisContext();
+
+		const options = {
+			...MODULE_SOURCE_DEFAULTS,
+			source_root: '/project/src/lib/',
+		};
+
+		const result = ts_analyze_module(
+			{
+				id: '/project/src/lib/consumer.ts',
+				content: source_code,
+				dependencies: [
+					'/project/src/lib/dep_a.ts',
+					'/project/src/lib/dep_b.ts',
+					'/project/node_modules/external/index.js', // should be filtered
+				],
+				dependents: ['/project/src/lib/user.ts'],
+			},
+			source_file,
+			'consumer.ts',
+			checker,
+			options,
+			ctx,
+		);
+
+		// Dependencies should be filtered to source modules only
+		assert.ok(Array.isArray(result.dependencies));
+		assert.include(result.dependencies, 'dep_a.ts');
+		assert.include(result.dependencies, 'dep_b.ts');
+		// External deps should be filtered out
+		assert.notInclude(result.dependencies, '/project/node_modules/external/index.js');
+
+		assert.ok(Array.isArray(result.dependents));
+		assert.include(result.dependents, 'user.ts');
+	});
+
+	test('returns empty arrays when SourceFileInfo has no dependencies', () => {
+		const source_code = `export const standalone = true;`;
+
+		const source_file = ts.createSourceFile(
+			'standalone.ts',
+			source_code,
+			ts.ScriptTarget.Latest,
+			true,
+		);
+		const {checker} = create_test_program(source_file, 'standalone.ts');
+		const ctx = new AnalysisContext();
+
+		const options = {
+			...MODULE_SOURCE_DEFAULTS,
+			source_root: '/project/src/lib/',
+		};
+
+		const result = ts_analyze_module(
+			{
+				id: '/project/src/lib/standalone.ts',
+				content: source_code,
+				// No dependencies or dependents provided
+			},
+			source_file,
+			'standalone.ts',
+			checker,
+			options,
+			ctx,
+		);
+
+		// Should return empty arrays, not undefined
+		assert.ok(Array.isArray(result.dependencies));
+		assert.ok(Array.isArray(result.dependents));
+		assert.strictEqual(result.dependencies.length, 0);
+		assert.strictEqual(result.dependents.length, 0);
+	});
+
+	test('all array fields are always arrays (never undefined)', () => {
+		const source_code = `export const x = 1;`;
+
+		const source_file = ts.createSourceFile('simple.ts', source_code, ts.ScriptTarget.Latest, true);
+		const {checker} = create_test_program(source_file, 'simple.ts');
+		const ctx = new AnalysisContext();
+
+		const result = ts_analyze_module(
+			{id: '/project/src/lib/simple.ts', content: source_code},
+			source_file,
+			'simple.ts',
+			checker,
+			MODULE_SOURCE_DEFAULTS,
+			ctx,
+		);
+
+		// Verify all array fields are arrays
+		assert.ok(Array.isArray(result.declarations), 'declarations should be array');
+		assert.ok(Array.isArray(result.dependencies), 'dependencies should be array');
+		assert.ok(Array.isArray(result.dependents), 'dependents should be array');
+		assert.ok(Array.isArray(result.star_exports), 'star_exports should be array');
+		assert.ok(Array.isArray(result.re_exports), 're_exports should be array');
 	});
 });

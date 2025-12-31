@@ -32,7 +32,6 @@ import {
 	type SourceFileInfo,
 	type ModuleSourceOptions,
 	MODULE_SOURCE_DEFAULTS,
-	module_extract_path,
 } from './module_helpers.js';
 import {library_analyze_module} from './library_analysis.js';
 import {
@@ -56,9 +55,11 @@ export interface LibraryGenOptions {
 /**
  * Convert Gro's Disknode to the build-tool agnostic SourceFileInfo interface.
  *
+ * Use this when you want to analyze files using Gro's filer directly.
+ *
  * @throws Error if disknode has no content (should be loaded by Gro filer)
  */
-const source_file_from_disknode = (disknode: Disknode): SourceFileInfo => {
+export const source_file_from_disknode = (disknode: Disknode): SourceFileInfo => {
 	if (disknode.contents == null) {
 		throw new Error(
 			`Source file has no content: ${disknode.id} (ensure Gro filer loads file contents)`,
@@ -100,7 +101,7 @@ export const library_gen = (options?: LibraryGenOptions): Gen => {
 			const package_json = await package_json_load();
 
 			// Create TypeScript program
-			const program = ts_create_program(undefined, log);
+			const {program} = ts_create_program(undefined, log);
 
 			// Create analysis context for collecting diagnostics
 			const ctx = new AnalysisContext();
@@ -127,17 +128,8 @@ export const library_gen = (options?: LibraryGenOptions): Gen => {
 			const collected_re_exports: Array<CollectedReExport> = [];
 
 			for (const source_file of source_files) {
-				const module_path = module_extract_path(source_file.id, source_options);
-
 				// Use unified analyzer that dispatches based on file type
-				const result = library_analyze_module(
-					source_file,
-					module_path,
-					program,
-					source_options,
-					ctx,
-					log,
-				);
+				const result = library_analyze_module(source_file, program, source_options, ctx, log);
 				if (!result) continue;
 
 				// Build ModuleJson, filtering out @nodocs declarations
@@ -146,15 +138,15 @@ export const library_gen = (options?: LibraryGenOptions): Gen => {
 					declarations: result.declarations.filter((d) => !d.nodocs).map((d) => d.declaration),
 				};
 				if (result.module_comment) module.module_comment = result.module_comment;
-				if (result.dependencies) module.dependencies = result.dependencies;
-				if (result.dependents) module.dependents = result.dependents;
-				if (result.star_exports) module.star_exports = result.star_exports;
+				if (result.dependencies.length > 0) module.dependencies = result.dependencies;
+				if (result.dependents.length > 0) module.dependents = result.dependents;
+				if (result.star_exports.length > 0) module.star_exports = result.star_exports;
 
 				source_json.modules!.push(module);
 
 				// Collect re-exports for phase 2 merging
 				for (const re_export of result.re_exports) {
-					collected_re_exports.push({re_exporting_module: module_path, re_export});
+					collected_re_exports.push({re_exporting_module: result.path, re_export});
 				}
 			}
 

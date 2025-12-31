@@ -26,7 +26,7 @@
  * const ctx = new AnalysisContext();
  * const results = files.map(f => {
  *   try {
- *     return library_analyze_module(f, ..., ctx);
+ *     return library_analyze_module(f, program, options, ctx);
  *   } catch (e) {
  *     // Fatal error - log and skip this file
  *     console.error(`Failed to analyze ${f.id}: ${e}`);

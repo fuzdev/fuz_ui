@@ -16,12 +16,11 @@
  * import {MODULE_SOURCE_DEFAULTS} from '@fuzdev/fuz_ui/module_helpers.js';
  * import {AnalysisContext} from '@fuzdev/fuz_ui/analysis_context.js';
  *
- * const program = ts_create_program({root: './my-project'});
+ * const {program} = ts_create_program({root: './my-project'});
  * const ctx = new AnalysisContext();
  *
  * const result = library_analyze_module(
- *   {id: '/path/to/file.ts', content: '...'},
- *   'file.ts',
+ *   {id: '/my-project/src/lib/file.ts', content: '...'},
  *   program,
  *   MODULE_SOURCE_DEFAULTS,
  *   ctx,
@@ -47,12 +46,13 @@ import type {DeclarationJson} from '@fuzdev/fuz_util/source_json.js';
 
 import {ts_analyze_module} from './ts_helpers.js';
 import {svelte_analyze_module} from './svelte_helpers.js';
-import {type SourceFileInfo, type ModuleSourceOptions, module_is_svelte} from './module_helpers.js';
+import {
+	type SourceFileInfo,
+	type ModuleSourceOptions,
+	module_is_svelte,
+	module_extract_path,
+} from './module_helpers.js';
 import type {AnalysisContext} from './analysis_context.js';
-
-// =============================================================================
-// Shared Types
-// =============================================================================
 
 /**
  * Result of analyzing a single declaration.
@@ -87,19 +87,15 @@ export interface ModuleAnalysis {
 	module_comment?: string;
 	/** All declarations with nodocs flags - consumer filters based on policy. */
 	declarations: Array<DeclarationAnalysis>;
-	/** Dependencies (other source modules this module imports). */
-	dependencies?: Array<string>;
-	/** Dependents (other source modules that import this module). */
-	dependents?: Array<string>;
-	/** Star exports (`export * from './module'`) - TypeScript only. */
-	star_exports?: Array<string>;
-	/** Re-exports discovered during analysis (empty for Svelte components). */
+	/** Dependencies (other source modules this module imports). Empty if none. */
+	dependencies: Array<string>;
+	/** Dependents (other source modules that import this module). Empty if none. */
+	dependents: Array<string>;
+	/** Star exports (`export * from './module'`). Empty for Svelte components. */
+	star_exports: Array<string>;
+	/** Re-exports discovered during analysis. Empty for Svelte components. */
 	re_exports: Array<ReExportInfo>;
 }
-
-// =============================================================================
-// Main API
-// =============================================================================
 
 /**
  * Analyze a source file and extract module metadata.
@@ -116,7 +112,6 @@ export interface ModuleAnalysis {
  * for accurate type resolution, but only changed files need re-analysis.
  *
  * @param source_file The source file info with content and optional dependency data
- * @param module_path The module path relative to source root
  * @param program TypeScript program (used for type checking and source file lookup)
  * @param options Module source options for path extraction
  * @param ctx Analysis context for collecting diagnostics
@@ -125,16 +120,15 @@ export interface ModuleAnalysis {
  */
 export const library_analyze_module = (
 	source_file: SourceFileInfo,
-	module_path: string,
 	program: ts.Program,
 	options: ModuleSourceOptions,
 	ctx: AnalysisContext,
 	log?: Logger,
 ): ModuleAnalysis | undefined => {
 	const checker = program.getTypeChecker();
+	const module_path = module_extract_path(source_file.id, options);
 
 	if (module_is_svelte(module_path)) {
-		// Both analyzers return the same structure - just pass through
 		return svelte_analyze_module(source_file, module_path, checker, options, ctx);
 	}
 

@@ -7,10 +7,12 @@ import {readFileSync} from 'node:fs';
 import {
 	svelte_analyze_component,
 	svelte_analyze_file,
+	svelte_analyze_module,
 	svelte_extract_script_content,
 	svelte_extract_module_comment,
 } from '$lib/svelte_helpers.js';
 import {ts_create_program} from '$lib/ts_helpers.js';
+import {MODULE_SOURCE_DEFAULTS} from '$lib/module_helpers.js';
 import {AnalysisContext} from '$lib/analysis_context.js';
 import {
 	load_fixtures,
@@ -32,8 +34,8 @@ beforeAll(async () => {
 	fixtures = await load_fixtures();
 
 	// Create TypeScript program for type checking
-	const program = ts_create_program();
-	checker = program.getTypeChecker();
+	const result = ts_create_program();
+	checker = result.checker;
 });
 
 describe('svelte component analyzer (fixture-based)', () => {
@@ -831,5 +833,102 @@ let {first, second, third}: {first: string; second: number; third: boolean} = $p
 		assert.strictEqual(declaration.props[0]!.name, 'first');
 		assert.strictEqual(declaration.props[1]!.name, 'second');
 		assert.strictEqual(declaration.props[2]!.name, 'third');
+	});
+});
+
+describe('svelte_analyze_module with SourceFileInfo dependencies', () => {
+	test('passes dependencies from SourceFileInfo to result', () => {
+		const svelte_content = `<script lang="ts">
+let {value}: {value: string} = $props();
+</script>
+<p>{value}</p>`;
+
+		const options = {
+			...MODULE_SOURCE_DEFAULTS,
+			source_root: '/project/src/lib/',
+		};
+
+		const ctx = new AnalysisContext();
+		const result = svelte_analyze_module(
+			{
+				id: '/project/src/lib/Consumer.svelte',
+				content: svelte_content,
+				dependencies: [
+					'/project/src/lib/utils.ts',
+					'/project/node_modules/external/index.js', // should be filtered
+				],
+				dependents: ['/project/src/lib/Parent.svelte'],
+			},
+			'Consumer.svelte',
+			checker,
+			options,
+			ctx,
+		);
+
+		// Dependencies should be filtered to source modules only
+		assert.ok(Array.isArray(result.dependencies));
+		assert.include(result.dependencies, 'utils.ts');
+		assert.notInclude(result.dependencies, '/project/node_modules/external/index.js');
+
+		assert.ok(Array.isArray(result.dependents));
+		assert.include(result.dependents, 'Parent.svelte');
+	});
+
+	test('returns empty arrays when SourceFileInfo has no dependencies', () => {
+		const svelte_content = `<script lang="ts">
+let {standalone}: {standalone: boolean} = $props();
+</script>
+<p>{standalone}</p>`;
+
+		const options = {
+			...MODULE_SOURCE_DEFAULTS,
+			source_root: '/project/src/lib/',
+		};
+
+		const ctx = new AnalysisContext();
+		const result = svelte_analyze_module(
+			{
+				id: '/project/src/lib/Standalone.svelte',
+				content: svelte_content,
+				// No dependencies or dependents provided
+			},
+			'Standalone.svelte',
+			checker,
+			options,
+			ctx,
+		);
+
+		// Should return empty arrays, not undefined
+		assert.ok(Array.isArray(result.dependencies));
+		assert.ok(Array.isArray(result.dependents));
+		assert.strictEqual(result.dependencies.length, 0);
+		assert.strictEqual(result.dependents.length, 0);
+	});
+
+	test('all array fields are always arrays (never undefined)', () => {
+		const svelte_content = `<script lang="ts">
+let {x}: {x: number} = $props();
+</script>
+<p>{x}</p>`;
+
+		const ctx = new AnalysisContext();
+		const result = svelte_analyze_module(
+			{id: '/project/src/lib/Simple.svelte', content: svelte_content},
+			'Simple.svelte',
+			checker,
+			MODULE_SOURCE_DEFAULTS,
+			ctx,
+		);
+
+		// Verify all array fields are arrays
+		assert.ok(Array.isArray(result.declarations), 'declarations should be array');
+		assert.ok(Array.isArray(result.dependencies), 'dependencies should be array');
+		assert.ok(Array.isArray(result.dependents), 'dependents should be array');
+		assert.ok(Array.isArray(result.star_exports), 'star_exports should be array');
+		assert.ok(Array.isArray(result.re_exports), 're_exports should be array');
+
+		// Svelte components don't have star_exports or re_exports
+		assert.strictEqual(result.star_exports.length, 0);
+		assert.strictEqual(result.re_exports.length, 0);
 	});
 });
