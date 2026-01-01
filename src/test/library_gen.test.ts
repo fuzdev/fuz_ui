@@ -250,7 +250,7 @@ describe('library_gen_throw_on_duplicates', () => {
 
 		try {
 			library_gen_throw_on_duplicates(duplicates, log);
-		} catch {
+		} catch (_error) {
 			// expected
 		}
 
@@ -280,7 +280,7 @@ describe('library_gen_throw_on_duplicates', () => {
 
 		try {
 			library_gen_throw_on_duplicates(duplicates, log);
-		} catch {
+		} catch (_error) {
 			// expected
 		}
 

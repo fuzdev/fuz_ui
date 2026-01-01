@@ -146,7 +146,7 @@ export const vite_plugin_library_well_known = (
 				try {
 					if (!ready_promise) throw new Error('not initialized');
 					await ready_promise;
-				} catch {
+				} catch (_error) {
 					res.statusCode = 503;
 					respond_json(res, JSON.stringify({error: 'Library not ready'}));
 					return;

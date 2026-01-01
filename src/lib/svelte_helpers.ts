@@ -151,7 +151,7 @@ export const svelte_analyze_file = (
 		source_map = new TraceMap(
 			ts_result.map as unknown as ConstructorParameters<typeof TraceMap>[0],
 		);
-	} catch {
+	} catch (_error) {
 		// If source map parsing fails, diagnostics will use virtual file positions
 	}
 
