@@ -1,3 +1,3 @@
-import {library_gen} from '$lib/library_gen.js';
+import {library_gen, library_gen_throw_on_duplicates} from '$lib/library_gen.js';
 
-export const gen = library_gen();
+export const gen = library_gen({on_duplicates: library_gen_throw_on_duplicates});

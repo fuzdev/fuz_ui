@@ -407,6 +407,62 @@ export const ts_infer_declaration_kind = (symbol: ts.Symbol, node: ts.Node): Dec
 };
 
 /**
+ * Extract parameters from a TypeScript signature with TSDoc descriptions and default values.
+ *
+ * Shared helper for extracting parameter information from both standalone functions
+ * and class methods/constructors.
+ *
+ * @param sig The TypeScript signature to extract parameters from
+ * @param checker TypeScript type checker for type resolution
+ * @param tsdoc_params Map of parameter names to TSDoc descriptions (from tsdoc.params)
+ * @returns Array of parameter info objects
+ */
+export const ts_extract_signature_parameters = (
+	sig: ts.Signature,
+	checker: ts.TypeChecker,
+	tsdoc_params: Map<string, string> | undefined,
+): Array<{
+	name: string;
+	type: string;
+	optional?: boolean;
+	description?: string;
+	default_value?: string;
+}> => {
+	return sig.parameters.map((param) => {
+		const param_decl = param.valueDeclaration;
+
+		// Get type - use declaration location if available, otherwise get declared type
+		let type_string = 'unknown';
+		if (param_decl) {
+			const param_type = checker.getTypeOfSymbolAtLocation(param, param_decl);
+			type_string = checker.typeToString(param_type);
+		} else {
+			const param_type = checker.getDeclaredTypeOfSymbol(param);
+			type_string = checker.typeToString(param_type);
+		}
+
+		// Get TSDoc description for this parameter
+		const description = tsdoc_params?.get(param.name);
+
+		// Extract default value from AST
+		let default_value: string | undefined;
+		if (param_decl && ts.isParameter(param_decl) && param_decl.initializer) {
+			default_value = param_decl.initializer.getText();
+		}
+
+		const optional = !!(param_decl && ts.isParameter(param_decl) && param_decl.questionToken);
+
+		return {
+			name: param.name,
+			type: type_string,
+			...(optional && {optional}),
+			description,
+			default_value,
+		};
+	});
+};
+
+/**
  * Extract function/method information including parameters
  * with descriptions and default values.
  *
@@ -446,38 +502,7 @@ export const ts_extract_function_info = (
 			}
 
 			// Extract parameters with descriptions and default values
-			declaration.parameters = sig.parameters.map((param) => {
-				const param_decl = param.valueDeclaration;
-
-				// Get type - use declaration location if available, otherwise get declared type
-				let type_string = 'unknown';
-				if (param_decl) {
-					const param_type = checker.getTypeOfSymbolAtLocation(param, param_decl);
-					type_string = checker.typeToString(param_type);
-				} else {
-					const param_type = checker.getDeclaredTypeOfSymbol(param);
-					type_string = checker.typeToString(param_type);
-				}
-
-				// Get TSDoc description for this parameter
-				const description = tsdoc?.params.get(param.name);
-
-				// Extract default value from AST
-				let default_value: string | undefined;
-				if (param_decl && ts.isParameter(param_decl) && param_decl.initializer) {
-					default_value = param_decl.initializer.getText();
-				}
-
-				const optional = !!(param_decl && ts.isParameter(param_decl) && param_decl.questionToken);
-
-				return {
-					name: param.name,
-					type: type_string,
-					...(optional && {optional}),
-					description,
-					default_value,
-				};
-			});
+			declaration.parameters = ts_extract_signature_parameters(sig, checker, tsdoc?.params);
 		}
 	} catch (err) {
 		const loc = ts_get_node_location(node);
@@ -689,42 +714,11 @@ export const ts_extract_class_info = (
 						}
 
 						// Extract parameters with descriptions and default values
-						member_declaration.parameters = sig.parameters.map((param) => {
-							const param_decl = param.valueDeclaration;
-
-							// Get type - use declaration location if available, otherwise get declared type
-							let type_string = 'unknown';
-							if (param_decl) {
-								const param_type = checker.getTypeOfSymbolAtLocation(param, param_decl);
-								type_string = checker.typeToString(param_type);
-							} else {
-								const param_type = checker.getDeclaredTypeOfSymbol(param);
-								type_string = checker.typeToString(param_type);
-							}
-
-							// Get TSDoc description for this parameter
-							const description = member_tsdoc?.params.get(param.name);
-
-							// Extract default value from AST
-							let default_value: string | undefined;
-							if (param_decl && ts.isParameter(param_decl) && param_decl.initializer) {
-								default_value = param_decl.initializer.getText();
-							}
-
-							const optional = !!(
-								param_decl &&
-								ts.isParameter(param_decl) &&
-								param_decl.questionToken
-							);
-
-							return {
-								name: param.name,
-								type: type_string,
-								...(optional && {optional}),
-								description,
-								default_value,
-							};
-						});
+						member_declaration.parameters = ts_extract_signature_parameters(
+							sig,
+							checker,
+							member_tsdoc?.params,
+						);
 
 						// Extract throws and since from TSDoc (for both methods and constructors)
 						if (member_tsdoc?.throws?.length) {

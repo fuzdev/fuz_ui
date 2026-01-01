@@ -41,6 +41,7 @@ import {
 	library_find_duplicates,
 	library_merge_re_exports,
 	type CollectedReExport,
+	type DuplicateInfo,
 } from './library_gen_helpers.js';
 import {library_generate_json} from './library_gen_output.js';
 import {AnalysisContext, format_diagnostic} from './analysis_context.js';
@@ -55,9 +56,66 @@ export interface LibraryGenOptions {
 	 * `process.cwd()` if not provided.
 	 */
 	source?: ModuleSourceOptions | Partial<ModuleSourcePartial>;
-	/** Whether to enforce flat namespace (fail on duplicate names). @default true */
-	enforce_flat_namespace?: boolean;
+	/**
+	 * Callback invoked when duplicate declaration names are found.
+	 *
+	 * Consumers decide how to handle duplicates: throw, warn, or ignore.
+	 * Use `library_gen_throw_on_duplicates` for strict flat namespace enforcement.
+	 *
+	 * @example
+	 * // Throw on duplicates (strict flat namespace)
+	 * library_gen({ on_duplicates: library_gen_throw_on_duplicates });
+	 *
+	 * // Warn but continue
+	 * library_gen({
+	 *   on_duplicates: (dupes, log) => {
+	 *     for (const [name, locs] of dupes) {
+	 *       log.warn(`Duplicate: ${name} in ${locs.map(l => l.module).join(', ')}`);
+	 *     }
+	 *   }
+	 * });
+	 */
+	on_duplicates?: OnDuplicatesCallback;
 }
+
+/**
+ * Callback for handling duplicate declaration names.
+ *
+ * @param duplicates Map of declaration names to their occurrences across modules
+ * @param log Logger for reporting
+ */
+export type OnDuplicatesCallback = (
+	duplicates: Map<string, Array<DuplicateInfo>>,
+	log: {error: (...args: Array<unknown>) => void},
+) => void;
+
+/**
+ * Strict duplicate handler that throws on any duplicate declaration names.
+ *
+ * Use this callback with `library_gen({ on_duplicates: library_gen_throw_on_duplicates })`
+ * to enforce a flat namespace where all declaration names must be unique.
+ *
+ * @throws Error if any duplicate declaration names are found
+ */
+export const library_gen_throw_on_duplicates: OnDuplicatesCallback = (duplicates, log) => {
+	if (duplicates.size === 0) return;
+
+	log.error('Duplicate declaration names detected in flat namespace:');
+	for (const [name, occurrences] of duplicates) {
+		log.error(`  "${name}" found in:`);
+		for (const {declaration, module} of occurrences) {
+			const line_info = declaration.source_line !== undefined ? `:${declaration.source_line}` : '';
+			log.error(`    - ${module}${line_info} (${declaration.kind})`);
+		}
+	}
+	throw new Error(
+		`Found ${duplicates.size} duplicate declaration name${duplicates.size === 1 ? '' : 's'} across modules. ` +
+			'The flat namespace requires unique names. To resolve: ' +
+			'(1) rename one of the conflicting declarations, or ' +
+			'(2) add /** @nodocs */ to exclude from documentation. ' +
+			'See CLAUDE.md "Declaration namespacing" section for details.',
+	);
+};
 
 /**
  * Convert Gro's Disknode to the build-tool agnostic SourceFileInfo interface.
@@ -94,8 +152,6 @@ export const source_file_from_disknode = (disknode: Disknode): SourceFileInfo =>
  * @param options Optional generation options
  */
 export const library_gen = (options?: LibraryGenOptions): Gen => {
-	const enforce_flat_namespace = options?.enforce_flat_namespace ?? true;
-
 	return {
 		generate: async ({log, filer}) => {
 			log.info('generating library metadata with full TypeScript analysis...');
@@ -170,26 +226,11 @@ export const library_gen = (options?: LibraryGenOptions): Gen => {
 				? library_sort_modules(source_json.modules)
 				: undefined;
 
-			// Validate no duplicate declaration names across modules
-			if (enforce_flat_namespace) {
+			// Check for duplicate declaration names and invoke callback if provided
+			if (options?.on_duplicates) {
 				const duplicates = library_find_duplicates(source_json);
 				if (duplicates.size > 0) {
-					log.error('Duplicate declaration names detected in flat namespace:');
-					for (const [name, occurrences] of duplicates) {
-						log.error(`  "${name}" found in:`);
-						for (const {declaration, module} of occurrences) {
-							const line_info =
-								declaration.source_line !== undefined ? `:${declaration.source_line}` : '';
-							log.error(`    - ${module}${line_info} (${declaration.kind})`);
-						}
-					}
-					throw new Error(
-						`Found ${duplicates.size} duplicate declaration name${duplicates.size === 1 ? '' : 's'} across modules. ` +
-							'The flat namespace requires unique names. To resolve: ' +
-							'(1) rename one of the conflicting declarations, or ' +
-							'(2) add /** @nodocs */ to exclude from documentation. ' +
-							'See CLAUDE.md "Declaration namespacing" section for details.',
-					);
+					options.on_duplicates(duplicates, log);
 				}
 			}
 

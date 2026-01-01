@@ -3851,7 +3851,7 @@
 						"name": "LibraryGenOptions",
 						"kind": "type",
 						"doc_comment": "Options for library generation.",
-						"source_line": 49,
+						"source_line": 50,
 						"type_signature": "LibraryGenOptions",
 						"properties": [
 							{
@@ -3861,10 +3861,41 @@
 								"doc_comment": "Module source options for filtering and path extraction.\n\nCan provide full `ModuleSourceOptions` or partial options that will be\nmerged with defaults. The `project_root` is automatically set to\n`process.cwd()` if not provided."
 							},
 							{
-								"name": "enforce_flat_namespace",
+								"name": "on_duplicates",
 								"kind": "variable",
-								"type_signature": "boolean",
-								"doc_comment": "Whether to enforce flat namespace (fail on duplicate names)."
+								"type_signature": "OnDuplicatesCallback",
+								"doc_comment": "Callback invoked when duplicate declaration names are found.\n\nConsumers decide how to handle duplicates: throw, warn, or ignore.\nUse `library_gen_throw_on_duplicates` for strict flat namespace enforcement."
+							}
+						]
+					},
+					{
+						"name": "OnDuplicatesCallback",
+						"kind": "type",
+						"doc_comment": "Callback for handling duplicate declaration names.",
+						"source_line": 87,
+						"type_signature": "OnDuplicatesCallback"
+					},
+					{
+						"name": "library_gen_throw_on_duplicates",
+						"kind": "function",
+						"doc_comment": "Strict duplicate handler that throws on any duplicate declaration names.\n\nUse this callback with `library_gen({ on_duplicates: library_gen_throw_on_duplicates })`\nto enforce a flat namespace where all declaration names must be unique.",
+						"throws": [
+							{
+								"type": "Error",
+								"description": "if any duplicate declaration names are found"
+							}
+						],
+						"source_line": 100,
+						"type_signature": "(duplicates: Map<string, DuplicateInfo[]>, log: { error: (...args: unknown[]) => void; }): void",
+						"return_type": "void",
+						"parameters": [
+							{
+								"name": "duplicates",
+								"type": "Map<string, DuplicateInfo[]>"
+							},
+							{
+								"name": "log",
+								"type": "{ error: (...args: unknown[]) => void; }"
 							}
 						]
 					},
@@ -3878,7 +3909,7 @@
 								"description": "if disknode has no content (should be loaded by Gro filer)"
 							}
 						],
-						"source_line": 69,
+						"source_line": 127,
 						"type_signature": "(disknode: Disknode): SourceFileInfo",
 						"return_type": "SourceFileInfo",
 						"parameters": [
@@ -3892,7 +3923,7 @@
 						"name": "library_gen",
 						"kind": "function",
 						"doc_comment": "Creates a Gen object for generating library metadata with full TypeScript analysis.\n\nUsage in a `.gen.ts` file:\n\n```ts\nimport {library_gen} from '@fuzdev/fuz_ui/library_gen.js';\n\nexport const gen = library_gen();\n```",
-						"source_line": 96,
+						"source_line": 154,
 						"type_signature": "(options?: LibraryGenOptions | undefined): Gen",
 						"return_type": "Gen",
 						"parameters": [

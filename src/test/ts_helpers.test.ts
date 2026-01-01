@@ -2,7 +2,12 @@ import {test, assert, describe, beforeAll} from 'vitest';
 import ts from 'typescript';
 import type {DeclarationJson} from '@fuzdev/fuz_util/source_json.js';
 
-import {ts_analyze_module_exports, ts_analyze_module, ts_create_program} from '$lib/ts_helpers.js';
+import {
+	ts_analyze_module_exports,
+	ts_analyze_module,
+	ts_create_program,
+	ts_extract_signature_parameters,
+} from '$lib/ts_helpers.js';
 import {module_create_source_options, type ModuleSourceOptions} from '$lib/module_helpers.js';
 import {AnalysisContext} from '$lib/analysis_context.js';
 
@@ -1048,5 +1053,97 @@ describe('ts_analyze_module with SourceFileInfo dependencies', () => {
 		assert.ok(Array.isArray(result.dependents), 'dependents should be array');
 		assert.ok(Array.isArray(result.star_exports), 'star_exports should be array');
 		assert.ok(Array.isArray(result.re_exports), 're_exports should be array');
+	});
+});
+
+describe('ts_extract_signature_parameters', () => {
+	test('extracts basic parameters with types', () => {
+		const source_code = `export function greet(name: string, age: number): void {}`;
+		const source_file = ts.createSourceFile('test.ts', source_code, ts.ScriptTarget.Latest, true);
+		const {checker} = create_test_program(source_file, 'test.ts');
+
+		// Get the function's signature
+		const fn_symbol = checker.getSymbolAtLocation(
+			(source_file.statements[0] as ts.FunctionDeclaration).name!,
+		)!;
+		const fn_type = checker.getTypeOfSymbolAtLocation(fn_symbol, source_file.statements[0]!);
+		const sig = fn_type.getCallSignatures()[0]!;
+
+		const params = ts_extract_signature_parameters(sig, checker, undefined);
+
+		assert.strictEqual(params.length, 2);
+		assert.strictEqual(params[0]!.name, 'name');
+		assert.strictEqual(params[0]!.type, 'string');
+		assert.strictEqual(params[1]!.name, 'age');
+		assert.strictEqual(params[1]!.type, 'number');
+	});
+
+	test('extracts optional parameters', () => {
+		const source_code = `export function test(required: string, optional?: number): void {}`;
+		const source_file = ts.createSourceFile('test.ts', source_code, ts.ScriptTarget.Latest, true);
+		const {checker} = create_test_program(source_file, 'test.ts');
+
+		const fn_symbol = checker.getSymbolAtLocation(
+			(source_file.statements[0] as ts.FunctionDeclaration).name!,
+		)!;
+		const fn_type = checker.getTypeOfSymbolAtLocation(fn_symbol, source_file.statements[0]!);
+		const sig = fn_type.getCallSignatures()[0]!;
+
+		const params = ts_extract_signature_parameters(sig, checker, undefined);
+
+		assert.strictEqual(params.length, 2);
+		assert.strictEqual(params[0]!.optional, undefined); // not optional
+		assert.strictEqual(params[1]!.optional, true);
+	});
+
+	test('extracts default values', () => {
+		const source_code = `export function test(value: boolean = true): void {}`;
+		const source_file = ts.createSourceFile('test.ts', source_code, ts.ScriptTarget.Latest, true);
+		const {checker} = create_test_program(source_file, 'test.ts');
+
+		const fn_symbol = checker.getSymbolAtLocation(
+			(source_file.statements[0] as ts.FunctionDeclaration).name!,
+		)!;
+		const fn_type = checker.getTypeOfSymbolAtLocation(fn_symbol, source_file.statements[0]!);
+		const sig = fn_type.getCallSignatures()[0]!;
+
+		const params = ts_extract_signature_parameters(sig, checker, undefined);
+
+		assert.strictEqual(params.length, 1);
+		assert.strictEqual(params[0]!.default_value, 'true');
+	});
+
+	test('applies TSDoc descriptions from params map', () => {
+		const source_code = `export function greet(name: string): void {}`;
+		const source_file = ts.createSourceFile('test.ts', source_code, ts.ScriptTarget.Latest, true);
+		const {checker} = create_test_program(source_file, 'test.ts');
+
+		const fn_symbol = checker.getSymbolAtLocation(
+			(source_file.statements[0] as ts.FunctionDeclaration).name!,
+		)!;
+		const fn_type = checker.getTypeOfSymbolAtLocation(fn_symbol, source_file.statements[0]!);
+		const sig = fn_type.getCallSignatures()[0]!;
+
+		const tsdoc_params = new Map([['name', 'The user name']]);
+		const params = ts_extract_signature_parameters(sig, checker, tsdoc_params);
+
+		assert.strictEqual(params[0]!.description, 'The user name');
+	});
+
+	test('returns empty array for function with no parameters', () => {
+		const source_code = `export function noop(): void {}`;
+		const source_file = ts.createSourceFile('test.ts', source_code, ts.ScriptTarget.Latest, true);
+		const {checker} = create_test_program(source_file, 'test.ts');
+
+		const fn_symbol = checker.getSymbolAtLocation(
+			(source_file.statements[0] as ts.FunctionDeclaration).name!,
+		)!;
+		const fn_type = checker.getTypeOfSymbolAtLocation(fn_symbol, source_file.statements[0]!);
+		const sig = fn_type.getCallSignatures()[0]!;
+
+		const params = ts_extract_signature_parameters(sig, checker, undefined);
+
+		assert.ok(Array.isArray(params));
+		assert.strictEqual(params.length, 0);
 	});
 });

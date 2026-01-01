@@ -1,6 +1,7 @@
 import {test, assert, describe} from 'vitest';
 
-import {source_file_from_disknode} from '$lib/library_gen.js';
+import {source_file_from_disknode, library_gen_throw_on_duplicates} from '$lib/library_gen.js';
+import type {DuplicateInfo} from '$lib/library_gen_helpers.js';
 
 /**
  * Create a mock Disknode for testing.
@@ -161,5 +162,147 @@ export function fn(): void {
 		const result = source_file_from_disknode(disknode as any);
 
 		assert.strictEqual(result.content, content);
+	});
+});
+
+/**
+ * Create a mock log object that captures error calls.
+ */
+const create_mock_log = () => {
+	const errors: Array<Array<unknown>> = [];
+	return {
+		error: (...args: Array<unknown>) => errors.push(args),
+		errors,
+	};
+};
+
+/**
+ * Create a DuplicateInfo for testing.
+ */
+const create_duplicate_info = (
+	name: string,
+	module: string,
+	kind: string = 'function',
+	source_line?: number,
+): DuplicateInfo => ({
+	declaration: {
+		name,
+		kind: kind as any,
+		signature: `${kind} ${name}`,
+		source_line,
+	},
+	module,
+});
+
+describe('library_gen_throw_on_duplicates', () => {
+	test('does nothing when duplicates map is empty', () => {
+		const log = create_mock_log();
+		const duplicates: Map<string, Array<DuplicateInfo>> = new Map();
+
+		// Should not throw
+		library_gen_throw_on_duplicates(duplicates, log);
+
+		assert.strictEqual(log.errors.length, 0);
+	});
+
+	test('throws when duplicates exist', () => {
+		const log = create_mock_log();
+		const duplicates: Map<string, Array<DuplicateInfo>> = new Map([
+			[
+				'helper',
+				[
+					create_duplicate_info('helper', 'utils.ts', 'function', 10),
+					create_duplicate_info('helper', 'helpers.ts', 'function', 20),
+				],
+			],
+		]);
+
+		assert.throws(
+			() => library_gen_throw_on_duplicates(duplicates, log),
+			/1 duplicate declaration name/,
+		);
+	});
+
+	test('error message pluralizes correctly for multiple duplicates', () => {
+		const log = create_mock_log();
+		const duplicates: Map<string, Array<DuplicateInfo>> = new Map([
+			['foo', [create_duplicate_info('foo', 'a.ts'), create_duplicate_info('foo', 'b.ts')]],
+			['bar', [create_duplicate_info('bar', 'c.ts'), create_duplicate_info('bar', 'd.ts')]],
+		]);
+
+		assert.throws(
+			() => library_gen_throw_on_duplicates(duplicates, log),
+			/2 duplicate declaration names/,
+		);
+	});
+
+	test('logs each duplicate with locations', () => {
+		const log = create_mock_log();
+		const duplicates: Map<string, Array<DuplicateInfo>> = new Map([
+			[
+				'Config',
+				[
+					create_duplicate_info('Config', 'config.ts', 'type', 5),
+					create_duplicate_info('Config', 'settings.ts', 'interface', 15),
+				],
+			],
+		]);
+
+		try {
+			library_gen_throw_on_duplicates(duplicates, log);
+		} catch {
+			// expected
+		}
+
+		// Should have logged the header and details
+		assert.ok(log.errors.length >= 3, 'should log header and at least 2 locations');
+
+		// Check that module paths and line numbers appear in logs
+		const all_logged = log.errors.map((args) => args.join(' ')).join('\n');
+		assert.include(all_logged, 'Config');
+		assert.include(all_logged, 'config.ts:5');
+		assert.include(all_logged, 'settings.ts:15');
+		assert.include(all_logged, 'type');
+		assert.include(all_logged, 'interface');
+	});
+
+	test('handles declarations without source_line', () => {
+		const log = create_mock_log();
+		const duplicates: Map<string, Array<DuplicateInfo>> = new Map([
+			[
+				'helper',
+				[
+					create_duplicate_info('helper', 'a.ts', 'function', undefined),
+					create_duplicate_info('helper', 'b.ts', 'function', 10),
+				],
+			],
+		]);
+
+		try {
+			library_gen_throw_on_duplicates(duplicates, log);
+		} catch {
+			// expected
+		}
+
+		const all_logged = log.errors.map((args) => args.join(' ')).join('\n');
+		// a.ts should appear without line number, b.ts:10 with
+		assert.include(all_logged, 'a.ts (function)');
+		assert.include(all_logged, 'b.ts:10 (function)');
+	});
+
+	test('error message includes resolution guidance', () => {
+		const log = create_mock_log();
+		const duplicates: Map<string, Array<DuplicateInfo>> = new Map([
+			['x', [create_duplicate_info('x', 'a.ts'), create_duplicate_info('x', 'b.ts')]],
+		]);
+
+		try {
+			library_gen_throw_on_duplicates(duplicates, log);
+			assert.fail('should have thrown');
+		} catch (e) {
+			const message = (e as Error).message;
+			assert.include(message, 'rename');
+			assert.include(message, '@nodocs');
+		}
 	});
 });
