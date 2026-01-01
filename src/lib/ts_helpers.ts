@@ -656,13 +656,15 @@ export const ts_extract_class_info = (
 			// Skip private fields (those starting with #)
 			if (member_name.startsWith('#')) continue;
 
+			const member_kind: DeclarationKind = is_constructor
+				? 'constructor'
+				: ts.isMethodDeclaration(member)
+					? 'function'
+					: 'variable';
+
 			const member_declaration: DeclarationJson = {
 				name: member_name,
-				kind: is_constructor
-					? 'constructor'
-					: ts.isMethodDeclaration(member)
-						? 'function'
-						: 'variable',
+				kind: member_kind,
 			};
 
 			// Extract visibility and modifiers

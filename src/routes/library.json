@@ -6827,7 +6827,7 @@
 						"name": "ts_extract_variable_info",
 						"kind": "function",
 						"doc_comment": "Extract variable information.",
-						"source_line": 766,
+						"source_line": 768,
 						"type_signature": "(node: Node, symbol: Symbol, checker: TypeChecker, declaration: { [x: string]: unknown; name: string; kind: \"function\" | \"json\" | \"type\" | \"variable\" | \"class\" | \"constructor\" | \"component\" | \"css\"; ... 19 more ...; alias_of?: { ...; } | undefined; }, ctx: AnalysisContext): void",
 						"return_type": "void",
 						"parameters": [

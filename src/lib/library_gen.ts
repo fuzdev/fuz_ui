@@ -185,12 +185,15 @@ export const library_gen = (options?: LibraryGenOptions): Gen => {
 			// Collect and filter source files
 			const source_files = library_collect_source_files(all_source_files, source_options, log);
 
+			// Collect modules (declared before source_json to include directly)
+			const modules: Array<ModuleJson> = [];
+
 			// Build source_json with array-based modules
 			// Phase 1: Analyze all modules and collect re-exports
 			const source_json: SourceJson = {
 				name: package_json.name,
 				version: package_json.version,
-				modules: [],
+				modules,
 			};
 
 			// Collect re-exports for phase 2 merging
@@ -212,7 +215,7 @@ export const library_gen = (options?: LibraryGenOptions): Gen => {
 				if (result.dependents.length > 0) module.dependents = result.dependents;
 				if (result.star_exports.length > 0) module.star_exports = result.star_exports;
 
-				source_json.modules!.push(module);
+				modules.push(module);
 
 				// Collect re-exports for phase 2 merging
 				for (const re_export of result.re_exports) {
@@ -224,9 +227,7 @@ export const library_gen = (options?: LibraryGenOptions): Gen => {
 			library_merge_re_exports(source_json, collected_re_exports);
 
 			// Sort modules alphabetically for deterministic output and cleaner diffs
-			source_json.modules = source_json.modules
-				? library_sort_modules(source_json.modules)
-				: undefined;
+			source_json.modules = library_sort_modules(modules);
 
 			// Check for duplicate declaration names and invoke callback if provided
 			if (options?.on_duplicates) {
