@@ -660,8 +660,7 @@ export class MdzParser {
 		this.#index = close_paren + 1;
 
 		// Determine link type (external vs internal)
-		const link_type =
-			reference.startsWith('https://') || reference.startsWith('http://') ? 'external' : 'internal';
+		const link_type = mdz_is_url(reference) ? 'external' : 'internal';
 
 		return {
 			type: 'Link',
@@ -1819,3 +1818,9 @@ export class MdzParser {
 		throw Error('Code block not properly closed');
 	}
 }
+
+/**
+ * Check if a string is a URL (http:// or https://).
+ */
+export const mdz_is_url = (s: string): boolean =>
+	s.startsWith('https://') || s.startsWith('http://');

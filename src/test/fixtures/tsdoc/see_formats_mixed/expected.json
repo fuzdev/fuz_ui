@@ -3,7 +3,7 @@
 	"params": {},
 	"see_also": [
 		"https://fuz.dev/docs",
-		"https://fuz.dev/docs",
-		"`other_module`"
+		"{@link https://fuz.dev/docs}",
+		"other_module"
 	]
 }

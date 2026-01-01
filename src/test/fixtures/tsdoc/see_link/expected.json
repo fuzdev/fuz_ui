@@ -2,6 +2,6 @@
 	"text": "Function with related references.",
 	"params": {},
 	"see_also": [
-		"https://fuz.dev/docs"
+		"{@link https://fuz.dev/docs}"
 	]
 }

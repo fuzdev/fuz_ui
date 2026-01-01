@@ -20,7 +20,7 @@
 	],
 	"deprecated_message": "Use simple_function() for new code",
 	"see_also": [
-		"https://fuz.dev/docs"
+		"{@link https://fuz.dev/docs}"
 	],
 	"since": "1.5.0"
 }

@@ -2366,7 +2366,13 @@
 						"source_line": 1
 					}
 				],
-				"dependencies": ["Details.svelte", "Mdz.svelte", "ModuleLink.svelte", "TypeLink.svelte"],
+				"dependencies": [
+					"Details.svelte",
+					"Mdz.svelte",
+					"ModuleLink.svelte",
+					"TypeLink.svelte",
+					"tsdoc_mdz.ts"
+				],
 				"dependents": ["ApiDeclarationList.svelte"]
 			},
 			{
@@ -4179,8 +4185,8 @@
 						"kind": "class",
 						"doc_comment": "Rich runtime representation of a library.\n\nWraps `LibraryJson` with computed properties and provides the root\nof the API documentation hierarchy: Library → modules → declarations",
 						"see_also": [
-							"`module.svelte.ts for Module class`",
-							"`declaration.svelte.ts for Declaration class`"
+							"module.svelte.ts for Module class",
+							"declaration.svelte.ts for Declaration class"
 						],
 						"source_line": 16,
 						"members": [
@@ -4942,10 +4948,24 @@
 								"parameters": []
 							}
 						]
+					},
+					{
+						"name": "mdz_is_url",
+						"kind": "function",
+						"doc_comment": "Check if a string is a URL (http:// or https://).",
+						"source_line": 1825,
+						"type_signature": "(s: string): boolean",
+						"return_type": "boolean",
+						"parameters": [
+							{
+								"name": "s",
+								"type": "string"
+							}
+						]
 					}
 				],
 				"module_comment": "mdz - minimal markdown dialect for Fuz documentation.\n\nParses an enhanced markdown dialect with:\n- inline formatting: `code`, **bold**, _italic_, ~strikethrough~\n- auto-detected links: external URLs (`https://...`) and internal paths (`/path`)\n- markdown links: `[text](url)` with custom display text\n- inline code in backticks (creates `Code` nodes; auto-linking to identifiers/modules\n  is handled by the rendering layer via `MdzNodeView.svelte`)\n- paragraph breaks (double newline)\n- block elements: headings, horizontal rules, code blocks\n- HTML elements and Svelte components (opt-in via context)\n\nKey constraint: preserves ALL whitespace exactly as authored,\nand is rendered with white-space pre or pre-wrap.\n\n## Design philosophy\n\n- **False negatives over false positives**: Strict syntax prevents accidentally\n  interpreting plain text as formatting. When in doubt, treat as plain text.\n- **One way to do things**: Single unambiguous syntax per feature. No alternatives.\n- **Explicit over implicit**: Clear delimiters and column-0 requirements avoid ambiguity.\n- **Simple over complete**: Prefer simple parsing rules over complex edge case handling.\n\n## Status\n\nThis is an early proof of concept with missing features and edge cases.",
-				"dependents": ["Mdz.svelte"]
+				"dependents": ["Mdz.svelte", "tsdoc_mdz.ts"]
 			},
 			{
 				"path": "MdzNodeView.svelte",
@@ -6934,7 +6954,7 @@
 						"name": "tsdoc_parse",
 						"kind": "function",
 						"doc_comment": "Parse JSDoc comment from a TypeScript node.\n\nExtracts and parses all JSDoc tags including:\n\n- `@param` - parameter descriptions\n- `@returns` - return value description\n- `@throws` - error documentation\n- `@example` - code examples\n- `@deprecated` - deprecation warnings\n- `@see` - related references\n- `@since` - version information\n- `@mutates` - mutation documentation (non-standard)",
-						"source_line": 135,
+						"source_line": 88,
 						"type_signature": "(node: Node, source_file: SourceFile): TsdocParsedComment | undefined",
 						"return_type": "TsdocParsedComment | undefined",
 						"parameters": [
@@ -6954,7 +6974,7 @@
 						"name": "tsdoc_apply_to_declaration",
 						"kind": "function",
 						"doc_comment": "Apply parsed TSDoc metadata to a declaration.\n\nConsolidates the common pattern of assigning TSDoc fields to declarations,\nwith conditional assignment for array fields (only if non-empty).",
-						"source_line": 240,
+						"source_line": 192,
 						"type_signature": "(declaration: { [x: string]: unknown; name: string; kind: \"function\" | \"json\" | \"type\" | \"variable\" | \"class\" | \"constructor\" | \"component\" | \"css\"; doc_comment?: string | undefined; type_signature?: string | undefined; ... 17 more ...; alias_of?: { ...; } | undefined; }, tsdoc: TsdocParsedComment | undefined): void",
 						"return_type": "void",
 						"parameters": [
@@ -6974,7 +6994,7 @@
 						"name": "tsdoc_clean_comment",
 						"kind": "function",
 						"doc_comment": "Clean raw JSDoc comment text by removing comment markers and leading asterisks.\n\nTransforms `/** ... *\\/` style comments into clean text.",
-						"source_line": 272,
+						"source_line": 224,
 						"type_signature": "(comment_text: string): string | undefined",
 						"return_type": "string | undefined",
 						"return_description": "Cleaned comment text, or undefined if empty after cleaning",
@@ -6989,6 +7009,33 @@
 				],
 				"module_comment": "TSDoc/JSDoc parsing helpers using the TypeScript Compiler API.\n\nProvides `tsdoc_parse()` for extracting JSDoc/TSDoc from TypeScript nodes.\nPrimarily designed for build-time code generation but can be used at runtime.\n\n## Design\n\nPure extraction approach: extracts documentation as-is with minimal transformation,\npreserving source intent. Works around TypeScript Compiler API quirks where needed.\n\nSupports both regular TypeScript and Svelte components (via svelte2tsx output).\n\n## Tag support\n\nSupports a subset of standard TSDoc tags:\n`@param`, `@returns`, `@throws`, `@example`, `@deprecated`, `@see`, `@since`, `@nodocs`.\n\nThe `@nodocs` tag excludes exports from documentation and flat namespace validation.\nThe declaration is still exported and usable, just not documented.\n\nAlso supports `@mutates` (non-standard) for documenting mutations to parameters or external state.\nUse format: `@mutates paramName - description of mutation`.\n\nOnly `@returns` is supported (not `@return`).\n\nThe `@see` tag supports multiple formats: plain URLs (`https://...`), `{@link}` syntax, and module names.\nRelative/absolute path support in `@see` is TBD.\n\n## Behavioral notes\n\nDue to TS Compiler API limitations:\n- Preserves dash separator in `@param` descriptions: `@param x desc` → `\"- desc\"`\n- `@throws` tags have `{Type}` stripped by TS API; fallback regex extracts first word as error type\n- TS API strips URL protocols from `@see` tag text; we use `getText()` to preserve original format including `{@link}` syntax\n\nAll functions are prefixed with `tsdoc_` for clarity.",
 				"dependents": ["svelte_helpers.ts", "ts_helpers.ts"]
+			},
+			{
+				"path": "tsdoc_mdz.ts",
+				"declarations": [
+					{
+						"name": "tsdoc_see_to_mdz",
+						"kind": "function",
+						"doc_comment": "Convert raw TSDoc `@see` content to mdz format for rendering.\n\nHandles TSDoc link syntax:\n- `|text` → `[text](url)` (markdown link)\n- `://...` → `https://...` (bare URL, auto-linked by mdz)\n- `` → `` `identifier` `` (code formatting)\n- Bare URLs → returned as-is\n- Bare identifiers → wrapped in backticks",
+						"examples": [
+							"```ts\ntsdoc_see_to_mdz('://fuz.dev|API Docs')\n// → '[API Docs](https://fuz.dev)'\n\ntsdoc_see_to_mdz('')\n// → '`SomeType`'\n\ntsdoc_see_to_mdz('https://example.com')\n// → 'https://example.com'\n```"
+						],
+						"source_line": 41,
+						"type_signature": "(content: string): string",
+						"return_type": "string",
+						"return_description": "mdz-formatted string ready for `<Mdz>` component",
+						"parameters": [
+							{
+								"name": "content",
+								"type": "string",
+								"description": "Raw `@see` tag content in TSDoc format"
+							}
+						]
+					}
+				],
+				"module_comment": "Bridge between TSDoc format and mdz for rendering.\n\nThis module converts raw TSDoc syntax (from the analysis library) to mdz format\n(Fuz's documentation rendering dialect). It lives in fuz_ui, not the extracted\nanalysis library, to keep that library format-agnostic.",
+				"dependencies": ["mdz.ts"],
+				"dependents": ["DeclarationDetail.svelte"]
 			},
 			{
 				"path": "TypeLink.svelte",

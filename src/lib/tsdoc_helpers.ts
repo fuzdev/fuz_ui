@@ -69,53 +69,6 @@ export interface TsdocParsedComment {
 }
 
 /**
- * Convert TSDoc link syntax to mdz-compatible format.
- *
- * Conversions:
- * - `{@link url|text}` → `[text](url)` (markdown link)
- * - `{@link https://...}` → `https://...` (bare URL)
- * - `{@link identifier}` → `` `identifier` `` (backticks)
- * - `@see` variants follow same rules
- *
- * @param content The @see tag content to convert
- */
-const tsdoc_convert_link_to_mdz = (content: string): string => {
-	// Check for {@link ...} or {@see ...} syntax
-	const link_match = /^\{@(?:link|see)\s+([^}]+)\}$/.exec(content.trim());
-	if (link_match) {
-		const inner = link_match[1]!.trim();
-
-		// Check for pipe separator (custom display text)
-		const pipe_index = inner.indexOf('|');
-		if (pipe_index !== -1) {
-			const reference = inner.slice(0, pipe_index).trim();
-			const display_text = inner.slice(pipe_index + 1).trim();
-			// Convert to markdown link: [text](url)
-			return `[${display_text}](${reference})`;
-		}
-
-		// No pipe - check if it's a URL or declaration
-		if (inner.startsWith('https://') || inner.startsWith('http://')) {
-			// Bare URL - return as-is
-			return inner;
-		} else {
-			// Declaration or module - wrap in backticks
-			return `\`${inner}\``;
-		}
-	}
-
-	// No {@link} or {@see} syntax - check if it's a bare URL or declaration
-	const trimmed = content.trim();
-	if (trimmed.startsWith('https://') || trimmed.startsWith('http://')) {
-		// Already a bare URL - return as-is
-		return trimmed;
-	} else {
-		// Declaration or module - wrap in backticks
-		return `\`${trimmed}\``;
-	}
-};
-
-/**
  * Parse JSDoc comment from a TypeScript node.
  *
  * Extracts and parses all JSDoc tags including:
@@ -199,8 +152,7 @@ export const tsdoc_parse = (
 				.trim();
 
 			if (see_content) {
-				// Convert TSDoc link syntax to mdz-compatible format
-				see_also.push(tsdoc_convert_link_to_mdz(see_content));
+				see_also.push(see_content);
 			}
 		} else if (tag_name === 'since' && tag_text) {
 			since = tag_text.trim();

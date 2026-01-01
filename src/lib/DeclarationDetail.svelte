@@ -6,6 +6,7 @@
 	import TypeLink from './TypeLink.svelte';
 	import ModuleLink from './ModuleLink.svelte';
 	import Mdz from './Mdz.svelte';
+	import {tsdoc_see_to_mdz} from './tsdoc_mdz.js';
 
 	const {declaration}: {declaration: Declaration} = $props();
 </script>
@@ -215,7 +216,7 @@
 		<ul>
 			{#each declaration.see_also as ref (ref)}
 				<li>
-					<Mdz content={ref} />
+					<Mdz content={tsdoc_see_to_mdz(ref)} />
 				</li>
 			{/each}
 		</ul>

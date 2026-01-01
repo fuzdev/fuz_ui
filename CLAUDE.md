@@ -123,10 +123,9 @@ Two-phase architecture (TSDoc → mdz):
 - mdz is an enhanced markdown dialect
 - supports auto-detected URLs (`https://`), internal paths (`/path`), and
   standard markdown links (`[text](url)`)
-- TSDoc `@see` tags are converted to mdz format during build phase
+- `@see` tags stored as raw TSDoc, converted via `tsdoc_mdz.ts` at render time
 - runs in the browser when viewing docs
-- mdz is the OUTPUT format - documentation extracted at build time is stored as
-  mdz-formatted strings
+- keeps analysis layer format-agnostic for clean extraction
 
 Supporting helpers (three-layer architecture):
 
@@ -143,6 +142,9 @@ Supporting helpers (three-layer architecture):
   declarations from documentation and flat namespace validation)
   - `tsdoc_parse` - extract structured TSDoc from a node
   - `tsdoc_apply_to_declaration` - apply parsed TSDoc to a declaration
+- `tsdoc_mdz.ts` - bridge between raw TSDoc and mdz rendering format
+  - `tsdoc_see_to_mdz` - convert `@see` tag content to mdz for `<Mdz>` component
+  - lives in fuz_ui (not extracted analysis library) to keep analysis format-agnostic
 - `analysis_context.ts` - diagnostic collection during analysis
   - `AnalysisContext` - accumulates errors/warnings without halting analysis
   - `Diagnostic` types - structured diagnostics with file, line, column
