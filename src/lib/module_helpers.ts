@@ -8,6 +8,14 @@
  */
 
 /**
+ * Analyzer type for source files.
+ *
+ * - `'typescript'` - TypeScript/JavaScript files analyzed via TypeScript Compiler API
+ * - `'svelte'` - Svelte components analyzed via svelte2tsx + TypeScript Compiler API
+ */
+export type AnalyzerType = 'typescript' | 'svelte';
+
+/**
  * File information for source analysis.
  *
  * Can be constructed from Gro's Disknode or from plain file system access.
@@ -52,8 +60,6 @@ export interface ModuleSourceOptions {
 	source_root: string;
 	/** Source directory paths to include in filtering. */
 	source_paths: Array<string>;
-	/** File extensions to include (subset of supported: .ts, .js, .svelte). */
-	extensions: Array<string>;
 	/** Patterns to exclude (matched against full path). */
 	exclude_patterns: Array<RegExp>;
 	/**
@@ -73,7 +79,46 @@ export interface ModuleSourceOptions {
 	 * // ✗ /project/src/fixtures/repos/bar/src/lib/x.ts - first /src/ leads to /src/fixtures/ (skipped)
 	 */
 	skip_nested_source_dirs: boolean;
+	/**
+	 * Determine which analyzer to use for a file path.
+	 *
+	 * Called for files in source directories. Return `'typescript'`, `'svelte'`,
+	 * or `null` to skip the file. This is the single source of truth for which
+	 * files are analyzable and how to analyze them.
+	 *
+	 * @default Uses file extension: `.svelte` → svelte, `.ts`/`.js` → typescript
+	 *
+	 * @example
+	 * // Add MDsveX support
+	 * get_analyzer: (path) => {
+	 *   if (path.endsWith('.svelte') || path.endsWith('.svx')) return 'svelte';
+	 *   if (path.endsWith('.ts') || path.endsWith('.js')) return 'typescript';
+	 *   return null;
+	 * }
+	 *
+	 * @example
+	 * // Include .d.ts files
+	 * get_analyzer: (path) => {
+	 *   if (path.endsWith('.svelte')) return 'svelte';
+	 *   if (path.endsWith('.ts') || path.endsWith('.d.ts') || path.endsWith('.js')) return 'typescript';
+	 *   return null;
+	 * }
+	 */
+	get_analyzer: (path: string) => AnalyzerType | null;
 }
+
+/**
+ * Default analyzer resolver based on file extension.
+ *
+ * - `.svelte` → `'svelte'`
+ * - `.ts`, `.js` → `'typescript'`
+ * - Other extensions → `null` (skip)
+ */
+export const module_get_analyzer_default = (path: string): AnalyzerType | null => {
+	if (module_is_svelte(path)) return 'svelte';
+	if (module_is_typescript(path)) return 'typescript';
+	return null;
+};
 
 /**
  * Default options for standard SvelteKit library structure.
@@ -81,9 +126,9 @@ export interface ModuleSourceOptions {
 export const MODULE_SOURCE_DEFAULTS: ModuleSourceOptions = {
 	source_root: '/src/lib/',
 	source_paths: ['/src/lib/'],
-	extensions: ['.ts', '.js', '.svelte'],
 	exclude_patterns: [/\.test\.ts$/],
 	skip_nested_source_dirs: true,
+	get_analyzer: module_get_analyzer_default,
 };
 
 /**
@@ -202,9 +247,10 @@ export const module_get_key = (module_path: string): string => `./${module_path}
  * Check if a path is a TypeScript or JavaScript file.
  *
  * Includes both `.ts` and `.js` files since JS files are valid in TS projects.
+ * Excludes `.d.ts` declaration files - use a custom `get_analyzer` to include them.
  */
 export const module_is_typescript = (path: string): boolean =>
-	path.endsWith('.ts') || path.endsWith('.js');
+	(path.endsWith('.ts') && !path.endsWith('.d.ts')) || path.endsWith('.js');
 
 export const module_is_svelte = (path: string): boolean => path.endsWith('.svelte');
 
@@ -217,7 +263,8 @@ export const module_is_test = (path: string): boolean => path.endsWith('.test.ts
 /**
  * Check if a path matches source criteria.
  *
- * Checks source directory paths, file extensions, and exclusion patterns.
+ * Checks exclusion patterns and source directory paths.
+ * File type filtering is handled by `get_analyzer`.
  *
  * When `skip_nested_source_dirs` is true, skips nested repo paths by ensuring
  * source_paths match starting from the first `/src/` in the path.
@@ -227,6 +274,10 @@ export const module_is_test = (path: string): boolean => path.endsWith('.test.ts
  * @returns True if the path matches all criteria
  */
 export const module_matches_source = (path: string, options: ModuleSourceOptions): boolean => {
+	// Check exclusion patterns first (fast regex check)
+	const is_excluded = options.exclude_patterns.some((pattern) => pattern.test(path));
+	if (is_excluded) return false;
+
 	// Check if path is in one of the source directories
 	const in_source_dir = options.source_paths.some((source_path) => {
 		if (!path.includes(source_path)) return false;
@@ -248,17 +299,8 @@ export const module_matches_source = (path: string, options: ModuleSourceOptions
 		// No nested source dir skipping - just check path contains source_path
 		return true;
 	});
-	if (!in_source_dir) return false;
 
-	// Check if extension matches
-	const has_valid_extension = options.extensions.some((ext) => path.endsWith(ext));
-	if (!has_valid_extension) return false;
-
-	// Check exclusion patterns
-	const is_excluded = options.exclude_patterns.some((pattern) => pattern.test(path));
-	if (is_excluded) return false;
-
-	return true;
+	return in_source_dir;
 };
 
 /**

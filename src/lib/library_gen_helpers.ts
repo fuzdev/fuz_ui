@@ -25,8 +25,6 @@ import type {ReExportInfo} from './library_analysis.js';
 import {
 	type SourceFileInfo,
 	type ModuleSourceOptions,
-	module_is_typescript,
-	module_is_svelte,
 	module_matches_source,
 	module_validate_source_options,
 } from './module_helpers.js';
@@ -177,9 +175,8 @@ export const library_merge_re_exports = (
  * Returns source files for TypeScript/JS files and Svelte components, excluding test files.
  * Returns an empty array with a warning if no source files are found.
  *
- * Note: Only `.ts`, `.js`, and `.svelte` files are supported. The `options.extensions`
- * filters within these types (e.g., `['.ts']` to exclude .js and .svelte).
- * Other extensions like `.css` are ignored even if added to options.
+ * File types are determined by `options.get_analyzer`. By default, `.ts`, `.js`, and `.svelte`
+ * files are supported. Customize `get_analyzer` to support additional file types like `.svx`.
  *
  * @param files Iterable of source file info (from Gro filer, file system, or other source)
  * @param options Module source options for filtering
@@ -199,8 +196,8 @@ export const library_collect_source_files = (
 	const source_files: Array<SourceFileInfo> = [];
 	for (const file of all_files) {
 		if (module_matches_source(file.id, options)) {
-			// Include TypeScript/JS files and Svelte components
-			if (module_is_typescript(file.id) || module_is_svelte(file.id)) {
+			// Include files that have a valid analyzer
+			if (options.get_analyzer(file.id) !== null) {
 				source_files.push(file);
 			}
 		}

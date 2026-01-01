@@ -49,7 +49,6 @@ import {svelte_analyze_module} from './svelte_helpers.js';
 import {
 	type SourceFileInfo,
 	type ModuleSourceOptions,
-	module_is_svelte,
 	module_extract_path,
 } from './module_helpers.js';
 import type {AnalysisContext} from './analysis_context.js';
@@ -127,17 +126,22 @@ export const library_analyze_module = (
 ): ModuleAnalysis | undefined => {
 	const checker = program.getTypeChecker();
 	const module_path = module_extract_path(source_file.id, options);
+	const analyzer_type = options.get_analyzer(source_file.id);
 
-	if (module_is_svelte(module_path)) {
+	if (analyzer_type === 'svelte') {
 		return svelte_analyze_module(source_file, module_path, checker, options, ctx);
 	}
 
-	// TypeScript/JavaScript file - need source file from program
-	const ts_source_file = program.getSourceFile(source_file.id);
-	if (!ts_source_file) {
-		log?.warn(`Could not get source file from program: ${source_file.id}`);
-		return undefined;
+	if (analyzer_type === 'typescript') {
+		const ts_source_file = program.getSourceFile(source_file.id);
+		if (!ts_source_file) {
+			log?.warn(`Could not get source file from program: ${source_file.id}`);
+			return undefined;
+		}
+		return ts_analyze_module(source_file, ts_source_file, module_path, checker, options, ctx);
 	}
 
-	return ts_analyze_module(source_file, ts_source_file, module_path, checker, options, ctx);
+	// analyzer_type is null - skip this file
+	log?.warn(`No analyzer for file: ${source_file.id}`);
+	return undefined;
 };

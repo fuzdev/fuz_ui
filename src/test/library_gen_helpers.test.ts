@@ -457,7 +457,7 @@ describe('library_collect_source_files', () => {
 			assert.strictEqual(result[0]!.id, '/home/user/project/src/routes/page.svelte');
 		});
 
-		test('uses custom extensions filter', () => {
+		test('uses custom get_analyzer filter', () => {
 			const files: Array<SourceFileInfo> = [
 				{id: '/home/user/project/src/lib/foo.ts', content: ''},
 				{id: '/home/user/project/src/lib/Button.svelte', content: ''},
@@ -466,7 +466,8 @@ describe('library_collect_source_files', () => {
 
 			const options: ModuleSourceOptions = {
 				...MODULE_SOURCE_DEFAULTS,
-				extensions: ['.ts'], // only TypeScript
+				// Custom get_analyzer that only accepts .ts files
+				get_analyzer: (path) => (path.endsWith('.ts') ? 'typescript' : null),
 			};
 
 			const result = library_collect_source_files(files, options);

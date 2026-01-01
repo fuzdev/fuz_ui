@@ -12,6 +12,7 @@ import {
 	module_is_test,
 	module_matches_source,
 	module_validate_source_options,
+	module_get_analyzer_default,
 	MODULE_SOURCE_DEFAULTS,
 	type ModuleSourceOptions,
 	type SourceFileInfo,
@@ -174,10 +175,6 @@ describe('MODULE_SOURCE_DEFAULTS', () => {
 		assert.deepStrictEqual(MODULE_SOURCE_DEFAULTS.source_paths, ['/src/lib/']);
 	});
 
-	test('has expected default extensions', () => {
-		assert.deepStrictEqual(MODULE_SOURCE_DEFAULTS.extensions, ['.ts', '.js', '.svelte']);
-	});
-
 	test('has expected default exclude_patterns', () => {
 		assert.strictEqual(MODULE_SOURCE_DEFAULTS.exclude_patterns.length, 1);
 		assert.isTrue(MODULE_SOURCE_DEFAULTS.exclude_patterns[0]!.test('foo.test.ts'));
@@ -221,11 +218,13 @@ describe('module_matches_source', () => {
 			);
 		});
 
-		test('excludes unsupported extensions', () => {
-			assert.isFalse(
+		test('includes all file types in source dirs (filtering done by get_analyzer)', () => {
+			// module_matches_source no longer filters by extension
+			// File type filtering is handled by get_analyzer
+			assert.isTrue(
 				module_matches_source('/home/user/project/src/lib/styles.css', MODULE_SOURCE_DEFAULTS),
 			);
-			assert.isFalse(
+			assert.isTrue(
 				module_matches_source('/home/user/project/src/lib/data.json', MODULE_SOURCE_DEFAULTS),
 			);
 		});
@@ -250,30 +249,6 @@ describe('module_matches_source', () => {
 
 			assert.isTrue(module_matches_source('/home/user/project/src/lib/foo.ts', options));
 			assert.isTrue(module_matches_source('/home/user/project/src/routes/page.svelte', options));
-		});
-	});
-
-	describe('with custom extensions', () => {
-		test('respects custom extensions', () => {
-			const options: ModuleSourceOptions = {
-				...MODULE_SOURCE_DEFAULTS,
-				extensions: ['.ts'],
-			};
-
-			assert.isTrue(module_matches_source('/home/user/project/src/lib/foo.ts', options));
-			assert.isFalse(module_matches_source('/home/user/project/src/lib/foo.js', options));
-			assert.isFalse(module_matches_source('/home/user/project/src/lib/Button.svelte', options));
-		});
-
-		test('supports additional extensions like css', () => {
-			const options: ModuleSourceOptions = {
-				...MODULE_SOURCE_DEFAULTS,
-				extensions: ['.ts', '.css'],
-			};
-
-			assert.isTrue(module_matches_source('/home/user/project/src/lib/foo.ts', options));
-			assert.isTrue(module_matches_source('/home/user/project/src/lib/styles.css', options));
-			assert.isFalse(module_matches_source('/home/user/project/src/lib/Button.svelte', options));
 		});
 	});
 
@@ -371,9 +346,9 @@ describe('module_matches_source', () => {
 			const options: ModuleSourceOptions = {
 				source_root: '/packages/core/lib/',
 				source_paths: ['/packages/core/lib/'],
-				extensions: ['.ts'],
 				exclude_patterns: [],
 				skip_nested_source_dirs: true,
+				get_analyzer: module_get_analyzer_default,
 			};
 
 			// Accepts paths without /src/ - the nested check is skipped
@@ -542,9 +517,9 @@ describe('module_extract_dependencies', () => {
 			const options: ModuleSourceOptions = {
 				source_root: '/src/routes/',
 				source_paths: ['/src/routes/'],
-				extensions: ['.svelte'],
 				exclude_patterns: [],
 				skip_nested_source_dirs: true,
+				get_analyzer: module_get_analyzer_default,
 			};
 
 			const source_file: SourceFileInfo = {

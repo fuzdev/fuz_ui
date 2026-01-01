@@ -35,11 +35,16 @@ import type {AnalysisContext} from './analysis_context.js';
 // Import shared types from library_analysis (type-only import avoids circular runtime dependency)
 import type {ModuleAnalysis} from './library_analysis.js';
 
+/** Guard to ensure version check runs only once. */
+let svelte_version_checked = false;
+
 /**
- * Assert Svelte 5+ is installed.
+ * Assert Svelte 5+ is installed (lazy, runs once on first use).
  * Throws a clear error message if an older version is detected.
  */
 const svelte_assert_version = (): void => {
+	if (svelte_version_checked) return;
+	svelte_version_checked = true;
 	const [major] = VERSION.split('.');
 	if (parseInt(major!, 10) < 5) {
 		throw new Error(
@@ -48,9 +53,6 @@ const svelte_assert_version = (): void => {
 		);
 	}
 };
-
-// Check version at module load time for fast failure
-svelte_assert_version();
 
 /** Result of analyzing a Svelte file. */
 export interface SvelteFileAnalysis {
@@ -126,6 +128,7 @@ export const svelte_analyze_file = (
 	checker: ts.TypeChecker,
 	ctx: AnalysisContext,
 ): SvelteFileAnalysis => {
+	svelte_assert_version();
 	const svelte_source = source_file.content;
 
 	// Check if component uses TypeScript

@@ -34,7 +34,7 @@ describe('source_file_from_disknode', () => {
 	});
 
 	test('converts dependencies Map keys to array', () => {
-		const deps = new Map<string, unknown>([
+		const deps: Map<string, unknown> = new Map([
 			['/project/src/lib/dep_a.ts', {}],
 			['/project/src/lib/dep_b.ts', {}],
 		]);
@@ -55,7 +55,7 @@ describe('source_file_from_disknode', () => {
 	});
 
 	test('converts dependents Map keys to array', () => {
-		const dependents = new Map<string, unknown>([
+		const dependents: Map<string, unknown> = new Map([
 			['/project/src/lib/user_a.ts', {}],
 			['/project/src/lib/user_b.ts', {}],
 			['/project/src/lib/user_c.ts', {}],
