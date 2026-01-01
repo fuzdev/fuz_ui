@@ -6703,10 +6703,36 @@
 						]
 					},
 					{
+						"name": "ts_extract_signature_parameters",
+						"kind": "function",
+						"doc_comment": "Extract parameters from a TypeScript signature with TSDoc descriptions and default values.\n\nShared helper for extracting parameter information from both standalone functions\nand class methods/constructors.",
+						"source_line": 420,
+						"type_signature": "(sig: Signature, checker: TypeChecker, tsdoc_params: Map<string, string> | undefined): { name: string; type: string; optional?: boolean | undefined; description?: string | undefined; default_value?: string | undefined; }[]",
+						"return_type": "{ name: string; type: string; optional?: boolean | undefined; description?: string | undefined; default_value?: string | undefined; }[]",
+						"return_description": "Array of parameter info objects",
+						"parameters": [
+							{
+								"name": "sig",
+								"type": "Signature",
+								"description": "The TypeScript signature to extract parameters from"
+							},
+							{
+								"name": "checker",
+								"type": "TypeChecker",
+								"description": "TypeScript type checker for type resolution"
+							},
+							{
+								"name": "tsdoc_params",
+								"type": "Map<string, string> | undefined",
+								"description": "Map of parameter names to TSDoc descriptions (from tsdoc.params)"
+							}
+						]
+					},
+					{
 						"name": "ts_extract_function_info",
 						"kind": "function",
 						"doc_comment": "Extract function/method information including parameters\nwith descriptions and default values.",
-						"source_line": 416,
+						"source_line": 472,
 						"type_signature": "(node: Node, symbol: Symbol, checker: TypeChecker, declaration: { [x: string]: unknown; name: string; kind: \"function\" | \"json\" | \"type\" | \"variable\" | \"class\" | \"constructor\" | \"component\" | \"css\"; ... 19 more ...; alias_of?: { ...; } | undefined; }, tsdoc: TsdocParsedComment | undefined, ctx: AnalysisContext): void",
 						"return_type": "void",
 						"parameters": [
@@ -6740,7 +6766,7 @@
 						"name": "ts_extract_type_info",
 						"kind": "function",
 						"doc_comment": "Extract type/interface information with rich property metadata.",
-						"source_line": 509,
+						"source_line": 534,
 						"type_signature": "(node: Node, _symbol: Symbol, checker: TypeChecker, declaration: { [x: string]: unknown; name: string; kind: \"function\" | \"json\" | \"type\" | \"variable\" | \"class\" | \"constructor\" | \"component\" | \"css\"; ... 19 more ...; alias_of?: { ...; } | undefined; }, ctx: AnalysisContext): void",
 						"return_type": "void",
 						"parameters": [
@@ -6770,7 +6796,7 @@
 						"name": "ts_extract_class_info",
 						"kind": "function",
 						"doc_comment": "Extract class information with rich member metadata.",
-						"source_line": 584,
+						"source_line": 609,
 						"type_signature": "(node: Node, _symbol: Symbol, checker: TypeChecker, declaration: { [x: string]: unknown; name: string; kind: \"function\" | \"json\" | \"type\" | \"variable\" | \"class\" | \"constructor\" | \"component\" | \"css\"; ... 19 more ...; alias_of?: { ...; } | undefined; }, ctx: AnalysisContext): void",
 						"return_type": "void",
 						"parameters": [
@@ -6800,7 +6826,7 @@
 						"name": "ts_extract_variable_info",
 						"kind": "function",
 						"doc_comment": "Extract variable information.",
-						"source_line": 764,
+						"source_line": 758,
 						"type_signature": "(node: Node, symbol: Symbol, checker: TypeChecker, declaration: { [x: string]: unknown; name: string; kind: \"function\" | \"json\" | \"type\" | \"variable\" | \"class\" | \"constructor\" | \"component\" | \"css\"; ... 19 more ...; alias_of?: { ...; } | undefined; }, ctx: AnalysisContext): void",
 						"return_type": "void",
 						"parameters": [
