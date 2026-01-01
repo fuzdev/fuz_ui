@@ -51,6 +51,8 @@
  *     console.error(`${err.file}:${err.line}: ${err.message}`);
  *   }
  * }
+ *
+ * @module
  */
 
 /**

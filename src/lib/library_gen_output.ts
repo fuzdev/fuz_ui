@@ -5,6 +5,8 @@
  *
  * @see library_gen_helpers.ts for orchestration functions
  * @see library_gen.ts for the main generation task (Gro-specific)
+ *
+ * @module
  */
 
 import type {PackageJson} from '@fuzdev/fuz_util/package_json.js';

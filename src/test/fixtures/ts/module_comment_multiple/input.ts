@@ -1,10 +1,13 @@
 /**
- * First module-level JSDoc comment.
- * This should be extracted.
+ * First `@module` comment wins.
+ *
+ * @module
  */
 
 /**
- * Second JSDoc that appears later.
- * This should NOT be extracted.
+ * Second `@module` is ignored.
+ *
+ * @module
  */
+
 export const value = 42;

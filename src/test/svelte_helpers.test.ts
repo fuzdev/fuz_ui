@@ -406,6 +406,8 @@ describe('svelte_extract_module_comment', () => {
 /**
  * This is a module-level comment.
  * It describes the entire module.
+ *
+ * @module
  */
 
 import {something} from './somewhere.js';
@@ -425,6 +427,8 @@ import {something} from './somewhere.js';
 
 /**
  * Module comment after imports.
+ *
+ * @module
  */
 
 const foo = 'bar';
@@ -435,9 +439,13 @@ const foo = 'bar';
 		assert.include(result, 'Module comment after imports');
 	});
 
-	test('does not extract comment without blank line (declaration comment)', () => {
+	test('does not extract comment without @module tag', () => {
 		const script_content = `
-/** This is a declaration comment. */
+/**
+ * This is a regular JSDoc comment.
+ * It should not be treated as a module comment.
+ */
+
 const foo = 'bar';
 `;
 
@@ -459,6 +467,8 @@ const foo = 'bar';
 		const script_content = `
 /**
  * Module with only imports.
+ *
+ * @module
  */
 
 import {a} from './a.js';
@@ -495,6 +505,8 @@ const foo = 'bar';
 		const script_content = `
 /**
  * First module comment.
+ *
+ * @module
  */
 
 /**
@@ -510,10 +522,12 @@ const foo = 'bar';
 		assert.notInclude(result, 'Second comment');
 	});
 
-	test('handles JSDoc with only tags (no description)', () => {
+	test('handles JSDoc with @module and other tags', () => {
 		const script_content = `
 /**
  * @see https://example.com
+ *
+ * @module
  */
 
 const foo = 'bar';
@@ -522,6 +536,8 @@ const foo = 'bar';
 		const result = svelte_extract_module_comment(script_content);
 		assert.ok(result);
 		assert.include(result, '@see https://example.com');
+		// @module tag should be stripped from output
+		assert.notInclude(result, '@module');
 	});
 });
 
@@ -532,6 +548,8 @@ describe('svelte_analyze_file module_comment', () => {
  * This component displays a greeting message.
  *
  * @see https://example.com/docs
+ *
+ * @module
  */
 
 let {name}: {name: string} = $props();
@@ -570,6 +588,8 @@ let {name}: {name: string} = $props();
 		const svelte_content = `<script lang="ts">
 /**
  * Module-level documentation.
+ *
+ * @module
  */
 
 /** Component documentation attached to props. */

@@ -20,6 +20,8 @@
  * @see `tsdoc_helpers.ts` for JSDoc/TSDoc parsing
  * @see `ts_helpers.ts` for TypeScript analysis
  * @see `svelte_helpers.ts` for Svelte component analysis
+ *
+ * @module
  */
 
 import type {Gen} from '@ryanatkn/gro';

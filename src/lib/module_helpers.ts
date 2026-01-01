@@ -5,6 +5,8 @@
  * and import relationships in the package generation system.
  *
  * All functions are prefixed with `module_` for clarity.
+ *
+ * @module
  */
 
 /**

@@ -15,6 +15,8 @@
  * There is no Svelte 4 compatibility layer.
  *
  * All functions are prefixed with `svelte_` for clarity.
+ *
+ * @module
  */
 
 import ts from 'typescript';
@@ -254,12 +256,11 @@ export const svelte_extract_script_content = (svelte_source: string): string | u
 /**
  * Extract module-level comment from Svelte script content.
  *
- * Uses the same blank-line heuristic as TypeScript module comments:
- * a JSDoc comment (`/** ... *\/`) followed by a blank line is considered
- * a module-level comment rather than a declaration comment.
+ * Requires `@module` tag to identify module comments. The tag line is stripped
+ * from the output.
  *
- * @param script_content The content of the `<script>` tag
- * @returns The cleaned module comment text, or undefined if none found
+ * @param script_content - The content of the `<script>` tag.
+ * @returns The cleaned module comment text, or undefined if none found.
  */
 export const svelte_extract_module_comment = (script_content: string): string | undefined => {
 	// Parse the script content as TypeScript and reuse the shared extraction logic

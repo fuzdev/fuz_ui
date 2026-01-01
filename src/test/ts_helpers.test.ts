@@ -102,6 +102,8 @@ describe('ts_analyze_module_exports', () => {
 		const source_code = `
 /**
  * Test module with exports.
+ *
+ * @module
  */
 
 export const foo = 42;
@@ -135,6 +137,8 @@ export type Baz = { value: number };
 		const source_code = `
 /**
  * Module with no exports.
+ *
+ * @module
  */
 
 const internal = 'not exported';

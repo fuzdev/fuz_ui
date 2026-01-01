@@ -2,6 +2,8 @@
  * TypeScript compiler API helpers for extracting metadata from source code.
  *
  * All functions are prefixed with `ts_` for clarity.
+ *
+ * @module
  */
 
 import ts from 'typescript';
@@ -327,56 +329,62 @@ export const ts_analyze_declaration = (
 /**
  * Extract module-level comment.
  *
- * Only accepts JSDoc/TSDoc comments (`/** ... *\/`) followed by a blank line to distinguish
- * them from identifier-level comments. This prevents accidentally treating function/class
- * comments as module comments. Module comments can appear after imports.
+ * Requires `@module` tag to identify module comments. The tag line is stripped
+ * from the output. Supports optional module renaming: `@module custom-name`.
+ *
+ * @see https://typedoc.org/documents/Tags._module.html
  */
 export const ts_extract_module_comment = (source_file: ts.SourceFile): string | undefined => {
 	const full_text = source_file.getFullText();
 
+	// Collect all JSDoc comments in the file
+	const all_comments: Array<{pos: number; end: number}> = [];
+
 	// Check for comments at the start of the file (before any statements)
 	const leading_comments = ts.getLeadingCommentRanges(full_text, 0);
 	if (leading_comments?.length) {
-		for (const comment of leading_comments) {
-			const comment_text = full_text.substring(comment.pos, comment.end);
-			if (!comment_text.trimStart().startsWith('/**')) continue;
+		all_comments.push(...leading_comments);
+	}
 
-			// Check if there's a blank line after this comment
-			const first_statement = source_file.statements[0];
-			if (first_statement) {
-				const between = full_text.substring(comment.end, first_statement.getStart());
-				if (between.includes('\n\n')) {
-					return tsdoc_clean_comment(comment_text);
-				}
-			} else {
-				// No statements, just return the comment
-				return tsdoc_clean_comment(comment_text);
-			}
+	// Check for comments before each statement
+	for (const statement of source_file.statements) {
+		const comments = ts.getLeadingCommentRanges(full_text, statement.getFullStart());
+		if (comments?.length) {
+			all_comments.push(...comments);
 		}
 	}
 
-	// Check for comments before each statement (e.g., after imports)
-	for (const statement of source_file.statements) {
-		const statement_start = statement.getFullStart();
-		const statement_pos = statement.getStart();
+	// Find the first comment with @module tag
+	for (const comment of all_comments) {
+		const comment_text = full_text.substring(comment.pos, comment.end);
+		if (!comment_text.trimStart().startsWith('/**')) continue;
 
-		// Get comments in the trivia before this statement
-		const comments = ts.getLeadingCommentRanges(full_text, statement_start);
-		if (!comments?.length) continue;
+		// Clean the comment first, then check for tag at start of line
+		const cleaned = tsdoc_clean_comment(comment_text);
+		if (!cleaned) continue;
 
-		for (const comment of comments) {
-			const comment_text = full_text.substring(comment.pos, comment.end);
-			if (!comment_text.trimStart().startsWith('/**')) continue;
-
-			// Check if there's a blank line between comment and statement
-			const between = full_text.substring(comment.end, statement_pos);
-			if (between.includes('\n\n')) {
-				return tsdoc_clean_comment(comment_text);
-			}
+		// Check for @module as a proper tag (at start of line, not mentioned in prose)
+		if (/(?:^|\n)@module\b/.test(cleaned)) {
+			const stripped = tsdoc_strip_module_tag(cleaned);
+			return stripped || undefined;
 		}
 	}
 
 	return undefined;
+};
+
+/**
+ * Strip `@module` tag line from comment text.
+ *
+ * Handles formats:
+ * - `@module` (standalone)
+ * - `@module module-name` (with rename)
+ */
+const tsdoc_strip_module_tag = (text: string): string => {
+	// Remove lines that START with @module (not mentioned in prose)
+	const lines = text.split('\n');
+	const filtered = lines.filter((line) => !/^\s*@module\b/.test(line));
+	return filtered.join('\n').trim();
 };
 
 /**

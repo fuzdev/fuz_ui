@@ -25,6 +25,8 @@
  * ## Status
  *
  * This is an early proof of concept with missing features and edge cases.
+ *
+ * @module
  */
 
 // TODO design incremental parsing or some system that preserves Svelte components across re-renders when possible

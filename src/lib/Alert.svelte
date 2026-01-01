@@ -6,6 +6,8 @@
 
 	/**
 	 * @see https://www.w3.org/WAI/ARIA/apg/patterns/alert/
+	 *
+	 * @module
 	 */
 
 	// TODO think through Alert+Card APIs together, one can be a button and the other a link atm

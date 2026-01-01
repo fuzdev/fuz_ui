@@ -8,6 +8,8 @@
 
 	/**
 	 * Like `details` but renders children lazily by default.
+	 *
+	 * @module
 	 */
 
 	let {

@@ -35,6 +35,8 @@
  * - TS API strips URL protocols from `@see` tag text; we use `getText()` to preserve original format including `{@link}` syntax
  *
  * All functions are prefixed with `tsdoc_` for clarity.
+ *
+ * @module
  */
 
 import ts from 'typescript';
@@ -193,6 +195,7 @@ export const tsdoc_parse = (
 			const see_content = full_tag_text
 				.replace(/^@see\s+/, '') // remove @see prefix
 				.replace(/\n\s*\*\s*/g, ' ') // remove JSDoc line continuations
+				.replace(/\s*\*\s*$/, '') // remove trailing asterisk artifacts
 				.trim();
 
 			if (see_content) {

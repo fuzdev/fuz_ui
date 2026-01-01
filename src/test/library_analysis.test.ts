@@ -17,6 +17,8 @@ describe('library_analyze_module', () => {
 				content: `
 /**
  * Module comment.
+ *
+ * @module
  */
 
 export const VALUE = 42;

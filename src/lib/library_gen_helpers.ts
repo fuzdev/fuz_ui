@@ -16,6 +16,8 @@
  * @see library_analysis.ts for the analysis entry point
  * @see library_gen_output.ts for output file generation (JSON/TS wrapper)
  * @see library_gen.ts for the main generation task (Gro-specific)
+ *
+ * @module
  */
 
 import type {Logger} from '@fuzdev/fuz_util/log.js';

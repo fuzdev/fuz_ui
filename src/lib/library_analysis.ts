@@ -39,6 +39,8 @@
  * @see ts_helpers.ts for TypeScript-specific analysis
  * @see svelte_helpers.ts for Svelte component analysis
  * @see module_helpers.ts for path utilities and SourceFileInfo
+ *
+ * @module
  */
 
 import ts from 'typescript';
