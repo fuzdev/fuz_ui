@@ -13,63 +13,86 @@ import {
 	module_is_source,
 	module_validate_source_options,
 	module_get_analyzer_default,
-	MODULE_SOURCE_DEFAULTS,
+	module_get_source_root,
+	module_create_source_options,
+	MODULE_SOURCE_PARTIAL,
 	type ModuleSourceOptions,
 	type SourceFileInfo,
 } from '$lib/module_helpers.js';
+import {TEST_PROJECT_ROOT, create_test_source_options} from './module_test_helpers.js';
+
+// Local alias that uses the default project root
+const test_options = (
+	overrides?: Partial<Omit<ModuleSourceOptions, 'project_root'>>,
+): ModuleSourceOptions => create_test_source_options(TEST_PROJECT_ROOT, overrides);
 
 describe('module_extract_path', () => {
 	test('extracts path from absolute source ID', () => {
 		assert.strictEqual(
-			module_extract_path('/home/user/project/src/lib/foo.ts', MODULE_SOURCE_DEFAULTS),
+			module_extract_path('/home/user/project/src/lib/foo.ts', test_options()),
 			'foo.ts',
 		);
 	});
 
 	test('extracts nested path', () => {
 		assert.strictEqual(
-			module_extract_path('/home/user/project/src/lib/nested/bar.svelte', MODULE_SOURCE_DEFAULTS),
+			module_extract_path('/home/user/project/src/lib/nested/bar.svelte', test_options()),
 			'nested/bar.svelte',
 		);
 	});
 
-	test('returns original path if no /src/lib/ found', () => {
+	test('returns original path if project_root does not match', () => {
 		assert.strictEqual(
-			module_extract_path('/some/other/path.ts', MODULE_SOURCE_DEFAULTS),
+			module_extract_path('/some/other/path.ts', test_options()),
 			'/some/other/path.ts',
 		);
 	});
 
-	test('extracts path with custom options', () => {
-		const options: ModuleSourceOptions = {
-			...MODULE_SOURCE_DEFAULTS,
-			source_root: '/src/routes/',
-		};
+	test('extracts path with custom source_root', () => {
+		const options = test_options({
+			source_paths: ['src/routes'],
+			source_root: 'src/routes',
+		});
 		assert.strictEqual(
 			module_extract_path('/home/user/project/src/routes/page.ts', options),
 			'page.ts',
 		);
 	});
 
-	test('extracts nested path with custom options', () => {
-		const options: ModuleSourceOptions = {
-			...MODULE_SOURCE_DEFAULTS,
-			source_root: '/packages/core/src/',
-		};
+	test('extracts nested path with custom source_root', () => {
+		const options = module_create_source_options('/home/user/project', {
+			source_paths: ['packages/core/src'],
+			source_root: 'packages/core/src',
+		});
 		assert.strictEqual(
 			module_extract_path('/home/user/project/packages/core/src/index.ts', options),
 			'index.ts',
 		);
 	});
 
-	test('returns original path if source_root not found', () => {
-		const options: ModuleSourceOptions = {
-			...MODULE_SOURCE_DEFAULTS,
-			source_root: '/src/routes/',
-		};
+	test('returns original path if source_root does not match', () => {
+		const options = test_options({
+			source_paths: ['src/routes'],
+			source_root: 'src/routes',
+		});
 		assert.strictEqual(
 			module_extract_path('/home/user/project/src/lib/foo.ts', options),
 			'/home/user/project/src/lib/foo.ts',
+		);
+	});
+
+	test('extracts path with multiple source_paths', () => {
+		const options = test_options({
+			source_paths: ['src/lib', 'src/routes'],
+			source_root: 'src',
+		});
+		assert.strictEqual(
+			module_extract_path('/home/user/project/src/lib/foo.ts', options),
+			'lib/foo.ts',
+		);
+		assert.strictEqual(
+			module_extract_path('/home/user/project/src/routes/page.svelte', options),
+			'routes/page.svelte',
 		);
 	});
 });
@@ -108,6 +131,12 @@ describe('module type predicates', () => {
 		test('returns true for .js files', () => {
 			assert.isTrue(module_is_typescript('foo.js'));
 			assert.isTrue(module_is_typescript('path/to/bar.js'));
+		});
+
+		test('returns false for .d.ts declaration files', () => {
+			assert.isFalse(module_is_typescript('types.d.ts'));
+			assert.isFalse(module_is_typescript('path/to/global.d.ts'));
+			assert.isFalse(module_is_typescript('index.d.ts'));
 		});
 
 		test('returns false for other extensions', () => {
@@ -163,84 +192,141 @@ describe('module type predicates', () => {
 			assert.isFalse(module_is_test('foo.ts'));
 			assert.isFalse(module_is_test('test.ts')); // file named test.ts, not a test file
 		});
+
+		test('returns false for non-.ts test-like files', () => {
+			assert.isFalse(module_is_test('foo.test.js')); // only .test.ts is matched
+			assert.isFalse(module_is_test('foo.spec.ts')); // .spec.ts not matched
+		});
 	});
 });
 
-describe('MODULE_SOURCE_DEFAULTS', () => {
-	test('has expected default source_root', () => {
-		assert.strictEqual(MODULE_SOURCE_DEFAULTS.source_root, '/src/lib/');
+describe('module_get_analyzer_default', () => {
+	test('returns typescript for .ts files', () => {
+		assert.strictEqual(module_get_analyzer_default('/project/src/lib/foo.ts'), 'typescript');
+		assert.strictEqual(module_get_analyzer_default('bar.ts'), 'typescript');
 	});
 
+	test('returns typescript for .js files', () => {
+		assert.strictEqual(module_get_analyzer_default('/project/src/lib/foo.js'), 'typescript');
+		assert.strictEqual(module_get_analyzer_default('utils.js'), 'typescript');
+	});
+
+	test('returns svelte for .svelte files', () => {
+		assert.strictEqual(module_get_analyzer_default('/project/src/lib/Button.svelte'), 'svelte');
+		assert.strictEqual(module_get_analyzer_default('Card.svelte'), 'svelte');
+	});
+
+	test('returns null for .d.ts declaration files', () => {
+		assert.isNull(module_get_analyzer_default('/project/src/lib/types.d.ts'));
+		assert.isNull(module_get_analyzer_default('global.d.ts'));
+		assert.isNull(module_get_analyzer_default('path/to/index.d.ts'));
+	});
+
+	test('returns null for unsupported extensions', () => {
+		assert.isNull(module_get_analyzer_default('/project/src/lib/styles.css'));
+		assert.isNull(module_get_analyzer_default('data.json'));
+		assert.isNull(module_get_analyzer_default('readme.md'));
+	});
+});
+
+describe('MODULE_SOURCE_PARTIAL', () => {
 	test('has expected default source_paths', () => {
-		assert.deepStrictEqual(MODULE_SOURCE_DEFAULTS.source_paths, ['/src/lib/']);
+		assert.deepStrictEqual(MODULE_SOURCE_PARTIAL.source_paths, ['src/lib']);
 	});
 
 	test('has expected default exclude_patterns', () => {
-		assert.strictEqual(MODULE_SOURCE_DEFAULTS.exclude_patterns.length, 1);
-		assert.isTrue(MODULE_SOURCE_DEFAULTS.exclude_patterns[0]!.test('foo.test.ts'));
-		assert.isFalse(MODULE_SOURCE_DEFAULTS.exclude_patterns[0]!.test('foo.ts'));
+		assert.strictEqual(MODULE_SOURCE_PARTIAL.exclude_patterns.length, 1);
+		assert.isTrue(MODULE_SOURCE_PARTIAL.exclude_patterns[0]!.test('foo.test.ts'));
+		assert.isFalse(MODULE_SOURCE_PARTIAL.exclude_patterns[0]!.test('foo.ts'));
 	});
 
-	test('has expected default skip_nested_source_dirs', () => {
-		assert.strictEqual(MODULE_SOURCE_DEFAULTS.skip_nested_source_dirs, true);
+	test('has no source_root (auto-derived from source_paths)', () => {
+		assert.strictEqual(MODULE_SOURCE_PARTIAL.source_root, undefined);
+	});
+});
+
+describe('module_create_source_options', () => {
+	test('creates options with project_root', () => {
+		const options = module_create_source_options('/my/project');
+		assert.strictEqual(options.project_root, '/my/project');
+		assert.deepStrictEqual(options.source_paths, ['src/lib']);
+	});
+
+	test('merges overrides', () => {
+		const options = module_create_source_options('/my/project', {
+			source_paths: ['packages/core'],
+		});
+		assert.strictEqual(options.project_root, '/my/project');
+		assert.deepStrictEqual(options.source_paths, ['packages/core']);
+	});
+});
+
+describe('module_get_source_root', () => {
+	test('returns explicit source_root when provided', () => {
+		const options = test_options({source_root: 'src'});
+		assert.strictEqual(module_get_source_root(options), 'src');
+	});
+
+	test('returns first source_path for single-entry arrays', () => {
+		const options = test_options({source_paths: ['src/lib']});
+		assert.strictEqual(module_get_source_root(options), 'src/lib');
+	});
+
+	test('throws for multiple source_paths without explicit source_root', () => {
+		const options: ModuleSourceOptions = {
+			project_root: '/home/user/project',
+			source_paths: ['src/lib', 'src/routes'],
+			exclude_patterns: [],
+			get_analyzer: module_get_analyzer_default,
+		};
+		assert.throws(() => module_get_source_root(options), /source_root is required/);
 	});
 });
 
 describe('module_is_source', () => {
 	describe('with default options', () => {
 		test('matches src/lib TypeScript files', () => {
-			assert.isTrue(module_is_source('/home/user/project/src/lib/foo.ts', MODULE_SOURCE_DEFAULTS));
+			assert.isTrue(module_is_source('/home/user/project/src/lib/foo.ts', test_options()));
 		});
 
 		test('matches src/lib JavaScript files', () => {
-			assert.isTrue(module_is_source('/home/user/project/src/lib/foo.js', MODULE_SOURCE_DEFAULTS));
+			assert.isTrue(module_is_source('/home/user/project/src/lib/foo.js', test_options()));
 		});
 
 		test('matches src/lib Svelte files', () => {
-			assert.isTrue(
-				module_is_source('/home/user/project/src/lib/Button.svelte', MODULE_SOURCE_DEFAULTS),
-			);
+			assert.isTrue(module_is_source('/home/user/project/src/lib/Button.svelte', test_options()));
 		});
 
 		test('excludes test files', () => {
-			assert.isFalse(
-				module_is_source('/home/user/project/src/lib/foo.test.ts', MODULE_SOURCE_DEFAULTS),
-			);
+			assert.isFalse(module_is_source('/home/user/project/src/lib/foo.test.ts', test_options()));
 		});
 
 		test('excludes files outside src/lib', () => {
-			assert.isFalse(
-				module_is_source('/home/user/project/src/routes/page.svelte', MODULE_SOURCE_DEFAULTS),
-			);
+			assert.isFalse(module_is_source('/home/user/project/src/routes/page.svelte', test_options()));
 		});
 
 		test('excludes non-analyzable file types', () => {
 			// module_is_source combines all checks including get_analyzer
-			assert.isFalse(
-				module_is_source('/home/user/project/src/lib/styles.css', MODULE_SOURCE_DEFAULTS),
-			);
-			assert.isFalse(
-				module_is_source('/home/user/project/src/lib/data.json', MODULE_SOURCE_DEFAULTS),
-			);
+			assert.isFalse(module_is_source('/home/user/project/src/lib/styles.css', test_options()));
+			assert.isFalse(module_is_source('/home/user/project/src/lib/data.json', test_options()));
 		});
 	});
 
 	describe('with custom source_paths', () => {
 		test('respects custom source paths', () => {
-			const options: ModuleSourceOptions = {
-				...MODULE_SOURCE_DEFAULTS,
-				source_paths: ['/src/routes/'],
-			};
+			const options = test_options({
+				source_paths: ['src/routes'],
+			});
 
 			assert.isTrue(module_is_source('/home/user/project/src/routes/page.svelte', options));
 			assert.isFalse(module_is_source('/home/user/project/src/lib/foo.ts', options));
 		});
 
 		test('supports multiple source paths', () => {
-			const options: ModuleSourceOptions = {
-				...MODULE_SOURCE_DEFAULTS,
-				source_paths: ['/src/lib/', '/src/routes/'],
-			};
+			const options = test_options({
+				source_paths: ['src/lib', 'src/routes'],
+				source_root: 'src',
+			});
 
 			assert.isTrue(module_is_source('/home/user/project/src/lib/foo.ts', options));
 			assert.isTrue(module_is_source('/home/user/project/src/routes/page.svelte', options));
@@ -249,10 +335,9 @@ describe('module_is_source', () => {
 
 	describe('with custom exclude_patterns', () => {
 		test('respects custom exclude patterns', () => {
-			const options: ModuleSourceOptions = {
-				...MODULE_SOURCE_DEFAULTS,
+			const options = test_options({
 				exclude_patterns: [/\.test\.ts$/, /\.spec\.ts$/],
-			};
+			});
 
 			assert.isTrue(module_is_source('/home/user/project/src/lib/foo.ts', options));
 			assert.isFalse(module_is_source('/home/user/project/src/lib/foo.test.ts', options));
@@ -260,89 +345,63 @@ describe('module_is_source', () => {
 		});
 
 		test('can exclude by directory pattern', () => {
-			const options: ModuleSourceOptions = {
-				...MODULE_SOURCE_DEFAULTS,
+			const options = test_options({
 				exclude_patterns: [/\/internal\//],
-			};
+			});
 
 			assert.isTrue(module_is_source('/home/user/project/src/lib/foo.ts', options));
 			assert.isFalse(module_is_source('/home/user/project/src/lib/internal/secret.ts', options));
 		});
 
 		test('empty exclude_patterns includes everything', () => {
-			const options: ModuleSourceOptions = {
-				...MODULE_SOURCE_DEFAULTS,
+			const options = test_options({
 				exclude_patterns: [],
-			};
+			});
 
 			assert.isTrue(module_is_source('/home/user/project/src/lib/foo.ts', options));
 			assert.isTrue(module_is_source('/home/user/project/src/lib/foo.test.ts', options));
 		});
 	});
 
-	describe('edge cases', () => {
-		test('rejects nested repo paths with /src/lib/ inside other src directories', () => {
-			// Fixture repos nested in src/fixtures/ should be rejected even though they have src/lib/
+	describe('nested directories', () => {
+		test('rejects nested repo paths - proper prefix matching', () => {
+			// Fixture repos nested in src/fixtures/ should be rejected because
+			// they don't start with project_root/src/lib/
 			assert.isFalse(
 				module_is_source(
 					'/home/user/project/src/fixtures/repos/repo_a/src/lib/index.ts',
-					MODULE_SOURCE_DEFAULTS,
+					test_options(),
 				),
 			);
 			assert.isFalse(
 				module_is_source(
 					'/home/user/project/src/test/fixtures/repos/repo_b/src/lib/foo.ts',
-					MODULE_SOURCE_DEFAULTS,
+					test_options(),
 				),
 			);
 		});
 
-		test('accepts monorepo paths where first /src/ leads to /lib/', () => {
-			// Monorepo structure with packages outside src/
-			assert.isTrue(
-				module_is_source(
-					'/home/user/monorepo/packages/core/src/lib/foo.ts',
-					MODULE_SOURCE_DEFAULTS,
-				),
-			);
+		test('rejects files from different project roots', () => {
+			// Files from a different project should be rejected
+			assert.isFalse(module_is_source('/home/user/other-project/src/lib/foo.ts', test_options()));
 		});
 
 		test('accepts deeply nested paths within src/lib/', () => {
 			// Files deeply nested in src/lib/ should work
 			assert.isTrue(
-				module_is_source(
-					'/home/user/project/src/lib/utils/helpers/deep/file.ts',
-					MODULE_SOURCE_DEFAULTS,
-				),
+				module_is_source('/home/user/project/src/lib/utils/helpers/deep/file.ts', test_options()),
 			);
 		});
 	});
 
-	describe('with skip_nested_source_dirs', () => {
-		test('false disables nested repo detection', () => {
-			const options: ModuleSourceOptions = {
-				...MODULE_SOURCE_DEFAULTS,
-				skip_nested_source_dirs: false,
-			};
+	describe('non-src structures', () => {
+		test('works with packages/ structure', () => {
+			const options = module_create_source_options('/home/user/project', {
+				source_paths: ['packages/core/lib'],
+			});
 
-			// With detection disabled, nested repo paths are accepted
-			assert.isTrue(
-				module_is_source('/home/user/project/src/fixtures/repos/repo_a/src/lib/index.ts', options),
-			);
-		});
-
-		test('non-src structures work (no /src/ in path skips check)', () => {
-			// Project using /packages/ instead of /src/
-			const options: ModuleSourceOptions = {
-				source_root: '/packages/core/lib/',
-				source_paths: ['/packages/core/lib/'],
-				exclude_patterns: [],
-				skip_nested_source_dirs: true,
-				get_analyzer: module_get_analyzer_default,
-			};
-
-			// Accepts paths without /src/ - the nested check is skipped
 			assert.isTrue(module_is_source('/home/user/project/packages/core/lib/foo.ts', options));
+			assert.isFalse(module_is_source('/home/user/project/packages/other/lib/foo.ts', options));
 		});
 	});
 });
@@ -356,7 +415,7 @@ describe('module_extract_dependencies', () => {
 				dependencies: ['/home/user/project/src/lib/bar.ts', '/home/user/project/src/lib/baz.ts'],
 			};
 
-			const result = module_extract_dependencies(source_file, MODULE_SOURCE_DEFAULTS);
+			const result = module_extract_dependencies(source_file, test_options());
 
 			assert.deepStrictEqual(result.dependencies, ['bar.ts', 'baz.ts']);
 			assert.deepStrictEqual(result.dependents, []);
@@ -372,7 +431,7 @@ describe('module_extract_dependencies', () => {
 				],
 			};
 
-			const result = module_extract_dependencies(source_file, MODULE_SOURCE_DEFAULTS);
+			const result = module_extract_dependencies(source_file, test_options());
 
 			assert.deepStrictEqual(result.dependencies, []);
 			assert.deepStrictEqual(result.dependents, ['consumer1.ts', 'consumer2.ts']);
@@ -386,7 +445,7 @@ describe('module_extract_dependencies', () => {
 				dependents: ['/home/user/project/src/lib/consumer.ts'],
 			};
 
-			const result = module_extract_dependencies(source_file, MODULE_SOURCE_DEFAULTS);
+			const result = module_extract_dependencies(source_file, test_options());
 
 			assert.deepStrictEqual(result.dependencies, ['dep.ts']);
 			assert.deepStrictEqual(result.dependents, ['consumer.ts']);
@@ -405,7 +464,7 @@ describe('module_extract_dependencies', () => {
 				],
 			};
 
-			const result = module_extract_dependencies(source_file, MODULE_SOURCE_DEFAULTS);
+			const result = module_extract_dependencies(source_file, test_options());
 
 			assert.deepStrictEqual(result.dependencies, ['bar.ts']);
 		});
@@ -420,7 +479,7 @@ describe('module_extract_dependencies', () => {
 				],
 			};
 
-			const result = module_extract_dependencies(source_file, MODULE_SOURCE_DEFAULTS);
+			const result = module_extract_dependencies(source_file, test_options());
 
 			assert.deepStrictEqual(result.dependencies, ['bar.ts']);
 		});
@@ -436,7 +495,7 @@ describe('module_extract_dependencies', () => {
 				],
 			};
 
-			const result = module_extract_dependencies(source_file, MODULE_SOURCE_DEFAULTS);
+			const result = module_extract_dependencies(source_file, test_options());
 
 			assert.deepStrictEqual(result.dependencies, ['bar.ts']);
 		});
@@ -454,7 +513,7 @@ describe('module_extract_dependencies', () => {
 				],
 			};
 
-			const result = module_extract_dependencies(source_file, MODULE_SOURCE_DEFAULTS);
+			const result = module_extract_dependencies(source_file, test_options());
 
 			assert.deepStrictEqual(result.dependencies, ['alpha.ts', 'beta.ts', 'zebra.ts']);
 		});
@@ -470,7 +529,7 @@ describe('module_extract_dependencies', () => {
 				],
 			};
 
-			const result = module_extract_dependencies(source_file, MODULE_SOURCE_DEFAULTS);
+			const result = module_extract_dependencies(source_file, test_options());
 
 			assert.deepStrictEqual(result.dependents, ['a.ts', 'm.ts', 'z.ts']);
 		});
@@ -483,7 +542,7 @@ describe('module_extract_dependencies', () => {
 				content: '',
 			};
 
-			const result = module_extract_dependencies(source_file, MODULE_SOURCE_DEFAULTS);
+			const result = module_extract_dependencies(source_file, test_options());
 
 			assert.deepStrictEqual(result.dependencies, []);
 			assert.deepStrictEqual(result.dependents, []);
@@ -497,20 +556,18 @@ describe('module_extract_dependencies', () => {
 				dependents: [],
 			};
 
-			const result = module_extract_dependencies(source_file, MODULE_SOURCE_DEFAULTS);
+			const result = module_extract_dependencies(source_file, test_options());
 
 			assert.deepStrictEqual(result.dependencies, []);
 			assert.deepStrictEqual(result.dependents, []);
 		});
 
 		test('works with custom source options', () => {
-			const options: ModuleSourceOptions = {
-				source_root: '/src/routes/',
-				source_paths: ['/src/routes/'],
+			const options = test_options({
+				source_paths: ['src/routes'],
+				source_root: 'src/routes',
 				exclude_patterns: [],
-				skip_nested_source_dirs: true,
-				get_analyzer: module_get_analyzer_default,
-			};
+			});
 
 			const source_file: SourceFileInfo = {
 				id: '/home/user/project/src/routes/page.svelte',
@@ -531,160 +588,165 @@ describe('module_extract_dependencies', () => {
 
 describe('module_validate_source_options', () => {
 	describe('valid configurations', () => {
-		test('accepts source_paths equal to source_root', () => {
-			const options: ModuleSourceOptions = {
-				...MODULE_SOURCE_DEFAULTS,
-				source_root: '/src/lib/',
-				source_paths: ['/src/lib/'],
-			};
-
+		test('accepts single source_path with auto-derived source_root', () => {
+			const options = test_options();
 			// Should not throw
 			module_validate_source_options(options);
 		});
 
-		test('accepts source_paths within source_root', () => {
-			const options: ModuleSourceOptions = {
-				...MODULE_SOURCE_DEFAULTS,
-				source_root: '/src/',
-				source_paths: ['/src/lib/', '/src/routes/'],
-			};
-
+		test('accepts multiple source_paths with explicit source_root', () => {
+			const options = test_options({
+				source_paths: ['src/lib', 'src/routes'],
+				source_root: 'src',
+			});
 			// Should not throw
 			module_validate_source_options(options);
 		});
 
-		test('accepts single source_path starting with source_root', () => {
-			const options: ModuleSourceOptions = {
-				...MODULE_SOURCE_DEFAULTS,
-				source_root: '/src/',
-				source_paths: ['/src/lib/'],
-			};
-
+		test('accepts source_root equal to source_path', () => {
+			const options = test_options({
+				source_paths: ['src/lib'],
+				source_root: 'src/lib',
+			});
 			// Should not throw
 			module_validate_source_options(options);
-		});
-
-		test('accepts MODULE_SOURCE_DEFAULTS', () => {
-			// Should not throw
-			module_validate_source_options(MODULE_SOURCE_DEFAULTS);
 		});
 	});
 
-	describe('source_root format validation', () => {
-		test('throws when source_root missing leading slash', () => {
+	describe('project_root validation', () => {
+		test('throws when project_root is not absolute', () => {
 			const options: ModuleSourceOptions = {
-				...MODULE_SOURCE_DEFAULTS,
-				source_root: 'src/lib/',
-				source_paths: ['src/lib/'],
+				project_root: 'relative/path',
+				source_paths: ['src/lib'],
+				exclude_patterns: [],
+				get_analyzer: module_get_analyzer_default,
 			};
 
 			assert.throws(
 				() => module_validate_source_options(options),
-				/source_root must start with "\/"/,
+				/project_root must be an absolute path/,
 			);
 		});
 
-		test('throws when source_root missing trailing slash', () => {
+		test('throws when project_root has trailing slash', () => {
 			const options: ModuleSourceOptions = {
-				...MODULE_SOURCE_DEFAULTS,
-				source_root: '/src/lib',
-				source_paths: ['/src/lib/'],
+				project_root: '/home/user/project/',
+				source_paths: ['src/lib'],
+				exclude_patterns: [],
+				get_analyzer: module_get_analyzer_default,
 			};
 
 			assert.throws(
 				() => module_validate_source_options(options),
-				/source_root must end with "\/"/,
+				/project_root should not have trailing slash/,
 			);
-		});
-
-		test('error message explains trailing slash requirement', () => {
-			const options: ModuleSourceOptions = {
-				...MODULE_SOURCE_DEFAULTS,
-				source_root: '/src/lib',
-				source_paths: ['/src/lib/'],
-			};
-
-			try {
-				module_validate_source_options(options);
-				assert.fail('Expected error');
-			} catch (err) {
-				assert.ok(err instanceof Error);
-				assert.ok(err.message.includes('/src/library/'));
-			}
 		});
 	});
 
-	describe('source_paths format validation', () => {
-		test('throws when source_path missing leading slash', () => {
+	describe('source_paths validation', () => {
+		test('throws when source_paths is empty', () => {
 			const options: ModuleSourceOptions = {
-				...MODULE_SOURCE_DEFAULTS,
-				source_root: '/src/',
-				source_paths: ['src/lib/'],
+				project_root: '/home/user/project',
+				source_paths: [],
+				exclude_patterns: [],
+				get_analyzer: module_get_analyzer_default,
 			};
 
 			assert.throws(
 				() => module_validate_source_options(options),
-				/source_paths entry must start with "\/"/,
+				/source_paths must have at least one entry/,
 			);
 		});
 
-		test('throws when source_path missing trailing slash', () => {
+		test('throws when source_path has leading slash', () => {
 			const options: ModuleSourceOptions = {
-				...MODULE_SOURCE_DEFAULTS,
-				source_root: '/src/',
+				project_root: '/home/user/project',
 				source_paths: ['/src/lib'],
+				exclude_patterns: [],
+				get_analyzer: module_get_analyzer_default,
 			};
 
 			assert.throws(
 				() => module_validate_source_options(options),
-				/source_paths entry must end with "\/"/,
+				/source_paths entry should not start with "\/"/,
+			);
+		});
+
+		test('throws when source_path has trailing slash', () => {
+			const options: ModuleSourceOptions = {
+				project_root: '/home/user/project',
+				source_paths: ['src/lib/'],
+				exclude_patterns: [],
+				get_analyzer: module_get_analyzer_default,
+			};
+
+			assert.throws(
+				() => module_validate_source_options(options),
+				/source_paths entry should not end with "\/"/,
 			);
 		});
 	});
 
-	describe('source_root vs source_paths consistency', () => {
+	describe('source_root validation', () => {
+		test('throws when source_root has leading slash', () => {
+			const options: ModuleSourceOptions = {
+				project_root: '/home/user/project',
+				source_paths: ['src/lib'],
+				source_root: '/src',
+				exclude_patterns: [],
+				get_analyzer: module_get_analyzer_default,
+			};
+
+			assert.throws(
+				() => module_validate_source_options(options),
+				/source_root should not start with "\/"/,
+			);
+		});
+
+		test('throws when source_root has trailing slash', () => {
+			const options: ModuleSourceOptions = {
+				project_root: '/home/user/project',
+				source_paths: ['src/lib'],
+				source_root: 'src/',
+				exclude_patterns: [],
+				get_analyzer: module_get_analyzer_default,
+			};
+
+			assert.throws(
+				() => module_validate_source_options(options),
+				/source_root should not end with "\/"/,
+			);
+		});
+
 		test('throws when source_path does not start with source_root', () => {
 			const options: ModuleSourceOptions = {
-				...MODULE_SOURCE_DEFAULTS,
-				source_root: '/src/lib/',
-				source_paths: ['/src/routes/'],
+				project_root: '/home/user/project',
+				source_paths: ['packages/core'],
+				source_root: 'src',
+				exclude_patterns: [],
+				get_analyzer: module_get_analyzer_default,
 			};
 
 			assert.throws(
 				() => module_validate_source_options(options),
-				/source_paths entry "\/src\/routes\/" must start with source_root "\/src\/lib\/"/,
+				/source_paths entry "packages\/core" must start with source_root "src"/,
 			);
 		});
+	});
 
-		test('throws when any source_path is invalid', () => {
+	describe('multiple source_paths validation', () => {
+		test('throws when multiple source_paths without source_root', () => {
 			const options: ModuleSourceOptions = {
-				...MODULE_SOURCE_DEFAULTS,
-				source_root: '/src/lib/',
-				source_paths: ['/src/lib/', '/src/routes/'], // second one is invalid
+				project_root: '/home/user/project',
+				source_paths: ['src/lib', 'src/routes'],
+				exclude_patterns: [],
+				get_analyzer: module_get_analyzer_default,
 			};
 
 			assert.throws(
 				() => module_validate_source_options(options),
-				/source_paths entry "\/src\/routes\/" must start with source_root/,
+				/source_root is required when source_paths has multiple entries/,
 			);
-		});
-
-		test('throws with helpful error message', () => {
-			const options: ModuleSourceOptions = {
-				...MODULE_SOURCE_DEFAULTS,
-				source_root: '/packages/core/',
-				source_paths: ['/src/lib/'],
-			};
-
-			try {
-				module_validate_source_options(options);
-				assert.fail('Expected error to be thrown');
-			} catch (err) {
-				assert.ok(err instanceof Error);
-				assert.ok(err.message.includes('source_paths entry'));
-				assert.ok(err.message.includes('must start with source_root'));
-				assert.ok(err.message.includes('module_extract_path'));
-			}
 		});
 	});
 });

@@ -77,7 +77,7 @@ export interface SvelteFileAnalysis {
  * @param source_file The source file info (from Gro filer, file system, or other source)
  * @param module_path The module path (relative to source root)
  * @param checker TypeScript type checker
- * @param options Module source options for path extraction (use `MODULE_SOURCE_DEFAULTS` for standard layouts)
+ * @param options Module source options for path extraction
  * @param ctx Analysis context for collecting diagnostics
  * @returns Module analysis matching ModuleAnalysis structure
  */

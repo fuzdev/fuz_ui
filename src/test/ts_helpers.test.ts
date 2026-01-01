@@ -3,8 +3,9 @@ import ts from 'typescript';
 import type {DeclarationJson} from '@fuzdev/fuz_util/source_json.js';
 
 import {ts_analyze_module_exports, ts_analyze_module, ts_create_program} from '$lib/ts_helpers.js';
-import {MODULE_SOURCE_DEFAULTS} from '$lib/module_helpers.js';
+import {module_create_source_options, type ModuleSourceOptions} from '$lib/module_helpers.js';
 import {AnalysisContext} from '$lib/analysis_context.js';
+
 import {
 	load_fixtures,
 	validate_declaration_structure,
@@ -14,6 +15,11 @@ import {
 	type TsFixture,
 } from './fixtures/ts/ts_test_helpers.js';
 import {normalize_json} from './test_helpers.js';
+
+// Test helper for consistent options
+const test_options = (
+	overrides?: Partial<Omit<ModuleSourceOptions, 'project_root'>>,
+): ModuleSourceOptions => module_create_source_options(process.cwd(), overrides);
 
 let fixtures: Array<TsFixture> = [];
 
@@ -104,7 +110,7 @@ export type Baz = { value: number };
 		const result = ts_analyze_module_exports(
 			source_file,
 			checker,
-			MODULE_SOURCE_DEFAULTS,
+			test_options(),
 			new AnalysisContext(),
 		);
 
@@ -135,7 +141,7 @@ const internal = 'not exported';
 		const result = ts_analyze_module_exports(
 			source_file,
 			checker,
-			MODULE_SOURCE_DEFAULTS,
+			test_options(),
 			new AnalysisContext(),
 		);
 
@@ -160,7 +166,7 @@ export const bar = 123;
 		const result = ts_analyze_module_exports(
 			source_file,
 			checker,
-			MODULE_SOURCE_DEFAULTS,
+			test_options(),
 			new AnalysisContext(),
 		);
 
@@ -187,7 +193,7 @@ export function add(a: number, b: number): number {
 		const result = ts_analyze_module_exports(
 			source_file,
 			checker,
-			MODULE_SOURCE_DEFAULTS,
+			test_options(),
 			new AnalysisContext(),
 		);
 
@@ -229,7 +235,7 @@ export class Counter {
 		const result = ts_analyze_module_exports(
 			source_file,
 			checker,
-			MODULE_SOURCE_DEFAULTS,
+			test_options(),
 			new AnalysisContext(),
 		);
 
@@ -262,7 +268,7 @@ export interface Config {
 		const result = ts_analyze_module_exports(
 			source_file,
 			checker,
-			MODULE_SOURCE_DEFAULTS,
+			test_options(),
 			new AnalysisContext(),
 		);
 
@@ -292,7 +298,7 @@ export { internal_value as exported_value };
 		const result = ts_analyze_module_exports(
 			source_file,
 			checker,
-			MODULE_SOURCE_DEFAULTS,
+			test_options(),
 			new AnalysisContext(),
 		);
 
@@ -332,7 +338,7 @@ export class Service {
 		const result = ts_analyze_module_exports(
 			source_file,
 			checker,
-			MODULE_SOURCE_DEFAULTS,
+			test_options(),
 			new AnalysisContext(),
 		);
 
@@ -391,7 +397,7 @@ export function public_function(): string {
 		const result = ts_analyze_module_exports(
 			source_file,
 			checker,
-			MODULE_SOURCE_DEFAULTS,
+			test_options(),
 			new AnalysisContext(),
 		);
 
@@ -441,10 +447,11 @@ export const local_value = 'local';
 		]);
 
 		const index_file = source_files.get('/src/lib/index.ts')!;
+		const virtual_options = module_create_source_options('', {source_paths: ['src/lib']});
 		const result = ts_analyze_module_exports(
 			index_file,
 			checker,
-			MODULE_SOURCE_DEFAULTS,
+			virtual_options,
 			new AnalysisContext(),
 		);
 
@@ -487,10 +494,11 @@ export {internal_impl as public_api} from './internal.js';
 		]);
 
 		const public_file = source_files.get('/src/lib/public.ts')!;
+		const virtual_options = module_create_source_options('', {source_paths: ['src/lib']});
 		const result = ts_analyze_module_exports(
 			public_file,
 			checker,
-			MODULE_SOURCE_DEFAULTS,
+			virtual_options,
 			new AnalysisContext(),
 		);
 
@@ -532,10 +540,11 @@ export {util_b as renamed_util} from './utils.js';
 		]);
 
 		const mixed_file = source_files.get('/src/lib/mixed.ts')!;
+		const virtual_options = module_create_source_options('', {source_paths: ['src/lib']});
 		const result = ts_analyze_module_exports(
 			mixed_file,
 			checker,
-			MODULE_SOURCE_DEFAULTS,
+			virtual_options,
 			new AnalysisContext(),
 		);
 
@@ -618,7 +627,7 @@ export function fn(): string { return 'test'; }
 		const {checker} = create_test_program(source_file, 'test.ts');
 		const ctx = new AnalysisContext();
 
-		const result = ts_analyze_module_exports(source_file, checker, MODULE_SOURCE_DEFAULTS, ctx);
+		const result = ts_analyze_module_exports(source_file, checker, test_options(), ctx);
 
 		// Should have successful analysis
 		assert.strictEqual(result.declarations.length, 2);
@@ -642,7 +651,7 @@ export class MyClass {
 		const {checker} = create_test_program(source_file, 'multi.ts');
 		const ctx = new AnalysisContext();
 
-		const result = ts_analyze_module_exports(source_file, checker, MODULE_SOURCE_DEFAULTS, ctx);
+		const result = ts_analyze_module_exports(source_file, checker, test_options(), ctx);
 
 		// All declarations should be extracted successfully
 		assert.strictEqual(result.declarations.length, 5);
@@ -664,7 +673,7 @@ export function third(): void {}
 		const {checker} = create_test_program(source_file, 'lines.ts');
 		const ctx = new AnalysisContext();
 
-		const result = ts_analyze_module_exports(source_file, checker, MODULE_SOURCE_DEFAULTS, ctx);
+		const result = ts_analyze_module_exports(source_file, checker, test_options(), ctx);
 
 		// Each declaration should have a source_line
 		for (const {declaration: decl} of result.declarations) {
@@ -709,17 +718,18 @@ export {original} from './b.js';
 		]);
 
 		const ctx = new AnalysisContext();
+		const virtual_options = module_create_source_options('', {source_paths: ['src/lib']});
 
 		// Analyze C - should have the original declaration
 		const c_file = source_files.get('/src/lib/c.ts')!;
-		const c_result = ts_analyze_module_exports(c_file, checker, MODULE_SOURCE_DEFAULTS, ctx);
+		const c_result = ts_analyze_module_exports(c_file, checker, virtual_options, ctx);
 		assert.strictEqual(c_result.declarations.length, 1);
 		assert.strictEqual(c_result.declarations[0]!.declaration.name, 'original');
 		assert.strictEqual(c_result.re_exports.length, 0);
 
 		// Analyze B - should track re-export from C
 		const b_file = source_files.get('/src/lib/b.ts')!;
-		const b_result = ts_analyze_module_exports(b_file, checker, MODULE_SOURCE_DEFAULTS, ctx);
+		const b_result = ts_analyze_module_exports(b_file, checker, virtual_options, ctx);
 		assert.strictEqual(b_result.declarations.length, 0); // No direct declarations
 		assert.strictEqual(b_result.re_exports.length, 1);
 		assert.strictEqual(b_result.re_exports[0]!.name, 'original');
@@ -727,7 +737,7 @@ export {original} from './b.js';
 
 		// Analyze A - TypeScript resolves re-export chains to original source
 		const a_file = source_files.get('/src/lib/a.ts')!;
-		const a_result = ts_analyze_module_exports(a_file, checker, MODULE_SOURCE_DEFAULTS, ctx);
+		const a_result = ts_analyze_module_exports(a_file, checker, virtual_options, ctx);
 		assert.strictEqual(a_result.declarations.length, 0);
 		assert.strictEqual(a_result.re_exports.length, 1);
 		assert.strictEqual(a_result.re_exports[0]!.name, 'original');
@@ -758,7 +768,8 @@ export {base_value} from './base.js';
 
 		const ctx = new AnalysisContext();
 		const combined_file = source_files.get('/src/lib/combined.ts')!;
-		const result = ts_analyze_module_exports(combined_file, checker, MODULE_SOURCE_DEFAULTS, ctx);
+		const virtual_options = module_create_source_options('', {source_paths: ['src/lib']});
+		const result = ts_analyze_module_exports(combined_file, checker, virtual_options, ctx);
 
 		// Should have local_value as direct declaration
 		assert.strictEqual(result.declarations.length, 1);
@@ -795,7 +806,8 @@ export const index_value = 'index';
 
 		const ctx = new AnalysisContext();
 		const index_file = source_files.get('/src/lib/index.ts')!;
-		const result = ts_analyze_module_exports(index_file, checker, MODULE_SOURCE_DEFAULTS, ctx);
+		const virtual_options = module_create_source_options('', {source_paths: ['src/lib']});
+		const result = ts_analyze_module_exports(index_file, checker, virtual_options, ctx);
 
 		// star_exports should contain helpers.ts
 		assert.strictEqual(result.star_exports.length, 1);
@@ -831,7 +843,8 @@ export * from './utils_b.js';
 
 		const ctx = new AnalysisContext();
 		const barrel_file = source_files.get('/src/lib/barrel.ts')!;
-		const result = ts_analyze_module_exports(barrel_file, checker, MODULE_SOURCE_DEFAULTS, ctx);
+		const virtual_options = module_create_source_options('', {source_paths: ['src/lib']});
+		const result = ts_analyze_module_exports(barrel_file, checker, virtual_options, ctx);
 
 		// Should have both star exports
 		assert.strictEqual(result.star_exports.length, 2);
@@ -852,7 +865,7 @@ export const local = 'value';
 		const {checker} = create_test_program(source_file, 'test.ts');
 		const ctx = new AnalysisContext();
 
-		const result = ts_analyze_module_exports(source_file, checker, MODULE_SOURCE_DEFAULTS, ctx);
+		const result = ts_analyze_module_exports(source_file, checker, test_options(), ctx);
 
 		// No star exports in this simple case
 		assert.strictEqual(result.star_exports.length, 0);
@@ -890,7 +903,8 @@ export const combined_value = 'combined';
 
 		const ctx = new AnalysisContext();
 		const combined_file = source_files.get('/src/lib/combined.ts')!;
-		const result = ts_analyze_module_exports(combined_file, checker, MODULE_SOURCE_DEFAULTS, ctx);
+		const virtual_options = module_create_source_options('', {source_paths: ['src/lib']});
+		const result = ts_analyze_module_exports(combined_file, checker, virtual_options, ctx);
 
 		// Star export for types.ts
 		assert.strictEqual(result.star_exports.length, 1);
@@ -922,7 +936,7 @@ export function fn(): void {}
 		const {checker} = create_test_program(source_file, 'no_star.ts');
 		const ctx = new AnalysisContext();
 
-		const result = ts_analyze_module_exports(source_file, checker, MODULE_SOURCE_DEFAULTS, ctx);
+		const result = ts_analyze_module_exports(source_file, checker, test_options(), ctx);
 
 		// star_exports should be empty array, not undefined
 		assert.ok(Array.isArray(result.star_exports));
@@ -943,10 +957,9 @@ describe('ts_analyze_module with SourceFileInfo dependencies', () => {
 		const {checker} = create_test_program(source_file, 'consumer.ts');
 		const ctx = new AnalysisContext();
 
-		const options = {
-			...MODULE_SOURCE_DEFAULTS,
-			source_root: '/project/src/lib/',
-		};
+		const options = module_create_source_options('/project', {
+			source_paths: ['src/lib'],
+		});
 
 		const result = ts_analyze_module(
 			{
@@ -989,10 +1002,9 @@ describe('ts_analyze_module with SourceFileInfo dependencies', () => {
 		const {checker} = create_test_program(source_file, 'standalone.ts');
 		const ctx = new AnalysisContext();
 
-		const options = {
-			...MODULE_SOURCE_DEFAULTS,
-			source_root: '/project/src/lib/',
-		};
+		const options = module_create_source_options('/project', {
+			source_paths: ['src/lib'],
+		});
 
 		const result = ts_analyze_module(
 			{
@@ -1026,7 +1038,7 @@ describe('ts_analyze_module with SourceFileInfo dependencies', () => {
 			source_file,
 			'simple.ts',
 			checker,
-			MODULE_SOURCE_DEFAULTS,
+			test_options(),
 			ctx,
 		);
 

@@ -13,16 +13,17 @@
  * ```ts
  * import {library_analyze_module} from '@fuzdev/fuz_ui/library_analysis.js';
  * import {ts_create_program} from '@fuzdev/fuz_ui/ts_helpers.js';
- * import {MODULE_SOURCE_DEFAULTS} from '@fuzdev/fuz_ui/module_helpers.js';
+ * import {module_create_source_options} from '@fuzdev/fuz_ui/module_helpers.js';
  * import {AnalysisContext} from '@fuzdev/fuz_ui/analysis_context.js';
  *
  * const {program} = ts_create_program({root: './my-project'});
  * const ctx = new AnalysisContext();
+ * const options = module_create_source_options('/my-project');
  *
  * const result = library_analyze_module(
  *   {id: '/my-project/src/lib/file.ts', content: '...'},
  *   program,
- *   MODULE_SOURCE_DEFAULTS,
+ *   options,
  *   ctx,
  * );
  *

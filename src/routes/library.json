@@ -3537,7 +3537,7 @@
 						"name": "DeclarationAnalysis",
 						"kind": "type",
 						"doc_comment": "Result of analyzing a single declaration.\nUsed by both TypeScript and Svelte analyzers for uniform handling.",
-						"source_line": 60,
+						"source_line": 61,
 						"type_signature": "DeclarationAnalysis",
 						"properties": [
 							{
@@ -3558,7 +3558,7 @@
 						"name": "ReExportInfo",
 						"kind": "type",
 						"doc_comment": "Information about a same-name re-export.\nUsed for post-processing to build `also_exported_from` arrays.",
-						"source_line": 71,
+						"source_line": 72,
 						"type_signature": "ReExportInfo",
 						"properties": [
 							{
@@ -3579,7 +3579,7 @@
 						"name": "ModuleAnalysis",
 						"kind": "type",
 						"doc_comment": "Result of analyzing a module (TypeScript or Svelte).\nBoth analyzers return this same structure for uniform handling.",
-						"source_line": 82,
+						"source_line": 83,
 						"type_signature": "ModuleAnalysis",
 						"properties": [
 							{
@@ -3630,7 +3630,7 @@
 						"name": "library_analyze_module",
 						"kind": "function",
 						"doc_comment": "Analyze a source file and extract module metadata.\n\nUnified entry point that dispatches to the appropriate analyzer based on file type:\n- TypeScript/JavaScript files → `ts_analyze_module`\n- Svelte components → `svelte_analyze_module`\n\nReturns raw analysis data including `nodocs` flags on declarations.\nConsumer is responsible for filtering based on their policy.\n\nThis function can be called incrementally - consumers may cache results and\nonly re-analyze changed files. The TypeScript program should include all files\nfor accurate type resolution, but only changed files need re-analysis.",
-						"source_line": 120,
+						"source_line": 121,
 						"type_signature": "(source_file: SourceFileInfo, program: Program, options: ModuleSourceOptions, ctx: AnalysisContext, log?: Logger | undefined): ModuleAnalysis | undefined",
 						"return_type": "ModuleAnalysis | undefined",
 						"return_description": "Module metadata and re-exports, or undefined if source file not found in program",
@@ -3664,7 +3664,7 @@
 						]
 					}
 				],
-				"module_comment": "Library source analysis - unified entry point and shared types.\n\nProvides a single function for analyzing TypeScript and Svelte source files,\ndispatching to the appropriate domain-specific analyzer.\n\nThis module also exports shared types used by both analyzers:\n- `DeclarationAnalysis` - A declaration with its nodocs flag\n- `ReExportInfo` - Information about a same-name re-export\n- `ModuleAnalysis` - Result of analyzing a module (unified structure)\n\n@example\n```ts\nimport {library_analyze_module} from '@fuzdev/fuz_ui/library_analysis.js';\nimport {ts_create_program} from '@fuzdev/fuz_ui/ts_helpers.js';\nimport {MODULE_SOURCE_DEFAULTS} from '@fuzdev/fuz_ui/module_helpers.js';\nimport {AnalysisContext} from '@fuzdev/fuz_ui/analysis_context.js';\n\nconst {program} = ts_create_program({root: './my-project'});\nconst ctx = new AnalysisContext();\n\nconst result = library_analyze_module(\n  {id: '/my-project/src/lib/file.ts', content: '...'},\n  program,\n  MODULE_SOURCE_DEFAULTS,\n  ctx,\n);\n\nif (result) {\n  // Filter out @nodocs declarations\n  const declarations = result.declarations\n    .filter(d => !d.nodocs)\n    .map(d => d.declaration);\n  console.log('Declarations:', declarations);\n}\n```\n\n@see ts_helpers.ts for TypeScript-specific analysis\n@see svelte_helpers.ts for Svelte component analysis\n@see module_helpers.ts for path utilities and SourceFileInfo",
+				"module_comment": "Library source analysis - unified entry point and shared types.\n\nProvides a single function for analyzing TypeScript and Svelte source files,\ndispatching to the appropriate domain-specific analyzer.\n\nThis module also exports shared types used by both analyzers:\n- `DeclarationAnalysis` - A declaration with its nodocs flag\n- `ReExportInfo` - Information about a same-name re-export\n- `ModuleAnalysis` - Result of analyzing a module (unified structure)\n\n@example\n```ts\nimport {library_analyze_module} from '@fuzdev/fuz_ui/library_analysis.js';\nimport {ts_create_program} from '@fuzdev/fuz_ui/ts_helpers.js';\nimport {module_create_source_options} from '@fuzdev/fuz_ui/module_helpers.js';\nimport {AnalysisContext} from '@fuzdev/fuz_ui/analysis_context.js';\n\nconst {program} = ts_create_program({root: './my-project'});\nconst ctx = new AnalysisContext();\nconst options = module_create_source_options('/my-project');\n\nconst result = library_analyze_module(\n  {id: '/my-project/src/lib/file.ts', content: '...'},\n  program,\n  options,\n  ctx,\n);\n\nif (result) {\n  // Filter out @nodocs declarations\n  const declarations = result.declarations\n    .filter(d => !d.nodocs)\n    .map(d => d.declaration);\n  console.log('Declarations:', declarations);\n}\n```\n\n@see ts_helpers.ts for TypeScript-specific analysis\n@see svelte_helpers.ts for Svelte component analysis\n@see module_helpers.ts for path utilities and SourceFileInfo",
 				"dependencies": ["module_helpers.ts", "svelte_helpers.ts", "ts_helpers.ts"],
 				"dependents": ["library_gen.ts"]
 			},
@@ -3675,7 +3675,7 @@
 						"name": "DuplicateInfo",
 						"kind": "type",
 						"doc_comment": "A duplicate declaration with its full metadata and module path.",
-						"source_line": 35,
+						"source_line": 36,
 						"type_signature": "DuplicateInfo",
 						"properties": [
 							{
@@ -3699,7 +3699,7 @@
 						"examples": [
 							"const duplicates = library_find_duplicates(source_json);\nif (duplicates.size > 0) {\n  for (const [name, occurrences] of duplicates) {\n    console.error(`\"${name}\" found in:`);\n    for (const {declaration, module} of occurrences) {\n      console.error(`  - ${module}:${declaration.source_line} (${declaration.kind})`);\n    }\n  }\n  throw new Error(`Found ${duplicates.size} duplicate declaration names`);\n}"
 						],
-						"source_line": 60,
+						"source_line": 61,
 						"type_signature": "(source_json: { [x: string]: unknown; name: string; version: string; modules?: { [x: string]: unknown; path: string; declarations?: { [x: string]: unknown; name: string; kind: \"function\" | \"json\" | \"type\" | \"variable\" | \"class\" | \"constructor\" | \"component\" | \"css\"; ... 19 more ...; alias_of?: { ...; } | undefined; }[] | undefined; module_comment?: string | undefined; dependencies?: string[] | undefined; dependents?: string[] | undefined; }[] | undefined; }): Map<...>",
 						"return_type": "Map<string, DuplicateInfo[]>",
 						"parameters": [
@@ -3713,7 +3713,7 @@
 						"name": "library_sort_modules",
 						"kind": "function",
 						"doc_comment": "Sort modules alphabetically by path for deterministic output and cleaner diffs.",
-						"source_line": 93,
+						"source_line": 94,
 						"type_signature": "(modules: { [x: string]: unknown; path: string; declarations?: { [x: string]: unknown; name: string; kind: \"function\" | \"json\" | \"type\" | \"variable\" | \"class\" | \"constructor\" | \"component\" | \"css\"; doc_comment?: string | undefined; ... 18 more ...; alias_of?: { ...; } | undefined; }[] | undefined; module_comment?: string | undefined; dependencies?: string[] | undefined; dependents?: string[] | undefined; }[]): { ...; }[]",
 						"return_type": "{ [x: string]: unknown; path: string; declarations?: { [x: string]: unknown; name: string; kind: \"function\" | \"json\" | \"type\" | \"variable\" | \"class\" | \"constructor\" | \"component\" | \"css\"; doc_comment?: string | undefined; ... 18 more ...; alias_of?: { ...; } | undefined; }[] | undefined; module_comment?: string | un...",
 						"parameters": [
@@ -3727,7 +3727,7 @@
 						"name": "CollectedReExport",
 						"kind": "type",
 						"doc_comment": "A collected re-export with its source module context.\n\nUsed during the two-phase re-export resolution:\n1. Phase 1: Collect re-exports from each module during analysis\n2. Phase 2: Group by original module and merge into `also_exported_from`",
-						"source_line": 104,
+						"source_line": 105,
 						"type_signature": "CollectedReExport",
 						"properties": [
 							{
@@ -3751,7 +3751,7 @@
 						"examples": [
 							"// helpers.ts exports: foo, bar\n// index.ts does: export {foo, bar} from './helpers.js'\n//\n// After processing:\n// - helpers.ts foo declaration gets: also_exported_from: ['index.ts']\n// - helpers.ts bar declaration gets: also_exported_from: ['index.ts']"
 						],
-						"source_line": 135,
+						"source_line": 136,
 						"type_signature": "(source_json: { [x: string]: unknown; name: string; version: string; modules?: { [x: string]: unknown; path: string; declarations?: { [x: string]: unknown; name: string; kind: \"function\" | \"json\" | \"type\" | \"variable\" | \"class\" | \"constructor\" | \"component\" | \"css\"; ... 19 more ...; alias_of?: { ...; } | undefined; }[] | undefined; module_comment?: string | undefined; dependencies?: string[] | undefined; dependents?: string[] | undefined; }[] | undefined; }, collected_re_exports: CollectedReExport[]): void",
 						"return_type": "void",
 						"parameters": [
@@ -3771,7 +3771,7 @@
 						"name": "library_collect_source_files",
 						"kind": "function",
 						"doc_comment": "Collect and filter source files.\n\nReturns source files for TypeScript/JS files and Svelte components, excluding test files.\nReturns an empty array with a warning if no source files are found.\n\nFile types are determined by `options.get_analyzer`. By default, `.ts`, `.js`, and `.svelte`\nfiles are supported. Customize `get_analyzer` to support additional file types like `.svx`.",
-						"source_line": 185,
+						"source_line": 186,
 						"type_signature": "(files: Iterable<SourceFileInfo>, options: ModuleSourceOptions, log?: Logger | undefined): SourceFileInfo[]",
 						"return_type": "SourceFileInfo[]",
 						"parameters": [
@@ -3851,14 +3851,14 @@
 						"name": "LibraryGenOptions",
 						"kind": "type",
 						"doc_comment": "Options for library generation.",
-						"source_line": 48,
+						"source_line": 49,
 						"type_signature": "LibraryGenOptions",
 						"properties": [
 							{
 								"name": "source",
 								"kind": "variable",
-								"type_signature": "ModuleSourceOptions",
-								"doc_comment": "Module source options for filtering and path extraction."
+								"type_signature": "ModuleSourceOptions | Partial<ModuleSourcePartial>",
+								"doc_comment": "Module source options for filtering and path extraction.\n\nCan provide full `ModuleSourceOptions` or partial options that will be\nmerged with defaults. The `project_root` is automatically set to\n`process.cwd()` if not provided."
 							},
 							{
 								"name": "enforce_flat_namespace",
@@ -3878,7 +3878,7 @@
 								"description": "if disknode has no content (should be loaded by Gro filer)"
 							}
 						],
-						"source_line": 62,
+						"source_line": 69,
 						"type_signature": "(disknode: Disknode): SourceFileInfo",
 						"return_type": "SourceFileInfo",
 						"parameters": [
@@ -3892,7 +3892,7 @@
 						"name": "library_gen",
 						"kind": "function",
 						"doc_comment": "Creates a Gen object for generating library metadata with full TypeScript analysis.\n\nUsage in a `.gen.ts` file:\n\n```ts\nimport {library_gen} from '@fuzdev/fuz_ui/library_gen.js';\n\nexport const gen = library_gen();\n```",
-						"source_line": 89,
+						"source_line": 96,
 						"type_signature": "(options?: LibraryGenOptions | undefined): Gen",
 						"return_type": "Gen",
 						"parameters": [
@@ -4999,36 +4999,36 @@
 					{
 						"name": "ModuleSourceOptions",
 						"kind": "type",
-						"doc_comment": "Configuration for module source detection and path extraction.\n\nAll fields are required - use `MODULE_SOURCE_DEFAULTS` as a starting point\nand override what you need.",
+						"doc_comment": "Configuration for module source detection and path extraction.\n\nUses proper path semantics with `project_root` as the base for all path operations.\nPaths are matched using `startsWith` rather than substring search, which correctly\nhandles nested directories without special heuristics.",
 						"examples": [
-							"const options: ModuleSourceOptions = {\n  ...MODULE_SOURCE_DEFAULTS,\n  source_root: '/src/routes/',\n  source_paths: ['/src/routes/'],\n};"
+							"const options = module_create_source_options(process.cwd(), {\n  source_paths: ['src/lib', 'src/routes'],\n  source_root: 'src',\n});"
 						],
 						"source_line": 58,
 						"type_signature": "ModuleSourceOptions",
 						"properties": [
 							{
-								"name": "source_root",
+								"name": "project_root",
 								"kind": "variable",
 								"type_signature": "string",
-								"doc_comment": "Source root for extracting relative paths (e.g., '/src/lib/')."
+								"doc_comment": "Absolute path to the project root directory.\n\nAll `source_paths` are relative to this. Typically `process.cwd()` when\nrunning from the project root via Gro, Vite, or other build tools."
 							},
 							{
 								"name": "source_paths",
 								"kind": "variable",
 								"type_signature": "Array<string>",
-								"doc_comment": "Source directory paths to include in filtering."
+								"doc_comment": "Source directory paths to include, relative to `project_root`.\n\nPaths should not have leading or trailing slashes - they are added\ninternally for correct matching."
+							},
+							{
+								"name": "source_root",
+								"kind": "variable",
+								"type_signature": "string",
+								"doc_comment": "Source root for extracting relative module paths, relative to `project_root`.\n\nWhen omitted:\n- Single `source_path`: defaults to that path\n- Multiple `source_paths`: required (no auto-derivation)"
 							},
 							{
 								"name": "exclude_patterns",
 								"kind": "variable",
 								"type_signature": "Array<RegExp>",
 								"doc_comment": "Patterns to exclude (matched against full path)."
-							},
-							{
-								"name": "skip_nested_source_dirs",
-								"kind": "variable",
-								"type_signature": "boolean",
-								"doc_comment": "Skip paths from nested source directories.\n\nWhen true, filters out files where the first `/src/` in the path doesn't\nlead to one of the `source_paths`. This prevents including files from\nnested repositories (e.g., test fixtures containing full projects).\n\nFiles are silently skipped, not rejected with an error."
 							},
 							{
 								"name": "get_analyzer",
@@ -5042,7 +5042,7 @@
 						"name": "module_get_analyzer_default",
 						"kind": "function",
 						"doc_comment": "Default analyzer resolver based on file extension.\n\n- `.svelte` → `'svelte'`\n- `.ts`, `.js` → `'typescript'`\n- Other extensions → `null` (skip)",
-						"source_line": 117,
+						"source_line": 126,
 						"type_signature": "(path: string): AnalyzerType | null",
 						"return_type": "AnalyzerType | null",
 						"parameters": [
@@ -5053,18 +5053,53 @@
 						]
 					},
 					{
-						"name": "MODULE_SOURCE_DEFAULTS",
+						"name": "ModuleSourcePartial",
+						"kind": "type",
+						"doc_comment": "Partial source options without `project_root`.\n\nUse with `module_create_source_options` to build complete options.",
+						"source_line": 137,
+						"type_signature": "ModuleSourcePartial"
+					},
+					{
+						"name": "MODULE_SOURCE_PARTIAL",
 						"kind": "variable",
-						"doc_comment": "Default options for standard SvelteKit library structure.",
-						"source_line": 126,
-						"type_signature": "ModuleSourceOptions"
+						"doc_comment": "Default partial options for standard SvelteKit library structure.\n\nDoes not include `project_root` - use `module_create_source_options()` to create\ncomplete options with your project root.",
+						"source_line": 145,
+						"type_signature": "ModuleSourcePartial"
+					},
+					{
+						"name": "module_create_source_options",
+						"kind": "function",
+						"doc_comment": "Create complete source options from project root and optional overrides.",
+						"examples": [
+							"// Standard SvelteKit library\nconst options = module_create_source_options(process.cwd());",
+							"// Multiple source directories\nconst options = module_create_source_options(process.cwd(), {\n  source_paths: ['src/lib', 'src/routes'],\n  source_root: 'src',\n});",
+							"// Custom exclusions\nconst options = module_create_source_options(process.cwd(), {\n  exclude_patterns: [/\\.test\\.ts$/, /\\.internal\\.ts$/],\n});"
+						],
+						"source_line": 174,
+						"type_signature": "(project_root: string, overrides?: Partial<ModuleSourcePartial> | undefined): ModuleSourceOptions",
+						"return_type": "ModuleSourceOptions",
+						"parameters": [
+							{
+								"name": "project_root",
+								"type": "string",
+								"description": "Absolute path to project root (typically `process.cwd()`)"
+							},
+							{
+								"name": "overrides",
+								"type": "Partial<ModuleSourcePartial> | undefined",
+								"optional": true,
+								"description": "Optional overrides for default options"
+							}
+						]
 					},
 					{
 						"name": "module_validate_source_options",
 						"kind": "function",
-						"doc_comment": "Validate `ModuleSourceOptions` format and consistency.\n\nChecks:\n1. `source_root` has leading and trailing slashes (e.g., `/src/lib/`)\n2. Each `source_paths` entry has leading and trailing slashes\n3. Each `source_paths` entry starts with `source_root`\n\nThe slash requirements ensure correct behavior:\n- Leading slash: required for `skip_nested_source_dirs` which searches for `/src/`\n- Trailing slash: prevents `/src/lib` from matching `/src/library/`",
+						"doc_comment": "Validate `ModuleSourceOptions` format and consistency.\n\nChecks:\n1. `project_root` is an absolute path (starts with `/`)\n2. `source_paths` entries don't have leading/trailing slashes\n3. `source_root` (if provided) doesn't have leading/trailing slashes\n4. Multiple `source_paths` require explicit `source_root`\n5. `source_root` is a prefix of all `source_paths`",
 						"examples": [
-							"// Valid\nmodule_validate_source_options({\n  source_root: '/src/',\n  source_paths: ['/src/lib/', '/src/routes/'],\n  ...\n});\n\n// Invalid - missing slashes\nmodule_validate_source_options({\n  source_root: 'src/lib',  // throws\n  ...\n});\n\n// Invalid - inconsistent paths\nmodule_validate_source_options({\n  source_root: '/src/lib/',\n  source_paths: ['/src/routes/'],  // throws - not within /src/lib/\n  ...\n});"
+							"// Valid - single source path (source_root auto-derived)\nmodule_validate_source_options({\n  project_root: '/home/user/project',\n  source_paths: ['src/lib'],\n  ...\n});",
+							"// Valid - multiple source paths with explicit source_root\nmodule_validate_source_options({\n  project_root: '/home/user/project',\n  source_paths: ['src/lib', 'src/routes'],\n  source_root: 'src',\n  ...\n});",
+							"// Invalid - multiple source paths without source_root\nmodule_validate_source_options({\n  project_root: '/home/user/project',\n  source_paths: ['src/lib', 'src/routes'],  // throws\n  ...\n});"
 						],
 						"throws": [
 							{
@@ -5072,7 +5107,7 @@
 								"description": "if validation fails"
 							}
 						],
-						"source_line": 169,
+						"source_line": 220,
 						"type_signature": "(options: ModuleSourceOptions): void",
 						"return_type": "void",
 						"parameters": [
@@ -5083,13 +5118,34 @@
 						]
 					},
 					{
+						"name": "module_get_source_root",
+						"kind": "function",
+						"doc_comment": "Get the effective source_root from options.\n\nReturns `source_root` if provided, otherwise returns `source_paths[0]` for single-path configs.",
+						"throws": [
+							{
+								"type": "Error",
+								"description": "if source_root is required but not provided (multiple source_paths)"
+							}
+						],
+						"source_line": 298,
+						"type_signature": "(options: ModuleSourceOptions): string",
+						"return_type": "string",
+						"parameters": [
+							{
+								"name": "options",
+								"type": "ModuleSourceOptions"
+							}
+						]
+					},
+					{
 						"name": "module_extract_path",
 						"kind": "function",
-						"doc_comment": "Extract module path relative to source root from absolute source ID.",
+						"doc_comment": "Extract module path relative to source root from absolute source ID.\n\nUses proper path semantics: strips `project_root/source_root/` prefix.",
 						"examples": [
-							"module_extract_path('/home/user/project/src/lib/foo.ts', MODULE_SOURCE_DEFAULTS) // => 'foo.ts'\nmodule_extract_path('/home/user/project/src/lib/nested/bar.svelte', MODULE_SOURCE_DEFAULTS) // => 'nested/bar.svelte'\nmodule_extract_path('/home/user/project/src/routes/foo.ts', {...MODULE_SOURCE_DEFAULTS, source_root: '/src/routes/'}) // => 'foo.ts'"
+							"const options = module_create_source_options('/home/user/project');\nmodule_extract_path('/home/user/project/src/lib/foo.ts', options) // => 'foo.ts'\nmodule_extract_path('/home/user/project/src/lib/nested/bar.svelte', options) // => 'nested/bar.svelte'",
+							"const options = module_create_source_options('/home/user/project', {\n  source_paths: ['src/lib', 'src/routes'],\n  source_root: 'src',\n});\nmodule_extract_path('/home/user/project/src/lib/foo.ts', options) // => 'lib/foo.ts'\nmodule_extract_path('/home/user/project/src/routes/page.svelte', options) // => 'routes/page.svelte'"
 						],
-						"source_line": 221,
+						"source_line": 332,
 						"type_signature": "(source_id: string, options: ModuleSourceOptions): string",
 						"return_type": "string",
 						"parameters": [
@@ -5112,7 +5168,7 @@
 						"examples": [
 							"module_get_component_name('Alert.svelte') // => 'Alert'\nmodule_get_component_name('components/Button.svelte') // => 'Button'"
 						],
-						"source_line": 235,
+						"source_line": 351,
 						"type_signature": "(module_path: string): string",
 						"return_type": "string",
 						"parameters": [
@@ -5127,7 +5183,7 @@
 						"kind": "function",
 						"doc_comment": "Convert module path to module key format (with ./ prefix).",
 						"examples": ["module_get_key('foo.ts') // => './foo.ts'"],
-						"source_line": 244,
+						"source_line": 360,
 						"type_signature": "(module_path: string): string",
 						"return_type": "string",
 						"parameters": [
@@ -5141,7 +5197,7 @@
 						"name": "module_is_typescript",
 						"kind": "function",
 						"doc_comment": "Check if a path is a TypeScript or JavaScript file.\n\nIncludes both `.ts` and `.js` files since JS files are valid in TS projects.\nExcludes `.d.ts` declaration files - use a custom `get_analyzer` to include them.",
-						"source_line": 252,
+						"source_line": 368,
 						"type_signature": "(path: string): boolean",
 						"return_type": "boolean",
 						"parameters": [
@@ -5154,7 +5210,7 @@
 					{
 						"name": "module_is_svelte",
 						"kind": "function",
-						"source_line": 255,
+						"source_line": 371,
 						"type_signature": "(path: string): boolean",
 						"return_type": "boolean",
 						"parameters": [
@@ -5167,7 +5223,7 @@
 					{
 						"name": "module_is_css",
 						"kind": "function",
-						"source_line": 257,
+						"source_line": 373,
 						"type_signature": "(path: string): boolean",
 						"return_type": "boolean",
 						"parameters": [
@@ -5180,7 +5236,7 @@
 					{
 						"name": "module_is_json",
 						"kind": "function",
-						"source_line": 259,
+						"source_line": 375,
 						"type_signature": "(path: string): boolean",
 						"return_type": "boolean",
 						"parameters": [
@@ -5193,7 +5249,7 @@
 					{
 						"name": "module_is_test",
 						"kind": "function",
-						"source_line": 261,
+						"source_line": 377,
 						"type_signature": "(path: string): boolean",
 						"return_type": "boolean",
 						"parameters": [
@@ -5206,8 +5262,11 @@
 					{
 						"name": "module_is_source",
 						"kind": "function",
-						"doc_comment": "Check if a path is an analyzable source file.\n\nCombines all filtering: exclusion patterns, source directory paths,\nand analyzer availability. This is the single check for whether a\nfile should be included in library analysis.\n\nWhen `skip_nested_source_dirs` is true, skips nested repo paths by ensuring\nsource_paths match starting from the first `/src/` in the path.",
-						"source_line": 277,
+						"doc_comment": "Check if a path is an analyzable source file.\n\nCombines all filtering: exclusion patterns, source directory paths,\nand analyzer availability. This is the single check for whether a\nfile should be included in library analysis.\n\nUses proper path semantics with `startsWith` matching against\n`project_root/source_path/`. No heuristics needed - nested directories\nare correctly excluded by the prefix check.",
+						"examples": [
+							"const options = module_create_source_options('/home/user/project');\nmodule_is_source('/home/user/project/src/lib/foo.ts', options) // => true\nmodule_is_source('/home/user/project/src/lib/foo.test.ts', options) // => false (excluded)\nmodule_is_source('/home/user/project/src/fixtures/mini/src/lib/bar.ts', options) // => false (wrong prefix)"
+						],
+						"source_line": 400,
 						"type_signature": "(path: string, options: ModuleSourceOptions): boolean",
 						"return_type": "boolean",
 						"return_description": "True if the path is an analyzable source file",
@@ -5215,7 +5274,7 @@
 							{
 								"name": "path",
 								"type": "string",
-								"description": "Full path to check"
+								"description": "Full absolute path to check"
 							},
 							{
 								"name": "options",
@@ -5228,7 +5287,7 @@
 						"name": "module_extract_dependencies",
 						"kind": "function",
 						"doc_comment": "Extract dependencies and dependents for a module from source file info.\n\nFilters to only include source modules (excludes external packages, node_modules, tests).\nReturns sorted arrays of module paths (relative to source_root) for deterministic output.",
-						"source_line": 318,
+						"source_line": 426,
 						"type_signature": "(source_file: SourceFileInfo, options: ModuleSourceOptions): { dependencies: string[]; dependents: string[]; }",
 						"return_type": "{ dependencies: string[]; dependents: string[]; }",
 						"parameters": [
@@ -5694,7 +5753,7 @@
 							{
 								"name": "options",
 								"type": "ModuleSourceOptions",
-								"description": "Module source options for path extraction (use `MODULE_SOURCE_DEFAULTS` for standard layouts)"
+								"description": "Module source options for path extraction"
 							},
 							{
 								"name": "ctx",
@@ -6509,7 +6568,7 @@
 							{
 								"name": "options",
 								"type": "ModuleSourceOptions",
-								"description": "Module source options for path extraction (use `MODULE_SOURCE_DEFAULTS` for standard layouts)"
+								"description": "Module source options for path extraction"
 							},
 							{
 								"name": "ctx",
@@ -6521,7 +6580,7 @@
 					{
 						"name": "ts_analyze_module_exports",
 						"kind": "function",
-						"doc_comment": "Analyze all exports from a TypeScript source file.\n\nExtracts the module-level comment and all exported declarations with\ncomplete metadata. Handles re-exports by:\n- Same-name re-exports: tracked in `re_exports` for `also_exported_from` building\n- Renamed re-exports: included as new declarations with `alias_of` metadata\n- Star exports (`export * from`): tracked in `star_exports` for namespace-level info\n\nThis is a mid-level function (above `ts_extract_*`, below `library_gen`)\nsuitable for building documentation, API explorers, or analysis tools.\nFor standard SvelteKit library layouts, use `MODULE_SOURCE_DEFAULTS` for the options parameter.",
+						"doc_comment": "Analyze all exports from a TypeScript source file.\n\nExtracts the module-level comment and all exported declarations with\ncomplete metadata. Handles re-exports by:\n- Same-name re-exports: tracked in `re_exports` for `also_exported_from` building\n- Renamed re-exports: included as new declarations with `alias_of` metadata\n- Star exports (`export * from`): tracked in `star_exports` for namespace-level info\n\nThis is a mid-level function (above `ts_extract_*`, below `library_gen`)\nsuitable for building documentation, API explorers, or analysis tools.\nFor standard SvelteKit library layouts, use `module_create_source_options(process.cwd())`.",
 						"source_line": 158,
 						"type_signature": "(source_file: SourceFile, checker: TypeChecker, options: ModuleSourceOptions, ctx: AnalysisContext): ModuleExportsAnalysis",
 						"return_type": "ModuleExportsAnalysis",
@@ -6540,7 +6599,7 @@
 							{
 								"name": "options",
 								"type": "ModuleSourceOptions",
-								"description": "Module source options for path extraction in re-exports (use `MODULE_SOURCE_DEFAULTS` for standard layouts)"
+								"description": "Module source options for path extraction in re-exports"
 							},
 							{
 								"name": "ctx",

@@ -12,8 +12,9 @@ import {
 	svelte_extract_module_comment,
 } from '$lib/svelte_helpers.js';
 import {ts_create_program} from '$lib/ts_helpers.js';
-import {MODULE_SOURCE_DEFAULTS} from '$lib/module_helpers.js';
+import {type ModuleSourceOptions} from '$lib/module_helpers.js';
 import {AnalysisContext} from '$lib/analysis_context.js';
+
 import {
 	load_fixtures,
 	validate_component_structure,
@@ -21,6 +22,12 @@ import {
 	type SvelteFixture,
 } from './fixtures/svelte/svelte_test_helpers.js';
 import {normalize_json} from './test_helpers.js';
+import {create_test_source_options} from './module_test_helpers.js';
+
+// Test helper for consistent options - uses cwd for fixture-based tests
+const test_options = (
+	overrides?: Partial<Omit<ModuleSourceOptions, 'project_root'>>,
+): ModuleSourceOptions => create_test_source_options(process.cwd(), overrides);
 
 const FIXTURES_DIR = join(import.meta.dirname, 'fixtures/svelte');
 
@@ -843,10 +850,9 @@ let {value}: {value: string} = $props();
 </script>
 <p>{value}</p>`;
 
-		const options = {
-			...MODULE_SOURCE_DEFAULTS,
-			source_root: '/project/src/lib/',
-		};
+		const options = create_test_source_options('/project', {
+			source_paths: ['src/lib'],
+		});
 
 		const ctx = new AnalysisContext();
 		const result = svelte_analyze_module(
@@ -880,10 +886,9 @@ let {standalone}: {standalone: boolean} = $props();
 </script>
 <p>{standalone}</p>`;
 
-		const options = {
-			...MODULE_SOURCE_DEFAULTS,
-			source_root: '/project/src/lib/',
-		};
+		const options = create_test_source_options('/project', {
+			source_paths: ['src/lib'],
+		});
 
 		const ctx = new AnalysisContext();
 		const result = svelte_analyze_module(
@@ -916,7 +921,7 @@ let {x}: {x: number} = $props();
 			{id: '/project/src/lib/Simple.svelte', content: svelte_content},
 			'Simple.svelte',
 			checker,
-			MODULE_SOURCE_DEFAULTS,
+			test_options(),
 			ctx,
 		);
 

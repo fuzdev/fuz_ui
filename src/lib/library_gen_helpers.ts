@@ -27,6 +27,7 @@ import {
 	type ModuleSourceOptions,
 	module_is_source,
 	module_validate_source_options,
+	module_get_source_root,
 } from './module_helpers.js';
 
 /**
@@ -203,9 +204,8 @@ export const library_collect_source_files = (
 	log?.info(`found ${source_files.length} source files to analyze`);
 
 	if (source_files.length === 0) {
-		log?.warn(
-			`No source files found in ${options.source_root} - generating empty library metadata`,
-		);
+		const effective_root = module_get_source_root(options);
+		log?.warn(`No source files found in ${effective_root} - generating empty library metadata`);
 		return [];
 	}
 

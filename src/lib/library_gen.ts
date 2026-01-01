@@ -31,7 +31,8 @@ import {ts_create_program} from './ts_helpers.js';
 import {
 	type SourceFileInfo,
 	type ModuleSourceOptions,
-	MODULE_SOURCE_DEFAULTS,
+	type ModuleSourcePartial,
+	module_create_source_options,
 } from './module_helpers.js';
 import {library_analyze_module} from './library_analysis.js';
 import {
@@ -46,8 +47,14 @@ import {AnalysisContext, format_diagnostic} from './analysis_context.js';
 
 /** Options for library generation. */
 export interface LibraryGenOptions {
-	/** Module source options for filtering and path extraction. */
-	source?: ModuleSourceOptions;
+	/**
+	 * Module source options for filtering and path extraction.
+	 *
+	 * Can provide full `ModuleSourceOptions` or partial options that will be
+	 * merged with defaults. The `project_root` is automatically set to
+	 * `process.cwd()` if not provided.
+	 */
+	source?: ModuleSourceOptions | Partial<ModuleSourcePartial>;
 	/** Whether to enforce flat namespace (fail on duplicate names). @default true */
 	enforce_flat_namespace?: boolean;
 }
@@ -87,12 +94,17 @@ export const source_file_from_disknode = (disknode: Disknode): SourceFileInfo =>
  * @param options Optional generation options
  */
 export const library_gen = (options?: LibraryGenOptions): Gen => {
-	const source_options = options?.source ?? MODULE_SOURCE_DEFAULTS;
 	const enforce_flat_namespace = options?.enforce_flat_namespace ?? true;
 
 	return {
 		generate: async ({log, filer}) => {
 			log.info('generating library metadata with full TypeScript analysis...');
+
+			// Build source options with project_root from cwd
+			const source_options: ModuleSourceOptions =
+				options?.source && 'project_root' in options.source
+					? options.source
+					: module_create_source_options(process.cwd(), options?.source);
 
 			// Ensure filer is initialized
 			await filer.init();

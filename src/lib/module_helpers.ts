@@ -45,40 +45,49 @@ export interface SourceFileInfo {
 /**
  * Configuration for module source detection and path extraction.
  *
- * All fields are required - use `MODULE_SOURCE_DEFAULTS` as a starting point
- * and override what you need.
+ * Uses proper path semantics with `project_root` as the base for all path operations.
+ * Paths are matched using `startsWith` rather than substring search, which correctly
+ * handles nested directories without special heuristics.
  *
  * @example
- * const options: ModuleSourceOptions = {
- *   ...MODULE_SOURCE_DEFAULTS,
- *   source_root: '/src/routes/',
- *   source_paths: ['/src/routes/'],
- * };
+ * const options = module_create_source_options(process.cwd(), {
+ *   source_paths: ['src/lib', 'src/routes'],
+ *   source_root: 'src',
+ * });
  */
 export interface ModuleSourceOptions {
-	/** Source root for extracting relative paths (e.g., '/src/lib/'). */
-	source_root: string;
-	/** Source directory paths to include in filtering. */
+	/**
+	 * Absolute path to the project root directory.
+	 *
+	 * All `source_paths` are relative to this. Typically `process.cwd()` when
+	 * running from the project root via Gro, Vite, or other build tools.
+	 *
+	 * @example '/home/user/my-project'
+	 */
+	project_root: string;
+	/**
+	 * Source directory paths to include, relative to `project_root`.
+	 *
+	 * Paths should not have leading or trailing slashes - they are added
+	 * internally for correct matching.
+	 *
+	 * @example ['src/lib'] - single source directory
+	 * @example ['src/lib', 'src/routes'] - multiple directories
+	 */
 	source_paths: Array<string>;
+	/**
+	 * Source root for extracting relative module paths, relative to `project_root`.
+	 *
+	 * When omitted:
+	 * - Single `source_path`: defaults to that path
+	 * - Multiple `source_paths`: required (no auto-derivation)
+	 *
+	 * @example 'src/lib' - module paths like 'foo.ts', 'utils/bar.ts'
+	 * @example 'src' - module paths like 'lib/foo.ts', 'routes/page.svelte'
+	 */
+	source_root?: string;
 	/** Patterns to exclude (matched against full path). */
 	exclude_patterns: Array<RegExp>;
-	/**
-	 * Skip paths from nested source directories.
-	 *
-	 * When true, filters out files where the first `/src/` in the path doesn't
-	 * lead to one of the `source_paths`. This prevents including files from
-	 * nested repositories (e.g., test fixtures containing full projects).
-	 *
-	 * Files are silently skipped, not rejected with an error.
-	 *
-	 * @default true
-	 *
-	 * @example
-	 * // With skip_nested_source_dirs: true (default)
-	 * // ✓ /project/src/lib/foo.ts - first /src/ leads to /src/lib/
-	 * // ✗ /project/src/fixtures/repos/bar/src/lib/x.ts - first /src/ leads to /src/fixtures/ (skipped)
-	 */
-	skip_nested_source_dirs: boolean;
 	/**
 	 * Determine which analyzer to use for a file path.
 	 *
@@ -121,108 +130,215 @@ export const module_get_analyzer_default = (path: string): AnalyzerType | null =
 };
 
 /**
- * Default options for standard SvelteKit library structure.
+ * Partial source options without `project_root`.
+ *
+ * Use with `module_create_source_options` to build complete options.
  */
-export const MODULE_SOURCE_DEFAULTS: ModuleSourceOptions = {
-	source_root: '/src/lib/',
-	source_paths: ['/src/lib/'],
+export type ModuleSourcePartial = Omit<ModuleSourceOptions, 'project_root'>;
+
+/**
+ * Default partial options for standard SvelteKit library structure.
+ *
+ * Does not include `project_root` - use `module_create_source_options()` to create
+ * complete options with your project root.
+ */
+export const MODULE_SOURCE_PARTIAL: ModuleSourcePartial = {
+	source_paths: ['src/lib'],
 	exclude_patterns: [/\.test\.ts$/],
-	skip_nested_source_dirs: true,
 	get_analyzer: module_get_analyzer_default,
 };
+
+/**
+ * Create complete source options from project root and optional overrides.
+ *
+ * @param project_root Absolute path to project root (typically `process.cwd()`)
+ * @param overrides Optional overrides for default options
+ *
+ * @example
+ * // Standard SvelteKit library
+ * const options = module_create_source_options(process.cwd());
+ *
+ * @example
+ * // Multiple source directories
+ * const options = module_create_source_options(process.cwd(), {
+ *   source_paths: ['src/lib', 'src/routes'],
+ *   source_root: 'src',
+ * });
+ *
+ * @example
+ * // Custom exclusions
+ * const options = module_create_source_options(process.cwd(), {
+ *   exclude_patterns: [/\.test\.ts$/, /\.internal\.ts$/],
+ * });
+ */
+export const module_create_source_options = (
+	project_root: string,
+	overrides?: Partial<ModuleSourcePartial>,
+): ModuleSourceOptions => ({
+	project_root,
+	...MODULE_SOURCE_PARTIAL,
+	...overrides,
+});
 
 /**
  * Validate `ModuleSourceOptions` format and consistency.
  *
  * Checks:
- * 1. `source_root` has leading and trailing slashes (e.g., `/src/lib/`)
- * 2. Each `source_paths` entry has leading and trailing slashes
- * 3. Each `source_paths` entry starts with `source_root`
- *
- * The slash requirements ensure correct behavior:
- * - Leading slash: required for `skip_nested_source_dirs` which searches for `/src/`
- * - Trailing slash: prevents `/src/lib` from matching `/src/library/`
+ * 1. `project_root` is an absolute path (starts with `/`)
+ * 2. `source_paths` entries don't have leading/trailing slashes
+ * 3. `source_root` (if provided) doesn't have leading/trailing slashes
+ * 4. Multiple `source_paths` require explicit `source_root`
+ * 5. `source_root` is a prefix of all `source_paths`
  *
  * @throws Error if validation fails
  *
  * @example
- * // Valid
+ * // Valid - single source path (source_root auto-derived)
  * module_validate_source_options({
- *   source_root: '/src/',
- *   source_paths: ['/src/lib/', '/src/routes/'],
+ *   project_root: '/home/user/project',
+ *   source_paths: ['src/lib'],
  *   ...
  * });
  *
- * // Invalid - missing slashes
+ * @example
+ * // Valid - multiple source paths with explicit source_root
  * module_validate_source_options({
- *   source_root: 'src/lib',  // throws
+ *   project_root: '/home/user/project',
+ *   source_paths: ['src/lib', 'src/routes'],
+ *   source_root: 'src',
  *   ...
  * });
  *
- * // Invalid - inconsistent paths
+ * @example
+ * // Invalid - multiple source paths without source_root
  * module_validate_source_options({
- *   source_root: '/src/lib/',
- *   source_paths: ['/src/routes/'],  // throws - not within /src/lib/
+ *   project_root: '/home/user/project',
+ *   source_paths: ['src/lib', 'src/routes'],  // throws
  *   ...
  * });
  */
 export const module_validate_source_options = (options: ModuleSourceOptions): void => {
-	const {source_root, source_paths} = options;
+	const {project_root, source_paths, source_root} = options;
 
-	// Validate source_root format
-	if (!source_root.startsWith('/')) {
-		throw new Error(
-			`source_root must start with "/": "${source_root}". ` +
-				`Leading slash is required for skip_nested_source_dirs to work correctly.`,
-		);
-	}
-	if (!source_root.endsWith('/')) {
-		throw new Error(
-			`source_root must end with "/": "${source_root}". ` +
-				`Trailing slash prevents false matches (e.g., "/src/lib" would match "/src/library/").`,
-		);
+	// Validate project_root is absolute
+	if (!project_root.startsWith('/')) {
+		throw new Error(`project_root must be an absolute path (start with "/"): "${project_root}"`);
 	}
 
-	// Validate each source_path
+	// Validate project_root doesn't have trailing slash (we add it internally)
+	if (project_root.endsWith('/')) {
+		throw new Error(
+			`project_root should not have trailing slash: "${project_root}". ` +
+				`Trailing slashes are added internally for correct matching.`,
+		);
+	}
+
+	// Validate source_paths
+	if (source_paths.length === 0) {
+		throw new Error('source_paths must have at least one entry');
+	}
+
 	for (const source_path of source_paths) {
-		if (!source_path.startsWith('/')) {
+		if (source_path.startsWith('/')) {
 			throw new Error(
-				`source_paths entry must start with "/": "${source_path}". ` +
-					`Leading slash is required for skip_nested_source_dirs to work correctly.`,
+				`source_paths entry should not start with "/": "${source_path}". ` +
+					`Paths are relative to project_root.`,
 			);
 		}
-		if (!source_path.endsWith('/')) {
+		if (source_path.endsWith('/')) {
 			throw new Error(
-				`source_paths entry must end with "/": "${source_path}". ` +
-					`Trailing slash prevents false matches.`,
-			);
-		}
-		if (!source_path.startsWith(source_root)) {
-			throw new Error(
-				`source_paths entry "${source_path}" must start with source_root "${source_root}". ` +
-					`Files in source_paths are filtered, but module_extract_path uses source_root to compute module paths. ` +
-					`These must be consistent or module paths will be incorrect.`,
+				`source_paths entry should not end with "/": "${source_path}". ` +
+					`Trailing slashes are added internally for correct matching.`,
 			);
 		}
 	}
+
+	// Validate source_root if provided
+	if (source_root !== undefined) {
+		if (source_root.startsWith('/')) {
+			throw new Error(
+				`source_root should not start with "/": "${source_root}". ` +
+					`Paths are relative to project_root.`,
+			);
+		}
+		if (source_root.endsWith('/')) {
+			throw new Error(
+				`source_root should not end with "/": "${source_root}". ` +
+					`Trailing slashes are added internally for correct matching.`,
+			);
+		}
+
+		// Validate each source_path starts with source_root
+		for (const source_path of source_paths) {
+			// source_path should equal source_root or start with source_root/
+			if (source_path !== source_root && !source_path.startsWith(source_root + '/')) {
+				throw new Error(
+					`source_paths entry "${source_path}" must start with source_root "${source_root}". ` +
+						`module_extract_path uses source_root to compute module paths.`,
+				);
+			}
+		}
+	} else if (source_paths.length > 1) {
+		// Multiple source_paths without source_root - error
+		throw new Error(
+			`source_root is required when source_paths has multiple entries. ` +
+				`Got source_paths: [${source_paths.map((p) => `"${p}"`).join(', ')}]. ` +
+				`Provide source_root to specify the common prefix for module path extraction.`,
+		);
+	}
+};
+
+/**
+ * Get the effective source_root from options.
+ *
+ * Returns `source_root` if provided, otherwise returns `source_paths[0]` for single-path configs.
+ *
+ * @throws Error if source_root is required but not provided (multiple source_paths)
+ */
+export const module_get_source_root = (options: ModuleSourceOptions): string => {
+	if (options.source_root !== undefined) {
+		return options.source_root;
+	}
+	if (options.source_paths.length === 1) {
+		return options.source_paths[0]!;
+	}
+	throw new Error(
+		`source_root is required when source_paths has multiple entries. ` +
+			`Got source_paths: [${options.source_paths.map((p) => `"${p}"`).join(', ')}].`,
+	);
 };
 
 /**
  * Extract module path relative to source root from absolute source ID.
  *
+ * Uses proper path semantics: strips `project_root/source_root/` prefix.
+ *
  * @param source_id Absolute path to the source file
  * @param options Module source options for path extraction
  *
  * @example
- * module_extract_path('/home/user/project/src/lib/foo.ts', MODULE_SOURCE_DEFAULTS) // => 'foo.ts'
- * module_extract_path('/home/user/project/src/lib/nested/bar.svelte', MODULE_SOURCE_DEFAULTS) // => 'nested/bar.svelte'
- * module_extract_path('/home/user/project/src/routes/foo.ts', {...MODULE_SOURCE_DEFAULTS, source_root: '/src/routes/'}) // => 'foo.ts'
+ * const options = module_create_source_options('/home/user/project');
+ * module_extract_path('/home/user/project/src/lib/foo.ts', options) // => 'foo.ts'
+ * module_extract_path('/home/user/project/src/lib/nested/bar.svelte', options) // => 'nested/bar.svelte'
+ *
+ * @example
+ * const options = module_create_source_options('/home/user/project', {
+ *   source_paths: ['src/lib', 'src/routes'],
+ *   source_root: 'src',
+ * });
+ * module_extract_path('/home/user/project/src/lib/foo.ts', options) // => 'lib/foo.ts'
+ * module_extract_path('/home/user/project/src/routes/page.svelte', options) // => 'routes/page.svelte'
  */
 export const module_extract_path = (source_id: string, options: ModuleSourceOptions): string => {
-	const root_index = source_id.indexOf(options.source_root);
-	return root_index !== -1
-		? source_id.substring(root_index + options.source_root.length)
-		: source_id;
+	const effective_root = module_get_source_root(options);
+	// Build the full prefix: project_root + '/' + source_root + '/'
+	const prefix = options.project_root + '/' + effective_root + '/';
+
+	if (source_id.startsWith(prefix)) {
+		return source_id.slice(prefix.length);
+	}
+	// Fallback: return full path if prefix doesn't match (shouldn't happen with valid inputs)
+	return source_id;
 };
 
 /**
@@ -267,38 +383,30 @@ export const module_is_test = (path: string): boolean => path.endsWith('.test.ts
  * and analyzer availability. This is the single check for whether a
  * file should be included in library analysis.
  *
- * When `skip_nested_source_dirs` is true, skips nested repo paths by ensuring
- * source_paths match starting from the first `/src/` in the path.
+ * Uses proper path semantics with `startsWith` matching against
+ * `project_root/source_path/`. No heuristics needed - nested directories
+ * are correctly excluded by the prefix check.
  *
- * @param path Full path to check
+ * @param path Full absolute path to check
  * @param options Module source options for filtering
  * @returns True if the path is an analyzable source file
+ *
+ * @example
+ * const options = module_create_source_options('/home/user/project');
+ * module_is_source('/home/user/project/src/lib/foo.ts', options) // => true
+ * module_is_source('/home/user/project/src/lib/foo.test.ts', options) // => false (excluded)
+ * module_is_source('/home/user/project/src/fixtures/mini/src/lib/bar.ts', options) // => false (wrong prefix)
  */
 export const module_is_source = (path: string, options: ModuleSourceOptions): boolean => {
 	// Check exclusion patterns first (fast regex check)
 	const is_excluded = options.exclude_patterns.some((pattern) => pattern.test(path));
 	if (is_excluded) return false;
 
-	// Check if path is in one of the source directories
+	// Check if path starts with project_root/source_path/
+	// Using startsWith with trailing slash ensures correct directory matching
 	const in_source_dir = options.source_paths.some((source_path) => {
-		if (!path.includes(source_path)) return false;
-
-		// If nested source dir skipping is enabled and path contains /src/,
-		// verify the first /src/ leads to source_path.
-		// This skips nested repos like /src/fixtures/repos/foo/src/lib/
-		// Paths without /src/ skip this check (the nested repo problem doesn't apply).
-		if (options.skip_nested_source_dirs) {
-			const first_src_index = path.indexOf('/src/');
-			if (first_src_index !== -1) {
-				// The source_path should start at the /src/ position
-				if (!path.substring(first_src_index).startsWith(source_path)) {
-					return false;
-				}
-			}
-		}
-
-		// No nested source dir skipping - just check path contains source_path
-		return true;
+		const full_prefix = options.project_root + '/' + source_path + '/';
+		return path.startsWith(full_prefix);
 	});
 	if (!in_source_dir) return false;
 

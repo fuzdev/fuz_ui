@@ -8,11 +8,13 @@ import {
 	library_merge_re_exports,
 	type CollectedReExport,
 } from '$lib/library_gen_helpers.js';
-import {
-	type SourceFileInfo,
-	MODULE_SOURCE_DEFAULTS,
-	type ModuleSourceOptions,
-} from '$lib/module_helpers.js';
+import {type SourceFileInfo, type ModuleSourceOptions} from '$lib/module_helpers.js';
+import {TEST_PROJECT_ROOT, create_test_source_options} from './module_test_helpers.js';
+
+// Local alias that uses the default project root
+const test_options = (
+	overrides?: Partial<Omit<ModuleSourceOptions, 'project_root'>>,
+): ModuleSourceOptions => create_test_source_options(TEST_PROJECT_ROOT, overrides);
 
 /**
  * Create a mock SourceJson with test modules.
@@ -336,7 +338,7 @@ describe('library_collect_source_files', () => {
 				{id: '/home/user/project/src/lib/baz.ts', content: ''},
 			];
 
-			const result = library_collect_source_files(files, MODULE_SOURCE_DEFAULTS);
+			const result = library_collect_source_files(files, test_options());
 
 			assert.strictEqual(result.length, 3);
 			assert.ok(result.some((f) => f.id.endsWith('foo.ts')));
@@ -350,7 +352,7 @@ describe('library_collect_source_files', () => {
 				{id: '/home/user/project/src/lib/Card.svelte', content: ''},
 			];
 
-			const result = library_collect_source_files(files, MODULE_SOURCE_DEFAULTS);
+			const result = library_collect_source_files(files, test_options());
 
 			assert.strictEqual(result.length, 2);
 			assert.ok(result.some((f) => f.id.endsWith('Button.svelte')));
@@ -363,7 +365,7 @@ describe('library_collect_source_files', () => {
 				{id: '/home/user/project/src/lib/helpers.js', content: ''},
 			];
 
-			const result = library_collect_source_files(files, MODULE_SOURCE_DEFAULTS);
+			const result = library_collect_source_files(files, test_options());
 
 			assert.strictEqual(result.length, 2);
 		});
@@ -375,7 +377,7 @@ describe('library_collect_source_files', () => {
 				{id: '/home/user/project/src/lib/utils.js', content: ''},
 			];
 
-			const result = library_collect_source_files(files, MODULE_SOURCE_DEFAULTS);
+			const result = library_collect_source_files(files, test_options());
 
 			assert.strictEqual(result.length, 3);
 		});
@@ -390,7 +392,7 @@ describe('library_collect_source_files', () => {
 				{id: '/home/user/project/src/lib/bar.test.ts', content: ''},
 			];
 
-			const result = library_collect_source_files(files, MODULE_SOURCE_DEFAULTS);
+			const result = library_collect_source_files(files, test_options());
 
 			assert.strictEqual(result.length, 2);
 			assert.ok(result.every((f) => !f.id.includes('.test.ts')));
@@ -404,7 +406,7 @@ describe('library_collect_source_files', () => {
 				{id: '/home/user/project/node_modules/pkg/index.ts', content: ''},
 			];
 
-			const result = library_collect_source_files(files, MODULE_SOURCE_DEFAULTS);
+			const result = library_collect_source_files(files, test_options());
 
 			assert.strictEqual(result.length, 1);
 			assert.strictEqual(result[0]!.id, '/home/user/project/src/lib/foo.ts');
@@ -418,7 +420,7 @@ describe('library_collect_source_files', () => {
 				{id: '/home/user/project/src/lib/readme.md', content: ''},
 			];
 
-			const result = library_collect_source_files(files, MODULE_SOURCE_DEFAULTS);
+			const result = library_collect_source_files(files, test_options());
 
 			assert.strictEqual(result.length, 1);
 			assert.strictEqual(result[0]!.id, '/home/user/project/src/lib/foo.ts');
@@ -431,7 +433,7 @@ describe('library_collect_source_files', () => {
 				{id: '/home/user/project/src/test/fixtures/repos/repo_b/src/lib/bar.ts', content: ''},
 			];
 
-			const result = library_collect_source_files(files, MODULE_SOURCE_DEFAULTS);
+			const result = library_collect_source_files(files, test_options());
 
 			assert.strictEqual(result.length, 1);
 			assert.strictEqual(result[0]!.id, '/home/user/project/src/lib/foo.ts');
@@ -445,11 +447,10 @@ describe('library_collect_source_files', () => {
 				{id: '/home/user/project/src/routes/page.svelte', content: ''},
 			];
 
-			const options: ModuleSourceOptions = {
-				...MODULE_SOURCE_DEFAULTS,
-				source_root: '/src/routes/',
-				source_paths: ['/src/routes/'],
-			};
+			const options = test_options({
+				source_paths: ['src/routes'],
+				source_root: 'src/routes',
+			});
 
 			const result = library_collect_source_files(files, options);
 
@@ -464,11 +465,10 @@ describe('library_collect_source_files', () => {
 				{id: '/home/user/project/src/lib/utils.js', content: ''},
 			];
 
-			const options: ModuleSourceOptions = {
-				...MODULE_SOURCE_DEFAULTS,
+			const options = test_options({
 				// Custom get_analyzer that only accepts .ts files
 				get_analyzer: (path) => (path.endsWith('.ts') ? 'typescript' : null),
-			};
+			});
 
 			const result = library_collect_source_files(files, options);
 
@@ -483,10 +483,9 @@ describe('library_collect_source_files', () => {
 				{id: '/home/user/project/src/lib/bar.ts', content: ''},
 			];
 
-			const options: ModuleSourceOptions = {
-				...MODULE_SOURCE_DEFAULTS,
+			const options = test_options({
 				exclude_patterns: [/\/internal\//],
-			};
+			});
 
 			const result = library_collect_source_files(files, options);
 
@@ -503,7 +502,7 @@ describe('library_collect_source_files', () => {
 				{id: '/home/user/project/src/lib/beta.ts', content: ''},
 			];
 
-			const result = library_collect_source_files(files, MODULE_SOURCE_DEFAULTS);
+			const result = library_collect_source_files(files, test_options());
 
 			assert.strictEqual(result[0]!.id, '/home/user/project/src/lib/alpha.ts');
 			assert.strictEqual(result[1]!.id, '/home/user/project/src/lib/beta.ts');
@@ -517,8 +516,8 @@ describe('library_collect_source_files', () => {
 				{id: '/home/user/project/src/lib/b.ts', content: ''},
 			];
 
-			const result1 = library_collect_source_files(files, MODULE_SOURCE_DEFAULTS);
-			const result2 = library_collect_source_files(files, MODULE_SOURCE_DEFAULTS);
+			const result1 = library_collect_source_files(files, test_options());
+			const result2 = library_collect_source_files(files, test_options());
 
 			assert.deepStrictEqual(
 				result1.map((f) => f.id),
@@ -529,7 +528,7 @@ describe('library_collect_source_files', () => {
 
 	describe('edge cases', () => {
 		test('returns empty array for empty input', () => {
-			const result = library_collect_source_files([], MODULE_SOURCE_DEFAULTS);
+			const result = library_collect_source_files([], test_options());
 
 			assert.strictEqual(result.length, 0);
 		});
@@ -540,7 +539,7 @@ describe('library_collect_source_files', () => {
 				{id: '/home/user/project/node_modules/pkg/index.ts', content: ''},
 			];
 
-			const result = library_collect_source_files(files, MODULE_SOURCE_DEFAULTS);
+			const result = library_collect_source_files(files, test_options());
 
 			assert.strictEqual(result.length, 0);
 		});
@@ -555,7 +554,7 @@ describe('library_collect_source_files', () => {
 				},
 			];
 
-			const result = library_collect_source_files(files, MODULE_SOURCE_DEFAULTS);
+			const result = library_collect_source_files(files, test_options());
 
 			assert.strictEqual(result.length, 1);
 			assert.strictEqual(result[0]!.content, 'export const foo = 42;');
@@ -567,7 +566,7 @@ describe('library_collect_source_files', () => {
 			const files: Array<SourceFileInfo> = [{id: '/home/user/project/src/lib/foo.ts', content: ''}];
 
 			// Should not throw
-			const result = library_collect_source_files(files, MODULE_SOURCE_DEFAULTS);
+			const result = library_collect_source_files(files, test_options());
 
 			assert.strictEqual(result.length, 1);
 		});

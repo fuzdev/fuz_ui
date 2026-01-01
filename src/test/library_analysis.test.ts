@@ -1,42 +1,14 @@
 import {test, assert, describe} from 'vitest';
-import ts from 'typescript';
 
 import {library_analyze_module} from '$lib/library_analysis.js';
-import {MODULE_SOURCE_DEFAULTS, type ModuleSourceOptions} from '$lib/module_helpers.js';
+import {type ModuleSourceOptions} from '$lib/module_helpers.js';
 import {AnalysisContext} from '$lib/analysis_context.js';
-
-/**
- * Create a minimal TypeScript program from source code for testing.
- */
-const create_test_program = (
-	files: Array<{path: string; content: string}>,
-): {program: ts.Program; checker: ts.TypeChecker} => {
-	const file_map = new Map(files.map((f) => [f.path, f.content]));
-
-	const compiler_options: ts.CompilerOptions = {
-		target: ts.ScriptTarget.Latest,
-		module: ts.ModuleKind.ESNext,
-		moduleResolution: ts.ModuleResolutionKind.Bundler,
-		strict: true,
-		skipLibCheck: true,
-		noEmit: true,
-		allowJs: true,
-	};
-
-	const host = ts.createCompilerHost(compiler_options);
-	const original_read = host.readFile.bind(host);
-	host.readFile = (filename) => file_map.get(filename) ?? original_read(filename);
-	host.fileExists = (filename) => file_map.has(filename) || ts.sys.fileExists(filename);
-
-	const program = ts.createProgram(Array.from(file_map.keys()), compiler_options, host);
-	return {program, checker: program.getTypeChecker()};
-};
+import {create_test_source_options, create_test_program} from './module_test_helpers.js';
 
 describe('library_analyze_module', () => {
-	const options: ModuleSourceOptions = {
-		...MODULE_SOURCE_DEFAULTS,
-		source_root: '/project/src/lib/',
-	};
+	const options: ModuleSourceOptions = create_test_source_options('/project', {
+		source_paths: ['src/lib'],
+	});
 
 	test('dispatches to TypeScript analyzer for .ts files', () => {
 		const {program} = create_test_program([
@@ -127,10 +99,9 @@ let {name, count = 0}: {name: string; count?: number} = $props();
 	});
 
 	test('derives module_path with custom source_root', () => {
-		const custom_options: ModuleSourceOptions = {
-			...MODULE_SOURCE_DEFAULTS,
-			source_root: '/custom/root/',
-		};
+		const custom_options: ModuleSourceOptions = create_test_source_options('/custom', {
+			source_paths: ['root'],
+		});
 
 		const {program} = create_test_program([
 			{
@@ -220,10 +191,9 @@ let {name, count = 0}: {name: string; count?: number} = $props();
 });
 
 describe('library_analyze_module required arrays invariant', () => {
-	const options: ModuleSourceOptions = {
-		...MODULE_SOURCE_DEFAULTS,
-		source_root: '/project/src/lib/',
-	};
+	const options: ModuleSourceOptions = create_test_source_options('/project', {
+		source_paths: ['src/lib'],
+	});
 
 	test('TypeScript module returns all array fields as arrays (never undefined)', () => {
 		const {program} = create_test_program([
@@ -328,10 +298,9 @@ let {value}: {value: string} = $props();
 });
 
 describe('library_analyze_module error handling', () => {
-	const options: ModuleSourceOptions = {
-		...MODULE_SOURCE_DEFAULTS,
-		source_root: '/project/src/lib/',
-	};
+	const options: ModuleSourceOptions = create_test_source_options('/project', {
+		source_paths: ['src/lib'],
+	});
 
 	test('returns undefined for TypeScript file not in program (logs warning)', () => {
 		const {program} = create_test_program([

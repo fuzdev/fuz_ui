@@ -102,7 +102,7 @@ export const ts_create_program = (options?: TsProgramOptions, log?: Logger): TsP
  * @param ts_source_file TypeScript source file from the program
  * @param module_path The module path (relative to source root)
  * @param checker TypeScript type checker
- * @param options Module source options for path extraction (use `MODULE_SOURCE_DEFAULTS` for standard layouts)
+ * @param options Module source options for path extraction
  * @param ctx Analysis context for collecting diagnostics
  * @returns Module metadata and re-export information
  */
@@ -147,11 +147,11 @@ export const ts_analyze_module = (
  *
  * This is a mid-level function (above `ts_extract_*`, below `library_gen`)
  * suitable for building documentation, API explorers, or analysis tools.
- * For standard SvelteKit library layouts, use `MODULE_SOURCE_DEFAULTS` for the options parameter.
+ * For standard SvelteKit library layouts, use `module_create_source_options(process.cwd())`.
  *
  * @param source_file The TypeScript source file to analyze
  * @param checker The TypeScript type checker
- * @param options Module source options for path extraction in re-exports (use `MODULE_SOURCE_DEFAULTS` for standard layouts)
+ * @param options Module source options for path extraction in re-exports
  * @param ctx Analysis context for collecting diagnostics
  * @returns Module comment, declarations, re-exports, and star exports
  */
