@@ -10,7 +10,7 @@ import {
 	module_is_css,
 	module_is_json,
 	module_is_test,
-	module_matches_source,
+	module_is_source,
 	module_validate_source_options,
 	module_get_analyzer_default,
 	MODULE_SOURCE_DEFAULTS,
@@ -186,46 +186,41 @@ describe('MODULE_SOURCE_DEFAULTS', () => {
 	});
 });
 
-describe('module_matches_source', () => {
+describe('module_is_source', () => {
 	describe('with default options', () => {
 		test('matches src/lib TypeScript files', () => {
-			assert.isTrue(
-				module_matches_source('/home/user/project/src/lib/foo.ts', MODULE_SOURCE_DEFAULTS),
-			);
+			assert.isTrue(module_is_source('/home/user/project/src/lib/foo.ts', MODULE_SOURCE_DEFAULTS));
 		});
 
 		test('matches src/lib JavaScript files', () => {
-			assert.isTrue(
-				module_matches_source('/home/user/project/src/lib/foo.js', MODULE_SOURCE_DEFAULTS),
-			);
+			assert.isTrue(module_is_source('/home/user/project/src/lib/foo.js', MODULE_SOURCE_DEFAULTS));
 		});
 
 		test('matches src/lib Svelte files', () => {
 			assert.isTrue(
-				module_matches_source('/home/user/project/src/lib/Button.svelte', MODULE_SOURCE_DEFAULTS),
+				module_is_source('/home/user/project/src/lib/Button.svelte', MODULE_SOURCE_DEFAULTS),
 			);
 		});
 
 		test('excludes test files', () => {
 			assert.isFalse(
-				module_matches_source('/home/user/project/src/lib/foo.test.ts', MODULE_SOURCE_DEFAULTS),
+				module_is_source('/home/user/project/src/lib/foo.test.ts', MODULE_SOURCE_DEFAULTS),
 			);
 		});
 
 		test('excludes files outside src/lib', () => {
 			assert.isFalse(
-				module_matches_source('/home/user/project/src/routes/page.svelte', MODULE_SOURCE_DEFAULTS),
+				module_is_source('/home/user/project/src/routes/page.svelte', MODULE_SOURCE_DEFAULTS),
 			);
 		});
 
-		test('includes all file types in source dirs (filtering done by get_analyzer)', () => {
-			// module_matches_source no longer filters by extension
-			// File type filtering is handled by get_analyzer
-			assert.isTrue(
-				module_matches_source('/home/user/project/src/lib/styles.css', MODULE_SOURCE_DEFAULTS),
+		test('excludes non-analyzable file types', () => {
+			// module_is_source combines all checks including get_analyzer
+			assert.isFalse(
+				module_is_source('/home/user/project/src/lib/styles.css', MODULE_SOURCE_DEFAULTS),
 			);
-			assert.isTrue(
-				module_matches_source('/home/user/project/src/lib/data.json', MODULE_SOURCE_DEFAULTS),
+			assert.isFalse(
+				module_is_source('/home/user/project/src/lib/data.json', MODULE_SOURCE_DEFAULTS),
 			);
 		});
 	});
@@ -237,8 +232,8 @@ describe('module_matches_source', () => {
 				source_paths: ['/src/routes/'],
 			};
 
-			assert.isTrue(module_matches_source('/home/user/project/src/routes/page.svelte', options));
-			assert.isFalse(module_matches_source('/home/user/project/src/lib/foo.ts', options));
+			assert.isTrue(module_is_source('/home/user/project/src/routes/page.svelte', options));
+			assert.isFalse(module_is_source('/home/user/project/src/lib/foo.ts', options));
 		});
 
 		test('supports multiple source paths', () => {
@@ -247,8 +242,8 @@ describe('module_matches_source', () => {
 				source_paths: ['/src/lib/', '/src/routes/'],
 			};
 
-			assert.isTrue(module_matches_source('/home/user/project/src/lib/foo.ts', options));
-			assert.isTrue(module_matches_source('/home/user/project/src/routes/page.svelte', options));
+			assert.isTrue(module_is_source('/home/user/project/src/lib/foo.ts', options));
+			assert.isTrue(module_is_source('/home/user/project/src/routes/page.svelte', options));
 		});
 	});
 
@@ -259,9 +254,9 @@ describe('module_matches_source', () => {
 				exclude_patterns: [/\.test\.ts$/, /\.spec\.ts$/],
 			};
 
-			assert.isTrue(module_matches_source('/home/user/project/src/lib/foo.ts', options));
-			assert.isFalse(module_matches_source('/home/user/project/src/lib/foo.test.ts', options));
-			assert.isFalse(module_matches_source('/home/user/project/src/lib/foo.spec.ts', options));
+			assert.isTrue(module_is_source('/home/user/project/src/lib/foo.ts', options));
+			assert.isFalse(module_is_source('/home/user/project/src/lib/foo.test.ts', options));
+			assert.isFalse(module_is_source('/home/user/project/src/lib/foo.spec.ts', options));
 		});
 
 		test('can exclude by directory pattern', () => {
@@ -270,10 +265,8 @@ describe('module_matches_source', () => {
 				exclude_patterns: [/\/internal\//],
 			};
 
-			assert.isTrue(module_matches_source('/home/user/project/src/lib/foo.ts', options));
-			assert.isFalse(
-				module_matches_source('/home/user/project/src/lib/internal/secret.ts', options),
-			);
+			assert.isTrue(module_is_source('/home/user/project/src/lib/foo.ts', options));
+			assert.isFalse(module_is_source('/home/user/project/src/lib/internal/secret.ts', options));
 		});
 
 		test('empty exclude_patterns includes everything', () => {
@@ -282,8 +275,8 @@ describe('module_matches_source', () => {
 				exclude_patterns: [],
 			};
 
-			assert.isTrue(module_matches_source('/home/user/project/src/lib/foo.ts', options));
-			assert.isTrue(module_matches_source('/home/user/project/src/lib/foo.test.ts', options));
+			assert.isTrue(module_is_source('/home/user/project/src/lib/foo.ts', options));
+			assert.isTrue(module_is_source('/home/user/project/src/lib/foo.test.ts', options));
 		});
 	});
 
@@ -291,13 +284,13 @@ describe('module_matches_source', () => {
 		test('rejects nested repo paths with /src/lib/ inside other src directories', () => {
 			// Fixture repos nested in src/fixtures/ should be rejected even though they have src/lib/
 			assert.isFalse(
-				module_matches_source(
+				module_is_source(
 					'/home/user/project/src/fixtures/repos/repo_a/src/lib/index.ts',
 					MODULE_SOURCE_DEFAULTS,
 				),
 			);
 			assert.isFalse(
-				module_matches_source(
+				module_is_source(
 					'/home/user/project/src/test/fixtures/repos/repo_b/src/lib/foo.ts',
 					MODULE_SOURCE_DEFAULTS,
 				),
@@ -307,7 +300,7 @@ describe('module_matches_source', () => {
 		test('accepts monorepo paths where first /src/ leads to /lib/', () => {
 			// Monorepo structure with packages outside src/
 			assert.isTrue(
-				module_matches_source(
+				module_is_source(
 					'/home/user/monorepo/packages/core/src/lib/foo.ts',
 					MODULE_SOURCE_DEFAULTS,
 				),
@@ -317,7 +310,7 @@ describe('module_matches_source', () => {
 		test('accepts deeply nested paths within src/lib/', () => {
 			// Files deeply nested in src/lib/ should work
 			assert.isTrue(
-				module_matches_source(
+				module_is_source(
 					'/home/user/project/src/lib/utils/helpers/deep/file.ts',
 					MODULE_SOURCE_DEFAULTS,
 				),
@@ -334,10 +327,7 @@ describe('module_matches_source', () => {
 
 			// With detection disabled, nested repo paths are accepted
 			assert.isTrue(
-				module_matches_source(
-					'/home/user/project/src/fixtures/repos/repo_a/src/lib/index.ts',
-					options,
-				),
+				module_is_source('/home/user/project/src/fixtures/repos/repo_a/src/lib/index.ts', options),
 			);
 		});
 
@@ -352,7 +342,7 @@ describe('module_matches_source', () => {
 			};
 
 			// Accepts paths without /src/ - the nested check is skipped
-			assert.isTrue(module_matches_source('/home/user/project/packages/core/lib/foo.ts', options));
+			assert.isTrue(module_is_source('/home/user/project/packages/core/lib/foo.ts', options));
 		});
 	});
 });

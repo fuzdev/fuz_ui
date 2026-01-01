@@ -18,7 +18,7 @@ import {
 	type SourceFileInfo,
 	module_extract_dependencies,
 	module_extract_path,
-	module_matches_source,
+	module_is_source,
 } from './module_helpers.js';
 import type {AnalysisContext} from './analysis_context.js';
 // Import shared types from library_analysis (type-only import avoids circular runtime dependency)
@@ -187,7 +187,7 @@ export const ts_analyze_module_exports = (
 					const resolved_path = resolved_source.fileName;
 
 					// Only include star exports from source modules (not node_modules)
-					if (module_matches_source(resolved_path, options)) {
+					if (module_is_source(resolved_path, options)) {
 						star_exports.push(module_extract_path(resolved_path, options));
 					}
 				}
@@ -215,7 +215,7 @@ export const ts_analyze_module_exports = (
 					// Check if this is a CROSS-FILE re-export (original in different file)
 					if (original_source.fileName !== source_file.fileName) {
 						// Only track if the original is from a source module (not node_modules)
-						if (module_matches_source(original_source.fileName, options)) {
+						if (module_is_source(original_source.fileName, options)) {
 							const original_module = module_extract_path(original_source.fileName, options);
 							const original_name = aliased_symbol.name;
 							const is_renamed = export_symbol.name !== original_name;

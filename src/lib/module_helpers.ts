@@ -261,19 +261,20 @@ export const module_is_json = (path: string): boolean => path.endsWith('.json');
 export const module_is_test = (path: string): boolean => path.endsWith('.test.ts');
 
 /**
- * Check if a path matches source criteria.
+ * Check if a path is an analyzable source file.
  *
- * Checks exclusion patterns and source directory paths.
- * File type filtering is handled by `get_analyzer`.
+ * Combines all filtering: exclusion patterns, source directory paths,
+ * and analyzer availability. This is the single check for whether a
+ * file should be included in library analysis.
  *
  * When `skip_nested_source_dirs` is true, skips nested repo paths by ensuring
  * source_paths match starting from the first `/src/` in the path.
  *
  * @param path Full path to check
  * @param options Module source options for filtering
- * @returns True if the path matches all criteria
+ * @returns True if the path is an analyzable source file
  */
-export const module_matches_source = (path: string, options: ModuleSourceOptions): boolean => {
+export const module_is_source = (path: string, options: ModuleSourceOptions): boolean => {
 	// Check exclusion patterns first (fast regex check)
 	const is_excluded = options.exclude_patterns.some((pattern) => pattern.test(path));
 	if (is_excluded) return false;
@@ -299,8 +300,10 @@ export const module_matches_source = (path: string, options: ModuleSourceOptions
 		// No nested source dir skipping - just check path contains source_path
 		return true;
 	});
+	if (!in_source_dir) return false;
 
-	return in_source_dir;
+	// Check if file type is analyzable
+	return options.get_analyzer(path) !== null;
 };
 
 /**
@@ -322,7 +325,7 @@ export const module_extract_dependencies = (
 	// Extract dependencies (files this module imports) if provided
 	if (source_file.dependencies) {
 		for (const dep_id of source_file.dependencies) {
-			if (module_matches_source(dep_id, options)) {
+			if (module_is_source(dep_id, options)) {
 				dependencies.push(module_extract_path(dep_id, options));
 			}
 		}
@@ -331,7 +334,7 @@ export const module_extract_dependencies = (
 	// Extract dependents (files that import this module) if provided
 	if (source_file.dependents) {
 		for (const dependent_id of source_file.dependents) {
-			if (module_matches_source(dependent_id, options)) {
+			if (module_is_source(dependent_id, options)) {
 				dependents.push(module_extract_path(dependent_id, options));
 			}
 		}

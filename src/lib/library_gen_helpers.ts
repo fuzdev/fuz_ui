@@ -25,7 +25,7 @@ import type {ReExportInfo} from './library_analysis.js';
 import {
 	type SourceFileInfo,
 	type ModuleSourceOptions,
-	module_matches_source,
+	module_is_source,
 	module_validate_source_options,
 } from './module_helpers.js';
 
@@ -195,11 +195,8 @@ export const library_collect_source_files = (
 
 	const source_files: Array<SourceFileInfo> = [];
 	for (const file of all_files) {
-		if (module_matches_source(file.id, options)) {
-			// Include files that have a valid analyzer
-			if (options.get_analyzer(file.id) !== null) {
-				source_files.push(file);
-			}
+		if (module_is_source(file.id, options)) {
+			source_files.push(file);
 		}
 	}
 

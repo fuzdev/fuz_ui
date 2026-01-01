@@ -5204,13 +5204,13 @@
 						]
 					},
 					{
-						"name": "module_matches_source",
+						"name": "module_is_source",
 						"kind": "function",
-						"doc_comment": "Check if a path matches source criteria.\n\nChecks exclusion patterns and source directory paths.\nFile type filtering is handled by `get_analyzer`.\n\nWhen `skip_nested_source_dirs` is true, skips nested repo paths by ensuring\nsource_paths match starting from the first `/src/` in the path.",
-						"source_line": 276,
+						"doc_comment": "Check if a path is an analyzable source file.\n\nCombines all filtering: exclusion patterns, source directory paths,\nand analyzer availability. This is the single check for whether a\nfile should be included in library analysis.\n\nWhen `skip_nested_source_dirs` is true, skips nested repo paths by ensuring\nsource_paths match starting from the first `/src/` in the path.",
+						"source_line": 277,
 						"type_signature": "(path: string, options: ModuleSourceOptions): boolean",
 						"return_type": "boolean",
-						"return_description": "True if the path matches all criteria",
+						"return_description": "True if the path is an analyzable source file",
 						"parameters": [
 							{
 								"name": "path",
@@ -5228,7 +5228,7 @@
 						"name": "module_extract_dependencies",
 						"kind": "function",
 						"doc_comment": "Extract dependencies and dependents for a module from source file info.\n\nFilters to only include source modules (excludes external packages, node_modules, tests).\nReturns sorted arrays of module paths (relative to source_root) for deterministic output.",
-						"source_line": 315,
+						"source_line": 318,
 						"type_signature": "(source_file: SourceFileInfo, options: ModuleSourceOptions): { dependencies: string[]; dependents: string[]; }",
 						"return_type": "{ dependencies: string[]; dependents: string[]; }",
 						"parameters": [
