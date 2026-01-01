@@ -8,6 +8,7 @@ import {
 	type SignatureAnalysisDiagnostic,
 	type ClassMemberDiagnostic,
 	type SveltePropDiagnostic,
+	type ModuleSkippedDiagnostic,
 } from '$lib/analysis_context.js';
 
 /**
@@ -73,6 +74,22 @@ const create_svelte_prop_diagnostic = (
 	severity: 'warning',
 	component_name: 'Button',
 	prop_name: 'variant',
+	...overrides,
+});
+
+/**
+ * Create a module skipped diagnostic for testing.
+ */
+const create_module_skipped_diagnostic = (
+	overrides: Partial<ModuleSkippedDiagnostic> = {},
+): ModuleSkippedDiagnostic => ({
+	kind: 'module_skipped',
+	file: 'unknown.xyz',
+	line: null,
+	column: null,
+	message: 'No analyzer for file type',
+	severity: 'warning',
+	reason: 'no_analyzer',
 	...overrides,
 });
 
@@ -322,6 +339,30 @@ describe('AnalysisContext', () => {
 			assert.strictEqual(result[0]!.prop_name, 'variant');
 		});
 
+		test('filters by module_skipped', () => {
+			const ctx = new AnalysisContext();
+			const module_diag = create_module_skipped_diagnostic();
+			ctx.add(create_type_diagnostic());
+			ctx.add(module_diag);
+
+			const result = ctx.by_kind('module_skipped');
+
+			assert.strictEqual(result.length, 1);
+			assert.strictEqual(result[0], module_diag);
+			assert.strictEqual(result[0]!.reason, 'no_analyzer');
+		});
+
+		test('filters module_skipped by reason not_in_program', () => {
+			const ctx = new AnalysisContext();
+			const module_diag = create_module_skipped_diagnostic({reason: 'not_in_program'});
+			ctx.add(module_diag);
+
+			const result = ctx.by_kind('module_skipped');
+
+			assert.strictEqual(result.length, 1);
+			assert.strictEqual(result[0]!.reason, 'not_in_program');
+		});
+
 		test('returns multiple diagnostics of same kind', () => {
 			const ctx = new AnalysisContext();
 			const type_diag1 = create_type_diagnostic({symbol_name: 'foo'});
@@ -553,6 +594,19 @@ describe('format_diagnostic', () => {
 
 			assert.include(result, 'Button.svelte:5:10');
 		});
+
+		test('formats module_skipped with null location', () => {
+			const diagnostic = create_module_skipped_diagnostic({
+				file: 'unknown.xyz',
+				line: null,
+				column: null,
+				message: 'No analyzer for file type',
+			});
+
+			const result = format_diagnostic(diagnostic);
+
+			assert.strictEqual(result, './unknown.xyz: warning: No analyzer for file type');
+		});
 	});
 });
 
@@ -563,6 +617,7 @@ describe('diagnostic type discrimination', () => {
 			create_signature_diagnostic(),
 			create_class_member_diagnostic(),
 			create_svelte_prop_diagnostic(),
+			create_module_skipped_diagnostic(),
 		];
 
 		for (const d of diagnostics) {
@@ -584,6 +639,10 @@ describe('diagnostic type discrimination', () => {
 					// Type narrowing should allow accessing component_name and prop_name
 					assert.ok(d.component_name);
 					assert.ok(d.prop_name);
+					break;
+				case 'module_skipped':
+					// Type narrowing should allow accessing reason
+					assert.ok(d.reason);
 					break;
 			}
 		}

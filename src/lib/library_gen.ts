@@ -35,6 +35,7 @@ import {
 	type ModuleSourceOptions,
 	type ModuleSourcePartial,
 	module_create_source_options,
+	module_validate_source_options,
 } from './module_helpers.js';
 import {library_analyze_module} from './library_analysis.js';
 import {
@@ -163,6 +164,10 @@ export const library_gen = (options?: LibraryGenOptions): Gen => {
 				options?.source && 'project_root' in options.source
 					? options.source
 					: module_create_source_options(process.cwd(), options?.source);
+
+			// Validate options early to fail fast on misconfiguration
+			// (before expensive operations like program creation)
+			module_validate_source_options(source_options);
 
 			// Ensure filer is initialized
 			await filer.init();

@@ -389,6 +389,13 @@ const tsdoc_strip_module_tag = (text: string): string => {
 
 /**
  * Infer declaration kind from symbol and node.
+ *
+ * Maps TypeScript constructs to `DeclarationKind`:
+ * - Classes → `'class'`
+ * - Functions (declarations, expressions, arrows) → `'function'`
+ * - Interfaces, type aliases → `'type'`
+ * - Enums (regular and const) → `'type'`
+ * - Variables → `'variable'` (unless function-valued → `'function'`)
  */
 export const ts_infer_declaration_kind = (symbol: ts.Symbol, node: ts.Node): DeclarationKind => {
 	// Check symbol flags
@@ -396,12 +403,16 @@ export const ts_infer_declaration_kind = (symbol: ts.Symbol, node: ts.Node): Dec
 	if (symbol.flags & ts.SymbolFlags.Function) return 'function';
 	if (symbol.flags & ts.SymbolFlags.Interface) return 'type';
 	if (symbol.flags & ts.SymbolFlags.TypeAlias) return 'type';
+	// Enums are treated as types (they define a named type with values)
+	if (symbol.flags & ts.SymbolFlags.Enum) return 'type';
+	if (symbol.flags & ts.SymbolFlags.ConstEnum) return 'type';
 
 	// Check node kind
 	if (ts.isFunctionDeclaration(node) || ts.isArrowFunction(node) || ts.isFunctionExpression(node))
 		return 'function';
 	if (ts.isClassDeclaration(node)) return 'class';
 	if (ts.isInterfaceDeclaration(node) || ts.isTypeAliasDeclaration(node)) return 'type';
+	if (ts.isEnumDeclaration(node)) return 'type';
 	if (ts.isVariableDeclaration(node)) {
 		// Check if it's a function-valued variable
 		const init = node.initializer;
@@ -820,14 +831,22 @@ const ts_parse_generic_param = (param: ts.TypeParameterDeclaration): GenericPara
 };
 
 /**
+ * TypeScript modifier keywords extracted from declarations.
+ *
+ * These are the access modifiers and other keywords that can appear
+ * on class members, interface properties, etc.
+ */
+export type TsModifier = 'public' | 'private' | 'protected' | 'readonly' | 'static' | 'abstract';
+
+/**
  * Extract modifier keywords from a node's modifiers.
  *
- * Returns an array of modifier strings like ['public', 'readonly', 'static']
+ * Returns an array of modifier strings like `['public', 'readonly', 'static']`.
  */
 const ts_extract_modifiers = (
 	modifiers: ReadonlyArray<ts.ModifierLike> | undefined,
-): Array<string> => {
-	const modifier_flags: Array<string> = [];
+): Array<TsModifier> => {
+	const modifier_flags: Array<TsModifier> = [];
 	if (!modifiers) return modifier_flags;
 
 	for (const mod of modifiers) {

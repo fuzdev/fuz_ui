@@ -138,6 +138,15 @@ export const library_analyze_module = (
 	if (analyzer_type === 'typescript') {
 		const ts_source_file = program.getSourceFile(source_file.id);
 		if (!ts_source_file) {
+			ctx.add({
+				kind: 'module_skipped',
+				file: module_path,
+				line: null,
+				column: null,
+				message: `Could not get source file from program: ${source_file.id}`,
+				severity: 'warning',
+				reason: 'not_in_program',
+			});
 			log?.warn(`Could not get source file from program: ${source_file.id}`);
 			return undefined;
 		}
@@ -145,6 +154,15 @@ export const library_analyze_module = (
 	}
 
 	// analyzer_type is null - skip this file
+	ctx.add({
+		kind: 'module_skipped',
+		file: module_path,
+		line: null,
+		column: null,
+		message: `No analyzer for file type: ${source_file.id}`,
+		severity: 'warning',
+		reason: 'no_analyzer',
+	});
 	log?.warn(`No analyzer for file: ${source_file.id}`);
 	return undefined;
 };

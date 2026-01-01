@@ -70,7 +70,8 @@ export type DiagnosticKind =
 	| 'type_extraction_failed'
 	| 'signature_analysis_failed'
 	| 'class_member_failed'
-	| 'svelte_prop_failed';
+	| 'svelte_prop_failed'
+	| 'module_skipped';
 
 /**
  * Base diagnostic fields shared by all diagnostic types.
@@ -129,13 +130,24 @@ export interface SveltePropDiagnostic extends BaseDiagnostic {
 }
 
 /**
+ * Module was skipped during analysis.
+ * Could be due to missing source file in program or no analyzer available.
+ */
+export interface ModuleSkippedDiagnostic extends BaseDiagnostic {
+	kind: 'module_skipped';
+	/** Reason the module was skipped. */
+	reason: 'not_in_program' | 'no_analyzer';
+}
+
+/**
  * Union of all diagnostic types.
  */
 export type Diagnostic =
 	| TypeExtractionDiagnostic
 	| SignatureAnalysisDiagnostic
 	| ClassMemberDiagnostic
-	| SveltePropDiagnostic;
+	| SveltePropDiagnostic
+	| ModuleSkippedDiagnostic;
 
 /**
  * Context for collecting diagnostics during source analysis.
