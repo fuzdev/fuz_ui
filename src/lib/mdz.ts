@@ -1821,6 +1821,8 @@ export class MdzParser {
 
 /**
  * Check if a string is a URL (`https://` or `http://`).
+ * Requires at least one valid character after the protocol.
+ * Rejects whitespace and characters that can't start a valid hostname.
  */
-export const mdz_is_url = (s: string): boolean =>
-	s.startsWith('https://') || s.startsWith('http://');
+const URL_PATTERN = /^https?:\/\/[^\s)\]}<>.,:/?#!]/;
+export const mdz_is_url = (s: string): boolean => URL_PATTERN.test(s);
