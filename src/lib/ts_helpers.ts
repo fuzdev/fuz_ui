@@ -354,7 +354,7 @@ export const ts_extract_module_comment = (source_file: ts.SourceFile): string | 
 		}
 	}
 
-	// Find the first comment with @module tag
+	// Find the first comment with `@module` tag
 	for (const comment of all_comments) {
 		const comment_text = full_text.substring(comment.pos, comment.end);
 		if (!comment_text.trimStart().startsWith('/**')) continue;
@@ -363,7 +363,7 @@ export const ts_extract_module_comment = (source_file: ts.SourceFile): string | 
 		const cleaned = tsdoc_clean_comment(comment_text);
 		if (!cleaned) continue;
 
-		// Check for @module as a proper tag (at start of line, not mentioned in prose)
+		// Check for `@module` as a proper tag (at start of line, not mentioned in prose)
 		if (/(?:^|\n)@module\b/.test(cleaned)) {
 			const stripped = tsdoc_strip_module_tag(cleaned);
 			return stripped || undefined;
@@ -381,7 +381,7 @@ export const ts_extract_module_comment = (source_file: ts.SourceFile): string | 
  * - `@module module-name` (with rename)
  */
 const tsdoc_strip_module_tag = (text: string): string => {
-	// Remove lines that START with @module (not mentioned in prose)
+	// Remove lines that START with `@module` (not mentioned in prose)
 	const lines = text.split('\n');
 	const filtered = lines.filter((line) => !/^\s*@module\b/.test(line));
 	return filtered.join('\n').trim();
