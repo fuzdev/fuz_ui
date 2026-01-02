@@ -1,7 +1,12 @@
 import {test, assert, describe} from 'vitest';
 
-import {source_file_from_disknode, library_gen_throw_on_duplicates} from '$lib/library_gen.js';
+import {
+	source_file_from_disknode,
+	library_gen_throw_on_duplicates,
+	library_collect_source_files_from_disknodes,
+} from '$lib/library_gen.js';
 import type {DuplicateInfo} from '$lib/library_gen_helpers.js';
+import {TEST_PROJECT_ROOT, create_test_source_options} from './module_test_helpers.js';
 
 /**
  * Create a mock Disknode for testing.
@@ -304,5 +309,167 @@ describe('library_gen_throw_on_duplicates', () => {
 			assert.include(message, 'rename');
 			assert.include(message, '@nodocs');
 		}
+	});
+});
+
+// Local alias that uses the default project root
+const test_options = () => create_test_source_options(TEST_PROJECT_ROOT);
+
+describe('library_collect_source_files_from_disknodes', () => {
+	describe('basic collection', () => {
+		test('collects disknodes from src/lib', () => {
+			const disknodes = [
+				create_mock_disknode({
+					id: `${TEST_PROJECT_ROOT}/src/lib/foo.ts`,
+					contents: 'export const foo = 1;',
+				}),
+				create_mock_disknode({
+					id: `${TEST_PROJECT_ROOT}/src/lib/bar.ts`,
+					contents: 'export const bar = 2;',
+				}),
+			];
+
+			const result = library_collect_source_files_from_disknodes(disknodes as any, test_options());
+
+			assert.strictEqual(result.length, 2);
+			assert.ok(result.some((f) => f.id.endsWith('foo.ts')));
+			assert.ok(result.some((f) => f.id.endsWith('bar.ts')));
+		});
+
+		test('converts disknode dependencies and dependents to arrays', () => {
+			const disknodes = [
+				create_mock_disknode({
+					id: `${TEST_PROJECT_ROOT}/src/lib/consumer.ts`,
+					contents: 'import { dep } from "./dep.js";',
+					dependencies: new Map([[`${TEST_PROJECT_ROOT}/src/lib/dep.ts`, {}]]),
+					dependents: new Map([[`${TEST_PROJECT_ROOT}/src/lib/user.ts`, {}]]),
+				}),
+			];
+
+			const result = library_collect_source_files_from_disknodes(disknodes as any, test_options());
+
+			assert.strictEqual(result.length, 1);
+			assert.ok(result[0]!.dependencies);
+			assert.ok(result[0]!.dependents);
+		});
+	});
+
+	describe('filtering before conversion - key behavior', () => {
+		test('skips files outside source_paths without throwing on null content', () => {
+			// This is the key fix: files outside src/lib should be skipped
+			// BEFORE we try to read their content
+			const disknodes = [
+				create_mock_disknode({
+					id: `${TEST_PROJECT_ROOT}/src/lib/good.ts`,
+					contents: 'export const good = 1;',
+				}),
+				// Test fixture with null content - should be skipped, not throw
+				create_mock_disknode({
+					id: `${TEST_PROJECT_ROOT}/src/test/fixtures/bad.ts`,
+					contents: null,
+				}),
+				// Another outside path with malformed content
+				create_mock_disknode({
+					id: `${TEST_PROJECT_ROOT}/node_modules/pkg/index.ts`,
+					contents: null,
+				}),
+			];
+
+			// Should not throw - files outside source_paths are filtered before conversion
+			const result = library_collect_source_files_from_disknodes(disknodes as any, test_options());
+
+			assert.strictEqual(result.length, 1);
+			assert.strictEqual(result[0]!.id, `${TEST_PROJECT_ROOT}/src/lib/good.ts`);
+		});
+
+		test('still throws for null content IN source_paths', () => {
+			const disknodes = [
+				create_mock_disknode({
+					id: `${TEST_PROJECT_ROOT}/src/lib/broken.ts`,
+					contents: null, // This should throw - it's in src/lib
+				}),
+			];
+
+			assert.throws(
+				() => library_collect_source_files_from_disknodes(disknodes as any, test_options()),
+				/Source file has no content/,
+			);
+		});
+
+		test('excludes test files', () => {
+			const disknodes = [
+				create_mock_disknode({
+					id: `${TEST_PROJECT_ROOT}/src/lib/foo.ts`,
+					contents: 'export const foo = 1;',
+				}),
+				create_mock_disknode({
+					id: `${TEST_PROJECT_ROOT}/src/lib/foo.test.ts`,
+					contents: 'test("foo", () => {});',
+				}),
+			];
+
+			const result = library_collect_source_files_from_disknodes(disknodes as any, test_options());
+
+			assert.strictEqual(result.length, 1);
+			assert.ok(!result[0]!.id.includes('.test.ts'));
+		});
+	});
+
+	describe('sorting and determinism', () => {
+		test('returns files sorted alphabetically', () => {
+			const disknodes = [
+				create_mock_disknode({
+					id: `${TEST_PROJECT_ROOT}/src/lib/zebra.ts`,
+					contents: '',
+				}),
+				create_mock_disknode({
+					id: `${TEST_PROJECT_ROOT}/src/lib/alpha.ts`,
+					contents: '',
+				}),
+				create_mock_disknode({
+					id: `${TEST_PROJECT_ROOT}/src/lib/beta.ts`,
+					contents: '',
+				}),
+			];
+
+			const result = library_collect_source_files_from_disknodes(disknodes as any, test_options());
+
+			assert.strictEqual(result[0]!.id, `${TEST_PROJECT_ROOT}/src/lib/alpha.ts`);
+			assert.strictEqual(result[1]!.id, `${TEST_PROJECT_ROOT}/src/lib/beta.ts`);
+			assert.strictEqual(result[2]!.id, `${TEST_PROJECT_ROOT}/src/lib/zebra.ts`);
+		});
+	});
+
+	describe('edge cases', () => {
+		test('returns empty array when no disknodes', () => {
+			const result = library_collect_source_files_from_disknodes([], test_options());
+			assert.strictEqual(result.length, 0);
+		});
+
+		test('returns empty array when no files match source_paths', () => {
+			const disknodes = [
+				create_mock_disknode({
+					id: `${TEST_PROJECT_ROOT}/src/routes/page.svelte`,
+					contents: '<h1>Hi</h1>',
+				}),
+			];
+
+			const result = library_collect_source_files_from_disknodes(disknodes as any, test_options());
+			assert.strictEqual(result.length, 0);
+		});
+
+		test('handles empty string content (valid)', () => {
+			const disknodes = [
+				create_mock_disknode({
+					id: `${TEST_PROJECT_ROOT}/src/lib/empty.ts`,
+					contents: '',
+				}),
+			];
+
+			const result = library_collect_source_files_from_disknodes(disknodes as any, test_options());
+
+			assert.strictEqual(result.length, 1);
+			assert.strictEqual(result[0]!.content, '');
+		});
 	});
 });

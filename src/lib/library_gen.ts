@@ -36,10 +36,11 @@ import {
 	type ModuleSourcePartial,
 	module_create_source_options,
 	module_validate_source_options,
+	module_is_source,
+	module_get_source_root,
 } from './module_helpers.js';
 import {library_analyze_module} from './library_analysis.js';
 import {
-	library_collect_source_files,
 	library_sort_modules,
 	library_find_duplicates,
 	library_merge_re_exports,
@@ -141,6 +142,53 @@ export const source_file_from_disknode = (disknode: Disknode): SourceFileInfo =>
 	};
 };
 
+// TODO more generic helpers
+/**
+ * Collect source files from Gro disknodes, filtering BEFORE conversion to SourceFileInfo.
+ *
+ * This avoids errors from files outside source directories (like test fixtures that may
+ * have malformed paths or missing content). The filtering uses `module_is_source` which
+ * checks `source_paths` to only include files in configured source directories.
+ *
+ * @param disknodes Iterator of Gro disknodes from filer
+ * @param options Module source options for filtering
+ * @param log Optional logger for status messages
+ */
+export const library_collect_source_files_from_disknodes = (
+	disknodes: Iterable<Disknode>,
+	options: ModuleSourceOptions,
+	log?: {info: (...args: Array<unknown>) => void; warn: (...args: Array<unknown>) => void},
+): Array<SourceFileInfo> => {
+	// Validate options early to fail fast on misconfiguration
+	module_validate_source_options(options);
+
+	const all_disknodes = Array.from(disknodes);
+	log?.info(`received ${all_disknodes.length} files total from filer`);
+
+	const source_files: Array<SourceFileInfo> = [];
+	for (const disknode of all_disknodes) {
+		// Filter by source_paths BEFORE trying to convert
+		// This avoids errors from test fixtures or other non-source files
+		if (!module_is_source(disknode.id, options)) {
+			continue;
+		}
+		source_files.push(source_file_from_disknode(disknode));
+	}
+
+	log?.info(`found ${source_files.length} source files to analyze`);
+
+	if (source_files.length === 0) {
+		const effective_root = module_get_source_root(options);
+		log?.warn(`No source files found in ${effective_root} - generating empty library metadata`);
+		return [];
+	}
+
+	// Sort for deterministic output (stable alphabetical module ordering)
+	source_files.sort((a, b) => a.id.localeCompare(b.id));
+
+	return source_files;
+};
+
 /**
  * Creates a Gen object for generating library metadata with full TypeScript analysis.
  *
@@ -181,14 +229,13 @@ export const library_gen = (options?: LibraryGenOptions): Gen => {
 			// Create analysis context for collecting diagnostics
 			const ctx = new AnalysisContext();
 
-			// Convert Gro's filer files to build-tool agnostic SourceFileInfo
-			const all_source_files: Array<SourceFileInfo> = [];
-			for (const disknode of filer.files.values()) {
-				all_source_files.push(source_file_from_disknode(disknode));
-			}
-
-			// Collect and filter source files
-			const source_files = library_collect_source_files(all_source_files, source_options, log);
+			// Collect source files, filtering by source_options BEFORE converting to SourceFileInfo
+			// This avoids errors from files outside source directories (like test fixtures)
+			const source_files = library_collect_source_files_from_disknodes(
+				filer.files.values(),
+				source_options,
+				log,
+			);
 
 			// Collect modules (declared before source_json to include directly)
 			const modules: Array<ModuleJson> = [];

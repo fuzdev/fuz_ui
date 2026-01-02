@@ -3878,7 +3878,7 @@
 						"name": "LibraryGenOptions",
 						"kind": "type",
 						"doc_comment": "Options for library generation.",
-						"source_line": 53,
+						"source_line": 54,
 						"type_signature": "LibraryGenOptions",
 						"properties": [
 							{
@@ -3899,7 +3899,7 @@
 						"name": "OnDuplicatesCallback",
 						"kind": "type",
 						"doc_comment": "Callback for handling duplicate declaration names.",
-						"source_line": 90,
+						"source_line": 91,
 						"type_signature": "OnDuplicatesCallback"
 					},
 					{
@@ -3912,7 +3912,7 @@
 								"description": "if any duplicate declaration names are found"
 							}
 						],
-						"source_line": 103,
+						"source_line": 104,
 						"type_signature": "(duplicates: Map<string, DuplicateInfo[]>, log: { error: (...args: unknown[]) => void; }): void",
 						"return_type": "void",
 						"parameters": [
@@ -3936,7 +3936,7 @@
 								"description": "if disknode has no content (should be loaded by Gro filer)"
 							}
 						],
-						"source_line": 130,
+						"source_line": 131,
 						"type_signature": "(disknode: Disknode): SourceFileInfo",
 						"return_type": "SourceFileInfo",
 						"parameters": [
@@ -3947,10 +3947,36 @@
 						]
 					},
 					{
+						"name": "library_collect_source_files_from_disknodes",
+						"kind": "function",
+						"doc_comment": "Collect source files from Gro disknodes, filtering BEFORE conversion to SourceFileInfo.\n\nThis avoids errors from files outside source directories (like test fixtures that may\nhave malformed paths or missing content). The filtering uses `module_is_source` which\nchecks `source_paths` to only include files in configured source directories.",
+						"source_line": 157,
+						"type_signature": "(disknodes: Iterable<Disknode>, options: ModuleSourceOptions, log?: { info: (...args: unknown[]) => void; warn: (...args: unknown[]) => void; } | undefined): SourceFileInfo[]",
+						"return_type": "SourceFileInfo[]",
+						"parameters": [
+							{
+								"name": "disknodes",
+								"type": "Iterable<Disknode>",
+								"description": "Iterator of Gro disknodes from filer"
+							},
+							{
+								"name": "options",
+								"type": "ModuleSourceOptions",
+								"description": "Module source options for filtering"
+							},
+							{
+								"name": "log",
+								"type": "{ info: (...args: unknown[]) => void; warn: (...args: unknown[]) => void; } | undefined",
+								"optional": true,
+								"description": "Optional logger for status messages"
+							}
+						]
+					},
+					{
 						"name": "library_gen",
 						"kind": "function",
 						"doc_comment": "Creates a Gen object for generating library metadata with full TypeScript analysis.\n\nUsage in a `.gen.ts` file:\n\n```ts\nimport {library_gen} from '@fuzdev/fuz_ui/library_gen.js';\n\nexport const gen = library_gen();\n```",
-						"source_line": 157,
+						"source_line": 205,
 						"type_signature": "(options?: LibraryGenOptions | undefined): Gen",
 						"return_type": "Gen",
 						"parameters": [
