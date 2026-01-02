@@ -1,5 +1,11 @@
 # @fuzdev/fuz_ui
 
+## 0.176.0
+
+### Minor Changes
+
+- improve source analysis and make it less opinionated ([#106](https://github.com/fuzdev/fuz_ui/pull/106))
+
 ## 0.175.0
 
 ### Minor Changes
