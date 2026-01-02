@@ -10,16 +10,179 @@
  * Workflow: Transform Svelte to TypeScript via svelte2tsx, parse the transformed
  * TypeScript with the TS Compiler API, extract component-level JSDoc from original source.
  *
+ * **Svelte 5 only**: The svelte2tsx output format changed significantly between versions.
+ * This module requires Svelte 5+ and will throw a clear error if an older version is detected.
+ * There is no Svelte 4 compatibility layer.
+ *
  * All functions are prefixed with `svelte_` for clarity.
+ *
+ * @module
  */
 
 import ts from 'typescript';
-import {readFileSync} from 'node:fs';
 import {svelte2tsx} from 'svelte2tsx';
+import {TraceMap, originalPositionFor} from '@jridgewell/trace-mapping';
+import {VERSION} from 'svelte/compiler';
 import type {DeclarationJson, ComponentPropInfo} from '@fuzdev/fuz_util/source_json.js';
 
 import {tsdoc_parse, tsdoc_apply_to_declaration} from './tsdoc_helpers.js';
-import {module_get_component_name} from './module_helpers.js';
+import {ts_extract_module_comment} from './ts_helpers.js';
+import {
+	type SourceFileInfo,
+	type ModuleSourceOptions,
+	module_get_component_name,
+	module_extract_dependencies,
+} from './module_helpers.js';
+import type {AnalysisContext} from './analysis_context.js';
+// Import shared types from library_analysis (type-only import avoids circular runtime dependency)
+import type {ModuleAnalysis} from './library_analysis.js';
+
+/** Guard to ensure version check runs only once. */
+let svelte_version_checked = false;
+
+/**
+ * Assert Svelte 5+ is installed (lazy, runs once on first use).
+ * Throws a clear error message if an older version is detected.
+ */
+const svelte_assert_version = (): void => {
+	if (svelte_version_checked) return;
+	svelte_version_checked = true;
+	const [major] = VERSION.split('.');
+	if (parseInt(major!, 10) < 5) {
+		throw new Error(
+			`Svelte ${VERSION} detected but Svelte 5+ is required for source analysis. ` +
+				`The svelte2tsx output format changed significantly between versions.`,
+		);
+	}
+};
+
+/** Result of analyzing a Svelte file. */
+export interface SvelteFileAnalysis {
+	/** The component declaration metadata. */
+	declaration: DeclarationJson;
+	/** Module-level documentation comment, if present. */
+	module_comment?: string;
+}
+
+/**
+ * Analyze a Svelte component file and extract module metadata.
+ *
+ * Wraps `svelte_analyze_file` and adds dependency information
+ * from the source file info if available.
+ *
+ * This is a high-level function suitable for building documentation or library metadata.
+ * For lower-level analysis, use `svelte_analyze_file` directly.
+ *
+ * Returns raw analysis data matching `ModuleAnalysis` structure.
+ * Consumer decides filtering policy (Svelte components are never nodocs).
+ *
+ * @param source_file The source file info (from Gro filer, file system, or other source)
+ * @param module_path The module path (relative to source root)
+ * @param checker TypeScript type checker
+ * @param options Module source options for path extraction
+ * @param ctx Analysis context for collecting diagnostics
+ * @returns Module analysis matching ModuleAnalysis structure
+ */
+export const svelte_analyze_module = (
+	source_file: SourceFileInfo,
+	module_path: string,
+	checker: ts.TypeChecker,
+	options: ModuleSourceOptions,
+	ctx: AnalysisContext,
+): ModuleAnalysis => {
+	// Use the existing helper for core analysis
+	const {declaration, module_comment} = svelte_analyze_file(source_file, module_path, checker, ctx);
+
+	// Extract dependencies and dependents if provided
+	const {dependencies, dependents} = module_extract_dependencies(source_file, options);
+
+	return {
+		path: module_path,
+		module_comment,
+		// Wrap declaration in DeclarationAnalysis format (Svelte components are never nodocs)
+		declarations: [{declaration, nodocs: false}],
+		dependencies,
+		dependents,
+		star_exports: [],
+		re_exports: [],
+	};
+};
+
+/**
+ * Analyze a Svelte component file.
+ *
+ * This is a high-level function that handles the complete workflow:
+ * 1. Transform Svelte source to TypeScript via svelte2tsx
+ * 2. Extract component metadata (props, documentation)
+ * 3. Extract module-level documentation
+ *
+ * Suitable for use in documentation generators, build tools, and analysis.
+ *
+ * @param source_file Source file info with path and content
+ * @param module_path Module path relative to source root (e.g., 'Alert.svelte')
+ * @param checker TypeScript type checker for type resolution
+ * @param ctx Analysis context for collecting diagnostics
+ * @returns Component declaration and optional module-level comment
+ */
+export const svelte_analyze_file = (
+	source_file: SourceFileInfo,
+	module_path: string,
+	checker: ts.TypeChecker,
+	ctx: AnalysisContext,
+): SvelteFileAnalysis => {
+	svelte_assert_version();
+	const svelte_source = source_file.content;
+
+	// Check if component uses TypeScript
+	const is_ts_file = svelte_source.includes('lang="ts"');
+
+	// Transform Svelte to TS
+	const ts_result = svelte2tsx(svelte_source, {
+		filename: source_file.id,
+		isTsFile: is_ts_file,
+		emitOnTemplateError: true, // Handle malformed templates gracefully
+	});
+
+	// Create source map for position mapping back to original .svelte file
+	let source_map: TraceMap | null = null;
+	try {
+		// svelte2tsx returns a magic-string SourceMap which is compatible with TraceMap
+		// Cast to unknown first since the types don't perfectly align but are compatible
+		source_map = new TraceMap(
+			ts_result.map as unknown as ConstructorParameters<typeof TraceMap>[0],
+		);
+	} catch (_error) {
+		// If source map parsing fails, diagnostics will use virtual file positions
+	}
+
+	// Get component name from filename
+	const component_name = module_get_component_name(module_path);
+
+	// Create a temporary source file from the original Svelte content for JSDoc extraction
+	const temp_source = ts.createSourceFile(
+		source_file.id,
+		svelte_source,
+		ts.ScriptTarget.Latest,
+		true,
+	);
+
+	// Analyze the component using the existing lower-level function
+	const declaration = svelte_analyze_component(
+		ts_result.code,
+		temp_source,
+		checker,
+		component_name,
+		module_path,
+		source_map,
+		ctx,
+	);
+
+	// Extract module-level comment from the script content
+	const script_content = svelte_extract_script_content(svelte_source);
+	const module_comment = script_content ? svelte_extract_module_comment(script_content) : undefined;
+
+	return {declaration, module_comment};
+};
 
 /**
  * Analyze a Svelte component from its svelte2tsx transformation.
@@ -29,6 +192,9 @@ export const svelte_analyze_component = (
 	source_file: ts.SourceFile,
 	checker: ts.TypeChecker,
 	component_name: string,
+	file_path: string,
+	source_map: TraceMap | null,
+	ctx: AnalysisContext,
 ): DeclarationJson => {
 	const result: DeclarationJson = {
 		name: component_name,
@@ -51,7 +217,14 @@ export const svelte_analyze_component = (
 		tsdoc_apply_to_declaration(result, component_tsdoc);
 
 		// Extract props from svelte2tsx transformed output
-		const props = svelte_extract_props(virtual_source, checker);
+		const props = svelte_extract_props(
+			virtual_source,
+			checker,
+			component_name,
+			file_path,
+			source_map,
+			ctx,
+		);
 		if (props.length > 0) {
 			result.props = props;
 		}
@@ -60,12 +233,45 @@ export const svelte_analyze_component = (
 		const start_pos = source_file.getLineAndCharacterOfPosition(0);
 		result.source_line = start_pos.line + 1;
 	} catch (error) {
-		// If analysis fails, return basic component info
-		// eslint-disable-next-line no-console
-		console.error(`Error analyzing Svelte component ${component_name}:`, error);
+		throw new Error(`Failed to analyze Svelte component ${component_name}`, {cause: error});
 	}
 
 	return result;
+};
+
+/**
+ * Extract the content of the main `<script>` tag from Svelte source.
+ *
+ * Matches `<script>` or `<script lang="ts">` but not `<script module>`.
+ * Returns undefined if no matching script tag is found.
+ */
+export const svelte_extract_script_content = (svelte_source: string): string | undefined => {
+	// Match <script> or <script lang="ts"> but not <script module>
+	// Captures the content between opening and closing tags
+	const script_regex = /<script(?:\s+lang=["']ts["'])?(?:\s*)>([^]*?)<\/script>/i;
+	const match = script_regex.exec(svelte_source);
+	return match?.[1];
+};
+
+/**
+ * Extract module-level comment from Svelte script content.
+ *
+ * Requires `@module` tag to identify module comments. The tag line is stripped
+ * from the output.
+ *
+ * @param script_content - The content of the `<script>` tag.
+ * @returns The cleaned module comment text, or undefined if none found.
+ */
+export const svelte_extract_module_comment = (script_content: string): string | undefined => {
+	// Parse the script content as TypeScript and reuse the shared extraction logic
+	const source_file = ts.createSourceFile(
+		'script.ts',
+		script_content,
+		ts.ScriptTarget.Latest,
+		true,
+		ts.ScriptKind.TS,
+	);
+	return ts_extract_module_comment(source_file);
 };
 
 /**
@@ -108,12 +314,16 @@ const svelte_extract_component_tsdoc = (
 };
 
 /**
- * Helper to extract prop info from a property signature member.
+ * Extract prop info from a property signature member.
  */
 const svelte_extract_prop_from_member = (
 	member: ts.PropertySignature,
 	source_file: ts.SourceFile,
 	checker: ts.TypeChecker,
+	component_name: string,
+	file_path: string,
+	source_map: TraceMap | null,
+	ctx: AnalysisContext,
 ): ComponentPropInfo | undefined => {
 	if (!ts.isIdentifier(member.name)) return undefined;
 
@@ -129,8 +339,32 @@ const svelte_extract_prop_from_member = (
 		try {
 			const prop_type = checker.getTypeAtLocation(member);
 			type_string = checker.typeToString(prop_type);
-		} catch {
-			// Fallback to 'any'
+		} catch (err) {
+			// Fallback to 'any' but report diagnostic with mapped position
+			const {line, character} = source_file.getLineAndCharacterOfPosition(member.getStart());
+
+			// Map virtual position back to original .svelte file if source map available
+			let final_line: number | null = line + 1;
+			let final_column: number | null = character + 1;
+			if (source_map) {
+				const original = originalPositionFor(source_map, {line: line + 1, column: character});
+				// When line is found, column is guaranteed to be present (same mapping entry)
+				if (original.line !== null) {
+					final_line = original.line;
+					final_column = original.column + 1;
+				}
+			}
+
+			ctx.add({
+				kind: 'svelte_prop_failed',
+				file: file_path,
+				line: final_line,
+				column: final_column,
+				message: `Failed to resolve type for prop "${prop_name}" in ${component_name}, falling back to 'any': ${err instanceof Error ? err.message : String(err)}`,
+				severity: 'warning',
+				component_name,
+				prop_name,
+			});
 		}
 	}
 
@@ -197,12 +431,24 @@ const svelte_extract_props_from_type = (
 	checker: ts.TypeChecker,
 	bindable_props: Set<string>,
 	props: Array<ComponentPropInfo>,
+	component_name: string,
+	file_path: string,
+	source_map: TraceMap | null,
+	ctx: AnalysisContext,
 ): void => {
 	if (ts.isTypeLiteralNode(type_node)) {
 		// Handle direct type literal: { prop1: type1, prop2: type2 }
 		for (const member of type_node.members) {
 			if (ts.isPropertySignature(member)) {
-				const prop_info = svelte_extract_prop_from_member(member, virtual_source, checker);
+				const prop_info = svelte_extract_prop_from_member(
+					member,
+					virtual_source,
+					checker,
+					component_name,
+					file_path,
+					source_map,
+					ctx,
+				);
 				if (prop_info) {
 					// Mark as bindable if found in bindings
 					if (bindable_props.has(prop_info.name)) {
@@ -215,7 +461,17 @@ const svelte_extract_props_from_type = (
 	} else if (ts.isIntersectionTypeNode(type_node)) {
 		// Handle intersection type: TypeA & TypeB & { prop: type }
 		for (const type_part of type_node.types) {
-			svelte_extract_props_from_type(type_part, virtual_source, checker, bindable_props, props);
+			svelte_extract_props_from_type(
+				type_part,
+				virtual_source,
+				checker,
+				bindable_props,
+				props,
+				component_name,
+				file_path,
+				source_map,
+				ctx,
+			);
 		}
 	}
 	// Skip other type references like SvelteHTMLElements['details'] since we can't easily resolve them
@@ -230,6 +486,10 @@ const svelte_extract_props_from_type = (
 const svelte_extract_props = (
 	virtual_source: ts.SourceFile,
 	checker: ts.TypeChecker,
+	component_name: string,
+	file_path: string,
+	source_map: TraceMap | null,
+	ctx: AnalysisContext,
 ): Array<ComponentPropInfo> => {
 	const props: Array<ComponentPropInfo> = [];
 	const bindable_props = svelte_extract_bindable_props(virtual_source);
@@ -238,13 +498,31 @@ const svelte_extract_props = (
 	ts.forEachChild(virtual_source, (node) => {
 		// Check for type alias ($$ComponentProps)
 		if (ts.isTypeAliasDeclaration(node) && node.name.text === '$$ComponentProps') {
-			svelte_extract_props_from_type(node.type, virtual_source, checker, bindable_props, props);
+			svelte_extract_props_from_type(
+				node.type,
+				virtual_source,
+				checker,
+				bindable_props,
+				props,
+				component_name,
+				file_path,
+				source_map,
+				ctx,
+			);
 		}
 		// Also check for Props interface (fallback/older format)
 		else if (ts.isInterfaceDeclaration(node) && node.name.text === 'Props') {
 			for (const member of node.members) {
 				if (ts.isPropertySignature(member)) {
-					const prop_info = svelte_extract_prop_from_member(member, virtual_source, checker);
+					const prop_info = svelte_extract_prop_from_member(
+						member,
+						virtual_source,
+						checker,
+						component_name,
+						file_path,
+						source_map,
+						ctx,
+					);
 					if (prop_info) {
 						// Mark as bindable if found in bindings
 						if (bindable_props.has(prop_info.name)) {
@@ -258,46 +536,4 @@ const svelte_extract_props = (
 	});
 
 	return props;
-};
-
-/**
- * Analyze a Svelte component file from disk.
- *
- * This is a high-level function that handles the complete workflow:
- * 1. Read the Svelte source from disk
- * 2. Transform to TypeScript via svelte2tsx
- * 3. Extract component metadata (props, documentation)
- *
- * Suitable for use in documentation generators, build tools, and analysis.
- *
- * @param file_path Absolute path to the .svelte file
- * @param module_path Module path relative to src/lib (e.g., 'Alert.svelte')
- * @param checker TypeScript type checker for type resolution
- * @returns Complete declaration metadata for the component
- */
-export const svelte_analyze_file = (
-	file_path: string,
-	module_path: string,
-	checker: ts.TypeChecker,
-): DeclarationJson => {
-	const svelte_source = readFileSync(file_path, 'utf-8');
-
-	// Check if component uses TypeScript
-	const is_ts_file = svelte_source.includes('lang="ts"');
-
-	// Transform Svelte to TS
-	const ts_result = svelte2tsx(svelte_source, {
-		filename: file_path,
-		isTsFile: is_ts_file,
-		emitOnTemplateError: true, // Handle malformed templates gracefully
-	});
-
-	// Get component name from filename
-	const component_name = module_get_component_name(module_path);
-
-	// Create a temporary source file from the original Svelte content for JSDoc extraction
-	const temp_source = ts.createSourceFile(file_path, svelte_source, ts.ScriptTarget.Latest, true);
-
-	// Analyze the component using the existing lower-level function
-	return svelte_analyze_component(ts_result.code, temp_source, checker, component_name);
 };

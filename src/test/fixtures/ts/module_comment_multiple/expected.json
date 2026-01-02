@@ -1,1 +1,1 @@
-"First module-level JSDoc comment.\nThis should be extracted."
+"First `@module` comment wins."

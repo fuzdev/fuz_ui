@@ -2,6 +2,6 @@
 	"text": "Function with link that has display text.",
 	"params": {},
 	"see_also": [
-		"[API Documentation](https://fuz.dev/docs)"
+		"{@link https://fuz.dev/docs|API Documentation}"
 	]
 }

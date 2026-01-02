@@ -2,6 +2,8 @@
  * TypeScript compiler API helpers for extracting metadata from source code.
  *
  * All functions are prefixed with `ts_` for clarity.
+ *
+ * @module
  */
 
 import ts from 'typescript';
@@ -10,51 +12,390 @@ import type {
 	GenericParamInfo,
 	DeclarationKind,
 } from '@fuzdev/fuz_util/source_json.js';
+import type {Logger} from '@fuzdev/fuz_util/log.js';
 
-import {tsdoc_parse, tsdoc_apply_to_declaration} from './tsdoc_helpers.js';
-import {module_extract_path, module_matches_source} from './module_helpers.js';
+import {tsdoc_parse, tsdoc_apply_to_declaration, tsdoc_clean_comment} from './tsdoc_helpers.js';
+import {
+	type ModuleSourceOptions,
+	type SourceFileInfo,
+	module_extract_dependencies,
+	module_extract_path,
+	module_is_source,
+} from './module_helpers.js';
+import type {AnalysisContext} from './analysis_context.js';
+// Import shared types from library_analysis (type-only import avoids circular runtime dependency)
+import type {DeclarationAnalysis, ReExportInfo, ModuleAnalysis} from './library_analysis.js';
 
-const ts_parse_generic_param = (param: ts.TypeParameterDeclaration): GenericParamInfo => {
-	const result: GenericParamInfo = {
-		name: param.name.text,
-	};
+/**
+ * Options for creating a TypeScript program.
+ */
+export interface TsProgramOptions {
+	/** Project root directory. @default './' */
+	root?: string;
+	/** Path to tsconfig.json (relative to root). @default 'tsconfig.json' */
+	tsconfig?: string;
+	/** Override compiler options. */
+	compiler_options?: ts.CompilerOptions;
+}
 
-	if (param.constraint) {
-		result.constraint = param.constraint.getText();
+/**
+ * Result of creating a TypeScript program.
+ */
+export interface TsProgram {
+	program: ts.Program;
+	checker: ts.TypeChecker;
+}
+
+/**
+ * Result of analyzing a module's exports.
+ */
+export interface ModuleExportsAnalysis {
+	/** Module-level documentation comment. */
+	module_comment?: string;
+	/** All exported declarations with nodocs flags - consumer filters based on policy. */
+	declarations: Array<DeclarationAnalysis>;
+	/** Same-name re-exports (for building also_exported_from in post-processing). */
+	re_exports: Array<ReExportInfo>;
+	/** Star exports (`export * from './module'`) - module paths that are fully re-exported. */
+	star_exports: Array<string>;
+}
+
+/**
+ * Create TypeScript program for analysis.
+ *
+ * @param options Configuration options for program creation
+ * @param log Optional logger for info messages
+ * @returns The program and type checker
+ * @throws Error if tsconfig.json is not found
+ */
+export const ts_create_program = (options?: TsProgramOptions, log?: Logger): TsProgram => {
+	const root = options?.root ?? './';
+	const tsconfig_name = options?.tsconfig ?? 'tsconfig.json';
+
+	const config_path = ts.findConfigFile(root, ts.sys.fileExists, tsconfig_name);
+	if (!config_path) {
+		throw new Error(`No ${tsconfig_name} found in ${root}`);
 	}
 
-	if (param.default) {
-		result.default_type = param.default.getText();
-	}
+	log?.info(`using ${config_path}`);
 
-	return result;
+	const config_file = ts.readConfigFile(config_path, ts.sys.readFile);
+	const parsed_config = ts.parseJsonConfigFileContent(config_file.config, ts.sys, root);
+
+	// Merge compiler options if provided
+	const compiler_options = options?.compiler_options
+		? {...parsed_config.options, ...options.compiler_options}
+		: parsed_config.options;
+
+	const program = ts.createProgram(parsed_config.fileNames, compiler_options);
+	return {program, checker: program.getTypeChecker()};
 };
 
 /**
- * Extract modifier keywords from a node's modifiers.
+ * Analyze a TypeScript file and extract module metadata.
  *
- * Returns an array of modifier strings like ['public', 'readonly', 'static']
+ * Wraps `ts_analyze_module_exports` and adds dependency information
+ * from the source file info if available.
+ *
+ * This is a high-level function suitable for building documentation or library metadata.
+ * For lower-level analysis, use `ts_analyze_module_exports` directly.
+ *
+ * @param source_file_info The source file info (from Gro filer, file system, or other source)
+ * @param ts_source_file TypeScript source file from the program
+ * @param module_path The module path (relative to source root)
+ * @param checker TypeScript type checker
+ * @param options Module source options for path extraction
+ * @param ctx Analysis context for collecting diagnostics
+ * @returns Module metadata and re-export information
  */
-const ts_extract_modifiers = (
-	modifiers: ReadonlyArray<ts.ModifierLike> | undefined,
-): Array<string> => {
-	const modifier_flags: Array<string> = [];
-	if (!modifiers) return modifier_flags;
+export const ts_analyze_module = (
+	source_file_info: SourceFileInfo,
+	ts_source_file: ts.SourceFile,
+	module_path: string,
+	checker: ts.TypeChecker,
+	options: ModuleSourceOptions,
+	ctx: AnalysisContext,
+): ModuleAnalysis => {
+	// Use the mid-level helper for core analysis
+	const {module_comment, declarations, re_exports, star_exports} = ts_analyze_module_exports(
+		ts_source_file,
+		checker,
+		options,
+		ctx,
+	);
 
-	for (const mod of modifiers) {
-		if (mod.kind === ts.SyntaxKind.PublicKeyword) modifier_flags.push('public');
-		else if (mod.kind === ts.SyntaxKind.PrivateKeyword) modifier_flags.push('private');
-		else if (mod.kind === ts.SyntaxKind.ProtectedKeyword) modifier_flags.push('protected');
-		else if (mod.kind === ts.SyntaxKind.ReadonlyKeyword) modifier_flags.push('readonly');
-		else if (mod.kind === ts.SyntaxKind.StaticKeyword) modifier_flags.push('static');
-		else if (mod.kind === ts.SyntaxKind.AbstractKeyword) modifier_flags.push('abstract');
+	// Extract dependencies and dependents if provided
+	const {dependencies, dependents} = module_extract_dependencies(source_file_info, options);
+
+	return {
+		path: module_path,
+		module_comment,
+		declarations,
+		dependencies,
+		dependents,
+		star_exports,
+		re_exports,
+	};
+};
+
+/**
+ * Analyze all exports from a TypeScript source file.
+ *
+ * Extracts the module-level comment and all exported declarations with
+ * complete metadata. Handles re-exports by:
+ * - Same-name re-exports: tracked in `re_exports` for `also_exported_from` building
+ * - Renamed re-exports: included as new declarations with `alias_of` metadata
+ * - Star exports (`export * from`): tracked in `star_exports` for namespace-level info
+ *
+ * This is a mid-level function (above `ts_extract_*`, below `library_gen`)
+ * suitable for building documentation, API explorers, or analysis tools.
+ * For standard SvelteKit library layouts, use `module_create_source_options(process.cwd())`.
+ *
+ * @param source_file The TypeScript source file to analyze
+ * @param checker The TypeScript type checker
+ * @param options Module source options for path extraction in re-exports
+ * @param ctx Analysis context for collecting diagnostics
+ * @returns Module comment, declarations, re-exports, and star exports
+ */
+export const ts_analyze_module_exports = (
+	source_file: ts.SourceFile,
+	checker: ts.TypeChecker,
+	options: ModuleSourceOptions,
+	ctx: AnalysisContext,
+): ModuleExportsAnalysis => {
+	const declarations: Array<DeclarationAnalysis> = [];
+	const re_exports: Array<ReExportInfo> = [];
+	const star_exports: Array<string> = [];
+
+	// Extract module-level comment
+	const module_comment = ts_extract_module_comment(source_file);
+
+	// Extract star exports (export * from './module')
+	for (const statement of source_file.statements) {
+		if (
+			ts.isExportDeclaration(statement) &&
+			!statement.exportClause && // No exportClause means `export *`
+			statement.moduleSpecifier &&
+			ts.isStringLiteral(statement.moduleSpecifier)
+		) {
+			// Use the type checker to resolve the module - it has already resolved all imports
+			// during program creation, so this leverages TypeScript's full module resolution
+			const module_symbol = checker.getSymbolAtLocation(statement.moduleSpecifier);
+			if (module_symbol) {
+				// Get the source file from the module symbol's declarations
+				const module_decl = module_symbol.valueDeclaration ?? module_symbol.declarations?.[0];
+				if (module_decl) {
+					const resolved_source = module_decl.getSourceFile();
+					const resolved_path = resolved_source.fileName;
+
+					// Only include star exports from source modules (not node_modules)
+					if (module_is_source(resolved_path, options)) {
+						star_exports.push(module_extract_path(resolved_path, options));
+					}
+				}
+			}
+			// If module couldn't be resolved (external package, etc.), skip it
+		}
 	}
 
-	return modifier_flags;
+	// Get all exported symbols
+	const symbol = checker.getSymbolAtLocation(source_file);
+	if (symbol) {
+		const exports = checker.getExportsOfModule(symbol);
+		for (const export_symbol of exports) {
+			// Check if this is an alias (potential re-export) using the Alias flag
+			const is_alias = (export_symbol.flags & ts.SymbolFlags.Alias) !== 0;
+
+			if (is_alias) {
+				// This might be a re-export - use getAliasedSymbol to find the original
+				const aliased_symbol = checker.getAliasedSymbol(export_symbol);
+				const aliased_decl = aliased_symbol.valueDeclaration || aliased_symbol.declarations?.[0];
+
+				if (aliased_decl) {
+					const original_source = aliased_decl.getSourceFile();
+
+					// Check if this is a CROSS-FILE re-export (original in different file)
+					if (original_source.fileName !== source_file.fileName) {
+						// Only track if the original is from a source module (not node_modules)
+						if (module_is_source(original_source.fileName, options)) {
+							const original_module = module_extract_path(original_source.fileName, options);
+							const original_name = aliased_symbol.name;
+							const is_renamed = export_symbol.name !== original_name;
+
+							if (is_renamed) {
+								// Renamed re-export (export {foo as bar}) - create new declaration with alias_of
+								const kind = ts_infer_declaration_kind(aliased_symbol, aliased_decl);
+								const decl: DeclarationJson = {
+									name: export_symbol.name,
+									kind,
+									alias_of: {module: original_module, name: original_name},
+								};
+								// Renamed re-exports aren't nodocs - they're new declarations pointing to the original
+								declarations.push({declaration: decl, nodocs: false});
+							} else {
+								// Same-name re-export - track for also_exported_from, skip from declarations
+								re_exports.push({
+									name: export_symbol.name,
+									original_module,
+								});
+							}
+							continue;
+						}
+						// Re-export from external module (node_modules) - skip entirely
+						continue;
+					}
+					// Within-file alias (export { x as y }) - fall through to normal analysis
+				}
+			}
+
+			// Normal export or within-file alias - declared in this file
+			const {declaration, nodocs} = ts_analyze_declaration(
+				export_symbol,
+				source_file,
+				checker,
+				ctx,
+			);
+			// Include all declarations with nodocs flag - consumer decides filtering policy
+			declarations.push({declaration, nodocs});
+		}
+	}
+
+	return {
+		module_comment,
+		declarations,
+		re_exports,
+		star_exports,
+	};
+};
+
+/**
+ * Analyze a TypeScript symbol and extract rich metadata.
+ *
+ * This is a high-level function that combines TSDoc parsing with TypeScript
+ * type analysis to produce complete declaration metadata. Suitable for use
+ * in documentation generators, IDE integrations, and other tooling.
+ *
+ * @param symbol The TypeScript symbol to analyze
+ * @param source_file The source file containing the symbol
+ * @param checker The TypeScript type checker
+ * @param ctx Optional analysis context for collecting diagnostics
+ * @returns Complete declaration metadata including docs, types, and parameters, plus nodocs flag
+ */
+export const ts_analyze_declaration = (
+	symbol: ts.Symbol,
+	source_file: ts.SourceFile,
+	checker: ts.TypeChecker,
+	ctx: AnalysisContext,
+): DeclarationAnalysis => {
+	const name = symbol.name;
+	const decl_node = symbol.valueDeclaration || symbol.declarations?.[0];
+
+	// Determine kind (fallback to 'variable' if no declaration node)
+	const kind = decl_node ? ts_infer_declaration_kind(symbol, decl_node) : 'variable';
+
+	const result: DeclarationJson = {
+		name,
+		kind,
+	};
+
+	if (!decl_node) {
+		return {declaration: result, nodocs: false};
+	}
+
+	// Extract TSDoc
+	const tsdoc = tsdoc_parse(decl_node, source_file);
+	const nodocs = tsdoc?.nodocs ?? false;
+	tsdoc_apply_to_declaration(result, tsdoc);
+
+	// Extract source line
+	const start = decl_node.getStart(source_file);
+	const start_pos = source_file.getLineAndCharacterOfPosition(start);
+	result.source_line = start_pos.line + 1;
+
+	// Extract type-specific info
+	if (result.kind === 'function') {
+		ts_extract_function_info(decl_node, symbol, checker, result, tsdoc, ctx);
+	} else if (result.kind === 'type') {
+		ts_extract_type_info(decl_node, symbol, checker, result, ctx);
+	} else if (result.kind === 'class') {
+		ts_extract_class_info(decl_node, symbol, checker, result, ctx);
+	} else if (result.kind === 'variable') {
+		ts_extract_variable_info(decl_node, symbol, checker, result, ctx);
+	}
+
+	return {declaration: result, nodocs};
+};
+
+/**
+ * Extract module-level comment.
+ *
+ * Requires `@module` tag to identify module comments. The tag line is stripped
+ * from the output. Supports optional module renaming: `@module custom-name`.
+ *
+ * @see https://typedoc.org/documents/Tags._module.html
+ */
+export const ts_extract_module_comment = (source_file: ts.SourceFile): string | undefined => {
+	const full_text = source_file.getFullText();
+
+	// Collect all JSDoc comments in the file
+	const all_comments: Array<{pos: number; end: number}> = [];
+
+	// Check for comments at the start of the file (before any statements)
+	const leading_comments = ts.getLeadingCommentRanges(full_text, 0);
+	if (leading_comments?.length) {
+		all_comments.push(...leading_comments);
+	}
+
+	// Check for comments before each statement
+	for (const statement of source_file.statements) {
+		const comments = ts.getLeadingCommentRanges(full_text, statement.getFullStart());
+		if (comments?.length) {
+			all_comments.push(...comments);
+		}
+	}
+
+	// Find the first comment with `@module` tag
+	for (const comment of all_comments) {
+		const comment_text = full_text.substring(comment.pos, comment.end);
+		if (!comment_text.trimStart().startsWith('/**')) continue;
+
+		// Clean the comment first, then check for tag at start of line
+		const cleaned = tsdoc_clean_comment(comment_text);
+		if (!cleaned) continue;
+
+		// Check for `@module` as a proper tag (at start of line, not mentioned in prose)
+		if (/(?:^|\n)@module\b/.test(cleaned)) {
+			const stripped = tsdoc_strip_module_tag(cleaned);
+			return stripped || undefined;
+		}
+	}
+
+	return undefined;
+};
+
+/**
+ * Strip `@module` tag line from comment text.
+ *
+ * Handles formats:
+ * - `@module` (standalone)
+ * - `@module module-name` (with rename)
+ */
+const tsdoc_strip_module_tag = (text: string): string => {
+	// Remove lines that START with `@module` (not mentioned in prose)
+	const lines = text.split('\n');
+	const filtered = lines.filter((line) => !/^\s*@module\b/.test(line));
+	return filtered.join('\n').trim();
 };
 
 /**
  * Infer declaration kind from symbol and node.
+ *
+ * Maps TypeScript constructs to `DeclarationKind`:
+ * - Classes → `'class'`
+ * - Functions (declarations, expressions, arrows) → `'function'`
+ * - Interfaces, type aliases → `'type'`
+ * - Enums (regular and const) → `'type'`
+ * - Variables → `'variable'` (unless function-valued → `'function'`)
  */
 export const ts_infer_declaration_kind = (symbol: ts.Symbol, node: ts.Node): DeclarationKind => {
 	// Check symbol flags
@@ -62,12 +403,16 @@ export const ts_infer_declaration_kind = (symbol: ts.Symbol, node: ts.Node): Dec
 	if (symbol.flags & ts.SymbolFlags.Function) return 'function';
 	if (symbol.flags & ts.SymbolFlags.Interface) return 'type';
 	if (symbol.flags & ts.SymbolFlags.TypeAlias) return 'type';
+	// Enums are treated as types (they define a named type with values)
+	if (symbol.flags & ts.SymbolFlags.Enum) return 'type';
+	if (symbol.flags & ts.SymbolFlags.ConstEnum) return 'type';
 
 	// Check node kind
 	if (ts.isFunctionDeclaration(node) || ts.isArrowFunction(node) || ts.isFunctionExpression(node))
 		return 'function';
 	if (ts.isClassDeclaration(node)) return 'class';
 	if (ts.isInterfaceDeclaration(node) || ts.isTypeAliasDeclaration(node)) return 'type';
+	if (ts.isEnumDeclaration(node)) return 'type';
 	if (ts.isVariableDeclaration(node)) {
 		// Check if it's a function-valued variable
 		const init = node.initializer;
@@ -81,9 +426,66 @@ export const ts_infer_declaration_kind = (symbol: ts.Symbol, node: ts.Node): Dec
 };
 
 /**
+ * Extract parameters from a TypeScript signature with TSDoc descriptions and default values.
+ *
+ * Shared helper for extracting parameter information from both standalone functions
+ * and class methods/constructors.
+ *
+ * @param sig The TypeScript signature to extract parameters from
+ * @param checker TypeScript type checker for type resolution
+ * @param tsdoc_params Map of parameter names to TSDoc descriptions (from tsdoc.params)
+ * @returns Array of parameter info objects
+ */
+export const ts_extract_signature_parameters = (
+	sig: ts.Signature,
+	checker: ts.TypeChecker,
+	tsdoc_params: Map<string, string> | undefined,
+): Array<{
+	name: string;
+	type: string;
+	optional?: boolean;
+	description?: string;
+	default_value?: string;
+}> => {
+	return sig.parameters.map((param) => {
+		const param_decl = param.valueDeclaration;
+
+		// Get type - use declaration location if available, otherwise get declared type
+		let type_string = 'unknown';
+		if (param_decl) {
+			const param_type = checker.getTypeOfSymbolAtLocation(param, param_decl);
+			type_string = checker.typeToString(param_type);
+		} else {
+			const param_type = checker.getDeclaredTypeOfSymbol(param);
+			type_string = checker.typeToString(param_type);
+		}
+
+		// Get TSDoc description for this parameter
+		const description = tsdoc_params?.get(param.name);
+
+		// Extract default value from AST
+		let default_value: string | undefined;
+		if (param_decl && ts.isParameter(param_decl) && param_decl.initializer) {
+			default_value = param_decl.initializer.getText();
+		}
+
+		const optional = !!(param_decl && ts.isParameter(param_decl) && param_decl.questionToken);
+
+		return {
+			name: param.name,
+			type: type_string,
+			...(optional && {optional}),
+			description,
+			default_value,
+		};
+	});
+};
+
+/**
  * Extract function/method information including parameters
  * with descriptions and default values.
  *
+ * @internal Use `ts_analyze_declaration` for high-level analysis.
  * @mutates declaration - adds type_signature, return_type, return_description, throws, since, parameters, generic_params
  */
 export const ts_extract_function_info = (
@@ -92,6 +494,7 @@ export const ts_extract_function_info = (
 	checker: ts.TypeChecker,
 	declaration: DeclarationJson,
 	tsdoc: ReturnType<typeof tsdoc_parse>,
+	ctx: AnalysisContext,
 ): void => {
 	try {
 		const type = checker.getTypeOfSymbolAtLocation(symbol, node);
@@ -118,32 +521,19 @@ export const ts_extract_function_info = (
 			}
 
 			// Extract parameters with descriptions and default values
-			declaration.parameters = sig.parameters.map((param) => {
-				const param_decl = param.valueDeclaration;
-				const param_type = checker.getTypeOfSymbolAtLocation(param, param_decl!);
-
-				// Get TSDoc description for this parameter
-				const description = tsdoc?.params.get(param.name);
-
-				// Extract default value from AST
-				let default_value: string | undefined;
-				if (param_decl && ts.isParameter(param_decl) && param_decl.initializer) {
-					default_value = param_decl.initializer.getText();
-				}
-
-				const optional = !!(param_decl && ts.isParameter(param_decl) && param_decl.questionToken);
-
-				return {
-					name: param.name,
-					type: checker.typeToString(param_type),
-					...(optional && {optional}),
-					description,
-					default_value,
-				};
-			});
+			declaration.parameters = ts_extract_signature_parameters(sig, checker, tsdoc?.params);
 		}
-	} catch (_err) {
-		// Ignore: Type checker errors are expected when analyzing incomplete or complex signatures
+	} catch (err) {
+		const loc = ts_get_node_location(node);
+		ctx.add({
+			kind: 'signature_analysis_failed',
+			file: loc.file,
+			line: loc.line,
+			column: loc.column,
+			message: `Failed to analyze signature for "${symbol.name}": ${err instanceof Error ? err.message : String(err)}`,
+			severity: 'warning',
+			function_name: symbol.name,
+		});
 	}
 
 	// Extract generic type parameters
@@ -157,6 +547,7 @@ export const ts_extract_function_info = (
 /**
  * Extract type/interface information with rich property metadata.
  *
+ * @internal Use `ts_analyze_declaration` for high-level analysis.
  * @mutates declaration - adds type_signature, generic_params, extends, properties
  */
 export const ts_extract_type_info = (
@@ -164,12 +555,22 @@ export const ts_extract_type_info = (
 	_symbol: ts.Symbol,
 	checker: ts.TypeChecker,
 	declaration: DeclarationJson,
+	ctx: AnalysisContext,
 ): void => {
 	try {
 		const type = checker.getTypeAtLocation(node);
 		declaration.type_signature = checker.typeToString(type);
-	} catch (_err) {
-		// Ignore: Type checker may fail on complex or recursive types
+	} catch (err) {
+		const loc = ts_get_node_location(node);
+		ctx.add({
+			kind: 'type_extraction_failed',
+			file: loc.file,
+			line: loc.line,
+			column: loc.column,
+			message: `Failed to extract type for "${declaration.name}": ${err instanceof Error ? err.message : String(err)}`,
+			severity: 'warning',
+			symbol_name: declaration.name,
+		});
 	}
 
 	if (ts.isTypeAliasDeclaration(node) || ts.isInterfaceDeclaration(node)) {
@@ -221,6 +622,7 @@ export const ts_extract_type_info = (
 /**
  * Extract class information with rich member metadata.
  *
+ * @internal Use `ts_analyze_declaration` for high-level analysis.
  * @mutates declaration - adds extends, implements, generic_params, members
  */
 export const ts_extract_class_info = (
@@ -228,6 +630,7 @@ export const ts_extract_class_info = (
 	_symbol: ts.Symbol,
 	checker: ts.TypeChecker,
 	declaration: DeclarationJson,
+	ctx: AnalysisContext,
 ): void => {
 	if (!ts.isClassDeclaration(node)) return;
 
@@ -264,13 +667,15 @@ export const ts_extract_class_info = (
 			// Skip private fields (those starting with #)
 			if (member_name.startsWith('#')) continue;
 
+			const member_kind: DeclarationKind = is_constructor
+				? 'constructor'
+				: ts.isMethodDeclaration(member)
+					? 'function'
+					: 'variable';
+
 			const member_declaration: DeclarationJson = {
 				name: member_name,
-				kind: is_constructor
-					? 'constructor'
-					: ts.isMethodDeclaration(member)
-						? 'function'
-						: 'variable',
+				kind: member_kind,
 			};
 
 			// Extract visibility and modifiers
@@ -294,10 +699,13 @@ export const ts_extract_class_info = (
 
 					if (is_constructor) {
 						// For constructors, get construct signatures from the class symbol
-						const class_symbol = checker.getSymbolAtLocation(node.name!);
-						if (class_symbol) {
-							const class_type = checker.getTypeOfSymbolAtLocation(class_symbol, node);
-							signatures = class_type.getConstructSignatures();
+						// Skip anonymous classes (no name)
+						if (node.name) {
+							const class_symbol = checker.getSymbolAtLocation(node.name);
+							if (class_symbol) {
+								const class_type = checker.getTypeOfSymbolAtLocation(class_symbol, node);
+								signatures = class_type.getConstructSignatures();
+							}
 						}
 					} else {
 						// For methods, get call signatures from the method symbol
@@ -327,33 +735,11 @@ export const ts_extract_class_info = (
 						}
 
 						// Extract parameters with descriptions and default values
-						member_declaration.parameters = sig.parameters.map((param) => {
-							const param_decl = param.valueDeclaration;
-							const param_type = checker.getTypeOfSymbolAtLocation(param, param_decl!);
-
-							// Get TSDoc description for this parameter
-							const description = member_tsdoc?.params.get(param.name);
-
-							// Extract default value from AST
-							let default_value: string | undefined;
-							if (param_decl && ts.isParameter(param_decl) && param_decl.initializer) {
-								default_value = param_decl.initializer.getText();
-							}
-
-							const optional = !!(
-								param_decl &&
-								ts.isParameter(param_decl) &&
-								param_decl.questionToken
-							);
-
-							return {
-								name: param.name,
-								type: checker.typeToString(param_type),
-								...(optional && {optional}),
-								description,
-								default_value,
-							};
-						});
+						member_declaration.parameters = ts_extract_signature_parameters(
+							sig,
+							checker,
+							member_tsdoc?.params,
+						);
 
 						// Extract throws and since from TSDoc (for both methods and constructors)
 						if (member_tsdoc?.throws?.length) {
@@ -364,8 +750,19 @@ export const ts_extract_class_info = (
 						}
 					}
 				}
-			} catch (_err) {
-				// Ignore: Type checker may fail on complex member signatures
+			} catch (err) {
+				const loc = ts_get_node_location(member);
+				const class_name = node.name?.text ?? '<anonymous>';
+				ctx.add({
+					kind: 'class_member_failed',
+					file: loc.file,
+					line: loc.line,
+					column: loc.column,
+					message: `Failed to analyze member "${member_name}" in class "${class_name}": ${err instanceof Error ? err.message : String(err)}`,
+					severity: 'warning',
+					class_name,
+					member_name,
+				});
 			}
 
 			declaration.members.push(member_declaration);
@@ -376,6 +773,7 @@ export const ts_extract_class_info = (
 /**
  * Extract variable information.
  *
+ * @internal Use `ts_analyze_declaration` for high-level analysis.
  * @mutates declaration - adds type_signature
  */
 export const ts_extract_variable_info = (
@@ -383,280 +781,82 @@ export const ts_extract_variable_info = (
 	symbol: ts.Symbol,
 	checker: ts.TypeChecker,
 	declaration: DeclarationJson,
+	ctx: AnalysisContext,
 ): void => {
 	try {
 		const type = checker.getTypeOfSymbolAtLocation(symbol, node);
 		declaration.type_signature = checker.typeToString(type);
-	} catch (_err) {
-		// Ignore: Type checker may fail on complex variable types
+	} catch (err) {
+		const loc = ts_get_node_location(node);
+		ctx.add({
+			kind: 'type_extraction_failed',
+			file: loc.file,
+			line: loc.line,
+			column: loc.column,
+			message: `Failed to extract type for variable "${symbol.name}": ${err instanceof Error ? err.message : String(err)}`,
+			severity: 'warning',
+			symbol_name: symbol.name,
+		});
 	}
 };
 
 /**
- * Result of analyzing a single declaration.
+ * Extract line and column from a TypeScript node.
+ * Returns 1-based line and column numbers.
  */
-export interface TsDeclarationAnalysis {
-	/** The analyzed declaration metadata. */
-	declaration: DeclarationJson;
-	/** Whether the declaration is marked @nodocs (should be excluded from documentation). */
-	nodocs: boolean;
-}
-
-/**
- * Analyze a TypeScript symbol and extract rich metadata.
- *
- * This is a high-level function that combines TSDoc parsing with TypeScript
- * type analysis to produce complete declaration metadata. Suitable for use
- * in documentation generators, IDE integrations, and other tooling.
- *
- * @param symbol The TypeScript symbol to analyze
- * @param source_file The source file containing the symbol
- * @param checker The TypeScript type checker
- * @returns Complete declaration metadata including docs, types, and parameters, plus nodocs flag
- */
-export const ts_analyze_declaration = (
-	symbol: ts.Symbol,
-	source_file: ts.SourceFile,
-	checker: ts.TypeChecker,
-): TsDeclarationAnalysis => {
-	const name = symbol.name;
-	const decl_node = symbol.valueDeclaration || symbol.declarations?.[0];
-
-	// Determine kind (fallback to 'variable' if no declaration node)
-	const kind = decl_node ? ts_infer_declaration_kind(symbol, decl_node) : 'variable';
-
-	const result: DeclarationJson = {
-		name,
-		kind,
-	};
-
-	if (!decl_node) {
-		return {declaration: result, nodocs: false};
-	}
-
-	// Extract TSDoc
-	const tsdoc = tsdoc_parse(decl_node, source_file);
-	const nodocs = tsdoc?.nodocs ?? false;
-	tsdoc_apply_to_declaration(result, tsdoc);
-
-	// Extract source line
-	const start = decl_node.getStart(source_file);
-	const start_pos = source_file.getLineAndCharacterOfPosition(start);
-	result.source_line = start_pos.line + 1;
-
-	// Extract type-specific info
-	if (result.kind === 'function') {
-		ts_extract_function_info(decl_node, symbol, checker, result, tsdoc);
-	} else if (result.kind === 'type') {
-		ts_extract_type_info(decl_node, symbol, checker, result);
-	} else if (result.kind === 'class') {
-		ts_extract_class_info(decl_node, symbol, checker, result);
-	} else if (result.kind === 'variable') {
-		ts_extract_variable_info(decl_node, symbol, checker, result);
-	}
-
-	return {declaration: result, nodocs};
-};
-
-/**
- * Information about a same-name re-export.
- * Used for post-processing to build `also_exported_from` arrays.
- */
-export interface ReExportInfo {
-	/** Name of the re-exported declaration. */
-	name: string;
-	/** Module path (relative to src/lib) where the declaration is originally declared. */
-	original_module: string;
-}
-
-/**
- * Result of analyzing a module's exports.
- */
-export interface ModuleExportsAnalysis {
-	/** Module-level documentation comment. */
-	module_comment?: string;
-	/** All exported declarations with their metadata (excludes same-name re-exports). */
-	declarations: Array<DeclarationJson>;
-	/** Same-name re-exports (for building also_exported_from in post-processing). */
-	re_exports: Array<ReExportInfo>;
-}
-
-/**
- * Analyze all exports from a TypeScript source file.
- *
- * Extracts the module-level comment and all exported declarations with
- * complete metadata. Handles re-exports by:
- * - Same-name re-exports: tracked in `re_exports` for `also_exported_from` building
- * - Renamed re-exports: included as new declarations with `alias_of` metadata
- *
- * This is a high-level function suitable for building documentation, API explorers, or analysis tools.
- *
- * @param source_file The TypeScript source file to analyze
- * @param checker The TypeScript type checker
- * @returns Module comment, array of analyzed declarations, and re-export information
- */
-export const ts_analyze_module_exports = (
-	source_file: ts.SourceFile,
-	checker: ts.TypeChecker,
-): ModuleExportsAnalysis => {
-	const declarations: Array<DeclarationJson> = [];
-	const re_exports: Array<ReExportInfo> = [];
-
-	// Extract module-level comment
-	const module_comment = ts_extract_module_comment(source_file);
-
-	// Get all exported symbols
-	const symbol = checker.getSymbolAtLocation(source_file);
-	if (symbol) {
-		const exports = checker.getExportsOfModule(symbol);
-		for (const export_symbol of exports) {
-			// Check if this is an alias (potential re-export) using the Alias flag
-			const is_alias = (export_symbol.flags & ts.SymbolFlags.Alias) !== 0;
-
-			if (is_alias) {
-				// This might be a re-export - use getAliasedSymbol to find the original
-				const aliased_symbol = checker.getAliasedSymbol(export_symbol);
-				const aliased_decl = aliased_symbol.valueDeclaration || aliased_symbol.declarations?.[0];
-
-				if (aliased_decl) {
-					const original_source = aliased_decl.getSourceFile();
-
-					// Check if this is a CROSS-FILE re-export (original in different file)
-					if (original_source.fileName !== source_file.fileName) {
-						// Only track if the original is from a source module (not node_modules)
-						if (module_matches_source(original_source.fileName)) {
-							const original_module = module_extract_path(original_source.fileName);
-							const original_name = aliased_symbol.name;
-							const is_renamed = export_symbol.name !== original_name;
-
-							if (is_renamed) {
-								// Renamed re-export (export {foo as bar}) - create new declaration with alias_of
-								const kind = ts_infer_declaration_kind(aliased_symbol, aliased_decl);
-								const decl: DeclarationJson = {
-									name: export_symbol.name,
-									kind,
-									alias_of: {module: original_module, name: original_name},
-								};
-								declarations.push(decl);
-							} else {
-								// Same-name re-export - track for also_exported_from, skip from declarations
-								re_exports.push({
-									name: export_symbol.name,
-									original_module,
-								});
-							}
-							continue;
-						}
-						// Re-export from external module (node_modules) - skip entirely
-						continue;
-					}
-					// Within-file alias (export { x as y }) - fall through to normal analysis
-				}
-			}
-
-			// Normal export or within-file alias - declared in this file
-			const {declaration, nodocs} = ts_analyze_declaration(export_symbol, source_file, checker);
-			// Skip @nodocs declarations - they're excluded from documentation
-			if (nodocs) continue;
-			declarations.push(declaration);
-		}
-	}
-
+const ts_get_node_location = (node: ts.Node): {file: string; line: number; column: number} => {
+	const source_file = node.getSourceFile();
+	const {line, character} = source_file.getLineAndCharacterOfPosition(node.getStart());
 	return {
-		module_comment,
-		declarations,
-		re_exports,
+		file: source_file.fileName,
+		line: line + 1, // Convert to 1-based
+		column: character + 1, // Convert to 1-based
 	};
 };
 
+const ts_parse_generic_param = (param: ts.TypeParameterDeclaration): GenericParamInfo => {
+	const result: GenericParamInfo = {
+		name: param.name.text,
+	};
+
+	if (param.constraint) {
+		result.constraint = param.constraint.getText();
+	}
+
+	if (param.default) {
+		result.default_type = param.default.getText();
+	}
+
+	return result;
+};
+
 /**
- * Extract module-level comment.
+ * TypeScript modifier keywords extracted from declarations.
  *
- * Only accepts JSDoc/TSDoc comments (`/** ... *\/`) followed by a blank line to distinguish
- * them from identifier-level comments. This prevents accidentally treating function/class
- * comments as module comments. Module comments can appear after imports.
+ * These are the access modifiers and other keywords that can appear
+ * on class members, interface properties, etc.
  */
-export const ts_extract_module_comment = (source_file: ts.SourceFile): string | undefined => {
-	const full_text = source_file.getFullText();
-
-	// Check for comments at the start of the file (before any statements)
-	const leading_comments = ts.getLeadingCommentRanges(full_text, 0);
-	if (leading_comments?.length) {
-		for (const comment of leading_comments) {
-			const comment_text = full_text.substring(comment.pos, comment.end);
-			if (!comment_text.trimStart().startsWith('/**')) continue;
-
-			// Check if there's a blank line after this comment
-			const first_statement = source_file.statements[0];
-			if (first_statement) {
-				const between = full_text.substring(comment.end, first_statement.getStart());
-				if (between.includes('\n\n')) {
-					return extract_and_clean_jsdoc(full_text, comment);
-				}
-			} else {
-				// No statements, just return the comment
-				return extract_and_clean_jsdoc(full_text, comment);
-			}
-		}
-	}
-
-	// Check for comments before each statement (e.g., after imports)
-	for (const statement of source_file.statements) {
-		const statement_start = statement.getFullStart();
-		const statement_pos = statement.getStart();
-
-		// Get comments in the trivia before this statement
-		const comments = ts.getLeadingCommentRanges(full_text, statement_start);
-		if (!comments?.length) continue;
-
-		for (const comment of comments) {
-			const comment_text = full_text.substring(comment.pos, comment.end);
-			if (!comment_text.trimStart().startsWith('/**')) continue;
-
-			// Check if there's a blank line between comment and statement
-			const between = full_text.substring(comment.end, statement_pos);
-			if (between.includes('\n\n')) {
-				return extract_and_clean_jsdoc(full_text, comment);
-			}
-		}
-	}
-
-	return undefined;
-};
+export type TsModifier = 'public' | 'private' | 'protected' | 'readonly' | 'static' | 'abstract';
 
 /**
- * Extract and clean JSDoc comment text.
+ * Extract modifier keywords from a node's modifiers.
+ *
+ * Returns an array of modifier strings like `['public', 'readonly', 'static']`.
  */
-const extract_and_clean_jsdoc = (
-	full_text: string,
-	comment: {pos: number; end: number},
-): string | undefined => {
-	let text = full_text.substring(comment.pos, comment.end);
+const ts_extract_modifiers = (
+	modifiers: ReadonlyArray<ts.ModifierLike> | undefined,
+): Array<TsModifier> => {
+	const modifier_flags: Array<TsModifier> = [];
+	if (!modifiers) return modifier_flags;
 
-	// Clean comment markers
-	text = text
-		.replace(/^\/\*\*/, '')
-		.replace(/\*\/$/, '')
-		.split('\n')
-		.map((line) => line.replace(/^\s*\*\s?/, ''))
-		.join('\n')
-		.trim();
-
-	return text || undefined;
-};
-
-/**
- * Create TypeScript program for analysis.
- */
-export const ts_create_program = (log: {warn: (message: string) => void}): ts.Program | null => {
-	const config_path = ts.findConfigFile('./', ts.sys.fileExists, 'tsconfig.json');
-	if (!config_path) {
-		log.warn('No tsconfig.json found');
-		return null;
+	for (const mod of modifiers) {
+		if (mod.kind === ts.SyntaxKind.PublicKeyword) modifier_flags.push('public');
+		else if (mod.kind === ts.SyntaxKind.PrivateKeyword) modifier_flags.push('private');
+		else if (mod.kind === ts.SyntaxKind.ProtectedKeyword) modifier_flags.push('protected');
+		else if (mod.kind === ts.SyntaxKind.ReadonlyKeyword) modifier_flags.push('readonly');
+		else if (mod.kind === ts.SyntaxKind.StaticKeyword) modifier_flags.push('static');
+		else if (mod.kind === ts.SyntaxKind.AbstractKeyword) modifier_flags.push('abstract');
 	}
 
-	const config_file = ts.readConfigFile(config_path, ts.sys.readFile);
-	const parsed_config = ts.parseJsonConfigFileContent(config_file.config, ts.sys, './');
-
-	return ts.createProgram(parsed_config.fileNames, parsed_config.options);
+	return modifier_flags;
 };

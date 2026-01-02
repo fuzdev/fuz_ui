@@ -1,285 +1,218 @@
 /**
- * Build-time helpers for library metadata generation.
+ * Library metadata generation helpers - pipeline orchestration.
  *
- * These functions handle Gro-specific concerns like file collection and dependency
- * graph extraction. Core analysis logic has been extracted to reusable helpers:
+ * These functions handle collection, validation, and transformation of library metadata
+ * during the generation pipeline. They are internal to the generation process.
  *
- * - `ts_helpers.ts` - `ts_analyze_module_exports`
- * - `svelte_helpers.ts` - `svelte_analyze_file`
- * - `module_helpers.ts` - path utilities and source detection
+ * For source analysis (the consumer-facing API), see `library_analysis.ts`.
  *
- * Design philosophy: Fail fast with clear errors rather than silently producing invalid
- * metadata. All validation errors halt the build immediately with actionable messages.
+ * Pipeline stages:
+ * 1. **Collection** - `library_collect_source_files` gathers and filters source files
+ * 2. **Analysis** - `library_analyze_module` (in library_analysis.ts) extracts metadata
+ * 3. **Validation** - `library_find_duplicates` checks flat namespace constraints
+ * 4. **Transformation** - `library_merge_re_exports` resolves re-export relationships
+ * 5. **Output** - `library_sort_modules` prepares deterministic output
  *
- * @see library_gen.ts for the main generation task
- * @see @fuzdev/fuz_util/source_json.js for type definitions
- * @see ts_helpers.ts for reusable TypeScript analysis
- * @see svelte_helpers.ts for reusable Svelte component analysis
+ * @see library_analysis.ts for the analysis entry point
+ * @see library_gen_output.ts for output file generation (JSON/TS wrapper)
+ * @see library_gen.ts for the main generation task (Gro-specific)
+ *
+ * @module
  */
 
-import type {PackageJson} from '@fuzdev/fuz_util/package_json.js';
 import type {Logger} from '@fuzdev/fuz_util/log.js';
-import type {ModuleJson, SourceJson} from '@fuzdev/fuz_util/source_json.js';
-import {library_json_parse, type LibraryJson} from '@fuzdev/fuz_util/library_json.js';
-import type {Disknode} from '@ryanatkn/gro/disknode.js';
-import type ts from 'typescript';
-import type {PathId} from '@fuzdev/fuz_util/path.js';
+import type {DeclarationJson, ModuleJson, SourceJson} from '@fuzdev/fuz_util/source_json.js';
 
-import {ts_analyze_module_exports, type ReExportInfo} from './ts_helpers.js';
-import {svelte_analyze_file} from './svelte_helpers.js';
+import type {ReExportInfo} from './library_analysis.js';
 import {
-	module_extract_path,
-	module_is_typescript,
-	module_is_svelte,
-	module_matches_source,
+	type SourceFileInfo,
+	type ModuleSourceOptions,
+	module_is_source,
+	module_validate_source_options,
+	module_get_source_root,
 } from './module_helpers.js';
 
 /**
- * Result of analyzing a TypeScript file.
- * Includes both the module metadata and re-export information for post-processing.
+ * A duplicate declaration with its full metadata and module path.
  */
-export interface TsFileAnalysis {
-	/** Module metadata for inclusion in source_json. */
-	module: ModuleJson;
-	/** Re-exports from this module for building also_exported_from. */
-	re_exports: Array<ReExportInfo>;
+export interface DuplicateInfo {
+	/** The full declaration metadata. */
+	declaration: DeclarationJson;
+	/** Module path where this declaration is defined. */
+	module: string;
 }
 
 /**
- * Validates that no declaration names are duplicated across modules.
- * The flat namespace is intentional - duplicates should fail fast.
+ * Find duplicate declaration names across modules.
  *
- * @throws Error if duplicate declaration names are found
+ * Returns a Map of declaration names to their full metadata (only includes duplicates).
+ * Callers can decide how to handle duplicates (throw, warn, ignore).
+ *
+ * @example
+ * const duplicates = library_find_duplicates(source_json);
+ * if (duplicates.size > 0) {
+ *   for (const [name, occurrences] of duplicates) {
+ *     console.error(`"${name}" found in:`);
+ *     for (const {declaration, module} of occurrences) {
+ *       console.error(`  - ${module}:${declaration.source_line} (${declaration.kind})`);
+ *     }
+ *   }
+ *   throw new Error(`Found ${duplicates.size} duplicate declaration names`);
+ * }
  */
-export const library_gen_validate_no_duplicates = (source_json: SourceJson, log: Logger): void => {
-	const declaration_locations: Map<string, Array<{module: string; kind: string}>> = new Map();
+export const library_find_duplicates = (
+	source_json: SourceJson,
+): Map<string, Array<DuplicateInfo>> => {
+	const all_occurrences: Map<string, Array<DuplicateInfo>> = new Map();
 
-	// Collect all declaration names and their locations
+	// Collect all declaration names and their full metadata
 	for (const mod of source_json.modules ?? []) {
 		for (const declaration of mod.declarations ?? []) {
 			const name = declaration.name;
-			if (!declaration_locations.has(name)) {
-				declaration_locations.set(name, []);
+			if (!all_occurrences.has(name)) {
+				all_occurrences.set(name, []);
 			}
-			declaration_locations.get(name)!.push({
+			all_occurrences.get(name)!.push({
+				declaration,
 				module: mod.path,
-				kind: declaration.kind,
 			});
 		}
 	}
 
-	// Check for duplicates
-	const duplicates: Array<{name: string; locations: Array<{module: string; kind: string}>}> = [];
-	for (const [name, locations] of declaration_locations.entries()) {
-		if (locations.length > 1) {
-			duplicates.push({name, locations});
+	// Filter to only duplicates
+	const duplicates: Map<string, Array<DuplicateInfo>> = new Map();
+	for (const [name, occurrences] of all_occurrences) {
+		if (occurrences.length > 1) {
+			duplicates.set(name, occurrences);
 		}
 	}
 
-	if (duplicates.length > 0) {
-		log.error('Duplicate declaration names detected in flat namespace:');
-		for (const {name, locations} of duplicates) {
-			log.error(`  "${name}" found in:`);
-			for (const {module, kind} of locations) {
-				log.error(`    - ${module} (${kind})`);
-			}
-		}
-		throw new Error(
-			`Found ${duplicates.length} duplicate declaration name${duplicates.length === 1 ? '' : 's'} across modules. ` +
-				'The flat namespace requires unique names. To resolve: ' +
-				'(1) rename one of the conflicting declarations, or ' +
-				'(2) add /** @nodocs */ to exclude from documentation. ' +
-				'See CLAUDE.md "Declaration namespacing" section for details.',
-		);
-	}
+	return duplicates;
 };
 
 /**
  * Sort modules alphabetically by path for deterministic output and cleaner diffs.
  */
-export const library_gen_sort_modules = (modules: Array<ModuleJson>): Array<ModuleJson> => {
+export const library_sort_modules = (modules: Array<ModuleJson>): Array<ModuleJson> => {
 	return modules.slice().sort((a, b) => a.path.localeCompare(b.path));
 };
 
 /**
- * Result of generating library files.
- * Contains both the JSON data and the TypeScript wrapper file.
+ * A collected re-export with its source module context.
+ *
+ * Used during the two-phase re-export resolution:
+ * 1. Phase 1: Collect re-exports from each module during analysis
+ * 2. Phase 2: Group by original module and merge into `also_exported_from`
  */
-export interface LibraryGenOutput {
-	/** JSON content for library.json */
-	json_content: string;
-	/** TypeScript wrapper content for library.ts */
-	ts_content: string;
+export interface CollectedReExport {
+	/** The module that re-exports the declaration. */
+	re_exporting_module: string;
+	/** The re-export info (name and original module). */
+	re_export: ReExportInfo;
 }
 
 /**
- * Generate the library.json and library.ts file contents.
- * Parses at generation time so runtime only needs the pre-computed result.
+ * Build `also_exported_from` arrays from collected re-export data.
  *
- * Returns JSON + .ts wrapper because:
- * - JSON is natively importable by Node.js and Vite without TypeScript loaders
- * - Works in CI environments that don't have TS compilation
- * - The .ts wrapper validates with zod and exports with proper types
- *   (JSON imports get widened types like `string` instead of literal unions)
+ * This function resolves the two-phase re-export problem:
+ *
+ * **Problem**: When module A re-exports from module B, we discover this while
+ * analyzing A, but need to update B's declarations. However, B may already be
+ * processed or may be processed later.
+ *
+ * **Solution**: Collect all re-exports in phase 1, then merge them in phase 2
+ * after all modules are analyzed.
+ *
+ * @example
+ * // helpers.ts exports: foo, bar
+ * // index.ts does: export {foo, bar} from './helpers.js'
+ * //
+ * // After processing:
+ * // - helpers.ts foo declaration gets: also_exported_from: ['index.ts']
+ * // - helpers.ts bar declaration gets: also_exported_from: ['index.ts']
+ *
+ * @param source_json The source JSON with all modules (will be mutated)
+ * @param collected_re_exports Array of re-exports collected during phase 1
+ * @mutates source_json - adds `also_exported_from` to declarations
  */
-export const library_gen_generate_json = (
-	package_json: PackageJson,
+export const library_merge_re_exports = (
 	source_json: SourceJson,
-): LibraryGenOutput => {
-	const is_this_fuz_util = package_json.name === '@fuzdev/fuz_util';
-	const fuz_util_prefix = is_this_fuz_util ? './' : '@fuzdev/fuz_util/';
+	collected_re_exports: Array<CollectedReExport>,
+): void => {
+	// Group re-exports by original module and declaration name
+	// Structure: Map<original_module_path, Map<declaration_name, Array<re_exporting_module_path>>>
+	const re_export_map: Map<string, Map<string, Array<string>>> = new Map();
 
-	// Parse at generation time, not runtime
-	const library_json: LibraryJson = library_json_parse(package_json, source_json);
+	for (const {re_exporting_module, re_export} of collected_re_exports) {
+		const {name, original_module} = re_export;
 
-	const json_content = JSON.stringify(library_json, null, '\t') + '\n';
+		if (!re_export_map.has(original_module)) {
+			re_export_map.set(original_module, new Map());
+		}
+		const module_map = re_export_map.get(original_module)!;
 
-	const banner = '// generated by library.gen.ts - do not edit';
+		if (!module_map.has(name)) {
+			module_map.set(name, []);
+		}
+		module_map.get(name)!.push(re_exporting_module);
+	}
 
-	const ts_content = `${banner}
+	// Merge into original declarations
+	for (const mod of source_json.modules ?? []) {
+		const module_re_exports = re_export_map.get(mod.path);
+		if (!module_re_exports) continue;
 
-import type {LibraryJson} from '${fuz_util_prefix}library_json.js';
-
-import json from './library.json' with {type: 'json'};
-
-export const library_json: LibraryJson = json as LibraryJson;
-
-${banner}
-`;
-
-	return {json_content, ts_content};
-};
-
-/**
- * Collect and filter source files from filer.
- *
- * Returns disknodes for TypeScript/JS files and Svelte components from src/lib, excluding test files.
- * Returns an empty array with a warning if no source files are found.
- */
-export const library_gen_collect_source_files = (
-	files: Map<PathId, Disknode>,
-	log: Logger,
-): Array<Disknode> => {
-	log.info(`filer has ${files.size} files total`);
-
-	const source_disknodes: Array<Disknode> = [];
-	for (const [id, disknode] of files.entries()) {
-		if (module_matches_source(id)) {
-			// Include TypeScript/JS files and Svelte components
-			if (module_is_typescript(id) || module_is_svelte(id)) {
-				source_disknodes.push(disknode);
+		for (const declaration of mod.declarations ?? []) {
+			const re_exporters = module_re_exports.get(declaration.name);
+			if (re_exporters?.length) {
+				// Sort for deterministic output
+				declaration.also_exported_from = re_exporters.sort();
 			}
 		}
 	}
+};
 
-	log.info(`found ${source_disknodes.length} source files to analyze`);
+/**
+ * Collect and filter source files.
+ *
+ * Returns source files for TypeScript/JS files and Svelte components, excluding test files.
+ * Returns an empty array with a warning if no source files are found.
+ *
+ * File types are determined by `options.get_analyzer`. By default, `.ts`, `.js`, and `.svelte`
+ * files are supported. Customize `get_analyzer` to support additional file types like `.svx`.
+ *
+ * @param files Iterable of source file info (from Gro filer, file system, or other source)
+ * @param options Module source options for filtering
+ * @param log Optional logger for status messages
+ */
+export const library_collect_source_files = (
+	files: Iterable<SourceFileInfo>,
+	options: ModuleSourceOptions,
+	log?: Logger,
+): Array<SourceFileInfo> => {
+	// Validate options early to fail fast on misconfiguration
+	module_validate_source_options(options);
 
-	if (source_disknodes.length === 0) {
-		log.warn('No source files found in src/lib - generating empty library metadata');
+	const all_files = Array.from(files);
+	log?.info(`received ${all_files.length} files total`);
+
+	const source_files: Array<SourceFileInfo> = [];
+	for (const file of all_files) {
+		if (module_is_source(file.id, options)) {
+			source_files.push(file);
+		}
+	}
+
+	log?.info(`found ${source_files.length} source files to analyze`);
+
+	if (source_files.length === 0) {
+		const effective_root = module_get_source_root(options);
+		log?.warn(`No source files found in ${effective_root} - generating empty library metadata`);
 		return [];
 	}
 
 	// Sort for deterministic output (stable alphabetical module ordering)
-	source_disknodes.sort((a, b) => a.id.localeCompare(b.id));
+	source_files.sort((a, b) => a.id.localeCompare(b.id));
 
-	return source_disknodes;
-};
-
-/**
- * Analyze a Svelte component file and extract metadata.
- *
- * Uses `svelte_analyze_file` for core analysis, then adds
- * Gro-specific dependency information from the disknode.
- */
-export const library_gen_analyze_svelte_file = (
-	disknode: Disknode,
-	module_path: string,
-	checker: ts.TypeChecker,
-): ModuleJson => {
-	// Use the extracted helper for core analysis
-	const declaration_json = svelte_analyze_file(disknode.id, module_path, checker);
-
-	// Extract dependencies and dependents (Gro-specific)
-	const {dependencies, dependents} = library_gen_extract_dependencies(disknode);
-
-	return {
-		path: module_path,
-		declarations: [declaration_json],
-		dependencies: dependencies.length > 0 ? dependencies : undefined,
-		dependents: dependents.length > 0 ? dependents : undefined,
-	};
-};
-
-/**
- * Analyze a TypeScript file and extract all declarations.
- *
- * Uses `ts_analyze_module_exports` for core analysis, then adds
- * Gro-specific dependency information from the disknode.
- *
- * Returns both the module metadata and re-export information for post-processing.
- */
-export const library_gen_analyze_typescript_file = (
-	disknode: Disknode,
-	source_file: ts.SourceFile,
-	module_path: string,
-	checker: ts.TypeChecker,
-): TsFileAnalysis => {
-	// Use the extracted helper for core analysis
-	const {module_comment, declarations, re_exports} = ts_analyze_module_exports(
-		source_file,
-		checker,
-	);
-
-	const mod: ModuleJson = {
-		path: module_path,
-		declarations,
-	};
-
-	if (module_comment) {
-		mod.module_comment = module_comment;
-	}
-
-	// Extract dependencies and dependents (Gro-specific)
-	const {dependencies, dependents} = library_gen_extract_dependencies(disknode);
-	if (dependencies.length > 0) {
-		mod.dependencies = dependencies;
-	}
-	if (dependents.length > 0) {
-		mod.dependents = dependents;
-	}
-
-	return {module: mod, re_exports};
-};
-
-/**
- * Extract dependencies and dependents for a module from the filer's dependency graph.
- *
- * Filters to only include source modules from src/lib (excludes external packages, node_modules, tests).
- * Returns sorted arrays of module paths (relative to src/lib) for deterministic output.
- */
-export const library_gen_extract_dependencies = (
-	disknode: Disknode,
-): {dependencies: Array<string>; dependents: Array<string>} => {
-	const dependencies: Array<string> = [];
-	const dependents: Array<string> = [];
-
-	// Extract dependencies (files this module imports)
-	for (const dep_id of disknode.dependencies.keys()) {
-		if (module_matches_source(dep_id)) {
-			dependencies.push(module_extract_path(dep_id));
-		}
-	}
-
-	// Extract dependents (files that import this module)
-	for (const dependent_id of disknode.dependents.keys()) {
-		if (module_matches_source(dependent_id)) {
-			dependents.push(module_extract_path(dependent_id));
-		}
-	}
-
-	// Sort for deterministic output
-	dependencies.sort();
-	dependents.sort();
-
-	return {dependencies, dependents};
+	return source_files;
 };

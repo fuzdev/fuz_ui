@@ -35,6 +35,8 @@
  * - TS API strips URL protocols from `@see` tag text; we use `getText()` to preserve original format including `{@link}` syntax
  *
  * All functions are prefixed with `tsdoc_` for clarity.
+ *
+ * @module
  */
 
 import ts from 'typescript';
@@ -65,53 +67,6 @@ export interface TsdocParsedComment {
 	/** Whether to exclude from documentation. From `@nodocs` tag. */
 	nodocs?: boolean;
 }
-
-/**
- * Convert TSDoc link syntax to mdz-compatible format.
- *
- * Conversions:
- * - `{@link url|text}` → `[text](url)` (markdown link)
- * - `{@link https://...}` → `https://...` (bare URL)
- * - `{@link identifier}` → `` `identifier` `` (backticks)
- * - `@see` variants follow same rules
- *
- * @param content The @see tag content to convert
- */
-const tsdoc_convert_link_to_mdz = (content: string): string => {
-	// Check for {@link ...} or {@see ...} syntax
-	const link_match = /^\{@(?:link|see)\s+([^}]+)\}$/.exec(content.trim());
-	if (link_match) {
-		const inner = link_match[1]!.trim();
-
-		// Check for pipe separator (custom display text)
-		const pipe_index = inner.indexOf('|');
-		if (pipe_index !== -1) {
-			const reference = inner.slice(0, pipe_index).trim();
-			const display_text = inner.slice(pipe_index + 1).trim();
-			// Convert to markdown link: [text](url)
-			return `[${display_text}](${reference})`;
-		}
-
-		// No pipe - check if it's a URL or declaration
-		if (inner.startsWith('https://') || inner.startsWith('http://')) {
-			// Bare URL - return as-is
-			return inner;
-		} else {
-			// Declaration or module - wrap in backticks
-			return `\`${inner}\``;
-		}
-	}
-
-	// No {@link} or {@see} syntax - check if it's a bare URL or declaration
-	const trimmed = content.trim();
-	if (trimmed.startsWith('https://') || trimmed.startsWith('http://')) {
-		// Already a bare URL - return as-is
-		return trimmed;
-	} else {
-		// Declaration or module - wrap in backticks
-		return `\`${trimmed}\``;
-	}
-};
 
 /**
  * Parse JSDoc comment from a TypeScript node.
@@ -193,11 +148,11 @@ export const tsdoc_parse = (
 			const see_content = full_tag_text
 				.replace(/^@see\s+/, '') // remove @see prefix
 				.replace(/\n\s*\*\s*/g, ' ') // remove JSDoc line continuations
+				.replace(/\s*\*\s*$/, '') // remove trailing asterisk artifacts
 				.trim();
 
 			if (see_content) {
-				// Convert TSDoc link syntax to mdz-compatible format
-				see_also.push(tsdoc_convert_link_to_mdz(see_content));
+				see_also.push(see_content);
 			}
 		} else if (tag_name === 'since' && tag_text) {
 			since = tag_text.trim();
@@ -256,4 +211,24 @@ export const tsdoc_apply_to_declaration = (
 	if (tsdoc.since) {
 		declaration.since = tsdoc.since;
 	}
+};
+
+/**
+ * Clean raw JSDoc comment text by removing comment markers and leading asterisks.
+ *
+ * Transforms `/** ... *\/` style comments into clean text.
+ *
+ * @param comment_text The raw comment text including `/**` and `*\/` markers
+ * @returns Cleaned comment text, or undefined if empty after cleaning
+ */
+export const tsdoc_clean_comment = (comment_text: string): string | undefined => {
+	const text = comment_text
+		.replace(/^\/\*\*/, '')
+		.replace(/\*\/$/, '')
+		.split('\n')
+		.map((line) => line.replace(/^\s*\*\s?/, ''))
+		.join('\n')
+		.trim();
+
+	return text || undefined;
 };

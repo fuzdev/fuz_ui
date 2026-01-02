@@ -123,10 +123,9 @@ Two-phase architecture (TSDoc → mdz):
 - mdz is an enhanced markdown dialect
 - supports auto-detected URLs (`https://`), internal paths (`/path`), and
   standard markdown links (`[text](url)`)
-- TSDoc `@see` tags are converted to mdz format during build phase
+- `@see` tags stored as raw TSDoc, converted via `tsdoc_mdz.ts` at render time
 - runs in the browser when viewing docs
-- mdz is the OUTPUT format - documentation extracted at build time is stored as
-  mdz-formatted strings
+- keeps analysis layer format-agnostic for clean extraction
 
 Supporting helpers (three-layer architecture):
 
@@ -135,6 +134,7 @@ Supporting helpers (three-layer architecture):
 - `ts_helpers.ts` - TypeScript compiler API utilities
   - `ts_analyze_declaration` - analyze a symbol with full metadata (reusable)
   - `ts_analyze_module_exports` - analyze all exports from a source file (reusable)
+  - `ts_create_program` - create TypeScript program with `TsProgramOptions`
   - `ts_extract_*` - lower-level extraction functions for specific constructs
 - `tsdoc_helpers.ts` - JSDoc/TSDoc parsing (supports standard tags: `@param`,
   `@returns`, `@throws`, `@example`, `@deprecated`, `@see`, `@since`, `@nodocs`,
@@ -142,6 +142,13 @@ Supporting helpers (three-layer architecture):
   declarations from documentation and flat namespace validation)
   - `tsdoc_parse` - extract structured TSDoc from a node
   - `tsdoc_apply_to_declaration` - apply parsed TSDoc to a declaration
+- `tsdoc_mdz.ts` - bridge between raw TSDoc and mdz rendering format
+  - `tsdoc_see_to_mdz` - convert `@see` tag content to mdz for `<Mdz>` component
+  - lives in fuz_ui (not extracted analysis library) to keep analysis format-agnostic
+- `analysis_context.ts` - diagnostic collection during analysis
+  - `AnalysisContext` - accumulates errors/warnings without halting analysis
+  - `Diagnostic` types - structured diagnostics with file, line, column
+  - `format_diagnostic` - formats diagnostics for display
 
 **Mid-level** (domain utilities):
 
@@ -149,25 +156,29 @@ Supporting helpers (three-layer architecture):
   - `svelte_analyze_file` - analyze a .svelte file from disk (reusable)
   - `svelte_analyze_component` - analyze from svelte2tsx output
 - `module_helpers.ts` - module path utilities and source detection
+  - `SourceFileInfo` - build-tool agnostic file info interface
   - `module_matches_source` - configurable source detection predicate
   - `module_is_typescript`, `module_is_svelte` - simple extension predicates
   - `module_extract_path`, `module_get_component_name` - path utilities
+  - `module_extract_dependencies` - extract filtered/sorted dependency lists
   - `ModuleSourceOptions`, `MODULE_SOURCE_DEFAULTS` - configuration
 - `src_json.ts` - type definitions for the metadata format
 - `library_helpers.ts` - URL builders (`url_github_file`, `url_api_declaration`,
   `url_api_module`, etc.)
 
-**High-level** (Gro-specific orchestration):
+**High-level** (orchestration):
 
-- `library_gen_helpers.ts` - build-time generation helpers
-  - `library_gen_collect_source_files` - collect files from Gro's filer
-  - `library_gen_extract_dependencies` - extract dependency graph from disknode
-  - `library_gen_validate_no_duplicates` - flat namespace validation
-  - `library_gen_analyze_*` - thin wrappers adding Gro-specific concerns
+- `library_analysis.ts` - unified analysis entry point
+  - `library_analyze_module` - dispatches to ts/svelte analyzers (consumer-facing API)
+- `library_gen_helpers.ts` - pipeline orchestration (internal)
+  - `library_collect_source_files` - collect and filter source files
+  - `library_find_duplicates` - find duplicate names (returns Map of duplicates)
+  - `library_merge_re_exports` - resolve re-export relationships
+  - `library_sort_modules` - prepare deterministic output
 - `library_gen.ts` - the Gro genfile that orchestrates generation
 
-The reusable functions (`ts_analyze_*`, `svelte_analyze_file`) can be used
-outside of package generation for IDE integrations, linters, or custom tools.
+The reusable functions (`library_analyze_module`, `ts_analyze_*`, `svelte_analyze_file`)
+can be used outside of package generation for IDE integrations, linters, or custom tools.
 
 Documentation components:
 
@@ -290,9 +301,10 @@ TypeScript and Svelte analysis:
   - `tsdoc_parse`, `tsdoc_apply_to_declaration`
 - `module_helpers.ts` - module path utilities
   - predicates: `module_matches_source`, `module_is_typescript`, `module_is_svelte`
-  - utilities: `module_extract_path`, `module_get_component_name`
+  - utilities: `module_extract_path`, `module_get_component_name`, `module_extract_dependencies`
   - configuration: `ModuleSourceOptions`, `MODULE_SOURCE_DEFAULTS`
-- `library_gen_helpers.ts` - Gro-specific build-time helpers
+- `library_analysis.ts` - unified analysis entry point (`library_analyze_module`)
+- `library_gen_helpers.ts` - pipeline orchestration helpers
 
 browser and DOM:
 
@@ -346,9 +358,9 @@ for validation and code generation.
 Fuz uses distinctive naming conventions compared to typical TypeScript/Svelte
 projects:
 
-- `snake_case` for most identifiers (files, variables, functions, types) instead
-  of camelCase
-- `PascalCase` for types, class names, and Svelte components
+- `snake_case` for most identifiers (files, variables, functions) instead of
+  camelCase
+- `PascalCase` for types, classes, and Svelte components
 - explicit file extensions in all imports
 - tab indentation, 100 character line width
 - tends toward flat file structure with co-located related code

@@ -25,6 +25,8 @@
  * ## Status
  *
  * This is an early proof of concept with missing features and edge cases.
+ *
+ * @module
  */
 
 // TODO design incremental parsing or some system that preserves Svelte components across re-renders when possible
@@ -658,8 +660,7 @@ export class MdzParser {
 		this.#index = close_paren + 1;
 
 		// Determine link type (external vs internal)
-		const link_type =
-			reference.startsWith('https://') || reference.startsWith('http://') ? 'external' : 'internal';
+		const link_type = mdz_is_url(reference) ? 'external' : 'internal';
 
 		return {
 			type: 'Link',
@@ -1069,7 +1070,7 @@ export class MdzParser {
 	}
 
 	/**
-	 * Check if current position is the start of an external URL (https:// or http://).
+	 * Check if current position is the start of an external URL (`https://` or `http://`).
 	 */
 	#is_at_url(): boolean {
 		if (this.#match('https://')) {
@@ -1119,7 +1120,7 @@ export class MdzParser {
 	}
 
 	/**
-	 * Parse auto-detected external URL (https:// or http://).
+	 * Parse auto-detected external URL (`https://` or `http://`).
 	 * Uses RFC 3986 whitelist validation for valid URI characters.
 	 */
 	#parse_auto_link_url(): MdzLinkNode {
@@ -1817,3 +1818,11 @@ export class MdzParser {
 		throw Error('Code block not properly closed');
 	}
 }
+
+/**
+ * Check if a string is a URL (`https://` or `http://`).
+ * Requires at least one valid character after the protocol.
+ * Rejects whitespace and characters that can't start a valid hostname.
+ */
+const URL_PATTERN = /^https?:\/\/[^\s)\]}<>.,:/?#!]/;
+export const mdz_is_url = (s: string): boolean => URL_PATTERN.test(s);

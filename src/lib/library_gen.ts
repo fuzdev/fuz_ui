@@ -11,27 +11,135 @@
  * - Dependency graphs
  * - Svelte component props
  *
+ * This file contains Gro-specific integration. The actual analysis logic is in
+ * build-tool agnostic helpers that work with `SourceFileInfo`.
+ *
  * @see @fuzdev/fuz_util/source_json.js for type definitions
- * @see src/lib/library_gen_helpers.ts for buildtime-only helpers
- * @see src/lib/tsdoc_helpers.ts for JSDoc/TSDoc parsing
- * @see src/lib/ts_helpers.ts for TypeScript analysis
- * @see src/lib/svelte_helpers.ts for Svelte component analysis
+ * @see `library_analysis.ts` for the unified analysis entry point
+ * @see `library_gen_helpers.ts` for pipeline orchestration helpers
+ * @see `tsdoc_helpers.ts` for JSDoc/TSDoc parsing
+ * @see `ts_helpers.ts` for TypeScript analysis
+ * @see `svelte_helpers.ts` for Svelte component analysis
+ *
+ * @module
  */
 
 import type {Gen} from '@ryanatkn/gro';
 import {package_json_load} from '@ryanatkn/gro/package_json.js';
-import type {SourceJson} from '@fuzdev/fuz_util/source_json.js';
+import type {Disknode} from '@ryanatkn/gro/disknode.js';
+import type {SourceJson, ModuleJson} from '@fuzdev/fuz_util/source_json.js';
 
-import {ts_create_program, type ReExportInfo} from './ts_helpers.ts';
-import {module_extract_path, module_is_svelte} from './module_helpers.ts';
+import {ts_create_program} from './ts_helpers.js';
 import {
-	library_gen_collect_source_files,
-	library_gen_sort_modules,
-	library_gen_validate_no_duplicates,
-	library_gen_generate_json,
-	library_gen_analyze_svelte_file,
-	library_gen_analyze_typescript_file,
-} from './library_gen_helpers.ts';
+	type SourceFileInfo,
+	type ModuleSourceOptions,
+	type ModuleSourcePartial,
+	module_create_source_options,
+	module_validate_source_options,
+} from './module_helpers.js';
+import {library_analyze_module} from './library_analysis.js';
+import {
+	library_collect_source_files,
+	library_sort_modules,
+	library_find_duplicates,
+	library_merge_re_exports,
+	type CollectedReExport,
+	type DuplicateInfo,
+} from './library_gen_helpers.js';
+import {library_generate_json} from './library_gen_output.js';
+import {AnalysisContext, format_diagnostic} from './analysis_context.js';
+
+/** Options for library generation. */
+export interface LibraryGenOptions {
+	/**
+	 * Module source options for filtering and path extraction.
+	 *
+	 * Can provide full `ModuleSourceOptions` or partial options that will be
+	 * merged with defaults. The `project_root` is automatically set to
+	 * `process.cwd()` if not provided.
+	 */
+	source?: ModuleSourceOptions | Partial<ModuleSourcePartial>;
+	/**
+	 * Callback invoked when duplicate declaration names are found.
+	 *
+	 * Consumers decide how to handle duplicates: throw, warn, or ignore.
+	 * Use `library_gen_throw_on_duplicates` for strict flat namespace enforcement.
+	 *
+	 * @example
+	 * // Throw on duplicates (strict flat namespace)
+	 * library_gen({ on_duplicates: library_gen_throw_on_duplicates });
+	 *
+	 * // Warn but continue
+	 * library_gen({
+	 *   on_duplicates: (dupes, log) => {
+	 *     for (const [name, locs] of dupes) {
+	 *       log.warn(`Duplicate: ${name} in ${locs.map(l => l.module).join(', ')}`);
+	 *     }
+	 *   }
+	 * });
+	 */
+	on_duplicates?: OnDuplicatesCallback;
+}
+
+/**
+ * Callback for handling duplicate declaration names.
+ *
+ * @param duplicates Map of declaration names to their occurrences across modules
+ * @param log Logger for reporting
+ */
+export type OnDuplicatesCallback = (
+	duplicates: Map<string, Array<DuplicateInfo>>,
+	log: {error: (...args: Array<unknown>) => void},
+) => void;
+
+/**
+ * Strict duplicate handler that throws on any duplicate declaration names.
+ *
+ * Use this callback with `library_gen({ on_duplicates: library_gen_throw_on_duplicates })`
+ * to enforce a flat namespace where all declaration names must be unique.
+ *
+ * @throws Error if any duplicate declaration names are found
+ */
+export const library_gen_throw_on_duplicates: OnDuplicatesCallback = (duplicates, log) => {
+	if (duplicates.size === 0) return;
+
+	log.error('Duplicate declaration names detected in flat namespace:');
+	for (const [name, occurrences] of duplicates) {
+		log.error(`  "${name}" found in:`);
+		for (const {declaration, module} of occurrences) {
+			const line_info = declaration.source_line !== undefined ? `:${declaration.source_line}` : '';
+			log.error(`    - ${module}${line_info} (${declaration.kind})`);
+		}
+	}
+	throw new Error(
+		`Found ${duplicates.size} duplicate declaration name${duplicates.size === 1 ? '' : 's'} across modules. ` +
+			'The flat namespace requires unique names. To resolve: ' +
+			'(1) rename one of the conflicting declarations, or ' +
+			'(2) add /** @nodocs */ to exclude from documentation. ' +
+			'See CLAUDE.md "Declaration namespacing" section for details.',
+	);
+};
+
+/**
+ * Convert Gro's Disknode to the build-tool agnostic SourceFileInfo interface.
+ *
+ * Use this when you want to analyze files using Gro's filer directly.
+ *
+ * @throws Error if disknode has no content (should be loaded by Gro filer)
+ */
+export const source_file_from_disknode = (disknode: Disknode): SourceFileInfo => {
+	if (disknode.contents == null) {
+		throw new Error(
+			`Source file has no content: ${disknode.id} (ensure Gro filer loads file contents)`,
+		);
+	}
+	return {
+		id: disknode.id,
+		content: disknode.contents,
+		dependencies: [...disknode.dependencies.keys()],
+		dependents: [...disknode.dependents.keys()],
+	};
+};
 
 /**
  * Creates a Gen object for generating library metadata with full TypeScript analysis.
@@ -43,11 +151,23 @@ import {
  *
  * export const gen = library_gen();
  * ```
+ *
+ * @param options Optional generation options
  */
-export const library_gen = (): Gen => {
+export const library_gen = (options?: LibraryGenOptions): Gen => {
 	return {
 		generate: async ({log, filer}) => {
 			log.info('generating library metadata with full TypeScript analysis...');
+
+			// Build source options with project_root from cwd
+			const source_options: ModuleSourceOptions =
+				options?.source && 'project_root' in options.source
+					? options.source
+					: module_create_source_options(process.cwd(), options?.source);
+
+			// Validate options early to fail fast on misconfiguration
+			// (before expensive operations like program creation)
+			module_validate_source_options(source_options);
 
 			// Ensure filer is initialized
 			await filer.init();
@@ -56,100 +176,96 @@ export const library_gen = (): Gen => {
 			const package_json = await package_json_load();
 
 			// Create TypeScript program
-			const program = ts_create_program(log);
-			if (!program) {
-				throw new Error('Failed to create TypeScript program - cannot generate library metadata');
+			const {program} = ts_create_program(undefined, log);
+
+			// Create analysis context for collecting diagnostics
+			const ctx = new AnalysisContext();
+
+			// Convert Gro's filer files to build-tool agnostic SourceFileInfo
+			const all_source_files: Array<SourceFileInfo> = [];
+			for (const disknode of filer.files.values()) {
+				all_source_files.push(source_file_from_disknode(disknode));
 			}
 
-			const checker = program.getTypeChecker();
+			// Collect and filter source files
+			const source_files = library_collect_source_files(all_source_files, source_options, log);
 
-			// Collect source files from filer
-			const source_disknodes = library_gen_collect_source_files(filer.files, log);
+			// Collect modules (declared before source_json to include directly)
+			const modules: Array<ModuleJson> = [];
 
 			// Build source_json with array-based modules
 			// Phase 1: Analyze all modules and collect re-exports
 			const source_json: SourceJson = {
 				name: package_json.name,
 				version: package_json.version,
-				modules: [],
+				modules,
 			};
 
-			// Collect all re-exports: Map<declaration_name, Set<re_exporting_module_path>>
-			// The Set tracks which modules re-export each declaration
-			const all_re_exports: Array<{re_exporting_module: string; re_export: ReExportInfo}> = [];
+			// Collect re-exports for phase 2 merging
+			// See library_merge_re_exports for the two-phase resolution strategy
+			const collected_re_exports: Array<CollectedReExport> = [];
 
-			for (const disknode of source_disknodes) {
-				const source_id = disknode.id;
-				const module_path = module_extract_path(source_id);
-				const is_svelte = module_is_svelte(module_path);
+			for (const source_file of source_files) {
+				// Use unified analyzer that dispatches based on file type
+				const result = library_analyze_module(source_file, program, source_options, ctx, log);
+				if (!result) continue;
 
-				// Handle Svelte files separately (before trying to get TypeScript source file)
-				if (is_svelte) {
-					const mod = library_gen_analyze_svelte_file(disknode, module_path, checker);
-					source_json.modules!.push(mod);
-				} else {
-					// For TypeScript/JS files, get the source file from the program
-					const source_file = program.getSourceFile(source_id);
-					if (!source_file) {
-						log.warn(`Could not get source file: ${source_id}`);
-						continue;
-					}
+				// Build ModuleJson, filtering out @nodocs declarations
+				const module: ModuleJson = {
+					path: result.path,
+					declarations: result.declarations.filter((d) => !d.nodocs).map((d) => d.declaration),
+				};
+				if (result.module_comment) module.module_comment = result.module_comment;
+				if (result.dependencies.length > 0) module.dependencies = result.dependencies;
+				if (result.dependents.length > 0) module.dependents = result.dependents;
+				if (result.star_exports.length > 0) module.star_exports = result.star_exports;
 
-					// May throw, which we want to see
-					const {module: mod, re_exports} = library_gen_analyze_typescript_file(
-						disknode,
-						source_file,
-						module_path,
-						checker,
-					);
-					source_json.modules!.push(mod);
+				modules.push(module);
 
-					// Collect re-exports for post-processing
-					for (const re_export of re_exports) {
-						all_re_exports.push({re_exporting_module: module_path, re_export});
-					}
+				// Collect re-exports for phase 2 merging
+				for (const re_export of result.re_exports) {
+					collected_re_exports.push({re_exporting_module: result.path, re_export});
 				}
 			}
 
 			// Phase 2: Build also_exported_from arrays from re-export data
-			// Group re-exports by original module and declaration name
-			const re_export_map: Map<string, Map<string, Array<string>>> = new Map();
-			for (const {re_exporting_module, re_export} of all_re_exports) {
-				const {name, original_module} = re_export;
-				if (!re_export_map.has(original_module)) {
-					re_export_map.set(original_module, new Map());
+			library_merge_re_exports(source_json, collected_re_exports);
+
+			// Sort modules alphabetically for deterministic output and cleaner diffs
+			source_json.modules = library_sort_modules(modules);
+
+			// Check for duplicate declaration names and invoke callback if provided
+			if (options?.on_duplicates) {
+				const duplicates = library_find_duplicates(source_json);
+				if (duplicates.size > 0) {
+					options.on_duplicates(duplicates, log);
 				}
-				const module_map = re_export_map.get(original_module)!;
-				if (!module_map.has(name)) {
-					module_map.set(name, []);
-				}
-				module_map.get(name)!.push(re_exporting_module);
 			}
 
-			// Merge into original declarations
-			for (const mod of source_json.modules ?? []) {
-				const module_re_exports = re_export_map.get(mod.path);
-				if (!module_re_exports) continue;
+			// Report any analysis diagnostics
+			if (ctx.diagnostics.length > 0) {
+				const errors = ctx.errors();
+				const warnings = ctx.warnings();
+				const format_options = {strip_base: process.cwd()};
 
-				for (const declaration of mod.declarations ?? []) {
-					const re_exporters = module_re_exports.get(declaration.name);
-					if (re_exporters?.length) {
-						declaration.also_exported_from = re_exporters.sort();
+				if (errors.length > 0) {
+					log.error(`Analysis completed with ${errors.length} error(s):`);
+					for (const diagnostic of errors) {
+						log.error(`  ${format_diagnostic(diagnostic, format_options)}`);
+					}
+				}
+
+				if (warnings.length > 0) {
+					log.warn(`Analysis completed with ${warnings.length} warning(s):`);
+					for (const diagnostic of warnings) {
+						log.warn(`  ${format_diagnostic(diagnostic, format_options)}`);
 					}
 				}
 			}
 
-			// Sort modules alphabetically for deterministic output and cleaner diffs
-			source_json.modules = source_json.modules
-				? library_gen_sort_modules(source_json.modules)
-				: undefined;
-
-			// Validate no duplicate declaration names across modules
-			library_gen_validate_no_duplicates(source_json, log);
-
 			log.info('library metadata generation complete');
 
-			const {json_content, ts_content} = library_gen_generate_json(package_json, source_json);
+			const {json_content, ts_content} = library_generate_json(package_json, source_json);
 
 			// Return array of files:
 			// - library.json (default from .gen.json.ts naming)

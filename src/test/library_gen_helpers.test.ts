@@ -1,48 +1,20 @@
 import {test, assert, describe} from 'vitest';
-import type {Logger} from '@fuzdev/fuz_util/log.js';
-import type {PackageJson} from '@fuzdev/fuz_util/package_json.js';
 import type {SourceJson, ModuleJson, DeclarationKind} from '@fuzdev/fuz_util/source_json.js';
-import type {Disknode} from '@ryanatkn/gro/disknode.js';
 
 import {
-	library_gen_validate_no_duplicates,
-	library_gen_sort_modules,
-	library_gen_generate_json,
-	library_gen_extract_dependencies,
+	library_find_duplicates,
+	library_sort_modules,
+	library_collect_source_files,
+	library_merge_re_exports,
+	type CollectedReExport,
 } from '$lib/library_gen_helpers.js';
+import {type SourceFileInfo, type ModuleSourceOptions} from '$lib/module_helpers.js';
+import {TEST_PROJECT_ROOT, create_test_source_options} from './module_test_helpers.js';
 
-/**
- * Create a mock logger that captures log calls for testing validation output.
- *
- * Returns a logger with arrays to inspect logged messages:
- * - `errors` - array of error messages
- * - `warnings` - array of warning messages
- * - `infos` - array of info messages
- */
-const create_mock_logger = (): Logger & {
-	errors: Array<string>;
-	warnings: Array<string>;
-	infos: Array<string>;
-} => {
-	const errors: Array<string> = [];
-	const warnings: Array<string> = [];
-	const infos: Array<string> = [];
-
-	return {
-		errors,
-		warnings,
-		infos,
-		error: (...args: Array<any>) => {
-			errors.push(args.join(' '));
-		},
-		warn: (...args: Array<any>) => {
-			warnings.push(args.join(' '));
-		},
-		info: (...args: Array<any>) => {
-			infos.push(args.join(' '));
-		},
-	} as any;
-};
+// Local alias that uses the default project root
+const test_options = (
+	overrides?: Partial<Omit<ModuleSourceOptions, 'project_root'>>,
+): ModuleSourceOptions => create_test_source_options(TEST_PROJECT_ROOT, overrides);
 
 /**
  * Create a mock SourceJson with test modules.
@@ -82,65 +54,9 @@ const create_mock_module = (
 	};
 };
 
-/**
- * Create a mock Disknode for testing dependency extraction.
- *
- * Simulates filer's disknode structure with dependencies/dependents maps.
- *
- * @param id absolute path to the file
- * @param deps array of absolute paths this file imports
- * @param dependents_ids array of absolute paths that import this file
- * @returns Disknode with populated dependencies and dependents maps
- */
-const create_mock_disknode = (
-	id: string,
-	deps: Array<string> = [],
-	dependents_ids: Array<string> = [],
-): Disknode => {
-	const disknode: Disknode = {
-		id,
-		contents: '// mock contents',
-		external: false,
-		ctime: Date.now(),
-		mtime: Date.now(),
-		dependencies: new Map(),
-		dependents: new Map(),
-	};
-
-	// Add dependencies
-	for (const dep_id of deps) {
-		const dep_disknode: Disknode = {
-			id: dep_id,
-			contents: '// mock dependency',
-			external: false,
-			ctime: Date.now(),
-			mtime: Date.now(),
-			dependencies: new Map(),
-			dependents: new Map(),
-		};
-		disknode.dependencies.set(dep_id, dep_disknode);
-	}
-
-	// Add dependents
-	for (const dependent_id of dependents_ids) {
-		const dependent_disknode: Disknode = {
-			id: dependent_id,
-			contents: '// mock dependent',
-			external: false,
-			ctime: Date.now(),
-			mtime: Date.now(),
-			dependencies: new Map(),
-			dependents: new Map(),
-		};
-		disknode.dependents.set(dependent_id, dependent_disknode);
-	}
-
-	return disknode;
-};
-
-describe('library_gen_validate_no_duplicates', () => {
-	describe('happy path - validation passes', () => {
-		test('no duplicates - validation passes', () => {
+describe('library_find_duplicates', () => {
+	describe('no duplicates - returns empty Map', () => {
+		test('unique declarations across modules', () => {
 			const source_json = create_mock_source_json([
 				create_mock_module('foo.ts', [
 					{name: 'foo', kind: 'function'},
@@ -152,25 +68,17 @@ describe('library_gen_validate_no_duplicates', () => {
 				]),
 			]);
 
-			const logger = create_mock_logger();
+			const duplicates = library_find_duplicates(source_json);
 
-			// Should not throw
-			assert.doesNotThrow(() => {
-				library_gen_validate_no_duplicates(source_json, logger);
-			});
-
-			assert.strictEqual(logger.errors.length, 0);
+			assert.strictEqual(duplicates.size, 0);
 		});
 
 		test('empty modules array', () => {
 			const source_json = create_mock_source_json([]);
-			const logger = create_mock_logger();
 
-			assert.doesNotThrow(() => {
-				library_gen_validate_no_duplicates(source_json, logger);
-			});
+			const duplicates = library_find_duplicates(source_json);
 
-			assert.strictEqual(logger.errors.length, 0);
+			assert.strictEqual(duplicates.size, 0);
 		});
 
 		test('modules with no declarations', () => {
@@ -179,13 +87,9 @@ describe('library_gen_validate_no_duplicates', () => {
 				{path: 'also_empty.ts', declarations: []},
 			]);
 
-			const logger = create_mock_logger();
+			const duplicates = library_find_duplicates(source_json);
 
-			assert.doesNotThrow(() => {
-				library_gen_validate_no_duplicates(source_json, logger);
-			});
-
-			assert.strictEqual(logger.errors.length, 0);
+			assert.strictEqual(duplicates.size, 0);
 		});
 
 		test('undefined modules array', () => {
@@ -194,13 +98,9 @@ describe('library_gen_validate_no_duplicates', () => {
 				version: '1.0.0',
 			};
 
-			const logger = create_mock_logger();
+			const duplicates = library_find_duplicates(source_json);
 
-			assert.doesNotThrow(() => {
-				library_gen_validate_no_duplicates(source_json, logger);
-			});
-
-			assert.strictEqual(logger.errors.length, 0);
+			assert.strictEqual(duplicates.size, 0);
 		});
 
 		test('single module with multiple unique declarations', () => {
@@ -213,38 +113,30 @@ describe('library_gen_validate_no_duplicates', () => {
 				]),
 			]);
 
-			const logger = create_mock_logger();
+			const duplicates = library_find_duplicates(source_json);
 
-			assert.doesNotThrow(() => {
-				library_gen_validate_no_duplicates(source_json, logger);
-			});
-
-			assert.strictEqual(logger.errors.length, 0);
+			assert.strictEqual(duplicates.size, 0);
 		});
 	});
 
-	describe('error cases - validation fails', () => {
+	describe('duplicates found - returns populated Map', () => {
 		test('single duplicate across two modules', () => {
 			const source_json = create_mock_source_json([
 				create_mock_module('foo.ts', [{name: 'Duplicate', kind: 'type'}]),
 				create_mock_module('bar.ts', [{name: 'Duplicate', kind: 'component'}]),
 			]);
 
-			const logger = create_mock_logger();
+			const duplicates = library_find_duplicates(source_json);
 
-			assert.throws(
-				() => {
-					library_gen_validate_no_duplicates(source_json, logger);
-				},
-				/Found 1 duplicate declaration name across modules/,
-				'should throw error for single duplicate',
+			assert.strictEqual(duplicates.size, 1);
+			assert.ok(duplicates.has('Duplicate'));
+
+			const occurrences = duplicates.get('Duplicate')!;
+			assert.strictEqual(occurrences.length, 2);
+			assert.ok(occurrences.some((o) => o.module === 'foo.ts' && o.declaration.kind === 'type'));
+			assert.ok(
+				occurrences.some((o) => o.module === 'bar.ts' && o.declaration.kind === 'component'),
 			);
-
-			// Check error logging
-			assert.ok(logger.errors.length > 0);
-			assert.ok(logger.errors.some((e) => e.includes('Duplicate')));
-			assert.ok(logger.errors.some((e) => e.includes('foo.ts')));
-			assert.ok(logger.errors.some((e) => e.includes('bar.ts')));
 		});
 
 		test('multiple duplicates', () => {
@@ -259,20 +151,11 @@ describe('library_gen_validate_no_duplicates', () => {
 				]),
 			]);
 
-			const logger = create_mock_logger();
+			const duplicates = library_find_duplicates(source_json);
 
-			assert.throws(
-				() => {
-					library_gen_validate_no_duplicates(source_json, logger);
-				},
-				/Found 2 duplicate declaration names across modules/,
-				'should throw error for multiple duplicates',
-			);
-
-			// Check error logging mentions both duplicates
-			const all_errors = logger.errors.join(' ');
-			assert.ok(all_errors.includes('Dup1'));
-			assert.ok(all_errors.includes('Dup2'));
+			assert.strictEqual(duplicates.size, 2);
+			assert.ok(duplicates.has('Dup1'));
+			assert.ok(duplicates.has('Dup2'));
 		});
 
 		test('same name in 3+ modules', () => {
@@ -282,51 +165,31 @@ describe('library_gen_validate_no_duplicates', () => {
 				create_mock_module('c.ts', [{name: 'Common', kind: 'class'}]),
 			]);
 
-			const logger = create_mock_logger();
+			const duplicates = library_find_duplicates(source_json);
 
-			assert.throws(() => {
-				library_gen_validate_no_duplicates(source_json, logger);
-			}, /Found 1 duplicate declaration name across modules/);
-
-			// Check all three modules are mentioned
-			const all_errors = logger.errors.join(' ');
-			assert.ok(all_errors.includes('a.ts'));
-			assert.ok(all_errors.includes('b.ts'));
-			assert.ok(all_errors.includes('c.ts'));
+			assert.strictEqual(duplicates.size, 1);
+			const occurrences = duplicates.get('Common')!;
+			assert.strictEqual(occurrences.length, 3);
+			assert.ok(occurrences.some((o) => o.module === 'a.ts'));
+			assert.ok(occurrences.some((o) => o.module === 'b.ts'));
+			assert.ok(occurrences.some((o) => o.module === 'c.ts'));
 		});
 
-		test('duplicate with different kinds shows both kinds', () => {
+		test('includes full declaration for each occurrence', () => {
 			const source_json = create_mock_source_json([
 				create_mock_module('helpers.ts', [{name: 'Foo', kind: 'function'}]),
 				create_mock_module('Foo.svelte', [{name: 'Foo', kind: 'component'}]),
 			]);
 
-			const logger = create_mock_logger();
+			const duplicates = library_find_duplicates(source_json);
+			const occurrences = duplicates.get('Foo')!;
 
-			assert.throws(() => {
-				library_gen_validate_no_duplicates(source_json, logger);
-			});
-
-			const all_errors = logger.errors.join(' ');
-			assert.ok(all_errors.includes('function'));
-			assert.ok(all_errors.includes('component'));
-		});
-
-		test('duplicate with different kinds', () => {
-			const source_json = create_mock_source_json([
-				create_mock_module('a.ts', [{name: 'Unknown', kind: 'variable'}]),
-				create_mock_module('b.ts', [{name: 'Unknown', kind: 'type'}]),
-			]);
-
-			const logger = create_mock_logger();
-
-			assert.throws(() => {
-				library_gen_validate_no_duplicates(source_json, logger);
-			});
-
-			const all_errors = logger.errors.join(' ');
-			assert.ok(all_errors.includes('variable'));
-			assert.ok(all_errors.includes('type'));
+			assert.ok(occurrences.some((o) => o.declaration.kind === 'function'));
+			assert.ok(occurrences.some((o) => o.declaration.kind === 'component'));
+			// Verify full declaration is available
+			for (const o of occurrences) {
+				assert.ok(o.declaration.name === 'Foo');
+			}
 		});
 	});
 
@@ -337,21 +200,70 @@ describe('library_gen_validate_no_duplicates', () => {
 				create_mock_module('DocsLink.svelte', [{name: 'DocsLink', kind: 'component'}]),
 			]);
 
-			const logger = create_mock_logger();
+			const duplicates = library_find_duplicates(source_json);
 
-			assert.throws(() => {
-				library_gen_validate_no_duplicates(source_json, logger);
-			}, /duplicate declaration name/i);
+			assert.strictEqual(duplicates.size, 1);
+			assert.ok(duplicates.has('DocsLink'));
+			const occurrences = duplicates.get('DocsLink')!;
+			assert.ok(occurrences.some((o) => o.module === 'docs_helpers.svelte.ts'));
+			assert.ok(occurrences.some((o) => o.module === 'DocsLink.svelte'));
+		});
+	});
 
-			const all_errors = logger.errors.join(' ');
-			assert.ok(all_errors.includes('DocsLink'));
-			assert.ok(all_errors.includes('docs_helpers.svelte.ts'));
-			assert.ok(all_errors.includes('DocsLink.svelte'));
+	describe('source_line tracking', () => {
+		test('includes source_line when available in declaration', () => {
+			const source_json: SourceJson = {
+				name: '@test/package',
+				version: '1.0.0',
+				modules: [
+					{
+						path: 'foo.ts',
+						declarations: [{name: 'Duplicate', kind: 'type', source_line: 10}],
+					},
+					{
+						path: 'bar.ts',
+						declarations: [{name: 'Duplicate', kind: 'function', source_line: 25}],
+					},
+				],
+			};
+
+			const duplicates = library_find_duplicates(source_json);
+			const occurrences = duplicates.get('Duplicate')!;
+
+			assert.strictEqual(occurrences.length, 2);
+			assert.ok(occurrences.some((o) => o.module === 'foo.ts' && o.declaration.source_line === 10));
+			assert.ok(occurrences.some((o) => o.module === 'bar.ts' && o.declaration.source_line === 25));
+		});
+
+		test('handles missing source_line in declaration', () => {
+			const source_json: SourceJson = {
+				name: '@test/package',
+				version: '1.0.0',
+				modules: [
+					{
+						path: 'foo.ts',
+						declarations: [{name: 'Duplicate', kind: 'type'}], // no source_line
+					},
+					{
+						path: 'bar.ts',
+						declarations: [{name: 'Duplicate', kind: 'function', source_line: 25}],
+					},
+				],
+			};
+
+			const duplicates = library_find_duplicates(source_json);
+			const occurrences = duplicates.get('Duplicate')!;
+
+			const foo_occurrence = occurrences.find((o) => o.module === 'foo.ts')!;
+			const bar_occurrence = occurrences.find((o) => o.module === 'bar.ts')!;
+
+			assert.isUndefined(foo_occurrence.declaration.source_line);
+			assert.strictEqual(bar_occurrence.declaration.source_line, 25);
 		});
 	});
 });
 
-describe('library_gen_sort_modules', () => {
+describe('library_sort_modules', () => {
 	test('sorts modules alphabetically by path', () => {
 		const modules: Array<ModuleJson> = [
 			{path: 'zebra.ts', declarations: []},
@@ -359,7 +271,7 @@ describe('library_gen_sort_modules', () => {
 			{path: 'beta.ts', declarations: []},
 		];
 
-		const sorted = library_gen_sort_modules(modules);
+		const sorted = library_sort_modules(modules);
 
 		assert.strictEqual(sorted[0]!.path, 'alpha.ts');
 		assert.strictEqual(sorted[1]!.path, 'beta.ts');
@@ -373,7 +285,7 @@ describe('library_gen_sort_modules', () => {
 			{path: 'b.ts', declarations: []},
 		];
 
-		const sorted = library_gen_sort_modules(modules);
+		const sorted = library_sort_modules(modules);
 
 		// Original array should not be mutated
 		assert.strictEqual(modules[0]!.path, 'c.ts');
@@ -387,13 +299,13 @@ describe('library_gen_sort_modules', () => {
 	});
 
 	test('handles empty array', () => {
-		const sorted = library_gen_sort_modules([]);
+		const sorted = library_sort_modules([]);
 		assert.strictEqual(sorted.length, 0);
 	});
 
 	test('handles single module', () => {
 		const modules: Array<ModuleJson> = [{path: 'single.ts', declarations: []}];
-		const sorted = library_gen_sort_modules(modules);
+		const sorted = library_sort_modules(modules);
 		assert.strictEqual(sorted.length, 1);
 		assert.strictEqual(sorted[0]!.path, 'single.ts');
 	});
@@ -404,7 +316,7 @@ describe('library_gen_sort_modules', () => {
 			{path: 'same.ts', declarations: [{name: 'second', kind: 'function'}]},
 		];
 
-		const sorted = library_gen_sort_modules(modules);
+		const sorted = library_sort_modules(modules);
 
 		// Should maintain original order for identical paths
 		assert.strictEqual(sorted[0]!.declarations![0]!.name, 'first');
@@ -412,499 +324,484 @@ describe('library_gen_sort_modules', () => {
 	});
 });
 
-describe('library_gen_generate_json', () => {
-	// Helper to create valid package_json for tests (library_json_parse requires repository)
-	const create_test_package_json = (overrides: Partial<PackageJson> = {}): PackageJson => ({
-		name: '@test/package',
-		version: '1.0.0',
-		repository: 'https://github.com/test/package',
-		...overrides,
-	});
+// Note: library_generate_json tests are in library_gen_output.test.ts
+// Note: library_gen_extract_dependencies tests were removed.
+// Dependency extraction is now handled internally by ts_analyze_module and svelte_analyze_module.
+// Testing occurs through integration tests via the higher-level analysis functions.
 
-	test('generates JSON and .ts wrapper files', () => {
-		const package_json = create_test_package_json({type: 'module'});
-
-		const source_json: SourceJson = {
-			name: '@test/package',
-			version: '1.0.0',
-			modules: [
-				{
-					path: 'test.ts',
-					declarations: [{name: 'foo', kind: 'function'}],
-				},
-			],
-		};
-
-		const result = library_gen_generate_json(package_json, source_json);
-
-		// Check we get both outputs
-		assert.ok(result.json_content);
-		assert.ok(result.ts_content);
-
-		// Check JSON is valid
-		const parsed = JSON.parse(result.json_content);
-		assert.ok(parsed.package_json);
-		assert.ok(parsed.source_json);
-
-		// Check .ts wrapper has correct structure
-		assert.ok(result.ts_content.includes('// generated by library.gen.ts - do not edit'));
-		assert.ok(result.ts_content.includes("import json from './library.json'"));
-		assert.ok(result.ts_content.includes('export const library_json'));
-	});
-
-	test('properly serializes library_json data in JSON', () => {
-		const package_json = create_test_package_json({
-			name: '@scope/pkg',
-			version: '2.0.0',
-			type: 'module',
-			description: 'Test package',
-		});
-
-		const source_json: SourceJson = {
-			name: '@scope/pkg',
-			version: '2.0.0',
-		};
-
-		const result = library_gen_generate_json(package_json, source_json);
-		const parsed = JSON.parse(result.json_content);
-
-		// Verify library_json contains parsed data
-		assert.strictEqual(parsed.package_json.name, '@scope/pkg');
-		assert.strictEqual(parsed.package_json.version, '2.0.0');
-		// library_json includes computed fields like repo_name
-		assert.ok(parsed.repo_name);
-	});
-
-	test('properly serializes source_json with modules', () => {
-		const package_json = create_test_package_json();
-
-		const source_json: SourceJson = {
-			name: '@test/package',
-			version: '1.0.0',
-			modules: [
-				{
-					path: 'foo.ts',
-					declarations: [
-						{name: 'foo', kind: 'function'},
-						{name: 'Bar', kind: 'type'},
-					],
-				},
-			],
-		};
-
-		const result = library_gen_generate_json(package_json, source_json);
-		const parsed = JSON.parse(result.json_content);
-
-		// Verify source_json is included
-		assert.ok(parsed.source_json);
-		assert.ok(parsed.source_json.modules);
-		assert.strictEqual(parsed.source_json.modules[0].path, 'foo.ts');
-		assert.strictEqual(parsed.source_json.modules[0].declarations[0].name, 'foo');
-		assert.strictEqual(parsed.source_json.modules[0].declarations[0].kind, 'function');
-	});
-
-	test('uses tab indentation in JSON', () => {
-		const package_json = create_test_package_json();
-
-		const source_json: SourceJson = {
-			name: '@test/package',
-			version: '1.0.0',
-		};
-
-		const result = library_gen_generate_json(package_json, source_json);
-
-		// Should use tabs for indentation
-		assert.ok(result.json_content.includes('\t"package_json"'), 'Expected tab-indented JSON');
-	});
-
-	test('handles empty modules array', () => {
-		const package_json = create_test_package_json();
-
-		const source_json: SourceJson = {
-			name: '@test/package',
-			version: '1.0.0',
-			modules: [],
-		};
-
-		const result = library_gen_generate_json(package_json, source_json);
-		const parsed = JSON.parse(result.json_content);
-
-		assert.deepStrictEqual(parsed.source_json.modules, []);
-	});
-
-	test('handles undefined modules', () => {
-		const package_json = create_test_package_json();
-
-		const source_json: SourceJson = {
-			name: '@test/package',
-			version: '1.0.0',
-		};
-
-		const result = library_gen_generate_json(package_json, source_json);
-		const parsed = JSON.parse(result.json_content);
-
-		assert.ok(parsed.package_json);
-		assert.ok(parsed.source_json);
-	});
-});
-
-describe('library_gen_validate_no_duplicates - error message format', () => {
-	test('singular error message for one duplicate', () => {
-		const source_json = create_mock_source_json([
-			create_mock_module('a.ts', [{name: 'Dup', kind: 'type'}]),
-			create_mock_module('b.ts', [{name: 'Dup', kind: 'function'}]),
-		]);
-
-		const logger = create_mock_logger();
-
-		try {
-			library_gen_validate_no_duplicates(source_json, logger);
-			assert.fail('Should have thrown');
-		} catch (err: any) {
-			// Check singular form
-			assert.ok(err.message.includes('1 duplicate declaration name across'));
-			assert.ok(!err.message.includes('1 duplicate declaration names'));
-		}
-	});
-
-	test('plural error message for multiple duplicates', () => {
-		const source_json = create_mock_source_json([
-			create_mock_module('a.ts', [
-				{name: 'Dup1', kind: 'type'},
-				{name: 'Dup2', kind: 'type'},
-			]),
-			create_mock_module('b.ts', [
-				{name: 'Dup1', kind: 'function'},
-				{name: 'Dup2', kind: 'function'},
-			]),
-		]);
-
-		const logger = create_mock_logger();
-
-		try {
-			library_gen_validate_no_duplicates(source_json, logger);
-			assert.fail('Should have thrown');
-		} catch (err: any) {
-			// Check plural form
-			assert.ok(err.message.includes('2 duplicate declaration names across'));
-		}
-	});
-
-	test('error message includes CLAUDE.md reference', () => {
-		const source_json = create_mock_source_json([
-			create_mock_module('a.ts', [{name: 'Dup', kind: 'type'}]),
-			create_mock_module('b.ts', [{name: 'Dup', kind: 'function'}]),
-		]);
-
-		const logger = create_mock_logger();
-
-		try {
-			library_gen_validate_no_duplicates(source_json, logger);
-			assert.fail('Should have thrown');
-		} catch (err: any) {
-			assert.ok(err.message.includes('CLAUDE.md'));
-			assert.ok(err.message.includes('Declaration namespacing'));
-		}
-	});
-
-	test('error message mentions @nodocs as resolution option', () => {
-		const source_json = create_mock_source_json([
-			create_mock_module('a.ts', [{name: 'Dup', kind: 'type'}]),
-			create_mock_module('b.ts', [{name: 'Dup', kind: 'function'}]),
-		]);
-
-		const logger = create_mock_logger();
-
-		try {
-			library_gen_validate_no_duplicates(source_json, logger);
-			assert.fail('Should have thrown');
-		} catch (err: any) {
-			// Error message should mention both resolution options
-			assert.ok(err.message.includes('rename'), 'should mention renaming');
-			assert.ok(err.message.includes('@nodocs'), 'should mention @nodocs');
-		}
-	});
-
-	test('log output includes all duplicate details', () => {
-		const source_json = create_mock_source_json([
-			create_mock_module('foo/bar.ts', [{name: 'Widget', kind: 'class'}]),
-			create_mock_module('baz/Widget.svelte', [{name: 'Widget', kind: 'component'}]),
-		]);
-
-		const logger = create_mock_logger();
-
-		try {
-			library_gen_validate_no_duplicates(source_json, logger);
-			assert.fail('Should have thrown');
-		} catch (_err: any) {
-			const all_errors = logger.errors.join('\n');
-
-			// Check structured error output
-			assert.ok(all_errors.includes('Duplicate declaration names detected'));
-			assert.ok(all_errors.includes('"Widget" found in:'));
-			assert.ok(all_errors.includes('foo/bar.ts'));
-			assert.ok(all_errors.includes('class'));
-			assert.ok(all_errors.includes('baz/Widget.svelte'));
-			assert.ok(all_errors.includes('component'));
-		}
-	});
-});
-
-describe('library_gen_extract_dependencies', () => {
+describe('library_collect_source_files', () => {
 	describe('basic functionality', () => {
-		test('extracts both dependencies and dependents from source modules', () => {
-			const disknode = create_mock_disknode(
-				'/home/user/project/src/lib/foo.ts',
-				['/home/user/project/src/lib/bar.ts', '/home/user/project/src/lib/baz.svelte'],
-				['/home/user/project/src/lib/qux.ts', '/home/user/project/src/lib/Quux.svelte'],
-			);
+		test('collects TypeScript files from src/lib', () => {
+			const files: Array<SourceFileInfo> = [
+				{id: '/home/user/project/src/lib/foo.ts', content: ''},
+				{id: '/home/user/project/src/lib/bar.ts', content: ''},
+				{id: '/home/user/project/src/lib/baz.ts', content: ''},
+			];
 
-			const result = library_gen_extract_dependencies(disknode);
+			const result = library_collect_source_files(files, test_options());
 
-			assert.deepStrictEqual(result.dependencies, ['bar.ts', 'baz.svelte']);
-			assert.deepStrictEqual(result.dependents, ['Quux.svelte', 'qux.ts']);
+			assert.strictEqual(result.length, 3);
+			assert.ok(result.some((f) => f.id.endsWith('foo.ts')));
+			assert.ok(result.some((f) => f.id.endsWith('bar.ts')));
+			assert.ok(result.some((f) => f.id.endsWith('baz.ts')));
 		});
 
-		test('returns empty arrays when no dependencies or dependents', () => {
-			const disknode = create_mock_disknode('/home/user/project/src/lib/standalone.ts');
+		test('collects Svelte files from src/lib', () => {
+			const files: Array<SourceFileInfo> = [
+				{id: '/home/user/project/src/lib/Button.svelte', content: ''},
+				{id: '/home/user/project/src/lib/Card.svelte', content: ''},
+			];
 
-			const result = library_gen_extract_dependencies(disknode);
+			const result = library_collect_source_files(files, test_options());
 
-			assert.deepStrictEqual(result.dependencies, []);
-			assert.deepStrictEqual(result.dependents, []);
+			assert.strictEqual(result.length, 2);
+			assert.ok(result.some((f) => f.id.endsWith('Button.svelte')));
+			assert.ok(result.some((f) => f.id.endsWith('Card.svelte')));
 		});
 
-		test('handles module with only dependencies', () => {
-			const disknode = create_mock_disknode(
-				'/home/user/project/src/lib/consumer.ts',
-				['/home/user/project/src/lib/dependency.ts'],
-				[],
-			);
+		test('collects JavaScript files from src/lib', () => {
+			const files: Array<SourceFileInfo> = [
+				{id: '/home/user/project/src/lib/utils.js', content: ''},
+				{id: '/home/user/project/src/lib/helpers.js', content: ''},
+			];
 
-			const result = library_gen_extract_dependencies(disknode);
+			const result = library_collect_source_files(files, test_options());
 
-			assert.deepStrictEqual(result.dependencies, ['dependency.ts']);
-			assert.deepStrictEqual(result.dependents, []);
+			assert.strictEqual(result.length, 2);
 		});
 
-		test('handles module with only dependents', () => {
-			const disknode = create_mock_disknode(
-				'/home/user/project/src/lib/provider.ts',
-				[],
-				['/home/user/project/src/lib/consumer.ts'],
-			);
+		test('collects mixed file types', () => {
+			const files: Array<SourceFileInfo> = [
+				{id: '/home/user/project/src/lib/foo.ts', content: ''},
+				{id: '/home/user/project/src/lib/Button.svelte', content: ''},
+				{id: '/home/user/project/src/lib/utils.js', content: ''},
+			];
 
-			const result = library_gen_extract_dependencies(disknode);
+			const result = library_collect_source_files(files, test_options());
 
-			assert.deepStrictEqual(result.dependencies, []);
-			assert.deepStrictEqual(result.dependents, ['consumer.ts']);
-		});
-	});
-
-	describe('filtering - only includes src/lib modules', () => {
-		test('excludes external node_modules dependencies', () => {
-			const disknode = create_mock_disknode(
-				'/home/user/project/src/lib/app.ts',
-				[
-					'/home/user/project/src/lib/local.ts',
-					'/home/user/project/node_modules/svelte/index.js',
-					'/home/user/project/node_modules/@fuzdev/fuz_util/object.js',
-				],
-				[],
-			);
-
-			const result = library_gen_extract_dependencies(disknode);
-
-			// Should only include src/lib modules
-			assert.deepStrictEqual(result.dependencies, ['local.ts']);
-		});
-
-		test('excludes test files from dependencies', () => {
-			const disknode = create_mock_disknode(
-				'/home/user/project/src/lib/component.svelte',
-				['/home/user/project/src/lib/helpers.ts', '/home/user/project/src/test/fixtures/mock.ts'],
-				[],
-			);
-
-			const result = library_gen_extract_dependencies(disknode);
-
-			// Should exclude src/test
-			assert.deepStrictEqual(result.dependencies, ['helpers.ts']);
-		});
-
-		test('excludes test files from dependents', () => {
-			const disknode = create_mock_disknode(
-				'/home/user/project/src/lib/utils.ts',
-				[],
-				['/home/user/project/src/lib/app.ts', '/home/user/project/src/test/utils.test.ts'],
-			);
-
-			const result = library_gen_extract_dependencies(disknode);
-
-			// Should exclude test files
-			assert.deepStrictEqual(result.dependents, ['app.ts']);
-		});
-
-		test('excludes routes directory', () => {
-			const disknode = create_mock_disknode(
-				'/home/user/project/src/lib/component.svelte',
-				[],
-				['/home/user/project/src/lib/other.svelte', '/home/user/project/src/routes/index.svelte'],
-			);
-
-			const result = library_gen_extract_dependencies(disknode);
-
-			// Should only include src/lib modules
-			assert.deepStrictEqual(result.dependents, ['other.svelte']);
+			assert.strictEqual(result.length, 3);
 		});
 	});
 
-	describe('path extraction', () => {
-		test('extracts relative module paths correctly', () => {
-			const disknode = create_mock_disknode(
-				'/home/user/project/src/lib/components/Button.svelte',
-				['/home/user/project/src/lib/styles/theme.ts'],
-				['/home/user/project/src/lib/layouts/Layout.svelte'],
-			);
+	describe('filtering', () => {
+		test('excludes test files', () => {
+			const files: Array<SourceFileInfo> = [
+				{id: '/home/user/project/src/lib/foo.ts', content: ''},
+				{id: '/home/user/project/src/lib/foo.test.ts', content: ''},
+				{id: '/home/user/project/src/lib/bar.ts', content: ''},
+				{id: '/home/user/project/src/lib/bar.test.ts', content: ''},
+			];
 
-			const result = library_gen_extract_dependencies(disknode);
+			const result = library_collect_source_files(files, test_options());
 
-			assert.deepStrictEqual(result.dependencies, ['styles/theme.ts']);
-			assert.deepStrictEqual(result.dependents, ['layouts/Layout.svelte']);
+			assert.strictEqual(result.length, 2);
+			assert.ok(result.every((f) => !f.id.includes('.test.ts')));
 		});
 
-		test('handles deeply nested module paths', () => {
-			const disknode = create_mock_disknode(
-				'/home/user/project/src/lib/deep/nested/module.ts',
-				['/home/user/project/src/lib/deep/nested/sibling.ts'],
-				['/home/user/project/src/lib/other/path/consumer.ts'],
-			);
+		test('excludes files outside source paths', () => {
+			const files: Array<SourceFileInfo> = [
+				{id: '/home/user/project/src/lib/foo.ts', content: ''},
+				{id: '/home/user/project/src/routes/page.svelte', content: ''},
+				{id: '/home/user/project/src/test/helpers.ts', content: ''},
+				{id: '/home/user/project/node_modules/pkg/index.ts', content: ''},
+			];
 
-			const result = library_gen_extract_dependencies(disknode);
+			const result = library_collect_source_files(files, test_options());
 
-			assert.deepStrictEqual(result.dependencies, ['deep/nested/sibling.ts']);
-			assert.deepStrictEqual(result.dependents, ['other/path/consumer.ts']);
+			assert.strictEqual(result.length, 1);
+			assert.strictEqual(result[0]!.id, '/home/user/project/src/lib/foo.ts');
+		});
+
+		test('excludes unsupported file types', () => {
+			const files: Array<SourceFileInfo> = [
+				{id: '/home/user/project/src/lib/foo.ts', content: ''},
+				{id: '/home/user/project/src/lib/styles.css', content: ''},
+				{id: '/home/user/project/src/lib/data.json', content: ''},
+				{id: '/home/user/project/src/lib/readme.md', content: ''},
+			];
+
+			const result = library_collect_source_files(files, test_options());
+
+			assert.strictEqual(result.length, 1);
+			assert.strictEqual(result[0]!.id, '/home/user/project/src/lib/foo.ts');
+		});
+
+		test('excludes nested repo paths', () => {
+			const files: Array<SourceFileInfo> = [
+				{id: '/home/user/project/src/lib/foo.ts', content: ''},
+				{id: '/home/user/project/src/fixtures/repos/repo_a/src/lib/index.ts', content: ''},
+				{id: '/home/user/project/src/test/fixtures/repos/repo_b/src/lib/bar.ts', content: ''},
+			];
+
+			const result = library_collect_source_files(files, test_options());
+
+			assert.strictEqual(result.length, 1);
+			assert.strictEqual(result[0]!.id, '/home/user/project/src/lib/foo.ts');
 		});
 	});
 
-	describe('sorting', () => {
-		test('sorts dependencies alphabetically', () => {
-			const disknode = create_mock_disknode(
-				'/home/user/project/src/lib/app.ts',
-				[
-					'/home/user/project/src/lib/zebra.ts',
-					'/home/user/project/src/lib/alpha.ts',
-					'/home/user/project/src/lib/beta.ts',
-				],
-				[],
-			);
+	describe('custom options', () => {
+		test('uses custom source_paths', () => {
+			const files: Array<SourceFileInfo> = [
+				{id: '/home/user/project/src/lib/foo.ts', content: ''},
+				{id: '/home/user/project/src/routes/page.svelte', content: ''},
+			];
 
-			const result = library_gen_extract_dependencies(disknode);
+			const options = test_options({
+				source_paths: ['src/routes'],
+				source_root: 'src/routes',
+			});
 
-			assert.deepStrictEqual(result.dependencies, ['alpha.ts', 'beta.ts', 'zebra.ts']);
+			const result = library_collect_source_files(files, options);
+
+			assert.strictEqual(result.length, 1);
+			assert.strictEqual(result[0]!.id, '/home/user/project/src/routes/page.svelte');
 		});
 
-		test('sorts dependents alphabetically', () => {
-			const disknode = create_mock_disknode(
-				'/home/user/project/src/lib/utils.ts',
-				[],
-				[
-					'/home/user/project/src/lib/zoo.ts',
-					'/home/user/project/src/lib/aardvark.ts',
-					'/home/user/project/src/lib/middle.ts',
-				],
-			);
+		test('uses custom get_analyzer filter', () => {
+			const files: Array<SourceFileInfo> = [
+				{id: '/home/user/project/src/lib/foo.ts', content: ''},
+				{id: '/home/user/project/src/lib/Button.svelte', content: ''},
+				{id: '/home/user/project/src/lib/utils.js', content: ''},
+			];
 
-			const result = library_gen_extract_dependencies(disknode);
+			const options = test_options({
+				// Custom get_analyzer that only accepts .ts files
+				get_analyzer: (path) => (path.endsWith('.ts') ? 'typescript' : null),
+			});
 
-			assert.deepStrictEqual(result.dependents, ['aardvark.ts', 'middle.ts', 'zoo.ts']);
+			const result = library_collect_source_files(files, options);
+
+			assert.strictEqual(result.length, 1);
+			assert.strictEqual(result[0]!.id, '/home/user/project/src/lib/foo.ts');
 		});
 
-		test('sorts case-insensitively for consistency', () => {
-			const disknode = create_mock_disknode(
-				'/home/user/project/src/lib/app.ts',
-				[
-					'/home/user/project/src/lib/Zebra.svelte',
-					'/home/user/project/src/lib/alpha.ts',
-					'/home/user/project/src/lib/Beta.svelte',
-				],
-				[],
+		test('uses custom exclude_patterns', () => {
+			const files: Array<SourceFileInfo> = [
+				{id: '/home/user/project/src/lib/foo.ts', content: ''},
+				{id: '/home/user/project/src/lib/internal/secret.ts', content: ''},
+				{id: '/home/user/project/src/lib/bar.ts', content: ''},
+			];
+
+			const options = test_options({
+				exclude_patterns: [/\/internal\//],
+			});
+
+			const result = library_collect_source_files(files, options);
+
+			assert.strictEqual(result.length, 2);
+			assert.ok(result.every((f) => !f.id.includes('/internal/')));
+		});
+	});
+
+	describe('sorting and determinism', () => {
+		test('returns files sorted alphabetically by id', () => {
+			const files: Array<SourceFileInfo> = [
+				{id: '/home/user/project/src/lib/zebra.ts', content: ''},
+				{id: '/home/user/project/src/lib/alpha.ts', content: ''},
+				{id: '/home/user/project/src/lib/beta.ts', content: ''},
+			];
+
+			const result = library_collect_source_files(files, test_options());
+
+			assert.strictEqual(result[0]!.id, '/home/user/project/src/lib/alpha.ts');
+			assert.strictEqual(result[1]!.id, '/home/user/project/src/lib/beta.ts');
+			assert.strictEqual(result[2]!.id, '/home/user/project/src/lib/zebra.ts');
+		});
+
+		test('produces deterministic output on multiple calls', () => {
+			const files: Array<SourceFileInfo> = [
+				{id: '/home/user/project/src/lib/c.ts', content: ''},
+				{id: '/home/user/project/src/lib/a.ts', content: ''},
+				{id: '/home/user/project/src/lib/b.ts', content: ''},
+			];
+
+			const result1 = library_collect_source_files(files, test_options());
+			const result2 = library_collect_source_files(files, test_options());
+
+			assert.deepStrictEqual(
+				result1.map((f) => f.id),
+				result2.map((f) => f.id),
 			);
-
-			const result = library_gen_extract_dependencies(disknode);
-
-			// Standard localeCompare should handle case properly
-			assert.strictEqual(result.dependencies.length, 3);
-			assert.ok(result.dependencies.includes('alpha.ts'));
-			assert.ok(result.dependencies.includes('Beta.svelte'));
-			assert.ok(result.dependencies.includes('Zebra.svelte'));
 		});
 	});
 
 	describe('edge cases', () => {
-		test('handles svelte components with .svelte extension', () => {
-			const disknode = create_mock_disknode(
-				'/home/user/project/src/lib/App.svelte',
-				['/home/user/project/src/lib/Button.svelte'],
-				['/home/user/project/src/lib/Layout.svelte'],
-			);
+		test('returns empty array for empty input', () => {
+			const result = library_collect_source_files([], test_options());
 
-			const result = library_gen_extract_dependencies(disknode);
-
-			assert.deepStrictEqual(result.dependencies, ['Button.svelte']);
-			assert.deepStrictEqual(result.dependents, ['Layout.svelte']);
+			assert.strictEqual(result.length, 0);
 		});
 
-		test('handles mixed file types', () => {
-			const disknode = create_mock_disknode(
-				'/home/user/project/src/lib/component.svelte',
-				[
-					'/home/user/project/src/lib/utils.ts',
-					'/home/user/project/src/lib/types.ts',
-					'/home/user/project/src/lib/Other.svelte',
-				],
-				[],
-			);
+		test('returns empty array when no files match', () => {
+			const files: Array<SourceFileInfo> = [
+				{id: '/home/user/project/src/routes/page.svelte', content: ''},
+				{id: '/home/user/project/node_modules/pkg/index.ts', content: ''},
+			];
 
-			const result = library_gen_extract_dependencies(disknode);
+			const result = library_collect_source_files(files, test_options());
 
-			assert.deepStrictEqual(result.dependencies, ['Other.svelte', 'types.ts', 'utils.ts']);
+			assert.strictEqual(result.length, 0);
 		});
 
-		test('handles modules at src/lib root', () => {
-			const disknode = create_mock_disknode(
-				'/home/user/project/src/lib/index.ts',
-				['/home/user/project/src/lib/exports.ts'],
-				[],
-			);
+		test('preserves file content and metadata', () => {
+			const files: Array<SourceFileInfo> = [
+				{
+					id: '/home/user/project/src/lib/foo.ts',
+					content: 'export const foo = 42;',
+					dependencies: ['/other/dep.ts'],
+					dependents: ['/other/consumer.ts'],
+				},
+			];
 
-			const result = library_gen_extract_dependencies(disknode);
+			const result = library_collect_source_files(files, test_options());
 
-			assert.deepStrictEqual(result.dependencies, ['exports.ts']);
+			assert.strictEqual(result.length, 1);
+			assert.strictEqual(result[0]!.content, 'export const foo = 42;');
+			assert.deepStrictEqual([...result[0]!.dependencies!], ['/other/dep.ts']);
+			assert.deepStrictEqual([...result[0]!.dependents!], ['/other/consumer.ts']);
 		});
 
-		test('deterministic output - multiple runs produce same results', () => {
-			const disknode = create_mock_disknode(
-				'/home/user/project/src/lib/app.ts',
-				[
-					'/home/user/project/src/lib/c.ts',
-					'/home/user/project/src/lib/a.ts',
-					'/home/user/project/src/lib/b.ts',
-				],
-				[
-					'/home/user/project/src/lib/z.ts',
-					'/home/user/project/src/lib/x.ts',
-					'/home/user/project/src/lib/y.ts',
-				],
-			);
+		test('works without logger (logger is optional)', () => {
+			const files: Array<SourceFileInfo> = [{id: '/home/user/project/src/lib/foo.ts', content: ''}];
 
-			const result1 = library_gen_extract_dependencies(disknode);
-			const result2 = library_gen_extract_dependencies(disknode);
+			// Should not throw
+			const result = library_collect_source_files(files, test_options());
 
-			assert.deepStrictEqual(result1.dependencies, result2.dependencies);
-			assert.deepStrictEqual(result1.dependents, result2.dependents);
-			assert.deepStrictEqual(result1.dependencies, ['a.ts', 'b.ts', 'c.ts']);
-			assert.deepStrictEqual(result1.dependents, ['x.ts', 'y.ts', 'z.ts']);
+			assert.strictEqual(result.length, 1);
+		});
+	});
+});
+
+describe('library_merge_re_exports', () => {
+	describe('basic functionality', () => {
+		test('merges single re-export into original declaration', () => {
+			const source_json: SourceJson = {
+				name: '@test/package',
+				version: '1.0.0',
+				modules: [
+					{
+						path: 'helpers.ts',
+						declarations: [{name: 'helper', kind: 'function'}],
+					},
+					{
+						path: 'index.ts',
+						declarations: [{name: 'local', kind: 'variable'}],
+					},
+				],
+			};
+
+			const collected_re_exports: Array<CollectedReExport> = [
+				{
+					re_exporting_module: 'index.ts',
+					re_export: {name: 'helper', original_module: 'helpers.ts'},
+				},
+			];
+
+			library_merge_re_exports(source_json, collected_re_exports);
+
+			const helpers_module = source_json.modules!.find((m) => m.path === 'helpers.ts')!;
+			const helper_decl = helpers_module.declarations!.find((d) => d.name === 'helper')!;
+
+			assert.deepStrictEqual(helper_decl.also_exported_from, ['index.ts']);
+		});
+
+		test('merges multiple re-exports for same declaration', () => {
+			const source_json: SourceJson = {
+				name: '@test/package',
+				version: '1.0.0',
+				modules: [
+					{
+						path: 'core.ts',
+						declarations: [{name: 'util', kind: 'function'}],
+					},
+				],
+			};
+
+			const collected_re_exports: Array<CollectedReExport> = [
+				{
+					re_exporting_module: 'index.ts',
+					re_export: {name: 'util', original_module: 'core.ts'},
+				},
+				{
+					re_exporting_module: 'public.ts',
+					re_export: {name: 'util', original_module: 'core.ts'},
+				},
+			];
+
+			library_merge_re_exports(source_json, collected_re_exports);
+
+			const core_module = source_json.modules!.find((m) => m.path === 'core.ts')!;
+			const util_decl = core_module.declarations!.find((d) => d.name === 'util')!;
+
+			// Should be sorted alphabetically
+			assert.deepStrictEqual(util_decl.also_exported_from, ['index.ts', 'public.ts']);
+		});
+
+		test('handles multiple declarations from same module', () => {
+			const source_json: SourceJson = {
+				name: '@test/package',
+				version: '1.0.0',
+				modules: [
+					{
+						path: 'helpers.ts',
+						declarations: [
+							{name: 'foo', kind: 'function'},
+							{name: 'bar', kind: 'function'},
+						],
+					},
+				],
+			};
+
+			const collected_re_exports: Array<CollectedReExport> = [
+				{
+					re_exporting_module: 'index.ts',
+					re_export: {name: 'foo', original_module: 'helpers.ts'},
+				},
+				{
+					re_exporting_module: 'index.ts',
+					re_export: {name: 'bar', original_module: 'helpers.ts'},
+				},
+			];
+
+			library_merge_re_exports(source_json, collected_re_exports);
+
+			const helpers_module = source_json.modules!.find((m) => m.path === 'helpers.ts')!;
+			const foo_decl = helpers_module.declarations!.find((d) => d.name === 'foo')!;
+			const bar_decl = helpers_module.declarations!.find((d) => d.name === 'bar')!;
+
+			assert.deepStrictEqual(foo_decl.also_exported_from, ['index.ts']);
+			assert.deepStrictEqual(bar_decl.also_exported_from, ['index.ts']);
+		});
+	});
+
+	describe('edge cases', () => {
+		test('handles empty collected_re_exports', () => {
+			const source_json: SourceJson = {
+				name: '@test/package',
+				version: '1.0.0',
+				modules: [
+					{
+						path: 'helpers.ts',
+						declarations: [{name: 'helper', kind: 'function'}],
+					},
+				],
+			};
+
+			// Should not throw
+			library_merge_re_exports(source_json, []);
+
+			const helpers_module = source_json.modules!.find((m) => m.path === 'helpers.ts')!;
+			const helper_decl = helpers_module.declarations!.find((d) => d.name === 'helper')!;
+
+			assert.isUndefined(helper_decl.also_exported_from);
+		});
+
+		test('handles undefined modules in source_json', () => {
+			const source_json: SourceJson = {
+				name: '@test/package',
+				version: '1.0.0',
+			};
+
+			const collected_re_exports: Array<CollectedReExport> = [
+				{
+					re_exporting_module: 'index.ts',
+					re_export: {name: 'foo', original_module: 'helpers.ts'},
+				},
+			];
+
+			// Should not throw
+			library_merge_re_exports(source_json, collected_re_exports);
+		});
+
+		test('ignores re-exports for non-existent modules', () => {
+			const source_json: SourceJson = {
+				name: '@test/package',
+				version: '1.0.0',
+				modules: [
+					{
+						path: 'helpers.ts',
+						declarations: [{name: 'helper', kind: 'function'}],
+					},
+				],
+			};
+
+			const collected_re_exports: Array<CollectedReExport> = [
+				{
+					re_exporting_module: 'index.ts',
+					re_export: {name: 'foo', original_module: 'nonexistent.ts'},
+				},
+			];
+
+			// Should not throw
+			library_merge_re_exports(source_json, collected_re_exports);
+
+			// Original module should not be affected
+			const helpers_module = source_json.modules!.find((m) => m.path === 'helpers.ts')!;
+			assert.isUndefined(helpers_module.declarations![0]!.also_exported_from);
+		});
+
+		test('ignores re-exports for non-existent declarations', () => {
+			const source_json: SourceJson = {
+				name: '@test/package',
+				version: '1.0.0',
+				modules: [
+					{
+						path: 'helpers.ts',
+						declarations: [{name: 'helper', kind: 'function'}],
+					},
+				],
+			};
+
+			const collected_re_exports: Array<CollectedReExport> = [
+				{
+					re_exporting_module: 'index.ts',
+					re_export: {name: 'nonexistent', original_module: 'helpers.ts'},
+				},
+			];
+
+			// Should not throw
+			library_merge_re_exports(source_json, collected_re_exports);
+
+			// Original declaration should not be affected
+			const helpers_module = source_json.modules!.find((m) => m.path === 'helpers.ts')!;
+			assert.isUndefined(helpers_module.declarations![0]!.also_exported_from);
+		});
+
+		test('sorts re-exporters alphabetically for determinism', () => {
+			const source_json: SourceJson = {
+				name: '@test/package',
+				version: '1.0.0',
+				modules: [
+					{
+						path: 'core.ts',
+						declarations: [{name: 'util', kind: 'function'}],
+					},
+				],
+			};
+
+			// Add in non-alphabetical order
+			const collected_re_exports: Array<CollectedReExport> = [
+				{
+					re_exporting_module: 'zebra.ts',
+					re_export: {name: 'util', original_module: 'core.ts'},
+				},
+				{
+					re_exporting_module: 'alpha.ts',
+					re_export: {name: 'util', original_module: 'core.ts'},
+				},
+				{
+					re_exporting_module: 'beta.ts',
+					re_export: {name: 'util', original_module: 'core.ts'},
+				},
+			];
+
+			library_merge_re_exports(source_json, collected_re_exports);
+
+			const core_module = source_json.modules!.find((m) => m.path === 'core.ts')!;
+			const util_decl = core_module.declarations!.find((d) => d.name === 'util')!;
+
+			assert.deepStrictEqual(util_decl.also_exported_from, ['alpha.ts', 'beta.ts', 'zebra.ts']);
 		});
 	});
 });

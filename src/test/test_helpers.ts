@@ -290,7 +290,7 @@ export const run_update_task = async <TInput = string, TOutput = any>(
 			let existing: string | null = null;
 			try {
 				existing = await readFile(expected_path, 'utf-8');
-			} catch {
+			} catch (_error) {
 				// File doesn't exist yet, proceed with write
 			}
 

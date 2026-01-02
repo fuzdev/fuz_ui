@@ -3,6 +3,8 @@
  *
  * It can span multiple lines and include formatting.
  * Each line is properly indented.
+ *
+ * @module
  */
 
 export const value = 42;

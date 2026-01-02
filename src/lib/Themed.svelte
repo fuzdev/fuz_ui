@@ -63,6 +63,8 @@
 	/**
 	 * `Themed` adds global color scheme and theme support to the page.
 	 * It also sets in the Svelte context a reactive `themer` containing the theme and color scheme.
+	 *
+	 * @module
 	 */
 
 	themer_context.set(themer);

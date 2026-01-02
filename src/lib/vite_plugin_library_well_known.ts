@@ -75,22 +75,22 @@ export const vite_plugin_library_well_known = (
 		let json_content: string;
 		try {
 			json_content = await readFile(resolved_path, 'utf-8');
-		} catch (err) {
+		} catch (error) {
 			throw new Error(
 				`vite_plugin_library_well_known: failed to read library.json from "${library_path}"\n` +
 					`Resolved to: ${resolved_path}\n` +
 					`Make sure you've run \`gro gen\` to generate the library metadata.\n` +
-					`Error: ${err}`,
+					`Error: ${error}`,
 			);
 		}
 
 		let raw: unknown;
 		try {
 			raw = JSON.parse(json_content);
-		} catch (err) {
+		} catch (error) {
 			throw new Error(
 				`vite_plugin_library_well_known: failed to parse library.json from "${library_path}"\n` +
-					`Error: ${err}`,
+					`Error: ${error}`,
 			);
 		}
 
@@ -146,7 +146,7 @@ export const vite_plugin_library_well_known = (
 				try {
 					if (!ready_promise) throw new Error('not initialized');
 					await ready_promise;
-				} catch {
+				} catch (_error) {
 					res.statusCode = 503;
 					respond_json(res, JSON.stringify({error: 'Library not ready'}));
 					return;

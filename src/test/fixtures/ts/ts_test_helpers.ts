@@ -11,6 +11,7 @@ import {
 	ts_extract_module_comment,
 } from '$lib/ts_helpers.js';
 import {tsdoc_parse} from '$lib/tsdoc_helpers.js';
+import {AnalysisContext} from '$lib/analysis_context.js';
 
 export type TsFixtureCategory =
 	| 'function'
@@ -220,18 +221,19 @@ export const extract_declaration_from_source = (
 		const tsdoc = tsdoc_parse(node, source_file);
 
 		// Apply appropriate extraction based on category
+		const ctx = new AnalysisContext();
 		switch (category) {
 			case 'function':
-				ts_extract_function_info(node, symbol, checker, declaration, tsdoc);
+				ts_extract_function_info(node, symbol, checker, declaration, tsdoc, ctx);
 				break;
 			case 'class':
-				ts_extract_class_info(node, symbol, checker, declaration);
+				ts_extract_class_info(node, symbol, checker, declaration, ctx);
 				break;
 			case 'type':
-				ts_extract_type_info(node, symbol, checker, declaration);
+				ts_extract_type_info(node, symbol, checker, declaration, ctx);
 				break;
 			case 'variable':
-				ts_extract_variable_info(node, symbol, checker, declaration);
+				ts_extract_variable_info(node, symbol, checker, declaration, ctx);
 				break;
 		}
 

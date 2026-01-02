@@ -23,7 +23,7 @@
 			<div class="mb_lg p_xs2 shadow_md border_radius_sm">
 				<div class="width_upto_sm panel p_lg shadow_inset_xs bg">
 					<p>
-						Fuz UI is a Svelte UI library with components and helpers for making modern websites. It
+						Fuz UI is a Svelte UI library with components and helpers for making zippy websites. It
 						builds on <a href="https://css.fuz.dev/">Fuz CSS</a>, which is based on CSS custom
 						properties, and Fuz UI continues those patterns. It's in early alpha and will have many
 						breaking changes.
