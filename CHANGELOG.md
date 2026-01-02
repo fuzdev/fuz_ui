@@ -1,5 +1,11 @@
 # @fuzdev/fuz_ui
 
+## 0.176.1
+
+### Patch Changes
+
+- fix source file collection to be properly scoped ([7636cea](https://github.com/fuzdev/fuz_ui/commit/7636cea))
+
 ## 0.176.0
 
 ### Minor Changes
