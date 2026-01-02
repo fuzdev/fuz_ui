@@ -1,2 +1,0 @@
-import"../chunks/DsnmJJEf.js";import{p as s,c as n,f as p,b as i}from"../chunks/CZBu3nCk.js";import{T as m}from"../chunks/CDAc-BAI.js";import{g as c}from"../chunks/Ci6bekoN.js";var u=p(`<section><p>Fuz UI is a Svelte UI library that builds on <a href="https://css.fuz.dev/">Fuz CSS</a>. It's
-			in early alpha with breaking changes ahead.</p></section>`);function g(t,o){s(o,!0);const e=c("introduction");m(t,{get tome(){return e},children:(a,l)=>{var r=u();i(a,r)},$$slots:{default:!0}}),n()}export{g as component};
