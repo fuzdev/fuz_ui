@@ -1,5 +1,11 @@
 # @fuzdev/fuz_ui
 
+## 0.177.0
+
+### Minor Changes
+
+- rework library interfaces ([65e4c7d](https://github.com/fuzdev/fuz_ui/commit/65e4c7d))
+
 ## 0.176.1
 
 ### Patch Changes
