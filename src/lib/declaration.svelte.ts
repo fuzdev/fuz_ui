@@ -5,7 +5,7 @@ import {
 } from '@fuzdev/fuz_util/source_json.js';
 
 import type {Module} from './module.svelte.js';
-import {url_github_file} from './library_helpers.js';
+import {url_github_file} from './package_helpers.js';
 
 /**
  * Rich runtime representation of an exported declaration.

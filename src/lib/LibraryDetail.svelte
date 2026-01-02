@@ -7,7 +7,7 @@
 	import ImgOrSvg from './ImgOrSvg.svelte';
 	import DeclarationLink from './DeclarationLink.svelte';
 	import ModuleLink from './ModuleLink.svelte';
-	import {url_github_file, repo_url_parse, url_well_known} from './library_helpers.js';
+	import {url_github_file, repo_url_parse, url_well_known} from './package_helpers.js';
 	import {
 		module_is_typescript,
 		module_is_svelte,

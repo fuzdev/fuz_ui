@@ -2,9 +2,9 @@ import {test, assert, describe} from 'vitest';
 import type {PackageJson} from '@fuzdev/fuz_util/package_json.js';
 import type {SourceJson} from '@fuzdev/fuz_util/source_json.js';
 
-import {library_generate_json} from '$lib/library_gen_output.js';
+import {library_generate_output} from '$lib/library_output.js';
 
-describe('library_generate_json', () => {
+describe('library_generate_output', () => {
 	// Helper to create valid package_json for tests (library_json_parse requires repository)
 	const create_test_package_json = (overrides: Partial<PackageJson> = {}): PackageJson => ({
 		name: '@test/package',
@@ -27,7 +27,7 @@ describe('library_generate_json', () => {
 			],
 		};
 
-		const result = library_generate_json(package_json, source_json);
+		const result = library_generate_output(package_json, source_json);
 
 		// Check we get both outputs
 		assert.ok(result.json_content);
@@ -57,7 +57,7 @@ describe('library_generate_json', () => {
 			version: '2.0.0',
 		};
 
-		const result = library_generate_json(package_json, source_json);
+		const result = library_generate_output(package_json, source_json);
 		const parsed = JSON.parse(result.json_content);
 
 		// Verify library_json contains parsed data
@@ -84,7 +84,7 @@ describe('library_generate_json', () => {
 			],
 		};
 
-		const result = library_generate_json(package_json, source_json);
+		const result = library_generate_output(package_json, source_json);
 		const parsed = JSON.parse(result.json_content);
 
 		// Verify source_json is included
@@ -103,7 +103,7 @@ describe('library_generate_json', () => {
 			version: '1.0.0',
 		};
 
-		const result = library_generate_json(package_json, source_json);
+		const result = library_generate_output(package_json, source_json);
 
 		// Should use tabs for indentation
 		assert.ok(result.json_content.includes('\t"package_json"'), 'Expected tab-indented JSON');
@@ -118,7 +118,7 @@ describe('library_generate_json', () => {
 			modules: [],
 		};
 
-		const result = library_generate_json(package_json, source_json);
+		const result = library_generate_output(package_json, source_json);
 		const parsed = JSON.parse(result.json_content);
 
 		assert.deepStrictEqual(parsed.source_json.modules, []);
@@ -132,7 +132,7 @@ describe('library_generate_json', () => {
 			version: '1.0.0',
 		};
 
-		const result = library_generate_json(package_json, source_json);
+		const result = library_generate_output(package_json, source_json);
 		const parsed = JSON.parse(result.json_content);
 
 		assert.ok(parsed.package_json);

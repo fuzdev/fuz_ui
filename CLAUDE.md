@@ -163,14 +163,17 @@ Supporting helpers (three-layer architecture):
   - `module_extract_dependencies` - extract filtered/sorted dependency lists
   - `ModuleSourceOptions`, `MODULE_SOURCE_DEFAULTS` - configuration
 - `src_json.ts` - type definitions for the metadata format
-- `library_helpers.ts` - URL builders (`url_github_file`, `url_api_declaration`,
-  `url_api_module`, etc.)
+- `package_helpers.ts` - generic package/repo URL builders and parsers
+  - `url_github_file`, `url_github_org` - GitHub URL builders
+  - `url_npm_package`, `url_well_known` - npm and metadata URLs
+  - `repo_url_parse`, `repo_name_parse`, `repo_url_github_owner` - parsers
+  - `package_is_published` - package predicate
 
 **High-level** (orchestration):
 
 - `library_analysis.ts` - unified analysis entry point
   - `library_analyze_module` - dispatches to ts/svelte analyzers (consumer-facing API)
-- `library_gen_helpers.ts` - pipeline orchestration (internal)
+- `library_pipeline.ts` - pipeline orchestration (internal)
   - `library_collect_source_files` - collect and filter source files
   - `library_find_duplicates` - find duplicate names (returns Map of duplicates)
   - `library_merge_re_exports` - resolve re-export relationships
@@ -287,7 +290,9 @@ library and API (generated in `src/routes/`):
 - `library.svelte.ts` - `Library` class wrapping library data
 - `declaration.svelte.ts` - `Declaration` class for code declarations
 - `module.svelte.ts` - `Module` class for source files
-- `library_helpers.ts` - library URL and parsing utilities
+- `library_helpers.ts` - docs URL helpers (`url_api_declaration`, `url_api_module`)
+- `package_helpers.ts` - generic package/repo utilities (`url_github_file`,
+  `repo_url_parse`, `package_is_published`)
 
 TypeScript and Svelte analysis:
 
@@ -304,7 +309,7 @@ TypeScript and Svelte analysis:
   - utilities: `module_extract_path`, `module_get_component_name`, `module_extract_dependencies`
   - configuration: `ModuleSourceOptions`, `MODULE_SOURCE_DEFAULTS`
 - `library_analysis.ts` - unified analysis entry point (`library_analyze_module`)
-- `library_gen_helpers.ts` - pipeline orchestration helpers
+- `library_pipeline.ts` - pipeline orchestration helpers
 
 browser and DOM:
 

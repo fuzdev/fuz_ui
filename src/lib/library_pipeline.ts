@@ -1,10 +1,8 @@
 /**
- * Library metadata generation helpers - pipeline orchestration.
+ * Library metadata generation pipeline.
  *
  * These functions handle collection, validation, and transformation of library metadata
- * during the generation pipeline. They are internal to the generation process.
- *
- * For source analysis (the consumer-facing API), see `library_analysis.ts`.
+ * during the generation pipeline.
  *
  * Pipeline stages:
  * 1. **Collection** - `library_collect_source_files` gathers and filters source files
@@ -13,9 +11,10 @@
  * 4. **Transformation** - `library_merge_re_exports` resolves re-export relationships
  * 5. **Output** - `library_sort_modules` prepares deterministic output
  *
- * @see library_analysis.ts for the analysis entry point
- * @see library_gen_output.ts for output file generation (JSON/TS wrapper)
- * @see library_gen.ts for the main generation task (Gro-specific)
+ * @see library_generate.ts for the main generation entry point
+ * @see library_analysis.ts for module-level analysis
+ * @see library_output.ts for output file generation (JSON/TS wrapper)
+ * @see library_gen.ts for Gro-specific integration
  *
  * @module
  */

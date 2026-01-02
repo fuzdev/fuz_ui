@@ -7,7 +7,7 @@ import {
 	library_collect_source_files,
 	library_merge_re_exports,
 	type CollectedReExport,
-} from '$lib/library_gen_helpers.js';
+} from '$lib/library_pipeline.js';
 import {type SourceFileInfo, type ModuleSourceOptions} from '$lib/module_helpers.js';
 import {TEST_PROJECT_ROOT, create_test_source_options} from './module_test_helpers.js';
 
@@ -324,7 +324,7 @@ describe('library_sort_modules', () => {
 	});
 });
 
-// Note: library_generate_json tests are in library_gen_output.test.ts
+// Note: library_generate_output tests are in library_output.test.ts
 // Note: library_gen_extract_dependencies tests were removed.
 // Dependency extraction is now handled internally by ts_analyze_module and svelte_analyze_module.
 // Testing occurs through integration tests via the higher-level analysis functions.

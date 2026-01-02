@@ -3,8 +3,9 @@
  *
  * Generates the library.json and library.ts files from analyzed metadata.
  *
- * @see library_gen_helpers.ts for orchestration functions
- * @see library_gen.ts for the main generation task (Gro-specific)
+ * @see library_generate.ts for the main generation entry point
+ * @see library_pipeline.ts for pipeline orchestration functions
+ * @see library_gen.ts for Gro-specific integration
  *
  * @module
  */
@@ -14,10 +15,10 @@ import type {SourceJson} from '@fuzdev/fuz_util/source_json.js';
 import {library_json_parse, type LibraryJson} from '@fuzdev/fuz_util/library_json.js';
 
 /**
- * Result of generating library files.
+ * Result of generating library output files.
  * Contains both the JSON data and the TypeScript wrapper file.
  */
-export interface LibraryGenResult {
+export interface LibraryOutputResult {
 	/** JSON content for library.json */
 	json_content: string;
 	/** TypeScript wrapper content for library.ts */
@@ -34,10 +35,10 @@ export interface LibraryGenResult {
  * - The .ts wrapper validates with zod and exports with proper types
  *   (JSON imports get widened types like `string` instead of literal unions)
  */
-export const library_generate_json = (
+export const library_generate_output = (
 	package_json: PackageJson,
 	source_json: SourceJson,
-): LibraryGenResult => {
+): LibraryOutputResult => {
 	const is_this_fuz_util = package_json.name === '@fuzdev/fuz_util';
 	const fuz_util_prefix = is_this_fuz_util ? './' : '@fuzdev/fuz_util/';
 

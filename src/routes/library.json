@@ -521,7 +521,7 @@
 					}
 				],
 				"module_comment": "Diagnostic collection for source analysis.\n\nProvides structured error/warning collection during TypeScript and Svelte\nanalysis, replacing silent catch blocks with actionable diagnostics.\n\n## Error Handling Contract\n\nAnalysis functions follow a two-tier error model:\n\n**Accumulated (non-fatal)** - Collected in AnalysisContext, analysis continues:\n- Type resolution failures (complex generics, circular refs)\n- Missing or unparseable JSDoc\n- Individual member/prop extraction failures\n- The return value is still valid but may have partial data\n\n**Thrown (fatal)** - Analysis cannot continue for this file:\n- File not found or unreadable\n- Syntax errors preventing parsing\n- svelte2tsx transformation failures\n- Svelte version incompatibility\n\n## Usage Pattern\n\n```ts\nconst ctx = new AnalysisContext();\nconst results = files.map(f => {\n  try {\n    return library_analyze_module(f, program, options, ctx);\n  } catch (e) {\n    // Fatal error - log and skip this file\n    console.error(`Failed to analyze ${f.id}: ${e}`);\n    return null;\n  }\n});\n\n// Results are valid even with accumulated errors\n// Check ctx for diagnostics to display to user\nif (ctx.has_errors()) {\n  for (const err of ctx.errors()) {\n    console.error(format_diagnostic(err));\n  }\n}\n```\n\n@example\nconst ctx = new AnalysisContext();\n// ... analysis functions add diagnostics via ctx.add(...)\nif (ctx.has_errors()) {\n  for (const err of ctx.errors()) {\n    console.error(`${err.file}:${err.line}: ${err.message}`);\n  }\n}",
-				"dependents": ["library_gen.ts"]
+				"dependents": ["library_generate.ts"]
 			},
 			{
 				"path": "api_search.svelte.ts",
@@ -2369,7 +2369,7 @@
 						]
 					}
 				],
-				"dependencies": ["library_helpers.ts"],
+				"dependencies": ["package_helpers.ts"],
 				"dependents": ["library.svelte.ts", "module.svelte.ts"]
 			},
 			{
@@ -3693,183 +3693,7 @@
 				],
 				"module_comment": "Library source analysis - unified entry point and shared types.\n\nProvides a single function for analyzing TypeScript and Svelte source files,\ndispatching to the appropriate domain-specific analyzer.\n\nThis module also exports shared types used by both analyzers:\n- `DeclarationAnalysis` - A declaration with its nodocs flag\n- `ReExportInfo` - Information about a same-name re-export\n- `ModuleAnalysis` - Result of analyzing a module (unified structure)\n\n@example\n```ts\nimport {library_analyze_module} from '@fuzdev/fuz_ui/library_analysis.js';\nimport {ts_create_program} from '@fuzdev/fuz_ui/ts_helpers.js';\nimport {module_create_source_options} from '@fuzdev/fuz_ui/module_helpers.js';\nimport {AnalysisContext} from '@fuzdev/fuz_ui/analysis_context.js';\n\nconst {program} = ts_create_program({root: './my-project'});\nconst ctx = new AnalysisContext();\nconst options = module_create_source_options('/my-project');\n\nconst result = library_analyze_module(\n  {id: '/my-project/src/lib/file.ts', content: '...'},\n  program,\n  options,\n  ctx,\n);\n\nif (result) {\n  // Filter out @nodocs declarations\n  const declarations = result.declarations\n    .filter(d => !d.nodocs)\n    .map(d => d.declaration);\n  console.log('Declarations:', declarations);\n}\n```\n\n@see ts_helpers.ts for TypeScript-specific analysis\n@see svelte_helpers.ts for Svelte component analysis\n@see module_helpers.ts for path utilities and SourceFileInfo",
 				"dependencies": ["module_helpers.ts", "svelte_helpers.ts", "ts_helpers.ts"],
-				"dependents": ["library_gen.ts"]
-			},
-			{
-				"path": "library_gen_helpers.ts",
-				"declarations": [
-					{
-						"name": "DuplicateInfo",
-						"kind": "type",
-						"doc_comment": "A duplicate declaration with its full metadata and module path.",
-						"source_line": 38,
-						"type_signature": "DuplicateInfo",
-						"properties": [
-							{
-								"name": "declaration",
-								"kind": "variable",
-								"type_signature": "DeclarationJson",
-								"doc_comment": "The full declaration metadata."
-							},
-							{
-								"name": "module",
-								"kind": "variable",
-								"type_signature": "string",
-								"doc_comment": "Module path where this declaration is defined."
-							}
-						]
-					},
-					{
-						"name": "library_find_duplicates",
-						"kind": "function",
-						"doc_comment": "Find duplicate declaration names across modules.\n\nReturns a Map of declaration names to their full metadata (only includes duplicates).\nCallers can decide how to handle duplicates (throw, warn, ignore).",
-						"examples": [
-							"const duplicates = library_find_duplicates(source_json);\nif (duplicates.size > 0) {\n  for (const [name, occurrences] of duplicates) {\n    console.error(`\"${name}\" found in:`);\n    for (const {declaration, module} of occurrences) {\n      console.error(`  - ${module}:${declaration.source_line} (${declaration.kind})`);\n    }\n  }\n  throw new Error(`Found ${duplicates.size} duplicate declaration names`);\n}"
-						],
-						"source_line": 63,
-						"type_signature": "(source_json: { [x: string]: unknown; name: string; version: string; modules?: { [x: string]: unknown; path: string; declarations?: { [x: string]: unknown; name: string; kind: \"function\" | \"json\" | \"type\" | \"variable\" | \"class\" | \"constructor\" | \"component\" | \"css\"; ... 19 more ...; alias_of?: { ...; } | undefined; }[] | undefined; module_comment?: string | undefined; dependencies?: string[] | undefined; dependents?: string[] | undefined; }[] | undefined; }): Map<...>",
-						"return_type": "Map<string, DuplicateInfo[]>",
-						"parameters": [
-							{
-								"name": "source_json",
-								"type": "{ [x: string]: unknown; name: string; version: string; modules?: { [x: string]: unknown; path: string; declarations?: { [x: string]: unknown; name: string; kind: \"function\" | \"json\" | \"type\" | \"variable\" | \"class\" | \"constructor\" | \"component\" | \"css\"; ... 19 more ...; alias_of?: { ...; } | undefined; }[] | undefine..."
-							}
-						]
-					},
-					{
-						"name": "library_sort_modules",
-						"kind": "function",
-						"doc_comment": "Sort modules alphabetically by path for deterministic output and cleaner diffs.",
-						"source_line": 96,
-						"type_signature": "(modules: { [x: string]: unknown; path: string; declarations?: { [x: string]: unknown; name: string; kind: \"function\" | \"json\" | \"type\" | \"variable\" | \"class\" | \"constructor\" | \"component\" | \"css\"; doc_comment?: string | undefined; ... 18 more ...; alias_of?: { ...; } | undefined; }[] | undefined; module_comment?: string | undefined; dependencies?: string[] | undefined; dependents?: string[] | undefined; }[]): { ...; }[]",
-						"return_type": "{ [x: string]: unknown; path: string; declarations?: { [x: string]: unknown; name: string; kind: \"function\" | \"json\" | \"type\" | \"variable\" | \"class\" | \"constructor\" | \"component\" | \"css\"; doc_comment?: string | undefined; ... 18 more ...; alias_of?: { ...; } | undefined; }[] | undefined; module_comment?: string | un...",
-						"parameters": [
-							{
-								"name": "modules",
-								"type": "{ [x: string]: unknown; path: string; declarations?: { [x: string]: unknown; name: string; kind: \"function\" | \"json\" | \"type\" | \"variable\" | \"class\" | \"constructor\" | \"component\" | \"css\"; doc_comment?: string | undefined; ... 18 more ...; alias_of?: { ...; } | undefined; }[] | undefined; module_comment?: string | un..."
-							}
-						]
-					},
-					{
-						"name": "CollectedReExport",
-						"kind": "type",
-						"doc_comment": "A collected re-export with its source module context.\n\nUsed during the two-phase re-export resolution:\n1. Phase 1: Collect re-exports from each module during analysis\n2. Phase 2: Group by original module and merge into `also_exported_from`",
-						"source_line": 107,
-						"type_signature": "CollectedReExport",
-						"properties": [
-							{
-								"name": "re_exporting_module",
-								"kind": "variable",
-								"type_signature": "string",
-								"doc_comment": "The module that re-exports the declaration."
-							},
-							{
-								"name": "re_export",
-								"kind": "variable",
-								"type_signature": "ReExportInfo",
-								"doc_comment": "The re-export info (name and original module)."
-							}
-						]
-					},
-					{
-						"name": "library_merge_re_exports",
-						"kind": "function",
-						"doc_comment": "Build `also_exported_from` arrays from collected re-export data.\n\nThis function resolves the two-phase re-export problem:\n\n**Problem**: When module A re-exports from module B, we discover this while\nanalyzing A, but need to update B's declarations. However, B may already be\nprocessed or may be processed later.\n\n**Solution**: Collect all re-exports in phase 1, then merge them in phase 2\nafter all modules are analyzed.",
-						"examples": [
-							"// helpers.ts exports: foo, bar\n// index.ts does: export {foo, bar} from './helpers.js'\n//\n// After processing:\n// - helpers.ts foo declaration gets: also_exported_from: ['index.ts']\n// - helpers.ts bar declaration gets: also_exported_from: ['index.ts']"
-						],
-						"source_line": 138,
-						"type_signature": "(source_json: { [x: string]: unknown; name: string; version: string; modules?: { [x: string]: unknown; path: string; declarations?: { [x: string]: unknown; name: string; kind: \"function\" | \"json\" | \"type\" | \"variable\" | \"class\" | \"constructor\" | \"component\" | \"css\"; ... 19 more ...; alias_of?: { ...; } | undefined; }[] | undefined; module_comment?: string | undefined; dependencies?: string[] | undefined; dependents?: string[] | undefined; }[] | undefined; }, collected_re_exports: CollectedReExport[]): void",
-						"return_type": "void",
-						"parameters": [
-							{
-								"name": "source_json",
-								"type": "{ [x: string]: unknown; name: string; version: string; modules?: { [x: string]: unknown; path: string; declarations?: { [x: string]: unknown; name: string; kind: \"function\" | \"json\" | \"type\" | \"variable\" | \"class\" | \"constructor\" | \"component\" | \"css\"; ... 19 more ...; alias_of?: { ...; } | undefined; }[] | undefine...",
-								"description": "The source JSON with all modules (will be mutated)"
-							},
-							{
-								"name": "collected_re_exports",
-								"type": "CollectedReExport[]",
-								"description": "Array of re-exports collected during phase 1"
-							}
-						]
-					},
-					{
-						"name": "library_collect_source_files",
-						"kind": "function",
-						"doc_comment": "Collect and filter source files.\n\nReturns source files for TypeScript/JS files and Svelte components, excluding test files.\nReturns an empty array with a warning if no source files are found.\n\nFile types are determined by `options.get_analyzer`. By default, `.ts`, `.js`, and `.svelte`\nfiles are supported. Customize `get_analyzer` to support additional file types like `.svx`.",
-						"source_line": 188,
-						"type_signature": "(files: Iterable<SourceFileInfo>, options: ModuleSourceOptions, log?: Logger | undefined): SourceFileInfo[]",
-						"return_type": "SourceFileInfo[]",
-						"parameters": [
-							{
-								"name": "files",
-								"type": "Iterable<SourceFileInfo>",
-								"description": "Iterable of source file info (from Gro filer, file system, or other source)"
-							},
-							{
-								"name": "options",
-								"type": "ModuleSourceOptions",
-								"description": "Module source options for filtering"
-							},
-							{
-								"name": "log",
-								"type": "Logger | undefined",
-								"optional": true,
-								"description": "Optional logger for status messages"
-							}
-						]
-					}
-				],
-				"module_comment": "Library metadata generation helpers - pipeline orchestration.\n\nThese functions handle collection, validation, and transformation of library metadata\nduring the generation pipeline. They are internal to the generation process.\n\nFor source analysis (the consumer-facing API), see `library_analysis.ts`.\n\nPipeline stages:\n1. **Collection** - `library_collect_source_files` gathers and filters source files\n2. **Analysis** - `library_analyze_module` (in library_analysis.ts) extracts metadata\n3. **Validation** - `library_find_duplicates` checks flat namespace constraints\n4. **Transformation** - `library_merge_re_exports` resolves re-export relationships\n5. **Output** - `library_sort_modules` prepares deterministic output\n\n@see library_analysis.ts for the analysis entry point\n@see library_gen_output.ts for output file generation (JSON/TS wrapper)\n@see library_gen.ts for the main generation task (Gro-specific)",
-				"dependencies": ["module_helpers.ts"],
-				"dependents": ["library_gen.ts"]
-			},
-			{
-				"path": "library_gen_output.ts",
-				"declarations": [
-					{
-						"name": "LibraryGenResult",
-						"kind": "type",
-						"doc_comment": "Result of generating library files.\nContains both the JSON data and the TypeScript wrapper file.",
-						"source_line": 20,
-						"type_signature": "LibraryGenResult",
-						"properties": [
-							{
-								"name": "json_content",
-								"kind": "variable",
-								"type_signature": "string",
-								"doc_comment": "JSON content for library.json"
-							},
-							{
-								"name": "ts_content",
-								"kind": "variable",
-								"type_signature": "string",
-								"doc_comment": "TypeScript wrapper content for library.ts"
-							}
-						]
-					},
-					{
-						"name": "library_generate_json",
-						"kind": "function",
-						"doc_comment": "Generate the library.json and library.ts file contents.\nParses at generation time so runtime only needs the pre-computed result.\n\nReturns JSON + .ts wrapper because:\n- JSON is natively importable by Node.js and Vite without TypeScript loaders\n- Works in CI environments that don't have TS compilation\n- The .ts wrapper validates with zod and exports with proper types\n  (JSON imports get widened types like `string` instead of literal unions)",
-						"source_line": 37,
-						"type_signature": "(package_json: { [x: string]: unknown; name: string; version: string; private?: boolean | undefined; description?: string | undefined; motto?: string | undefined; glyph?: string | undefined; logo?: string | undefined; ... 23 more ...; exports?: string | ... 2 more ... | undefined; }, source_json: { ...; }): LibraryGenResult",
-						"return_type": "LibraryGenResult",
-						"parameters": [
-							{
-								"name": "package_json",
-								"type": "{ [x: string]: unknown; name: string; version: string; private?: boolean | undefined; description?: string | undefined; motto?: string | undefined; glyph?: string | undefined; logo?: string | undefined; ... 23 more ...; exports?: string | ... 2 more ... | undefined; }"
-							},
-							{
-								"name": "source_json",
-								"type": "{ [x: string]: unknown; name: string; version: string; modules?: { [x: string]: unknown; path: string; declarations?: { [x: string]: unknown; name: string; kind: \"function\" | \"json\" | \"type\" | \"variable\" | \"class\" | \"constructor\" | \"component\" | \"css\"; ... 19 more ...; alias_of?: { ...; } | undefined; }[] | undefine..."
-							}
-						]
-					}
-				],
-				"module_comment": "Library output generation.\n\nGenerates the library.json and library.ts files from analyzed metadata.\n\n@see library_gen_helpers.ts for orchestration functions\n@see library_gen.ts for the main generation task (Gro-specific)",
-				"dependents": ["library_gen.ts"]
+				"dependents": ["library_generate.ts"]
 			},
 			{
 				"path": "library_gen.ts",
@@ -3877,8 +3701,8 @@
 					{
 						"name": "LibraryGenOptions",
 						"kind": "type",
-						"doc_comment": "Options for library generation.",
-						"source_line": 54,
+						"doc_comment": "Options for Gro library generation.",
+						"source_line": 33,
 						"type_signature": "LibraryGenOptions",
 						"properties": [
 							{
@@ -3891,38 +3715,7 @@
 								"name": "on_duplicates",
 								"kind": "variable",
 								"type_signature": "OnDuplicatesCallback",
-								"doc_comment": "Callback invoked when duplicate declaration names are found.\n\nConsumers decide how to handle duplicates: throw, warn, or ignore.\nUse `library_gen_throw_on_duplicates` for strict flat namespace enforcement."
-							}
-						]
-					},
-					{
-						"name": "OnDuplicatesCallback",
-						"kind": "type",
-						"doc_comment": "Callback for handling duplicate declaration names.",
-						"source_line": 91,
-						"type_signature": "OnDuplicatesCallback"
-					},
-					{
-						"name": "library_gen_throw_on_duplicates",
-						"kind": "function",
-						"doc_comment": "Strict duplicate handler that throws on any duplicate declaration names.\n\nUse this callback with `library_gen({ on_duplicates: library_gen_throw_on_duplicates })`\nto enforce a flat namespace where all declaration names must be unique.",
-						"throws": [
-							{
-								"type": "Error",
-								"description": "if any duplicate declaration names are found"
-							}
-						],
-						"source_line": 104,
-						"type_signature": "(duplicates: Map<string, DuplicateInfo[]>, log: { error: (...args: unknown[]) => void; }): void",
-						"return_type": "void",
-						"parameters": [
-							{
-								"name": "duplicates",
-								"type": "Map<string, DuplicateInfo[]>"
-							},
-							{
-								"name": "log",
-								"type": "{ error: (...args: unknown[]) => void; }"
+								"doc_comment": "Callback invoked when duplicate declaration names are found.\n\nConsumers decide how to handle duplicates: throw, warn, or ignore.\nUse `library_throw_on_duplicates` for strict flat namespace enforcement."
 							}
 						]
 					},
@@ -3936,7 +3729,7 @@
 								"description": "if disknode has no content (should be loaded by Gro filer)"
 							}
 						],
-						"source_line": 131,
+						"source_line": 71,
 						"type_signature": "(disknode: Disknode): SourceFileInfo",
 						"return_type": "SourceFileInfo",
 						"parameters": [
@@ -3950,7 +3743,7 @@
 						"name": "library_collect_source_files_from_disknodes",
 						"kind": "function",
 						"doc_comment": "Collect source files from Gro disknodes, filtering BEFORE conversion to SourceFileInfo.\n\nThis avoids errors from files outside source directories (like test fixtures that may\nhave malformed paths or missing content). The filtering uses `module_is_source` which\nchecks `source_paths` to only include files in configured source directories.",
-						"source_line": 157,
+						"source_line": 96,
 						"type_signature": "(disknodes: Iterable<Disknode>, options: ModuleSourceOptions, log?: { info: (...args: unknown[]) => void; warn: (...args: unknown[]) => void; } | undefined): SourceFileInfo[]",
 						"return_type": "SourceFileInfo[]",
 						"parameters": [
@@ -3975,8 +3768,8 @@
 					{
 						"name": "library_gen",
 						"kind": "function",
-						"doc_comment": "Creates a Gen object for generating library metadata with full TypeScript analysis.\n\nUsage in a `.gen.ts` file:\n\n```ts\nimport {library_gen} from '@fuzdev/fuz_ui/library_gen.js';\n\nexport const gen = library_gen();\n```",
-						"source_line": 205,
+						"doc_comment": "Creates a Gen object for generating library metadata with full TypeScript analysis.\n\nThis is the Gro-specific entry point. It handles:\n- Reading files from Gro's filer\n- Loading package.json via Gro utilities\n- Returning output in Gro's Gen format\n\nFor build-tool agnostic usage, use `library_generate` directly.\n\nUsage in a `.gen.ts` file:\n\n```ts\nimport {library_gen} from '@fuzdev/fuz_ui/library_gen.js';\n\nexport const gen = library_gen();\n```",
+						"source_line": 151,
 						"type_signature": "(options?: LibraryGenOptions | undefined): Gen",
 						"return_type": "Gen",
 						"parameters": [
@@ -3989,15 +3782,142 @@
 						]
 					}
 				],
-				"module_comment": "Library metadata generator helper.\n\nGenerates package_json and source_json with rich metadata:\n- JSDoc/TSDoc comments with full tag support\n- Full type signatures\n- Source code locations\n- Parameter information with descriptions and defaults\n- Return value documentation\n- Usage examples\n- Dependency graphs\n- Svelte component props\n\nThis file contains Gro-specific integration. The actual analysis logic is in\nbuild-tool agnostic helpers that work with `SourceFileInfo`.\n\n@see @fuzdev/fuz_util/source_json.js for type definitions\n@see `library_analysis.ts` for the unified analysis entry point\n@see `library_gen_helpers.ts` for pipeline orchestration helpers\n@see `tsdoc_helpers.ts` for JSDoc/TSDoc parsing\n@see `ts_helpers.ts` for TypeScript analysis\n@see `svelte_helpers.ts` for Svelte component analysis",
+				"module_comment": "Gro-specific library metadata generation.\n\nThis module provides Gro integration for library generation. It wraps the generic\n`library_generate` function with Gro's `Gen` interface and provides adapters for\nconverting Gro's `Disknode` to the build-tool agnostic `SourceFileInfo`.\n\nFor build-tool agnostic usage, see `library_generate.ts`.\n\n@see library_generate.ts for the generic generation entry point\n@see library_pipeline.ts for pipeline helpers\n@see library_output.ts for output file generation",
+				"dependencies": ["library_generate.ts", "module_helpers.ts"]
+			},
+			{
+				"path": "library_generate.ts",
+				"declarations": [
+					{
+						"name": "OnDuplicatesCallback",
+						"kind": "type",
+						"doc_comment": "Callback for handling duplicate declaration names.",
+						"source_line": 49,
+						"type_signature": "OnDuplicatesCallback"
+					},
+					{
+						"name": "library_throw_on_duplicates",
+						"kind": "function",
+						"doc_comment": "Strict duplicate handler that throws on any duplicate declaration names.\n\nUse this callback with `library_generate({ on_duplicates: library_throw_on_duplicates })`\nto enforce a flat namespace where all declaration names must be unique.",
+						"throws": [
+							{
+								"type": "Error",
+								"description": "if any duplicate declaration names are found"
+							}
+						],
+						"source_line": 62,
+						"type_signature": "(duplicates: Map<string, DuplicateInfo[]>, log: { error: (...args: unknown[]) => void; }): void",
+						"return_type": "void",
+						"parameters": [
+							{
+								"name": "duplicates",
+								"type": "Map<string, DuplicateInfo[]>"
+							},
+							{
+								"name": "log",
+								"type": "{ error: (...args: unknown[]) => void; }"
+							}
+						]
+					},
+					{
+						"name": "LibraryGenerateInput",
+						"kind": "type",
+						"doc_comment": "Input for library metadata generation.",
+						"source_line": 82,
+						"type_signature": "LibraryGenerateInput",
+						"properties": [
+							{
+								"name": "source_files",
+								"kind": "variable",
+								"type_signature": "Array<SourceFileInfo>",
+								"doc_comment": "Source files to analyze (must have content loaded)."
+							},
+							{
+								"name": "package_json",
+								"kind": "variable",
+								"type_signature": "PackageJson",
+								"doc_comment": "Package metadata (name, version)."
+							},
+							{
+								"name": "source_options",
+								"kind": "variable",
+								"type_signature": "ModuleSourceOptions",
+								"doc_comment": "Module source options for path extraction."
+							},
+							{
+								"name": "program",
+								"kind": "variable",
+								"type_signature": "ts.Program",
+								"doc_comment": "Optional TypeScript program. If not provided, one will be created.\nPass an existing program to reuse across multiple calls."
+							},
+							{
+								"name": "on_duplicates",
+								"kind": "variable",
+								"type_signature": "OnDuplicatesCallback",
+								"doc_comment": "Optional callback for handling duplicate declaration names."
+							},
+							{
+								"name": "log",
+								"kind": "variable",
+								"type_signature": "Logger",
+								"doc_comment": "Optional logger for status and diagnostic messages."
+							}
+						]
+					},
+					{
+						"name": "LibraryGenerateResult",
+						"kind": "type",
+						"doc_comment": "Result of library metadata generation.",
+						"source_line": 101,
+						"type_signature": "LibraryGenerateResult",
+						"properties": [
+							{
+								"name": "source_json",
+								"kind": "variable",
+								"type_signature": "SourceJson",
+								"doc_comment": "The generated source metadata."
+							},
+							{
+								"name": "json_content",
+								"kind": "variable",
+								"type_signature": "string",
+								"doc_comment": "JSON file content string."
+							},
+							{
+								"name": "ts_content",
+								"kind": "variable",
+								"type_signature": "string",
+								"doc_comment": "TypeScript wrapper file content string."
+							}
+						]
+					},
+					{
+						"name": "library_generate",
+						"kind": "function",
+						"doc_comment": "Generate library metadata from source files.\n\nThis is the main entry point for library generation. It analyzes source files,\nextracts metadata, and produces both structured data and file contents.",
+						"examples": [
+							"```ts\nconst result = library_generate({\n  source_files,\n  package_json: {name: '@my/lib', version: '1.0.0'},\n  source_options: module_create_source_options(process.cwd()),\n});\n\nawait writeFile('library.json', result.json_content);\nawait writeFile('library.ts', result.ts_content);\n```"
+						],
+						"source_line": 128,
+						"type_signature": "(input: LibraryGenerateInput): LibraryGenerateResult",
+						"return_type": "LibraryGenerateResult",
+						"parameters": [
+							{
+								"name": "input",
+								"type": "LibraryGenerateInput"
+							}
+						]
+					}
+				],
+				"module_comment": "Generic library metadata generation.\n\nThis module provides build-tool agnostic library generation. It takes source files\nand package metadata, analyzes them, and produces structured metadata with:\n- JSDoc/TSDoc comments with full tag support\n- Full type signatures\n- Source code locations\n- Parameter information with descriptions and defaults\n- Return value documentation\n- Usage examples\n- Dependency graphs\n- Svelte component props\n\nFor Gro integration, see `library_gen.ts` which wraps this with Gro's Gen interface.\n\n@see @fuzdev/fuz_util/source_json.js for type definitions\n@see `library_analysis.ts` for the unified analysis entry point\n@see `library_pipeline.ts` for pipeline helpers\n@see `library_output.ts` for JSON/TS file generation",
 				"dependencies": [
 					"analysis_context.ts",
 					"library_analysis.ts",
-					"library_gen_helpers.ts",
-					"library_gen_output.ts",
-					"module_helpers.ts",
+					"library_output.ts",
+					"library_pipeline.ts",
 					"ts_helpers.ts"
-				]
+				],
+				"dependents": ["library_gen.ts"]
 			},
 			{
 				"path": "library_helpers.ts",
@@ -4006,13 +3926,15 @@
 						"name": "url_api_declaration",
 						"kind": "function",
 						"doc_comment": "Build project-relative API documentation URL with hash anchor.",
-						"source_line": 10,
+						"source_line": 23,
 						"type_signature": "(declaration_name: string): string",
 						"return_type": "string",
+						"return_description": "URL path like '/docs/api#declaration_name'",
 						"parameters": [
 							{
 								"name": "declaration_name",
-								"type": "string"
+								"type": "string",
+								"description": "Name of the declaration to link to"
 							}
 						]
 					},
@@ -4020,17 +3942,20 @@
 						"name": "url_api_declaration_full",
 						"kind": "function",
 						"doc_comment": "Build full API documentation URL with domain and hash anchor.",
-						"source_line": 16,
+						"source_line": 33,
 						"type_signature": "(homepage: string, declaration_name: string): string",
 						"return_type": "string",
+						"return_description": "Full URL like 'https://example.com/docs/api#declaration_name'",
 						"parameters": [
 							{
 								"name": "homepage",
-								"type": "string"
+								"type": "string",
+								"description": "Package homepage URL"
 							},
 							{
 								"name": "declaration_name",
-								"type": "string"
+								"type": "string",
+								"description": "Name of the declaration to link to"
 							}
 						]
 					},
@@ -4038,96 +3963,15 @@
 						"name": "url_api_module",
 						"kind": "function",
 						"doc_comment": "Build project-relative module documentation URL.",
-						"source_line": 22,
+						"source_line": 42,
 						"type_signature": "(module_path: string): string",
 						"return_type": "string",
+						"return_description": "URL path like '/docs/api/helpers.ts'",
 						"parameters": [
 							{
 								"name": "module_path",
-								"type": "string"
-							}
-						]
-					},
-					{
-						"name": "url_github_file",
-						"kind": "function",
-						"doc_comment": "Build GitHub file URL for a repository.",
-						"source_line": 27,
-						"type_signature": "(repo_url: string, file_path: string, line?: number | undefined): string",
-						"return_type": "string",
-						"parameters": [
-							{
-								"name": "repo_url",
-								"type": "string"
-							},
-							{
-								"name": "file_path",
-								"type": "string"
-							},
-							{
-								"name": "line",
-								"type": "number | undefined",
-								"optional": true
-							}
-						]
-					},
-					{
-						"name": "url_github_org",
-						"kind": "function",
-						"doc_comment": "Build GitHub organization URL from repo URL and repo name.",
-						"source_line": 36,
-						"type_signature": "(repo_url: string, repo_name: string): string | null",
-						"return_type": "string | null",
-						"parameters": [
-							{
-								"name": "repo_url",
-								"type": "string"
-							},
-							{
-								"name": "repo_name",
-								"type": "string"
-							}
-						]
-					},
-					{
-						"name": "github_owner_parse",
-						"kind": "function",
-						"doc_comment": "Parse GitHub owner/org name from repository URL.",
-						"source_line": 43,
-						"type_signature": "(repo_url: string): string | null",
-						"return_type": "string | null",
-						"parameters": [
-							{
-								"name": "repo_url",
-								"type": "string"
-							}
-						]
-					},
-					{
-						"name": "url_npm_package",
-						"kind": "function",
-						"doc_comment": "Build npm package URL.",
-						"source_line": 53,
-						"type_signature": "(package_name: string): string",
-						"return_type": "string",
-						"parameters": [
-							{
-								"name": "package_name",
-								"type": "string"
-							}
-						]
-					},
-					{
-						"name": "package_is_published",
-						"kind": "function",
-						"doc_comment": "Check if a package is published to npm.",
-						"source_line": 59,
-						"type_signature": "(package_json: { [x: string]: unknown; name: string; version: string; private?: boolean | undefined; description?: string | undefined; motto?: string | undefined; glyph?: string | undefined; logo?: string | undefined; ... 23 more ...; exports?: string | ... 2 more ... | undefined; }): boolean",
-						"return_type": "boolean",
-						"parameters": [
-							{
-								"name": "package_json",
-								"type": "{ [x: string]: unknown; name: string; version: string; private?: boolean | undefined; description?: string | undefined; motto?: string | undefined; glyph?: string | undefined; logo?: string | undefined; ... 23 more ...; exports?: string | ... 2 more ... | undefined; }"
+								"type": "string",
+								"description": "Module path (e.g., 'helpers.ts')"
 							}
 						]
 					},
@@ -4135,94 +3979,229 @@
 						"name": "url_package_logo",
 						"kind": "function",
 						"doc_comment": "Build package logo URL with favicon.png fallback.",
-						"source_line": 66,
+						"source_line": 51,
 						"type_signature": "(homepage_url: string | null, logo_path?: string | undefined): string | null",
 						"return_type": "string | null",
+						"return_description": "Full URL to the logo, or null if no homepage",
 						"parameters": [
 							{
 								"name": "homepage_url",
-								"type": "string | null"
+								"type": "string | null",
+								"description": "Package homepage URL, or null"
 							},
 							{
 								"name": "logo_path",
 								"type": "string | undefined",
-								"optional": true
-							}
-						]
-					},
-					{
-						"name": "repo_name_parse",
-						"kind": "function",
-						"doc_comment": "Extract repository name without scope from package name.",
-						"source_line": 78,
-						"type_signature": "(name: string): string",
-						"return_type": "string",
-						"parameters": [
-							{
-								"name": "name",
-								"type": "string"
-							}
-						]
-					},
-					{
-						"name": "repo_url_parse",
-						"kind": "function",
-						"doc_comment": "Parse repository URL from package.json format.",
-						"source_line": 92,
-						"type_signature": "(repository: string | { [x: string]: unknown; type: string; url: string; directory?: string | undefined; } | undefined): string | null",
-						"return_type": "string | null",
-						"parameters": [
-							{
-								"name": "repository",
-								"type": "string | { [x: string]: unknown; type: string; url: string; directory?: string | undefined; } | undefined"
-							}
-						]
-					},
-					{
-						"name": "url_well_known",
-						"kind": "function",
-						"doc_comment": "Build .well-known URL for package metadata files.",
-						"source_line": 102,
-						"type_signature": "(homepage_url: string, filename: string): string",
-						"return_type": "string",
-						"parameters": [
-							{
-								"name": "homepage_url",
-								"type": "string"
-							},
-							{
-								"name": "filename",
-								"type": "string"
+								"optional": true,
+								"description": "Optional custom logo path (defaults to 'favicon.png')"
 							}
 						]
 					},
 					{
 						"name": "url_to_root_relative",
 						"kind": "function",
-						"doc_comment": "Convert a full URL to root-relative format by removing the origin.",
-						"source_line": 109,
+						"doc_comment": "Convert a full URL to root-relative format by removing the origin.\n\nUses SvelteKit's page state for the current origin by default.",
+						"examples": [
+							"// Assuming page.url.origin is 'https://example.com'\nurl_to_root_relative('https://example.com/docs/api')\n// => '/docs/api'"
+						],
+						"source_line": 74,
 						"type_signature": "(url: string, origin?: string): string",
 						"return_type": "string",
+						"return_description": "Root-relative URL starting with '/'",
 						"parameters": [
 							{
 								"name": "url",
-								"type": "string"
+								"type": "string",
+								"description": "Full URL to convert"
 							},
 							{
 								"name": "origin",
 								"type": "string",
+								"description": "Origin to strip (defaults to current page origin)",
 								"default_value": "page.url.origin"
 							}
 						]
 					}
 				],
+				"module_comment": "Library documentation URL helpers.\n\nRuntime UI helpers for building URLs in the library documentation system.\nThese depend on fuz_ui's documentation paths and SvelteKit's runtime state.\n\nFor generic package/repository URL helpers, see `package_helpers.ts`.",
 				"dependencies": ["docs_helpers.svelte.ts"],
-				"dependents": [
-					"LibraryDetail.svelte",
-					"contextmenu_state.svelte.ts",
-					"declaration.svelte.ts",
-					"module.svelte.ts"
-				]
+				"dependents": ["contextmenu_state.svelte.ts"]
+			},
+			{
+				"path": "library_output.ts",
+				"declarations": [
+					{
+						"name": "LibraryOutputResult",
+						"kind": "type",
+						"doc_comment": "Result of generating library output files.\nContains both the JSON data and the TypeScript wrapper file.",
+						"source_line": 21,
+						"type_signature": "LibraryOutputResult",
+						"properties": [
+							{
+								"name": "json_content",
+								"kind": "variable",
+								"type_signature": "string",
+								"doc_comment": "JSON content for library.json"
+							},
+							{
+								"name": "ts_content",
+								"kind": "variable",
+								"type_signature": "string",
+								"doc_comment": "TypeScript wrapper content for library.ts"
+							}
+						]
+					},
+					{
+						"name": "library_generate_output",
+						"kind": "function",
+						"doc_comment": "Generate the library.json and library.ts file contents.\nParses at generation time so runtime only needs the pre-computed result.\n\nReturns JSON + .ts wrapper because:\n- JSON is natively importable by Node.js and Vite without TypeScript loaders\n- Works in CI environments that don't have TS compilation\n- The .ts wrapper validates with zod and exports with proper types\n  (JSON imports get widened types like `string` instead of literal unions)",
+						"source_line": 38,
+						"type_signature": "(package_json: { [x: string]: unknown; name: string; version: string; private?: boolean | undefined; description?: string | undefined; motto?: string | undefined; glyph?: string | undefined; logo?: string | undefined; ... 23 more ...; exports?: string | ... 2 more ... | undefined; }, source_json: { ...; }): LibraryOutputResult",
+						"return_type": "LibraryOutputResult",
+						"parameters": [
+							{
+								"name": "package_json",
+								"type": "{ [x: string]: unknown; name: string; version: string; private?: boolean | undefined; description?: string | undefined; motto?: string | undefined; glyph?: string | undefined; logo?: string | undefined; ... 23 more ...; exports?: string | ... 2 more ... | undefined; }"
+							},
+							{
+								"name": "source_json",
+								"type": "{ [x: string]: unknown; name: string; version: string; modules?: { [x: string]: unknown; path: string; declarations?: { [x: string]: unknown; name: string; kind: \"function\" | \"json\" | \"type\" | \"variable\" | \"class\" | \"constructor\" | \"component\" | \"css\"; ... 19 more ...; alias_of?: { ...; } | undefined; }[] | undefine..."
+							}
+						]
+					}
+				],
+				"module_comment": "Library output generation.\n\nGenerates the library.json and library.ts files from analyzed metadata.\n\n@see library_generate.ts for the main generation entry point\n@see library_pipeline.ts for pipeline orchestration functions\n@see library_gen.ts for Gro-specific integration",
+				"dependents": ["library_generate.ts"]
+			},
+			{
+				"path": "library_pipeline.ts",
+				"declarations": [
+					{
+						"name": "DuplicateInfo",
+						"kind": "type",
+						"doc_comment": "A duplicate declaration with its full metadata and module path.",
+						"source_line": 37,
+						"type_signature": "DuplicateInfo",
+						"properties": [
+							{
+								"name": "declaration",
+								"kind": "variable",
+								"type_signature": "DeclarationJson",
+								"doc_comment": "The full declaration metadata."
+							},
+							{
+								"name": "module",
+								"kind": "variable",
+								"type_signature": "string",
+								"doc_comment": "Module path where this declaration is defined."
+							}
+						]
+					},
+					{
+						"name": "library_find_duplicates",
+						"kind": "function",
+						"doc_comment": "Find duplicate declaration names across modules.\n\nReturns a Map of declaration names to their full metadata (only includes duplicates).\nCallers can decide how to handle duplicates (throw, warn, ignore).",
+						"examples": [
+							"const duplicates = library_find_duplicates(source_json);\nif (duplicates.size > 0) {\n  for (const [name, occurrences] of duplicates) {\n    console.error(`\"${name}\" found in:`);\n    for (const {declaration, module} of occurrences) {\n      console.error(`  - ${module}:${declaration.source_line} (${declaration.kind})`);\n    }\n  }\n  throw new Error(`Found ${duplicates.size} duplicate declaration names`);\n}"
+						],
+						"source_line": 62,
+						"type_signature": "(source_json: { [x: string]: unknown; name: string; version: string; modules?: { [x: string]: unknown; path: string; declarations?: { [x: string]: unknown; name: string; kind: \"function\" | \"json\" | \"type\" | \"variable\" | \"class\" | \"constructor\" | \"component\" | \"css\"; ... 19 more ...; alias_of?: { ...; } | undefined; }[] | undefined; module_comment?: string | undefined; dependencies?: string[] | undefined; dependents?: string[] | undefined; }[] | undefined; }): Map<...>",
+						"return_type": "Map<string, DuplicateInfo[]>",
+						"parameters": [
+							{
+								"name": "source_json",
+								"type": "{ [x: string]: unknown; name: string; version: string; modules?: { [x: string]: unknown; path: string; declarations?: { [x: string]: unknown; name: string; kind: \"function\" | \"json\" | \"type\" | \"variable\" | \"class\" | \"constructor\" | \"component\" | \"css\"; ... 19 more ...; alias_of?: { ...; } | undefined; }[] | undefine..."
+							}
+						]
+					},
+					{
+						"name": "library_sort_modules",
+						"kind": "function",
+						"doc_comment": "Sort modules alphabetically by path for deterministic output and cleaner diffs.",
+						"source_line": 95,
+						"type_signature": "(modules: { [x: string]: unknown; path: string; declarations?: { [x: string]: unknown; name: string; kind: \"function\" | \"json\" | \"type\" | \"variable\" | \"class\" | \"constructor\" | \"component\" | \"css\"; doc_comment?: string | undefined; ... 18 more ...; alias_of?: { ...; } | undefined; }[] | undefined; module_comment?: string | undefined; dependencies?: string[] | undefined; dependents?: string[] | undefined; }[]): { ...; }[]",
+						"return_type": "{ [x: string]: unknown; path: string; declarations?: { [x: string]: unknown; name: string; kind: \"function\" | \"json\" | \"type\" | \"variable\" | \"class\" | \"constructor\" | \"component\" | \"css\"; doc_comment?: string | undefined; ... 18 more ...; alias_of?: { ...; } | undefined; }[] | undefined; module_comment?: string | un...",
+						"parameters": [
+							{
+								"name": "modules",
+								"type": "{ [x: string]: unknown; path: string; declarations?: { [x: string]: unknown; name: string; kind: \"function\" | \"json\" | \"type\" | \"variable\" | \"class\" | \"constructor\" | \"component\" | \"css\"; doc_comment?: string | undefined; ... 18 more ...; alias_of?: { ...; } | undefined; }[] | undefined; module_comment?: string | un..."
+							}
+						]
+					},
+					{
+						"name": "CollectedReExport",
+						"kind": "type",
+						"doc_comment": "A collected re-export with its source module context.\n\nUsed during the two-phase re-export resolution:\n1. Phase 1: Collect re-exports from each module during analysis\n2. Phase 2: Group by original module and merge into `also_exported_from`",
+						"source_line": 106,
+						"type_signature": "CollectedReExport",
+						"properties": [
+							{
+								"name": "re_exporting_module",
+								"kind": "variable",
+								"type_signature": "string",
+								"doc_comment": "The module that re-exports the declaration."
+							},
+							{
+								"name": "re_export",
+								"kind": "variable",
+								"type_signature": "ReExportInfo",
+								"doc_comment": "The re-export info (name and original module)."
+							}
+						]
+					},
+					{
+						"name": "library_merge_re_exports",
+						"kind": "function",
+						"doc_comment": "Build `also_exported_from` arrays from collected re-export data.\n\nThis function resolves the two-phase re-export problem:\n\n**Problem**: When module A re-exports from module B, we discover this while\nanalyzing A, but need to update B's declarations. However, B may already be\nprocessed or may be processed later.\n\n**Solution**: Collect all re-exports in phase 1, then merge them in phase 2\nafter all modules are analyzed.",
+						"examples": [
+							"// helpers.ts exports: foo, bar\n// index.ts does: export {foo, bar} from './helpers.js'\n//\n// After processing:\n// - helpers.ts foo declaration gets: also_exported_from: ['index.ts']\n// - helpers.ts bar declaration gets: also_exported_from: ['index.ts']"
+						],
+						"source_line": 137,
+						"type_signature": "(source_json: { [x: string]: unknown; name: string; version: string; modules?: { [x: string]: unknown; path: string; declarations?: { [x: string]: unknown; name: string; kind: \"function\" | \"json\" | \"type\" | \"variable\" | \"class\" | \"constructor\" | \"component\" | \"css\"; ... 19 more ...; alias_of?: { ...; } | undefined; }[] | undefined; module_comment?: string | undefined; dependencies?: string[] | undefined; dependents?: string[] | undefined; }[] | undefined; }, collected_re_exports: CollectedReExport[]): void",
+						"return_type": "void",
+						"parameters": [
+							{
+								"name": "source_json",
+								"type": "{ [x: string]: unknown; name: string; version: string; modules?: { [x: string]: unknown; path: string; declarations?: { [x: string]: unknown; name: string; kind: \"function\" | \"json\" | \"type\" | \"variable\" | \"class\" | \"constructor\" | \"component\" | \"css\"; ... 19 more ...; alias_of?: { ...; } | undefined; }[] | undefine...",
+								"description": "The source JSON with all modules (will be mutated)"
+							},
+							{
+								"name": "collected_re_exports",
+								"type": "CollectedReExport[]",
+								"description": "Array of re-exports collected during phase 1"
+							}
+						]
+					},
+					{
+						"name": "library_collect_source_files",
+						"kind": "function",
+						"doc_comment": "Collect and filter source files.\n\nReturns source files for TypeScript/JS files and Svelte components, excluding test files.\nReturns an empty array with a warning if no source files are found.\n\nFile types are determined by `options.get_analyzer`. By default, `.ts`, `.js`, and `.svelte`\nfiles are supported. Customize `get_analyzer` to support additional file types like `.svx`.",
+						"source_line": 187,
+						"type_signature": "(files: Iterable<SourceFileInfo>, options: ModuleSourceOptions, log?: Logger | undefined): SourceFileInfo[]",
+						"return_type": "SourceFileInfo[]",
+						"parameters": [
+							{
+								"name": "files",
+								"type": "Iterable<SourceFileInfo>",
+								"description": "Iterable of source file info (from Gro filer, file system, or other source)"
+							},
+							{
+								"name": "options",
+								"type": "ModuleSourceOptions",
+								"description": "Module source options for filtering"
+							},
+							{
+								"name": "log",
+								"type": "Logger | undefined",
+								"optional": true,
+								"description": "Optional logger for status messages"
+							}
+						]
+					}
+				],
+				"module_comment": "Library metadata generation pipeline.\n\nThese functions handle collection, validation, and transformation of library metadata\nduring the generation pipeline.\n\nPipeline stages:\n1. **Collection** - `library_collect_source_files` gathers and filters source files\n2. **Analysis** - `library_analyze_module` (in library_analysis.ts) extracts metadata\n3. **Validation** - `library_find_duplicates` checks flat namespace constraints\n4. **Transformation** - `library_merge_re_exports` resolves re-export relationships\n5. **Output** - `library_sort_modules` prepares deterministic output\n\n@see library_generate.ts for the main generation entry point\n@see library_analysis.ts for module-level analysis\n@see library_output.ts for output file generation (JSON/TS wrapper)\n@see library_gen.ts for Gro-specific integration",
+				"dependencies": ["module_helpers.ts"],
+				"dependents": ["library_generate.ts"]
 			},
 			{
 				"path": "library.svelte.ts",
@@ -4449,8 +4428,8 @@
 					"DeclarationLink.svelte",
 					"ImgOrSvg.svelte",
 					"ModuleLink.svelte",
-					"library_helpers.ts",
-					"module_helpers.ts"
+					"module_helpers.ts",
+					"package_helpers.ts"
 				]
 			},
 			{
@@ -5406,7 +5385,7 @@
 					"LibraryDetail.svelte",
 					"library_analysis.ts",
 					"library_gen.ts",
-					"library_gen_helpers.ts",
+					"library_pipeline.ts",
 					"svelte_helpers.ts",
 					"ts_helpers.ts"
 				]
@@ -5512,7 +5491,7 @@
 						]
 					}
 				],
-				"dependencies": ["declaration.svelte.ts", "library_helpers.ts"],
+				"dependencies": ["declaration.svelte.ts", "package_helpers.ts"],
 				"dependents": ["library.svelte.ts"]
 			},
 			{
@@ -5542,6 +5521,194 @@
 					"DocsTertiaryNav.svelte",
 					"LibraryDetail.svelte"
 				]
+			},
+			{
+				"path": "package_helpers.ts",
+				"declarations": [
+					{
+						"name": "url_github_file",
+						"kind": "function",
+						"doc_comment": "Build GitHub file URL for a repository.",
+						"examples": [
+							"url_github_file('https://github.com/foo/bar', 'src/index.ts')\n// => 'https://github.com/foo/bar/blob/main/src/index.ts'",
+							"url_github_file('https://github.com/foo/bar', './src/index.ts', 42)\n// => 'https://github.com/foo/bar/blob/main/src/index.ts#L42'"
+						],
+						"source_line": 43,
+						"type_signature": "(repo_url: string, file_path: string, line?: number | undefined): string",
+						"return_type": "string",
+						"return_description": "Full GitHub URL to the file on the main branch",
+						"parameters": [
+							{
+								"name": "repo_url",
+								"type": "string",
+								"description": "Repository URL (e.g., 'https://github.com/owner/repo')"
+							},
+							{
+								"name": "file_path",
+								"type": "string",
+								"description": "Path to the file (leading './' is stripped)"
+							},
+							{
+								"name": "line",
+								"type": "number | undefined",
+								"optional": true,
+								"description": "Optional line number for deep linking"
+							}
+						]
+					},
+					{
+						"name": "url_github_org",
+						"kind": "function",
+						"doc_comment": "Build GitHub organization URL from repo URL and repo name.",
+						"examples": [
+							"url_github_org('https://github.com/fuzdev/fuz_ui', 'fuz_ui')\n// => 'https://github.com/fuzdev'"
+						],
+						"source_line": 60,
+						"type_signature": "(repo_url: string, repo_name: string): string | null",
+						"return_type": "string | null",
+						"return_description": "Organization URL, or null if repo_url doesn't end with repo_name",
+						"parameters": [
+							{
+								"name": "repo_url",
+								"type": "string",
+								"description": "Repository URL (e.g., 'https://github.com/owner/repo')"
+							},
+							{
+								"name": "repo_name",
+								"type": "string",
+								"description": "Repository name to strip from the URL"
+							}
+						]
+					},
+					{
+						"name": "repo_url_github_owner",
+						"kind": "function",
+						"doc_comment": "Extract GitHub owner/org name from repository URL.",
+						"examples": [
+							"repo_url_github_owner('https://github.com/fuzdev/fuz_ui')\n// => 'fuzdev'",
+							"repo_url_github_owner('https://gitlab.com/foo/bar')\n// => null (not a GitHub URL)"
+						],
+						"source_line": 78,
+						"type_signature": "(repo_url: string): string | null",
+						"return_type": "string | null",
+						"return_description": "Owner name, or null if not a valid GitHub URL",
+						"parameters": [
+							{
+								"name": "repo_url",
+								"type": "string",
+								"description": "Repository URL (e.g., 'https://github.com/owner/repo')"
+							}
+						]
+					},
+					{
+						"name": "url_npm_package",
+						"kind": "function",
+						"doc_comment": "Build npm package URL.",
+						"examples": [
+							"url_npm_package('@fuzdev/fuz_ui')\n// => 'https://www.npmjs.com/package/@fuzdev/fuz_ui'"
+						],
+						"source_line": 95,
+						"type_signature": "(package_name: string): string",
+						"return_type": "string",
+						"return_description": "Full npm package page URL",
+						"parameters": [
+							{
+								"name": "package_name",
+								"type": "string",
+								"description": "Package name (can be scoped like '@org/package')"
+							}
+						]
+					},
+					{
+						"name": "package_is_published",
+						"kind": "function",
+						"doc_comment": "Check if a package is published to npm.\n\nA package is considered published if:\n- It's not marked as private\n- It has exports defined\n- Its version is not the initial '0.0.1'",
+						"source_line": 109,
+						"type_signature": "(package_json: { [x: string]: unknown; name: string; version: string; private?: boolean | undefined; description?: string | undefined; motto?: string | undefined; glyph?: string | undefined; logo?: string | undefined; ... 23 more ...; exports?: string | ... 2 more ... | undefined; }): boolean",
+						"return_type": "boolean",
+						"return_description": "True if the package appears to be published",
+						"parameters": [
+							{
+								"name": "package_json",
+								"type": "{ [x: string]: unknown; name: string; version: string; private?: boolean | undefined; description?: string | undefined; motto?: string | undefined; glyph?: string | undefined; logo?: string | undefined; ... 23 more ...; exports?: string | ... 2 more ... | undefined; }",
+								"description": "The package.json object to check"
+							}
+						]
+					},
+					{
+						"name": "repo_name_parse",
+						"kind": "function",
+						"doc_comment": "Extract repository name without scope from package name.",
+						"examples": [
+							"repo_name_parse('@fuzdev/fuz_ui')\n// => 'fuz_ui'",
+							"repo_name_parse('lodash')\n// => 'lodash'"
+						],
+						"throws": [
+							{
+								"type": "Error",
+								"description": "if scoped package name is malformed"
+							}
+						],
+						"source_line": 128,
+						"type_signature": "(name: string): string",
+						"return_type": "string",
+						"return_description": "Repository name without scope",
+						"parameters": [
+							{
+								"name": "name",
+								"type": "string",
+								"description": "Package name (can be scoped like '@org/package')"
+							}
+						]
+					},
+					{
+						"name": "repo_url_parse",
+						"kind": "function",
+						"doc_comment": "Parse repository URL from package.json format.\n\nHandles both string format and object format with `url` property.\nStrips common prefixes ('git+') and suffixes ('.git', '/').",
+						"examples": [
+							"repo_url_parse('https://github.com/foo/bar')\n// => 'https://github.com/foo/bar'",
+							"repo_url_parse({url: 'git+https://github.com/foo/bar.git'})\n// => 'https://github.com/foo/bar'",
+							"repo_url_parse(undefined)\n// => null"
+						],
+						"source_line": 160,
+						"type_signature": "(repository: string | { [x: string]: unknown; type: string; url: string; directory?: string | undefined; } | undefined): string | null",
+						"return_type": "string | null",
+						"return_description": "Clean repository URL, or null if not provided",
+						"parameters": [
+							{
+								"name": "repository",
+								"type": "string | { [x: string]: unknown; type: string; url: string; directory?: string | undefined; } | undefined",
+								"description": "The repository field from package.json"
+							}
+						]
+					},
+					{
+						"name": "url_well_known",
+						"kind": "function",
+						"doc_comment": "Build .well-known URL for package metadata files.",
+						"examples": [
+							"url_well_known('https://fuz.dev', 'package.json')\n// => 'https://fuz.dev/.well-known/package.json'"
+						],
+						"source_line": 178,
+						"type_signature": "(homepage_url: string, filename: string): string",
+						"return_type": "string",
+						"return_description": "Full URL to the .well-known file",
+						"parameters": [
+							{
+								"name": "homepage_url",
+								"type": "string",
+								"description": "Package homepage URL"
+							},
+							{
+								"name": "filename",
+								"type": "string",
+								"description": "Filename in .well-known directory"
+							}
+						]
+					}
+				],
+				"module_comment": "Package and repository URL helpers.\n\nGeneric utilities for building URLs and parsing package/repository metadata.\nThese functions have no framework dependencies and can be used at build-time or runtime.\n\nURL builders:\n- `url_github_file` - GitHub file permalink\n- `url_github_org` - GitHub organization page\n- `url_npm_package` - npm package page\n- `url_well_known` - .well-known metadata file\n\nParsers:\n- `repo_url_parse` - extract repo URL from package.json repository field\n- `repo_name_parse` - extract repo name from scoped package name\n- `repo_url_github_owner` - extract GitHub owner from repo URL\n\nPredicates:\n- `package_is_published` - check if package is published to npm",
+				"dependents": ["LibraryDetail.svelte", "declaration.svelte.ts", "module.svelte.ts"]
 			},
 			{
 				"path": "PasteFromClipboard.svelte",
@@ -6929,7 +7096,7 @@
 				],
 				"module_comment": "TypeScript compiler API helpers for extracting metadata from source code.\n\nAll functions are prefixed with `ts_` for clarity.",
 				"dependencies": ["module_helpers.ts", "tsdoc_helpers.ts"],
-				"dependents": ["library_analysis.ts", "library_gen.ts", "svelte_helpers.ts"]
+				"dependents": ["library_analysis.ts", "library_generate.ts", "svelte_helpers.ts"]
 			},
 			{
 				"path": "tsdoc_helpers.ts",

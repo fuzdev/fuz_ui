@@ -2,11 +2,11 @@ import {test, assert, describe} from 'vitest';
 
 import {
 	source_file_from_disknode,
-	library_gen_throw_on_duplicates,
 	library_collect_source_files_from_disknodes,
 } from '$lib/library_gen.js';
-import type {DuplicateInfo} from '$lib/library_gen_helpers.js';
+import type {DuplicateInfo} from '$lib/library_pipeline.js';
 import {TEST_PROJECT_ROOT, create_test_source_options} from './module_test_helpers.js';
+import {library_throw_on_duplicates} from '$lib/library_generate.js';
 
 /**
  * Create a mock Disknode for testing.
@@ -199,13 +199,13 @@ const create_duplicate_info = (
 	module,
 });
 
-describe('library_gen_throw_on_duplicates', () => {
+describe('library_throw_on_duplicates', () => {
 	test('does nothing when duplicates map is empty', () => {
 		const log = create_mock_log();
 		const duplicates: Map<string, Array<DuplicateInfo>> = new Map();
 
 		// Should not throw
-		library_gen_throw_on_duplicates(duplicates, log);
+		library_throw_on_duplicates(duplicates, log);
 
 		assert.strictEqual(log.errors.length, 0);
 	});
@@ -223,7 +223,7 @@ describe('library_gen_throw_on_duplicates', () => {
 		]);
 
 		assert.throws(
-			() => library_gen_throw_on_duplicates(duplicates, log),
+			() => library_throw_on_duplicates(duplicates, log),
 			/1 duplicate declaration name/,
 		);
 	});
@@ -236,7 +236,7 @@ describe('library_gen_throw_on_duplicates', () => {
 		]);
 
 		assert.throws(
-			() => library_gen_throw_on_duplicates(duplicates, log),
+			() => library_throw_on_duplicates(duplicates, log),
 			/2 duplicate declaration names/,
 		);
 	});
@@ -254,7 +254,7 @@ describe('library_gen_throw_on_duplicates', () => {
 		]);
 
 		try {
-			library_gen_throw_on_duplicates(duplicates, log);
+			library_throw_on_duplicates(duplicates, log);
 		} catch (_error) {
 			// expected
 		}
@@ -284,7 +284,7 @@ describe('library_gen_throw_on_duplicates', () => {
 		]);
 
 		try {
-			library_gen_throw_on_duplicates(duplicates, log);
+			library_throw_on_duplicates(duplicates, log);
 		} catch (_error) {
 			// expected
 		}
@@ -302,7 +302,7 @@ describe('library_gen_throw_on_duplicates', () => {
 		]);
 
 		try {
-			library_gen_throw_on_duplicates(duplicates, log);
+			library_throw_on_duplicates(duplicates, log);
 			assert.fail('should have thrown');
 		} catch (e) {
 			const message = (e as Error).message;
