@@ -4973,7 +4973,7 @@
 					{
 						"name": "mdz_is_url",
 						"kind": "function",
-						"doc_comment": "Check if a string is a URL (http:// or https://).",
+						"doc_comment": "Check if a string is a URL (`https://` or `http://`).",
 						"source_line": 1825,
 						"type_signature": "(s: string): boolean",
 						"return_type": "boolean",

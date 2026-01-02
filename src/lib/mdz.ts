@@ -1070,7 +1070,7 @@ export class MdzParser {
 	}
 
 	/**
-	 * Check if current position is the start of an external URL (https:// or http://).
+	 * Check if current position is the start of an external URL (`https://` or `http://`).
 	 */
 	#is_at_url(): boolean {
 		if (this.#match('https://')) {
@@ -1120,7 +1120,7 @@ export class MdzParser {
 	}
 
 	/**
-	 * Parse auto-detected external URL (https:// or http://).
+	 * Parse auto-detected external URL (`https://` or `http://`).
 	 * Uses RFC 3986 whitelist validation for valid URI characters.
 	 */
 	#parse_auto_link_url(): MdzLinkNode {
@@ -1820,7 +1820,7 @@ export class MdzParser {
 }
 
 /**
- * Check if a string is a URL (http:// or https://).
+ * Check if a string is a URL (`https://` or `http://`).
  */
 export const mdz_is_url = (s: string): boolean =>
 	s.startsWith('https://') || s.startsWith('http://');
