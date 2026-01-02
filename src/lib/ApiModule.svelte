@@ -62,17 +62,16 @@
 			<p>Module not found: {module_path}</p>
 		</section>
 	{:else}
+		{#if module.module_comment}
+			<section>
+				<Mdz content={module.module_comment} />
+			</section>
+		{/if}
 		<!-- Declarations Section -->
 		<TomeSection>
 			<TomeSectionHeader text="Declarations" />
 
 			<section>
-				{#if module.module_comment}
-					<blockquote>
-						<Mdz content={module.module_comment} />
-					</blockquote>
-				{/if}
-
 				{#if search.all.length > 1}
 					<DocsSearch
 						placeholder="search declarations in this module..."
