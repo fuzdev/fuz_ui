@@ -1,5 +1,5 @@
 import {test, assert, describe} from 'vitest';
-import type {DuplicateInfo} from '@fuzdev/svelte-docinfo/library_pipline.js';
+import type {DuplicateInfo} from '@fuzdev/svelte-docinfo/library_pipeline.js';
 import {library_throw_on_duplicates} from '@fuzdev/svelte-docinfo/library_generate.js';
 
 import {
