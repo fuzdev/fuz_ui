@@ -1,5 +1,0 @@
-{
-	"text": "Old function that should no longer be used.",
-	"params": {},
-	"deprecated_message": "Use new_function() instead"
-}
