@@ -1,4 +1,4 @@
-import type {ModuleJson} from '@fuzdev/svelte-docinfo';
+import type {ModuleJson} from '@fuzdev/svelte-docinfo/source_json.js';
 
 import {Declaration} from './declaration.svelte.js';
 import type {Library} from './library.svelte.js';

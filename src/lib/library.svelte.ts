@@ -1,4 +1,4 @@
-import type {LibraryJson} from '@fuzdev/svelte-docinfo';
+import type {LibraryJson} from '@fuzdev/svelte-docinfo/library_json.js';
 
 import {create_context} from './context_helpers.js';
 import {Declaration} from './declaration.svelte.js';

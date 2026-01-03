@@ -26,8 +26,8 @@ import {
 	module_validate_source_options,
 	module_is_source,
 	module_get_source_root,
-} from '@fuzdev/svelte-docinfo';
-import {library_generate, type OnDuplicatesCallback} from '@fuzdev/svelte-docinfo';
+} from '@fuzdev/svelte-docinfo/module_helpers.js';
+import {library_generate, type OnDuplicatesCallback} from '@fuzdev/svelte-docinfo/library_generate.js';
 
 /** Options for Gro library generation. */
 export interface LibraryGenOptions {

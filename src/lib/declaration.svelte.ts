@@ -2,7 +2,7 @@ import {
 	type DeclarationJson,
 	declaration_generate_import,
 	declaration_get_display_name,
-} from '@fuzdev/svelte-docinfo';
+} from '@fuzdev/svelte-docinfo/source_json.js';
 
 import type {Module} from './module.svelte.js';
 import {url_github_file} from './package_helpers.js';
