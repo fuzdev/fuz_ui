@@ -6,15 +6,6 @@ export const task: Task = {
 		log.info('updating mdz fixtures...');
 		await invoke_task('src/test/fixtures/mdz/update');
 
-		log.info('updating tsdoc fixtures...');
-		await invoke_task('src/test/fixtures/tsdoc/update');
-
-		log.info('updating ts fixtures...');
-		await invoke_task('src/test/fixtures/ts/update');
-
-		log.info('updating svelte fixtures...');
-		await invoke_task('src/test/fixtures/svelte/update');
-
 		log.info('all fixtures updated!');
 	},
 };
