@@ -1,7 +1,0 @@
-{
-	"text": "Function demonstrating example usage.",
-	"params": {},
-	"examples": [
-		"const result = format_name('John', 'Doe');\nconsole.log(result); // \"Doe, John\""
-	]
-}

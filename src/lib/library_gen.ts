@@ -5,11 +5,11 @@
  * `library_generate` function with Gro's `Gen` interface and provides adapters for
  * converting Gro's `Disknode` to the build-tool agnostic `SourceFileInfo`.
  *
- * For build-tool agnostic usage, see `library_generate.ts`.
+ * For build-tool agnostic usage, see `@fuzdev/svelte-docinfo`.
  *
- * @see library_generate.ts for the generic generation entry point
- * @see library_pipeline.ts for pipeline helpers
- * @see library_output.ts for output file generation
+ * @see @fuzdev/svelte-docinfo/library_generate.js for the generic generation entry point
+ * @see @fuzdev/svelte-docinfo/library_pipeline.js for pipeline helpers
+ * @see @fuzdev/svelte-docinfo/library_output.js for output file generation
  *
  * @module
  */
@@ -26,8 +26,8 @@ import {
 	module_validate_source_options,
 	module_is_source,
 	module_get_source_root,
-} from './module_helpers.js';
-import {library_generate, type OnDuplicatesCallback} from './library_generate.js';
+} from '@fuzdev/svelte-docinfo';
+import {library_generate, type OnDuplicatesCallback} from '@fuzdev/svelte-docinfo';
 
 /** Options for Gro library generation. */
 export interface LibraryGenOptions {

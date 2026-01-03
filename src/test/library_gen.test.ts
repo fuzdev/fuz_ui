@@ -4,9 +4,9 @@ import {
 	source_file_from_disknode,
 	library_collect_source_files_from_disknodes,
 } from '$lib/library_gen.js';
-import type {DuplicateInfo} from '$lib/library_pipeline.js';
+import type {DuplicateInfo} from '@fuzdev/svelte-docinfo';
 import {TEST_PROJECT_ROOT, create_test_source_options} from './module_test_helpers.js';
-import {library_throw_on_duplicates} from '$lib/library_generate.js';
+import {library_throw_on_duplicates} from '@fuzdev/svelte-docinfo';
 
 /**
  * Create a mock Disknode for testing.

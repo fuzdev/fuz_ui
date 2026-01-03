@@ -2,7 +2,7 @@ import type {Plugin} from 'vite';
 import type {ServerResponse} from 'node:http';
 import {isAbsolute, join} from 'node:path';
 import {readFile} from 'node:fs/promises';
-import type {LibraryJson} from '@fuzdev/fuz_util/library_json.js';
+import type {LibraryJson} from '@fuzdev/svelte-docinfo';
 
 export interface VitePluginLibraryWellKnownOptions {
 	/**

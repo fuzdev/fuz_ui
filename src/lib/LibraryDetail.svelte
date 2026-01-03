@@ -13,7 +13,7 @@
 		module_is_svelte,
 		module_is_css,
 		module_is_json,
-	} from './module_helpers.js';
+	} from '@fuzdev/svelte-docinfo';
 
 	const {
 		library,
