@@ -294,22 +294,23 @@ library and API (generated in `src/routes/`):
 - `package_helpers.ts` - generic package/repo utilities (`url_github_file`,
   `repo_url_parse`, `package_is_published`)
 
-TypeScript and Svelte analysis:
+TypeScript and Svelte analysis (extracted to @fuzdev/svelte-docinfo):
 
+**NOTE**: The core analysis layer has been extracted to `@fuzdev/svelte-docinfo` for reusability.
+Fuz UI imports from `@fuzdev/svelte-docinfo` for its analysis needs.
+
+Core modules now in svelte-docinfo:
 - `ts_helpers.ts` - TypeScript compiler API utilities
-  - high-level: `ts_analyze_declaration`, `ts_analyze_module_exports`
-  - low-level: `ts_extract_function_info`, `ts_extract_class_info`, etc.
 - `svelte_helpers.ts` - Svelte component analysis
-  - high-level: `svelte_analyze_file`
-  - low-level: `svelte_analyze_component`, `svelte_extract_props`
 - `tsdoc_helpers.ts` - TSDoc/JSDoc parsing
-  - `tsdoc_parse`, `tsdoc_apply_to_declaration`
 - `module_helpers.ts` - module path utilities
-  - predicates: `module_matches_source`, `module_is_typescript`, `module_is_svelte`
-  - utilities: `module_extract_path`, `module_get_component_name`, `module_extract_dependencies`
-  - configuration: `ModuleSourceOptions`, `MODULE_SOURCE_DEFAULTS`
-- `library_analysis.ts` - unified analysis entry point (`library_analyze_module`)
-- `library_pipeline.ts` - pipeline orchestration helpers
+- `library_analysis.ts` - unified analysis entry point
+- `library_pipeline.ts` - pipeline orchestration
+- `library_generate.ts` - build-tool agnostic generation
+- `source_json.ts` - metadata type definitions
+- `analysis_context.ts` - diagnostic collection
+
+See `@fuzdev/svelte-docinfo/CLAUDE.md` for architecture details.
 
 browser and DOM:
 
