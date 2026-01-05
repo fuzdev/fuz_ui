@@ -136,6 +136,7 @@
 	"source_json": {
 		"name": "@fuzdev/fuz_ui",
 		"version": "0.177.0",
+		"repository": "git+https://github.com/fuzdev/fuz_ui.git",
 		"modules": [
 			{
 				"path": "Alert.svelte",
@@ -149,7 +150,8 @@
 							{
 								"name": "status",
 								"type": "AlertStatus",
-								"optional": true
+								"optional": true,
+								"default_value": "'inform'"
 							},
 							{
 								"name": "color",
@@ -289,7 +291,8 @@
 							{
 								"name": "search_query",
 								"type": "string",
-								"optional": true
+								"optional": true,
+								"default_value": "''"
 							}
 						],
 						"source_line": 1
@@ -313,19 +316,22 @@
 								"name": "library",
 								"type": "Library",
 								"optional": true,
-								"description": "The library instance to render API docs for.\nDefaults to getting from library_context."
+								"description": "The library instance to render API docs for.\nDefaults to getting from library_context.",
+								"default_value": "library_context.get()"
 							},
 							{
 								"name": "tome",
 								"type": "Tome",
 								"optional": true,
-								"description": "The tome for the API docs page.\nDefaults to looking up the 'api' tome."
+								"description": "The tome for the API docs page.\nDefaults to looking up the 'api' tome.",
+								"default_value": "get_tome_by_name('api')"
 							},
 							{
 								"name": "minimal",
 								"type": "boolean",
 								"optional": true,
-								"description": "Whether to show minimal content (just a link to full API docs).\nUsed when the API index is shown on a parent docs page."
+								"description": "Whether to show minimal content (just a link to full API docs).\nUsed when the API index is shown on a parent docs page.",
+								"default_value": "false"
 							}
 						],
 						"source_line": 1
@@ -359,13 +365,15 @@
 								"name": "library",
 								"type": "Library",
 								"optional": true,
-								"description": "The library instance to render API docs for.\nDefaults to getting from library_context."
+								"description": "The library instance to render API docs for.\nDefaults to getting from library_context.",
+								"default_value": "library_context.get()"
 							},
 							{
 								"name": "tome",
 								"type": "Tome",
 								"optional": true,
-								"description": "The tome for the API docs page.\nDefaults to looking up the 'api' tome."
+								"description": "The tome for the API docs page.\nDefaults to looking up the 'api' tome.",
+								"default_value": "get_tome_by_name('api')"
 							}
 						],
 						"source_line": 1
@@ -440,7 +448,8 @@
 							{
 								"name": "align",
 								"type": "'left' | 'right' | 'above' | 'below'",
-								"optional": true
+								"optional": true,
+								"default_value": "'left'"
 							},
 							{
 								"name": "icon",
@@ -466,7 +475,8 @@
 							{
 								"name": "value",
 								"type": "{color_scheme: ColorScheme}",
-								"optional": true
+								"optional": true,
+								"default_value": "themer_context.get()"
 							}
 						],
 						"source_line": 1
@@ -1194,6 +1204,29 @@
 					{
 						"name": "Contextmenu",
 						"kind": "component",
+						"props": [
+							{
+								"name": "tag",
+								"type": "T",
+								"optional": true,
+								"default_value": "'span' as T"
+							},
+							{
+								"name": "entries",
+								"type": "Snippet"
+							},
+							{
+								"name": "children",
+								"type": "Snippet"
+							}
+						],
+						"generic_params": [
+							{
+								"name": "T",
+								"constraint": "string",
+								"default_type": "'span'"
+							}
+						],
 						"source_line": 1
 					}
 				],
@@ -1260,7 +1293,8 @@
 							{
 								"name": "external_rel",
 								"type": "string",
-								"optional": true
+								"optional": true,
+								"default_value": "'noreferrer'"
 							}
 						],
 						"source_line": 1
@@ -1281,61 +1315,71 @@
 								"name": "contextmenu",
 								"type": "ContextmenuState",
 								"optional": true,
-								"description": "The `contextmenu` prop is not reactive because that's a rare corner case and\nit's easier to put the `contextmenu` directly in the context\nrather than wrapping with a store or other reactivity.\nIf you need to change the contextmenu prop for some reason, use a `{#key contextmenu}` block:\nhttps://svelte.dev/docs#template-syntax-key"
+								"description": "The `contextmenu` prop is not reactive because that's a rare corner case and\nit's easier to put the `contextmenu` directly in the context\nrather than wrapping with a store or other reactivity.\nIf you need to change the contextmenu prop for some reason, use a `{#key contextmenu}` block:\nhttps://svelte.dev/docs#template-syntax-key",
+								"default_value": "new ContextmenuState()"
 							},
 							{
 								"name": "open_offset_x",
 								"type": "number",
 								"optional": true,
-								"description": "The number of pixels to offset from the pointer X position when opened.\nUseful to ensure the first menu item is immediately under the pointer."
+								"description": "The number of pixels to offset from the pointer X position when opened.\nUseful to ensure the first menu item is immediately under the pointer.",
+								"default_value": "CONTEXTMENU_DEFAULT_OPEN_OFFSET_X"
 							},
 							{
 								"name": "open_offset_y",
 								"type": "number",
 								"optional": true,
-								"description": "The number of pixels to offset from the pointer Y position when opened.\nUseful to ensure the first menu item is immediately under the pointer."
+								"description": "The number of pixels to offset from the pointer Y position when opened.\nUseful to ensure the first menu item is immediately under the pointer.",
+								"default_value": "CONTEXTMENU_DEFAULT_OPEN_OFFSET_Y"
 							},
 							{
 								"name": "bypass_with_tap_then_longpress",
 								"type": "boolean",
 								"optional": true,
-								"description": "Whether to detect tap-then-longpress to bypass the Fuz contextmenu.\nThis allows access to the system contextmenu by tapping once then rightclicking/long-pressing.\nSetting to `false` disables the gesture."
+								"description": "Whether to detect tap-then-longpress to bypass the Fuz contextmenu.\nThis allows access to the system contextmenu by tapping once then rightclicking/long-pressing.\nSetting to `false` disables the gesture.",
+								"default_value": "true"
 							},
 							{
 								"name": "bypass_window",
 								"type": "number",
 								"optional": true,
-								"description": "The number of milliseconds between taps to detect a gesture that bypasses the Fuz contextmenu.\nUsed only when `bypass_with_tap_then_longpress` is true.\nIf the duration is too long, it'll detect more false positives and interrupt normal usage,\nbut too short and some people will have difficulty performing the gesture."
+								"description": "The number of milliseconds between taps to detect a gesture that bypasses the Fuz contextmenu.\nUsed only when `bypass_with_tap_then_longpress` is true.\nIf the duration is too long, it'll detect more false positives and interrupt normal usage,\nbut too short and some people will have difficulty performing the gesture.",
+								"default_value": "CONTEXTMENU_DEFAULT_BYPASS_WINDOW"
 							},
 							{
 								"name": "bypass_move_tolerance",
 								"type": "number",
 								"optional": true,
-								"description": "The number of pixels the pointer can be moved between taps to detect a tap-then-longpress.\nUsed only when `bypass_with_tap_then_longpress` is true."
+								"description": "The number of pixels the pointer can be moved between taps to detect a tap-then-longpress.\nUsed only when `bypass_with_tap_then_longpress` is true.",
+								"default_value": "CONTEXTMENU_DEFAULT_BYPASS_MOVE_TOLERANCE"
 							},
 							{
 								"name": "scoped",
 								"type": "boolean",
 								"optional": true,
-								"description": "If `true`, wraps `children` with a div and listens to events on it instead of the window."
+								"description": "If `true`, wraps `children` with a div and listens to events on it instead of the window.",
+								"default_value": "false"
 							},
 							{
 								"name": "link_entry",
 								"type": "Snippet<[ComponentProps<typeof ContextmenuLinkEntry>]> | null",
 								"optional": true,
-								"description": "Snippet for rendering link entries.\nSet to `null` to disable automatic link detection.\nDefaults to `link_entry_default` which renders `ContextmenuLinkEntry`."
+								"description": "Snippet for rendering link entries.\nSet to `null` to disable automatic link detection.\nDefaults to `link_entry_default` which renders `ContextmenuLinkEntry`.",
+								"default_value": "link_entry_default"
 							},
 							{
 								"name": "text_entry",
 								"type": "Snippet<[ComponentProps<typeof ContextmenuTextEntry>]> | null",
 								"optional": true,
-								"description": "Snippet for rendering copy text entries.\nSet to `null` to disable automatic copy text detection.\nDefaults to `text_entry_default` which renders `ContextmenuTextEntry`."
+								"description": "Snippet for rendering copy text entries.\nSet to `null` to disable automatic copy text detection.\nDefaults to `text_entry_default` which renders `ContextmenuTextEntry`.",
+								"default_value": "text_entry_default"
 							},
 							{
 								"name": "separator_entry",
 								"type": "Snippet<[ComponentProps<typeof ContextmenuSeparator>]> | null",
 								"optional": true,
-								"description": "Snippet for rendering separator entries.\nSet to `null` to disable automatic separator rendering.\nDefaults to `separator_entry_default` which renders `ContextmenuSeparator`."
+								"description": "Snippet for rendering separator entries.\nSet to `null` to disable automatic separator rendering.\nDefaults to `separator_entry_default` which renders `ContextmenuSeparator`.",
+								"default_value": "separator_entry_default"
 							},
 							{
 								"name": "children",
@@ -1365,73 +1409,85 @@
 								"name": "contextmenu",
 								"type": "ContextmenuState",
 								"optional": true,
-								"description": "The `contextmenu` prop is not reactive because that's a rare corner case and\nit's easier to put the `contextmenu` directly in the context\nrather than wrapping with a store or other reactivity.\nIf you need to change the contextmenu prop for some reason, use a `{#key contextmenu}` block:\nhttps://svelte.dev/docs#template-syntax-key"
+								"description": "The `contextmenu` prop is not reactive because that's a rare corner case and\nit's easier to put the `contextmenu` directly in the context\nrather than wrapping with a store or other reactivity.\nIf you need to change the contextmenu prop for some reason, use a `{#key contextmenu}` block:\nhttps://svelte.dev/docs#template-syntax-key",
+								"default_value": "new ContextmenuState()"
 							},
 							{
 								"name": "longpress_move_tolerance",
 								"type": "number",
 								"optional": true,
-								"description": "The number of pixels the pointer can be moved without canceling `longpress`."
+								"description": "The number of pixels the pointer can be moved without canceling `longpress`.",
+								"default_value": "CONTEXTMENU_DEFAULT_LONGPRESS_MOVE_TOLERANCE"
 							},
 							{
 								"name": "longpress_duration",
 								"type": "number",
 								"optional": true,
-								"description": "The number of milliseconds after a touch starts before opening the Fuz contextmenu."
+								"description": "The number of milliseconds after a touch starts before opening the Fuz contextmenu.",
+								"default_value": "CONTEXTMENU_DEFAULT_LONGPRESS_DURATION"
 							},
 							{
 								"name": "bypass_with_tap_then_longpress",
 								"type": "boolean",
 								"optional": true,
-								"description": "Whether to detect tap-then-longpress to bypass the Fuz contextmenu.\nThis allows access to the system contextmenu by tapping once then long-pressing.\nSetting to `false` disables the gesture."
+								"description": "Whether to detect tap-then-longpress to bypass the Fuz contextmenu.\nThis allows access to the system contextmenu by tapping once then long-pressing.\nSetting to `false` disables the gesture.",
+								"default_value": "true"
 							},
 							{
 								"name": "bypass_window",
 								"type": "number",
 								"optional": true,
-								"description": "The number of milliseconds between taps to detect a gesture that bypasses the Fuz contextmenu.\nUsed only when `bypass_with_tap_then_longpress` is true.\nIf the duration is too long, it'll detect more false positives and interrupt normal usage,\nbut too short and some people will have difficulty performing the gesture."
+								"description": "The number of milliseconds between taps to detect a gesture that bypasses the Fuz contextmenu.\nUsed only when `bypass_with_tap_then_longpress` is true.\nIf the duration is too long, it'll detect more false positives and interrupt normal usage,\nbut too short and some people will have difficulty performing the gesture.",
+								"default_value": "CONTEXTMENU_DEFAULT_BYPASS_WINDOW"
 							},
 							{
 								"name": "bypass_move_tolerance",
 								"type": "number",
 								"optional": true,
-								"description": "The number of pixels the pointer can be moved between taps to detect a tap-then-longpress.\nUsed only when `bypass_with_tap_then_longpress` is true."
+								"description": "The number of pixels the pointer can be moved between taps to detect a tap-then-longpress.\nUsed only when `bypass_with_tap_then_longpress` is true.",
+								"default_value": "CONTEXTMENU_DEFAULT_BYPASS_MOVE_TOLERANCE"
 							},
 							{
 								"name": "open_offset_x",
 								"type": "number",
 								"optional": true,
-								"description": "The number of pixels to offset from the pointer X position when opened.\nUseful to ensure the first menu item is immediately under the pointer."
+								"description": "The number of pixels to offset from the pointer X position when opened.\nUseful to ensure the first menu item is immediately under the pointer.",
+								"default_value": "CONTEXTMENU_DEFAULT_OPEN_OFFSET_X"
 							},
 							{
 								"name": "open_offset_y",
 								"type": "number",
 								"optional": true,
-								"description": "The number of pixels to offset from the pointer Y position when opened.\nUseful to ensure the first menu item is immediately under the pointer."
+								"description": "The number of pixels to offset from the pointer Y position when opened.\nUseful to ensure the first menu item is immediately under the pointer.",
+								"default_value": "CONTEXTMENU_DEFAULT_OPEN_OFFSET_Y"
 							},
 							{
 								"name": "scoped",
 								"type": "boolean",
 								"optional": true,
-								"description": "If `true`, wraps `children` with a div and listens to events on it instead of the window."
+								"description": "If `true`, wraps `children` with a div and listens to events on it instead of the window.",
+								"default_value": "false"
 							},
 							{
 								"name": "link_entry",
 								"type": "Snippet<[ComponentProps<typeof ContextmenuLinkEntry>]> | null",
 								"optional": true,
-								"description": "Snippet for rendering link entries.\nSet to `null` to disable automatic link detection.\nDefaults to `link_entry_default` which renders `ContextmenuLinkEntry`."
+								"description": "Snippet for rendering link entries.\nSet to `null` to disable automatic link detection.\nDefaults to `link_entry_default` which renders `ContextmenuLinkEntry`.",
+								"default_value": "link_entry_default"
 							},
 							{
 								"name": "text_entry",
 								"type": "Snippet<[ComponentProps<typeof ContextmenuTextEntry>]> | null",
 								"optional": true,
-								"description": "Snippet for rendering copy text entries.\nSet to `null` to disable automatic copy text detection.\nDefaults to `text_entry_default` which renders `ContextmenuTextEntry`."
+								"description": "Snippet for rendering copy text entries.\nSet to `null` to disable automatic copy text detection.\nDefaults to `text_entry_default` which renders `ContextmenuTextEntry`.",
+								"default_value": "text_entry_default"
 							},
 							{
 								"name": "separator_entry",
 								"type": "Snippet<[ComponentProps<typeof ContextmenuSeparator>]> | null",
 								"optional": true,
-								"description": "Snippet for rendering separator entries.\nSet to `null` to disable automatic separator rendering.\nDefaults to `separator_entry_default` which renders `ContextmenuSeparator`."
+								"description": "Snippet for rendering separator entries.\nSet to `null` to disable automatic separator rendering.\nDefaults to `separator_entry_default` which renders `ContextmenuSeparator`.",
+								"default_value": "separator_entry_default"
 							},
 							{
 								"name": "children",
@@ -1526,7 +1582,8 @@
 							{
 								"name": "copied_display_duration",
 								"type": "number",
-								"optional": true
+								"optional": true,
+								"default_value": "1000"
 							},
 							{
 								"name": "allow_copying_empty_string",
@@ -1537,7 +1594,8 @@
 								"name": "icon_button",
 								"type": "boolean",
 								"optional": true,
-								"description": "Defaults to `true`, ignored if `children` is provided."
+								"description": "Defaults to `true`, ignored if `children` is provided.",
+								"default_value": "true"
 							},
 							{
 								"name": "oncopy",
@@ -2049,7 +2107,7 @@
 							{
 								"name": "constructor",
 								"kind": "constructor",
-								"type_signature": "(module: Module, declaration_json: { [x: string]: unknown; name: string; kind: \"function\" | \"type\" | \"variable\" | \"class\" | \"constructor\" | \"component\" | \"json\" | \"css\"; doc_comment?: string | undefined; ... 18 more ...; alias_of?: { ...; } | undefined; }): Declaration",
+								"type_signature": "(module: Module, declaration_json: { [x: string]: unknown; name: string; kind: \"function\" | \"type\" | \"variable\" | \"class\" | \"constructor\" | \"component\" | \"json\" | \"css\"; doc_comment?: string | undefined; ... 19 more ...; alias_of?: { ...; } | undefined; }): Declaration",
 								"parameters": [
 									{
 										"name": "module",
@@ -2057,7 +2115,7 @@
 									},
 									{
 										"name": "declaration_json",
-										"type": "{ [x: string]: unknown; name: string; kind: \"function\" | \"type\" | \"variable\" | \"class\" | \"constructor\" | \"component\" | \"json\" | \"css\"; doc_comment?: string | undefined; type_signature?: string | undefined; ... 17 more ...; alias_of?: { ...; } | undefined; }"
+										"type": "{ [x: string]: unknown; name: string; kind: \"function\" | \"type\" | \"variable\" | \"class\" | \"constructor\" | \"component\" | \"json\" | \"css\"; doc_comment?: string | undefined; type_signature?: string | undefined; ... 18 more ...; alias_of?: { ...; } | undefined; }"
 									}
 								]
 							}
@@ -2174,25 +2232,29 @@
 								"name": "layout",
 								"type": "DialogLayout",
 								"optional": true,
-								"description": ""
+								"description": "",
+								"default_value": "'centered'"
 							},
 							{
 								"name": "index",
 								"type": "number",
 								"optional": true,
-								"description": "index 0 is under 1 is under 2 etc -- the topmost dialog is the last in the array"
+								"description": "index 0 is under 1 is under 2 etc -- the topmost dialog is the last in the array",
+								"default_value": "0"
 							},
 							{
 								"name": "active",
 								"type": "boolean",
 								"optional": true,
-								"description": ""
+								"description": "",
+								"default_value": "true"
 							},
 							{
 								"name": "content_selector",
 								"type": "string | null",
 								"optional": true,
-								"description": "If provided, prevents clicks that would close the dialog\nfrom bubbling past any elements matching this selector."
+								"description": "If provided, prevents clicks that would close the dialog\nfrom bubbling past any elements matching this selector.",
+								"default_value": "'.pane'"
 							},
 							{
 								"name": "onclose",
@@ -2346,7 +2408,7 @@
 							{
 								"name": "str",
 								"type": "string",
-								"description": "- The string to convert to a fragment"
+								"description": "The string to convert to a fragment"
 							}
 						]
 					},
@@ -2650,7 +2712,8 @@
 							{
 								"name": "root_url",
 								"type": "Url | null",
-								"optional": true
+								"optional": true,
+								"default_value": "null"
 							},
 							{
 								"name": "logo",
@@ -2712,12 +2775,14 @@
 							{
 								"name": "expand_width",
 								"type": "boolean",
-								"optional": true
+								"optional": true,
+								"default_value": "false"
 							},
 							{
 								"name": "margin",
 								"type": "boolean",
-								"optional": true
+								"optional": true,
+								"default_value": "true"
 							},
 							{
 								"name": "children",
@@ -2748,7 +2813,8 @@
 							{
 								"name": "expand_width",
 								"type": "boolean",
-								"optional": true
+								"optional": true,
+								"default_value": "false"
 							}
 						],
 						"source_line": 1
@@ -2784,7 +2850,8 @@
 							{
 								"name": "expand_width",
 								"type": "boolean",
-								"optional": true
+								"optional": true,
+								"default_value": "false"
 							}
 						],
 						"source_line": 1
@@ -2803,12 +2870,14 @@
 							{
 								"name": "sidebar",
 								"type": "boolean",
-								"optional": true
+								"optional": true,
+								"default_value": "true"
 							},
 							{
 								"name": "expand_width",
 								"type": "boolean",
-								"optional": true
+								"optional": true,
+								"default_value": "false"
 							}
 						],
 						"source_line": 1
@@ -2855,7 +2924,8 @@
 							{
 								"name": "placeholder",
 								"type": "string",
-								"optional": true
+								"optional": true,
+								"default_value": "'search declarations and modules...'"
 							},
 							{
 								"name": "total_count",
@@ -2891,7 +2961,8 @@
 							{
 								"name": "sidebar",
 								"type": "boolean",
-								"optional": true
+								"optional": true,
+								"default_value": "true"
 							}
 						],
 						"source_line": 1
@@ -2918,7 +2989,8 @@
 							{
 								"name": "sidebar",
 								"type": "boolean",
-								"optional": true
+								"optional": true,
+								"default_value": "true"
 							}
 						],
 						"source_line": 1
@@ -2983,7 +3055,12 @@
 								"name": "path",
 								"type": "string",
 								"optional": true,
-								"description": "GitHub path - can be a full URL or a relative path like `owner/repo` or `owner/repo/blob/main/file.ts`"
+								"description": "GitHub path - can be a full URL or a relative path like `owner/repo` or `owner/repo/blob/main/file.ts`",
+								"examples": [
+									"fuzdev/fuz_ui",
+									"fuzdev/fuz_ui/blob/main/src/lib/Card.svelte",
+									"https://github.com/fuzdev/fuz_ui/issues/123"
+								]
 							}
 						],
 						"source_line": 1
@@ -3058,6 +3135,7 @@
 								"name": "value",
 								"type": "Hue",
 								"optional": true,
+								"default_value": "180",
 								"bindable": true
 							},
 							{
@@ -3259,7 +3337,7 @@
 						"name": "LibraryGenOptions",
 						"kind": "type",
 						"doc_comment": "Options for Gro library generation.",
-						"source_line": 33,
+						"source_line": 38,
 						"type_signature": "LibraryGenOptions",
 						"properties": [
 							{
@@ -3286,7 +3364,7 @@
 								"description": "if disknode has no content (should be loaded by Gro filer)"
 							}
 						],
-						"source_line": 71,
+						"source_line": 76,
 						"type_signature": "(disknode: Disknode): SourceFileInfo",
 						"return_type": "SourceFileInfo",
 						"parameters": [
@@ -3300,7 +3378,7 @@
 						"name": "library_collect_source_files_from_disknodes",
 						"kind": "function",
 						"doc_comment": "Collect source files from Gro disknodes, filtering BEFORE conversion to SourceFileInfo.\n\nThis avoids errors from files outside source directories (like test fixtures that may\nhave malformed paths or missing content). The filtering uses `module_is_source` which\nchecks `source_paths` to only include files in configured source directories.",
-						"source_line": 96,
+						"source_line": 101,
 						"type_signature": "(disknodes: Iterable<Disknode>, options: ModuleSourceOptions, log?: { info: (...args: unknown[]) => void; warn: (...args: unknown[]) => void; } | undefined): SourceFileInfo[]",
 						"return_type": "SourceFileInfo[]",
 						"parameters": [
@@ -3325,8 +3403,8 @@
 					{
 						"name": "library_gen",
 						"kind": "function",
-						"doc_comment": "Creates a Gen object for generating library metadata with full TypeScript analysis.\n\nThis is the Gro-specific entry point. It handles:\n- Reading files from Gro's filer\n- Loading package.json via Gro utilities\n- Returning output in Gro's Gen format\n\nFor build-tool agnostic usage, use `library_generate` directly.\n\nUsage in a `.gen.ts` file:\n\n```ts\nimport {library_gen} from '@fuzdev/fuz_ui/library_gen.js';\n\nexport const gen = library_gen();\n```",
-						"source_line": 151,
+						"doc_comment": "Creates a Gen object for generating library metadata with full TypeScript analysis.\n\nThis is the Gro-specific entry point. It handles:\n- Reading files from Gro's filer\n- Loading package.json via Gro utilities\n- Analyzing source with svelte-docinfo (pure analysis)\n- Wrapping with LibraryJson (GitHub/npm metadata)\n- Returning output in Gro's Gen format\n\nFor build-tool agnostic usage, use `library_analyze` directly.\n\nUsage in a `.gen.ts` file:\n\n```ts\nimport {library_gen} from '@fuzdev/fuz_ui/library_gen.js';\n\nexport const gen = library_gen();\n```",
+						"source_line": 158,
 						"type_signature": "(options?: LibraryGenOptions | undefined): Gen",
 						"return_type": "Gen",
 						"parameters": [
@@ -3339,7 +3417,8 @@
 						]
 					}
 				],
-				"module_comment": "Gro-specific library metadata generation.\n\nThis module provides Gro integration for library generation. It wraps the generic\n`library_generate` function with Gro's `Gen` interface and provides adapters for\nconverting Gro's `Disknode` to the build-tool agnostic `SourceFileInfo`.\n\nFor build-tool agnostic usage, see `@fuzdev/svelte-docinfo`.\n\n@see @fuzdev/svelte-docinfo/library_generate.js for the generic generation entry point\n@see @fuzdev/svelte-docinfo/library_pipeline.js for pipeline helpers\n@see @fuzdev/svelte-docinfo/library_output.js for output file generation"
+				"module_comment": "Gro-specific library metadata generation.\n\nThis module provides Gro integration for library generation. It uses svelte-docinfo's\npure analysis (`library_analyze`) and wraps the results with fuz_ui's opinionated\nLibraryJson format (GitHub/npm metadata).\n\nFor build-tool agnostic usage, see `@fuzdev/svelte-docinfo`.\n\n@see @fuzdev/svelte-docinfo/library_analyze.js for the generic analysis entry point\n@see @fuzdev/svelte-docinfo/library_pipeline.js for pipeline helpers\n@see library_output.js for output file generation",
+				"dependencies": ["library_output.ts"]
 			},
 			{
 				"path": "library_helpers.ts",
@@ -3448,6 +3527,52 @@
 				"module_comment": "Library documentation URL helpers.\n\nRuntime UI helpers for building URLs in the library documentation system.\nThese depend on fuz_ui's documentation paths and SvelteKit's runtime state.\n\nFor generic package/repository URL helpers, see `package_helpers.ts`.",
 				"dependencies": ["docs_helpers.svelte.ts"],
 				"dependents": ["contextmenu_state.svelte.ts"]
+			},
+			{
+				"path": "library_output.ts",
+				"declarations": [
+					{
+						"name": "LibraryOutputResult",
+						"kind": "type",
+						"doc_comment": "Result of generating library output files.\nContains both the JSON data and the TypeScript wrapper file.",
+						"source_line": 19,
+						"type_signature": "LibraryOutputResult",
+						"properties": [
+							{
+								"name": "json_content",
+								"kind": "variable",
+								"type_signature": "string",
+								"doc_comment": "JSON content for library.json"
+							},
+							{
+								"name": "ts_content",
+								"kind": "variable",
+								"type_signature": "string",
+								"doc_comment": "TypeScript wrapper content for library.ts"
+							}
+						]
+					},
+					{
+						"name": "library_generate_output",
+						"kind": "function",
+						"doc_comment": "Generate the library.json and library.ts file contents.\nParses at generation time so runtime only needs the pre-computed result.\n\nReturns JSON + .ts wrapper because:\n- JSON is natively importable by Node.js and Vite without TypeScript loaders\n- Works in CI environments that don't have TS compilation\n- The .ts wrapper validates with zod and exports with proper types\n  (JSON imports get widened types like `string` instead of literal unions)",
+						"source_line": 36,
+						"type_signature": "(package_json: { [x: string]: unknown; name: string; version: string; private?: boolean | undefined; description?: string | undefined; motto?: string | undefined; glyph?: string | undefined; logo?: string | undefined; ... 23 more ...; exports?: string | ... 2 more ... | undefined; }, source_json: { ...; }): LibraryOutputResult",
+						"return_type": "LibraryOutputResult",
+						"parameters": [
+							{
+								"name": "package_json",
+								"type": "{ [x: string]: unknown; name: string; version: string; private?: boolean | undefined; description?: string | undefined; motto?: string | undefined; glyph?: string | undefined; logo?: string | undefined; ... 23 more ...; exports?: string | ... 2 more ... | undefined; }"
+							},
+							{
+								"name": "source_json",
+								"type": "{ [x: string]: unknown; name: string; version: string; modules?: { [x: string]: unknown; path: string; declarations?: { [x: string]: unknown; name: string; kind: \"function\" | \"type\" | \"variable\" | \"class\" | \"constructor\" | \"component\" | \"json\" | \"css\"; ... 19 more ...; alias_of?: { ...; } | undefined; }[] | undefine..."
+							}
+						]
+					}
+				],
+				"module_comment": "Library output generation.\n\nGenerates the library.json and library.ts files from analyzed metadata.\n\n@see library_gen.ts for the main generation entry point",
+				"dependents": ["library_gen.ts"]
 			},
 			{
 				"path": "library.svelte.ts",
@@ -3880,12 +4005,14 @@
 							{
 								"name": "inline",
 								"type": "boolean",
-								"optional": true
+								"optional": true,
+								"default_value": "false"
 							},
 							{
 								"name": "nowrap",
 								"type": "boolean",
-								"optional": true
+								"optional": true,
+								"default_value": "false"
 							}
 						],
 						"source_line": 1
@@ -4347,7 +4474,7 @@
 							{
 								"name": "constructor",
 								"kind": "constructor",
-								"type_signature": "(library: Library, module_json: { [x: string]: unknown; path: string; declarations?: { [x: string]: unknown; name: string; kind: \"function\" | \"type\" | \"variable\" | \"class\" | \"constructor\" | \"component\" | \"json\" | \"css\"; ... 19 more ...; alias_of?: { ...; } | undefined; }[] | undefined; module_comment?: string | undefined; dependencies?: string[] | undefined; dependents?: string[] | undefined; star_exports?: string[] | undefined; }): Module",
+								"type_signature": "(library: Library, module_json: { [x: string]: unknown; path: string; declarations?: { [x: string]: unknown; name: string; kind: \"function\" | \"type\" | \"variable\" | \"class\" | \"constructor\" | \"component\" | \"json\" | \"css\"; ... 20 more ...; alias_of?: { ...; } | undefined; }[] | undefined; module_comment?: string | undefined; dependencies?: string[] | undefined; dependents?: string[] | undefined; star_exports?: string[] | undefined; }): Module",
 								"parameters": [
 									{
 										"name": "library",
@@ -4355,7 +4482,7 @@
 									},
 									{
 										"name": "module_json",
-										"type": "{ [x: string]: unknown; path: string; declarations?: { [x: string]: unknown; name: string; kind: \"function\" | \"type\" | \"variable\" | \"class\" | \"constructor\" | \"component\" | \"json\" | \"css\"; doc_comment?: string | undefined; ... 18 more ...; alias_of?: { ...; } | undefined; }[] | undefined; module_comment?: string | un..."
+										"type": "{ [x: string]: unknown; path: string; declarations?: { [x: string]: unknown; name: string; kind: \"function\" | \"type\" | \"variable\" | \"class\" | \"constructor\" | \"component\" | \"json\" | \"css\"; doc_comment?: string | undefined; ... 19 more ...; alias_of?: { ...; } | undefined; }[] | undefined; module_comment?: string | un..."
 									}
 								]
 							},
@@ -4630,7 +4757,8 @@
 							{
 								"name": "running",
 								"type": "boolean",
-								"optional": true
+								"optional": true,
+								"default_value": "true"
 							},
 							{
 								"name": "item_attrs",
@@ -4716,19 +4844,22 @@
 								"name": "host",
 								"type": "string",
 								"optional": true,
-								"description": "The target host to redirect to. Defaults to the current `location.host`."
+								"description": "The target host to redirect to. Defaults to the current `location.host`.",
+								"default_value": "''"
 							},
 							{
 								"name": "path",
 								"type": "string",
 								"optional": true,
-								"description": "The target path to redirect to. Defaults to the current `location.pathname`."
+								"description": "The target path to redirect to. Defaults to the current `location.pathname`.",
+								"default_value": "page.url.pathname"
 							},
 							{
 								"name": "auto",
 								"type": "boolean",
 								"optional": true,
-								"description": "Should the redirect happen automatically without user input? Defaults to `true`."
+								"description": "Should the redirect happen automatically without user input? Defaults to `true`.",
+								"default_value": "true"
 							},
 							{
 								"name": "children",
@@ -4775,17 +4906,20 @@
 							{
 								"name": "spiders",
 								"type": "Array<string>",
-								"optional": true
+								"optional": true,
+								"default_value": "[\n\t\t\t'var(--color_a_5)',\n\t\t\t'var(--color_b_5)',\n\t\t\t'var(--color_c_5)',\n\t\t\t'var(--color_d_5)',\n\t\t\t'var(--color_e_5)',\n\t\t\t'var(--color_f_5)',\n\t\t\t'var(--color_g_5)',\n\t\t\t'var(--color_h_5)',\n\t\t\t'var(--color_i_5)',\n\t\t\t'var(--color_j_5)',\n\t\t]"
 							},
 							{
 								"name": "seed",
 								"type": "unknown",
-								"optional": true
+								"optional": true,
+								"default_value": "minute_of_day()"
 							},
 							{
 								"name": "random",
 								"type": "typeof Math.random",
-								"optional": true
+								"optional": true,
+								"default_value": "create_random_alea(seed)"
 							}
 						],
 						"source_line": 1
@@ -4871,7 +5005,8 @@
 								"name": "size",
 								"type": "string",
 								"optional": true,
-								"description": "Sets both the `width` and `height` of the svg. Overridden by the `width` and `height` props."
+								"description": "Sets both the `width` and `height` of the svg. Overridden by the `width` and `height` props.",
+								"default_value": "'var(--font_size, auto)'"
 							},
 							{
 								"name": "width",
@@ -4899,7 +5034,8 @@
 							{
 								"name": "shrink",
 								"type": "boolean",
-								"optional": true
+								"optional": true,
+								"default_value": "true"
 							}
 						],
 						"source_line": 1
@@ -4951,27 +5087,32 @@
 							{
 								"name": "sync_color_scheme",
 								"type": "typeof default_sync_color_scheme",
-								"optional": true
+								"optional": true,
+								"default_value": "default_sync_color_scheme"
 							},
 							{
 								"name": "load_color_scheme",
 								"type": "typeof default_load_color_scheme",
-								"optional": true
+								"optional": true,
+								"default_value": "default_load_color_scheme"
 							},
 							{
 								"name": "save_color_scheme",
 								"type": "typeof default_save_color_scheme",
-								"optional": true
+								"optional": true,
+								"default_value": "default_save_color_scheme"
 							},
 							{
 								"name": "load_theme",
 								"type": "typeof default_load_theme",
-								"optional": true
+								"optional": true,
+								"default_value": "default_load_theme"
 							},
 							{
 								"name": "save_theme",
 								"type": "typeof default_save_theme",
-								"optional": true
+								"optional": true,
+								"default_value": "default_save_theme"
 							},
 							{
 								"name": "theme_fallback",
@@ -4982,7 +5123,8 @@
 								"name": "themer",
 								"type": "Themer",
 								"optional": true,
-								"description": "A reactive class containing the selected theme and color scheme.\nDefaults to the first default theme.\nThe class reference is not reactive\nbecause it's set in context without a wrapper, use `{#key theme}` if it changes."
+								"description": "A reactive class containing the selected theme and color scheme.\nDefaults to the first default theme.\nThe class reference is not reactive\nbecause it's set in context without a wrapper, use `{#key theme}` if it changes.",
+								"default_value": "new Themer({theme: load_theme(theme_fallback), color_scheme: load_color_scheme()})"
 							},
 							{
 								"name": "children",
@@ -5005,22 +5147,26 @@
 							{
 								"name": "selected_theme",
 								"type": "{theme: Theme}",
-								"optional": true
+								"optional": true,
+								"default_value": "themer_context.get()"
 							},
 							{
 								"name": "themes",
 								"type": "Array<Theme>",
-								"optional": true
+								"optional": true,
+								"default_value": "default_themes"
 							},
 							{
 								"name": "enable_editing",
 								"type": "boolean",
-								"optional": true
+								"optional": true,
+								"default_value": "false"
 							},
 							{
 								"name": "select",
 								"type": "((theme: Theme) => void | boolean) | null",
-								"optional": true
+								"optional": true,
+								"default_value": "(theme) => {\n\t\t\tselected_theme.theme = theme;\n\t\t}"
 							},
 							{
 								"name": "onselect",
@@ -5295,7 +5441,8 @@
 							{
 								"name": "docs_path",
 								"type": "string",
-								"optional": true
+								"optional": true,
+								"default_value": "DOCS_PATH_DEFAULT"
 							},
 							{
 								"name": "header",
@@ -5344,7 +5491,8 @@
 							{
 								"name": "docs_path",
 								"type": "string",
-								"optional": true
+								"optional": true,
+								"default_value": "DOCS_PATH_DEFAULT"
 							},
 							{
 								"name": "hash",

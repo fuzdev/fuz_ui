@@ -1,15 +1,15 @@
 /**
  * Gro-specific library metadata generation.
  *
- * This module provides Gro integration for library generation. It wraps the generic
- * `library_generate` function with Gro's `Gen` interface and provides adapters for
- * converting Gro's `Disknode` to the build-tool agnostic `SourceFileInfo`.
+ * This module provides Gro integration for library generation. It uses svelte-docinfo's
+ * pure analysis (`library_analyze`) and wraps the results with fuz_ui's opinionated
+ * LibraryJson format (GitHub/npm metadata).
  *
  * For build-tool agnostic usage, see `@fuzdev/svelte-docinfo`.
  *
- * @see @fuzdev/svelte-docinfo/library_generate.js for the generic generation entry point
+ * @see @fuzdev/svelte-docinfo/library_analyze.js for the generic analysis entry point
  * @see @fuzdev/svelte-docinfo/library_pipeline.js for pipeline helpers
- * @see @fuzdev/svelte-docinfo/library_output.js for output file generation
+ * @see library_output.js for output file generation
  *
  * @module
  */
@@ -17,7 +17,11 @@
 import type {Gen} from '@ryanatkn/gro';
 import {package_json_load} from '@ryanatkn/gro/package_json.js';
 import type {Disknode} from '@ryanatkn/gro/disknode.js';
-
+import {
+	library_analyze,
+	type OnDuplicatesCallback,
+} from '@fuzdev/svelte-docinfo/library_analyze.js';
+import type {SourceJson} from '@fuzdev/fuz_util/source_json.js';
 import {
 	type SourceFileInfo,
 	type ModuleSourceOptions,
@@ -27,7 +31,8 @@ import {
 	module_is_source,
 	module_get_source_root,
 } from '@fuzdev/svelte-docinfo/module_helpers.js';
-import {library_generate, type OnDuplicatesCallback} from '@fuzdev/svelte-docinfo/library_generate.js';
+
+import {library_generate_output} from './library_output.js';
 
 /** Options for Gro library generation. */
 export interface LibraryGenOptions {
@@ -134,9 +139,11 @@ export const library_collect_source_files_from_disknodes = (
  * This is the Gro-specific entry point. It handles:
  * - Reading files from Gro's filer
  * - Loading package.json via Gro utilities
+ * - Analyzing source with svelte-docinfo (pure analysis)
+ * - Wrapping with LibraryJson (GitHub/npm metadata)
  * - Returning output in Gro's Gen format
  *
- * For build-tool agnostic usage, use `library_generate` directly.
+ * For build-tool agnostic usage, use `library_analyze` directly.
  *
  * Usage in a `.gen.ts` file:
  *
@@ -172,22 +179,32 @@ export const library_gen = (options?: LibraryGenOptions): Gen => {
 				log,
 			);
 
-			// Use generic library_generate for the actual work
-			const result = library_generate({
+			// Get pure analysis from svelte-docinfo (no package metadata)
+			const {modules} = library_analyze({
 				source_files,
-				package_json,
 				source_options,
 				on_duplicates: options?.on_duplicates,
-				log,
+				log: log as any, // Type cast needed due to workspace dependency duplication
 			});
+
+			// Wrap modules with package metadata (fuz_ui's own SourceJson type)
+			const source_json: SourceJson = {
+				name: package_json.name,
+				version: package_json.version,
+				repository:
+					typeof package_json.repository === 'string'
+						? package_json.repository
+						: package_json.repository?.url,
+				modules,
+			};
+
+			// Generate output files with fuz_ui's LibraryJson wrapper
+			const {json_content, ts_content} = library_generate_output(package_json, source_json);
 
 			log.info('library metadata generation complete');
 
 			// Return array of files in Gro's expected format
-			return [
-				{content: result.ts_content},
-				{content: result.json_content, filename: 'library.json'},
-			];
+			return [{content: ts_content}, {content: json_content, filename: 'library.json'}];
 		},
 	};
 };
