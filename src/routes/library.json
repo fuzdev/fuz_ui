@@ -2107,7 +2107,7 @@
 							{
 								"name": "constructor",
 								"kind": "constructor",
-								"type_signature": "(module: Module, declaration_json: { [x: string]: unknown; name: string; kind: \"function\" | \"type\" | \"variable\" | \"class\" | \"constructor\" | \"component\" | \"json\" | \"css\"; doc_comment?: string | undefined; ... 19 more ...; alias_of?: { ...; } | undefined; }): Declaration",
+								"type_signature": "(module: Module, declaration_json: DeclarationJson): Declaration",
 								"parameters": [
 									{
 										"name": "module",
@@ -2115,7 +2115,7 @@
 									},
 									{
 										"name": "declaration_json",
-										"type": "{ [x: string]: unknown; name: string; kind: \"function\" | \"type\" | \"variable\" | \"class\" | \"constructor\" | \"component\" | \"json\" | \"css\"; doc_comment?: string | undefined; type_signature?: string | undefined; ... 18 more ...; alias_of?: { ...; } | undefined; }"
+										"type": "DeclarationJson"
 									}
 								]
 							}
@@ -3566,7 +3566,7 @@
 							},
 							{
 								"name": "source_json",
-								"type": "{ [x: string]: unknown; name: string; version: string; modules?: { [x: string]: unknown; path: string; declarations?: { [x: string]: unknown; name: string; kind: \"function\" | \"type\" | \"variable\" | \"class\" | \"constructor\" | \"component\" | \"json\" | \"css\"; ... 19 more ...; alias_of?: { ...; } | undefined; }[] | undefine..."
+								"type": "{ [x: string]: unknown; name: string; version: string; modules?: { [x: string]: unknown; path: string; declarations?: { [x: string]: unknown; name: string; kind: \"function\" | \"type\" | \"json\" | \"variable\" | \"class\" | \"constructor\" | \"component\" | \"css\"; ... 19 more ...; alias_of?: { ...; } | undefined; }[] | undefine..."
 							}
 						]
 					}
@@ -4474,7 +4474,7 @@
 							{
 								"name": "constructor",
 								"kind": "constructor",
-								"type_signature": "(library: Library, module_json: { [x: string]: unknown; path: string; declarations?: { [x: string]: unknown; name: string; kind: \"function\" | \"type\" | \"variable\" | \"class\" | \"constructor\" | \"component\" | \"json\" | \"css\"; ... 20 more ...; alias_of?: { ...; } | undefined; }[] | undefined; module_comment?: string | undefined; dependencies?: string[] | undefined; dependents?: string[] | undefined; star_exports?: string[] | undefined; }): Module",
+								"type_signature": "(library: Library, module_json: ModuleJson): Module",
 								"parameters": [
 									{
 										"name": "library",
@@ -4482,7 +4482,7 @@
 									},
 									{
 										"name": "module_json",
-										"type": "{ [x: string]: unknown; path: string; declarations?: { [x: string]: unknown; name: string; kind: \"function\" | \"type\" | \"variable\" | \"class\" | \"constructor\" | \"component\" | \"json\" | \"css\"; doc_comment?: string | undefined; ... 19 more ...; alias_of?: { ...; } | undefined; }[] | undefined; module_comment?: string | un..."
+										"type": "ModuleJson"
 									}
 								]
 							},
