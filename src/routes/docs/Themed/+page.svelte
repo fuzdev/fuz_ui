@@ -44,7 +44,7 @@
 			<MdnLink path="Web/CSS/--*">CSS custom properties</MdnLink>.
 			<code>Themed</code> is a singleton component that's mounted at the top-level of the page:
 		</p>
-		<Code content={`import Themed from '@fuzdev/fuz_ui/Themed.svelte';`} lang="ts" />
+		<Code lang="ts" content={`import Themed from '@fuzdev/fuz_ui/Themed.svelte';`} />
 		<Code content={`<!-- +layout.svelte -->\n<Themed>\n\t{@render children()}\n</Themed>`} />
 		<Details>
 			{#snippet summary()}Why the singleton?{/snippet}
@@ -112,8 +112,8 @@
 			<ColorSchemeInput />
 		</div>
 		<Code
-			content={`import ColorSchemeInput from '@fuzdev/fuz_ui/ColorSchemeInput.svelte';`}
 			lang="ts"
+			content={`import ColorSchemeInput from '@fuzdev/fuz_ui/ColorSchemeInput.svelte';`}
 		/>
 		<Code content="<ColorSchemeInput />" />
 		<p>Pass props to override the default:</p>
@@ -195,8 +195,8 @@
 			<code>themer</code>:
 		</p>
 		<Code
-			content={`import {Themer} from '@fuzdev/fuz_ui/themer.svelte.js';\nconst themer = new Themer(...);`}
 			lang="ts"
+			content={`import {Themer} from '@fuzdev/fuz_ui/themer.svelte.js';\nconst themer = new Themer(...);`}
 		/>
 		<Code
 			content={`<Themed {themer}>
@@ -211,13 +211,13 @@
 			<code>Themed</code> sets the <code>themer</code> in the Svelte context:
 		</p>
 		<Code
+			lang="ts"
 			content={`// get values from the Svelte context provided by
 // the nearest \`Themed\` ancestor:
 import {themer_context} from '@fuzdev/fuz_ui/themer.svelte.js';
 const themer = themer_context.get();
 themer.theme.name; // '${themer.theme.name}'
 themer.color_scheme; // '${themer.color_scheme}'`}
-			lang="ts"
 		/>
 		<p>
 			For a more complete example, see <a href="https://github.com/fuzdev/fuz_template"

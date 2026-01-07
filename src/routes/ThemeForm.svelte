@@ -99,7 +99,7 @@
 				<div class="copy">
 					<CopyToClipboard text={code} />
 				</div>
-				<Code content={code} lang="css" />
+				<Code lang="css" content={code} />
 			{/if}
 		</div>
 	</div>

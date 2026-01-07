@@ -26,10 +26,10 @@
 			<TomeSectionHeader text={fixture.name} />
 
 			<div class="mb_xl2">
-				<Code content={fixture.input} lang="md" />
+				<Code lang="md" content={fixture.input} />
 			</div>
 
-			<Mdz content={fixture.input} class="mb_lg" />
+			<Mdz content={fixture.input} />
 
 			<Details summary="JSON" open={false}>
 				<Code lang="json" content={format_json(fixture.expected)} />

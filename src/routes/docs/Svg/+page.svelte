@@ -18,9 +18,9 @@
 <TomeContent {tome}>
 	<section>
 		<!-- TODO make this a generic data-driven helper -->
-		<Code content={`import Svg from '@fuzdev/fuz_ui/Svg.svelte';`} lang="ts" />
+		<Code lang="ts" content={`import Svg from '@fuzdev/fuz_ui/Svg.svelte';`} />
 		<Code content={`<Svg data={logo_fuz} />`} />
-		<aside class="mt_lg">
+		<aside>
 			⚠️ <DeclarationLink name="Svg" /> currently uses <code>@html</code> but for security should not.
 		</aside>
 		<p>Fills available space by default:</p>

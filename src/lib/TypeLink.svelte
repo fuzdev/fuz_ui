@@ -15,5 +15,5 @@
 {#if library.lookup_declaration(type)}
 	<DeclarationLink name={type} />
 {:else}
-	<Code inline content={type} lang="ts" />
+	<Code lang="ts" content={type} inline />
 {/if}

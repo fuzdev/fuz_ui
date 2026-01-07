@@ -45,7 +45,7 @@
 	</section>
 
 	<section>
-		<Code content={`import {intersect} from '@fuzdev/fuz_ui/intersect.svelte.js';`} lang="ts" />
+		<Code lang="ts" content={`import {intersect} from '@fuzdev/fuz_ui/intersect.svelte.js';`} />
 		<Code
 			content={`<div {@attach intersect(() => ({intersecting}) => {
   console.log(intersecting ? 'entered' : 'left');
