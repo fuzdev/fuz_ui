@@ -158,7 +158,7 @@ const custom_csp = create_csp_directives({
 		<table>
 			<thead>
 				<tr>
-					<th class="white_space_nowrap">trust level</th>
+					<th class="white-space:nowrap">trust level</th>
 					<th>what it means</th>
 					<th>configured by <DeclarationLink name="required_trust_defaults_base" /></th>
 				</tr>

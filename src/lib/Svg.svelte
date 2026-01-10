@@ -81,8 +81,7 @@
 	{...data.attrs}
 	{...rest}
 	aria-label={label ?? data.label}
-	class:display_inline_block={inline}
-	class:position_relative={inline}
+	class="{data.attrs?.class} {rest.class} {inline ? 'display:inline-block position:relative' : ''}"
 	style:width={final_width}
 	style:height={final_height}
 	style:top={inline ? '0.1em' : undefined}
