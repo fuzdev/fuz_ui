@@ -141,7 +141,7 @@
 				{/if}
 				<AppContextmenu {toggle_about_dialog} />
 			{/snippet}
-			<section class="display_flex">
+			<section class="display:flex">
 				<div>
 					<Contextmenu>
 						{#snippet entries()}
@@ -208,13 +208,13 @@
 {#if show_about_dialog}
 	<Dialog onclose={() => (show_about_dialog = false)}>
 		<div class="mx_auto box">
-			<div class="pane p_xl text_align_center">
+			<div class="pane p_xl text-align:center">
 				<h1>About Fuz</h1>
 				<blockquote>Svelte UI library</blockquote>
 				<blockquote>
 					free and open source at<br /><GithubLink path="fuzdev/fuz_ui" />
 				</blockquote>
-				<code class="display_block p_md mb_lg"
+				<code class="display:block p_md mb_lg"
 					>npm i -D <a href="https://www.npmjs.com/package/@fuzdev/fuz_ui">@fuzdev/fuz_ui</a></code
 				>
 				<div class="p_xl box">

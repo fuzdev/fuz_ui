@@ -24,8 +24,8 @@
 
 <!-- TODO -next-line doesnt work? -->
 <!-- eslint-disable svelte/no-navigation-without-resolve -->
-<a {...rest} {href} class="mdn_link white_space_nowrap {rest.class}" rel="noopener"
-	><Svg data={logo_mdn} inline size="var(--icon_size_xs)" class="mx_xs3 vertical_align_middle" />
+<a {...rest} {href} class="mdn_link white-space:nowrap {rest.class}" rel="noopener"
+	><Svg data={logo_mdn} inline size="var(--icon_size_xs)" class="mx_xs3 vertical-align:middle" />
 	{#if typeof final_children === 'string'}
 		<span class="font_family_mono">{final_children}</span>
 	{:else}

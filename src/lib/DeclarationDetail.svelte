@@ -12,7 +12,7 @@
 </script>
 
 <!-- Metadata -->
-<p class="row justify_content_space_between">
+<p class="row justify-content:space-between">
 	<ModuleLink module_path={declaration.module_path} />
 	{#if declaration.url_github}
 		<!-- eslint-disable-next-line svelte/no-navigation-without-resolve -->
