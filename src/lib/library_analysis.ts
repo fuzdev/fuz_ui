@@ -103,7 +103,7 @@ export interface ModuleAnalysis {
  * Analyze a source file and extract module metadata.
  *
  * Unified entry point that dispatches to the appropriate analyzer based on file type:
- * - TypeScript/JavaScript files → `ts_analyze_module`
+ * - TypeScript/JS files → `ts_analyze_module`
  * - Svelte components → `svelte_analyze_module`
  *
  * Returns raw analysis data including `nodocs` flags on declarations.

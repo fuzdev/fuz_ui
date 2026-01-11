@@ -3656,7 +3656,7 @@
 					{
 						"name": "library_analyze_module",
 						"kind": "function",
-						"doc_comment": "Analyze a source file and extract module metadata.\n\nUnified entry point that dispatches to the appropriate analyzer based on file type:\n- TypeScript/JavaScript files → `ts_analyze_module`\n- Svelte components → `svelte_analyze_module`\n\nReturns raw analysis data including `nodocs` flags on declarations.\nConsumer is responsible for filtering based on their policy.\n\nThis function can be called incrementally - consumers may cache results and\nonly re-analyze changed files. The TypeScript program should include all files\nfor accurate type resolution, but only changed files need re-analysis.",
+						"doc_comment": "Analyze a source file and extract module metadata.\n\nUnified entry point that dispatches to the appropriate analyzer based on file type:\n- TypeScript/JS files → `ts_analyze_module`\n- Svelte components → `svelte_analyze_module`\n\nReturns raw analysis data including `nodocs` flags on declarations.\nConsumer is responsible for filtering based on their policy.\n\nThis function can be called incrementally - consumers may cache results and\nonly re-analyze changed files. The TypeScript program should include all files\nfor accurate type resolution, but only changed files need re-analysis.",
 						"source_line": 123,
 						"type_signature": "(source_file: SourceFileInfo, program: Program, options: ModuleSourceOptions, ctx: AnalysisContext, log?: Logger | undefined): ModuleAnalysis | undefined",
 						"return_type": "ModuleAnalysis | undefined",
@@ -5035,7 +5035,7 @@
 					{
 						"name": "AnalyzerType",
 						"kind": "type",
-						"doc_comment": "Analyzer type for source files.\n\n- `'typescript'` - TypeScript/JavaScript files analyzed via TypeScript Compiler API\n- `'svelte'` - Svelte components analyzed via svelte2tsx + TypeScript Compiler API",
+						"doc_comment": "Analyzer type for source files.\n\n- `'typescript'` - TypeScript/JS files analyzed via TypeScript Compiler API\n- `'svelte'` - Svelte components analyzed via svelte2tsx + TypeScript Compiler API",
 						"source_line": 18,
 						"type_signature": "AnalyzerType"
 					},
