@@ -28,7 +28,7 @@
 	{#if has_search}
 		<button
 			type="button"
-			class="plain icon_button position:absolute right_0 top_0"
+			class="plain icon_button position:absolute right:0 top:0"
 			onclick={() => {
 				search_query = '';
 			}}

@@ -14,7 +14,7 @@
 	const library = library_context.get();
 </script>
 
-<main class="box width_100">
+<main class="box width:100%">
 	<div class="box width_upto_md mb_xl9">
 		<section class="box">
 			<h1 class="mb_sm" style:margin-top={MAIN_HEADER_MARGIN_TOP}>fuz_ui</h1>

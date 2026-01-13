@@ -44,7 +44,7 @@
 	)}
 >
 	<header
-		class="mb_xl3 position:sticky top_0"
+		class="mb_xl3 position:sticky top:0"
 		{@attach intersect(() =>
 			at_root
 				? null
