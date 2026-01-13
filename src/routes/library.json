@@ -5272,7 +5272,7 @@
 					{
 						"name": "module_is_typescript",
 						"kind": "function",
-						"doc_comment": "Check if a path is a TypeScript or JavaScript file.\n\nIncludes both `.ts` and `.js` files since JS files are valid in TS projects.\nExcludes `.d.ts` declaration files - use a custom `get_analyzer` to include them.",
+						"doc_comment": "Check if a path is a TypeScript or JS file.\n\nIncludes both `.ts` and `.js` files since JS files are valid in TS projects.\nExcludes `.d.ts` declaration files - use a custom `get_analyzer` to include them.",
 						"source_line": 370,
 						"type_signature": "(path: string): boolean",
 						"return_type": "boolean",
