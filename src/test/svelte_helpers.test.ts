@@ -264,10 +264,10 @@ describe('svelte_analyze_file', () => {
 		assert.strictEqual(count_prop.type, 'number');
 	});
 
-	test('handles JavaScript component (no lang="ts")', () => {
+	test('handles JS component (no lang="ts")', () => {
 		// component_basic has no script tag with lang="ts"
 		const file_path = join(FIXTURES_DIR, 'component_basic/input.svelte');
-		const module_path = 'JavaScript_Component.svelte';
+		const module_path = 'Js_Component.svelte';
 
 		const {declaration} = svelte_analyze_file(
 			{id: file_path, content: read_fixture(file_path)},
@@ -276,7 +276,7 @@ describe('svelte_analyze_file', () => {
 			new AnalysisContext(),
 		);
 
-		assert.strictEqual(declaration.name, 'JavaScript_Component');
+		assert.strictEqual(declaration.name, 'Js_Component');
 		assert.strictEqual(declaration.kind, 'component');
 		// Basic component has no props
 		assert.ok(!declaration.props || declaration.props.length === 0);

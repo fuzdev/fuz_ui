@@ -30,7 +30,7 @@
 </DocsList>
 
 {#snippet content()}
-	<nav aria-label="on this page" class="width_100">
+	<nav aria-label="on this page" class="width:100%">
 		<ul class="unstyled">
 			{#each docs_links.docs_links as item (item.id)}
 				<li

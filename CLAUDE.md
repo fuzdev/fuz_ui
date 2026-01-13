@@ -2,7 +2,7 @@
 
 > friendly user zystem 🧶
 
-Fuz UI is a Svelte UI library built on the Fuz CSS framework and design system. It provides Svelte
+fuz_ui is a Svelte UI library built on the fuz_css framework and design system. It provides Svelte
 components and TypeScript helpers for building user-friendly and
 resource-efficient websites.
 
@@ -10,7 +10,7 @@ resource-efficient websites.
 
 - Svelte 5 - component framework
 - SvelteKit - application framework
-- Fuz CSS (@fuzdev/fuz_css) - CSS framework and design system foundation
+- fuz_css (@fuzdev/fuz_css) - CSS framework and design system foundation
 - fuz_util (@fuzdev/fuz_util) - utility library
 - Gro (@ryanatkn/gro) - build system and CLI
 
@@ -81,7 +81,7 @@ Helper file prefixes (by domain):
 - `module_*` - module path and detection helpers
 - `package_gen_*` - Gro-specific package generation helpers
 
-This naming is consistent across fuz_util, Fuz CSS, and Gro for a unified developer
+This naming is consistent across fuz_util, fuz_css, and Gro for a unified developer
 experience.
 
 Duplicate identifier names across modules fail fast during `gro gen` with clear
@@ -348,7 +348,7 @@ for validation and code generation.
 
 - TypeScript - strict typing throughout
 - Svelte 5 - uses new runes API
-- CSS - plain CSS with Fuz CSS framework and design system
+- CSS - plain CSS with fuz_css framework and design system
 - formatting - Prettier with tabs, 100 char width
 - Node - requires >=22.15
 - tests - located in `src/test/` (not co-located with source)
@@ -398,7 +398,7 @@ Contextmenu:
 
 ### Theming
 
-Built on Fuz CSS custom properties:
+Built on fuz_css custom properties:
 
 - `Themer` class manages theme state
 - `Themed` component provides theme context
@@ -434,7 +434,7 @@ Usage in Fuz:
 </Docs>
 ```
 
-For consumer projects (like Fuz CSS):
+For consumer projects (like fuz_css):
 
 - same setup, just import your local tomes and library
 - optional `breadcrumb_children` snippet for branding

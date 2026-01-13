@@ -25,7 +25,7 @@
 	{#each declarations as declaration (`${declaration.module_path}:${declaration.name}`)}
 		<TomeSection>
 			<TomeSectionHeader text={declaration.name}>
-				<div class="word_break_break_all">{declaration.name}</div>
+				<div class="word-break:break-all">{declaration.name}</div>
 			</TomeSectionHeader>
 			<article id={declaration.name}>
 				<DeclarationDetail {declaration} />

@@ -359,7 +359,7 @@ describe('library_collect_source_files', () => {
 			assert.ok(result.some((f) => f.id.endsWith('Card.svelte')));
 		});
 
-		test('collects JavaScript files from src/lib', () => {
+		test('collects JS files from src/lib', () => {
 			const files: Array<SourceFileInfo> = [
 				{id: '/home/user/project/src/lib/utils.js', content: ''},
 				{id: '/home/user/project/src/lib/helpers.js', content: ''},

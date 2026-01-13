@@ -12,7 +12,7 @@ Logo colors are the midpoint between the light and dark versions of color varian
 --color_c: #d93636;
 --color_d: #8866cc;
 --color_e: #d8bc31;
---color_f: #84522a; // TODO this one isn't the midpoint bc Fuz CSS's color needs tweaking, too light in dark mode
+--color_f: #84522a; // TODO this one isn't the midpoint bc fuz_css's color needs tweaking, too light in dark mode
 --color_g: #e55d95;
 --color_h: #f4672f;
 --color_i: #36e2e2;

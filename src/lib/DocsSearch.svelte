@@ -23,12 +23,12 @@
 	const has_search = $derived(search_query.trim().length > 0);
 </script>
 
-<label class="display_block position_relative">
+<label class="display:block position:relative">
 	<input {...rest} type="search" {placeholder} bind:value={search_query} />
 	{#if has_search}
 		<button
 			type="button"
-			class="plain icon_button position_absolute right_0 top_0"
+			class="plain icon_button position:absolute right:0 top:0"
 			onclick={() => {
 				search_query = '';
 			}}

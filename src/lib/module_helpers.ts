@@ -12,7 +12,7 @@
 /**
  * Analyzer type for source files.
  *
- * - `'typescript'` - TypeScript/JavaScript files analyzed via TypeScript Compiler API
+ * - `'typescript'` - TypeScript/JS files analyzed via TypeScript Compiler API
  * - `'svelte'` - Svelte components analyzed via svelte2tsx + TypeScript Compiler API
  */
 export type AnalyzerType = 'typescript' | 'svelte';
@@ -362,7 +362,7 @@ export const module_get_component_name = (module_path: string): string =>
 export const module_get_key = (module_path: string): string => `./${module_path}`;
 
 /**
- * Check if a path is a TypeScript or JavaScript file.
+ * Check if a path is a TypeScript or JS file.
  *
  * Includes both `.ts` and `.js` files since JS files are valid in TS projects.
  * Excludes `.d.ts` declaration files - use a custom `get_analyzer` to include them.

@@ -289,7 +289,7 @@ describe('module_is_source', () => {
 			assert.isTrue(module_is_source('/home/user/project/src/lib/foo.ts', test_options()));
 		});
 
-		test('matches src/lib JavaScript files', () => {
+		test('matches src/lib JS files', () => {
 			assert.isTrue(module_is_source('/home/user/project/src/lib/foo.js', test_options()));
 		});
 

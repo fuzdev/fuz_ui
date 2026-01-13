@@ -81,11 +81,10 @@
 	{...data.attrs}
 	{...rest}
 	aria-label={label ?? data.label}
-	class:display_inline_block={inline}
-	class:position_relative={inline}
+	class="{data.attrs?.class} {rest.class}"
+	class:inline
 	style:width={final_width}
 	style:height={final_height}
-	style:top={inline ? '0.1em' : undefined}
 	style:flex-shrink={shrink ? 1 : 0}
 	{style}
 >
@@ -96,3 +95,12 @@
 		{/each}
 	{/if}
 </svg>
+
+<style>
+	.inline {
+		display: inline-block;
+		position: relative;
+		/* TODO idk about this, but vertical align doesnt seem quite right either */
+		top: 0.1em;
+	}
+</style>
