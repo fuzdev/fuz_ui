@@ -1,5 +1,6 @@
 <script lang="ts">
 	import type {SvelteHTMLElements} from 'svelte/elements';
+	import {ensure_start} from '@fuzdev/fuz_util/string.js';
 
 	import {library_context} from './library.svelte.js';
 	import {contextmenu_attachment} from './contextmenu_state.svelte.js';
@@ -7,11 +8,14 @@
 
 	const {
 		name,
+		hash,
 		children,
 		class: class_prop = 'chip',
 		...rest
 	}: SvelteHTMLElements['a'] & {
 		name: string;
+		/** URL fragment to append, with or without the `#`. */
+		hash?: string;
 	} = $props();
 
 	const library = library_context.get();
@@ -31,7 +35,7 @@
 	<a
 		{...rest}
 		class="declaration_link {class_prop}"
-		href={declaration.url_api}
+		href={declaration.url_api + (hash ? ensure_start(hash, '#') : '')}
 		{@attach contextmenu_attachment(contextmenu_entries)}
 	>
 		{#if children}

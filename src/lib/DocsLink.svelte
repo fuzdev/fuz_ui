@@ -9,10 +9,13 @@
 
 	const {
 		reference,
+		hash,
 		display_text,
 		children: children_prop,
 	}: {
 		reference: string;
+		/** URL fragment to append, with or without the `#`. */
+		hash?: string;
 		display_text?: string | null;
 		children?: Snippet<[Declaration | undefined, Module | undefined]>;
 	} = $props();
@@ -24,11 +27,11 @@
 </script>
 
 {#if declaration}
-	<DeclarationLink name={reference}>
+	<DeclarationLink name={reference} {hash}>
 		{@render children()}
 	</DeclarationLink>
 {:else if module}
-	<ModuleLink module_path={module.path}>
+	<ModuleLink module_path={module.path} {hash}>
 		{@render children()}
 	</ModuleLink>
 {:else}

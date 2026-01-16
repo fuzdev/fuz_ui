@@ -1,5 +1,6 @@
 <script lang="ts">
 	import type {SvelteHTMLElements} from 'svelte/elements';
+	import {ensure_start} from '@fuzdev/fuz_util/string.js';
 
 	import {library_context} from './library.svelte.js';
 	import {contextmenu_attachment} from './contextmenu_state.svelte.js';
@@ -7,11 +8,14 @@
 
 	const {
 		module_path,
+		hash,
 		children,
 		class: class_prop = 'chip',
 		...rest
 	}: SvelteHTMLElements['a'] & {
 		module_path: string; // TODO maybe rename?
+		/** URL fragment to append, with or without the `#`. */
+		hash?: string;
 	} = $props();
 
 	const library = library_context.get();
@@ -28,7 +32,7 @@
 	<a
 		{...rest}
 		class="module_link {class_prop}"
-		href={module.url_api}
+		href={module.url_api + (hash ? ensure_start(hash, '#') : '')}
 		{@attach contextmenu_attachment(contextmenu_entries)}
 	>
 		<!-- eslint-enable svelte/no-navigation-without-resolve -->
