@@ -39,16 +39,14 @@ export const contextmenu_create_keyboard_handlers = (
 		['Enter', () => contextmenu.activate_selected()],
 	]);
 
-export const contextmenu_create_keydown_handler = (
-	keyboard_handlers: Map<string, () => void>,
-): ((e: KeyboardEvent) => void) => {
-	return (e: KeyboardEvent): void => {
+export const contextmenu_create_keydown_handler =
+	(keyboard_handlers: Map<string, () => void>): ((e: KeyboardEvent) => void) =>
+	(e: KeyboardEvent): void => {
 		const handler = keyboard_handlers.get(e.key);
 		if (!handler || is_editable(e.target)) return;
 		swallow(e);
 		handler();
 	};
-};
 
 export const contextmenu_calculate_constrained_x = (
 	menu_x: number,

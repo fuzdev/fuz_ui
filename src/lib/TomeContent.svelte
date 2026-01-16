@@ -24,7 +24,7 @@
 
 	tome_context.set(tome); // TODO make reactive?
 
-	const fragment = docs_slugify(tome.name);
+	const fragment = $derived(docs_slugify(tome.name));
 
 	const at_root = $derived(page.url.pathname === resolve(docs_path as any));
 </script>

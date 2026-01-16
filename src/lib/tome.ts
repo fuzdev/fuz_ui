@@ -1,6 +1,7 @@
 import {resolve} from '$app/paths';
 import type {Component} from 'svelte';
 import {z} from 'zod';
+import {ensure_start} from '@fuzdev/fuz_util/string.js';
 
 import {create_context} from './context_helpers.js';
 import {DOCS_PATH_DEFAULT, docs_slugify} from './docs_helpers.svelte.js';
@@ -16,6 +17,9 @@ export const Tome = z.object({
 });
 export type Tome = z.infer<typeof Tome>;
 
+/**
+ * @param hash - URL fragment to append, with or without the `#`.
+ */
 export const to_tome_pathname = (
 	item: Tome | string,
 	docs_path = DOCS_PATH_DEFAULT,
@@ -23,7 +27,7 @@ export const to_tome_pathname = (
 ): string => {
 	const name = typeof item === 'string' ? item : item.name;
 	const path = docs_path + '/' + docs_slugify(name);
-	return resolve((hash ? path + '#' + hash : path) as any);
+	return resolve((hash ? path + ensure_start(hash, '#') : path) as any);
 };
 
 export const tomes_context = create_context<Map<string, Tome>>();

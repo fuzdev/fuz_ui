@@ -31,7 +31,7 @@
 		minimal?: boolean;
 	} = $props();
 
-	const search = create_declaration_search(library);
+	const search = $derived(create_declaration_search(library));
 </script>
 
 <svelte:head>

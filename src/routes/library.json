@@ -2406,6 +2406,12 @@
 							{
 								"name": "name",
 								"type": "string"
+							},
+							{
+								"name": "hash",
+								"type": "string",
+								"optional": true,
+								"description": "URL fragment to append, with or without the `#`."
 							}
 						],
 						"source_line": 1
@@ -2991,6 +2997,12 @@
 								"type": "string"
 							},
 							{
+								"name": "hash",
+								"type": "string",
+								"optional": true,
+								"description": "URL fragment to append, with or without the `#`."
+							},
+							{
 								"name": "display_text",
 								"type": "string | null",
 								"optional": true
@@ -3289,6 +3301,12 @@
 								"type": "string",
 								"optional": true,
 								"description": "GitHub path - can be a full URL or a relative path like `owner/repo` or `owner/repo/blob/main/file.ts`"
+							},
+							{
+								"name": "hash",
+								"type": "string",
+								"optional": true,
+								"description": "URL fragment to append, with or without the `#`."
 							}
 						],
 						"source_line": 1
@@ -4579,6 +4597,12 @@
 							{
 								"name": "path",
 								"type": "string"
+							},
+							{
+								"name": "hash",
+								"type": "string",
+								"optional": true,
+								"description": "URL fragment to append, with or without the `#`."
 							}
 						],
 						"source_line": 1
@@ -5504,6 +5528,12 @@
 							{
 								"name": "module_path",
 								"type": "string"
+							},
+							{
+								"name": "hash",
+								"type": "string",
+								"optional": true,
+								"description": "URL fragment to append, with or without the `#`."
 							}
 						],
 						"source_line": 1
@@ -6496,13 +6526,14 @@
 					{
 						"name": "Tome",
 						"kind": "type",
-						"source_line": 8,
+						"source_line": 9,
 						"type_signature": "ZodObject<{ name: ZodString; category: ZodString; Component: ZodCustom<Component<any, any, string>, Component<any, any, string>>; related_tomes: ZodArray<...>; related_modules: ZodArray<...>; related_declarations: ZodArray<...>; }, $strip>"
 					},
 					{
 						"name": "to_tome_pathname",
 						"kind": "function",
-						"source_line": 19,
+						"doc_comment": "",
+						"source_line": 23,
 						"type_signature": "(item: string | { name: string; category: string; Component: Component<any, any, string>; related_tomes: string[]; related_modules: string[]; related_declarations: string[]; }, docs_path?: string, hash?: string | undefined): string",
 						"return_type": "string",
 						"parameters": [
@@ -6518,20 +6549,21 @@
 							{
 								"name": "hash",
 								"type": "string | undefined",
-								"optional": true
+								"optional": true,
+								"description": "- URL fragment to append, with or without the `#`."
 							}
 						]
 					},
 					{
 						"name": "tomes_context",
 						"kind": "variable",
-						"source_line": 29,
+						"source_line": 33,
 						"type_signature": "{ get: (error_message?: string | undefined) => Map<string, { name: string; category: string; Component: Component<any, any, string>; related_tomes: string[]; related_modules: string[]; related_declarations: string[]; }>; get_maybe: () => Map<...> | undefined; set: (value: Map<...>) => Map<...>; }"
 					},
 					{
 						"name": "get_tome_by_name",
 						"kind": "function",
-						"source_line": 31,
+						"source_line": 35,
 						"type_signature": "(name: string): { name: string; category: string; Component: Component<any, any, string>; related_tomes: string[]; related_modules: string[]; related_declarations: string[]; }",
 						"return_type": "{ name: string; category: string; Component: Component<any, any, string>; related_tomes: string[]; related_modules: string[]; related_declarations: string[]; }",
 						"parameters": [
@@ -6544,7 +6576,7 @@
 					{
 						"name": "tome_context",
 						"kind": "variable",
-						"source_line": 38,
+						"source_line": 42,
 						"type_signature": "{ get: (error_message?: string | undefined) => { name: string; category: string; Component: Component<any, any, string>; related_tomes: string[]; related_modules: string[]; related_declarations: string[]; }; get_maybe: () => { ...; } | undefined; set: (value: { ...; }) => { ...; }; }"
 					}
 				],
@@ -6629,7 +6661,8 @@
 							{
 								"name": "hash",
 								"type": "string",
-								"optional": true
+								"optional": true,
+								"description": "URL fragment to append, with or without the `#`."
 							}
 						],
 						"source_line": 1
@@ -7267,6 +7300,12 @@
 							{
 								"name": "type",
 								"type": "string"
+							},
+							{
+								"name": "hash",
+								"type": "string",
+								"optional": true,
+								"description": "URL fragment to append, with or without the `#`."
 							}
 						],
 						"source_line": 1

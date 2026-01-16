@@ -1,5 +1,5 @@
 <script lang="ts">
-	import {strip_end, strip_start} from '@fuzdev/fuz_util/string.js';
+	import {ensure_start, strip_end, strip_start} from '@fuzdev/fuz_util/string.js';
 	import type {SvelteHTMLElements} from 'svelte/elements';
 
 	import Svg from './Svg.svelte';
@@ -7,16 +7,20 @@
 
 	const {
 		path,
+		hash,
 		children,
 		...rest
 	}: SvelteHTMLElements['a'] & {
 		path: string;
+		/** URL fragment to append, with or without the `#`. */
+		hash?: string;
 	} = $props();
 
 	const href = $derived(
-		path.startsWith('https://')
+		(path.startsWith('https://')
 			? path
-			: `https://developer.mozilla.org/en-US/docs/${strip_start(path, '/')}`,
+			: `https://developer.mozilla.org/en-US/docs/${strip_start(path, '/')}`) +
+			(hash ? ensure_start(hash, '#') : ''),
 	);
 
 	const final_children = $derived(children ?? strip_end(path, '/').split('/').at(-1)!);
