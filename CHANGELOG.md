@@ -1,5 +1,11 @@
 # @fuzdev/fuz_ui
 
+## 0.177.1
+
+### Patch Changes
+
+- add `fragment` to link component props ([#109](https://github.com/fuzdev/fuz_ui/pull/109))
+
 ## 0.177.0
 
 ### Minor Changes
