@@ -294,22 +294,40 @@ library and API (generated in `src/routes/`):
 - `package_helpers.ts` - generic package/repo utilities (`url_github_file`,
   `repo_url_parse`, `package_is_published`)
 
-TypeScript and Svelte analysis:
+Library Documentation Generation:
 
-- `ts_helpers.ts` - TypeScript compiler API utilities
-  - high-level: `ts_analyze_declaration`, `ts_analyze_module_exports`
-  - low-level: `ts_extract_function_info`, `ts_extract_class_info`, etc.
-- `svelte_helpers.ts` - Svelte component analysis
-  - high-level: `svelte_analyze_file`
-  - low-level: `svelte_analyze_component`, `svelte_extract_props`
-- `tsdoc_helpers.ts` - TSDoc/JSDoc parsing
-  - `tsdoc_parse`, `tsdoc_apply_to_declaration`
-- `module_helpers.ts` - module path utilities
-  - predicates: `module_matches_source`, `module_is_typescript`, `module_is_svelte`
-  - utilities: `module_extract_path`, `module_get_component_name`, `module_extract_dependencies`
-  - configuration: `ModuleSourceOptions`, `MODULE_SOURCE_DEFAULTS`
-- `library_analysis.ts` - unified analysis entry point (`library_analyze_module`)
-- `library_pipeline.ts` - pipeline orchestration helpers
+**Architecture** (after scope refactor):
+
+1. **Analysis Layer** (`@fuzdev/svelte-docinfo`):
+   - Pure TypeScript/Svelte source analysis
+   - API: `library_analyze({source_files, options}) → {modules: ModuleJson[]}`
+   - No package metadata, no output generation
+   - See `@fuzdev/svelte-docinfo/CLAUDE.md` for details
+
+2. **Type Layer** (`@fuzdev/fuz_util`):
+   - Shared type definitions: `SourceJson`, `LibraryJson`, `ModuleJson`, `DeclarationJson`
+   - Metadata parsing: `library_json_parse(package_json, source_json)`
+   - GitHub/npm URL generation
+
+3. **Integration Layer** (fuz_ui):
+   - `library_gen.ts` - Gro genfile that orchestrates generation
+   - `library_output.ts` - generates library.json and library.ts wrapper
+   - Uses `library_analyze()` from svelte-docinfo for analysis
+   - Wraps results with `SourceJson` from fuz_util
+   - Generates output files with GitHub/npm metadata via `LibraryJson`
+
+4. **Runtime Layer** (fuz_ui):
+   - `library.svelte.ts` - `Library` class wraps `LibraryJson` with reactive properties
+   - `module.svelte.ts` - `Module` class wraps `ModuleJson`
+   - `declaration.svelte.ts` - `Declaration` class wraps `DeclarationJson`
+   - Used by documentation UI components
+
+**Flow**:
+```
+source files → library_analyze() → modules[]
+modules[] → wrap with SourceJson → library_json_parse()
+→ LibraryJson → library_generate_output() → library.json + library.ts
+```
 
 browser and DOM:
 
