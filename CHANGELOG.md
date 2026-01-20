@@ -1,5 +1,11 @@
 # @fuzdev/fuz_ui
 
+## 0.178.1
+
+### Patch Changes
+
+- bump peer deps ([eb20da6](https://github.com/fuzdev/fuz_ui/commit/eb20da6))
+
 ## 0.178.0
 
 ### Minor Changes
