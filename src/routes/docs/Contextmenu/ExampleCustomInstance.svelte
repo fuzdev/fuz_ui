@@ -93,7 +93,7 @@
 					</ul>
 				</div>
 				{#if contextmenu.opened}
-					<div class="display_flex" transition:slide>
+					<div class="display:flex" transition:slide>
 						<div class="box">
 							<button
 								type="button"

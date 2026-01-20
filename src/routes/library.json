@@ -73,8 +73,8 @@
 		"devDependencies": {
 			"@changesets/changelog-git": "^0.2.1",
 			"@fuzdev/fuz_code": "^0.39.0",
-			"@fuzdev/fuz_css": "^0.42.1",
-			"@fuzdev/fuz_util": "^0.45.1",
+			"@fuzdev/fuz_css": "^0.44.0",
+			"@fuzdev/fuz_util": "^0.45.3",
 			"@jridgewell/trace-mapping": "^0.3.31",
 			"@ryanatkn/eslint-config": "^0.9.0",
 			"@ryanatkn/gro": "^0.183.0",
@@ -83,6 +83,7 @@
 			"@sveltejs/package": "^2.5.7",
 			"@sveltejs/vite-plugin-svelte": "^6.2.1",
 			"@types/node": "^24.10.1",
+			"@webref/css": "^8.2.0",
 			"eslint": "^9.39.1",
 			"eslint-plugin-svelte": "^3.13.1",
 			"esm-env": "^1.2.2",
@@ -3674,7 +3675,7 @@
 					{
 						"name": "library_analyze_module",
 						"kind": "function",
-						"doc_comment": "Analyze a source file and extract module metadata.\n\nUnified entry point that dispatches to the appropriate analyzer based on file type:\n- TypeScript/JavaScript files → `ts_analyze_module`\n- Svelte components → `svelte_analyze_module`\n\nReturns raw analysis data including `nodocs` flags on declarations.\nConsumer is responsible for filtering based on their policy.\n\nThis function can be called incrementally - consumers may cache results and\nonly re-analyze changed files. The TypeScript program should include all files\nfor accurate type resolution, but only changed files need re-analysis.",
+						"doc_comment": "Analyze a source file and extract module metadata.\n\nUnified entry point that dispatches to the appropriate analyzer based on file type:\n- TypeScript/JS files → `ts_analyze_module`\n- Svelte components → `svelte_analyze_module`\n\nReturns raw analysis data including `nodocs` flags on declarations.\nConsumer is responsible for filtering based on their policy.\n\nThis function can be called incrementally - consumers may cache results and\nonly re-analyze changed files. The TypeScript program should include all files\nfor accurate type resolution, but only changed files need re-analysis.",
 						"source_line": 123,
 						"type_signature": "(source_file: SourceFileInfo, program: Program, options: ModuleSourceOptions, ctx: AnalysisContext, log?: Logger | undefined): ModuleAnalysis | undefined",
 						"return_type": "ModuleAnalysis | undefined",
@@ -4123,7 +4124,7 @@
 							"const duplicates = library_find_duplicates(source_json);\nif (duplicates.size > 0) {\n  for (const [name, occurrences] of duplicates) {\n    console.error(`\"${name}\" found in:`);\n    for (const {declaration, module} of occurrences) {\n      console.error(`  - ${module}:${declaration.source_line} (${declaration.kind})`);\n    }\n  }\n  throw new Error(`Found ${duplicates.size} duplicate declaration names`);\n}"
 						],
 						"source_line": 62,
-						"type_signature": "(source_json: { [x: string]: unknown; name: string; version: string; modules?: { [x: string]: unknown; path: string; declarations?: { [x: string]: unknown; name: string; kind: \"function\" | \"json\" | \"type\" | \"variable\" | \"class\" | \"constructor\" | \"component\" | \"css\"; ... 19 more ...; alias_of?: { ...; } | undefined; }[] | undefined; module_comment?: string | undefined; dependencies?: string[] | undefined; dependents?: string[] | undefined; }[] | undefined; }): Map<...>",
+						"type_signature": "(source_json: { [x: string]: unknown; name: string; version: string; modules?: { [x: string]: unknown; path: string; declarations?: { [x: string]: unknown; name: string; kind: \"function\" | \"json\" | \"type\" | \"variable\" | \"class\" | \"constructor\" | \"component\" | \"css\"; ... 19 more ...; alias_of?: { ...; } | undefined; }[] | undefined; module_comment?: string | undefined; dependencies?: string[] | undefined; dependents?: string[] | undefined; star_exports?: string[] | undefined; }[] | undefined; }): Map<...>",
 						"return_type": "Map<string, DuplicateInfo[]>",
 						"parameters": [
 							{
@@ -4137,7 +4138,7 @@
 						"kind": "function",
 						"doc_comment": "Sort modules alphabetically by path for deterministic output and cleaner diffs.",
 						"source_line": 95,
-						"type_signature": "(modules: { [x: string]: unknown; path: string; declarations?: { [x: string]: unknown; name: string; kind: \"function\" | \"json\" | \"type\" | \"variable\" | \"class\" | \"constructor\" | \"component\" | \"css\"; doc_comment?: string | undefined; ... 18 more ...; alias_of?: { ...; } | undefined; }[] | undefined; module_comment?: string | undefined; dependencies?: string[] | undefined; dependents?: string[] | undefined; }[]): { ...; }[]",
+						"type_signature": "(modules: { [x: string]: unknown; path: string; declarations?: { [x: string]: unknown; name: string; kind: \"function\" | \"json\" | \"type\" | \"variable\" | \"class\" | \"constructor\" | \"component\" | \"css\"; doc_comment?: string | undefined; ... 18 more ...; alias_of?: { ...; } | undefined; }[] | undefined; module_comment?: string | undefined; dependencies?: string[] | undefined; dependents?: string[] | undefined; star_exports?: string[] | undefined; }[]): { ...; }[]",
 						"return_type": "{ [x: string]: unknown; path: string; declarations?: { [x: string]: unknown; name: string; kind: \"function\" | \"json\" | \"type\" | \"variable\" | \"class\" | \"constructor\" | \"component\" | \"css\"; doc_comment?: string | undefined; ... 18 more ...; alias_of?: { ...; } | undefined; }[] | undefined; module_comment?: string | un...",
 						"parameters": [
 							{
@@ -4175,7 +4176,7 @@
 							"// helpers.ts exports: foo, bar\n// index.ts does: export {foo, bar} from './helpers.js'\n//\n// After processing:\n// - helpers.ts foo declaration gets: also_exported_from: ['index.ts']\n// - helpers.ts bar declaration gets: also_exported_from: ['index.ts']"
 						],
 						"source_line": 137,
-						"type_signature": "(source_json: { [x: string]: unknown; name: string; version: string; modules?: { [x: string]: unknown; path: string; declarations?: { [x: string]: unknown; name: string; kind: \"function\" | \"json\" | \"type\" | \"variable\" | \"class\" | \"constructor\" | \"component\" | \"css\"; ... 19 more ...; alias_of?: { ...; } | undefined; }[] | undefined; module_comment?: string | undefined; dependencies?: string[] | undefined; dependents?: string[] | undefined; }[] | undefined; }, collected_re_exports: CollectedReExport[]): void",
+						"type_signature": "(source_json: { [x: string]: unknown; name: string; version: string; modules?: { [x: string]: unknown; path: string; declarations?: { [x: string]: unknown; name: string; kind: \"function\" | \"json\" | \"type\" | \"variable\" | \"class\" | \"constructor\" | \"component\" | \"css\"; ... 19 more ...; alias_of?: { ...; } | undefined; }[] | undefined; module_comment?: string | undefined; dependencies?: string[] | undefined; dependents?: string[] | undefined; star_exports?: string[] | undefined; }[] | undefined; }, collected_re_exports: CollectedReExport[]): void",
 						"return_type": "void",
 						"parameters": [
 							{
@@ -5059,7 +5060,7 @@
 					{
 						"name": "AnalyzerType",
 						"kind": "type",
-						"doc_comment": "Analyzer type for source files.\n\n- `'typescript'` - TypeScript/JavaScript files analyzed via TypeScript Compiler API\n- `'svelte'` - Svelte components analyzed via svelte2tsx + TypeScript Compiler API",
+						"doc_comment": "Analyzer type for source files.\n\n- `'typescript'` - TypeScript/JS files analyzed via TypeScript Compiler API\n- `'svelte'` - Svelte components analyzed via svelte2tsx + TypeScript Compiler API",
 						"source_line": 18,
 						"type_signature": "AnalyzerType"
 					},
@@ -5296,7 +5297,7 @@
 					{
 						"name": "module_is_typescript",
 						"kind": "function",
-						"doc_comment": "Check if a path is a TypeScript or JavaScript file.\n\nIncludes both `.ts` and `.js` files since JS files are valid in TS projects.\nExcludes `.d.ts` declaration files - use a custom `get_analyzer` to include them.",
+						"doc_comment": "Check if a path is a TypeScript or JS file.\n\nIncludes both `.ts` and `.js` files since JS files are valid in TS projects.\nExcludes `.d.ts` declaration files - use a custom `get_analyzer` to include them.",
 						"source_line": 370,
 						"type_signature": "(path: string): boolean",
 						"return_type": "boolean",
@@ -5487,7 +5488,7 @@
 							{
 								"name": "constructor",
 								"kind": "constructor",
-								"type_signature": "(library: Library, module_json: { [x: string]: unknown; path: string; declarations?: { [x: string]: unknown; name: string; kind: \"function\" | \"json\" | \"type\" | \"variable\" | \"class\" | \"constructor\" | \"component\" | \"css\"; ... 19 more ...; alias_of?: { ...; } | undefined; }[] | undefined; module_comment?: string | undefined; dependencies?: string[] | undefined; dependents?: string[] | undefined; }): Module",
+								"type_signature": "(library: Library, module_json: { [x: string]: unknown; path: string; declarations?: { [x: string]: unknown; name: string; kind: \"function\" | \"json\" | \"type\" | \"variable\" | \"class\" | \"constructor\" | \"component\" | \"css\"; ... 19 more ...; alias_of?: { ...; } | undefined; }[] | undefined; module_comment?: string | undefined; dependencies?: string[] | undefined; dependents?: string[] | undefined; star_exports?: string[] | undefined; }): Module",
 								"parameters": [
 									{
 										"name": "library",

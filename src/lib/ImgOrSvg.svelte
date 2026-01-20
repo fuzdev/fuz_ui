@@ -44,7 +44,7 @@
 		style:width={final_width}
 		style:height={final_height}
 	>
-		<image href={src} class="width_100 height_100" />
+		<image href={src} class="width:100% height:100%" />
 	</svg>
 {:else}
 	<img

@@ -64,19 +64,20 @@
 </script>
 
 <div class="theme_form">
-	<h2 class="text_align_center">
+	<h2 class="text-align:center">
 		{#if editing}edit{:else}create{/if} theme
 	</h2>
 	<aside>
 		⚠️ Creating and editing themes at runtime is a work in progress i.e. totally unfinished.
 	</aside>
 	<header>
-		<div class="flex_1">
+		<div class="flex:1">
 			<p>variables: {light_count} light, {dark_count} dark</p>
-			<button type="button" class="width_100" onclick={add_variable} disabled>add a variable</button
+			<button type="button" class="width:100%" onclick={add_variable} disabled
+				>add a variable</button
 			>
 		</div>
-		<fieldset class="flex_1">
+		<fieldset class="flex:1">
 			<label>
 				<div class="title">name</div>
 				<input bind:value={new_name} placeholder=">" />
@@ -107,7 +108,7 @@
 {#if selected_variable}
 	<Dialog onclose={() => (selected_variable = null)}>
 		{#snippet children(close)}
-			<div class="pane p_md width_upto_md mx_auto">
+			<div class="pane p_md width_atmost_md mx_auto">
 				<div class="panel p_lg box">
 					<StyleVariableDetail variable={selected_variable} />
 					<aside>⚠️ This is unfinished and will change.</aside>

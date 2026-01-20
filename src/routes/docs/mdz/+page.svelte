@@ -67,7 +67,7 @@
 			<p>Possible changes?</p>
 			<ul>
 				<li>
-					allow ending lines with <code class="white_space_pre"> \</code> to opt out of rendering the
+					allow ending lines with <code class="white-space:pre"> \</code> to opt out of rendering the
 					line break?
 				</li>
 				<li>loosen/tighten some restrictions like requiring blank newline separators?</li>
@@ -239,14 +239,14 @@ const nodes = mdz_parse(content);`}
 			lang="ts"
 		/>
 		<Code
-			content={`<div class="custom white_space_pre_wrap">
+			content={`<div class="custom white-space:pre-wrap">
 	{#each nodes as node}
 		<MdzNodeView {node} />
 	{/each}
 </div>`}
 		/>
 		<p>
-			For example you may want <code>white_space_pre</code> to avoid wrapping in some circumstances.
+			For example you may want <code>white-space:pre</code> to avoid wrapping in some circumstances.
 		</p>
 	</TomeSection>
 

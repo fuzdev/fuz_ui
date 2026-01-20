@@ -30,7 +30,7 @@
 </script>
 
 <section
-	class="tome_content width_upto_md mb_xl9"
+	class="tome_content width_atmost_md mb_xl9"
 	{@attach intersect(() =>
 		at_root
 			? ({intersecting}) => {
@@ -44,7 +44,7 @@
 	)}
 >
 	<header
-		class="mb_xl3 position_sticky top_0"
+		class="mb_xl3 position:sticky top:0"
 		{@attach intersect(() =>
 			at_root
 				? null

@@ -158,7 +158,7 @@ const custom_csp = create_csp_directives({
 		<table>
 			<thead>
 				<tr>
-					<th class="white_space_nowrap">trust level</th>
+					<th class="white-space:nowrap">trust level</th>
 					<th>what it means</th>
 					<th>configured by <DeclarationLink name="required_trust_defaults_base" /></th>
 				</tr>
@@ -180,7 +180,7 @@ const custom_csp = create_csp_directives({
 							<td>Sources that can execute arbitrary code in the page's context</td>
 						{/if}
 						<td>
-							<!-- TODO convert to `Code`, needs a layout fix after Fuz CSS upgrade -->
+							<!-- TODO convert to `Code`, needs a layout fix after fuz_css upgrade -->
 							<code
 								>{Object.entries(csp_directive_required_trust_defaults)
 									.filter(([_, value]) => value === trust_level)
