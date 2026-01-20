@@ -23,7 +23,7 @@
 	</section>
 	<section>
 		<!-- TODO make this a generic data-driven helper -->
-		<Code content={`import Alert from '@fuzdev/fuz_ui/Alert.svelte';`} lang="ts" />
+		<Code lang="ts" content={`import Alert from '@fuzdev/fuz_ui/Alert.svelte';`} />
 		<Code content={`<Alert>info</Alert>`} />
 		<Alert>info</Alert>
 	</section>

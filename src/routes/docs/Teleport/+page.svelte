@@ -28,10 +28,8 @@
 		</aside>
 	</section>
 	<section>
-		<div class="mb_lg">
-			<!-- TODO make this a generic data-driven helper -->
-			<Code content={`import Teleport from '@fuzdev/fuz_ui/Teleport.svelte';`} lang="ts" />
-		</div>
+		<!-- TODO make this a generic data-driven helper -->
+		<Code lang="ts" content={`import Teleport from '@fuzdev/fuz_ui/Teleport.svelte';`} />
 		<Code
 			content={`<Teleport to={swap ? teleport_1 : teleport_2}>
 	🐰

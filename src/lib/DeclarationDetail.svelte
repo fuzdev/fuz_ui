@@ -12,7 +12,7 @@
 </script>
 
 <!-- Metadata -->
-<p class="row justify_content_space_between">
+<p class="row justify-content:space-between">
 	<ModuleLink module_path={declaration.module_path} />
 	{#if declaration.url_github}
 		<!-- eslint-disable-next-line svelte/no-navigation-without-resolve -->
@@ -31,7 +31,7 @@
 
 <!-- type signature -->
 {#if declaration.type_signature}
-	<Code content={declaration.type_signature} lang="ts" class="mb_lg" />
+	<Code lang="ts" content={declaration.type_signature} />
 {/if}
 
 <!-- documentation -->
@@ -63,7 +63,7 @@
 						{/if}
 						{#if param.default_value}
 							<strong>default</strong>
-							<Code content={param.default_value} lang="ts" />
+							<Code lang="ts" content={param.default_value} />
 						{/if}
 					</div>
 				{/if}
@@ -99,7 +99,7 @@
 						{/if}
 						{#if prop.default_value}
 							<strong>default</strong>
-							<Code content={prop.default_value} lang="ts" />
+							<Code lang="ts" content={prop.default_value} />
 						{/if}
 					</div>
 				{/if}
@@ -112,7 +112,7 @@
 {#if declaration.return_type}
 	<section>
 		<h4>returns</h4>
-		<Code content={declaration.return_type} lang="ts" />
+		<Code lang="ts" content={declaration.return_type} />
 		{#if declaration.return_description}
 			<Mdz content={declaration.return_description} />
 		{/if}
@@ -203,7 +203,7 @@
 		{#each declaration.examples as example, i (example)}
 			<Details>
 				{#snippet summary()}Example {i + 1}{/snippet}
-				<Code content={example} lang="ts" />
+				<Code lang="ts" content={example} />
 			</Details>
 		{/each}
 	</section>
@@ -273,7 +273,7 @@
 										{/if}
 										{#if param.default_value}
 											<strong>default</strong>
-											<Code content={param.default_value} lang="ts" />
+											<Code lang="ts" content={param.default_value} />
 										{/if}
 									</div>
 								{/if}

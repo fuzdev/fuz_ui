@@ -4,11 +4,11 @@
 
 > friendly user zystem 🧶 [fuz.dev](https://ui.fuz.dev/)
 
-Fuz UI is a [Svelte](https://svelte.dev/) UI library
+fuz_ui is a [Svelte](https://svelte.dev/) UI library
 with components and helpers for making zippy websites.
 It's in early alpha and it will go through many breaking changes.
 
-Fuz UI is being made to support
+fuz_ui is being made to support
 [my other projects](https://www.ryanatkn.com/)
 that focus on end-users.
 Fuz emphasizes capability and efficiency and tries to be simple for those goals.
@@ -19,9 +19,9 @@ Feel free to take the ideas and code for your own purposes.
 
 The Svelte components and helpers:
 
-- builds on [Fuz CSS](https://github.com/fuzdev/fuz_css)
+- builds on [fuz_css](https://github.com/fuzdev/fuz_css)
 - plain CSS and minimal abstraction
-- near-zero dependencies except for Svelte, SvelteKit, Fuz CSS,
+- near-zero dependencies except for Svelte, SvelteKit, fuz_css,
   and my utility library [`@fuzdev/fuz_util`](https://github.com/fuzdev/fuz_util)
   (not all components require SvelteKit but some do import its modules, needs more consideration)
 - not a fully-featured enterprise-ready set of components,
@@ -36,7 +36,7 @@ The Svelte components and helpers:
 > thank you see [contributing.md](contributing.md), your input is appreciated.
 >
 > If you feel comfortable looking at the source code,
-> Fuz UI is ready to use in your own projects,
+> fuz_ui is ready to use in your own projects,
 > with the major caveat that there will be a lot of breaking changes ahead.
 > The code is significantly incomplete but I think it's stable enough to use
 > if you're willing to keep up with the relatively fast-moving changelog.
@@ -45,17 +45,17 @@ The Svelte components and helpers:
 npm i -D @fuzdev/fuz_ui
 ```
 
-Fuz uses my style framework [Fuz CSS](https://github.com/fuzdev/fuz_css).
+Fuz uses my style framework [fuz_css](https://github.com/fuzdev/fuz_css).
 Import modules at their full paths:
 
 ```ts
-// Fuz CSS has one main plain CSS stylesheet:
+// fuz_css has one main plain CSS stylesheet:
 import '@fuzdev/fuz_css/style.css';
 
-// and import a Fuz CSS theme:
+// and import a fuz_css theme:
 import '@fuzdev/fuz_css/theme.css'; // or bring your own
 
-// using Gro generates Fuz CSS' utility classes stylesheet by default:
+// using Gro generates fuz_css' utility classes stylesheet by default:
 import '$routes/fuz.css';
 
 // then import Fuz Svelte components:

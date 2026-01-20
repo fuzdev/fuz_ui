@@ -35,7 +35,7 @@
 	</section>
 	<section>
 		<ul
-			class="display_flex flex_wrap_wrap justify_content_center gap_lg text_align_center unstyled"
+			class="display:flex flex-wrap:wrap justify-content:center gap_lg text-align:center unstyled"
 		>
 			<li>
 				<a href="https://www.fuz.dev/"><Svg data={logo_fuz} size="var(--icon_size_xl3)" /></a>

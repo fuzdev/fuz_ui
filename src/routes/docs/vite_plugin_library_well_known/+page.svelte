@@ -34,11 +34,10 @@
 		<TomeSectionHeader text="Setup" />
 		<p>1. Create <code>src/routes/library.gen.ts</code>:</p>
 		<Code
-			class="mb_lg"
+			lang="ts"
 			content={`import {library_gen} from '@fuzdev/fuz_ui/library_gen.js';
 
 export const gen = library_gen();`}
-			lang="ts"
 		/>
 		<p>
 			2. Run <code>gro gen</code> to generate <code>src/routes/library.json</code> (or run the dev server,
@@ -46,6 +45,7 @@ export const gen = library_gen();`}
 		</p>
 		<p>3. Add plugin to <code>vite.config.ts</code>:</p>
 		<Code
+			lang="ts"
 			content={`import {defineConfig} from 'vite';
 import {sveltekit} from '@sveltejs/kit/vite';
 import {vite_plugin_library_well_known} from '@fuzdev/fuz_ui/vite_plugin_library_well_known.js';
@@ -53,7 +53,6 @@ import {vite_plugin_library_well_known} from '@fuzdev/fuz_ui/vite_plugin_library
 export default defineConfig({
   plugins: [sveltekit(), vite_plugin_library_well_known()],
 });`}
-			lang="ts"
 		/>
 	</TomeSection>
 
@@ -79,10 +78,10 @@ export default defineConfig({
 			<code>library_path</code> option:
 		</p>
 		<Code
+			lang="ts"
 			content={`vite_plugin_library_well_known({
   library_path: './src/lib/library.json',
 })`}
-			lang="ts"
 		/>
 	</TomeSection>
 

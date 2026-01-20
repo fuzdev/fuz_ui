@@ -12,7 +12,7 @@
 	const format_json = (obj: unknown): string => JSON.stringify(obj, null, '\t');
 </script>
 
-<main class="p_xl mx_auto width_upto_md">
+<main class="p_xl mx_auto width_atmost_md">
 	<h1 class="mt_xl5" id="mdz-fixtures-debug">mdz fixtures debug</h1>
 	<p>
 		This page renders all of the test fixtures. See also the mdz <a href={resolve('/docs/mdz')}
@@ -26,10 +26,10 @@
 			<TomeSectionHeader text={fixture.name} />
 
 			<div class="mb_xl2">
-				<Code content={fixture.input} lang="md" />
+				<Code lang="md" content={fixture.input} />
 			</div>
 
-			<Mdz content={fixture.input} class="mb_lg" />
+			<Mdz content={fixture.input} />
 
 			<Details summary="JSON" open={false}>
 				<Code lang="json" content={format_json(fixture.expected)} />

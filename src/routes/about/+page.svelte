@@ -13,7 +13,7 @@
 	// TODO standardize
 </script>
 
-<main class="width_upto_md">
+<main class="width_atmost_md">
 	<section>
 		<header class="box">
 			<h1 class="mb_xl5" style:margin-top={MAIN_HEADER_MARGIN_TOP}>
@@ -23,8 +23,8 @@
 		<Breadcrumb><Svg data={logo_fuz} size="var(--icon_size_sm)" /></Breadcrumb>
 	</section>
 	<EcosystemLinksPanel />
-	<section class="box width_100 mb_lg">
-		<div class="panel p_md width_upto_md">
+	<section class="box width:100% mb_lg">
+		<div class="panel p_md width_atmost_md">
 			<LibraryDetail {library} />
 		</div>
 	</section>

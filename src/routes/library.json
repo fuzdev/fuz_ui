@@ -11,7 +11,7 @@
 	"published": true,
 	"package_json": {
 		"name": "@fuzdev/fuz_ui",
-		"version": "0.177.0",
+		"version": "0.179.0",
 		"description": "Svelte UI library",
 		"motto": "friendly user zystem",
 		"glyph": "🧶",
@@ -45,12 +45,11 @@
 			"node": ">=22.15"
 		},
 		"peerDependencies": {
-			"@fuzdev/fuz_code": ">=0.37.0",
-			"@fuzdev/fuz_css": ">=0.40.0",
-			"@fuzdev/fuz_util": ">=0.42.0",
-			"@fuzdev/svelte-docinfo": "file:../svelte-docinfo",
+			"@fuzdev/fuz_code": ">=0.40.0",
+			"@fuzdev/fuz_css": ">=0.44.1",
+			"@fuzdev/fuz_util": ">=0.45.3",
 			"@jridgewell/trace-mapping": "^0.3",
-			"@ryanatkn/gro": ">=0.183.0",
+			"@ryanatkn/gro": ">=0.186.0",
 			"@sveltejs/kit": "^2.47.3",
 			"esm-env": "^1",
 			"svelte": "^5",
@@ -73,17 +72,18 @@
 		},
 		"devDependencies": {
 			"@changesets/changelog-git": "^0.2.1",
-			"@fuzdev/fuz_code": "^0.38.0",
-			"@fuzdev/fuz_css": "^0.42.1",
-			"@fuzdev/fuz_util": "^0.45.1",
+			"@fuzdev/fuz_code": "^0.40.0",
+			"@fuzdev/fuz_css": "^0.44.1",
+			"@fuzdev/fuz_util": "^0.45.3",
 			"@jridgewell/trace-mapping": "^0.3.31",
 			"@ryanatkn/eslint-config": "^0.9.0",
-			"@ryanatkn/gro": "^0.183.0",
+			"@ryanatkn/gro": "^0.186.0",
 			"@sveltejs/adapter-static": "^3.0.10",
 			"@sveltejs/kit": "^2.49.1",
 			"@sveltejs/package": "^2.5.7",
 			"@sveltejs/vite-plugin-svelte": "^6.2.1",
 			"@types/node": "^24.10.1",
+			"@webref/css": "^8.2.0",
 			"eslint": "^9.39.1",
 			"eslint-plugin-svelte": "^3.13.1",
 			"esm-env": "^1.2.2",
@@ -135,7 +135,7 @@
 	},
 	"source_json": {
 		"name": "@fuzdev/fuz_ui",
-		"version": "0.177.0",
+		"version": "0.179.0",
 		"repository": "git+https://github.com/fuzdev/fuz_ui.git",
 		"modules": [
 			{
@@ -614,7 +614,7 @@
 					{
 						"name": "contextmenu_calculate_constrained_x",
 						"kind": "function",
-						"source_line": 53,
+						"source_line": 51,
 						"type_signature": "(menu_x: number, menu_width: number, layout_width: number): number",
 						"return_type": "number",
 						"parameters": [
@@ -635,7 +635,7 @@
 					{
 						"name": "contextmenu_calculate_constrained_y",
 						"kind": "function",
-						"source_line": 59,
+						"source_line": 57,
 						"type_signature": "(menu_y: number, menu_height: number, layout_height: number): number",
 						"return_type": "number",
 						"parameters": [
@@ -2159,6 +2159,12 @@
 							{
 								"name": "name",
 								"type": "string"
+							},
+							{
+								"name": "hash",
+								"type": "string",
+								"optional": true,
+								"description": "URL fragment to append, with or without the `#`."
 							}
 						],
 						"source_line": 1
@@ -2749,6 +2755,12 @@
 								"type": "string"
 							},
 							{
+								"name": "hash",
+								"type": "string",
+								"optional": true,
+								"description": "URL fragment to append, with or without the `#`."
+							},
+							{
 								"name": "display_text",
 								"type": "string | null",
 								"optional": true
@@ -3061,6 +3073,12 @@
 									"fuzdev/fuz_ui/blob/main/src/lib/Card.svelte",
 									"https://github.com/fuzdev/fuz_ui/issues/123"
 								]
+							},
+							{
+								"name": "hash",
+								"type": "string",
+								"optional": true,
+								"description": "URL fragment to append, with or without the `#`."
 							}
 						],
 						"source_line": 1
@@ -3949,6 +3967,12 @@
 							{
 								"name": "path",
 								"type": "string"
+							},
+							{
+								"name": "hash",
+								"type": "string",
+								"optional": true,
+								"description": "URL fragment to append, with or without the `#`."
 							}
 						],
 						"source_line": 1
@@ -4515,6 +4539,12 @@
 							{
 								"name": "module_path",
 								"type": "string"
+							},
+							{
+								"name": "hash",
+								"type": "string",
+								"optional": true,
+								"description": "URL fragment to append, with or without the `#`."
 							}
 						],
 						"source_line": 1
@@ -5362,13 +5392,14 @@
 					{
 						"name": "Tome",
 						"kind": "type",
-						"source_line": 8,
+						"source_line": 9,
 						"type_signature": "ZodObject<{ name: ZodString; category: ZodString; Component: ZodCustom<Component<any, any, string>, Component<any, any, string>>; related_tomes: ZodArray<...>; related_modules: ZodArray<...>; related_declarations: ZodArray<...>; }, $strip>"
 					},
 					{
 						"name": "to_tome_pathname",
 						"kind": "function",
-						"source_line": 19,
+						"doc_comment": "",
+						"source_line": 23,
 						"type_signature": "(item: string | { name: string; category: string; Component: Component<any, any, string>; related_tomes: string[]; related_modules: string[]; related_declarations: string[]; }, docs_path?: string, hash?: string | undefined): string",
 						"return_type": "string",
 						"parameters": [
@@ -5384,20 +5415,21 @@
 							{
 								"name": "hash",
 								"type": "string | undefined",
-								"optional": true
+								"optional": true,
+								"description": "URL fragment to append, with or without the `#`."
 							}
 						]
 					},
 					{
 						"name": "tomes_context",
 						"kind": "variable",
-						"source_line": 29,
+						"source_line": 33,
 						"type_signature": "{ get: (error_message?: string | undefined) => Map<string, { name: string; category: string; Component: Component<any, any, string>; related_tomes: string[]; related_modules: string[]; related_declarations: string[]; }>; get_maybe: () => Map<...> | undefined; set: (value: Map<...>) => Map<...>; }"
 					},
 					{
 						"name": "get_tome_by_name",
 						"kind": "function",
-						"source_line": 31,
+						"source_line": 35,
 						"type_signature": "(name: string): { name: string; category: string; Component: Component<any, any, string>; related_tomes: string[]; related_modules: string[]; related_declarations: string[]; }",
 						"return_type": "{ name: string; category: string; Component: Component<any, any, string>; related_tomes: string[]; related_modules: string[]; related_declarations: string[]; }",
 						"parameters": [
@@ -5410,7 +5442,7 @@
 					{
 						"name": "tome_context",
 						"kind": "variable",
-						"source_line": 38,
+						"source_line": 42,
 						"type_signature": "{ get: (error_message?: string | undefined) => { name: string; category: string; Component: Component<any, any, string>; related_tomes: string[]; related_modules: string[]; related_declarations: string[]; }; get_maybe: () => { ...; } | undefined; set: (value: { ...; }) => { ...; }; }"
 					}
 				],
@@ -5497,7 +5529,8 @@
 							{
 								"name": "hash",
 								"type": "string",
-								"optional": true
+								"optional": true,
+								"description": "URL fragment to append, with or without the `#`."
 							}
 						],
 						"source_line": 1
@@ -5594,6 +5627,12 @@
 							{
 								"name": "type",
 								"type": "string"
+							},
+							{
+								"name": "hash",
+								"type": "string",
+								"optional": true,
+								"description": "URL fragment to append, with or without the `#`."
 							}
 						],
 						"source_line": 1

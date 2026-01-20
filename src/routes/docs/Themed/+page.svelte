@@ -33,18 +33,18 @@
 	<section class="theme">
 		<p>
 			Fuz provides UI components that use <a href="https://css.fuz.dev/docs/themes"
-				>Fuz CSS' theming system</a
+				>fuz_css' theming system</a
 			> for dark mode and custom themes.
 		</p>
 		<p>
 			<code>Themed</code> adds global support for both the browser's
 			<MdnLink path="Web/CSS/color-scheme" />
 			and custom themes based on
-			<a href="https://css.fuz.dev/docs/variables">Fuz CSS style variables</a>, which use
+			<a href="https://css.fuz.dev/docs/variables">fuz_css style variables</a>, which use
 			<MdnLink path="Web/CSS/--*">CSS custom properties</MdnLink>.
 			<code>Themed</code> is a singleton component that's mounted at the top-level of the page:
 		</p>
-		<Code content={`import Themed from '@fuzdev/fuz_ui/Themed.svelte';`} lang="ts" />
+		<Code lang="ts" content={`import Themed from '@fuzdev/fuz_ui/Themed.svelte';`} />
 		<Code content={`<!-- +layout.svelte -->\n<Themed>\n\t{@render children()}\n</Themed>`} />
 		<Details>
 			{#snippet summary()}Why the singleton?{/snippet}
@@ -112,8 +112,8 @@
 			<ColorSchemeInput />
 		</div>
 		<Code
-			content={`import ColorSchemeInput from '@fuzdev/fuz_ui/ColorSchemeInput.svelte';`}
 			lang="ts"
+			content={`import ColorSchemeInput from '@fuzdev/fuz_ui/ColorSchemeInput.svelte';`}
 		/>
 		<Code content="<ColorSchemeInput />" />
 		<p>Pass props to override the default:</p>
@@ -148,13 +148,13 @@
 		<TomeSectionHeader text="Builtin themes" />
 		<p>
 			A theme is a simple JSON collection of <a href="https://css.fuz.dev/docs/variables"
-				>Fuz CSS style variables</a
+				>fuz_css style variables</a
 			> that can be transformed into CSS that set custom properties. Each variable can have values for
 			light and/or dark color schemes. In other words, "dark" isn't a theme, it's a mode that any theme
 			can implement.
 		</p>
 		<!-- TODO explain when exported <Code code={`<ThemeInput\n\t{themes}\n\t{selected_theme}\n/>`} /> -->
-		<div class="width_upto_sm mb_lg">
+		<div class="width_atmost_sm mb_lg">
 			<ThemeInput {themes} enable_editing onedit={(t) => (editing_theme = t)} />
 		</div>
 		<!-- <button class="mb_lg" onclick={() => (show_create_theme_dialog = true)} disabled
@@ -195,8 +195,8 @@
 			<code>themer</code>:
 		</p>
 		<Code
-			content={`import {Themer} from '@fuzdev/fuz_ui/themer.svelte.js';\nconst themer = new Themer(...);`}
 			lang="ts"
+			content={`import {Themer} from '@fuzdev/fuz_ui/themer.svelte.js';\nconst themer = new Themer(...);`}
 		/>
 		<Code
 			content={`<Themed {themer}>
@@ -211,13 +211,13 @@
 			<code>Themed</code> sets the <code>themer</code> in the Svelte context:
 		</p>
 		<Code
+			lang="ts"
 			content={`// get values from the Svelte context provided by
 // the nearest \`Themed\` ancestor:
 import {themer_context} from '@fuzdev/fuz_ui/themer.svelte.js';
 const themer = themer_context.get();
 themer.theme.name; // '${themer.theme.name}'
 themer.color_scheme; // '${themer.color_scheme}'`}
-			lang="ts"
 		/>
 		<p>
 			For a more complete example, see <a href="https://github.com/fuzdev/fuz_template"
@@ -255,7 +255,7 @@ themer.color_scheme; // '${themer.color_scheme}'`}
 <!-- TODO enable creating themes -->
 <!-- {#if show_create_theme_dialog}
 	<Dialog onclose={() => (show_create_theme_dialog = false)} let:close>
-		<div class="pane p_md width_upto_md mx_auto">
+		<div class="pane p_md width_atmost_md mx_auto">
 			<div class="theme_editor_wrapper panel">
 				<ThemeForm
 					oncreate={(theme) => {
@@ -269,7 +269,7 @@ themer.color_scheme; // '${themer.color_scheme}'`}
 {/if} -->
 {#if editing_theme}
 	<Dialog onclose={() => (editing_theme = null)}>
-		<div class="pane p_md width_upto_md mx_auto">
+		<div class="pane p_md width_atmost_md mx_auto">
 			<div class="theme_editor_wrapper panel">
 				<ThemeForm
 					theme={editing_theme}

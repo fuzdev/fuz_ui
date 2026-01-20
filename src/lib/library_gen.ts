@@ -157,6 +157,7 @@ export const library_collect_source_files_from_disknodes = (
  */
 export const library_gen = (options?: LibraryGenOptions): Gen => {
 	return {
+		dependencies: 'all',
 		generate: async ({log, filer}) => {
 			log.info('generating library metadata with full TypeScript analysis...');
 

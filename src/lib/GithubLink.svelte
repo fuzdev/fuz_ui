@@ -1,5 +1,5 @@
 <script lang="ts">
-	import {strip_start} from '@fuzdev/fuz_util/string.js';
+	import {ensure_start, strip_start} from '@fuzdev/fuz_util/string.js';
 	import type {SvelteHTMLElements} from 'svelte/elements';
 	import {DEV} from 'esm-env';
 
@@ -8,6 +8,7 @@
 
 	const {
 		path,
+		hash,
 		href: href_prop,
 		children,
 		...rest
@@ -19,6 +20,8 @@
 		 * @example https://github.com/fuzdev/fuz_ui/issues/123
 		 */
 		path?: string;
+		/** URL fragment to append, with or without the `#`. */
+		hash?: string;
 	} = $props();
 
 	if (DEV) {
@@ -30,12 +33,12 @@
 	}
 
 	const href = $derived(
-		href_prop ??
+		(href_prop ??
 			(path
 				? path.startsWith('https://')
 					? path
 					: `https://github.com/${strip_start(path, '/')}`
-				: ''),
+				: '')) + (hash ? ensure_start(hash, '#') : ''),
 	);
 
 	// extract meaningful display text from the path
@@ -63,8 +66,8 @@
 
 <!-- TODO -next-line doesnt work? -->
 <!-- eslint-disable svelte/no-navigation-without-resolve -->
-<a {...rest} {href} class="github_link white_space_nowrap {rest.class}" rel="noopener"
-	><Svg data={logo_github} inline size="var(--icon_size_xs)" class="mx_xs3 vertical_align_middle" />
+<a {...rest} {href} class="github_link white-space:nowrap {rest.class}" rel="noopener"
+	><Svg data={logo_github} inline size="var(--icon_size_xs)" class="mx_xs3 vertical-align:middle" />
 	{#if typeof final_children === 'string'}
 		<span class="font_family_mono">{final_children}</span>
 	{:else if final_children}

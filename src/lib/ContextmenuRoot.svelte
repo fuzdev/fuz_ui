@@ -267,8 +267,8 @@
 		}
 	};
 
-	const keyboard_handlers = contextmenu_create_keyboard_handlers(contextmenu);
-	const keydown = contextmenu_create_keydown_handler(keyboard_handlers);
+	const keyboard_handlers = $derived(contextmenu_create_keyboard_handlers(contextmenu));
+	const keydown = $derived(contextmenu_create_keydown_handler(keyboard_handlers));
 </script>
 
 <svelte:window

@@ -67,7 +67,7 @@
 			<p>Possible changes?</p>
 			<ul>
 				<li>
-					allow ending lines with <code class="white_space_pre"> \</code> to opt out of rendering the
+					allow ending lines with <code class="white-space:pre"> \</code> to opt out of rendering the
 					line break?
 				</li>
 				<li>loosen/tighten some restrictions like requiring blank newline separators?</li>
@@ -77,17 +77,17 @@
 
 	<TomeSection>
 		<TomeSectionHeader text="Usage" />
-		<Mdz content="import `Mdz` from `mdz.ts`:" class="mb_lg" />
-		<Code content="import Mdz from '@fuzdev/fuz_ui/Mdz.svelte';" lang="ts" />
+		<Mdz content="import `Mdz` from `mdz.ts`:" />
+		<Code lang="ts" content="import Mdz from '@fuzdev/fuz_ui/Mdz.svelte';" />
 	</TomeSection>
 
 	<TomeSection>
 		<TomeSectionHeader text="Basic formatting" />
 		<p>Supports <strong>bold</strong>, <em>italic</em>, and strikethrough:</p>
-		<Code content={`<Mdz content="${basic_example}" />`} class="mb_lg" />
+		<Code content={`<Mdz content="${basic_example}" />`} />
 		<Mdz content={basic_example} class="mb_xl5" />
 		<p>All inline formatting can nest:</p>
-		<Code content={`<Mdz content="${nesting_example}" />`} class="mb_lg" />
+		<Code content={`<Mdz content="${nesting_example}" />`} />
 		<Mdz content={nesting_example} class="mb_xl5" />
 	</TomeSection>
 
@@ -97,9 +97,9 @@
 			mdz preserves and renders all whitespace exactly as written, minimizing surprise for
 			nontechnical users:
 		</p>
-		<Code content={`<Mdz content="${whitespace_example}" />`} class="mb_lg" />
+		<Code content={`<Mdz content="${whitespace_example}" />`} />
 		<div class="mb_lg" bind:this={whitespace_example_el}>
-			<Mdz content={whitespace_example} class="mb_xl5" />
+			<Mdz content={whitespace_example} />
 		</div>
 		<button
 			type="button"
@@ -118,13 +118,13 @@
 	<TomeSection>
 		<TomeSectionHeader text="Line breaks and paragraphs" />
 		<p>Single newlines create line breaks:</p>
-		<Code content={linebreak_example} class="mb_lg" />
+		<Code content={linebreak_example} />
 		<Mdz content={linebreak_example} class="mb_xl5" />
 		<p>Double newlines create paragraph breaks:</p>
-		<Code content={paragraph_example} class="mb_lg" />
+		<Code content={paragraph_example} />
 		<Mdz content={paragraph_example} class="mb_xl5" />
 		<p>Triple newlines create paragraphs with a blank line between:</p>
-		<Code content={triple_linebreak_example} class="mb_lg" />
+		<Code content={triple_linebreak_example} />
 		<Mdz content={triple_linebreak_example} class="mb_xl5" />
 	</TomeSection>
 
@@ -135,17 +135,17 @@
 			rule. Must be separated from other content by blank lines (paragraph breaks), except at
 			document start/end:
 		</p>
-		<Code content={hr_example} class="mb_lg" />
+		<Code content={hr_example} />
 		<Mdz content={hr_example} class="mb_xl5" />
 	</TomeSection>
 
 	<TomeSection>
 		<TomeSectionHeader text="Inline code auto-linking" />
 		<p>Backtick code automatically links to identifiers and modules:</p>
-		<Code content={code_example} class="mb_lg" />
+		<Code content={code_example} />
 		<Mdz content={code_example} class="mb_xl5" />
 		<p>Non-identifiers become plain code elements:</p>
-		<Code content={code_plain_example} class="mb_lg" />
+		<Code content={code_plain_example} />
 		<Mdz content={code_plain_example} class="mb_xl5" />
 	</TomeSection>
 
@@ -160,7 +160,7 @@
 			</li>
 			<li>internal paths starting with <code>/</code></li>
 		</ul>
-		<Code content={link_external_example} class="mb_lg" />
+		<Code content={link_external_example} />
 		<Mdz content={link_external_example} class="mb_xl5" />
 		<p>
 			<strong>Note:</strong> Relative paths (<code>./</code>, <code>../</code>) are not supported
@@ -177,12 +177,13 @@
 	<TomeSection>
 		<TomeSectionHeader text="HTML elements" />
 		<p>mdz supports an opt-in set of HTML elements for semantic markup and styling.</p>
-		<Code content={element_aside_example} class="mb_lg" />
+		<Code content={element_aside_example} />
 		<Mdz content={element_aside_example} class="mb_xl5" />
-		<Code content={element_marquee_example} class="mb_lg" />
+		<Code content={element_marquee_example} />
 		<Mdz content={element_marquee_example} class="mb_xl5" />
 		<p>Elements must be registered:</p>
 		<Code
+			lang="ts"
 			content={`import {mdz_elements_context} from '@fuzdev/fuz_ui/mdz_components.js';
 
 mdz_elements_context.set(new Map([
@@ -190,8 +191,6 @@ mdz_elements_context.set(new Map([
 	['aside', true],
 	['marquee', true],
 ]));`}
-			lang="ts"
-			class="mb_lg"
 		/>
 		<p>
 			Unregistered elements render as <Mdz content="<tag-name />" inline /> placeholders for security.
@@ -204,18 +203,17 @@ mdz_elements_context.set(new Map([
 			mdz supports Svelte components to a minimal (and possibly expanding) degree. Components are
 			distinguished from HTML elements by their uppercase first letter:
 		</p>
-		<Code content={component_example} class="mb_lg" />
+		<Code content={component_example} />
 		<Mdz content={component_example} class="mb_xl5" />
 		<p>Components must be registered:</p>
 		<Code
+			lang="ts"
 			content={`import {mdz_components_context} from '@fuzdev/fuz_ui/mdz_components.js';
 import Alert from '@fuzdev/fuz_ui/Alert.svelte';
 
 mdz_components_context.set(new Map([
 	['Alert', Alert],
 ]));`}
-			lang="ts"
-			class="mb_lg"
 		/>
 		<p>
 			Unregistered components render as <Mdz content="<ComponentName />" inline />
@@ -239,25 +237,23 @@ import MdzNodeView from '@fuzdev/fuz_ui/MdzNodeView.svelte';
 
 const nodes = mdz_parse(content);`}
 			lang="ts"
-			class="mb_lg"
 		/>
 		<Code
-			content={`<div class="custom white_space_pre_wrap">
+			content={`<div class="custom white-space:pre-wrap">
 	{#each nodes as node}
 		<MdzNodeView {node} />
 	{/each}
 </div>`}
-			class="mb_lg"
 		/>
 		<p>
-			For example you may want <code>white_space_pre</code> to avoid wrapping in some circumstances.
+			For example you may want <code>white-space:pre</code> to avoid wrapping in some circumstances.
 		</p>
 	</TomeSection>
 
 	<TomeSection>
 		<TomeSectionHeader text="Headings" />
 		<p>Use 1-6 hashes followed by a space:</p>
-		<Code content={heading_example} class="mb_lg" />
+		<Code content={heading_example} />
 		<Mdz content={heading_example} class="mb_xl5" />
 		<p>
 			Must start at column 0, have a space after hashes, and be followed by a blank line or EOF.
@@ -268,7 +264,7 @@ const nodes = mdz_parse(content);`}
 	<TomeSection>
 		<TomeSectionHeader text="Code blocks" />
 		<p>Use three or more backticks with optional language hint:</p>
-		<Code content={code_block_example} class="mb_lg" />
+		<Code content={code_block_example} />
 		<Mdz content={code_block_example} class="mb_xl5" />
 		<p>
 			Must start at column 0, closing fence must match opening length, and be followed by a blank

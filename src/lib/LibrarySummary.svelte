@@ -65,7 +65,7 @@
 		{#if description}
 			{@render description(package_json.description, package_json.glyph)}
 		{:else}
-			<p class="text_align_center">
+			<p class="text-align:center">
 				{package_json.description}
 				{#if !package_json.motto}
 					{package_json.glyph}

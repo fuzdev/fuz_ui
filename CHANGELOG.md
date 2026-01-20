@@ -1,5 +1,35 @@
 # @fuzdev/fuz_ui
 
+## 0.179.0
+
+### Minor Changes
+
+- upgrade fuz_code ([c9fbada](https://github.com/fuzdev/fuz_ui/commit/c9fbada))
+
+## 0.178.2
+
+### Patch Changes
+
+- bump peer deps ([fd85d56](https://github.com/fuzdev/fuz_ui/commit/fd85d56))
+
+## 0.178.1
+
+### Patch Changes
+
+- bump peer deps ([eb20da6](https://github.com/fuzdev/fuz_ui/commit/eb20da6))
+
+## 0.178.0
+
+### Minor Changes
+
+- upgrade fuz_css ([#108](https://github.com/fuzdev/fuz_ui/pull/108))
+
+## 0.177.1
+
+### Patch Changes
+
+- add `fragment` to link component props ([#109](https://github.com/fuzdev/fuz_ui/pull/109))
+
 ## 0.177.0
 
 ### Minor Changes

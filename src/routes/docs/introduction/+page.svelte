@@ -10,7 +10,7 @@
 <TomeContent {tome}>
 	<section>
 		<p>
-			Fuz UI is a Svelte UI library that builds on <a href="https://css.fuz.dev/">Fuz CSS</a>. It's
+			fuz_ui is a Svelte UI library that builds on <a href="https://css.fuz.dev/">fuz_css</a>. It's
 			in early alpha with breaking changes ahead.
 		</p>
 	</section>

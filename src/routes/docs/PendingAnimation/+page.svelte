@@ -31,8 +31,8 @@
 	<section>
 		<!-- TODO make this a generic data-driven helper -->
 		<Code
-			content={`import PendingAnimation from '@fuzdev/fuz_ui/PendingAnimation.svelte';`}
 			lang="ts"
+			content={`import PendingAnimation from '@fuzdev/fuz_ui/PendingAnimation.svelte';`}
 		/>
 		<Code content={`<PendingAnimation${to_boolean_attr('running', running)} />`} />
 		<PendingAnimation {running} />

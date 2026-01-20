@@ -15,10 +15,15 @@
 	}: SvelteHTMLElements['a'] & {
 		name: string; // TODO type, generate from `tomes`?
 		docs_path?: string;
+		/** URL fragment to append, with or without the `#`. */
 		hash?: string;
 	} = $props();
 
-	if (DEV) get_tome_by_name(name); // throws if not found
+	if (DEV) {
+		$effect(() => {
+			get_tome_by_name(name); // throws if not found
+		});
+	}
 
 	// TODO add contextmenu behavior
 </script>

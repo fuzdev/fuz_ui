@@ -24,7 +24,7 @@
 		children?: Snippet;
 	} = $props();
 
-	const fragment = docs_slugify(text);
+	const fragment = $derived(docs_slugify(text));
 
 	const register_section_header = register_section_header_context.get();
 	if (!register_section_header) {
@@ -35,7 +35,7 @@
 
 	// Auto-detect tag based on depth if not explicitly provided
 	const depth = section_depth_context.get();
-	const final_tag = tag ?? (depth === 1 ? 'h2' : depth === 2 ? 'h3' : 'h4');
+	const final_tag = $derived(tag ?? (depth === 1 ? 'h2' : depth === 2 ? 'h3' : 'h4'));
 
 	// Get own section's ID from context
 	const my_section_id = section_id_context.get();
@@ -65,7 +65,7 @@
 
 <header>
 	<svelte:element this={final_tag} {...rest} class:tome_section_header={true}>
-		<div class="flex_1">
+		<div class="flex:1">
 			{#if children}
 				{@render children()}
 			{:else}

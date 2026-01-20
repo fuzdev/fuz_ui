@@ -18,9 +18,9 @@
 <TomeContent {tome}>
 	<section>
 		<!-- TODO make this a generic data-driven helper -->
-		<Code content={`import Svg from '@fuzdev/fuz_ui/Svg.svelte';`} lang="ts" />
+		<Code lang="ts" content={`import Svg from '@fuzdev/fuz_ui/Svg.svelte';`} />
 		<Code content={`<Svg data={logo_fuz} />`} />
-		<aside class="mt_lg">
+		<aside>
 			⚠️ <DeclarationLink name="Svg" /> currently uses <code>@html</code> but for security should not.
 		</aside>
 		<p>Fills available space by default:</p>
@@ -30,7 +30,7 @@
 		<TomeSectionHeader text="With custom size" />
 		<p>
 			Set <code>size</code>: (see the
-			<a href="https://css.fuz.dev/docs/typography#font-sizes">Fuz CSS typography docs</a>)
+			<a href="https://css.fuz.dev/docs/typography#font-sizes">fuz_css typography docs</a>)
 		</p>
 		<Code content={`<Svg data={logo_fuz} size="var(--icon_size_xl)" />`} />
 		<p><Svg data={logo_fuz} size="var(--icon_size_xl)" /></p>
@@ -48,14 +48,14 @@
 		<TomeSectionHeader text="With custom color" />
 		<p>
 			Set <code>fill</code>: (see the
-			<a href="https://css.fuz.dev/docs/colors#color-variables">Fuz CSS colors docs</a>)
+			<a href="https://css.fuz.dev/docs/colors#color-variables">fuz_css colors docs</a>)
 		</p>
 		<Code content={`<Svg data={logo_fuz} fill="var(--color_d_5)" />`} />
-		<p class="width_upto_sm">
+		<p class="width_atmost_sm">
 			<Svg data={logo_fuz} fill="var(--color_d_5)" />
 		</p>
 		<Code content={`<Svg data={logo_fuz} fill="var(--color_b_5)" />`} />
-		<p class="width_upto_sm">
+		<p class="width_atmost_sm">
 			<Svg data={logo_fuz} fill="var(--color_b_5)" />
 		</p>
 		<p>
@@ -64,7 +64,7 @@
 		<Code
 			content={`<span style:--text_color="var(--color_i_5)"><Svg data={logo_github} /></span>`}
 		/>
-		<p class="width_upto_sm">
+		<p class="width_atmost_sm">
 			<span style:--text_color="var(--color_i_5)"><Svg data={logo_github} /></span>
 		</p>
 	</TomeSection>

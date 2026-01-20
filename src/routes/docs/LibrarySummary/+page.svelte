@@ -23,8 +23,8 @@
 			> features.
 		</p>
 		<Code
-			content={`import LibrarySummary from '@fuzdev/fuz_ui/LibrarySummary.svelte';`}
 			lang="ts"
+			content={`import LibrarySummary from '@fuzdev/fuz_ui/LibrarySummary.svelte';`}
 		/>
 		<Code content={`<LibrarySummary {library} />`} />
 	</section>
