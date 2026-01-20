@@ -3,7 +3,7 @@
 	import GithubLink from '$lib/GithubLink.svelte';
 </script>
 
-<div class="width_upto_md m_auto">
+<div class="width_atmost_md m_auto">
 	<Alert status="help">todo</Alert>
 	<div>
 		<GithubLink path="fuzdev/fuz_ui/issues" />

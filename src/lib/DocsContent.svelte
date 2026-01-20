@@ -22,7 +22,7 @@
 	} = $props();
 </script>
 
-<div {...rest} class="width_upto_md {rest.class}">
+<div {...rest} class="width_atmost_md {rest.class}">
 	{#if header}
 		{@render header()}
 	{:else}

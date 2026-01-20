@@ -51,11 +51,11 @@
 			<a href="https://css.fuz.dev/docs/colors#color-variables">fuz_css colors docs</a>)
 		</p>
 		<Code content={`<Svg data={logo_fuz} fill="var(--color_d_5)" />`} />
-		<p class="width_upto_sm">
+		<p class="width_atmost_sm">
 			<Svg data={logo_fuz} fill="var(--color_d_5)" />
 		</p>
 		<Code content={`<Svg data={logo_fuz} fill="var(--color_b_5)" />`} />
-		<p class="width_upto_sm">
+		<p class="width_atmost_sm">
 			<Svg data={logo_fuz} fill="var(--color_b_5)" />
 		</p>
 		<p>
@@ -64,7 +64,7 @@
 		<Code
 			content={`<span style:--text_color="var(--color_i_5)"><Svg data={logo_github} /></span>`}
 		/>
-		<p class="width_upto_sm">
+		<p class="width_atmost_sm">
 			<span style:--text_color="var(--color_i_5)"><Svg data={logo_github} /></span>
 		</p>
 	</TomeSection>
