@@ -1,5 +1,11 @@
 # @fuzdev/fuz_ui
 
+## 0.179.0
+
+### Minor Changes
+
+- upgrade fuz_code ([c9fbada](https://github.com/fuzdev/fuz_ui/commit/c9fbada))
+
 ## 0.178.2
 
 ### Patch Changes
