@@ -1,5 +1,11 @@
 # @fuzdev/fuz_ui
 
+## 0.178.2
+
+### Patch Changes
+
+- bump peer deps ([fd85d56](https://github.com/fuzdev/fuz_ui/commit/fd85d56))
+
 ## 0.178.1
 
 ### Patch Changes
