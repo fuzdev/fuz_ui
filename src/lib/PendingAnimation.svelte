@@ -21,7 +21,9 @@
 
 <span
 	{...rest}
-	class="pending_animation {rest.class} {inline ? 'display:inline-flex align-items:center' : 'display:flex'}"
+	class="pending_animation {rest.class} {inline
+		? 'display:inline-flex align-items:center'
+		: 'display:flex'}"
 	class:running
 	><span {...item_attrs} style:animation-delay="0s"
 		>{#if children}{@render children(0)}{:else}•{/if}</span

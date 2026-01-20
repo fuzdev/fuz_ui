@@ -73,7 +73,8 @@
 	<header>
 		<div class="flex:1">
 			<p>variables: {light_count} light, {dark_count} dark</p>
-			<button type="button" class="width:100%" onclick={add_variable} disabled>add a variable</button
+			<button type="button" class="width:100%" onclick={add_variable} disabled
+				>add a variable</button
 			>
 		</div>
 		<fieldset class="flex:1">
