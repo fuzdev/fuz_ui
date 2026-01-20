@@ -46,8 +46,8 @@
 		},
 		"peerDependencies": {
 			"@fuzdev/fuz_code": ">=0.37.0",
-			"@fuzdev/fuz_css": ">=0.40.0",
-			"@fuzdev/fuz_util": ">=0.42.0",
+			"@fuzdev/fuz_css": ">=0.44.0",
+			"@fuzdev/fuz_util": ">=0.45.3",
 			"@jridgewell/trace-mapping": "^0.3",
 			"@ryanatkn/gro": ">=0.183.0",
 			"@sveltejs/kit": "^2.47.3",
