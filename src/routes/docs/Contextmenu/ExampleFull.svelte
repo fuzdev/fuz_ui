@@ -231,12 +231,12 @@
 <style>
 	.position {
 		border-radius: var(--border_radius_md);
-		background-color: var(--fg_1);
+		background-color: var(--shade_10);
 		display: flex;
 		border: transparent var(--border_width_4) double;
 	}
 	.position:hover {
-		border-color: var(--border_color_1);
+		border-color: var(--shade_10);
 	}
 	.position .icon {
 		font-size: var(--icon_size_xl);

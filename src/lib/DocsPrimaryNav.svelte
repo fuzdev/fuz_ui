@@ -47,7 +47,7 @@
 		position: sticky;
 		top: 0;
 		z-index: 10;
-		background-color: var(--bg);
+		background-color: var(--surface);
 		height: var(--docs_primary_nav_height);
 		transition: box-shadow var(--duration_2);
 		box-shadow: none;
@@ -63,7 +63,7 @@
 		z-index: -1;
 		width: 100%;
 		height: 100%;
-		background-color: var(--fg_1);
+		background-color: var(--shade_10);
 	}
 
 	.content {

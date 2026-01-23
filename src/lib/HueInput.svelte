@@ -79,7 +79,7 @@
 		flex-direction: row;
 		align-items: center;
 		font-weight: 700;
-		color: var(--bg);
+		color: var(--surface);
 		padding-left: var(--space_xl);
 		border-top-left-radius: var(--border_radius, var(--border_radius_md));
 		border-top-right-radius: var(--border_radius, var(--border_radius_md));
@@ -121,6 +121,6 @@
 		border-radius: var(--border_radius, var(--border_radius_md));
 		/* TODO why is this necessary? */
 		height: var(--input_height);
-		color: var(--bg);
+		color: var(--surface);
 	}
 </style>

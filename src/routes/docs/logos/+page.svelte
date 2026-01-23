@@ -104,7 +104,7 @@
 
 	a {
 		display: block;
-		--text_color: var(--text_color_1);
+		--text_color: var(--text_90);
 		margin-bottom: var(--space_lg);
 	}
 </style>

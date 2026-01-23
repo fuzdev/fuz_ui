@@ -187,38 +187,14 @@ a.chip {
 	font-size: var(--font_size_xl5);
 	--font_size: var(--font_size_xl5);
 }
-.text_color_3 {
-	color: var(--text_color_3);
-}
-.bg {
-	background-color: var(--bg);
-}
-.color_a_5 {
-	color: var(--color_a_5);
-}
-.color_b_5 {
-	color: var(--color_b_5);
-}
-.color_c_5 {
-	color: var(--color_c_5);
-}
 .color_d_5 {
 	color: var(--color_d_5);
 }
 .color_e_5 {
 	color: var(--color_e_5);
 }
-.color_f_5 {
-	color: var(--color_f_5);
-}
 .color_g_5 {
 	color: var(--color_g_5);
-}
-.color_h_5 {
-	color: var(--color_h_5);
-}
-.color_j_5 {
-	color: var(--color_j_5);
 }
 .border_radius_sm {
 	border-radius: var(--border_radius_sm);

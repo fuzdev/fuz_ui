@@ -177,7 +177,7 @@
 	}
 
 	.dialog_wrapper {
-		position: relative; /* for the bg */
+		position: relative; /* for the surface */
 		min-height: 100%;
 		display: flex;
 		align-items: center;
@@ -193,7 +193,7 @@
 		z-index: 0;
 		opacity: 0;
 		transition: opacity var(--duration_3) ease;
-		background-color: var(--dialog_bg, var(--darken_6));
+		background-color: var(--dialog_bg, hsla(0 0% 0% / 65%));
 	}
 	.ready .dialog_bg {
 		opacity: 1;
