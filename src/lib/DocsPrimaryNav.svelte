@@ -47,7 +47,7 @@
 		position: sticky;
 		top: 0;
 		z-index: 10;
-		background-color: var(--surface);
+		background-color: var(--shade_00);
 		height: var(--docs_primary_nav_height);
 		transition: box-shadow var(--duration_2);
 		box-shadow: none;

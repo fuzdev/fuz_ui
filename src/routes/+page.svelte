@@ -19,9 +19,9 @@
 		<section class="box">
 			<h1 class="mb_sm" style:margin-top={MAIN_HEADER_MARGIN_TOP}>fuz_ui</h1>
 			<div class="box mb_lg"><Svg data={logo_fuz_ui} size="var(--icon_size_xl2)" /></div>
-			<blockquote class="shadow_bottom_sm px_xl surface">friendly user zystem 🧶</blockquote>
+			<blockquote class="shadow_bottom_sm px_xl shade_00">friendly user zystem 🧶</blockquote>
 			<div class="mb_lg p_xs2 shadow_md border_radius_sm">
-				<div class="width_atmost_sm panel p_lg shadow_inset_xs surface">
+				<div class="width_atmost_sm panel p_lg shadow_inset_xs shade_00">
 					<p>
 						fuz_ui is a Svelte UI library with components and helpers for making zippy websites. It
 						builds on <a href="https://css.fuz.dev/">fuz_css</a>, which is based on CSS custom

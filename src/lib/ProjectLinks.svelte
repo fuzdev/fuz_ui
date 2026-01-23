@@ -44,7 +44,7 @@
 
 {#snippet package_thumbnail(project_item: ProjectItem)}
 	<!-- eslint-disable-next-line svelte/no-navigation-without-resolve -->
-	<a class="thumbnail row surface px_md py_xs border_radius_sm mb_lg" href={project_item.url}
+	<a class="thumbnail row shade_00 px_md py_xs border_radius_sm mb_lg" href={project_item.url}
 		><Svg shrink={false} data={project_item.logo} size="var(--icon_size_lg)" />
 		<div class="pl_lg width_atmost_sm">
 			<div class="thumbnail_name {project_item.color_class}">{project_item.name}</div>
