@@ -31,7 +31,7 @@
 
 <div class="library_summary">
 	<!-- TODO maybe continue this snippet pattern, or maybe simplify? -->
-	<header class="box">
+	<header class="box mb_lg">
 		{#if repo_name}
 			{@render repo_name(library.repo_name)}
 		{:else}
@@ -55,10 +55,10 @@
 		{#if motto}
 			{@render motto(package_json.motto, package_json.glyph)}
 		{:else}
-			<blockquote class="px_xl">
+			<p class="panel py_md px_xl">
 				{package_json.motto}
 				{package_json.glyph}
-			</blockquote>
+			</p>
 		{/if}
 	{/if}
 	{#if package_json.description}
@@ -78,7 +78,7 @@
 		{#if homepage_url}
 			{@render homepage_url(library.homepage_url)}
 		{:else}
-			<div class="homepage_url">
+			<div class="mb_lg">
 				<!-- eslint-disable svelte/no-navigation-without-resolve -->
 				<a
 					class="chip"
@@ -89,7 +89,7 @@
 			</div>
 		{/if}
 	{/if}
-	<div class="links">
+	<p class="display:flex gap_xs2">
 		{#if library.repo_url}
 			<!-- eslint-disable-next-line svelte/no-navigation-without-resolve -->
 			<a class="chip" href={library.repo_url}>repo</a>
@@ -102,12 +102,14 @@
 			<!-- eslint-disable-next-line svelte/no-navigation-without-resolve -->
 			<a class="chip" href={library.npm_url}>npm</a>
 		{/if}
-	</div>
+	</p>
 	{#if library.npm_url}
 		{#if npm_url}
 			{@render npm_url(library.npm_url)}
 		{:else}
-			<blockquote class="npm_url">npm i -D {package_json.name}</blockquote>
+			<p class="panel py_md px_xl font_family_mono text-align:center">
+				npm i -D {package_json.name}
+			</p>
 		{/if}
 	{/if}
 	<!-- TODO more details behind a `<details>`, including author -->
@@ -123,29 +125,11 @@
 		align-items: center;
 		max-width: var(--max_width, var(--distance_sm));
 	}
-	header {
-		margin-bottom: var(--space_lg);
-	}
-	.links {
-		display: flex;
-		margin-bottom: var(--space_lg);
-	}
-	.homepage_url {
-		margin-bottom: var(--space_lg);
-	}
 	.repo_name {
 		font-family: var(--font_family_serif);
 		font-size: var(--font_size_xl2);
 		font-weight: 400;
 		text-align: center;
 		margin-bottom: var(--space_lg);
-	}
-	.npm_url {
-		font-family: var(--font_family_mono);
-		text-align: center;
-	}
-	.chip {
-		margin-left: var(--space_xs2);
-		margin-right: var(--space_xs2);
 	}
 </style>

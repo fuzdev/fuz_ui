@@ -236,7 +236,7 @@
 		border: transparent var(--border_width_4) double;
 	}
 	.position:hover {
-		border-color: var(--shade_10);
+		border-color: var(--border_color_10);
 	}
 	.position .icon {
 		font-size: var(--icon_size_xl);

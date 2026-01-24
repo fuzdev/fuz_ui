@@ -33,12 +33,12 @@
 
 	/* TODO should be fixed upstream in fuz_css */
 	.docs_list :global(a.highlighted) {
-		background-color: var(--shade_40);
+		background-color: var(--fg_10);
 	}
 	.docs_list :global(a:hover) {
-		background-color: var(--shade_50);
+		background-color: var(--fg_10);
 	}
 	.docs_list :global(a:is(:active, .selected)) {
-		background-color: var(--shade_70);
+		background-color: var(--fg_20);
 	}
 </style>

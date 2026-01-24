@@ -33,7 +33,7 @@
 		border: transparent var(--border_width_4) double;
 	}
 	.cat:hover {
-		border-color: var(--shade_20);
+		border-color: var(--border_color_20);
 	}
 	.name {
 		font-weight: 700;
