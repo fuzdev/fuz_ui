@@ -2,10 +2,9 @@
 	import {page} from '$app/state';
 	import type {SvelteHTMLElements} from 'svelte/elements';
 
-	import DocsModulesList from './DocsModulesList.svelte';
 	import DocsPageLinks from './DocsPageLinks.svelte';
 	import {to_tome_pathname, Tome} from './tome.js';
-	import {docs_links_context, DOCS_API_PATH} from './docs_helpers.svelte.js';
+	import {docs_links_context} from './docs_helpers.svelte.js';
 	import {library_context} from './library.svelte.js';
 	import TomeLink from './TomeLink.svelte';
 	import ModuleLink from './ModuleLink.svelte';
@@ -47,18 +46,12 @@
 	const docs_links = docs_links_context.get();
 
 	const should_show_page_links = $derived(docs_links.docs_links.length > 0);
-
-	const at_api_root = $derived(page.url.pathname === DOCS_API_PATH);
-	const at_module = $derived(page.url.pathname.startsWith(DOCS_API_PATH + '/'));
 </script>
 
 <!-- TODO probably add a `nav` wrapper? around which? -->
 <aside {...rest} class="docs_tertiary_nav unstyled {rest.class}">
 	{#if should_show_page_links}
 		<DocsPageLinks {sidebar} expand_width />
-	{/if}
-	{#if at_api_root || at_module}
-		<DocsModulesList expand_width />
 	{/if}
 	{#if tomes_related_to_selected.length}
 		<section class="related_section">

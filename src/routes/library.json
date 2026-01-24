@@ -530,7 +530,7 @@
 					{
 						"name": "DeclarationSearchState",
 						"kind": "type",
-						"source_line": 4,
+						"source_line": 5,
 						"type_signature": "DeclarationSearchState",
 						"properties": [
 							{
@@ -551,10 +551,47 @@
 						]
 					},
 					{
+						"name": "ApiSearchState",
+						"kind": "type",
+						"source_line": 11,
+						"type_signature": "ApiSearchState",
+						"properties": [
+							{
+								"name": "query",
+								"kind": "variable",
+								"type_signature": "string"
+							},
+							{
+								"name": "modules",
+								"kind": "variable",
+								"type_signature": "{\n\t\tall: Array<Module>;\n\t\tfiltered: Array<Module>;\n\t}"
+							},
+							{
+								"name": "declarations",
+								"kind": "variable",
+								"type_signature": "{\n\t\tall: Array<Declaration>;\n\t\tfiltered: Array<Declaration>;\n\t}"
+							}
+						]
+					},
+					{
+						"name": "create_api_search",
+						"kind": "function",
+						"doc_comment": "Creates unified search state for the API index page (modules and declarations).",
+						"source_line": 26,
+						"type_signature": "(library: Library): ApiSearchState",
+						"return_type": "ApiSearchState",
+						"parameters": [
+							{
+								"name": "library",
+								"type": "Library"
+							}
+						]
+					},
+					{
 						"name": "create_declaration_search",
 						"kind": "function",
 						"doc_comment": "Creates search state for the API index page (all declarations across all modules).",
-						"source_line": 13,
+						"source_line": 77,
 						"type_signature": "(library: Library): DeclarationSearchState",
 						"return_type": "DeclarationSearchState",
 						"parameters": [
@@ -568,7 +605,7 @@
 						"name": "create_module_declaration_search",
 						"kind": "function",
 						"doc_comment": "Creates search state for module-specific declaration lists.",
-						"source_line": 42,
+						"source_line": 106,
 						"type_signature": "(declarations: Declaration[]): DeclarationSearchState",
 						"return_type": "DeclarationSearchState",
 						"parameters": [
@@ -639,11 +676,10 @@
 				],
 				"dependencies": [
 					"ApiDeclarationList.svelte",
+					"ApiModulesList.svelte",
 					"DocsSearch.svelte",
 					"TomeContent.svelte",
 					"TomeLink.svelte",
-					"TomeSection.svelte",
-					"TomeSectionHeader.svelte",
 					"api_search.svelte.ts",
 					"library.svelte.ts",
 					"tome.ts"
@@ -689,6 +725,31 @@
 					"library.svelte.ts",
 					"tome.ts"
 				]
+			},
+			{
+				"path": "ApiModulesList.svelte",
+				"declarations": [
+					{
+						"name": "ApiModulesList",
+						"kind": "component",
+						"props": [
+							{
+								"name": "modules",
+								"type": "Array<Module>",
+								"description": "The modules to display."
+							},
+							{
+								"name": "search_query",
+								"type": "string",
+								"optional": true,
+								"description": "The current search query for highlighting."
+							}
+						],
+						"source_line": 1
+					}
+				],
+				"dependencies": ["ModuleLink.svelte", "TomeSection.svelte", "TomeSectionHeader.svelte"],
+				"dependents": ["ApiIndex.svelte"]
 			},
 			{
 				"path": "Breadcrumb.svelte",
@@ -3045,7 +3106,7 @@
 						"source_line": 1
 					}
 				],
-				"dependents": ["DocsMenu.svelte", "DocsModulesList.svelte", "DocsPageLinks.svelte"]
+				"dependents": ["DocsMenu.svelte", "DocsPageLinks.svelte"]
 			},
 			{
 				"path": "DocsMenu.svelte",
@@ -3091,25 +3152,6 @@
 					}
 				],
 				"dependents": ["DocsMenu.svelte"]
-			},
-			{
-				"path": "DocsModulesList.svelte",
-				"declarations": [
-					{
-						"name": "DocsModulesList",
-						"kind": "component",
-						"props": [
-							{
-								"name": "expand_width",
-								"type": "boolean",
-								"optional": true
-							}
-						],
-						"source_line": 1
-					}
-				],
-				"dependencies": ["DocsList.svelte", "library.svelte.ts"],
-				"dependents": ["DocsTertiaryNav.svelte"]
 			},
 			{
 				"path": "DocsPageLinks.svelte",
@@ -3176,13 +3218,28 @@
 								"optional": true
 							},
 							{
-								"name": "total_count",
-								"type": "number"
+								"name": "module_count",
+								"type": "number",
+								"optional": true,
+								"description": "Total number of modules."
 							},
 							{
-								"name": "result_count",
+								"name": "declaration_count",
 								"type": "number",
-								"optional": true
+								"optional": true,
+								"description": "Total number of declarations."
+							},
+							{
+								"name": "filtered_module_count",
+								"type": "number",
+								"optional": true,
+								"description": "Number of modules after filtering."
+							},
+							{
+								"name": "filtered_declaration_count",
+								"type": "number",
+								"optional": true,
+								"description": "Number of declarations after filtering."
 							},
 							{
 								"name": "search_query",
@@ -3244,7 +3301,6 @@
 				],
 				"dependencies": [
 					"DeclarationLink.svelte",
-					"DocsModulesList.svelte",
 					"DocsPageLinks.svelte",
 					"ModuleLink.svelte",
 					"TomeLink.svelte",
@@ -4392,7 +4448,6 @@
 					"ApiModule.svelte",
 					"DeclarationLink.svelte",
 					"DocsLink.svelte",
-					"DocsModulesList.svelte",
 					"DocsTertiaryNav.svelte",
 					"ModuleLink.svelte",
 					"TypeLink.svelte"
@@ -5547,6 +5602,7 @@
 				],
 				"dependents": [
 					"ApiModule.svelte",
+					"ApiModulesList.svelte",
 					"DeclarationDetail.svelte",
 					"DocsLink.svelte",
 					"DocsTertiaryNav.svelte",
@@ -6690,8 +6746,8 @@
 				"dependencies": ["context_helpers.ts", "docs_helpers.svelte.ts", "intersect.svelte.ts"],
 				"dependents": [
 					"ApiDeclarationList.svelte",
-					"ApiIndex.svelte",
 					"ApiModule.svelte",
+					"ApiModulesList.svelte",
 					"TomeSectionHeader.svelte"
 				]
 			},
@@ -6721,7 +6777,7 @@
 					}
 				],
 				"dependencies": ["Hashlink.svelte", "TomeSection.svelte", "docs_helpers.svelte.ts"],
-				"dependents": ["ApiDeclarationList.svelte", "ApiIndex.svelte", "ApiModule.svelte"]
+				"dependents": ["ApiDeclarationList.svelte", "ApiModule.svelte", "ApiModulesList.svelte"]
 			},
 			{
 				"path": "ts_helpers.ts",

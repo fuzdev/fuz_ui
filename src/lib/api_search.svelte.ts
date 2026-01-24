@@ -1,11 +1,75 @@
 import type {Declaration} from './declaration.svelte.js';
 import type {Library} from './library.svelte.js';
+import type {Module} from './module.svelte.js';
 
 export interface DeclarationSearchState {
 	query: string;
 	all: Array<Declaration>;
 	filtered: Array<Declaration>;
 }
+
+export interface ApiSearchState {
+	query: string;
+	modules: {
+		all: Array<Module>;
+		filtered: Array<Module>;
+	};
+	declarations: {
+		all: Array<Declaration>;
+		filtered: Array<Declaration>;
+	};
+}
+
+/**
+ * Creates unified search state for the API index page (modules and declarations).
+ */
+export const create_api_search = (library: Library): ApiSearchState => {
+	let query = $state('');
+
+	// Module filtering
+	const all_modules = $derived(library.modules_sorted);
+	const filtered_modules = $derived.by(() => {
+		if (!query.trim()) return all_modules;
+		const terms = query.trim().toLowerCase().split(/\s+/);
+		return all_modules.filter((m) => {
+			const path_lower = m.path.toLowerCase();
+			const comment_lower = m.module_comment?.toLowerCase() ?? '';
+			return terms.every((term) => path_lower.includes(term) || comment_lower.includes(term));
+		});
+	});
+
+	// Declaration filtering
+	const all_declarations = $derived(library.declarations);
+	const filtered_declarations = $derived.by(() => {
+		const items = query.trim() ? library.search_declarations(query) : all_declarations;
+		return items.sort((a, b) => a.name.localeCompare(b.name));
+	});
+
+	return {
+		get query() {
+			return query;
+		},
+		set query(v: string) {
+			query = v;
+		},
+		modules: {
+			get all() {
+				return all_modules;
+			},
+			get filtered() {
+				return filtered_modules;
+			},
+		},
+		declarations: {
+			get all() {
+				return all_declarations;
+			},
+			get filtered() {
+				return filtered_declarations;
+			},
+		},
+	};
+};
 
 /**
  * Creates search state for the API index page (all declarations across all modules).

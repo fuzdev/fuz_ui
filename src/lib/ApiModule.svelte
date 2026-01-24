@@ -75,8 +75,8 @@
 				{#if search.all.length > 1}
 					<DocsSearch
 						placeholder="search declarations in this module..."
-						total_count={search.all.length}
-						result_count={search.filtered.length}
+						declaration_count={search.all.length}
+						filtered_declaration_count={search.query.trim() ? search.filtered.length : undefined}
 						bind:search_query={search.query}
 					/>
 				{/if}
