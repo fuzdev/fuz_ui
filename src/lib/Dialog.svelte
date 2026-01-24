@@ -193,7 +193,7 @@
 		z-index: 0;
 		opacity: 0;
 		transition: opacity var(--duration_3) ease;
-		background-color: var(--dialog_bg, var(--darken_6));
+		background-color: var(--dialog_bg, var(--darken_60));
 	}
 	.ready .dialog_bg {
 		opacity: 1;
