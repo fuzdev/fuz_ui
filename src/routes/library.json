@@ -588,24 +588,10 @@
 						]
 					},
 					{
-						"name": "create_declaration_search",
-						"kind": "function",
-						"doc_comment": "Creates search state for the API index page (all declarations across all modules).",
-						"source_line": 77,
-						"type_signature": "(library: Library): DeclarationSearchState",
-						"return_type": "DeclarationSearchState",
-						"parameters": [
-							{
-								"name": "library",
-								"type": "Library"
-							}
-						]
-					},
-					{
 						"name": "create_module_declaration_search",
 						"kind": "function",
 						"doc_comment": "Creates search state for module-specific declaration lists.",
-						"source_line": 106,
+						"source_line": 77,
 						"type_signature": "(declarations: Declaration[]): DeclarationSearchState",
 						"return_type": "DeclarationSearchState",
 						"parameters": [

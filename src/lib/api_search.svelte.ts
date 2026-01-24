@@ -72,35 +72,6 @@ export const create_api_search = (library: Library): ApiSearchState => {
 };
 
 /**
- * Creates search state for the API index page (all declarations across all modules).
- */
-export const create_declaration_search = (library: Library): DeclarationSearchState => {
-	let query = $state('');
-
-	const all = $derived(library.declarations);
-
-	const filtered = $derived.by(() => {
-		const items = query.trim() ? library.search_declarations(query) : all;
-		return items.sort((a, b) => a.name.localeCompare(b.name));
-	});
-
-	return {
-		get query() {
-			return query;
-		},
-		set query(v: string) {
-			query = v;
-		},
-		get all() {
-			return all;
-		},
-		get filtered() {
-			return filtered;
-		},
-	};
-};
-
-/**
  * Creates search state for module-specific declaration lists.
  */
 export const create_module_declaration_search = (
