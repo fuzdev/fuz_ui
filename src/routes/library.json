@@ -867,6 +867,7 @@
 					"docs_helpers.svelte.ts",
 					"library.svelte.ts",
 					"mdz_components.ts",
+					"style_variable_helpers.svelte.ts",
 					"themer.svelte.ts",
 					"tome.ts"
 				]
@@ -6038,6 +6039,70 @@
 					}
 				],
 				"dependents": ["themer.svelte.ts"]
+			},
+			{
+				"path": "style_variable_helpers.svelte.ts",
+				"declarations": [
+					{
+						"name": "SelectedStyleVariable",
+						"kind": "class",
+						"source_line": 6,
+						"members": [
+							{
+								"name": "value",
+								"kind": "variable",
+								"type_signature": "StyleVariable | null"
+							},
+							{
+								"name": "constructor",
+								"kind": "constructor",
+								"type_signature": "(initial?: StyleVariable | null): SelectedStyleVariable",
+								"parameters": [
+									{
+										"name": "initial",
+										"type": "StyleVariable | null",
+										"default_value": "null"
+									}
+								]
+							}
+						]
+					},
+					{
+						"name": "selected_variable_context",
+						"kind": "variable",
+						"source_line": 14,
+						"type_signature": "{ get: () => SelectedStyleVariable; set: (value?: SelectedStyleVariable | undefined) => SelectedStyleVariable; }"
+					}
+				],
+				"dependencies": ["context_helpers.ts"],
+				"dependents": ["StyleVariableButton.svelte"]
+			},
+			{
+				"path": "StyleVariableButton.svelte",
+				"declarations": [
+					{
+						"name": "StyleVariableButton",
+						"kind": "component",
+						"props": [
+							{
+								"name": "name",
+								"type": "string"
+							},
+							{
+								"name": "inline",
+								"type": "boolean",
+								"optional": true
+							},
+							{
+								"name": "plain",
+								"type": "boolean",
+								"optional": true
+							}
+						],
+						"source_line": 1
+					}
+				],
+				"dependencies": ["style_variable_helpers.svelte.ts"]
 			},
 			{
 				"path": "svelte_helpers.ts",
