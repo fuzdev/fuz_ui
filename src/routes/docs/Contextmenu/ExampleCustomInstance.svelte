@@ -39,19 +39,19 @@
 							run={() => {
 								selected_color = 'f';
 								return {ok: true, close: false};
-							}}><span class="color_f_5">option f</span></ContextmenuEntry
+							}}><span class="color_f_50">option f</span></ContextmenuEntry
 						>
 						<ContextmenuEntry
 							run={() => {
 								selected_color = 'g';
 								return {ok: true, close: false};
-							}}><span class="color_g_5">option g</span></ContextmenuEntry
+							}}><span class="color_g_50">option g</span></ContextmenuEntry
 						>
 						<ContextmenuEntry
 							run={() => {
 								selected_color = 'j';
 								return {ok: true, close: false};
-							}}><span class="color_j_5">option j</span></ContextmenuEntry
+							}}><span class="color_j_50">option j</span></ContextmenuEntry
 						>
 						<ContextmenuEntry
 							run={() => {

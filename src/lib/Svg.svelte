@@ -100,7 +100,6 @@
 	.inline {
 		display: inline-block;
 		position: relative;
-		/* TODO idk about this, but vertical align doesnt seem quite right either */
-		top: 0.1em;
+		vertical-align: middle;
 	}
 </style>

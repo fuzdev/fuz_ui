@@ -39,9 +39,14 @@
 	// Provide own section ID to direct children (header) via context
 	section_id_context.set(section_id);
 
-	let fragment: string;
+	let fragment: string | undefined;
 
 	register_section_header_context.set((f) => {
+		if (DEV && fragment !== undefined) {
+			throw Error(
+				`TomeSection already has header "${fragment}", cannot add "${f}". Did you forget to wrap a TomeSectionHeader in its own TomeSection?`,
+			);
+		}
 		fragment = f;
 		return parent_section_id; // Return parent section ID to header
 	});

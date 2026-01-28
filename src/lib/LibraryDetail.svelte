@@ -267,25 +267,25 @@
 	}
 	.module {
 		margin-bottom: var(--space_xs);
-		--link_color: var(--text_color_3);
+		--link_color: var(--text_70);
 	}
 	.module_content {
-		background-color: var(--bg_3);
+		background-color: var(--shade_30);
 		border-radius: var(--border_radius_sm);
 		padding: var(--space_xs);
 	}
 	/* TODO probably add variables/classes for these */
 	.ts {
-		--link_color: var(--color_a_5);
+		--link_color: var(--color_a_50);
 	}
 	.svelte {
-		--link_color: var(--color_h_5);
+		--link_color: var(--color_h_50);
 	}
 	.css {
-		--link_color: var(--color_b_5);
+		--link_color: var(--color_b_50);
 	}
 	.json {
-		--link_color: var(--color_f_5);
+		--link_color: var(--color_f_50);
 	}
 	/* TODO extract */
 	.declarations {

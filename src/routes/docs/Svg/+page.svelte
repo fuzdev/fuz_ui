@@ -50,22 +50,22 @@
 			Set <code>fill</code>: (see the
 			<a href="https://css.fuz.dev/docs/colors#color-variables">fuz_css colors docs</a>)
 		</p>
-		<Code content={`<Svg data={logo_fuz} fill="var(--color_d_5)" />`} />
+		<Code content={`<Svg data={logo_fuz} fill="var(--color_d_50)" />`} />
 		<p class="width_atmost_sm">
-			<Svg data={logo_fuz} fill="var(--color_d_5)" />
+			<Svg data={logo_fuz} fill="var(--color_d_50)" />
 		</p>
-		<Code content={`<Svg data={logo_fuz} fill="var(--color_b_5)" />`} />
+		<Code content={`<Svg data={logo_fuz} fill="var(--color_b_50)" />`} />
 		<p class="width_atmost_sm">
-			<Svg data={logo_fuz} fill="var(--color_b_5)" />
+			<Svg data={logo_fuz} fill="var(--color_b_50)" />
 		</p>
 		<p>
 			Set <code>--text_color</code> on the component or a parent, for svgs that have no default fill:
 		</p>
 		<Code
-			content={`<span style:--text_color="var(--color_i_5)"><Svg data={logo_github} /></span>`}
+			content={`<span style:--text_color="var(--color_i_50)"><Svg data={logo_github} /></span>`}
 		/>
 		<p class="width_atmost_sm">
-			<span style:--text_color="var(--color_i_5)"><Svg data={logo_github} /></span>
+			<span style:--text_color="var(--color_i_50)"><Svg data={logo_github} /></span>
 		</p>
 	</TomeSection>
 </TomeContent>

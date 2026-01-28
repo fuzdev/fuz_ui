@@ -28,12 +28,12 @@
 	.cat {
 		display: flex;
 		align-items: center;
-		background-color: var(--bg_3);
+		background-color: var(--shade_30);
 		border-radius: var(--border_radius_md);
 		border: transparent var(--border_width_4) double;
 	}
 	.cat:hover {
-		border-color: var(--border_color_2);
+		border-color: var(--border_color_20);
 	}
 	.name {
 		font-weight: 700;

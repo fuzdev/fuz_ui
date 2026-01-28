@@ -47,7 +47,7 @@
 		position: sticky;
 		top: 0;
 		z-index: 10;
-		background-color: var(--bg);
+		background-color: var(--shade_00);
 		height: var(--docs_primary_nav_height);
 		transition: box-shadow var(--duration_2);
 		box-shadow: none;
@@ -55,7 +55,11 @@
 
 	.scrolled {
 		box-shadow: var(--shadow_bottom_xs)
-			color-mix(in hsl, var(--shadow_color) var(--shadow_alpha_1), transparent);
+			color-mix(
+				in hsl,
+				var(--shadow_color, var(--shadow_color_umbra)) var(--shadow_alpha_30),
+				transparent
+			);
 	}
 
 	.background {
@@ -63,7 +67,7 @@
 		z-index: -1;
 		width: 100%;
 		height: 100%;
-		background-color: var(--fg_1);
+		background-color: var(--shade_10);
 	}
 
 	.content {

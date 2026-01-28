@@ -1,9 +1,8 @@
 <script lang="ts">
 	import type {SvelteHTMLElements} from 'svelte/elements';
-	import type {Snippet} from 'svelte';
 	import {default_variables} from '@fuzdev/fuz_css/variables.js';
 
-	import {selected_variable_context} from '$routes/style_variable_helpers.svelte.js';
+	import {selected_variable_context} from './style_variable_helpers.svelte.js';
 
 	const {
 		name,
@@ -15,10 +14,7 @@
 		name: string; // TODO type? generate from `tomes`? or keep extensible?
 		inline?: boolean;
 		plain?: boolean;
-		children?: Snippet;
 	} = $props();
-
-	// TODO @many add to $lib?
 
 	// TODO add contextmenu behavior
 
