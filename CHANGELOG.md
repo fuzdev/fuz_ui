@@ -1,5 +1,11 @@
 # @fuzdev/fuz_ui
 
+## 0.180.0
+
+### Minor Changes
+
+- upgrade fuz_css ([#110](https://github.com/fuzdev/fuz_ui/pull/110))
+
 ## 0.179.0
 
 ### Minor Changes
