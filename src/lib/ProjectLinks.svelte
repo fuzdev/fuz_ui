@@ -59,11 +59,19 @@
 <style>
 	.thumbnail {
 		box-shadow: var(--shadow_bottom_xs)
-			color-mix(in hsl, var(--shadow_color, var(--shadow_color_umbra)) var(--shadow_alpha_30), transparent);
+			color-mix(
+				in hsl,
+				var(--shadow_color, var(--shadow_color_umbra)) var(--shadow_alpha_30),
+				transparent
+			);
 	}
 	.thumbnail:hover {
 		box-shadow: var(--shadow_bottom_sm)
-			color-mix(in hsl, var(--shadow_color, var(--shadow_color_umbra)) var(--shadow_alpha_30), transparent);
+			color-mix(
+				in hsl,
+				var(--shadow_color, var(--shadow_color_umbra)) var(--shadow_alpha_30),
+				transparent
+			);
 
 		/* show the underline only on the name, not the description */
 		text-decoration: none;
@@ -76,6 +84,10 @@
 	}
 	.thumbnail:active {
 		box-shadow: var(--shadow_top_xs)
-			color-mix(in hsl, var(--shadow_color, var(--shadow_color_umbra)) var(--shadow_alpha_30), transparent);
+			color-mix(
+				in hsl,
+				var(--shadow_color, var(--shadow_color_umbra)) var(--shadow_alpha_30),
+				transparent
+			);
 	}
 </style>

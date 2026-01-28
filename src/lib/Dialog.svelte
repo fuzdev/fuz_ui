@@ -166,7 +166,11 @@
 <style>
 	.dialog {
 		--pane_shadow: var(--shadow_bottom_xl)
-			color-mix(in hsl, var(--shadow_color, var(--shadow_color_umbra)) var(--shadow_alpha_70), transparent);
+			color-mix(
+				in hsl,
+				var(--shadow_color, var(--shadow_color_umbra)) var(--shadow_alpha_70),
+				transparent
+			);
 		position: fixed;
 		inset: 0;
 		overflow: auto;
