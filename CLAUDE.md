@@ -1,10 +1,24 @@
-# Fuz - Svelte UI library
+# fuz_ui
 
-> friendly user zystem 🧶
+> friendly user zystem 🧶 - Svelte UI library
 
-fuz_ui is a Svelte UI library built on the fuz_css framework and design system. It provides Svelte
-components and TypeScript helpers for building user-friendly and
-resource-efficient websites.
+fuz_ui (`@fuzdev/fuz_ui`) is a Svelte 5 UI library built on fuz_css. It provides
+components and TypeScript helpers for building user-friendly websites.
+
+For coding conventions, see [`fuz-stack`](../fuz-stack/CLAUDE.md).
+
+## Gro commands
+
+```bash
+gro check     # typecheck, test, lint, format check (run before committing)
+gro test      # run tests with vitest
+gro gen       # regenerate .gen files (library.json, fuz.css)
+gro build     # build for production
+```
+
+IMPORTANT for AI agents: Do NOT run `gro dev` - the developer will manage the
+dev server. Only run `gro check`, `gro test`, `gro gen`, etc. for validation
+and code generation.
 
 ## Key dependencies
 
@@ -319,32 +333,7 @@ browser and DOM:
 - `rune_helpers.svelte.ts` - Svelte 5 rune utilities
 - `helpers.ts` - general utilities (`render_value_to_string`)
 
-## Development
-
-### Commands
-
-```bash
-npm run dev      # start development server
-npm run build    # build library
-npm run check    # type check
-npm run test     # run tests
-```
-
-Or with Gro:
-
-```bash
-gro dev          # development
-gro build        # build
-gro check        # check types
-gro test         # test
-gro gen          # run code generators
-```
-
-IMPORTANT for AI agents: Do NOT run `npm run dev` or `gro dev` - the developer
-will manage the dev server. Only run `gro check`, `gro test`, `gro gen`, etc.
-for validation and code generation.
-
-### Project standards
+## Project standards
 
 - TypeScript - strict typing throughout
 - Svelte 5 - uses new runes API
@@ -538,3 +527,11 @@ Composable building blocks (for custom layouts):
 - copy/paste friendly for customization
 - some components require SvelteKit (needs review)
 - not enterprise-ready, growing as needed
+
+## Related projects
+
+- [`fuz_css`](../fuz_css/CLAUDE.md) - CSS framework (peer dependency)
+- [`fuz_util`](../fuz_util/CLAUDE.md) - utility functions (peer dependency)
+- [`fuz_template`](../fuz_template/CLAUDE.md) - starter template using fuz_ui
+- [`fuz_blog`](../fuz_blog/CLAUDE.md) - blog template using fuz_ui
+- [`fuz_mastodon`](../fuz_mastodon/CLAUDE.md) - Mastodon components using fuz_ui
