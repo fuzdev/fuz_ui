@@ -1,5 +1,11 @@
 # @fuzdev/fuz_ui
 
+## 0.181.0
+
+### Minor Changes
+
+- upgrade peer deps ([65faf5a](https://github.com/fuzdev/fuz_ui/commit/65faf5a))
+
 ## 0.180.0
 
 ### Minor Changes
