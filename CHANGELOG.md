@@ -1,5 +1,23 @@
 # @fuzdev/fuz_ui
 
+## 0.181.1
+
+### Patch Changes
+
+- fix some bg colors ([9de2236](https://github.com/fuzdev/fuz_ui/commit/9de2236))
+
+## 0.181.0
+
+### Minor Changes
+
+- upgrade peer deps ([65faf5a](https://github.com/fuzdev/fuz_ui/commit/65faf5a))
+
+## 0.180.0
+
+### Minor Changes
+
+- upgrade fuz_css ([#110](https://github.com/fuzdev/fuz_ui/pull/110))
+
 ## 0.179.0
 
 ### Minor Changes

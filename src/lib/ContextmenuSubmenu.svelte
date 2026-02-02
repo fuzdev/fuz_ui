@@ -103,7 +103,7 @@
 	menu {
 		z-index: var(--contextmenu_depth);
 		position: absolute;
-		/* TODO this is a hack to avoid the pixel gap, probably change to 0 after adding transparent bg hitbox */
+		/* TODO this is a hack to avoid the pixel gap, probably change to 0 after adding transparent surface hitbox */
 		left: -1px;
 		top: 0;
 		max-width: var(--contextmenu_width);

@@ -166,7 +166,11 @@
 <style>
 	.dialog {
 		--pane_shadow: var(--shadow_bottom_xl)
-			color-mix(in hsl, var(--shadow_color) var(--shadow_alpha_5), transparent);
+			color-mix(
+				in hsl,
+				var(--shadow_color, var(--shadow_color_umbra)) var(--shadow_alpha_70),
+				transparent
+			);
 		position: fixed;
 		inset: 0;
 		overflow: auto;
@@ -177,7 +181,7 @@
 	}
 
 	.dialog_wrapper {
-		position: relative; /* for the bg */
+		position: relative; /* for the surface */
 		min-height: 100%;
 		display: flex;
 		align-items: center;
@@ -193,7 +197,7 @@
 		z-index: 0;
 		opacity: 0;
 		transition: opacity var(--duration_3) ease;
-		background-color: var(--dialog_bg, var(--darken_6));
+		background-color: var(--dialog_bg, var(--darken_60));
 	}
 	.ready .dialog_bg {
 		opacity: 1;

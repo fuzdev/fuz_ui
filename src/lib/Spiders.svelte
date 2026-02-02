@@ -14,16 +14,16 @@
 
 	const {
 		spiders = [
-			'var(--color_a_5)',
-			'var(--color_b_5)',
-			'var(--color_c_5)',
-			'var(--color_d_5)',
-			'var(--color_e_5)',
-			'var(--color_f_5)',
-			'var(--color_g_5)',
-			'var(--color_h_5)',
-			'var(--color_i_5)',
-			'var(--color_j_5)',
+			'var(--color_a_50)',
+			'var(--color_b_50)',
+			'var(--color_c_50)',
+			'var(--color_d_50)',
+			'var(--color_e_50)',
+			'var(--color_f_50)',
+			'var(--color_g_50)',
+			'var(--color_h_50)',
+			'var(--color_i_50)',
+			'var(--color_j_50)',
 		],
 		seed = minute_of_day(),
 		random = create_random_alea(seed),
@@ -49,7 +49,7 @@
 	.spiders {
 		--width: calc(100% / var(--spider_count));
 		position: relative;
-		z-index: -1;
+		z-index: 1;
 		overflow: hidden;
 		display: grid;
 		grid-template-columns: repeat(var(--spider_count), 1fr);

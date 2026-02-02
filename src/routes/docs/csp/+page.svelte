@@ -49,6 +49,7 @@
 		</p>
 		<p>Example usage:</p>
 		<Code
+			lang="ts"
 			content={`import {create_csp_directives, type CspSourceSpec} from '@fuzdev/fuz_ui/csp.js';
 
 // Create the default CSP with no trusted sources except 'self' and some sensible fallbacks.
@@ -116,7 +117,6 @@ const custom_csp = create_csp_directives({
 		// all other values are passed through to SvelteKit.
   },
 });`}
-			lang="ts"
 		/>
 		<p>
 			Auditability and transparency are key concerns for the API, but some features are designed to

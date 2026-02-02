@@ -2,12 +2,11 @@
 	import {library_context, type Library} from './library.svelte.js';
 	import {get_tome_by_name, type Tome} from './tome.js';
 	import TomeContent from './TomeContent.svelte';
-	import TomeSection from './TomeSection.svelte';
 	import TomeLink from './TomeLink.svelte';
-	import TomeSectionHeader from './TomeSectionHeader.svelte';
 	import DocsSearch from './DocsSearch.svelte';
+	import ApiModulesList from './ApiModulesList.svelte';
 	import ApiDeclarationList from './ApiDeclarationList.svelte';
-	import {create_declaration_search} from './api_search.svelte.js';
+	import {create_api_search} from './api_search.svelte.js';
 
 	const {
 		library = library_context.get(),
@@ -31,7 +30,7 @@
 		minimal?: boolean;
 	} = $props();
 
-	const search = $derived(create_declaration_search(library));
+	const search = $derived(create_api_search(library));
 </script>
 
 <svelte:head>
@@ -44,22 +43,24 @@
 			<p>Browse the full <TomeLink name="api" /> docs.</p>
 		</section>
 	{:else}
-		<TomeSection>
-			<TomeSectionHeader text="Declarations" />
+		<section>
+			<p>{library.package_json.description}</p>
 
-			<section>
-				<p>{library.package_json.description}</p>
+			{#if search.modules.all.length + search.declarations.all.length > 1}
+				<DocsSearch
+					module_count={search.modules.all.length}
+					declaration_count={search.declarations.all.length}
+					filtered_module_count={search.query.trim() ? search.modules.filtered.length : undefined}
+					filtered_declaration_count={search.query.trim()
+						? search.declarations.filtered.length
+						: undefined}
+					bind:search_query={search.query}
+				/>
+			{/if}
+		</section>
 
-				{#if search.all.length > 1}
-					<DocsSearch
-						total_count={search.all.length}
-						result_count={search.filtered.length}
-						bind:search_query={search.query}
-					/>
-				{/if}
-			</section>
+		<ApiModulesList modules={search.modules.filtered} search_query={search.query} />
 
-			<ApiDeclarationList declarations={search.filtered} search_query={search.query} />
-		</TomeSection>
+		<ApiDeclarationList declarations={search.declarations.filtered} search_query={search.query} />
 	{/if}
 </TomeContent>

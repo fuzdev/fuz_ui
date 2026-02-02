@@ -3,7 +3,7 @@
 
 	import Docs from '$lib/Docs.svelte';
 	import {tomes} from '$routes/docs/tomes.js';
-	import {selected_variable_context} from '$routes/style_variable_helpers.svelte.js';
+	import {selected_variable_context} from '$lib/style_variable_helpers.svelte.js';
 	import StyleVariableDetail from '$routes/StyleVariableDetail.svelte';
 	import Dialog from '$lib/Dialog.svelte';
 	import {library_context} from '$lib/library.svelte.js';

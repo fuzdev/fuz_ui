@@ -154,9 +154,9 @@ export const normalize_json = (obj: any): any => {
 	return obj;
 };
 
-// ============================================================================
+//
 // Generic Fixture Loading and Update Task Patterns
-// ============================================================================
+//
 
 /**
  * Generic fixture data structure.

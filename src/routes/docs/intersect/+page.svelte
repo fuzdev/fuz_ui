@@ -309,7 +309,7 @@
 		border-bottom: none;
 	}
 	.demo_list li:global(.intersecting) {
-		color: var(--color_f_5);
+		color: var(--color_f_50);
 		background-color: hsl(var(--hue_f) 50% 80% / 0.15);
 	}
 </style>

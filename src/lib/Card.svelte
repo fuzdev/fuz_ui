@@ -76,7 +76,7 @@
 		align-items: center;
 		padding: var(--space_lg);
 		width: var(--card_width);
-		background-color: var(--fg_1);
+		background-color: var(--fg_10);
 		border-radius: var(--border_radius, var(--border_radius_md));
 		text-decoration: none;
 		text-align: left;
@@ -93,14 +93,22 @@
 		box-shadow: var(
 			--shadow,
 			var(--shadow_inset_bottom_sm)
-				color-mix(in hsl, var(--shadow_color) var(--shadow_alpha_2), transparent)
+				color-mix(
+					in hsl,
+					var(--shadow_color, var(--shadow_color_umbra)) var(--shadow_alpha_40),
+					transparent
+				)
 		);
 	}
 	.link:active {
 		box-shadow: var(
 			--shadow,
 			var(--shadow_inset_top_sm)
-				color-mix(in hsl, var(--shadow_color) var(--shadow_alpha_2), transparent)
+				color-mix(
+					in hsl,
+					var(--shadow_color, var(--shadow_color_umbra)) var(--shadow_alpha_40),
+					transparent
+				)
 		);
 	}
 	.link.selected .content,

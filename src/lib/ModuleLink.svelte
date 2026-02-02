@@ -22,6 +22,8 @@
 
 	const module = $derived(library.lookup_module(module_path));
 
+	const color_class = $derived(module_path.endsWith('.svelte') ? 'color_h' : '');
+
 	const contextmenu_entries = $derived(module ? create_module_contextmenu(module) : undefined);
 
 	// TODO @many support full https:// url variants - automatic detection? library prop?
@@ -31,7 +33,7 @@
 	<!-- eslint-disable svelte/no-navigation-without-resolve -->
 	<a
 		{...rest}
-		class="module_link {class_prop}"
+		class="module_link {class_prop} {color_class}"
 		href={module.url_api + (hash ? ensure_start(hash, '#') : '')}
 		{@attach contextmenu_attachment(contextmenu_entries)}
 	>

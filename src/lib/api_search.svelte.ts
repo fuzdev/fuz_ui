@@ -1,5 +1,6 @@
 import type {Declaration} from './declaration.svelte.js';
 import type {Library} from './library.svelte.js';
+import type {Module} from './module.svelte.js';
 
 export interface DeclarationSearchState {
 	query: string;
@@ -7,16 +8,40 @@ export interface DeclarationSearchState {
 	filtered: Array<Declaration>;
 }
 
+export interface ApiSearchState {
+	query: string;
+	modules: {
+		all: Array<Module>;
+		filtered: Array<Module>;
+	};
+	declarations: {
+		all: Array<Declaration>;
+		filtered: Array<Declaration>;
+	};
+}
+
 /**
- * Creates search state for the API index page (all declarations across all modules).
+ * Creates unified search state for the API index page (modules and declarations).
  */
-export const create_declaration_search = (library: Library): DeclarationSearchState => {
+export const create_api_search = (library: Library): ApiSearchState => {
 	let query = $state('');
 
-	const all = $derived(library.declarations);
+	// Module filtering
+	const all_modules = $derived(library.modules_sorted);
+	const filtered_modules = $derived.by(() => {
+		if (!query.trim()) return all_modules;
+		const terms = query.trim().toLowerCase().split(/\s+/);
+		return all_modules.filter((m) => {
+			const path_lower = m.path.toLowerCase();
+			const comment_lower = m.module_comment?.toLowerCase() ?? '';
+			return terms.every((term) => path_lower.includes(term) || comment_lower.includes(term));
+		});
+	});
 
-	const filtered = $derived.by(() => {
-		const items = query.trim() ? library.search_declarations(query) : all;
+	// Declaration filtering
+	const all_declarations = $derived(library.declarations);
+	const filtered_declarations = $derived.by(() => {
+		const items = query.trim() ? library.search_declarations(query) : all_declarations;
 		return items.sort((a, b) => a.name.localeCompare(b.name));
 	});
 
@@ -27,11 +52,21 @@ export const create_declaration_search = (library: Library): DeclarationSearchSt
 		set query(v: string) {
 			query = v;
 		},
-		get all() {
-			return all;
+		modules: {
+			get all() {
+				return all_modules;
+			},
+			get filtered() {
+				return filtered_modules;
+			},
 		},
-		get filtered() {
-			return filtered;
+		declarations: {
+			get all() {
+				return all_declarations;
+			},
+			get filtered() {
+				return filtered_declarations;
+			},
 		},
 	};
 };

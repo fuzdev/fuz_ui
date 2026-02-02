@@ -84,10 +84,10 @@
 
 {#snippet render_unregistered_tag(name: string, children: Array<MdzNode>)}
 	{#if children.length > 0}
-		<code class="color_c_5">&lt;{name}&gt;</code>{@render render_children(children)}<code
-			class="color_c_5">&lt;/{name}&gt;</code
+		<code class="color_c_50">&lt;{name}&gt;</code>{@render render_children(children)}<code
+			class="color_c_50">&lt;/{name}&gt;</code
 		>
 	{:else}
-		<code class="color_c_5">&lt;{name} /&gt;</code>
+		<code class="color_c_50">&lt;{name} /&gt;</code>
 	{/if}
 {/snippet}
