@@ -1,5 +1,11 @@
 # @fuzdev/fuz_ui
 
+## 0.181.1
+
+### Patch Changes
+
+- fix some bg colors ([9de2236](https://github.com/fuzdev/fuz_ui/commit/9de2236))
+
 ## 0.181.0
 
 ### Minor Changes
