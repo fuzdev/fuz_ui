@@ -28,7 +28,7 @@
 	.cat {
 		display: flex;
 		align-items: center;
-		background-color: var(--shade_30);
+		background-color: var(--shade_10);
 		border-radius: var(--border_radius_md);
 		border: transparent var(--border_width_4) double;
 	}

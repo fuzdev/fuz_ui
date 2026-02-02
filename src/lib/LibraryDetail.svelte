@@ -270,7 +270,7 @@
 		--link_color: var(--text_70);
 	}
 	.module_content {
-		background-color: var(--shade_30);
+		background-color: var(--shade_10);
 		border-radius: var(--border_radius_sm);
 		padding: var(--space_xs);
 	}

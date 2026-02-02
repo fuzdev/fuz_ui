@@ -49,7 +49,7 @@
 	.spiders {
 		--width: calc(100% / var(--spider_count));
 		position: relative;
-		z-index: -1;
+		z-index: 1;
 		overflow: hidden;
 		display: grid;
 		grid-template-columns: repeat(var(--spider_count), 1fr);
