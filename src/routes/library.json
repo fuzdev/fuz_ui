@@ -11,7 +11,7 @@
 	"published": true,
 	"package_json": {
 		"name": "@fuzdev/fuz_ui",
-		"version": "0.179.0",
+		"version": "0.181.1",
 		"description": "Svelte UI library",
 		"motto": "friendly user zystem",
 		"glyph": "🧶",
@@ -45,9 +45,9 @@
 			"node": ">=22.15"
 		},
 		"peerDependencies": {
-			"@fuzdev/fuz_code": ">=0.40.0",
-			"@fuzdev/fuz_css": ">=0.44.1",
-			"@fuzdev/fuz_util": ">=0.45.3",
+			"@fuzdev/fuz_code": ">=0.41.0",
+			"@fuzdev/fuz_css": ">=0.45.0",
+			"@fuzdev/fuz_util": ">=0.48.2",
 			"@jridgewell/trace-mapping": "^0.3",
 			"@ryanatkn/gro": ">=0.186.0",
 			"@sveltejs/kit": "^2.47.3",
@@ -72,16 +72,16 @@
 		},
 		"devDependencies": {
 			"@changesets/changelog-git": "^0.2.1",
-			"@fuzdev/fuz_code": "^0.40.0",
-			"@fuzdev/fuz_css": "^0.44.1",
-			"@fuzdev/fuz_util": "^0.45.3",
+			"@fuzdev/fuz_code": "^0.41.0",
+			"@fuzdev/fuz_css": "^0.47.0",
+			"@fuzdev/fuz_util": "^0.48.3",
 			"@jridgewell/trace-mapping": "^0.3.31",
 			"@ryanatkn/eslint-config": "^0.9.0",
-			"@ryanatkn/gro": "^0.186.0",
+			"@ryanatkn/gro": "^0.190.0",
 			"@sveltejs/adapter-static": "^3.0.10",
-			"@sveltejs/kit": "^2.49.1",
+			"@sveltejs/kit": "^2.50.1",
 			"@sveltejs/package": "^2.5.7",
-			"@sveltejs/vite-plugin-svelte": "^6.2.1",
+			"@sveltejs/vite-plugin-svelte": "^6.2.4",
 			"@types/node": "^24.10.1",
 			"@webref/css": "^8.2.0",
 			"eslint": "^9.39.1",
@@ -90,8 +90,8 @@
 			"jsdom": "^27.2.0",
 			"prettier": "^3.7.4",
 			"prettier-plugin-svelte": "^3.4.1",
-			"svelte": "^5.46.1",
-			"svelte-check": "^4.3.5",
+			"svelte": "^5.49.1",
+			"svelte-check": "^4.3.6",
 			"svelte2tsx": "^0.7.46",
 			"tslib": "^2.8.1",
 			"typescript": "^5.9.3",
@@ -135,7 +135,7 @@
 	},
 	"source_json": {
 		"name": "@fuzdev/fuz_ui",
-		"version": "0.179.0",
+		"version": "0.181.1",
 		"repository": "git+https://github.com/fuzdev/fuz_ui.git",
 		"modules": [
 			{
@@ -144,7 +144,6 @@
 					{
 						"name": "Alert",
 						"kind": "component",
-						"doc_comment": "",
 						"see_also": ["https://www.w3.org/WAI/ARIA/apg/patterns/alert/"],
 						"props": [
 							{
@@ -226,7 +225,7 @@
 					{
 						"name": "DeclarationSearchState",
 						"kind": "type",
-						"source_line": 4,
+						"source_line": 5,
 						"type_signature": "DeclarationSearchState",
 						"properties": [
 							{
@@ -247,12 +246,35 @@
 						]
 					},
 					{
-						"name": "create_declaration_search",
+						"name": "ApiSearchState",
+						"kind": "type",
+						"source_line": 11,
+						"type_signature": "ApiSearchState",
+						"properties": [
+							{
+								"name": "query",
+								"kind": "variable",
+								"type_signature": "string"
+							},
+							{
+								"name": "modules",
+								"kind": "variable",
+								"type_signature": "{\n\t\tall: Array<Module>;\n\t\tfiltered: Array<Module>;\n\t}"
+							},
+							{
+								"name": "declarations",
+								"kind": "variable",
+								"type_signature": "{\n\t\tall: Array<Declaration>;\n\t\tfiltered: Array<Declaration>;\n\t}"
+							}
+						]
+					},
+					{
+						"name": "create_api_search",
 						"kind": "function",
-						"doc_comment": "Creates search state for the API index page (all declarations across all modules).",
-						"source_line": 13,
-						"type_signature": "(library: Library): DeclarationSearchState",
-						"return_type": "DeclarationSearchState",
+						"doc_comment": "Creates unified search state for the API index page (modules and declarations).",
+						"source_line": 26,
+						"type_signature": "(library: Library): ApiSearchState",
+						"return_type": "ApiSearchState",
 						"parameters": [
 							{
 								"name": "library",
@@ -264,7 +286,7 @@
 						"name": "create_module_declaration_search",
 						"kind": "function",
 						"doc_comment": "Creates search state for module-specific declaration lists.",
-						"source_line": 42,
+						"source_line": 77,
 						"type_signature": "(declarations: Declaration[]): DeclarationSearchState",
 						"return_type": "DeclarationSearchState",
 						"parameters": [
@@ -339,11 +361,10 @@
 				],
 				"dependencies": [
 					"ApiDeclarationList.svelte",
+					"ApiModulesList.svelte",
 					"DocsSearch.svelte",
 					"TomeContent.svelte",
 					"TomeLink.svelte",
-					"TomeSection.svelte",
-					"TomeSectionHeader.svelte",
 					"api_search.svelte.ts",
 					"library.svelte.ts",
 					"tome.ts"
@@ -391,6 +412,32 @@
 					"library.svelte.ts",
 					"tome.ts"
 				]
+			},
+			{
+				"path": "ApiModulesList.svelte",
+				"declarations": [
+					{
+						"name": "ApiModulesList",
+						"kind": "component",
+						"props": [
+							{
+								"name": "modules",
+								"type": "Array<Module>",
+								"description": "The modules to display."
+							},
+							{
+								"name": "search_query",
+								"type": "string",
+								"optional": true,
+								"description": "The current search query for highlighting.",
+								"default_value": "''"
+							}
+						],
+						"source_line": 1
+					}
+				],
+				"dependencies": ["ModuleLink.svelte", "TomeSection.svelte", "TomeSectionHeader.svelte"],
+				"dependents": ["ApiIndex.svelte"]
 			},
 			{
 				"path": "Breadcrumb.svelte",
@@ -524,6 +571,7 @@
 					"docs_helpers.svelte.ts",
 					"library.svelte.ts",
 					"mdz_components.ts",
+					"style_variable_helpers.svelte.ts",
 					"themer.svelte.ts",
 					"tome.ts"
 				]
@@ -1065,7 +1113,6 @@
 							{
 								"name": "add_submenu",
 								"kind": "function",
-								"doc_comment": "",
 								"type_signature": "(): SubmenuState",
 								"return_type": "SubmenuState",
 								"parameters": []
@@ -2804,7 +2851,7 @@
 						"source_line": 1
 					}
 				],
-				"dependents": ["DocsMenu.svelte", "DocsModulesList.svelte", "DocsPageLinks.svelte"]
+				"dependents": ["DocsMenu.svelte", "DocsPageLinks.svelte"]
 			},
 			{
 				"path": "DocsMenu.svelte",
@@ -2851,26 +2898,6 @@
 					}
 				],
 				"dependents": ["DocsMenu.svelte"]
-			},
-			{
-				"path": "DocsModulesList.svelte",
-				"declarations": [
-					{
-						"name": "DocsModulesList",
-						"kind": "component",
-						"props": [
-							{
-								"name": "expand_width",
-								"type": "boolean",
-								"optional": true,
-								"default_value": "false"
-							}
-						],
-						"source_line": 1
-					}
-				],
-				"dependencies": ["DocsList.svelte", "library.svelte.ts"],
-				"dependents": ["DocsTertiaryNav.svelte"]
 			},
 			{
 				"path": "DocsPageLinks.svelte",
@@ -2937,16 +2964,31 @@
 								"name": "placeholder",
 								"type": "string",
 								"optional": true,
-								"default_value": "'search declarations and modules...'"
+								"default_value": "'search modules and declarations...'"
 							},
 							{
-								"name": "total_count",
-								"type": "number"
-							},
-							{
-								"name": "result_count",
+								"name": "module_count",
 								"type": "number",
-								"optional": true
+								"optional": true,
+								"description": "Total number of modules."
+							},
+							{
+								"name": "declaration_count",
+								"type": "number",
+								"optional": true,
+								"description": "Total number of declarations."
+							},
+							{
+								"name": "filtered_module_count",
+								"type": "number",
+								"optional": true,
+								"description": "Number of modules after filtering."
+							},
+							{
+								"name": "filtered_declaration_count",
+								"type": "number",
+								"optional": true,
+								"description": "Number of declarations after filtering."
 							},
 							{
 								"name": "search_query",
@@ -3010,7 +3052,6 @@
 				],
 				"dependencies": [
 					"DeclarationLink.svelte",
-					"DocsModulesList.svelte",
 					"DocsPageLinks.svelte",
 					"ModuleLink.svelte",
 					"TomeLink.svelte",
@@ -3368,7 +3409,10 @@
 								"name": "on_duplicates",
 								"kind": "variable",
 								"type_signature": "OnDuplicatesCallback",
-								"doc_comment": "Callback invoked when duplicate declaration names are found.\n\nConsumers decide how to handle duplicates: throw, warn, or ignore.\nUse `library_throw_on_duplicates` for strict flat namespace enforcement."
+								"doc_comment": "Callback invoked when duplicate declaration names are found.\n\nConsumers decide how to handle duplicates: throw, warn, or ignore.\nUse `library_throw_on_duplicates` for strict flat namespace enforcement.",
+								"examples": [
+									"// Throw on duplicates (strict flat namespace)\nlibrary_gen({ on_duplicates: library_throw_on_duplicates });\n\n// Warn but continue\nlibrary_gen({\n  on_duplicates: (dupes, log) => {\n    for (const [name, locs] of dupes) {\n      log.warn(`Duplicate: ${name} in ${locs.map(l => l.module).join(', ')}`);\n    }\n  }\n});"
+								]
 							}
 						]
 					},
@@ -3584,7 +3628,7 @@
 							},
 							{
 								"name": "source_json",
-								"type": "{ [x: string]: unknown; name: string; version: string; modules?: { [x: string]: unknown; path: string; declarations?: { [x: string]: unknown; name: string; kind: \"function\" | \"type\" | \"json\" | \"variable\" | \"class\" | \"constructor\" | \"component\" | \"css\"; ... 19 more ...; alias_of?: { ...; } | undefined; }[] | undefine..."
+								"type": "{ [x: string]: unknown; name: string; version: string; modules?: { [x: string]: unknown; path: string; declarations?: { [x: string]: unknown; name: string; kind: \"function\" | \"type\" | \"constructor\" | \"json\" | \"variable\" | \"class\" | \"component\" | \"css\"; ... 19 more ...; alias_of?: { ...; } | undefined; }[] | undefine..."
 							}
 						]
 					}
@@ -3762,7 +3806,6 @@
 					"ApiModule.svelte",
 					"DeclarationLink.svelte",
 					"DocsLink.svelte",
-					"DocsModulesList.svelte",
 					"DocsTertiaryNav.svelte",
 					"ModuleLink.svelte",
 					"TypeLink.svelte"
@@ -4557,6 +4600,7 @@
 				],
 				"dependents": [
 					"ApiModule.svelte",
+					"ApiModulesList.svelte",
 					"DeclarationDetail.svelte",
 					"DocsLink.svelte",
 					"DocsTertiaryNav.svelte",
@@ -4937,7 +4981,7 @@
 								"name": "spiders",
 								"type": "Array<string>",
 								"optional": true,
-								"default_value": "[\n\t\t\t'var(--color_a_5)',\n\t\t\t'var(--color_b_5)',\n\t\t\t'var(--color_c_5)',\n\t\t\t'var(--color_d_5)',\n\t\t\t'var(--color_e_5)',\n\t\t\t'var(--color_f_5)',\n\t\t\t'var(--color_g_5)',\n\t\t\t'var(--color_h_5)',\n\t\t\t'var(--color_i_5)',\n\t\t\t'var(--color_j_5)',\n\t\t]"
+								"default_value": "[\n\t\t\t'var(--color_a_50)',\n\t\t\t'var(--color_b_50)',\n\t\t\t'var(--color_c_50)',\n\t\t\t'var(--color_d_50)',\n\t\t\t'var(--color_e_50)',\n\t\t\t'var(--color_f_50)',\n\t\t\t'var(--color_g_50)',\n\t\t\t'var(--color_h_50)',\n\t\t\t'var(--color_i_50)',\n\t\t\t'var(--color_j_50)',\n\t\t]"
 							},
 							{
 								"name": "seed",
@@ -5013,6 +5057,72 @@
 					}
 				],
 				"dependents": ["themer.svelte.ts"]
+			},
+			{
+				"path": "style_variable_helpers.svelte.ts",
+				"declarations": [
+					{
+						"name": "SelectedStyleVariable",
+						"kind": "class",
+						"source_line": 6,
+						"members": [
+							{
+								"name": "value",
+								"kind": "variable",
+								"type_signature": "StyleVariable | null"
+							},
+							{
+								"name": "constructor",
+								"kind": "constructor",
+								"type_signature": "(initial?: { name: string; light?: string | undefined; dark?: string | undefined; summary?: string | undefined; } | null): SelectedStyleVariable",
+								"parameters": [
+									{
+										"name": "initial",
+										"type": "{ name: string; light?: string | undefined; dark?: string | undefined; summary?: string | undefined; } | null",
+										"default_value": "null"
+									}
+								]
+							}
+						]
+					},
+					{
+						"name": "selected_variable_context",
+						"kind": "variable",
+						"source_line": 14,
+						"type_signature": "{ get: () => SelectedStyleVariable; set: (value?: SelectedStyleVariable | undefined) => SelectedStyleVariable; }"
+					}
+				],
+				"dependencies": ["context_helpers.ts"],
+				"dependents": ["StyleVariableButton.svelte"]
+			},
+			{
+				"path": "StyleVariableButton.svelte",
+				"declarations": [
+					{
+						"name": "StyleVariableButton",
+						"kind": "component",
+						"props": [
+							{
+								"name": "name",
+								"type": "string"
+							},
+							{
+								"name": "inline",
+								"type": "boolean",
+								"optional": true,
+								"default_value": "false"
+							},
+							{
+								"name": "plain",
+								"type": "boolean",
+								"optional": true,
+								"default_value": "true"
+							}
+						],
+						"source_line": 1
+					}
+				],
+				"dependencies": ["style_variable_helpers.svelte.ts"]
 			},
 			{
 				"path": "Svg.svelte",
@@ -5398,7 +5508,6 @@
 					{
 						"name": "to_tome_pathname",
 						"kind": "function",
-						"doc_comment": "",
 						"source_line": 23,
 						"type_signature": "(item: string | { name: string; category: string; Component: Component<any, any, string>; related_tomes: string[]; related_modules: string[]; related_declarations: string[]; }, docs_path?: string, hash?: string | undefined): string",
 						"return_type": "string",
@@ -5557,8 +5666,8 @@
 				"dependencies": ["context_helpers.ts", "docs_helpers.svelte.ts", "intersect.svelte.ts"],
 				"dependents": [
 					"ApiDeclarationList.svelte",
-					"ApiIndex.svelte",
 					"ApiModule.svelte",
+					"ApiModulesList.svelte",
 					"TomeSectionHeader.svelte"
 				]
 			},
@@ -5588,7 +5697,7 @@
 					}
 				],
 				"dependencies": ["Hashlink.svelte", "TomeSection.svelte", "docs_helpers.svelte.ts"],
-				"dependents": ["ApiDeclarationList.svelte", "ApiIndex.svelte", "ApiModule.svelte"]
+				"dependents": ["ApiDeclarationList.svelte", "ApiModule.svelte", "ApiModulesList.svelte"]
 			},
 			{
 				"path": "tsdoc_mdz.ts",
