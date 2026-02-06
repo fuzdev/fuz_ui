@@ -326,4 +326,34 @@ describe('import removal', () => {
 		assert.ok(result.includes('import Wrapper'), 'should keep Wrapper import');
 		assert.ok(result.includes('import Other'), 'should keep Other import');
 	});
+
+	test('keeps multi-specifier import even when all usages transformed', async () => {
+		const input = `<script lang="ts">
+	import Mdz, {something} from '@fuzdev/fuz_ui/Mdz.svelte';
+</script>
+
+<Mdz content="**bold**" />`;
+
+		const result = await run_preprocess(input);
+		assert.ok(
+			result.includes('import Mdz, {something}'),
+			'should keep multi-specifier import intact',
+		);
+		assert.ok(
+			result.includes('import MdzPrecompiled from'),
+			'should still add MdzPrecompiled import',
+		);
+	});
+
+	test('removes Mdz import from module script when all transformed', async () => {
+		const input = `<script module>
+	import Mdz from '@fuzdev/fuz_ui/Mdz.svelte';
+</script>
+
+<Mdz content="**bold**" />`;
+
+		const result = await run_preprocess(input);
+		assert.ok(!result.includes('import Mdz from'), 'should remove Mdz import from module script');
+		assert.ok(result.includes('import MdzPrecompiled from'), 'should add MdzPrecompiled import');
+	});
 });
