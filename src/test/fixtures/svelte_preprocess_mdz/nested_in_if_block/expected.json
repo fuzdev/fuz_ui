@@ -1,0 +1,3 @@
+{
+	"code": "<script lang=\"ts\">\n\timport Mdz from '@fuzdev/fuz_ui/Mdz.svelte';\n\tlet show = $state(true);\n</script>\n\n{#if show}\n\t<Mdz><p><strong>bold</strong></p></Mdz>\n{/if}\n"
+}

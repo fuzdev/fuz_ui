@@ -26,6 +26,7 @@
     "build": "gro build",
     "check": "gro check",
     "test": "gro test",
+    "fixtures:update": "gro src/test/fixtures/update",
     "preview": "vite preview",
     "deploy": "gro deploy"
   },

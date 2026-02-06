@@ -1,0 +1,3 @@
+{
+	"code": "<script lang=\"ts\">\n\timport Mdz from '@fuzdev/fuz_ui/Mdz.svelte';\n\timport Code from '@fuzdev/fuz_code/Code.svelte';\n</script>\n\n<Mdz><Code lang={'ts'} content={'const x = 1;'} /></Mdz>\n"
+}

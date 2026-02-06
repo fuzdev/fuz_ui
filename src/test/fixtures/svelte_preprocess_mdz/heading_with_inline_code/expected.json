@@ -1,0 +1,3 @@
+{
+	"code": "<script lang=\"ts\">\n\timport Mdz from '@fuzdev/fuz_ui/Mdz.svelte';\n\timport DocsLink from '@fuzdev/fuz_ui/DocsLink.svelte';\n</script>\n\n<Mdz><h2>The <DocsLink reference={'api'} /> method</h2></Mdz>\n"
+}
