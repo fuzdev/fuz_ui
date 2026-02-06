@@ -14,11 +14,9 @@ export const task: Task = {
 				fixtures_dir: join(import.meta.dirname),
 				input_extension: '.svelte',
 				process: async (input, name) => {
-					const result = await preprocess(
-						input,
-						[svelte_preprocess_mdz(DEFAULT_TEST_OPTIONS)],
-						{filename: `${name}.svelte`},
-					);
+					const result = await preprocess(input, [svelte_preprocess_mdz(DEFAULT_TEST_OPTIONS)], {
+						filename: `${name}.svelte`,
+					});
 					return {code: result.code};
 				},
 			},

@@ -2,8 +2,4 @@
 	import Mdz from '@fuzdev/fuz_ui/Mdz.svelte';
 </script>
 
-<Mdz
-	content="**bold**"
-	class="mb_lg"
-	inline
-/>
+<Mdz content="**bold**" class="mb_lg" inline />
