@@ -7,10 +7,10 @@ import {
 import {load_fixtures_generic} from '../../test_helpers.js';
 
 /** Default options used by most fixture and behavioral tests. */
-export const DEFAULT_TEST_OPTIONS: SveltePreprocessMdzOptions = {
+export const DEFAULT_TEST_OPTIONS = {
 	components: {Alert: '$lib/Alert.svelte', Card: '$lib/Card.svelte'},
 	elements: ['aside', 'details', 'summary'],
-};
+} satisfies SveltePreprocessMdzOptions;
 
 export interface PreprocessMdzFixture {
 	name: string;

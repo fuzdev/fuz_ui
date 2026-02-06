@@ -2,6 +2,7 @@ import {test, assert, describe, beforeAll} from 'vitest';
 import {parse} from 'svelte/compiler';
 
 import {mdz_to_svelte, escape_js_string} from '$lib/mdz_to_svelte.js';
+import type {SveltePreprocessMdzOptions} from '$lib/svelte_preprocess_mdz.js';
 import {
 	load_fixtures as load_mdz_fixtures,
 	type MdzFixture,
@@ -17,7 +18,7 @@ import {
 const CROSS_TEST_OPTIONS = {
 	...DEFAULT_TEST_OPTIONS,
 	elements: [...(DEFAULT_TEST_OPTIONS.elements ?? []), 'div', 'span'],
-};
+} satisfies SveltePreprocessMdzOptions;
 
 let mdz_fixtures: Array<MdzFixture> = [];
 
@@ -29,12 +30,11 @@ describe('cross-test: mdz fixtures through preprocessor pipeline', () => {
 	test('preprocessor output matches mdz_to_svelte for all mdz fixtures', async () => {
 		let tested = 0;
 		let skipped_unconfigured = 0;
-		let skipped_empty = 0;
 
 		for (const fixture of mdz_fixtures) {
 			const svelte_result = mdz_to_svelte(fixture.expected, {
-				components: CROSS_TEST_OPTIONS.components!,
-				elements: CROSS_TEST_OPTIONS.elements!,
+				components: CROSS_TEST_OPTIONS.components,
+				elements: CROSS_TEST_OPTIONS.elements,
 			});
 
 			// Skip fixtures whose content has unconfigured tags
@@ -49,20 +49,33 @@ describe('cross-test: mdz fixtures through preprocessor pipeline', () => {
 
 			const output = await run_preprocess(svelte_input, CROSS_TEST_OPTIONS);
 
-			// The expected markup from mdz_to_svelte(fixture.expected_nodes)
+			// Verify markup matches
 			const expected_fragment = `<Mdz>${svelte_result.markup}</Mdz>`;
-
 			assert.ok(
 				output.includes(expected_fragment),
-				`mdz fixture "${fixture.name}": preprocessor output doesn't contain expected markup.\n  Expected fragment: ${expected_fragment}\n  Full output: ${output}`,
+				`mdz fixture "${fixture.name}": markup mismatch.\n  Expected fragment: ${expected_fragment}\n  Full output: ${output}`,
 			);
 
-			tested++;
-		}
+			// Verify required imports were added
+			for (const [name, info] of svelte_result.imports) {
+				if (info.kind === 'default') {
+					assert.ok(
+						output.includes(`import ${name} from '${info.path}'`),
+						`mdz fixture "${fixture.name}": missing import for ${name} from '${info.path}'`,
+					);
+				} else {
+					assert.ok(
+						output.includes(name) && output.includes(info.path),
+						`mdz fixture "${fixture.name}": missing named import {${name}} from '${info.path}'`,
+					);
+				}
+			}
 
-		// Empty input produces empty markup — verify it was tested
-		if (mdz_fixtures.some((f) => f.expected.length === 0)) {
-			skipped_empty++;
+			// Verify output is parseable Svelte
+			const ast = parse(output, {filename: `${fixture.name}.svelte`, modern: true});
+			assert.ok(ast.fragment, `mdz fixture "${fixture.name}" produced unparseable Svelte output`);
+
+			tested++;
 		}
 
 		// Sanity: we should test a meaningful number of fixtures
@@ -71,22 +84,5 @@ describe('cross-test: mdz fixtures through preprocessor pipeline', () => {
 			skipped_unconfigured < 10,
 			`Skipped ${skipped_unconfigured} unconfigured fixtures (expected < 10)`,
 		);
-	});
-
-	test('all cross-test outputs produce parseable Svelte', async () => {
-		for (const fixture of mdz_fixtures) {
-			const svelte_result = mdz_to_svelte(fixture.expected, {
-				components: CROSS_TEST_OPTIONS.components!,
-				elements: CROSS_TEST_OPTIONS.elements!,
-			});
-			if (svelte_result.has_unconfigured_tags) continue;
-
-			const escaped = escape_js_string(fixture.input);
-			const svelte_input = `<script lang="ts">\n\timport Mdz from '@fuzdev/fuz_ui/Mdz.svelte';\n</script>\n\n<Mdz content={'${escaped}'} />\n`;
-
-			const output = await run_preprocess(svelte_input, CROSS_TEST_OPTIONS);
-			const ast = parse(output, {filename: `${fixture.name}.svelte`, modern: true});
-			assert.ok(ast.fragment, `mdz fixture "${fixture.name}" produced unparseable Svelte output`);
-		}
 	});
 });
