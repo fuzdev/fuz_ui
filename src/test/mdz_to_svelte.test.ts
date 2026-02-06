@@ -5,17 +5,15 @@ import {
 	escape_svelte_text,
 	escape_js_string,
 	mdz_to_svelte,
-	type MdzToSvelteOptions,
 	type MdzToSvelteResult,
 } from '$lib/mdz_to_svelte.js';
-
-const default_options: MdzToSvelteOptions = {};
 
 /** Parses mdz content and converts to Svelte markup in one step. */
 const convert = (
 	content: string,
-	options: MdzToSvelteOptions = default_options,
-): MdzToSvelteResult => mdz_to_svelte(mdz_parse(content), options);
+	components: Record<string, string> = {},
+	elements: ReadonlySet<string> = new Set(),
+): MdzToSvelteResult => mdz_to_svelte(mdz_parse(content), components, elements);
 
 /** Asserts that an import exists with the expected path and kind. */
 const assert_import = (
@@ -319,10 +317,7 @@ describe('mdz_to_svelte', () => {
 
 	describe('element and component nodes', () => {
 		test('renders configured element', () => {
-			const result = convert('<aside>note</aside>', {
-				...default_options,
-				elements: ['aside'],
-			});
+			const result = convert('<aside>note</aside>', {}, new Set(['aside']));
 			assert.equal(result.markup, '<aside>note</aside>');
 			assert.equal(result.has_unconfigured_tags, false);
 		});
@@ -339,10 +334,7 @@ describe('mdz_to_svelte', () => {
 		});
 
 		test('renders configured component with import', () => {
-			const result = convert('<Alert>warning</Alert>', {
-				...default_options,
-				components: {Alert: '$lib/Alert.svelte'},
-			});
+			const result = convert('<Alert>warning</Alert>', {Alert: '$lib/Alert.svelte'});
 			assert.equal(result.markup, '<Alert>warning</Alert>');
 			assert_import(result, 'Alert', '$lib/Alert.svelte', 'default');
 			assert.equal(result.has_unconfigured_tags, false);
@@ -360,28 +352,19 @@ describe('mdz_to_svelte', () => {
 		});
 
 		test('renders self-closing configured element', () => {
-			const result = convert('<hr />', {
-				...default_options,
-				elements: ['hr'],
-			});
+			const result = convert('<hr />', {}, new Set(['hr']));
 			// mdz parser may handle <hr /> as an Element with no children
 			assert.equal(result.has_unconfigured_tags, false);
 		});
 
 		test('renders configured component with formatted children', () => {
-			const result = convert('<Alert>**bold** note</Alert>', {
-				...default_options,
-				components: {Alert: '$lib/Alert.svelte'},
-			});
+			const result = convert('<Alert>**bold** note</Alert>', {Alert: '$lib/Alert.svelte'});
 			assert.ok(result.markup.includes('<strong>bold</strong>'));
 			assert.ok(result.markup.includes('<Alert>'));
 		});
 
 		test('renders configured element with formatted children', () => {
-			const result = convert('<aside>**bold** note</aside>', {
-				...default_options,
-				elements: ['aside'],
-			});
+			const result = convert('<aside>**bold** note</aside>', {}, new Set(['aside']));
 			assert.ok(result.markup.includes('<strong>bold</strong>'));
 			assert.ok(result.markup.includes('<aside>'));
 		});
@@ -419,17 +402,13 @@ describe('mdz_to_svelte', () => {
 		});
 
 		test('adds configured component imports', () => {
-			const result = convert('<Alert>warning</Alert>', {
-				...default_options,
-				components: {Alert: '$lib/Alert.svelte'},
-			});
+			const result = convert('<Alert>warning</Alert>', {Alert: '$lib/Alert.svelte'});
 			assert_import(result, 'Alert', '$lib/Alert.svelte', 'default');
 		});
 
 		test('collects multiple imports', () => {
 			const result = convert('`fn` and [link](/path) and <Alert>hi</Alert>', {
-				...default_options,
-				components: {Alert: '$lib/Alert.svelte'},
+				Alert: '$lib/Alert.svelte',
 			});
 			assert.ok(result.imports.has('DocsLink'));
 			assert.ok(result.imports.has('resolve'));
@@ -444,7 +423,7 @@ describe('mdz_to_svelte', () => {
 
 	describe('edge cases', () => {
 		test('handles empty node array', () => {
-			const result = mdz_to_svelte([], default_options);
+			const result = mdz_to_svelte([], {}, new Set());
 			assert.equal(result.markup, '');
 			assert.equal(result.imports.size, 0);
 			assert.equal(result.has_unconfigured_tags, false);
@@ -467,10 +446,7 @@ describe('mdz_to_svelte', () => {
 
 		test('handles single component without paragraph wrapper', () => {
 			// mdz parser wraps single components directly (MDX convention)
-			const result = convert('<Alert>text</Alert>', {
-				...default_options,
-				components: {Alert: '$lib/Alert.svelte'},
-			});
+			const result = convert('<Alert>text</Alert>', {Alert: '$lib/Alert.svelte'});
 			// Should NOT be wrapped in <p>
 			assert.ok(!result.markup.includes('<p>'));
 			assert.equal(result.markup, '<Alert>text</Alert>');

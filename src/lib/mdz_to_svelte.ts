@@ -13,29 +13,6 @@ import {UnreachableError} from '@fuzdev/fuz_util/error.js';
 import type {MdzNode} from './mdz.js';
 
 /**
- * Options for `mdz_to_svelte`.
- */
-export interface MdzToSvelteOptions {
-	/**
-	 * Component import mapping for mdz content.
-	 * Key: component name as used in mdz (e.g., 'Alert').
-	 * Value: import path (e.g., '$lib/Alert.svelte').
-	 *
-	 * If mdz content references a component not in this map,
-	 * `has_unconfigured_tags` is set to `true` in the result.
-	 */
-	components?: Record<string, string>;
-
-	/**
-	 * Allowed HTML element names in mdz content.
-	 *
-	 * If mdz content references an element not in this list,
-	 * `has_unconfigured_tags` is set to `true` in the result.
-	 */
-	elements?: Array<string>;
-}
-
-/**
  * Result of converting `MdzNode` arrays to Svelte markup.
  */
 export interface MdzToSvelteResult {
@@ -54,15 +31,20 @@ export interface MdzToSvelteResult {
  *
  * Each node type produces output matching what `MdzNodeView.svelte` renders at runtime.
  * Collects required imports and flags unconfigured component/element references.
+ *
+ * @param nodes Parsed mdz nodes to render.
+ * @param components Component name to import path mapping (e.g., `{Alert: '$lib/Alert.svelte'}`).
+ *   If content references a component not in this map, `has_unconfigured_tags` is set.
+ * @param elements Allowed HTML element names (e.g., `new Set(['aside', 'details'])`).
+ *   If content references an element not in this set, `has_unconfigured_tags` is set.
  */
 export const mdz_to_svelte = (
 	nodes: Array<MdzNode>,
-	options: MdzToSvelteOptions = {},
+	components: Record<string, string>,
+	elements: ReadonlySet<string>,
 ): MdzToSvelteResult => {
-	const {components = {}, elements = []} = options;
 	const imports: Map<string, {path: string; kind: 'default' | 'named'}> = new Map();
 	let has_unconfigured_tags = false;
-	const elements_set = new Set(elements);
 
 	const render_nodes = (children: Array<MdzNode>): string => {
 		return children.map((child) => render_node(child)).join('');
@@ -116,7 +98,7 @@ export const mdz_to_svelte = (
 				return `<h${node.level}>${render_nodes(node.children)}</h${node.level}>`;
 
 			case 'Element': {
-				if (!elements_set.has(node.name)) {
+				if (!elements.has(node.name)) {
 					has_unconfigured_tags = true;
 					return '';
 				}

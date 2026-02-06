@@ -81,10 +81,11 @@ export const svelte_preprocess_mdz = (
 	const {
 		exclude = [],
 		components = {},
-		elements = [],
+		elements: elements_array = [],
 		component_imports = ['@fuzdev/fuz_ui/Mdz.svelte'],
 		compiled_component_import = '@fuzdev/fuz_ui/MdzPrecompiled.svelte',
 	} = options;
+	const elements = new Set(elements_array);
 
 	return {
 		name: 'fuz-mdz',
@@ -174,7 +175,7 @@ interface FindMdzUsagesResult {
 
 interface FindMdzUsagesContext {
 	components: Record<string, string>;
-	elements: Array<string>;
+	elements: ReadonlySet<string>;
 	filename: string | undefined;
 	source: string;
 }
@@ -213,6 +214,7 @@ const find_mdz_usages = (
 	const transformed_usages: Map<string, number> = new Map();
 
 	walk(ast.fragment as any, null, {
+		// TODO: use proper Svelte AST type for fragment
 		Component(node: AST.Component, ctx: {next: () => void}) {
 			// Always recurse into children so nested Mdz components are found
 			ctx.next();
@@ -223,7 +225,7 @@ const find_mdz_usages = (
 			total_usages.set(node.name, (total_usages.get(node.name) ?? 0) + 1);
 
 			// Skip if spread attributes present — can't determine content statically
-			if (node.attributes.some((attr: any) => attr.type === 'SpreadAttribute')) return;
+			if (node.attributes.some((attr: any) => attr.type === 'SpreadAttribute')) return; // TODO: use proper Svelte attribute union type
 
 			const content_attr = find_attribute(node, 'content');
 			if (!content_attr) return;
@@ -236,10 +238,7 @@ const find_mdz_usages = (
 			const nodes = mdz_parse(content_value);
 
 			// Render to Svelte markup
-			const result = mdz_to_svelte(nodes, {
-				components: context.components,
-				elements: context.elements,
-			});
+			const result = mdz_to_svelte(nodes, context.components, context.elements);
 
 			// If content has unconfigured tags, skip this usage (fall back to runtime)
 			if (result.has_unconfigured_tags) return;
@@ -250,8 +249,8 @@ const find_mdz_usages = (
 			transformed_usages.set(node.name, (transformed_usages.get(node.name) ?? 0) + 1);
 
 			transformations.push({
-				start: (node as any).start,
-				end: (node as any).end,
+				start: (node as any).start, // TODO: use proper Svelte AST type with position data
+				end: (node as any).end, // TODO: use proper Svelte AST type with position data
 				replacement,
 				required_imports: result.imports,
 			});
@@ -277,7 +276,7 @@ const build_replacement = (
 	const other_attr_ranges: Array<{start: number; end: number}> = [];
 	for (const attr of node.attributes) {
 		if (attr === content_attr) continue;
-		other_attr_ranges.push({start: (attr as any).start, end: (attr as any).end});
+		other_attr_ranges.push({start: (attr as any).start, end: (attr as any).end}); // TODO: use proper Svelte AST type with position data
 	}
 
 	// Build opening tag with MdzPrecompiled name
@@ -304,7 +303,8 @@ const find_removable_mdz_imports = (
 	total_usages: Map<string, number>,
 	transformed_usages: Map<string, number>,
 ): Set<any> => {
-	const removable: Set<any> = new Set();
+	// TODO: use proper ESTree ImportDeclaration type
+	const removable: Set<any> = new Set(); // TODO: use proper ESTree ImportDeclaration type
 
 	for (const [name, {import_node}] of mdz_names) {
 		const total = total_usages.get(name) ?? 0;
@@ -354,7 +354,7 @@ const manage_imports = (
 	s: MagicString,
 	ast: AST.Root,
 	transformations: Array<MdzTransformation>,
-	removable_imports: Set<any>,
+	removable_imports: Set<any>, // TODO: use proper ESTree ImportDeclaration type
 	compiled_component_import: string,
 	source: string,
 ): void => {
@@ -410,7 +410,7 @@ const manage_imports = (
 	// Strategy: if we're both adding MdzPrecompiled and removing an Mdz import,
 	// overwrite one removable import with the MdzPrecompiled line to avoid
 	// MagicString boundary conflicts. Other imports use normal appendLeft.
-	let overwrite_target: any = null;
+	let overwrite_target: any = null; // TODO: use proper ESTree ImportDeclaration type
 	if (to_add.has(PRECOMPILED_NAME) && removable_imports.size > 0) {
 		// Pick the first removable import to overwrite
 		overwrite_target = removable_imports.values().next().value;
@@ -418,7 +418,6 @@ const manage_imports = (
 
 	// Generate the MdzPrecompiled import line separately if using overwrite
 	if (overwrite_target) {
-		const precompiled_line = `\timport ${PRECOMPILED_NAME} from '${compiled_component_import}';`;
 		const node_start = overwrite_target.start;
 		const node_end = overwrite_target.end;
 
@@ -427,6 +426,12 @@ const manage_imports = (
 		while (line_start > 0 && (source[line_start - 1] === '\t' || source[line_start - 1] === ' ')) {
 			line_start--;
 		}
+
+		// Extract indentation from the original import line rather than hardcoding a tab.
+		// The import node's start is after any leading whitespace, so the indentation is
+		// the characters between the line start and the node start.
+		const original_indent = source.slice(line_start, node_start);
+		const precompiled_line = `${original_indent}import ${PRECOMPILED_NAME} from '${compiled_component_import}';`;
 
 		s.overwrite(line_start, node_end, precompiled_line);
 		to_add.delete(PRECOMPILED_NAME);
@@ -449,7 +454,13 @@ const manage_imports = (
 /**
  * Removes an import declaration from the source using MagicString.
  * Consumes surrounding whitespace to avoid leaving blank lines.
+ *
+ * The leading whitespace check only looks for tabs and spaces, not `\r`.
+ * This is correct for both Unix (`\n`) and Windows (`\r\n`) line endings:
+ * in `\r\n`, the `\r` belongs to the previous line's terminator, not to
+ * this line's leading whitespace.
  */
+// TODO: use proper ESTree ImportDeclaration type instead of `any`
 const remove_import_declaration = (s: MagicString, import_node: any, source: string): void => {
 	let start: number = import_node.start;
 	let end: number = import_node.end;

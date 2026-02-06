@@ -20,8 +20,10 @@ export interface PreprocessImportInfo {
 
 /** Information about a resolved component import. */
 export interface ResolvedComponentImport {
+	// TODO: use proper ESTree types (e.g. import('estree').ImportDeclaration)
 	/** The `ImportDeclaration` AST node that provides this name. */
 	import_node: any;
+	// TODO: use proper ESTree types (e.g. import('estree').ImportSpecifier | ImportDefaultSpecifier)
 	/** The specific import specifier for this name. */
 	specifier: any;
 }
@@ -75,9 +77,11 @@ export const find_attribute = (node: AST.Component, name: string): AST.Attribute
  * @param expr An ESTree-compatible expression AST node.
  * @returns The resolved static string, or `null` if the expression is dynamic.
  */
+// TODO: use proper ESTree expression type instead of `any`
 export const evaluate_static_expr = (expr: any): string | null => {
 	if (expr.type === 'Literal' && typeof expr.value === 'string') return expr.value;
 	if (expr.type === 'TemplateLiteral' && expr.expressions.length === 0) {
+		// TODO: use proper ESTree TemplateElement type instead of `any`
 		return expr.quasis.map((q: any) => q.value.cooked ?? q.value.raw).join('');
 	}
 	if (expr.type === 'BinaryExpression' && expr.operator === '+') {

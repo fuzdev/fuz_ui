@@ -15,10 +15,14 @@ import {
 /* eslint-disable no-await-in-loop */
 
 // Extend default options with elements used in mdz fixtures
-const CROSS_TEST_OPTIONS = {
+const CROSS_TEST_PREPROCESS_OPTIONS = {
 	...DEFAULT_TEST_OPTIONS,
 	elements: [...DEFAULT_TEST_OPTIONS.elements, 'div', 'span'],
 } satisfies SveltePreprocessMdzOptions;
+
+// mdz_to_svelte takes components and elements as direct params
+const cross_test_components = CROSS_TEST_PREPROCESS_OPTIONS.components!;
+const cross_test_elements = new Set(CROSS_TEST_PREPROCESS_OPTIONS.elements);
 
 let mdz_fixtures: Array<MdzFixture> = [];
 
@@ -32,7 +36,11 @@ describe('cross-test: mdz fixtures through preprocessor pipeline', () => {
 		let skipped_unconfigured = 0;
 
 		for (const fixture of mdz_fixtures) {
-			const svelte_result = mdz_to_svelte(fixture.expected, CROSS_TEST_OPTIONS);
+			const svelte_result = mdz_to_svelte(
+				fixture.expected,
+				cross_test_components,
+				cross_test_elements,
+			);
 
 			// Skip fixtures whose content has unconfigured tags
 			if (svelte_result.has_unconfigured_tags) {
@@ -44,7 +52,7 @@ describe('cross-test: mdz fixtures through preprocessor pipeline', () => {
 			const escaped = escape_js_string(fixture.input);
 			const svelte_input = `<script lang="ts">\n\timport Mdz from '@fuzdev/fuz_ui/Mdz.svelte';\n</script>\n\n<Mdz content={'${escaped}'} />\n`;
 
-			const output = await run_preprocess(svelte_input, CROSS_TEST_OPTIONS);
+			const output = await run_preprocess(svelte_input, CROSS_TEST_PREPROCESS_OPTIONS);
 
 			// Verify markup matches — preprocessor outputs MdzPrecompiled, not Mdz
 			const expected_fragment = `<MdzPrecompiled>${svelte_result.markup}</MdzPrecompiled>`;

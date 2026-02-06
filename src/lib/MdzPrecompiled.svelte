@@ -24,7 +24,7 @@ Used by `svelte_preprocess_mdz`. Not intended for direct use.
 <svelte:element
 	this={inline ? 'span' : 'div'}
 	{...rest}
-	class="{rest.class} {nowrap ? 'white-space:pre' : 'white-space:pre-wrap'}"
+	style:white-space={nowrap ? 'pre' : 'pre-wrap'}
 >
 	{@render children()}
 </svelte:element>
