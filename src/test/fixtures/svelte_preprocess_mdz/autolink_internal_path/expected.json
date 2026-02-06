@@ -1,3 +1,3 @@
 {
-	"code": "<script lang=\"ts\">\n\timport Mdz from '@fuzdev/fuz_ui/Mdz.svelte';\n\timport {resolve} from '$app/paths';\n</script>\n\n<Mdz><p>see <a href={resolve('/docs/api')}>/docs/api</a> for details</p></Mdz>\n"
+	"code": "<script lang=\"ts\">\n\timport MdzPrecompiled from '$lib/MdzPrecompiled.svelte';\n\timport {resolve} from '$app/paths';\n</script>\n\n<MdzPrecompiled><p>see <a href={resolve('/docs/api')}>/docs/api</a> for details</p></MdzPrecompiled>\n"
 }

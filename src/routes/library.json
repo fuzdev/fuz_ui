@@ -37,6 +37,7 @@
 			"build": "gro build",
 			"check": "gro check",
 			"test": "gro test",
+			"fixtures:update": "gro src/test/fixtures/update",
 			"preview": "vite preview",
 			"deploy": "gro deploy"
 		},
@@ -4691,6 +4692,108 @@
 				"dependents": ["MdzNodeView.svelte"]
 			},
 			{
+				"path": "mdz_to_svelte.ts",
+				"declarations": [
+					{
+						"name": "MdzToSvelteOptions",
+						"kind": "type",
+						"doc_comment": "Options for `mdz_to_svelte`.",
+						"source_line": 18,
+						"type_signature": "MdzToSvelteOptions",
+						"properties": [
+							{
+								"name": "components",
+								"kind": "variable",
+								"type_signature": "Record<string, string>",
+								"doc_comment": "Component import mapping for mdz content.\nKey: component name as used in mdz (e.g., 'Alert').\nValue: import path (e.g., '$lib/Alert.svelte').\n\nIf mdz content references a component not in this map,\n`has_unconfigured_tags` is set to `true` in the result."
+							},
+							{
+								"name": "elements",
+								"kind": "variable",
+								"type_signature": "Array<string>",
+								"doc_comment": "Allowed HTML element names in mdz content.\n\nIf mdz content references an element not in this list,\n`has_unconfigured_tags` is set to `true` in the result."
+							}
+						]
+					},
+					{
+						"name": "MdzToSvelteResult",
+						"kind": "type",
+						"doc_comment": "Result of converting `MdzNode` arrays to Svelte markup.",
+						"source_line": 41,
+						"type_signature": "MdzToSvelteResult",
+						"properties": [
+							{
+								"name": "markup",
+								"kind": "variable",
+								"type_signature": "string",
+								"doc_comment": "Generated Svelte markup string."
+							},
+							{
+								"name": "imports",
+								"kind": "variable",
+								"type_signature": "Map<string, {path: string; kind: 'default' | 'named'}>",
+								"doc_comment": "Required imports: `Map<local_name, {path, kind}>`."
+							},
+							{
+								"name": "has_unconfigured_tags",
+								"kind": "variable",
+								"type_signature": "boolean",
+								"doc_comment": "Whether content references unconfigured Component or Element tags."
+							}
+						]
+					},
+					{
+						"name": "mdz_to_svelte",
+						"kind": "function",
+						"doc_comment": "Converts an array of `MdzNode` to a Svelte markup string.\n\nEach node type produces output matching what `MdzNodeView.svelte` renders at runtime.\nCollects required imports and flags unconfigured component/element references.",
+						"source_line": 58,
+						"type_signature": "(nodes: MdzNode[], options?: MdzToSvelteOptions): MdzToSvelteResult",
+						"return_type": "MdzToSvelteResult",
+						"parameters": [
+							{
+								"name": "nodes",
+								"type": "MdzNode[]"
+							},
+							{
+								"name": "options",
+								"type": "MdzToSvelteOptions",
+								"default_value": "{}"
+							}
+						]
+					},
+					{
+						"name": "escape_svelte_text",
+						"kind": "function",
+						"doc_comment": "Escapes text for safe embedding in Svelte template markup.\n\nUses a single-pass regex replacement to avoid corruption that occurs with sequential\n`.replace()` calls (where the second replace matches characters introduced by the first).\n\nEscapes four characters:\n- `{` → `{'{'}` and `}` → `{'}'}` — prevents Svelte expression interpretation\n- `<` → `&lt;` — prevents HTML/Svelte tag interpretation\n- `&` → `&amp;` — prevents HTML entity interpretation\n\nThe `&` escaping is necessary because runtime `MdzNodeView.svelte` renders text\nwith `{node.content}` (a Svelte expression), which auto-escapes `&` to `&amp;`.\nThe preprocessor emits raw template text where `&` is NOT auto-escaped, so\nmanual escaping is required to match the runtime behavior.",
+						"source_line": 161,
+						"type_signature": "(text: string): string",
+						"return_type": "string",
+						"parameters": [
+							{
+								"name": "text",
+								"type": "string"
+							}
+						]
+					},
+					{
+						"name": "escape_js_string",
+						"kind": "function",
+						"doc_comment": "Escapes a string for use inside a single-quoted JS string literal in Svelte expressions.\n\nUsed for attribute values like `reference={'escaped_value'}` and\n`content={'escaped_value'}`. Single quotes are used because the emitted\nmarkup may contain double quotes (e.g., in HTML attribute values).",
+						"source_line": 185,
+						"type_signature": "(value: string): string",
+						"return_type": "string",
+						"parameters": [
+							{
+								"name": "value",
+								"type": "string"
+							}
+						]
+					}
+				],
+				"module_comment": "Converts parsed `MdzNode` arrays to Svelte markup strings.\n\nUsed by the `svelte_preprocess_mdz` preprocessor to expand static `<Mdz content=\"...\">` usages\ninto pre-rendered Svelte markup at build time. The output for each node type matches what\n`MdzNodeView.svelte` renders at runtime, so precompiled and runtime rendering are identical.",
+				"dependents": ["svelte_preprocess_mdz.ts"]
+			},
+			{
 				"path": "Mdz.svelte",
 				"declarations": [
 					{
@@ -5059,7 +5162,7 @@
 					}
 				],
 				"module_comment": "mdz - minimal markdown dialect for Fuz documentation.\n\nParses an enhanced markdown dialect with:\n- inline formatting: `code`, **bold**, _italic_, ~strikethrough~\n- auto-detected links: external URLs (`https://...`) and internal paths (`/path`)\n- markdown links: `[text](url)` with custom display text\n- inline code in backticks (creates `Code` nodes; auto-linking to identifiers/modules\n  is handled by the rendering layer via `MdzNodeView.svelte`)\n- paragraph breaks (double newline)\n- block elements: headings, horizontal rules, code blocks\n- HTML elements and Svelte components (opt-in via context)\n\nKey constraint: preserves ALL whitespace exactly as authored,\nand is rendered with white-space pre or pre-wrap.\n\n## Design philosophy\n\n- **False negatives over false positives**: Strict syntax prevents accidentally\n  interpreting plain text as formatting. When in doubt, treat as plain text.\n- **One way to do things**: Single unambiguous syntax per feature. No alternatives.\n- **Explicit over implicit**: Clear delimiters and column-0 requirements avoid ambiguity.\n- **Simple over complete**: Prefer simple parsing rules over complex edge case handling.\n\n## Status\n\nThis is an early proof of concept with missing features and edge cases.",
-				"dependents": ["Mdz.svelte", "tsdoc_mdz.ts"]
+				"dependents": ["Mdz.svelte", "svelte_preprocess_mdz.ts", "tsdoc_mdz.ts"]
 			},
 			{
 				"path": "MdzNodeView.svelte",
@@ -5078,6 +5181,33 @@
 				],
 				"dependencies": ["DocsLink.svelte", "MdzNodeView.svelte", "mdz_components.ts"],
 				"dependents": ["Mdz.svelte", "MdzNodeView.svelte"]
+			},
+			{
+				"path": "MdzPrecompiled.svelte",
+				"declarations": [
+					{
+						"name": "MdzPrecompiled",
+						"kind": "component",
+						"doc_comment": "Used by `svelte_preprocess_mdz`. Not intended for direct use.",
+						"props": [
+							{
+								"name": "inline",
+								"type": "boolean",
+								"optional": true
+							},
+							{
+								"name": "nowrap",
+								"type": "boolean",
+								"optional": true
+							},
+							{
+								"name": "children",
+								"type": "Snippet"
+							}
+						],
+						"source_line": 1
+					}
+				]
 			},
 			{
 				"path": "module_contextmenu.ts",
@@ -6269,6 +6399,272 @@
 				"module_comment": "Svelte component analysis helpers.\n\nExtracts metadata from Svelte components using svelte2tsx transformations:\n\n- Component props with types and JSDoc\n- Component-level documentation\n- Type information\n\nWorkflow: Transform Svelte to TypeScript via svelte2tsx, parse the transformed\nTypeScript with the TS Compiler API, extract component-level JSDoc from original source.\n\n**Svelte 5 only**: The svelte2tsx output format changed significantly between versions.\nThis module requires Svelte 5+ and will throw a clear error if an older version is detected.\nThere is no Svelte 4 compatibility layer.\n\nAll functions are prefixed with `svelte_` for clarity.",
 				"dependencies": ["module_helpers.ts", "ts_helpers.ts", "tsdoc_helpers.ts"],
 				"dependents": ["library_analysis.ts"]
+			},
+			{
+				"path": "svelte_preprocess_helpers.ts",
+				"declarations": [
+					{
+						"name": "PreprocessImportInfo",
+						"kind": "type",
+						"doc_comment": "Import metadata for a single import specifier.",
+						"source_line": 14,
+						"type_signature": "PreprocessImportInfo",
+						"properties": [
+							{
+								"name": "path",
+								"kind": "variable",
+								"type_signature": "string",
+								"doc_comment": "The module path to import from."
+							},
+							{
+								"name": "kind",
+								"kind": "variable",
+								"type_signature": "'default' | 'named'",
+								"doc_comment": "Whether this is a default or named import."
+							}
+						]
+					},
+					{
+						"name": "ResolvedComponentImport",
+						"kind": "type",
+						"doc_comment": "Information about a resolved component import.",
+						"source_line": 22,
+						"type_signature": "ResolvedComponentImport",
+						"properties": [
+							{
+								"name": "import_node",
+								"kind": "variable",
+								"type_signature": "any",
+								"doc_comment": "The `ImportDeclaration` AST node that provides this name."
+							},
+							{
+								"name": "specifier",
+								"kind": "variable",
+								"type_signature": "any",
+								"doc_comment": "The specific import specifier for this name."
+							}
+						]
+					},
+					{
+						"name": "should_exclude",
+						"kind": "function",
+						"doc_comment": "Checks if a filename matches any exclusion pattern.\n\nReturns `false` when `filename` is `undefined` or `exclude` is empty.\nString patterns use substring matching. RegExp patterns use `.test()`.",
+						"source_line": 39,
+						"type_signature": "(filename: string | undefined, exclude: (string | RegExp)[]): boolean",
+						"return_type": "boolean",
+						"return_description": "`true` if the file should be excluded from processing.",
+						"parameters": [
+							{
+								"name": "filename",
+								"type": "string | undefined",
+								"description": "The file path to check, or `undefined` for virtual files."
+							},
+							{
+								"name": "exclude",
+								"type": "(string | RegExp)[]",
+								"description": "Array of string or RegExp exclusion patterns."
+							}
+						]
+					},
+					{
+						"name": "find_attribute",
+						"kind": "function",
+						"doc_comment": "Finds an attribute by name on a component AST node.\n\nIterates the node's `attributes` array and returns the first `Attribute`\nnode whose `name` matches. Skips `SpreadAttribute`, directive, and other node types.",
+						"source_line": 59,
+						"type_signature": "(node: Component, name: string): Attribute | undefined",
+						"return_type": "Attribute | undefined",
+						"return_description": "The matching `Attribute` node, or `undefined` if not found.",
+						"parameters": [
+							{
+								"name": "node",
+								"type": "Component",
+								"description": "The component AST node to search."
+							},
+							{
+								"name": "name",
+								"type": "string",
+								"description": "The attribute name to find."
+							}
+						]
+					},
+					{
+						"name": "evaluate_static_expr",
+						"kind": "function",
+						"doc_comment": "Recursively evaluates an expression AST node to a static string value.\n\nHandles string `Literal`, `TemplateLiteral` without interpolation, and\n`BinaryExpression` with the `+` operator (string concatenation).\nReturns `null` for dynamic expressions, non-string literals, or unsupported node types.",
+						"source_line": 78,
+						"type_signature": "(expr: any): string | null",
+						"return_type": "string | null",
+						"return_description": "The resolved static string, or `null` if the expression is dynamic.",
+						"parameters": [
+							{
+								"name": "expr",
+								"type": "any",
+								"description": "An ESTree-compatible expression AST node."
+							}
+						]
+					},
+					{
+						"name": "extract_static_string",
+						"kind": "function",
+						"doc_comment": "Extracts a static string value from a Svelte attribute value AST node.\n\nHandles three forms:\n- Boolean `true` (bare attribute like `inline`) -- returns `null`.\n- Array with a single `Text` node (quoted attribute like `content=\"text\"`) --\n  returns the text data.\n- `ExpressionTag` (expression like `content={'text'}`) -- delegates to `evaluate_static_expr`.\n\nReturns `null` for null literals, mixed arrays, dynamic expressions, and non-string values.",
+						"source_line": 107,
+						"type_signature": "(value: true | ExpressionTag | (ExpressionTag | Text)[]): string | null",
+						"return_type": "string | null",
+						"return_description": "The resolved static string, or `null` if the value is dynamic.",
+						"parameters": [
+							{
+								"name": "value",
+								"type": "true | ExpressionTag | (ExpressionTag | Text)[]",
+								"description": "The attribute value from `AST.Attribute['value']`."
+							}
+						]
+					},
+					{
+						"name": "resolve_component_names",
+						"kind": "function",
+						"doc_comment": "Resolves local names that import from specified source paths.\n\nScans `ImportDeclaration` nodes in both the instance and module scripts.\nHandles default, named, and aliased imports. Skips namespace imports.\nReturns import node references alongside names to support import removal.",
+						"source_line": 138,
+						"type_signature": "(ast: Root, component_imports: string[]): Map<string, ResolvedComponentImport>",
+						"return_type": "Map<string, ResolvedComponentImport>",
+						"return_description": "Map of local names to their resolved import info.",
+						"parameters": [
+							{
+								"name": "ast",
+								"type": "Root",
+								"description": "The parsed Svelte AST root node."
+							},
+							{
+								"name": "component_imports",
+								"type": "string[]",
+								"description": "Array of import source paths to match against."
+							}
+						]
+					},
+					{
+						"name": "find_import_insert_position",
+						"kind": "function",
+						"doc_comment": "Finds the position to insert new import statements within a script block.\n\nReturns the end position of the last `ImportDeclaration`, or the start\nof the script body content if no imports exist.",
+						"source_line": 166,
+						"type_signature": "(script: Script): number",
+						"return_type": "number",
+						"return_description": "The character position where new imports should be inserted.",
+						"parameters": [
+							{
+								"name": "script",
+								"type": "Script",
+								"description": "The parsed `AST.Script` node."
+							}
+						]
+					},
+					{
+						"name": "generate_import_lines",
+						"kind": "function",
+						"doc_comment": "Generates tab-indented import statement lines from an import map.\n\nDefault imports produce `import Name from 'path';` lines.\nNamed imports are grouped by path into `import {a, b} from 'path';` lines.",
+						"source_line": 189,
+						"type_signature": "(imports: Map<string, PreprocessImportInfo>): string",
+						"return_type": "string",
+						"return_description": "A string of newline-separated import statements.",
+						"parameters": [
+							{
+								"name": "imports",
+								"type": "Map<string, PreprocessImportInfo>",
+								"description": "Map of local names to their import info."
+							}
+						]
+					},
+					{
+						"name": "has_identifier_in_tree",
+						"kind": "function",
+						"doc_comment": "Checks if an identifier with the given name appears anywhere in an AST subtree.\n\nRecursively walks all object and array properties of the tree, matching\nESTree `Identifier` nodes (`{type: 'Identifier', name}`). Nodes in the\n`skip` set are excluded from traversal — used to skip `ImportDeclaration`\nnodes so the import's own specifier identifier doesn't false-positive.\n\nSafe for Svelte template ASTs: `Component.name` is a plain string property\n(not an `Identifier` node), so `<Mdz>` tags do not produce false matches.",
+						"source_line": 232,
+						"type_signature": "(node: unknown, name: string, skip?: Set<unknown> | undefined): boolean",
+						"return_type": "boolean",
+						"return_description": "`true` if a matching `Identifier` node is found.",
+						"parameters": [
+							{
+								"name": "node",
+								"type": "unknown",
+								"description": "The AST subtree to search."
+							},
+							{
+								"name": "name",
+								"type": "string",
+								"description": "The identifier name to look for."
+							},
+							{
+								"name": "skip",
+								"type": "Set<unknown> | undefined",
+								"optional": true,
+								"description": "Set of AST nodes to skip during traversal."
+							}
+						]
+					}
+				],
+				"module_comment": "Shared helper functions for Svelte preprocessors.\n\nProvides AST utilities for detecting static content, resolving imports,\nand managing import statements. Used by `svelte_preprocess_mdz` and\npotentially other Svelte preprocessors.",
+				"dependents": ["svelte_preprocess_mdz.ts"]
+			},
+			{
+				"path": "svelte_preprocess_mdz.ts",
+				"declarations": [
+					{
+						"name": "SveltePreprocessMdzOptions",
+						"kind": "type",
+						"doc_comment": "Options for `svelte_preprocess_mdz`.",
+						"source_line": 33,
+						"type_signature": "SveltePreprocessMdzOptions",
+						"properties": [
+							{
+								"name": "exclude",
+								"kind": "variable",
+								"type_signature": "Array<string | RegExp>",
+								"doc_comment": "File patterns to exclude."
+							},
+							{
+								"name": "components",
+								"kind": "variable",
+								"type_signature": "Record<string, string>",
+								"doc_comment": "Component import mapping for mdz content.\nKey: component name as used in mdz (e.g., 'Alert').\nValue: import path (e.g., '$lib/Alert.svelte').\n\nIf mdz content references a component not in this map,\nthat Mdz usage is skipped (left as runtime)."
+							},
+							{
+								"name": "elements",
+								"kind": "variable",
+								"type_signature": "Array<string>",
+								"doc_comment": "Allowed HTML elements in mdz content.\nIf mdz content references an element not in this list,\nthat Mdz usage is skipped (left as runtime)."
+							},
+							{
+								"name": "component_imports",
+								"kind": "variable",
+								"type_signature": "Array<string>",
+								"doc_comment": "Import sources that resolve to the Mdz component.\nUsed to verify that `<Mdz>` in templates refers to fuz_ui's Mdz.svelte."
+							},
+							{
+								"name": "compiled_component_import",
+								"kind": "variable",
+								"type_signature": "string",
+								"doc_comment": "Import path for the precompiled wrapper component."
+							}
+						]
+					},
+					{
+						"name": "svelte_preprocess_mdz",
+						"kind": "function",
+						"doc_comment": "Creates a Svelte preprocessor that compiles static `<Mdz>` content at build time.",
+						"source_line": 78,
+						"type_signature": "(options?: SveltePreprocessMdzOptions): PreprocessorGroup",
+						"return_type": "PreprocessorGroup",
+						"return_description": "A Svelte `PreprocessorGroup` for use in `svelte.config.js`.",
+						"parameters": [
+							{
+								"name": "options",
+								"type": "SveltePreprocessMdzOptions",
+								"description": "Configuration for component/element resolution and file filtering.",
+								"default_value": "{}"
+							}
+						]
+					}
+				],
+				"module_comment": "Svelte preprocessor that compiles static `<Mdz>` content to Svelte markup at build time.\n\nDetects `<Mdz>` components with static string `content` props, parses the mdz content,\nrenders each `MdzNode` to equivalent Svelte markup via `mdz_to_svelte`, and replaces\nthe `<Mdz>` with `<MdzPrecompiled>` containing pre-rendered children.\nDynamic `content` props are left untouched.",
+				"dependencies": ["mdz.ts", "mdz_to_svelte.ts", "svelte_preprocess_helpers.ts"]
 			},
 			{
 				"path": "Svg.svelte",

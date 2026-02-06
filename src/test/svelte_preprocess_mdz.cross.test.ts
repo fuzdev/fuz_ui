@@ -17,7 +17,7 @@ import {
 // Extend default options with elements used in mdz fixtures
 const CROSS_TEST_OPTIONS = {
 	...DEFAULT_TEST_OPTIONS,
-	elements: [...(DEFAULT_TEST_OPTIONS.elements ?? []), 'div', 'span'],
+	elements: [...DEFAULT_TEST_OPTIONS.elements, 'div', 'span'],
 } satisfies SveltePreprocessMdzOptions;
 
 let mdz_fixtures: Array<MdzFixture> = [];
@@ -32,10 +32,7 @@ describe('cross-test: mdz fixtures through preprocessor pipeline', () => {
 		let skipped_unconfigured = 0;
 
 		for (const fixture of mdz_fixtures) {
-			const svelte_result = mdz_to_svelte(fixture.expected, {
-				components: CROSS_TEST_OPTIONS.components,
-				elements: CROSS_TEST_OPTIONS.elements,
-			});
+			const svelte_result = mdz_to_svelte(fixture.expected, CROSS_TEST_OPTIONS);
 
 			// Skip fixtures whose content has unconfigured tags
 			if (svelte_result.has_unconfigured_tags) {
@@ -49,11 +46,23 @@ describe('cross-test: mdz fixtures through preprocessor pipeline', () => {
 
 			const output = await run_preprocess(svelte_input, CROSS_TEST_OPTIONS);
 
-			// Verify markup matches
-			const expected_fragment = `<Mdz>${svelte_result.markup}</Mdz>`;
+			// Verify markup matches — preprocessor outputs MdzPrecompiled, not Mdz
+			const expected_fragment = `<MdzPrecompiled>${svelte_result.markup}</MdzPrecompiled>`;
 			assert.ok(
 				output.includes(expected_fragment),
 				`mdz fixture "${fixture.name}": markup mismatch.\n  Expected fragment: ${expected_fragment}\n  Full output: ${output}`,
+			);
+
+			// Verify MdzPrecompiled import was added
+			assert.ok(
+				output.includes('import MdzPrecompiled from'),
+				`mdz fixture "${fixture.name}": missing MdzPrecompiled import`,
+			);
+
+			// Verify Mdz import was removed (single static usage, no script refs)
+			assert.ok(
+				!output.includes("import Mdz from '@fuzdev/fuz_ui/Mdz.svelte'"),
+				`mdz fixture "${fixture.name}": Mdz import should be removed`,
 			);
 
 			// Verify required imports were added

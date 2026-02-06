@@ -201,3 +201,129 @@ describe('import resolution', () => {
 		assert.ok(result.includes('<em>italic</em>'), 'should transform Markdown alias');
 	});
 });
+
+describe('import removal', () => {
+	test('removes Mdz import when all usages transformed', async () => {
+		const input = `<script lang="ts">
+	import Mdz from '@fuzdev/fuz_ui/Mdz.svelte';
+</script>
+
+<Mdz content="**bold**" />`;
+
+		const result = await run_preprocess(input);
+		assert.ok(!result.includes('import Mdz from'), 'should remove Mdz import');
+		assert.ok(result.includes('import MdzPrecompiled from'), 'should add MdzPrecompiled import');
+		assert.ok(result.includes('<MdzPrecompiled>'), 'should use MdzPrecompiled tag');
+	});
+
+	test('keeps Mdz import when mixed static and dynamic usages', async () => {
+		const input = `<script lang="ts">
+	import Mdz from '@fuzdev/fuz_ui/Mdz.svelte';
+	let dynamic = $state('text');
+</script>
+
+<Mdz content="**bold**" />
+<Mdz content={dynamic} />`;
+
+		const result = await run_preprocess(input);
+		assert.ok(result.includes('import Mdz from'), 'should keep Mdz import for dynamic usage');
+		assert.ok(result.includes('import MdzPrecompiled from'), 'should add MdzPrecompiled import');
+	});
+
+	test('keeps Mdz import when referenced in script', async () => {
+		const input = `<script lang="ts">
+	import Mdz from '@fuzdev/fuz_ui/Mdz.svelte';
+	const X = Mdz;
+</script>
+
+<Mdz content="**bold**" />`;
+
+		const result = await run_preprocess(input);
+		assert.ok(result.includes('import Mdz from'), 'should keep Mdz import for script reference');
+	});
+
+	test('keeps Mdz import when referenced in template expression', async () => {
+		const input = `<script lang="ts">
+	import Mdz from '@fuzdev/fuz_ui/Mdz.svelte';
+	import Foo from './Foo.svelte';
+</script>
+
+<Mdz content="**bold**" />
+<Foo comp={Mdz} />`;
+
+		const result = await run_preprocess(input);
+		assert.ok(result.includes('import Mdz from'), 'should keep Mdz import for template expression');
+	});
+
+	test('bails on entire file when MdzPrecompiled name is already imported', async () => {
+		const input = `<script lang="ts">
+	import Mdz from '@fuzdev/fuz_ui/Mdz.svelte';
+	import MdzPrecompiled from './other/MdzPrecompiled.svelte';
+</script>
+
+<Mdz content="**bold**" />`;
+
+		const result = await run_preprocess(input);
+		assert.equal(result, input, 'should bail when MdzPrecompiled name collides');
+	});
+
+	test('removes multiple Mdz aliases when all transformed', async () => {
+		const input = `<script lang="ts">
+	import Mdz from '@fuzdev/fuz_ui/Mdz.svelte';
+	import {default as Markdown} from '@fuzdev/fuz_ui/Mdz.svelte';
+</script>
+
+<Mdz content="**bold**" />
+<Markdown content="_italic_" />`;
+
+		const result = await run_preprocess(input);
+		assert.ok(!result.includes('import Mdz from'), 'should remove Mdz import');
+		assert.ok(!result.includes('import {default as Markdown}'), 'should remove Markdown import');
+		assert.ok(result.includes('import MdzPrecompiled from'), 'should add MdzPrecompiled import');
+	});
+
+	test('removes only fully transformed alias when partial', async () => {
+		const input = `<script lang="ts">
+	import Mdz from '@fuzdev/fuz_ui/Mdz.svelte';
+	import {default as Markdown} from '@fuzdev/fuz_ui/Mdz.svelte';
+	let dynamic = $state('text');
+</script>
+
+<Mdz content="**bold**" />
+<Markdown content={dynamic} />`;
+
+		const result = await run_preprocess(input);
+		assert.ok(!result.includes('import Mdz from'), 'should remove Mdz (all transformed)');
+		assert.ok(
+			result.includes('import {default as Markdown}'),
+			'should keep Markdown (has dynamic)',
+		);
+	});
+
+	test('output uses MdzPrecompiled regardless of original import name', async () => {
+		const input = `<script lang="ts">
+	import Markdown from '@fuzdev/fuz_ui/Mdz.svelte';
+</script>
+
+<Markdown content="**bold**" />`;
+
+		const result = await run_preprocess(input);
+		assert.ok(result.includes('<MdzPrecompiled>'), 'should use MdzPrecompiled not Markdown');
+		assert.ok(!result.includes('<Markdown>'), 'should not use original alias');
+	});
+
+	test('removes import cleanly without extra whitespace', async () => {
+		const input = `<script lang="ts">
+	import Wrapper from './Wrapper.svelte';
+	import Mdz from '@fuzdev/fuz_ui/Mdz.svelte';
+	import Other from './Other.svelte';
+</script>
+
+<Mdz content="**bold**" />`;
+
+		const result = await run_preprocess(input);
+		assert.ok(!result.includes('\n\n\n'), 'should not leave extra whitespace');
+		assert.ok(result.includes('import Wrapper'), 'should keep Wrapper import');
+		assert.ok(result.includes('import Other'), 'should keep Other import');
+	});
+});

@@ -18,6 +18,14 @@ export interface PreprocessImportInfo {
 	kind: 'default' | 'named';
 }
 
+/** Information about a resolved component import. */
+export interface ResolvedComponentImport {
+	/** The `ImportDeclaration` AST node that provides this name. */
+	import_node: any;
+	/** The specific import specifier for this name. */
+	specifier: any;
+}
+
 /**
  * Checks if a filename matches any exclusion pattern.
  *
@@ -120,17 +128,18 @@ export const extract_static_string = (value: AST.Attribute['value']): string | n
  * Resolves local names that import from specified source paths.
  *
  * Scans `ImportDeclaration` nodes in both the instance and module scripts.
- * Handles default, named, and aliased imports.
+ * Handles default, named, and aliased imports. Skips namespace imports.
+ * Returns import node references alongside names to support import removal.
  *
  * @param ast The parsed Svelte AST root node.
  * @param component_imports Array of import source paths to match against.
- * @returns Set of local names that import from the specified sources.
+ * @returns Map of local names to their resolved import info.
  */
 export const resolve_component_names = (
 	ast: AST.Root,
 	component_imports: Array<string>,
-): Set<string> => {
-	const names: Set<string> = new Set();
+): Map<string, ResolvedComponentImport> => {
+	const names: Map<string, ResolvedComponentImport> = new Map();
 	for (const script of [ast.instance, ast.module]) {
 		if (!script) continue;
 		for (const node of script.content.body) {
@@ -138,7 +147,7 @@ export const resolve_component_names = (
 			if (!component_imports.includes(node.source.value as string)) continue;
 			for (const specifier of node.specifiers) {
 				if (specifier.type === 'ImportNamespaceSpecifier') continue;
-				names.add(specifier.local.name);
+				names.set(specifier.local.name, {import_node: node, specifier});
 			}
 		}
 	}
@@ -202,4 +211,38 @@ export const generate_import_lines = (imports: Map<string, PreprocessImportInfo>
 		lines.push(`\timport {${names.join(', ')}} from '${path}';`);
 	}
 	return lines.join('\n');
+};
+
+/**
+ * Checks if an identifier with the given name appears anywhere in an AST subtree.
+ *
+ * Recursively walks all object and array properties of the tree, matching
+ * ESTree `Identifier` nodes (`{type: 'Identifier', name}`). Nodes in the
+ * `skip` set are excluded from traversal — used to skip `ImportDeclaration`
+ * nodes so the import's own specifier identifier doesn't false-positive.
+ *
+ * Safe for Svelte template ASTs: `Component.name` is a plain string property
+ * (not an `Identifier` node), so `<Mdz>` tags do not produce false matches.
+ *
+ * @param node The AST subtree to search.
+ * @param name The identifier name to look for.
+ * @param skip Set of AST nodes to skip during traversal.
+ * @returns `true` if a matching `Identifier` node is found.
+ */
+export const has_identifier_in_tree = (
+	node: unknown,
+	name: string,
+	skip?: Set<unknown>,
+): boolean => {
+	if (node === null || node === undefined || typeof node !== 'object') return false;
+	if (skip?.has(node)) return false;
+	if (Array.isArray(node)) {
+		return node.some((child) => has_identifier_in_tree(child, name, skip));
+	}
+	const record = node as Record<string, unknown>;
+	if (record.type === 'Identifier' && record.name === name) return true;
+	for (const key of Object.keys(record)) {
+		if (has_identifier_in_tree(record[key], name, skip)) return true;
+	}
+	return false;
 };

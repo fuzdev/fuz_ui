@@ -24,7 +24,7 @@ export interface MdzToSvelteOptions {
 	 * If mdz content references a component not in this map,
 	 * `has_unconfigured_tags` is set to `true` in the result.
 	 */
-	components: Record<string, string>;
+	components?: Record<string, string>;
 
 	/**
 	 * Allowed HTML element names in mdz content.
@@ -32,7 +32,7 @@ export interface MdzToSvelteOptions {
 	 * If mdz content references an element not in this list,
 	 * `has_unconfigured_tags` is set to `true` in the result.
 	 */
-	elements: Array<string>;
+	elements?: Array<string>;
 }
 
 /**
@@ -57,11 +57,12 @@ export interface MdzToSvelteResult {
  */
 export const mdz_to_svelte = (
 	nodes: Array<MdzNode>,
-	options: MdzToSvelteOptions,
+	options: MdzToSvelteOptions = {},
 ): MdzToSvelteResult => {
+	const {components = {}, elements = []} = options;
 	const imports: Map<string, {path: string; kind: 'default' | 'named'}> = new Map();
 	let has_unconfigured_tags = false;
-	const elements_set = new Set(options.elements);
+	const elements_set = new Set(elements);
 
 	const render_nodes = (children: Array<MdzNode>): string => {
 		return children.map((child) => render_node(child)).join('');
@@ -123,7 +124,7 @@ export const mdz_to_svelte = (
 			}
 
 			case 'Component': {
-				const import_path = options.components[node.name];
+				const import_path = components[node.name];
 				if (!import_path) {
 					has_unconfigured_tags = true;
 					return '';

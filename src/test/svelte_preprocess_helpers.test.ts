@@ -9,6 +9,7 @@ import {
 	resolve_component_names,
 	generate_import_lines,
 	find_import_insert_position,
+	has_identifier_in_tree,
 	type PreprocessImportInfo,
 } from '$lib/svelte_preprocess_helpers.js';
 
@@ -478,5 +479,191 @@ describe('find_import_insert_position', () => {
 		const after = source.slice(pos);
 		assert.ok(before.endsWith("';"));
 		assert.ok(after.trimStart().startsWith('const x'));
+	});
+});
+
+describe('has_identifier_in_tree', () => {
+	test('returns false for null', () => {
+		assert.equal(has_identifier_in_tree(null, 'Mdz'), false);
+	});
+
+	test('returns false for undefined', () => {
+		assert.equal(has_identifier_in_tree(undefined, 'Mdz'), false);
+	});
+
+	test('returns false for empty object', () => {
+		assert.equal(has_identifier_in_tree({type: 'Program', body: []}, 'Mdz'), false);
+	});
+
+	test('returns true for direct identifier match', () => {
+		assert.equal(has_identifier_in_tree({type: 'Identifier', name: 'Mdz'}, 'Mdz'), true);
+	});
+
+	test('returns false for different identifier name', () => {
+		assert.equal(has_identifier_in_tree({type: 'Identifier', name: 'Foo'}, 'Mdz'), false);
+	});
+
+	test('returns false for string literal with matching value', () => {
+		assert.equal(has_identifier_in_tree({type: 'Literal', value: 'Mdz'}, 'Mdz'), false);
+	});
+
+	test('finds identifier in variable declaration init', () => {
+		const node = {
+			type: 'VariableDeclaration',
+			declarations: [
+				{
+					type: 'VariableDeclarator',
+					id: {type: 'Identifier', name: 'X'},
+					init: {type: 'Identifier', name: 'Mdz'},
+				},
+			],
+		};
+		assert.equal(has_identifier_in_tree(node, 'Mdz'), true);
+	});
+
+	test('finds identifier in function call argument', () => {
+		const node = {
+			type: 'CallExpression',
+			callee: {type: 'Identifier', name: 'fn'},
+			arguments: [{type: 'Identifier', name: 'Mdz'}],
+		};
+		assert.equal(has_identifier_in_tree(node, 'Mdz'), true);
+	});
+
+	test('finds identifier in member expression object', () => {
+		const node = {
+			type: 'MemberExpression',
+			object: {type: 'Identifier', name: 'Mdz'},
+			property: {type: 'Identifier', name: 'foo'},
+		};
+		assert.equal(has_identifier_in_tree(node, 'Mdz'), true);
+	});
+
+	test('finds identifier in assignment right side', () => {
+		const node = {
+			type: 'AssignmentExpression',
+			left: {type: 'Identifier', name: 'X'},
+			right: {type: 'Identifier', name: 'Mdz'},
+		};
+		assert.equal(has_identifier_in_tree(node, 'Mdz'), true);
+	});
+
+	test('finds identifier in deeply nested structure', () => {
+		const node = {
+			type: 'ExpressionStatement',
+			expression: {
+				type: 'CallExpression',
+				callee: {type: 'Identifier', name: 'outer'},
+				arguments: [
+					{
+						type: 'CallExpression',
+						callee: {type: 'Identifier', name: 'inner'},
+						arguments: [{type: 'Identifier', name: 'Mdz'}],
+					},
+				],
+			},
+		};
+		assert.equal(has_identifier_in_tree(node, 'Mdz'), true);
+	});
+
+	test('skips nodes in the skip set', () => {
+		const import_node = {
+			type: 'ImportDeclaration',
+			specifiers: [{type: 'ImportDefaultSpecifier', local: {type: 'Identifier', name: 'Mdz'}}],
+			source: {type: 'Literal', value: '@fuzdev/fuz_ui/Mdz.svelte'},
+		};
+		assert.equal(has_identifier_in_tree(import_node, 'Mdz', new Set([import_node])), false);
+	});
+
+	test('finds identifier in array elements', () => {
+		const node = [
+			{type: 'Identifier', name: 'Foo'},
+			{type: 'Identifier', name: 'Mdz'},
+		];
+		assert.equal(has_identifier_in_tree(node, 'Mdz'), true);
+	});
+
+	test('returns false for empty array', () => {
+		assert.equal(has_identifier_in_tree([], 'Mdz'), false);
+	});
+});
+
+describe('has_identifier_in_tree with parsed Svelte ASTs', () => {
+	test('finds identifier in template ExpressionTag', () => {
+		const ast = parse(
+			`<script lang="ts">
+	import Mdz from '@fuzdev/fuz_ui/Mdz.svelte';
+</script>
+
+{Mdz}`,
+			{modern: true},
+		);
+		assert.equal(has_identifier_in_tree(ast.fragment, 'Mdz'), true);
+	});
+
+	test('finds identifier in template attribute expression', () => {
+		const ast = parse(
+			`<script lang="ts">
+	import Mdz from '@fuzdev/fuz_ui/Mdz.svelte';
+	import Foo from './Foo.svelte';
+</script>
+
+<Foo comp={Mdz} />`,
+			{modern: true},
+		);
+		assert.equal(has_identifier_in_tree(ast.fragment, 'Mdz'), true);
+	});
+
+	test('finds identifier in if block test', () => {
+		const ast = parse(
+			`<script lang="ts">
+	import Mdz from '@fuzdev/fuz_ui/Mdz.svelte';
+</script>
+
+{#if Mdz}yes{/if}`,
+			{modern: true},
+		);
+		assert.equal(has_identifier_in_tree(ast.fragment, 'Mdz'), true);
+	});
+
+	test('does not match Component.name (plain string, not Identifier)', () => {
+		const ast = parse(
+			`<script lang="ts">
+	import Mdz from '@fuzdev/fuz_ui/Mdz.svelte';
+</script>
+
+<Mdz content="text" />`,
+			{modern: true},
+		);
+		assert.equal(has_identifier_in_tree(ast.fragment, 'Mdz'), false);
+	});
+
+	test('finds identifier in script body (outside import)', () => {
+		const ast = parse(
+			`<script lang="ts">
+	import Mdz from '@fuzdev/fuz_ui/Mdz.svelte';
+	const X = Mdz;
+</script>`,
+			{modern: true},
+		);
+		const import_node = ast.instance!.content.body[0];
+		assert.equal(
+			has_identifier_in_tree(ast.instance!.content, 'Mdz', new Set([import_node])),
+			true,
+		);
+	});
+
+	test('returns false for script body with only the import', () => {
+		const ast = parse(
+			`<script lang="ts">
+	import Mdz from '@fuzdev/fuz_ui/Mdz.svelte';
+</script>`,
+			{modern: true},
+		);
+		const import_node = ast.instance!.content.body[0];
+		assert.equal(
+			has_identifier_in_tree(ast.instance!.content, 'Mdz', new Set([import_node])),
+			false,
+		);
 	});
 });

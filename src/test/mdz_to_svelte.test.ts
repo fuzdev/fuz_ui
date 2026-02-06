@@ -9,10 +9,7 @@ import {
 	type MdzToSvelteResult,
 } from '$lib/mdz_to_svelte.js';
 
-const default_options: MdzToSvelteOptions = {
-	components: {},
-	elements: [],
-};
+const default_options: MdzToSvelteOptions = {};
 
 /** Parses mdz content and converts to Svelte markup in one step. */
 const convert = (

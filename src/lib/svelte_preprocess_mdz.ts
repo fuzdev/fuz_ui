@@ -3,7 +3,8 @@
  *
  * Detects `<Mdz>` components with static string `content` props, parses the mdz content,
  * renders each `MdzNode` to equivalent Svelte markup via `mdz_to_svelte`, and replaces
- * the `content` prop with pre-rendered children. Dynamic `content` props are left untouched.
+ * the `<Mdz>` with `<MdzPrecompiled>` containing pre-rendered children.
+ * Dynamic `content` props are left untouched.
  *
  * @module
  */
@@ -19,9 +20,11 @@ import {
 	find_attribute,
 	extract_static_string,
 	resolve_component_names,
+	has_identifier_in_tree,
 	find_import_insert_position,
 	generate_import_lines,
 	type PreprocessImportInfo,
+	type ResolvedComponentImport,
 } from './svelte_preprocess_helpers.js';
 
 /**
@@ -55,7 +58,16 @@ export interface SveltePreprocessMdzOptions {
 	 * @default ['@fuzdev/fuz_ui/Mdz.svelte']
 	 */
 	component_imports?: Array<string>;
+
+	/**
+	 * Import path for the precompiled wrapper component.
+	 *
+	 * @default '@fuzdev/fuz_ui/MdzPrecompiled.svelte'
+	 */
+	compiled_component_import?: string;
 }
+
+const PRECOMPILED_NAME = 'MdzPrecompiled';
 
 /**
  * Creates a Svelte preprocessor that compiles static `<Mdz>` content at build time.
@@ -71,6 +83,7 @@ export const svelte_preprocess_mdz = (
 		components = {},
 		elements = [],
 		component_imports = ['@fuzdev/fuz_ui/Mdz.svelte'],
+		compiled_component_import = '@fuzdev/fuz_ui/MdzPrecompiled.svelte',
 	} = options;
 
 	return {
@@ -94,10 +107,15 @@ export const svelte_preprocess_mdz = (
 				return {code: content};
 			}
 
+			// Check for MdzPrecompiled name collision
+			if (has_name_collision(ast, compiled_component_import)) {
+				return {code: content};
+			}
+
 			const s = new MagicString(content);
 
 			// Find and transform Mdz usages with static content
-			const transformations = find_mdz_usages(ast, mdz_names, {
+			const {transformations, total_usages, transformed_usages} = find_mdz_usages(ast, mdz_names, {
 				components,
 				elements,
 				filename,
@@ -113,8 +131,23 @@ export const svelte_preprocess_mdz = (
 				s.overwrite(t.start, t.end, t.replacement);
 			}
 
-			// Add required imports
-			add_imports(s, ast, transformations);
+			// Determine which Mdz imports can be removed
+			const removable_imports = find_removable_mdz_imports(
+				ast,
+				mdz_names,
+				total_usages,
+				transformed_usages,
+			);
+
+			// Add required imports and remove unused Mdz imports
+			manage_imports(
+				s,
+				ast,
+				transformations,
+				removable_imports,
+				compiled_component_import,
+				content,
+			);
 
 			return {
 				code: s.toString(),
@@ -131,6 +164,14 @@ interface MdzTransformation {
 	required_imports: Map<string, PreprocessImportInfo>;
 }
 
+interface FindMdzUsagesResult {
+	transformations: Array<MdzTransformation>;
+	/** Total template usages per Mdz local name. */
+	total_usages: Map<string, number>;
+	/** Successfully transformed usages per Mdz local name. */
+	transformed_usages: Map<string, number>;
+}
+
 interface FindMdzUsagesContext {
 	components: Record<string, string>;
 	elements: Array<string>;
@@ -139,15 +180,37 @@ interface FindMdzUsagesContext {
 }
 
 /**
+ * Checks if `MdzPrecompiled` is already imported from a different source.
+ * If so, the preprocessor bails to avoid name collisions.
+ */
+const has_name_collision = (ast: AST.Root, compiled_component_import: string): boolean => {
+	for (const script of [ast.instance, ast.module]) {
+		if (!script) continue;
+		for (const node of script.content.body) {
+			if (node.type !== 'ImportDeclaration') continue;
+			const source_path = node.source.value as string;
+			for (const spec of node.specifiers) {
+				if (spec.local.name === PRECOMPILED_NAME && source_path !== compiled_component_import) {
+					return true;
+				}
+			}
+		}
+	}
+	return false;
+};
+
+/**
  * Walks the AST to find `<Mdz>` component usages with static `content` props
- * and generates transformations to replace them with pre-rendered children.
+ * and generates transformations to replace them with `<MdzPrecompiled>` children.
  */
 const find_mdz_usages = (
 	ast: AST.Root,
-	mdz_names: Set<string>,
+	mdz_names: Map<string, ResolvedComponentImport>,
 	context: FindMdzUsagesContext,
-): Array<MdzTransformation> => {
+): FindMdzUsagesResult => {
 	const transformations: Array<MdzTransformation> = [];
+	const total_usages: Map<string, number> = new Map();
+	const transformed_usages: Map<string, number> = new Map();
 
 	walk(ast.fragment as any, null, {
 		Component(node: AST.Component, ctx: {next: () => void}) {
@@ -155,6 +218,9 @@ const find_mdz_usages = (
 			ctx.next();
 
 			if (!mdz_names.has(node.name)) return;
+
+			// Track total usages per name
+			total_usages.set(node.name, (total_usages.get(node.name) ?? 0) + 1);
 
 			// Skip if spread attributes present — can't determine content statically
 			if (node.attributes.some((attr: any) => attr.type === 'SpreadAttribute')) return;
@@ -178,8 +244,10 @@ const find_mdz_usages = (
 			// If content has unconfigured tags, skip this usage (fall back to runtime)
 			if (result.has_unconfigured_tags) return;
 
-			// Build replacement: reconstruct <Mdz ...props except content...>children</Mdz>
+			// Build replacement: <MdzPrecompiled ...props except content...>children</MdzPrecompiled>
 			const replacement = build_replacement(node, content_attr, result.markup, context.source);
+
+			transformed_usages.set(node.name, (transformed_usages.get(node.name) ?? 0) + 1);
 
 			transformations.push({
 				start: (node as any).start,
@@ -190,15 +258,14 @@ const find_mdz_usages = (
 		},
 	});
 
-	return transformations;
+	return {transformations, total_usages, transformed_usages};
 };
 
 /**
  * Builds the replacement string for a transformed Mdz component.
  *
- * Reconstructs the opening `<Mdz` tag with all attributes except `content`,
+ * Reconstructs the opening tag as `<MdzPrecompiled` with all attributes except `content`,
  * using source text slicing to preserve exact formatting and dynamic expressions.
- * Appends the rendered children and closes with `</Mdz>`.
  */
 const build_replacement = (
 	node: AST.Component,
@@ -213,26 +280,83 @@ const build_replacement = (
 		other_attr_ranges.push({start: (attr as any).start, end: (attr as any).end});
 	}
 
-	// Build opening tag
-	let opening = `<${node.name}`;
+	// Build opening tag with MdzPrecompiled name
+	let opening = `<${PRECOMPILED_NAME}`;
 	for (const range of other_attr_ranges) {
 		opening += ' ' + source.slice(range.start, range.end);
 	}
 	opening += '>';
 
-	return `${opening}${children_markup}</${node.name}>`;
+	return `${opening}${children_markup}</${PRECOMPILED_NAME}>`;
 };
 
 /**
- * Adds required imports to the script block.
+ * Determines which Mdz import declarations can be safely removed.
  *
- * Collects all required imports across transformations, deduplicates by name and path,
- * and inserts them into the instance script. Creates a script tag if none exists.
+ * An import is removable when:
+ * 1. All template usages of that name were successfully transformed.
+ * 2. The import has a single specifier (no partial removal of multi-specifier imports).
+ * 3. The identifier is not referenced elsewhere in script or template expressions.
  */
-const add_imports = (
+const find_removable_mdz_imports = (
+	ast: AST.Root,
+	mdz_names: Map<string, ResolvedComponentImport>,
+	total_usages: Map<string, number>,
+	transformed_usages: Map<string, number>,
+): Set<any> => {
+	const removable: Set<any> = new Set();
+
+	for (const [name, {import_node}] of mdz_names) {
+		const total = total_usages.get(name) ?? 0;
+		const transformed = transformed_usages.get(name) ?? 0;
+
+		// Only remove if ALL template usages were transformed
+		if (total === 0 || transformed < total) continue;
+
+		// Only remove single-specifier imports (don't try partial removal)
+		if (import_node.specifiers.length !== 1) continue;
+
+		// Check if identifier is referenced elsewhere in the AST
+		const skip: Set<unknown> = new Set([import_node]);
+
+		// Check instance script body (excluding the import itself)
+		if (ast.instance?.content && has_identifier_in_tree(ast.instance.content, name, skip)) {
+			continue;
+		}
+
+		// Check module script body (excluding the import itself)
+		if (ast.module?.content && has_identifier_in_tree(ast.module.content, name, skip)) {
+			continue;
+		}
+
+		// Check template for expression references (Component.name is a string, not Identifier)
+		if (has_identifier_in_tree(ast.fragment, name)) {
+			continue;
+		}
+
+		removable.add(import_node);
+	}
+
+	return removable;
+};
+
+/**
+ * Manages import additions and removals.
+ *
+ * Adds the `MdzPrecompiled` import and other required imports (DocsLink, Code, resolve).
+ * Removes Mdz import declarations that are no longer referenced.
+ *
+ * To avoid MagicString boundary conflicts when the insertion position falls inside
+ * a removal range, one removable Mdz import is overwritten with the MdzPrecompiled
+ * import line instead of using separate remove + appendLeft.
+ */
+const manage_imports = (
 	s: MagicString,
 	ast: AST.Root,
 	transformations: Array<MdzTransformation>,
+	removable_imports: Set<any>,
+	compiled_component_import: string,
+	source: string,
 ): void => {
 	// Collect all required imports across transformations
 	const required: Map<string, PreprocessImportInfo> = new Map();
@@ -242,25 +366,30 @@ const add_imports = (
 		}
 	}
 
-	if (required.size === 0) return;
+	// Always need MdzPrecompiled when transformations occur
+	required.set(PRECOMPILED_NAME, {path: compiled_component_import, kind: 'default'});
 
 	const script = ast.instance;
 
 	if (!script) {
-		// No instance script — check for module script to insert after, or prepend
+		// No instance script — removable_imports won't apply (imports are in module script if any)
+		// Just add all required imports
 		const lines = generate_import_lines(required);
 		if (ast.module) {
-			// Insert instance script after module script
 			const module_end = (ast.module as unknown as AST.BaseNode).end;
 			s.appendLeft(module_end, `\n\n<script lang="ts">\n${lines}\n</script>`);
 		} else {
 			s.prepend(`<script lang="ts">\n${lines}\n</script>\n\n`);
 		}
+		// Remove Mdz imports from module script if removable
+		for (const node of removable_imports) {
+			remove_import_declaration(s, node, source);
+		}
 		return;
 	}
 
 	// Check existing imports to avoid duplicates — tracks both name AND source path
-	const existing: Map<string, string> = new Map(); // local name -> source path
+	const existing: Map<string, string> = new Map();
 	for (const node of script.content.body) {
 		if (node.type === 'ImportDeclaration') {
 			const source_path = node.source.value as string;
@@ -274,17 +403,68 @@ const add_imports = (
 	for (const [name, info] of required) {
 		const existing_path = existing.get(name);
 		if (existing_path === undefined) {
-			// Name not yet imported — add it
 			to_add.set(name, info);
 		}
-		// If existing_path === info.path: already imported from same source, skip
-		// If existing_path !== info.path: name collision from different source, skip
-		// (fall back to runtime for safety — aliased imports not yet supported)
 	}
 
+	// Strategy: if we're both adding MdzPrecompiled and removing an Mdz import,
+	// overwrite one removable import with the MdzPrecompiled line to avoid
+	// MagicString boundary conflicts. Other imports use normal appendLeft.
+	let overwrite_target: any = null;
+	if (to_add.has(PRECOMPILED_NAME) && removable_imports.size > 0) {
+		// Pick the first removable import to overwrite
+		overwrite_target = removable_imports.values().next().value;
+	}
+
+	// Generate the MdzPrecompiled import line separately if using overwrite
+	if (overwrite_target) {
+		const precompiled_line = `\timport ${PRECOMPILED_NAME} from '${compiled_component_import}';`;
+		const node_start = overwrite_target.start;
+		const node_end = overwrite_target.end;
+
+		// Find the start of the line (consume leading whitespace)
+		let line_start = node_start;
+		while (line_start > 0 && (source[line_start - 1] === '\t' || source[line_start - 1] === ' ')) {
+			line_start--;
+		}
+
+		s.overwrite(line_start, node_end, precompiled_line);
+		to_add.delete(PRECOMPILED_NAME);
+	}
+
+	// Add remaining imports normally
 	if (to_add.size > 0) {
 		const insert_pos = find_import_insert_position(script);
 		const lines = generate_import_lines(to_add);
 		s.appendLeft(insert_pos, '\n' + lines);
 	}
+
+	// Remove remaining Mdz imports (skip the overwrite target)
+	for (const node of removable_imports) {
+		if (node === overwrite_target) continue;
+		remove_import_declaration(s, node, source);
+	}
+};
+
+/**
+ * Removes an import declaration from the source using MagicString.
+ * Consumes surrounding whitespace to avoid leaving blank lines.
+ */
+const remove_import_declaration = (s: MagicString, import_node: any, source: string): void => {
+	let start: number = import_node.start;
+	let end: number = import_node.end;
+
+	// Consume trailing newline
+	if (source[end] === '\n') {
+		end++;
+	} else if (source[end] === '\r' && source[end + 1] === '\n') {
+		end += 2;
+	}
+
+	// Consume leading whitespace on the same line
+	while (start > 0 && (source[start - 1] === '\t' || source[start - 1] === ' ')) {
+		start--;
+	}
+
+	s.remove(start, end);
 };
