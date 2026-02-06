@@ -181,21 +181,25 @@ parsing), `svelte_*` (component analysis), `module_*` (path utilities),
 All contexts use the standardized pattern via `context_helpers.ts`:
 
 **Core:**
+
 - `themer_context` - theme state (Themer class)
 - `library_context` - library API metadata (Library class)
 
 **Documentation:**
+
 - `tomes_context` - available documentation (Map<string, Tome>)
 - `tome_context` - current documentation page (Tome)
 - `docs_links_context` - documentation navigation (DocsLinks class)
 - `mdz_components_context` - custom mdz components
 
 **Contextmenu:**
+
 - `contextmenu_context` - context menu state
 - `contextmenu_submenu_context` - submenu state
 - `contextmenu_dimensions_context` - positioning
 
 **Other:**
+
 - `selected_variable_context` - style variable selection
 
 ## Documentation system
