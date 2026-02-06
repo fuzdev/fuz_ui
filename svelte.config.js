@@ -1,5 +1,6 @@
 import {vitePreprocess} from '@sveltejs/vite-plugin-svelte';
 import adapter from '@sveltejs/adapter-static';
+import {svelte_preprocess_fuz_code} from '@fuzdev/fuz_code/svelte_preprocess_fuz_code.js';
 
 // SvelteKit currently can't import local TS directly,
 // so this is my one project that hardcodes the CSP for now. Needs to be kept in sync.
@@ -21,7 +22,7 @@ const csp_trusted_sources_of_ryanatkn = [
 
 /** @type {import('@sveltejs/kit').Config} */
 export default {
-	preprocess: [vitePreprocess()],
+	preprocess: [svelte_preprocess_fuz_code(), vitePreprocess()],
 	compilerOptions: {runes: true},
 	vitePlugin: {inspector: true},
 	kit: {
