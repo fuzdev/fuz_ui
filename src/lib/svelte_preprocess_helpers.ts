@@ -1,0 +1,205 @@
+/**
+ * Shared helper functions for Svelte preprocessors.
+ *
+ * Provides AST utilities for detecting static content, resolving imports,
+ * and managing import statements. Used by `svelte_preprocess_mdz` and
+ * potentially other Svelte preprocessors.
+ *
+ * @module
+ */
+
+import type {AST} from 'svelte/compiler';
+
+/** Import metadata for a single import specifier. */
+export interface PreprocessImportInfo {
+	/** The module path to import from. */
+	path: string;
+	/** Whether this is a default or named import. */
+	kind: 'default' | 'named';
+}
+
+/**
+ * Checks if a filename matches any exclusion pattern.
+ *
+ * Returns `false` when `filename` is `undefined` or `exclude` is empty.
+ * String patterns use substring matching. RegExp patterns use `.test()`.
+ *
+ * @param filename The file path to check, or `undefined` for virtual files.
+ * @param exclude Array of string or RegExp exclusion patterns.
+ * @returns `true` if the file should be excluded from processing.
+ */
+export const should_exclude = (
+	filename: string | undefined,
+	exclude: Array<string | RegExp>,
+): boolean => {
+	if (!filename || exclude.length === 0) return false;
+	return exclude.some((pattern) =>
+		typeof pattern === 'string' ? filename.includes(pattern) : pattern.test(filename),
+	);
+};
+
+/**
+ * Finds an attribute by name on a component AST node.
+ *
+ * Iterates the node's `attributes` array and returns the first `Attribute`
+ * node whose `name` matches. Skips `SpreadAttribute`, directive, and other node types.
+ *
+ * @param node The component AST node to search.
+ * @param name The attribute name to find.
+ * @returns The matching `Attribute` node, or `undefined` if not found.
+ */
+export const find_attribute = (node: AST.Component, name: string): AST.Attribute | undefined => {
+	for (const attr of node.attributes) {
+		if (attr.type === 'Attribute' && attr.name === name) {
+			return attr;
+		}
+	}
+	return undefined;
+};
+
+/**
+ * Recursively evaluates an expression AST node to a static string value.
+ *
+ * Handles string `Literal`, `TemplateLiteral` without interpolation, and
+ * `BinaryExpression` with the `+` operator (string concatenation).
+ * Returns `null` for dynamic expressions, non-string literals, or unsupported node types.
+ *
+ * @param expr An ESTree-compatible expression AST node.
+ * @returns The resolved static string, or `null` if the expression is dynamic.
+ */
+export const evaluate_static_expr = (expr: any): string | null => {
+	if (expr.type === 'Literal' && typeof expr.value === 'string') return expr.value;
+	if (expr.type === 'TemplateLiteral' && expr.expressions.length === 0) {
+		return expr.quasis.map((q: any) => q.value.cooked ?? q.value.raw).join('');
+	}
+	if (expr.type === 'BinaryExpression' && expr.operator === '+') {
+		const left = evaluate_static_expr(expr.left);
+		if (left === null) return null;
+		const right = evaluate_static_expr(expr.right);
+		if (right === null) return null;
+		return left + right;
+	}
+	return null;
+};
+
+/**
+ * Extracts a static string value from a Svelte attribute value AST node.
+ *
+ * Handles three forms:
+ * - Boolean `true` (bare attribute like `inline`) -- returns `null`.
+ * - Array with a single `Text` node (quoted attribute like `content="text"`) --
+ *   returns the text data.
+ * - `ExpressionTag` (expression like `content={'text'}`) -- delegates to `evaluate_static_expr`.
+ *
+ * Returns `null` for null literals, mixed arrays, dynamic expressions, and non-string values.
+ *
+ * @param value The attribute value from `AST.Attribute['value']`.
+ * @returns The resolved static string, or `null` if the value is dynamic.
+ */
+export const extract_static_string = (value: AST.Attribute['value']): string | null => {
+	// Boolean attribute (e.g., <Mdz inline />)
+	if (value === true) return null;
+
+	// Plain attribute: content="text"
+	if (Array.isArray(value)) {
+		const first = value[0];
+		if (value.length === 1 && first?.type === 'Text') {
+			return first.data;
+		}
+		return null;
+	}
+
+	// ExpressionTag: content={expr}
+	const expr = value.expression;
+	// Null literal
+	if (expr.type === 'Literal' && expr.value === null) return null;
+	return evaluate_static_expr(expr);
+};
+
+/**
+ * Resolves local names that import from specified source paths.
+ *
+ * Scans `ImportDeclaration` nodes in both the instance and module scripts.
+ * Handles default, named, and aliased imports.
+ *
+ * @param ast The parsed Svelte AST root node.
+ * @param component_imports Array of import source paths to match against.
+ * @returns Set of local names that import from the specified sources.
+ */
+export const resolve_component_names = (
+	ast: AST.Root,
+	component_imports: Array<string>,
+): Set<string> => {
+	const names: Set<string> = new Set();
+	for (const script of [ast.instance, ast.module]) {
+		if (!script) continue;
+		for (const node of script.content.body) {
+			if (node.type !== 'ImportDeclaration') continue;
+			if (!component_imports.includes(node.source.value as string)) continue;
+			for (const specifier of node.specifiers) {
+				if (specifier.type === 'ImportNamespaceSpecifier') continue;
+				names.add(specifier.local.name);
+			}
+		}
+	}
+	return names;
+};
+
+/**
+ * Finds the position to insert new import statements within a script block.
+ *
+ * Returns the end position of the last `ImportDeclaration`, or the start
+ * of the script body content if no imports exist.
+ *
+ * @param script The parsed `AST.Script` node.
+ * @returns The character position where new imports should be inserted.
+ */
+export const find_import_insert_position = (script: AST.Script): number => {
+	let last_import_end = -1;
+	for (const node of script.content.body) {
+		if (node.type === 'ImportDeclaration') {
+			// Svelte's parser always provides position data on AST nodes
+			last_import_end = (node as unknown as AST.BaseNode).end;
+		}
+	}
+	if (last_import_end !== -1) {
+		return last_import_end;
+	}
+	return (script.content as unknown as AST.BaseNode).start;
+};
+
+/**
+ * Generates tab-indented import statement lines from an import map.
+ *
+ * Default imports produce `import Name from 'path';` lines.
+ * Named imports are grouped by path into `import {a, b} from 'path';` lines.
+ *
+ * @param imports Map of local names to their import info.
+ * @returns A string of newline-separated import statements.
+ */
+export const generate_import_lines = (imports: Map<string, PreprocessImportInfo>): string => {
+	const default_imports: Array<[string, string]> = [];
+	const named_by_path: Map<string, Array<string>> = new Map();
+
+	for (const [name, {path, kind}] of imports) {
+		if (kind === 'default') {
+			default_imports.push([name, path]);
+		} else {
+			let names = named_by_path.get(path);
+			if (!names) {
+				names = [];
+				named_by_path.set(path, names);
+			}
+			names.push(name);
+		}
+	}
+
+	const lines: Array<string> = [];
+	for (const [name, path] of default_imports) {
+		lines.push(`\timport ${name} from '${path}';`);
+	}
+	for (const [path, names] of named_by_path) {
+		lines.push(`\timport {${names.join(', ')}} from '${path}';`);
+	}
+	return lines.join('\n');
+};
