@@ -6378,7 +6378,7 @@
 						"name": "SveltePreprocessMdzOptions",
 						"kind": "type",
 						"doc_comment": "Options for `svelte_preprocess_mdz`.",
-						"source_line": 34,
+						"source_line": 42,
 						"type_signature": "SveltePreprocessMdzOptions",
 						"properties": [
 							{
@@ -6423,7 +6423,7 @@
 						"name": "svelte_preprocess_mdz",
 						"kind": "function",
 						"doc_comment": "Creates a Svelte preprocessor that compiles static `<Mdz>` content at build time.",
-						"source_line": 86,
+						"source_line": 94,
 						"type_signature": "(options?: SveltePreprocessMdzOptions): PreprocessorGroup",
 						"return_type": "PreprocessorGroup",
 						"return_description": "A Svelte `PreprocessorGroup` for use in `svelte.config.js`.",
