@@ -1,4 +1,4 @@
-import {test, assert, describe} from 'vitest';
+import {test, assert, describe, vi} from 'vitest';
 import {preprocess} from 'svelte/compiler';
 
 import {svelte_preprocess_mdz} from '$lib/svelte_preprocess_mdz.js';
@@ -251,5 +251,55 @@ describe('excluded files', () => {
 			{filename: 'src/test/fixtures/Test.svelte'},
 		);
 		assert.equal(result.code, input, 'should be unchanged for excluded file');
+	});
+});
+
+describe('on_error', () => {
+	test('throw mode throws on parse failure', async () => {
+		const mdz_module = await import('$lib/mdz.js');
+		const spy = vi.spyOn(mdz_module, 'mdz_parse').mockImplementation(() => {
+			throw new Error('mock parse failure');
+		});
+
+		const input = `<script lang="ts">
+	import Mdz from '@fuzdev/fuz_ui/Mdz.svelte';
+</script>
+
+<Mdz content="**bold**" />`;
+
+		try {
+			let threw = false;
+			try {
+				await run_preprocess(input, {...DEFAULT_TEST_OPTIONS, on_error: 'throw'});
+			} catch (error) {
+				threw = true;
+				assert.ok(error instanceof Error);
+				assert.ok(error.message.includes('[fuz-mdz]'));
+				assert.ok(error.message.includes('mock parse failure'));
+			}
+			assert.ok(threw, 'should have thrown');
+		} finally {
+			spy.mockRestore();
+		}
+	});
+
+	test('log mode skips failed transformation', async () => {
+		const mdz_module = await import('$lib/mdz.js');
+		const spy = vi.spyOn(mdz_module, 'mdz_parse').mockImplementation(() => {
+			throw new Error('mock parse failure');
+		});
+
+		const input = `<script lang="ts">
+	import Mdz from '@fuzdev/fuz_ui/Mdz.svelte';
+</script>
+
+<Mdz content="**bold**" />`;
+
+		try {
+			const result = await run_preprocess(input, {...DEFAULT_TEST_OPTIONS, on_error: 'log'});
+			assert.equal(result, input, 'should be unchanged when parse fails in log mode');
+		} finally {
+			spy.mockRestore();
+		}
 	});
 });

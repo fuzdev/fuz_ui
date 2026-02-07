@@ -746,12 +746,9 @@ fuz_code's `try_extract_conditional` handles this at the attribute level — it 
 
 Option to log each transformation for development debugging.
 
-### Shared Helpers in fuz_util
+### ~~Shared Helpers in fuz_util~~ ✓ Done
 
-`svelte_preprocess_helpers.ts` and the escape functions (`escape_js_string`, `escape_svelte_text`) have been extracted to `@fuzdev/fuz_util/svelte_preprocess_helpers.js`. After fuz_util is published with this module:
-
-1. **fuz_ui**: Update imports in `svelte_preprocess_mdz.ts` and `mdz_to_svelte.ts` to use `@fuzdev/fuz_util/svelte_preprocess_helpers.js`. Delete the local `svelte_preprocess_helpers.ts`. Remove escape functions from `mdz_to_svelte.ts`.
-2. **fuz_code**: Replace inline helper copies in `svelte_preprocess_fuz_code.ts` with imports from `@fuzdev/fuz_util/svelte_preprocess_helpers.js`. Add `@fuzdev/fuz_util` to dependencies.
+Both fuz_ui and fuz_code import from `@fuzdev/fuz_util/svelte_preprocess_helpers.js`. Local copies removed.
 
 ### Svelte Mode
 

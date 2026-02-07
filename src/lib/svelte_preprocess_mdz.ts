@@ -66,6 +66,13 @@ export interface SveltePreprocessMdzOptions {
 	 * @default '@fuzdev/fuz_ui/MdzPrecompiled.svelte'
 	 */
 	compiled_component_import?: string;
+
+	/**
+	 * How to handle errors during mdz parsing or rendering.
+	 *
+	 * @default 'throw' in CI, 'log' otherwise
+	 */
+	on_error?: 'log' | 'throw';
 }
 
 const PRECOMPILED_NAME = 'MdzPrecompiled';
@@ -85,6 +92,7 @@ export const svelte_preprocess_mdz = (
 		elements: elements_array = [],
 		component_imports = ['@fuzdev/fuz_ui/Mdz.svelte'],
 		compiled_component_import = '@fuzdev/fuz_ui/MdzPrecompiled.svelte',
+		on_error = process.env.CI === 'true' ? 'throw' : 'log',
 	} = options;
 	const elements = new Set(elements_array);
 
@@ -124,6 +132,7 @@ export const svelte_preprocess_mdz = (
 				filename,
 				source: content,
 				bindings,
+				on_error,
 			});
 
 			if (transformations.length === 0) {
@@ -182,6 +191,7 @@ interface FindMdzUsagesContext {
 	filename: string | undefined;
 	source: string;
 	bindings: ReadonlyMap<string, string>;
+	on_error: 'log' | 'throw';
 }
 
 /**
@@ -238,11 +248,20 @@ const find_mdz_usages = (
 			const content_value = extract_static_string(content_attr.value, context.bindings);
 			if (content_value === null) return;
 
-			// Parse mdz content
-			const nodes = mdz_parse(content_value);
-
-			// Render to Svelte markup
-			const result = mdz_to_svelte(nodes, context.components, context.elements);
+			// Parse mdz content and render to Svelte markup
+			let result;
+			try {
+				const nodes = mdz_parse(content_value);
+				result = mdz_to_svelte(nodes, context.components, context.elements);
+			} catch (error) {
+				const message = `[fuz-mdz] Preprocessing failed${context.filename ? ` in ${context.filename}` : ''}: ${error instanceof Error ? error.message : String(error)}`;
+				if (context.on_error === 'throw') {
+					throw new Error(message);
+				}
+				// eslint-disable-next-line no-console
+				console.error(message);
+				return;
+			}
 
 			// If content has unconfigured tags, skip this usage (fall back to runtime)
 			if (result.has_unconfigured_tags) return;
