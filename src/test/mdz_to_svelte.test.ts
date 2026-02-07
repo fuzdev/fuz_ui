@@ -1,12 +1,9 @@
 import {test, assert, describe} from 'vitest';
 
+import {escape_svelte_text} from '@fuzdev/fuz_util/svelte_preprocess_helpers.js';
+
 import {mdz_parse} from '$lib/mdz.js';
-import {
-	escape_svelte_text,
-	escape_js_string,
-	mdz_to_svelte,
-	type MdzToSvelteResult,
-} from '$lib/mdz_to_svelte.js';
+import {mdz_to_svelte, type MdzToSvelteResult} from '$lib/mdz_to_svelte.js';
 
 /** Parses mdz content and converts to Svelte markup in one step. */
 const convert = (
@@ -91,42 +88,6 @@ describe('escape_svelte_text', () => {
 		// so the browser renders &amp; (matching runtime behavior).
 		assert.equal(escape_svelte_text('&amp;'), '&amp;amp;');
 		assert.equal(escape_svelte_text('&lt;'), '&amp;lt;');
-	});
-});
-
-describe('escape_js_string', () => {
-	test('escapes single quotes', () => {
-		assert.equal(escape_js_string("it's"), "it\\'s");
-	});
-
-	test('escapes backslashes', () => {
-		assert.equal(escape_js_string('a\\b'), 'a\\\\b');
-	});
-
-	test('escapes newlines', () => {
-		assert.equal(escape_js_string('line 1\nline 2'), 'line 1\\nline 2');
-	});
-
-	test('escapes carriage returns', () => {
-		assert.equal(escape_js_string('line 1\rline 2'), 'line 1\\rline 2');
-	});
-
-	test('escapes mixed special characters', () => {
-		assert.equal(escape_js_string("it's a\nnew\\day"), "it\\'s a\\nnew\\\\day");
-	});
-
-	test('returns empty string unchanged', () => {
-		assert.equal(escape_js_string(''), '');
-	});
-
-	test('returns string without special chars unchanged', () => {
-		assert.equal(escape_js_string('hello world'), 'hello world');
-	});
-
-	test('backslashes are escaped before quotes', () => {
-		// Input: \'  (backslash then quote)
-		// Expected: \\\' (escaped backslash then escaped quote)
-		assert.equal(escape_js_string("\\'"), "\\\\\\'");
 	});
 });
 

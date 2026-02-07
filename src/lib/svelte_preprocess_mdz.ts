@@ -12,11 +12,8 @@
 import {parse, type PreprocessorGroup, type AST} from 'svelte/compiler';
 import MagicString from 'magic-string';
 import {walk} from 'zimmerframe';
-
-import {mdz_parse} from './mdz.js';
-import {mdz_to_svelte} from './mdz_to_svelte.js';
+import {should_exclude_path} from '@fuzdev/fuz_util/path.js';
 import {
-	should_exclude,
 	find_attribute,
 	extract_static_string,
 	resolve_component_names,
@@ -25,7 +22,10 @@ import {
 	generate_import_lines,
 	type PreprocessImportInfo,
 	type ResolvedComponentImport,
-} from './svelte_preprocess_helpers.js';
+} from '@fuzdev/fuz_util/svelte_preprocess_helpers.js';
+
+import {mdz_parse} from './mdz.js';
+import {mdz_to_svelte} from './mdz_to_svelte.js';
 
 /**
  * Options for `svelte_preprocess_mdz`.
@@ -91,7 +91,7 @@ export const svelte_preprocess_mdz = (
 		name: 'fuz-mdz',
 
 		markup: ({content, filename}) => {
-			if (should_exclude(filename, exclude)) {
+			if (should_exclude_path(filename, exclude)) {
 				return {code: content};
 			}
 

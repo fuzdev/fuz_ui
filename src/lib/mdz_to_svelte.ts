@@ -9,6 +9,8 @@
  */
 
 import {UnreachableError} from '@fuzdev/fuz_util/error.js';
+import {escape_svelte_text} from '@fuzdev/fuz_util/svelte_preprocess_helpers.js';
+import {escape_js_string} from '@fuzdev/fuz_util/string.js';
 
 import type {MdzNode} from './mdz.js';
 
@@ -122,52 +124,4 @@ export const mdz_to_svelte = (
 
 	const markup = render_nodes(nodes);
 	return {markup, imports, has_unconfigured_tags};
-};
-
-/**
- * Escapes text for safe embedding in Svelte template markup.
- *
- * Uses a single-pass regex replacement to avoid corruption that occurs with sequential
- * `.replace()` calls (where the second replace matches characters introduced by the first).
- *
- * Escapes four characters:
- * - `{` → `{'{'}` and `}` → `{'}'}` — prevents Svelte expression interpretation
- * - `<` → `&lt;` — prevents HTML/Svelte tag interpretation
- * - `&` → `&amp;` — prevents HTML entity interpretation
- *
- * The `&` escaping is necessary because runtime `MdzNodeView.svelte` renders text
- * with `{node.content}` (a Svelte expression), which auto-escapes `&` to `&amp;`.
- * The preprocessor emits raw template text where `&` is NOT auto-escaped, so
- * manual escaping is required to match the runtime behavior.
- */
-export const escape_svelte_text = (text: string): string => {
-	return text.replace(/[{}<&]/g, (ch) => {
-		switch (ch) {
-			case '{':
-				return "{'{'}";
-			case '}':
-				return "{'}'}";
-			case '<':
-				return '&lt;';
-			case '&':
-				return '&amp;';
-			default:
-				return ch;
-		}
-	});
-};
-
-/**
- * Escapes a string for use inside a single-quoted JS string literal in Svelte expressions.
- *
- * Used for attribute values like `reference={'escaped_value'}` and
- * `content={'escaped_value'}`. Single quotes are used because the emitted
- * markup may contain double quotes (e.g., in HTML attribute values).
- */
-export const escape_js_string = (value: string): string => {
-	return value
-		.replace(/\\/g, '\\\\') // backslashes first
-		.replace(/'/g, "\\'") // single quotes
-		.replace(/\n/g, '\\n') // newlines
-		.replace(/\r/g, '\\r'); // carriage returns
 };

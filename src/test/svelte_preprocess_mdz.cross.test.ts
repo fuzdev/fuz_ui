@@ -1,7 +1,8 @@
 import {test, assert, describe, beforeAll} from 'vitest';
 import {parse} from 'svelte/compiler';
+import {escape_js_string} from '@fuzdev/fuz_util/string.js';
 
-import {mdz_to_svelte, escape_js_string} from '$lib/mdz_to_svelte.js';
+import {mdz_to_svelte} from '$lib/mdz_to_svelte.js';
 import type {SveltePreprocessMdzOptions} from '$lib/svelte_preprocess_mdz.js';
 import {
 	load_fixtures as load_mdz_fixtures,
@@ -21,7 +22,7 @@ const CROSS_TEST_PREPROCESS_OPTIONS = {
 } satisfies SveltePreprocessMdzOptions;
 
 // mdz_to_svelte takes components and elements as direct params
-const cross_test_components = CROSS_TEST_PREPROCESS_OPTIONS.components!;
+const cross_test_components = CROSS_TEST_PREPROCESS_OPTIONS.components;
 const cross_test_elements = new Set(CROSS_TEST_PREPROCESS_OPTIONS.elements);
 
 let mdz_fixtures: Array<MdzFixture> = [];
