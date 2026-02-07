@@ -26,16 +26,17 @@ describe('dynamic content preservation', () => {
 		assert.equal(result, input, 'should be unchanged for dynamic content');
 	});
 
-	test('preserves ternary expression', async () => {
+	test('preserves ternary with one dynamic branch', async () => {
 		const input = `<script lang="ts">
 	import Mdz from '@fuzdev/fuz_ui/Mdz.svelte';
+	let dynamic = $state('**x**');
 	let show = $state(true);
 </script>
 
-<Mdz content={show ? '**a**' : '**b**'} />`;
+<Mdz content={show ? dynamic : '**b**'} />`;
 
 		const result = await run_preprocess(input);
-		assert.equal(result, input, 'should be unchanged for dynamic content');
+		assert.equal(result, input, 'should be unchanged when one branch is dynamic');
 	});
 
 	test('preserves function call expression', async () => {
@@ -359,6 +360,7 @@ describe('on_error', () => {
 		const parse_spy = vi.spyOn(mdz_module, 'mdz_parse').mockImplementation(() => {
 			throw new Error('mock parse failure');
 		});
+		// eslint-disable-next-line @typescript-eslint/no-empty-function
 		const error_spy = vi.spyOn(console, 'error').mockImplementation(() => {});
 
 		const input = `<script lang="ts">
@@ -383,5 +385,77 @@ describe('on_error', () => {
 			parse_spy.mockRestore();
 			error_spy.mockRestore();
 		}
+	});
+});
+
+describe('ternary/conditional expressions', () => {
+	test('transforms ternary with static string branches', async () => {
+		const input = `<script lang="ts">
+	import Mdz from '@fuzdev/fuz_ui/Mdz.svelte';
+	let show = $state(true);
+</script>
+
+<Mdz content={show ? '**a**' : '**b**'} />`;
+
+		const result = await run_preprocess(input);
+		assert.ok(result.includes('{#if show}'), 'should produce {#if} block');
+		assert.ok(result.includes('<strong>a</strong>'), 'should render consequent');
+		assert.ok(result.includes('<strong>b</strong>'), 'should render alternate');
+		assert.ok(result.includes('<MdzPrecompiled>'), 'should use MdzPrecompiled');
+	});
+
+	test('transforms ternary with const bindings in branches', async () => {
+		const input = `<script lang="ts">
+	import Mdz from '@fuzdev/fuz_ui/Mdz.svelte';
+	const text_a = '**bold**';
+	const text_b = '_italic_';
+	let show = $state(true);
+</script>
+
+<Mdz content={show ? text_a : text_b} />`;
+
+		const result = await run_preprocess(input);
+		assert.ok(result.includes('{#if show}'), 'should produce {#if} block');
+		assert.ok(result.includes('<strong>bold</strong>'), 'should render consequent from binding');
+		assert.ok(result.includes('<em>italic</em>'), 'should render alternate from binding');
+	});
+
+	test('skips ternary when one branch has unconfigured tag', async () => {
+		const input = `<script lang="ts">
+	import Mdz from '@fuzdev/fuz_ui/Mdz.svelte';
+	let show = $state(true);
+</script>
+
+<Mdz content={show ? '**ok**' : '<Unknown>bad</Unknown>'} />`;
+
+		const result = await run_preprocess(input);
+		assert.equal(result, input, 'should be unchanged when branch has unconfigured tag');
+	});
+
+	test('preserves props on MdzPrecompiled for ternary', async () => {
+		const input = `<script lang="ts">
+	import Mdz from '@fuzdev/fuz_ui/Mdz.svelte';
+	let show = $state(true);
+</script>
+
+<Mdz content={show ? '**a**' : '**b**'} class="foo" inline />`;
+
+		const result = await run_preprocess(input);
+		assert.ok(result.includes('<MdzPrecompiled class="foo" inline>'), 'should preserve props');
+		assert.ok(result.includes('{#if show}'), 'should produce {#if} block');
+	});
+
+	test('skips ternary with both branches dynamic', async () => {
+		const input = `<script lang="ts">
+	import Mdz from '@fuzdev/fuz_ui/Mdz.svelte';
+	let a = $state('**x**');
+	let b = $state('**y**');
+	let show = $state(true);
+</script>
+
+<Mdz content={show ? a : b} />`;
+
+		const result = await run_preprocess(input);
+		assert.equal(result, input, 'should be unchanged when both branches are dynamic');
 	});
 });

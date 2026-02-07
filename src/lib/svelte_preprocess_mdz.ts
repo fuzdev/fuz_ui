@@ -17,6 +17,7 @@ import {should_exclude_path} from '@fuzdev/fuz_util/path.js';
 import {
 	find_attribute,
 	extract_static_string,
+	try_extract_conditional,
 	build_static_bindings,
 	resolve_component_names,
 	has_identifier_in_tree,
@@ -255,41 +256,83 @@ const find_mdz_usages = (
 
 			// Extract static string value
 			const content_value = extract_static_string(content_attr.value, context.bindings);
-			if (content_value === null) return;
-
-			// Parse mdz content and render to Svelte markup
-			let result;
-			try {
-				const nodes = mdz_parse(content_value);
-				result = mdz_to_svelte(nodes, context.components, context.elements);
-			} catch (error) {
-				const message = `[fuz-mdz] Preprocessing failed${context.filename ? ` in ${context.filename}` : ''}: ${error instanceof Error ? error.message : String(error)}`;
-				if (context.on_error === 'throw') {
-					throw new Error(message);
+			if (content_value !== null) {
+				// Parse mdz content and render to Svelte markup
+				let result;
+				try {
+					const nodes = mdz_parse(content_value);
+					result = mdz_to_svelte(nodes, context.components, context.elements);
+				} catch (error) {
+					handle_mdz_error(error, context);
+					return;
 				}
-				// eslint-disable-next-line no-console
-				console.error(message);
+
+				// If content has unconfigured tags, skip this usage (fall back to runtime)
+				if (result.has_unconfigured_tags) return;
+
+				const replacement = build_replacement(node, content_attr, result.markup, context.source);
+				transformed_usages.set(node.name, (transformed_usages.get(node.name) ?? 0) + 1);
+				transformations.push({
+					start: node.start,
+					end: node.end,
+					replacement,
+					required_imports: result.imports,
+				});
 				return;
 			}
 
-			// If content has unconfigured tags, skip this usage (fall back to runtime)
-			if (result.has_unconfigured_tags) return;
+			// Try conditional expression with static string branches
+			const conditional = try_extract_conditional(
+				content_attr.value,
+				context.source,
+				context.bindings,
+			);
+			if (conditional === null) return;
 
-			// Build replacement: <MdzPrecompiled ...props except content...>children</MdzPrecompiled>
-			const replacement = build_replacement(node, content_attr, result.markup, context.source);
+			let result_consequent;
+			let result_alternate;
+			try {
+				const nodes_a = mdz_parse(conditional.consequent);
+				result_consequent = mdz_to_svelte(nodes_a, context.components, context.elements);
+				const nodes_b = mdz_parse(conditional.alternate);
+				result_alternate = mdz_to_svelte(nodes_b, context.components, context.elements);
+			} catch (error) {
+				handle_mdz_error(error, context);
+				return;
+			}
+
+			if (result_consequent.has_unconfigured_tags || result_alternate.has_unconfigured_tags) return;
+
+			const children_markup = `{#if ${conditional.test_source}}${result_consequent.markup}{:else}${result_alternate.markup}{/if}`;
+			const replacement = build_replacement(node, content_attr, children_markup, context.source);
+
+			// Merge imports from both branches
+			const merged_imports: Map<string, PreprocessImportInfo> = new Map([
+				...result_consequent.imports,
+				...result_alternate.imports,
+			]);
 
 			transformed_usages.set(node.name, (transformed_usages.get(node.name) ?? 0) + 1);
-
 			transformations.push({
 				start: node.start,
 				end: node.end,
 				replacement,
-				required_imports: result.imports,
+				required_imports: merged_imports,
 			});
 		},
 	});
 
 	return {transformations, total_usages, transformed_usages};
+};
+
+/** Handles errors during mdz parsing or rendering. */
+const handle_mdz_error = (error: unknown, context: FindMdzUsagesContext): void => {
+	const message = `[fuz-mdz] Preprocessing failed${context.filename ? ` in ${context.filename}` : ''}: ${error instanceof Error ? error.message : String(error)}`;
+	if (context.on_error === 'throw') {
+		throw new Error(message);
+	}
+	// eslint-disable-next-line no-console
+	console.error(message);
 };
 
 /**

@@ -1,0 +1,3 @@
+{
+	"code": "<script lang=\"ts\">\n\t// @ts-nocheck\n\timport MdzPrecompiled from '$lib/MdzPrecompiled.svelte';\n\tconst text_a = '**bold**';\n\tconst text_b = '_italic_';\n\tlet show = $state(true);\n</script>\n\n<MdzPrecompiled>{#if show}<p><strong>bold</strong></p>{:else}<p><em>italic</em></p>{/if}</MdzPrecompiled>\n"
+}

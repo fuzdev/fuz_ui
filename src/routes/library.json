@@ -48,7 +48,7 @@
 		"peerDependencies": {
 			"@fuzdev/fuz_code": ">=0.44.0",
 			"@fuzdev/fuz_css": ">=0.47.0",
-			"@fuzdev/fuz_util": ">=0.49.2",
+			"@fuzdev/fuz_util": "file:../fuz_util",
 			"@jridgewell/trace-mapping": "^0.3",
 			"@ryanatkn/gro": ">=0.191.0",
 			"@sveltejs/kit": "^2.47.3",
@@ -88,7 +88,7 @@
 			"@changesets/changelog-git": "^0.2.1",
 			"@fuzdev/fuz_code": "^0.44.0",
 			"@fuzdev/fuz_css": "^0.47.0",
-			"@fuzdev/fuz_util": "^0.49.2",
+			"@fuzdev/fuz_util": "file:../fuz_util",
 			"@jridgewell/trace-mapping": "^0.3.31",
 			"@ryanatkn/eslint-config": "^0.9.0",
 			"@ryanatkn/gro": "^0.191.0",
@@ -6378,7 +6378,7 @@
 						"name": "SveltePreprocessMdzOptions",
 						"kind": "type",
 						"doc_comment": "Options for `svelte_preprocess_mdz`.",
-						"source_line": 42,
+						"source_line": 43,
 						"type_signature": "SveltePreprocessMdzOptions",
 						"properties": [
 							{
@@ -6423,7 +6423,7 @@
 						"name": "svelte_preprocess_mdz",
 						"kind": "function",
 						"doc_comment": "Creates a Svelte preprocessor that compiles static `<Mdz>` content at build time.",
-						"source_line": 94,
+						"source_line": 95,
 						"type_signature": "(options?: SveltePreprocessMdzOptions): PreprocessorGroup",
 						"return_type": "PreprocessorGroup",
 						"return_description": "A Svelte `PreprocessorGroup` for use in `svelte.config.js`.",

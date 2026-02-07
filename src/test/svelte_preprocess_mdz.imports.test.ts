@@ -356,4 +356,52 @@ describe('import removal', () => {
 		assert.ok(!result.includes('import Mdz from'), 'should remove Mdz import from module script');
 		assert.ok(result.includes('import MdzPrecompiled from'), 'should add MdzPrecompiled import');
 	});
+
+	test('removes Mdz import when only usage is a transformed ternary', async () => {
+		const input = `<script lang="ts">
+	import Mdz from '@fuzdev/fuz_ui/Mdz.svelte';
+	let show = $state(true);
+</script>
+
+<Mdz content={show ? '**a**' : '**b**'} />`;
+
+		const result = await run_preprocess(input);
+		assert.ok(!result.includes('import Mdz from'), 'should remove Mdz import');
+		assert.ok(result.includes('import MdzPrecompiled from'), 'should add MdzPrecompiled import');
+	});
+
+	test('keeps Mdz import when ternary coexists with dynamic usage', async () => {
+		const input = `<script lang="ts">
+	import Mdz from '@fuzdev/fuz_ui/Mdz.svelte';
+	let show = $state(true);
+	let dynamic = $state('text');
+</script>
+
+<Mdz content={show ? '**a**' : '**b**'} />
+<Mdz content={dynamic} />`;
+
+		const result = await run_preprocess(input);
+		assert.ok(result.includes('import Mdz from'), 'should keep Mdz import for dynamic usage');
+		assert.ok(result.includes('import MdzPrecompiled from'), 'should add MdzPrecompiled import');
+		assert.ok(result.includes('{#if show}'), 'should transform ternary');
+	});
+
+	test('merges imports from both ternary branches', async () => {
+		const input = `<script lang="ts">
+	import Mdz from '@fuzdev/fuz_ui/Mdz.svelte';
+	let show = $state(true);
+</script>
+
+<Mdz content={show ? '\`fn_a\`' : '[link](/docs)'} />`;
+
+		const result = await run_preprocess(input);
+		assert.ok(
+			result.includes("import DocsLink from '@fuzdev/fuz_ui/DocsLink.svelte'"),
+			'should add DocsLink import from consequent branch',
+		);
+		assert.ok(
+			result.includes("import {resolve} from '$app/paths'"),
+			'should add resolve import from alternate branch',
+		);
+	});
 });
