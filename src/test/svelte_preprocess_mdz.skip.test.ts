@@ -51,6 +51,18 @@ describe('dynamic content preservation', () => {
 		const result = await run_preprocess(input);
 		assert.equal(result, input, 'should be unchanged for dynamic content');
 	});
+
+	test('preserves $state rune const', async () => {
+		const input = `<script lang="ts">
+	import Mdz from '@fuzdev/fuz_ui/Mdz.svelte';
+	const content = $state('**bold**');
+</script>
+
+<Mdz content={content} />`;
+
+		const result = await run_preprocess(input);
+		assert.equal(result, input, 'should be unchanged for $state rune');
+	});
 });
 
 describe('const variable tracing', () => {
