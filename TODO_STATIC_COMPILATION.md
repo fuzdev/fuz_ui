@@ -176,18 +176,22 @@ Following the same pattern as `svelte_preprocess_fuz_code`:
 <Mdz content={'literal string'} />
 <Mdz content={`template without interpolation`} />
 <Mdz content={'string ' + 'concatenation'} />
+<Mdz content={my_const} />                          <!-- const tracing -->
+<Mdz content={`prefix ${my_const} suffix`} />        <!-- template interpolation -->
+<Mdz content={a + b} />                              <!-- concat with const refs -->
 ```
 
 **Dynamic (skip)**:
 
 ```svelte
-<Mdz content={variable} />
-<Mdz content={`template with ${expr}`} />
+<Mdz content={my_let_variable} />
+<Mdz content={`template with ${dynamic_expr}`} />
 <Mdz content={condition ? 'a' : 'b'} />
 <Mdz content={fn()} />
+<Mdz content={$state_value} />
 ```
 
-Static detection uses `extract_static_string` and `evaluate_static_expr` from `svelte_preprocess_helpers.ts` (extracted from fuz_code): string literals, template literals without interpolation, and string concatenation with `+`.
+Static detection uses `extract_static_string` and `evaluate_static_expr` from `@fuzdev/fuz_util/svelte_preprocess_helpers.js` with a bindings map from `build_static_bindings`. Resolves: string literals, template literals (including interpolations with resolvable expressions), string concatenation with `+`, and `Identifier` references to top-level `const` declarations with static initializers. Chained references resolve in declaration order (`const a = 'x'; const b = a;`). Only `const` is traced — `let`/`var` are skipped since they lack single-assignment guarantees.
 
 **Also skip if**:
 
@@ -726,7 +730,13 @@ In-memory content-keyed cache for `mdz_to_svelte` results. Same pattern as fuz_c
 
 ### Ternary Expression Support
 
-Emit `{#if}` blocks for ternary expressions where both branches are static strings. More complex than fuz_code's ternary handling since mdz expansion produces structural markup, not a single attribute value.
+Support `<Mdz content={cond ? 'a' : 'b'} />` by precompiling both branches and emitting a Svelte `{#if}` block:
+
+```svelte
+{#if cond}<MdzPrecompiled>rendered_a</MdzPrecompiled>{:else}<MdzPrecompiled>rendered_b</MdzPrecompiled>{/if}
+```
+
+fuz_code's `try_extract_conditional` handles this at the attribute level — it preserves the ternary in a single attribute value (`dangerous_raw_html={cond ? highlighted_a : highlighted_b}`). The mdz case is more involved because the preprocessor replaces the entire component with children markup, so the conditional must become an `{#if}` block wrapping two `<MdzPrecompiled>` instances. The `evaluate_static_expr` bindings support means the branch values can also trace through `const` variables (e.g., `content={cond ? label_a : label_b}` where both labels are `const` strings).
 
 ### `on_error` Option
 

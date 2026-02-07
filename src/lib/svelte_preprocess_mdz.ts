@@ -16,6 +16,7 @@ import {should_exclude_path} from '@fuzdev/fuz_util/path.js';
 import {
 	find_attribute,
 	extract_static_string,
+	build_static_bindings,
 	resolve_component_names,
 	has_identifier_in_tree,
 	find_import_insert_position,
@@ -114,6 +115,7 @@ export const svelte_preprocess_mdz = (
 			}
 
 			const s = new MagicString(content);
+			const bindings = build_static_bindings(ast);
 
 			// Find and transform Mdz usages with static content
 			const {transformations, total_usages, transformed_usages} = find_mdz_usages(ast, mdz_names, {
@@ -121,6 +123,7 @@ export const svelte_preprocess_mdz = (
 				elements,
 				filename,
 				source: content,
+				bindings,
 			});
 
 			if (transformations.length === 0) {
@@ -178,6 +181,7 @@ interface FindMdzUsagesContext {
 	elements: ReadonlySet<string>;
 	filename: string | undefined;
 	source: string;
+	bindings: ReadonlyMap<string, string>;
 }
 
 /**
@@ -231,7 +235,7 @@ const find_mdz_usages = (
 			if (!content_attr) return;
 
 			// Extract static string value
-			const content_value = extract_static_string(content_attr.value);
+			const content_value = extract_static_string(content_attr.value, context.bindings);
 			if (content_value === null) return;
 
 			// Parse mdz content
