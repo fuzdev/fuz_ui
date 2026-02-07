@@ -4,7 +4,12 @@
  * Detects `<Mdz>` components with static string `content` props, parses the mdz content,
  * renders each `MdzNode` to equivalent Svelte markup via `mdz_to_svelte`, and replaces
  * the `<Mdz>` with `<MdzPrecompiled>` containing pre-rendered children.
- * Dynamic `content` props are left untouched.
+ *
+ * Also handles ternary expressions (`content={cond ? 'a' : 'b'}`) where both branches
+ * are statically resolvable strings, emitting `{#if cond}markup_a{:else}markup_b{/if}`
+ * as children of a single `<MdzPrecompiled>`.
+ *
+ * Truly dynamic `content` props are left untouched.
  *
  * @module
  */

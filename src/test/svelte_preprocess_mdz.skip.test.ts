@@ -399,9 +399,11 @@ describe('ternary/conditional expressions', () => {
 
 		const result = await run_preprocess(input);
 		assert.ok(result.includes('{#if show}'), 'should produce {#if} block');
+		assert.ok(result.includes('{:else}'), 'should have {:else} block');
 		assert.ok(result.includes('<strong>a</strong>'), 'should render consequent');
 		assert.ok(result.includes('<strong>b</strong>'), 'should render alternate');
 		assert.ok(result.includes('<MdzPrecompiled>'), 'should use MdzPrecompiled');
+		assert.ok(!result.includes('import Mdz from'), 'should remove Mdz import');
 	});
 
 	test('transforms ternary with const bindings in branches', async () => {
@@ -443,6 +445,7 @@ describe('ternary/conditional expressions', () => {
 		const result = await run_preprocess(input);
 		assert.ok(result.includes('<MdzPrecompiled class="foo" inline>'), 'should preserve props');
 		assert.ok(result.includes('{#if show}'), 'should produce {#if} block');
+		assert.ok(result.includes('{:else}'), 'should have {:else} block');
 	});
 
 	test('skips ternary with both branches dynamic', async () => {
@@ -457,5 +460,153 @@ describe('ternary/conditional expressions', () => {
 
 		const result = await run_preprocess(input);
 		assert.equal(result, input, 'should be unchanged when both branches are dynamic');
+	});
+
+	test('skips nested ternary', async () => {
+		const input = `<script lang="ts">
+	import Mdz from '@fuzdev/fuz_ui/Mdz.svelte';
+	let a = $state(true);
+	let b = $state(false);
+</script>
+
+<Mdz content={a ? '**x**' : b ? '**y**' : '**z**'} />`;
+
+		const result = await run_preprocess(input);
+		assert.equal(result, input, 'should be unchanged for nested ternary');
+	});
+
+	test('preserves complex condition expression in test_source', async () => {
+		const input = `<script lang="ts">
+	import Mdz from '@fuzdev/fuz_ui/Mdz.svelte';
+	let items: Array<string> = $state([]);
+</script>
+
+<Mdz content={items.length > 0 ? '**has items**' : '**empty**'} />`;
+
+		const result = await run_preprocess(input);
+		assert.ok(
+			result.includes('{#if items.length > 0}'),
+			'should preserve full condition expression',
+		);
+		assert.ok(result.includes('<strong>has items</strong>'), 'should render consequent');
+		assert.ok(result.includes('<strong>empty</strong>'), 'should render alternate');
+	});
+
+	test('transforms ternary with template literal branches', async () => {
+		const input =
+			'<script lang="ts">\n\timport Mdz from \'@fuzdev/fuz_ui/Mdz.svelte\';\n\tlet show = $state(true);\n</script>\n\n<Mdz content={show ? `**bold**` : `_italic_`} />';
+
+		const result = await run_preprocess(input);
+		assert.ok(result.includes('{#if show}'), 'should produce {#if} block');
+		assert.ok(result.includes('<strong>bold</strong>'), 'should render consequent');
+		assert.ok(result.includes('<em>italic</em>'), 'should render alternate');
+	});
+
+	test('transforms multiple ternaries in same file', async () => {
+		const input = `<script lang="ts">
+	import Mdz from '@fuzdev/fuz_ui/Mdz.svelte';
+	let a = $state(true);
+	let b = $state(false);
+</script>
+
+<Mdz content={a ? '**x**' : '**y**'} />
+<Mdz content={b ? '_p_' : '_q_'} />`;
+
+		const result = await run_preprocess(input);
+		assert.ok(result.includes('{#if a}'), 'should produce {#if} for first ternary');
+		assert.ok(result.includes('{#if b}'), 'should produce {#if} for second ternary');
+		assert.ok(result.includes('<strong>x</strong>'), 'should render first consequent');
+		assert.ok(result.includes('<strong>y</strong>'), 'should render first alternate');
+		assert.ok(result.includes('<em>p</em>'), 'should render second consequent');
+		assert.ok(result.includes('<em>q</em>'), 'should render second alternate');
+		assert.ok(!result.includes('import Mdz from'), 'should remove Mdz import when all transformed');
+	});
+
+	test('transforms ternary coexisting with plain static Mdz', async () => {
+		const input = `<script lang="ts">
+	import Mdz from '@fuzdev/fuz_ui/Mdz.svelte';
+	let show = $state(true);
+</script>
+
+<Mdz content="**static**" />
+<Mdz content={show ? '**a**' : '**b**'} />`;
+
+		const result = await run_preprocess(input);
+		assert.ok(result.includes('<strong>static</strong>'), 'should transform static usage');
+		assert.ok(result.includes('{#if show}'), 'should transform ternary usage');
+		assert.ok(!result.includes('import Mdz from'), 'should remove Mdz import when all transformed');
+	});
+
+	test('transforms ternary with empty string branch', async () => {
+		const input = `<script lang="ts">
+	import Mdz from '@fuzdev/fuz_ui/Mdz.svelte';
+	let show = $state(true);
+</script>
+
+<Mdz content={show ? '**bold**' : ''} />`;
+
+		const result = await run_preprocess(input);
+		assert.ok(result.includes('{#if show}'), 'should produce {#if} block');
+		assert.ok(result.includes('<strong>bold</strong>'), 'should render consequent');
+		assert.ok(result.includes('{:else}'), 'should have {:else} block');
+		assert.ok(result.includes('<MdzPrecompiled>'), 'should use MdzPrecompiled');
+	});
+
+	test('on_error throw mode throws on ternary branch parse failure', async () => {
+		const mdz_module = await import('$lib/mdz.js');
+		const spy = vi.spyOn(mdz_module, 'mdz_parse').mockImplementation(() => {
+			throw new Error('mock ternary parse failure');
+		});
+
+		const input = `<script lang="ts">
+	import Mdz from '@fuzdev/fuz_ui/Mdz.svelte';
+	let show = $state(true);
+</script>
+
+<Mdz content={show ? '**a**' : '**b**'} />`;
+
+		try {
+			let threw = false;
+			try {
+				await run_preprocess(input, {...DEFAULT_TEST_OPTIONS, on_error: 'throw'});
+			} catch (error) {
+				threw = true;
+				assert.ok(error instanceof Error);
+				assert.ok(error.message.includes('[fuz-mdz]'));
+				assert.ok(error.message.includes('mock ternary parse failure'));
+			}
+			assert.ok(threw, 'should have thrown');
+		} finally {
+			spy.mockRestore();
+		}
+	});
+
+	test('on_error log mode skips ternary on branch parse failure', async () => {
+		const mdz_module = await import('$lib/mdz.js');
+		const parse_spy = vi.spyOn(mdz_module, 'mdz_parse').mockImplementation(() => {
+			throw new Error('mock ternary parse failure');
+		});
+		// eslint-disable-next-line @typescript-eslint/no-empty-function
+		const error_spy = vi.spyOn(console, 'error').mockImplementation(() => {});
+
+		const input = `<script lang="ts">
+	import Mdz from '@fuzdev/fuz_ui/Mdz.svelte';
+	let show = $state(true);
+</script>
+
+<Mdz content={show ? '**a**' : '**b**'} />`;
+
+		try {
+			const result = await run_preprocess(input, {...DEFAULT_TEST_OPTIONS, on_error: 'log'});
+			assert.equal(result, input, 'should be unchanged when ternary parse fails in log mode');
+			assert.equal(error_spy.mock.calls.length, 1, 'should log exactly one error');
+			assert.ok(
+				(error_spy.mock.calls[0]![0] as string).includes('[fuz-mdz]'),
+				'error message should include preprocessor prefix',
+			);
+		} finally {
+			parse_spy.mockRestore();
+			error_spy.mockRestore();
+		}
 	});
 });
