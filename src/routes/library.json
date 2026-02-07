@@ -84,10 +84,10 @@
 			"@changesets/changelog-git": "^0.2.1",
 			"@fuzdev/fuz_code": "^0.43.0",
 			"@fuzdev/fuz_css": "^0.47.0",
-			"@fuzdev/fuz_util": "^0.49.1",
+			"@fuzdev/fuz_util": "^0.49.2",
 			"@jridgewell/trace-mapping": "^0.3.31",
 			"@ryanatkn/eslint-config": "^0.9.0",
-			"@ryanatkn/gro": "^0.190.0",
+			"@ryanatkn/gro": "^0.191.0",
 			"@sveltejs/adapter-static": "^3.0.10",
 			"@sveltejs/kit": "^2.50.1",
 			"@sveltejs/package": "^2.5.7",
@@ -6405,6 +6405,12 @@
 								"kind": "variable",
 								"type_signature": "string",
 								"doc_comment": "Import path for the precompiled wrapper component."
+							},
+							{
+								"name": "on_error",
+								"kind": "variable",
+								"type_signature": "'log' | 'throw'",
+								"doc_comment": "How to handle errors during mdz parsing or rendering."
 							}
 						]
 					},
@@ -6412,7 +6418,7 @@
 						"name": "svelte_preprocess_mdz",
 						"kind": "function",
 						"doc_comment": "Creates a Svelte preprocessor that compiles static `<Mdz>` content at build time.",
-						"source_line": 79,
+						"source_line": 86,
 						"type_signature": "(options?: SveltePreprocessMdzOptions): PreprocessorGroup",
 						"return_type": "PreprocessorGroup",
 						"return_description": "A Svelte `PreprocessorGroup` for use in `svelte.config.js`.",
