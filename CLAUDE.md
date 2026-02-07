@@ -71,12 +71,11 @@ src/
 represents a component or helper with `name`, `category`, `component`, and
 `related` fields. Central registry: `src/routes/docs/tomes.ts`
 
-**Identifier namespacing** - prefix-based naming with domain-first, action-last
-pattern: `url_github_file()`, `repo_url_parse()`, `package_is_published()`.
-Groups related functions in autocomplete without import aliasing.
+**Identifier namespacing** - fuz_ui uses domain-prefix naming for its helper
+clusters. See `fuz-stack` for the full naming conventions.
 
-Helper file prefixes by domain: `ts_*` (TypeScript API), `tsdoc_*` (JSDoc
-parsing), `svelte_*` (component analysis), `module_*` (path utilities),
+Helper file prefixes: `ts_*` (TypeScript API), `tsdoc_*` (JSDoc parsing),
+`svelte_*` (component analysis), `module_*` (path utilities),
 `package_gen_*` (Gro package generation).
 
 ## Components
