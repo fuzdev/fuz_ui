@@ -22,7 +22,7 @@ describe('dynamic content preservation', () => {
 
 	test('preserves template literal with interpolation', async () => {
 		const input =
-			"<script lang=\"ts\">\n\timport Mdz from '@fuzdev/fuz_ui/Mdz.svelte';\n\tconst value = 'x';\n</script>\n\n<Mdz content={`**${value}**`} />";
+			"<script lang=\"ts\">\n\timport Mdz from '@fuzdev/fuz_ui/Mdz.svelte';\n\tlet value = 'x';\n</script>\n\n<Mdz content={`**${value}**`} />";
 
 		const result = await run_preprocess(input);
 		assert.equal(result, input, 'should be unchanged for dynamic content');
@@ -50,6 +50,28 @@ describe('dynamic content preservation', () => {
 
 		const result = await run_preprocess(input);
 		assert.equal(result, input, 'should be unchanged for dynamic content');
+	});
+});
+
+describe('const variable tracing', () => {
+	test('transforms const variable reference', async () => {
+		const input = `<script lang="ts">
+	import Mdz from '@fuzdev/fuz_ui/Mdz.svelte';
+	const msg = '**bold**';
+</script>
+
+<Mdz content={msg} />`;
+
+		const result = await run_preprocess(input);
+		assert.ok(result.includes('<strong>bold</strong>'), 'should transform const variable');
+	});
+
+	test('transforms template with const interpolation', async () => {
+		const input =
+			"<script lang=\"ts\">\n\timport Mdz from '@fuzdev/fuz_ui/Mdz.svelte';\n\tconst name = 'world';\n</script>\n\n<Mdz content={`hello ${name}`} />";
+
+		const result = await run_preprocess(input);
+		assert.ok(result.includes('hello world'), 'should resolve const interpolation');
 	});
 });
 
