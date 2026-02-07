@@ -1,7 +1,5 @@
 import {test, assert, describe, vi} from 'vitest';
-import {preprocess} from 'svelte/compiler';
 
-import {svelte_preprocess_mdz} from '$lib/svelte_preprocess_mdz.js';
 import {
 	run_preprocess,
 	DEFAULT_TEST_OPTIONS,
@@ -62,6 +60,19 @@ describe('dynamic content preservation', () => {
 
 		const result = await run_preprocess(input);
 		assert.equal(result, input, 'should be unchanged for $state rune');
+	});
+
+	test('preserves $derived rune const', async () => {
+		const input = `<script lang="ts">
+	import Mdz from '@fuzdev/fuz_ui/Mdz.svelte';
+	const base = $state('**bold**');
+	const content = $derived(base);
+</script>
+
+<Mdz content={content} />`;
+
+		const result = await run_preprocess(input);
+		assert.equal(result, input, 'should be unchanged for $derived rune');
 	});
 });
 
@@ -204,6 +215,17 @@ describe('missing or wrong imports', () => {
 		assert.equal(result, input, 'should be unchanged');
 	});
 
+	test('skips namespace import', async () => {
+		const input = `<script lang="ts">
+	import * as Mdz from '@fuzdev/fuz_ui/Mdz.svelte';
+</script>
+
+<Mdz content="**bold**" />`;
+
+		const result = await run_preprocess(input);
+		assert.equal(result, input, 'should be unchanged for namespace import');
+	});
+
 	test('import type is not treated as component import', async () => {
 		const input = `<script lang="ts">
 	import type Mdz from '@fuzdev/fuz_ui/Mdz.svelte';
@@ -230,12 +252,12 @@ describe('excluded files', () => {
 
 <Mdz content="**bold**" />`;
 
-		const result = await preprocess(
+		const result = await run_preprocess(
 			input,
-			[svelte_preprocess_mdz({...DEFAULT_TEST_OPTIONS, exclude: [/Test\.svelte$/]})],
-			{filename: 'Test.svelte'},
+			{...DEFAULT_TEST_OPTIONS, exclude: [/Test\.svelte$/]},
+			'Test.svelte',
 		);
-		assert.equal(result.code, input, 'should be unchanged');
+		assert.equal(result, input, 'should be unchanged');
 	});
 
 	test('skips excluded files with string pattern', async () => {
@@ -245,12 +267,61 @@ describe('excluded files', () => {
 
 <Mdz content="**bold**" />`;
 
-		const result = await preprocess(
+		const result = await run_preprocess(
 			input,
-			[svelte_preprocess_mdz({...DEFAULT_TEST_OPTIONS, exclude: ['fixtures/']})],
-			{filename: 'src/test/fixtures/Test.svelte'},
+			{...DEFAULT_TEST_OPTIONS, exclude: ['fixtures/']},
+			'src/test/fixtures/Test.svelte',
 		);
-		assert.equal(result.code, input, 'should be unchanged for excluded file');
+		assert.equal(result, input, 'should be unchanged for excluded file');
+	});
+});
+
+describe('nesting depth', () => {
+	test('transforms Mdz deeply nested in control flow and components', async () => {
+		const input = `<script lang="ts">
+	import Mdz from '@fuzdev/fuz_ui/Mdz.svelte';
+	import Wrapper from './Wrapper.svelte';
+	const items = ['a'];
+	const show = true;
+</script>
+
+<Wrapper>
+	{#if show}
+		{#each items as item}
+			<Mdz content="**bold**" />
+		{/each}
+	{/if}
+</Wrapper>`;
+
+		const result = await run_preprocess(input);
+		assert.ok(result.includes('<strong>bold</strong>'), 'should transform deeply nested Mdz');
+		assert.ok(result.includes('<MdzPrecompiled>'), 'should use MdzPrecompiled');
+	});
+});
+
+describe('empty children', () => {
+	test('transforms component with empty children in mdz content', async () => {
+		const input = `<script lang="ts">
+	import Mdz from '@fuzdev/fuz_ui/Mdz.svelte';
+</script>
+
+<Mdz content="<Alert></Alert>" />`;
+
+		const result = await run_preprocess(input);
+		assert.ok(result.includes('<Alert></Alert>'), 'should render empty component');
+		assert.ok(result.includes('<MdzPrecompiled>'), 'should use MdzPrecompiled');
+	});
+
+	test('transforms element with empty children in mdz content', async () => {
+		const input = `<script lang="ts">
+	import Mdz from '@fuzdev/fuz_ui/Mdz.svelte';
+</script>
+
+<Mdz content="<aside></aside>" />`;
+
+		const result = await run_preprocess(input);
+		assert.ok(result.includes('<aside></aside>'), 'should render empty element');
+		assert.ok(result.includes('<MdzPrecompiled>'), 'should use MdzPrecompiled');
 	});
 });
 
@@ -283,11 +354,12 @@ describe('on_error', () => {
 		}
 	});
 
-	test('log mode skips failed transformation', async () => {
+	test('log mode skips failed transformation and logs error', async () => {
 		const mdz_module = await import('$lib/mdz.js');
-		const spy = vi.spyOn(mdz_module, 'mdz_parse').mockImplementation(() => {
+		const parse_spy = vi.spyOn(mdz_module, 'mdz_parse').mockImplementation(() => {
 			throw new Error('mock parse failure');
 		});
+		const error_spy = vi.spyOn(console, 'error').mockImplementation(() => {});
 
 		const input = `<script lang="ts">
 	import Mdz from '@fuzdev/fuz_ui/Mdz.svelte';
@@ -298,8 +370,18 @@ describe('on_error', () => {
 		try {
 			const result = await run_preprocess(input, {...DEFAULT_TEST_OPTIONS, on_error: 'log'});
 			assert.equal(result, input, 'should be unchanged when parse fails in log mode');
+			assert.equal(error_spy.mock.calls.length, 1, 'should log exactly one error');
+			assert.ok(
+				(error_spy.mock.calls[0]![0] as string).includes('[fuz-mdz]'),
+				'error message should include preprocessor prefix',
+			);
+			assert.ok(
+				(error_spy.mock.calls[0]![0] as string).includes('mock parse failure'),
+				'error message should include original error',
+			);
 		} finally {
-			spy.mockRestore();
+			parse_spy.mockRestore();
+			error_spy.mockRestore();
 		}
 	});
 });

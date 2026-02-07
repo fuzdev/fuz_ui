@@ -9,6 +9,7 @@
  * @module
  */
 
+import type {ImportDeclaration} from 'estree';
 import {parse, type PreprocessorGroup, type AST} from 'svelte/compiler';
 import MagicString from 'magic-string';
 import {walk} from 'zimmerframe';
@@ -27,6 +28,13 @@ import {
 
 import {mdz_parse} from './mdz.js';
 import {mdz_to_svelte} from './mdz_to_svelte.js';
+
+/**
+ * An estree `ImportDeclaration` augmented with Svelte's position data.
+ * Svelte's parser adds `start`/`end` to all AST nodes, but the estree
+ * types don't declare them.
+ */
+type PositionedImportDeclaration = ImportDeclaration & AST.BaseNode;
 
 /**
  * Options for `svelte_preprocess_mdz`.
@@ -227,8 +235,9 @@ const find_mdz_usages = (
 	const total_usages: Map<string, number> = new Map();
 	const transformed_usages: Map<string, number> = new Map();
 
+	// zimmerframe types visitors against {type: string}, requiring explicit annotations
+	// on the callback parameters for Svelte-specific AST types like AST.Component
 	walk(ast.fragment as any, null, {
-		// TODO: use proper Svelte AST type for fragment
 		Component(node: AST.Component, ctx: {next: () => void}) {
 			// Always recurse into children so nested Mdz components are found
 			ctx.next();
@@ -239,7 +248,7 @@ const find_mdz_usages = (
 			total_usages.set(node.name, (total_usages.get(node.name) ?? 0) + 1);
 
 			// Skip if spread attributes present — can't determine content statically
-			if (node.attributes.some((attr: any) => attr.type === 'SpreadAttribute')) return; // TODO: use proper Svelte attribute union type
+			if (node.attributes.some((attr) => attr.type === 'SpreadAttribute')) return;
 
 			const content_attr = find_attribute(node, 'content');
 			if (!content_attr) return;
@@ -272,8 +281,8 @@ const find_mdz_usages = (
 			transformed_usages.set(node.name, (transformed_usages.get(node.name) ?? 0) + 1);
 
 			transformations.push({
-				start: (node as any).start, // TODO: use proper Svelte AST type with position data
-				end: (node as any).end, // TODO: use proper Svelte AST type with position data
+				start: node.start,
+				end: node.end,
 				replacement,
 				required_imports: result.imports,
 			});
@@ -299,7 +308,7 @@ const build_replacement = (
 	const other_attr_ranges: Array<{start: number; end: number}> = [];
 	for (const attr of node.attributes) {
 		if (attr === content_attr) continue;
-		other_attr_ranges.push({start: (attr as any).start, end: (attr as any).end}); // TODO: use proper Svelte AST type with position data
+		other_attr_ranges.push({start: attr.start, end: attr.end});
 	}
 
 	// Build opening tag with MdzPrecompiled name
@@ -325,9 +334,8 @@ const find_removable_mdz_imports = (
 	mdz_names: Map<string, ResolvedComponentImport>,
 	total_usages: Map<string, number>,
 	transformed_usages: Map<string, number>,
-): Set<any> => {
-	// TODO: use proper ESTree ImportDeclaration type
-	const removable: Set<any> = new Set(); // TODO: use proper ESTree ImportDeclaration type
+): Set<PositionedImportDeclaration> => {
+	const removable: Set<PositionedImportDeclaration> = new Set();
 
 	for (const [name, {import_node}] of mdz_names) {
 		const total = total_usages.get(name) ?? 0;
@@ -357,7 +365,8 @@ const find_removable_mdz_imports = (
 			continue;
 		}
 
-		removable.add(import_node);
+		// Svelte's parser adds start/end to all AST nodes including ImportDeclaration
+		removable.add(import_node as PositionedImportDeclaration);
 	}
 
 	return removable;
@@ -377,7 +386,7 @@ const manage_imports = (
 	s: MagicString,
 	ast: AST.Root,
 	transformations: Array<MdzTransformation>,
-	removable_imports: Set<any>, // TODO: use proper ESTree ImportDeclaration type
+	removable_imports: Set<PositionedImportDeclaration>,
 	compiled_component_import: string,
 	source: string,
 ): void => {
@@ -399,8 +408,7 @@ const manage_imports = (
 		// Just add all required imports
 		const lines = generate_import_lines(required);
 		if (ast.module) {
-			const module_end = (ast.module as unknown as AST.BaseNode).end;
-			s.appendLeft(module_end, `\n\n<script lang="ts">\n${lines}\n</script>`);
+			s.appendLeft(ast.module.end, `\n\n<script lang="ts">\n${lines}\n</script>`);
 		} else {
 			s.prepend(`<script lang="ts">\n${lines}\n</script>\n\n`);
 		}
@@ -433,10 +441,10 @@ const manage_imports = (
 	// Strategy: if we're both adding MdzPrecompiled and removing an Mdz import,
 	// overwrite one removable import with the MdzPrecompiled line to avoid
 	// MagicString boundary conflicts. Other imports use normal appendLeft.
-	let overwrite_target: any = null; // TODO: use proper ESTree ImportDeclaration type
+	let overwrite_target: PositionedImportDeclaration | null = null;
 	if (to_add.has(PRECOMPILED_NAME) && removable_imports.size > 0) {
 		// Pick the first removable import to overwrite
-		overwrite_target = removable_imports.values().next().value;
+		overwrite_target = removable_imports.values().next().value ?? null;
 	}
 
 	// Generate the MdzPrecompiled import line separately if using overwrite
@@ -483,8 +491,11 @@ const manage_imports = (
  * in `\r\n`, the `\r` belongs to the previous line's terminator, not to
  * this line's leading whitespace.
  */
-// TODO: use proper ESTree ImportDeclaration type instead of `any`
-const remove_import_declaration = (s: MagicString, import_node: any, source: string): void => {
+const remove_import_declaration = (
+	s: MagicString,
+	import_node: PositionedImportDeclaration,
+	source: string,
+): void => {
 	let start: number = import_node.start;
 	let end: number = import_node.end;
 
