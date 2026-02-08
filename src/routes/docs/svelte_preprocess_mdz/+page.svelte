@@ -6,6 +6,7 @@
 	import TomeSection from '$lib/TomeSection.svelte';
 	import TomeSectionHeader from '$lib/TomeSectionHeader.svelte';
 	import DeclarationLink from '$lib/DeclarationLink.svelte';
+	import ModuleLink from '$lib/ModuleLink.svelte';
 	import TomeLink from '$lib/TomeLink.svelte';
 
 	const LIBRARY_ITEM_NAME = 'svelte_preprocess_mdz';
@@ -54,7 +55,7 @@ export default {
 		<TomeSectionHeader text="Options" />
 		<p>
 			<DeclarationLink name="svelte_preprocess_mdz" /> accepts a
-			<code>SveltePreprocessMdzOptions</code> object:
+			<DeclarationLink name="SveltePreprocessMdzOptions" /> object:
 		</p>
 		<ul>
 			<li>
@@ -106,10 +107,12 @@ export default {
 		<p>The preprocessor also manages imports automatically:</p>
 		<ul>
 			<li>
-				adds imports required by the rendered content (e.g., <code>DocsLink</code>,
+				adds imports required by the rendered content (e.g., <DeclarationLink name="DocsLink" />,
 				<code>Code</code>, <code>resolve</code>, configured components)
 			</li>
-			<li>removes the <code>Mdz</code> import when all usages are transformed</li>
+			<li>
+				removes the <DeclarationLink name="Mdz" /> import when all usages are transformed
+			</li>
 			<li>removes dead <code>const</code> bindings consumed only by transformed content</li>
 		</ul>
 	</TomeSection>
@@ -118,12 +121,12 @@ export default {
 		<TomeSectionHeader text="What gets transformed" />
 		<p>The preprocessor handles these static content patterns:</p>
 		<ul>
-			<li>string attributes: <code>content="**bold**"</code></li>
-			<li>JS string expressions: <code>content={'{'}'**bold**'}</code></li>
-			<li>template literals without interpolation: <code>content={'{'}` **bold** `}</code></li>
-			<li>const variable references: <code>const msg = '**bold**'; content={'{'}msg}</code></li>
-			<li>ternary chains: <code>content={'{'}show ? '**a**' : '**b**'}</code></li>
-			<li>nested ternaries: <code>content={'{'}a ? 'x' : b ? 'y' : 'z'}</code></li>
+			<li>string attributes: <Code content="content=&quot;**bold**&quot;" /></li>
+			<li>JS string expressions: <Code content={`content={'**bold**'}`} /></li>
+			<li>template literals without interpolation: <Code content={'content={`**bold**`}'} /></li>
+			<li>const variable references: <Code content={`const msg = '**bold**'; content={msg}`} /></li>
+			<li>ternary chains: <Code content={`content={show ? '**a**' : '**b**'}`} /></li>
+			<li>nested ternaries: <Code content={`content={a ? 'x' : b ? 'y' : 'z'}`} /></li>
 		</ul>
 	</TomeSection>
 
@@ -134,7 +137,7 @@ export default {
 			<li>the file is excluded via <code>exclude</code></li>
 			<li>no matching import source is found for Mdz</li>
 			<li>the import is <code>import type</code> (not a runtime import)</li>
-			<li><code>MdzPrecompiled</code> is already imported from a different source</li>
+			<li><DeclarationLink name="MdzPrecompiled" /> is already imported from a different source</li>
 			<li>
 				the <code>content</code> prop is dynamic (variable, function call, <code>$state</code>,
 				<code>$derived</code>)
@@ -144,4 +147,9 @@ export default {
 			<li>a ternary branch has dynamic content or unconfigured tags</li>
 		</ul>
 	</TomeSection>
+	<aside>
+		See also <TomeLink name="mdz" /> for the mdz format,
+		<ModuleLink module_path="svelte_preprocess_mdz.ts" /> and
+		<ModuleLink module_path="mdz_to_svelte.ts" /> for full API docs.
+	</aside>
 </TomeContent>

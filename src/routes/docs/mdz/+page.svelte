@@ -8,6 +8,7 @@
 	import TomeSectionHeader from '$lib/TomeSectionHeader.svelte';
 	import Mdz from '$lib/Mdz.svelte';
 	import DeclarationLink from '$lib/DeclarationLink.svelte';
+	import TomeLink from '$lib/TomeLink.svelte';
 	import {mdz_components_context, mdz_elements_context} from '$lib/mdz_components.js';
 	import Alert from '$lib/Alert.svelte';
 
@@ -58,6 +59,10 @@
 		<p>
 			mdz prioritizes predictability: strict syntax with one canonical pattern per feature,
 			preferring false negatives over false positives to minimize surprise.
+		</p>
+		<p>
+			For better performance, static mdz content can be compiled at build time with the
+			<TomeLink name="svelte_preprocess_mdz" />.
 		</p>
 		<aside>
 			⚠️ This is an early proof of concept with missing features. Next: attributes, lists,

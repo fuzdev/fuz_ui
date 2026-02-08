@@ -100,7 +100,7 @@ export const tomes: Array<Tome> = [
 		name: 'mdz',
 		category: 'helpers',
 		Component: mdz,
-		related_tomes: [],
+		related_tomes: ['svelte_preprocess_mdz'],
 		related_modules: ['mdz.ts'],
 		related_declarations: ['Mdz', 'mdz_parse', 'MdzNodeView'],
 	},
