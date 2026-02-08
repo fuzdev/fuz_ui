@@ -34,12 +34,12 @@
 		/>
 		<p>See the nav for the available components and other helpers.</p>
 		<p>
-			<TomeLink name="mdz" /> is a markdown dialect enhanced with Svelte components and other useful features.
-			To compile static content at build time instead of parsing at runtime with slower dynamic rendering,
-			use <TomeLink name="svelte_preprocess_mdz" />:
+			<TomeLink name="mdz" /> is a markdown dialect enhanced with Svelte components, autolinked identifiers,
+			and other integrations. To compile static content at build time instead of parsing at runtime with
+			slower dynamic rendering, use <TomeLink name="svelte_preprocess_mdz" />:
 		</p>
 		<Code
-			lang="ts"
+			lang="js"
 			content={`// svelte.config.js
 import {svelte_preprocess_mdz} from '@fuzdev/fuz_ui/svelte_preprocess_mdz.js';
 

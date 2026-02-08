@@ -18,8 +18,7 @@
 		<p>
 			<DeclarationLink name="svelte_preprocess_mdz" /> is a Svelte preprocessor that compiles static <TomeLink
 				name="mdz"
-			/>
-			content to Svelte markup at build time. Instead of parsing mdz at runtime and rendering dynamically,
+			/> content to Svelte markup at build time. Instead of parsing mdz at runtime and rendering dynamically,
 			the preprocessor replaces the <DeclarationLink name="Mdz" /> component with
 			<DeclarationLink name="MdzPrecompiled" /> containing pre-rendered children.
 		</p>
@@ -32,7 +31,7 @@
 			<code>svelte.config.js</code>:
 		</p>
 		<Code
-			lang="ts"
+			lang="js"
 			content={`import {svelte_preprocess_mdz} from '@fuzdev/fuz_ui/svelte_preprocess_mdz.js';
 
 export default {
