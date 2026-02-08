@@ -16,11 +16,9 @@
 <TomeContent {tome}>
 	<section>
 		<p>
-			<DeclarationLink name="svelte_preprocess_mdz" /> is a Svelte preprocessor that compiles static
-			<code>&lt;Mdz&gt;</code>
+			<DeclarationLink name="svelte_preprocess_mdz" /> is a Svelte preprocessor that compiles static mdz
 			content to Svelte markup at build time. Instead of parsing mdz at runtime, the preprocessor replaces
-			<code>&lt;Mdz&gt;</code>
-			with
+			the <DeclarationLink name="Mdz" /> component with
 			<DeclarationLink name="MdzPrecompiled" /> containing pre-rendered children.
 		</p>
 		<p>
