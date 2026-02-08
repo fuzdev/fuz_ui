@@ -227,21 +227,15 @@ describe('missing or wrong imports', () => {
 		assert.equal(result, input, 'should be unchanged for namespace import');
 	});
 
-	test('import type is not treated as component import', async () => {
+	test('skips import type declaration', async () => {
 		const input = `<script lang="ts">
 	import type Mdz from '@fuzdev/fuz_ui/Mdz.svelte';
 </script>
 
 <Mdz content="**bold**" />`;
 
-		// The preprocessor doesn't distinguish `import type` from `import` —
-		// resolve_component_names treats both as ImportDeclaration.
-		// It transforms the content; the Svelte compiler catches the runtime error downstream.
 		const result = await run_preprocess(input);
-		assert.ok(
-			result.includes('<strong>bold</strong>'),
-			'should still transform (import type not filtered)',
-		);
+		assert.equal(result, input, 'should be unchanged for import type');
 	});
 });
 

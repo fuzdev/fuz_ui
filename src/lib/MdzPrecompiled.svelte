@@ -1,13 +1,13 @@
-<!--
-@component
-
-Used by `svelte_preprocess_mdz`. Not intended for direct use.
-
-@module
--->
 <script lang="ts">
 	import type {Snippet} from 'svelte';
 	import type {SvelteHTMLElements} from 'svelte/elements';
+
+	/**
+	 * Wrapper for precompiled mdz content. Used by `svelte_preprocess_mdz`.
+	 * Not intended for direct use.
+	 *
+	 * @module
+	 */
 
 	const {
 		inline = false,

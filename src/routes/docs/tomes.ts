@@ -21,6 +21,7 @@ import logos from '$routes/docs/logos/+page.svelte';
 import theming from '$routes/docs/theming/+page.svelte';
 import api from '$routes/docs/api/+page.svelte';
 import intersect from '$routes/docs/intersect/+page.svelte';
+import svelte_preprocess_mdz from '$routes/docs/svelte_preprocess_mdz/+page.svelte';
 import vite_plugin_library_well_known from '$routes/docs/vite_plugin_library_well_known/+page.svelte';
 import mdz from '$routes/docs/mdz/+page.svelte';
 
@@ -78,6 +79,14 @@ export const tomes: Array<Tome> = [
 		related_tomes: ['LibraryDetail', 'LibrarySummary', 'Svg'],
 		related_modules: ['logos.ts'],
 		related_declarations: [],
+	},
+	{
+		name: 'svelte_preprocess_mdz',
+		category: 'helpers',
+		Component: svelte_preprocess_mdz,
+		related_tomes: ['mdz'],
+		related_modules: ['svelte_preprocess_mdz.ts', 'mdz_to_svelte.ts'],
+		related_declarations: ['svelte_preprocess_mdz', 'mdz_to_svelte', 'MdzPrecompiled'],
 	},
 	{
 		name: 'vite_plugin_library_well_known',

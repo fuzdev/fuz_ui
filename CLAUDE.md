@@ -175,6 +175,75 @@ Helper file prefixes: `ts_*` (TypeScript API), `tsdoc_*` (JSDoc parsing),
 - `intersect.svelte.ts` - Svelte 5 attachment for IntersectionObserver
 - `helpers.ts` - general utilities (`render_value_to_string`)
 
+### Preprocessor
+
+- `svelte_preprocess_mdz.ts` - build-time compilation of static `<Mdz>` content
+- `mdz_to_svelte.ts` - converts `MdzNode` arrays to Svelte markup strings
+- `MdzPrecompiled.svelte` - wrapper component for precompiled output
+
+## Preprocessor: svelte_preprocess_mdz
+
+Compiles static `<Mdz content="...">` usages to pre-rendered Svelte markup at
+build time, replacing `<Mdz>` with `<MdzPrecompiled>` containing children.
+Eliminates runtime mdz parsing for known-static content.
+
+### Setup
+
+```js
+// svelte.config.js
+import {svelte_preprocess_mdz} from '@fuzdev/fuz_ui/svelte_preprocess_mdz.js';
+
+export default {
+  preprocess: [
+    svelte_preprocess_mdz({
+      components: {Alert: '$lib/Alert.svelte'},
+      elements: ['aside', 'details'],
+    }),
+    // ...other preprocessors
+  ],
+};
+```
+
+### Options
+
+- `exclude` — file patterns to skip (`Array<string | RegExp>`)
+- `components` — mdz component name to import path mapping (`Record<string, string>`)
+- `elements` — allowed HTML element names in mdz content (`Array<string>`)
+- `component_imports` — import sources that resolve to Mdz (default: `['@fuzdev/fuz_ui/Mdz.svelte']`)
+- `compiled_component_import` — import path for MdzPrecompiled (default: `'@fuzdev/fuz_ui/MdzPrecompiled.svelte'`)
+- `on_error` — `'log'` or `'throw'` (default: `'throw'` in CI, `'log'` otherwise)
+
+### Skip conditions
+
+The preprocessor leaves `<Mdz>` untouched (falls back to runtime) when:
+
+- File is excluded via `exclude` option
+- No matching import source found for Mdz
+- `import type` declaration (not a runtime import)
+- `MdzPrecompiled` name already imported from a different source
+- `content` prop is dynamic (variable, function call, `$state`, `$derived`)
+- Spread attributes present (`{...props}`)
+- Content references unconfigured components or elements
+- Ternary with a dynamic branch or unconfigured tags in any branch
+- Nested ternaries where all branches are not statically resolvable
+
+### What gets transformed
+
+- Static string attributes: `content="**bold**"`
+- JS string expressions: `content={'**bold**'}`
+- Template literals without interpolation: `` content={`**bold**`} ``
+- Const variable references: `const msg = '**bold**'; content={msg}`
+- Ternary chains with static branches: `content={show ? '**a**' : '**b**'}`
+- Nested ternaries: `content={a ? 'x' : b ? 'y' : 'z'}` → `{#if}/{:else if}/{:else}`
+
+### Import management
+
+The preprocessor automatically:
+- Adds `MdzPrecompiled` import
+- Adds imports required by rendered content (`DocsLink`, `Code`, `resolve`, configured components)
+- Removes the `Mdz` import when all usages are transformed and the identifier is not referenced elsewhere
+- Removes dead `const` bindings that were only consumed by transformed content
+
 ## Context system
 
 All contexts use the standardized pattern via `context_helpers.ts`:
