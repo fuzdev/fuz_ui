@@ -121,12 +121,17 @@ export default {
 		<TomeSectionHeader text="What gets transformed" />
 		<p>The preprocessor handles these static content patterns:</p>
 		<ul>
-			<li>string attributes: <Code content="content=&quot;**bold**&quot;" /></li>
-			<li>JS string expressions: <Code content={`content={'**bold**'}`} /></li>
-			<li>template literals without interpolation: <Code content={'content={`**bold**`}'} /></li>
-			<li>const variable references: <Code content={`const msg = '**bold**'; content={msg}`} /></li>
-			<li>ternary chains: <Code content={`content={show ? '**a**' : '**b**'}`} /></li>
-			<li>nested ternaries: <Code content={`content={a ? 'x' : b ? 'y' : 'z'}`} /></li>
+			<li>string attributes: <Code inline content="content=&quot;**bold**&quot;" /></li>
+			<li>JS string expressions: <Code inline content={`content={'**bold**'}`} /></li>
+			<li>
+				template literals without interpolation: <Code inline content={'content={`**bold**`}'} />
+			</li>
+			<li>
+				const variable references: <Code inline lang="ts" content="const msg = '**bold**';'" />
+				<Code inline content={`content={msg}'`} />
+			</li>
+			<li>ternary chains: <Code inline content={`content={show ? '**a**' : '**b**'}`} /></li>
+			<li>nested ternaries: <Code inline content={`content={a ? 'x' : b ? 'y' : 'z'}`} /></li>
 		</ul>
 	</TomeSection>
 
