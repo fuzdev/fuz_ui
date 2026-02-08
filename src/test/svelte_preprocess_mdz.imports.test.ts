@@ -327,7 +327,7 @@ describe('import removal', () => {
 		assert.ok(result.includes('import Other'), 'should keep Other import');
 	});
 
-	test('keeps multi-specifier import even when all usages transformed', async () => {
+	test('partially removes Mdz from multi-specifier import when all usages transformed', async () => {
 		const input = `<script lang="ts">
 	import Mdz, {something} from '@fuzdev/fuz_ui/Mdz.svelte';
 </script>
@@ -335,14 +335,78 @@ describe('import removal', () => {
 <Mdz content="**bold**" />`;
 
 		const result = await run_preprocess(input);
+		assert.ok(!result.includes('import Mdz,'), 'should remove Mdz default specifier');
 		assert.ok(
-			result.includes('import Mdz, {something}'),
-			'should keep multi-specifier import intact',
+			result.includes("import {something} from '@fuzdev/fuz_ui/Mdz.svelte'"),
+			'should keep remaining specifier',
 		);
+		assert.ok(result.includes('import MdzPrecompiled from'), 'should add MdzPrecompiled import');
+	});
+
+	test('removes default from import Mdz, {MdzNode}', async () => {
+		const input = `<script lang="ts">
+	import Mdz, {MdzNode} from '@fuzdev/fuz_ui/Mdz.svelte';
+</script>
+
+<Mdz content="**bold**" />`;
+
+		const result = await run_preprocess(input);
 		assert.ok(
-			result.includes('import MdzPrecompiled from'),
-			'should still add MdzPrecompiled import',
+			result.includes("import {MdzNode} from '@fuzdev/fuz_ui/Mdz.svelte'"),
+			'should keep named import',
 		);
+		assert.ok(!result.includes('import Mdz,'), 'should remove default import');
+	});
+
+	test('removes named from import {default as Mdz, MdzNode}', async () => {
+		const input = `<script lang="ts">
+	import {default as Mdz, MdzNode} from '@fuzdev/fuz_ui/Mdz.svelte';
+</script>
+
+<Mdz content="**bold**" />`;
+
+		const result = await run_preprocess(input);
+		assert.ok(
+			result.includes("import {MdzNode} from '@fuzdev/fuz_ui/Mdz.svelte'"),
+			'should keep MdzNode import',
+		);
+		assert.ok(!result.includes('default as Mdz'), 'should remove Mdz alias');
+	});
+
+	test('partial removal bundles additional imports via carrier', async () => {
+		const input = `<script lang="ts">
+	import Mdz, {something} from '@fuzdev/fuz_ui/Mdz.svelte';
+</script>
+
+<Mdz content="\`some_fn\`" />`;
+
+		const result = await run_preprocess(input);
+		assert.ok(
+			result.includes("import {something} from '@fuzdev/fuz_ui/Mdz.svelte'"),
+			'should keep remaining specifier',
+		);
+		assert.ok(result.includes('import MdzPrecompiled from'), 'should add MdzPrecompiled import');
+		assert.ok(
+			result.includes("import DocsLink from '@fuzdev/fuz_ui/DocsLink.svelte'"),
+			'should add DocsLink import via carrier',
+		);
+	});
+
+	test('partial removal works when not the last import', async () => {
+		const input = `<script lang="ts">
+	import Mdz, {something} from '@fuzdev/fuz_ui/Mdz.svelte';
+	import Other from 'other-pkg';
+</script>
+
+<Mdz content="**bold**" />`;
+
+		const result = await run_preprocess(input);
+		assert.ok(
+			result.includes("import {something} from '@fuzdev/fuz_ui/Mdz.svelte'"),
+			'should keep remaining specifier',
+		);
+		assert.ok(result.includes('import Other'), 'should keep Other import');
+		assert.ok(result.includes('import MdzPrecompiled from'), 'should add MdzPrecompiled import');
 	});
 
 	test('removes Mdz import from module script when all transformed', async () => {

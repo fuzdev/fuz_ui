@@ -422,6 +422,34 @@ describe('ternary/conditional expressions', () => {
 		assert.ok(result.includes('<em>italic</em>'), 'should render alternate from binding');
 	});
 
+	test('skips nested ternary when one branch has unconfigured tag', async () => {
+		const input = `<script lang="ts">
+	import Mdz from '@fuzdev/fuz_ui/Mdz.svelte';
+	let a = $state(true);
+	let b = $state(false);
+</script>
+
+<Mdz content={a ? '**ok**' : b ? '<Unknown>bad</Unknown>' : '**also ok**'} />`;
+
+		const result = await run_preprocess(input);
+		assert.equal(result, input, 'should be unchanged when nested branch has unconfigured tag');
+	});
+
+	test('transforms ternary with empty string branch', async () => {
+		const input = `<script lang="ts">
+	import Mdz from '@fuzdev/fuz_ui/Mdz.svelte';
+	let show = $state(true);
+</script>
+
+<Mdz content={show ? '' : '**bold**'} />`;
+
+		const result = await run_preprocess(input);
+		assert.ok(result.includes('{#if show}'), 'should produce {#if} block');
+		assert.ok(result.includes('{:else}'), 'should produce {:else} block');
+		assert.ok(result.includes('<strong>bold</strong>'), 'should render bold branch');
+		assert.ok(result.includes('<MdzPrecompiled>'), 'should use MdzPrecompiled');
+	});
+
 	test('skips ternary when one branch has unconfigured tag', async () => {
 		const input = `<script lang="ts">
 	import Mdz from '@fuzdev/fuz_ui/Mdz.svelte';
@@ -462,7 +490,7 @@ describe('ternary/conditional expressions', () => {
 		assert.equal(result, input, 'should be unchanged when both branches are dynamic');
 	});
 
-	test('skips nested ternary', async () => {
+	test('transforms nested ternary with static branches', async () => {
 		const input = `<script lang="ts">
 	import Mdz from '@fuzdev/fuz_ui/Mdz.svelte';
 	let a = $state(true);
@@ -472,7 +500,35 @@ describe('ternary/conditional expressions', () => {
 <Mdz content={a ? '**x**' : b ? '**y**' : '**z**'} />`;
 
 		const result = await run_preprocess(input);
-		assert.equal(result, input, 'should be unchanged for nested ternary');
+		assert.ok(result.includes('{#if a}'), 'should produce {#if} block');
+		assert.ok(result.includes('{:else if b}'), 'should produce {:else if} block');
+		assert.ok(result.includes('{:else}'), 'should produce {:else} block');
+		assert.ok(result.includes('<strong>x</strong>'), 'should render first branch');
+		assert.ok(result.includes('<strong>y</strong>'), 'should render second branch');
+		assert.ok(result.includes('<strong>z</strong>'), 'should render else branch');
+		assert.ok(result.includes('<MdzPrecompiled>'), 'should use MdzPrecompiled');
+		assert.ok(!result.includes('import Mdz from'), 'should remove Mdz import');
+	});
+
+	test('transforms 4-branch nested ternary', async () => {
+		const input = `<script lang="ts">
+	import Mdz from '@fuzdev/fuz_ui/Mdz.svelte';
+	let a = $state(true);
+	let b = $state(false);
+	let c = $state(false);
+</script>
+
+<Mdz content={a ? '**w**' : b ? '**x**' : c ? '**y**' : '**z**'} />`;
+
+		const result = await run_preprocess(input);
+		assert.ok(result.includes('{#if a}'), 'should produce {#if} block');
+		assert.ok(result.includes('{:else if b}'), 'should produce first {:else if} block');
+		assert.ok(result.includes('{:else if c}'), 'should produce second {:else if} block');
+		assert.ok(result.includes('{:else}'), 'should produce {:else} block');
+		assert.ok(result.includes('<strong>w</strong>'), 'should render first branch');
+		assert.ok(result.includes('<strong>x</strong>'), 'should render second branch');
+		assert.ok(result.includes('<strong>y</strong>'), 'should render third branch');
+		assert.ok(result.includes('<strong>z</strong>'), 'should render else branch');
 	});
 
 	test('preserves complex condition expression in test_source', async () => {
@@ -608,5 +664,123 @@ describe('ternary/conditional expressions', () => {
 			parse_spy.mockRestore();
 			error_spy.mockRestore();
 		}
+	});
+});
+
+describe('dead const removal', () => {
+	test('removes dead const when all Mdz usages transformed', async () => {
+		const input = `<script lang="ts">
+	import Mdz from '@fuzdev/fuz_ui/Mdz.svelte';
+	const msg = '**bold**';
+</script>
+
+<Mdz content={msg} />`;
+
+		const result = await run_preprocess(input);
+		assert.ok(result.includes('<strong>bold</strong>'), 'should transform content');
+		assert.ok(!result.includes("const msg = '**bold**'"), 'should remove dead const');
+	});
+
+	test('keeps const when used in non-Mdz context', async () => {
+		const input = `<script lang="ts">
+	import Mdz from '@fuzdev/fuz_ui/Mdz.svelte';
+	const msg = '**bold**';
+	console.log(msg);
+</script>
+
+<Mdz content={msg} />`;
+
+		const result = await run_preprocess(input);
+		assert.ok(result.includes('<strong>bold</strong>'), 'should transform content');
+		assert.ok(result.includes("const msg = '**bold**'"), 'should keep const used elsewhere');
+	});
+
+	test('skips multi-declarator const', async () => {
+		const input = `<script lang="ts">
+	import Mdz from '@fuzdev/fuz_ui/Mdz.svelte';
+	const msg = '**bold**', other = 'x';
+</script>
+
+<Mdz content={msg} />`;
+
+		const result = await run_preprocess(input);
+		assert.ok(result.includes('<strong>bold</strong>'), 'should transform content');
+		assert.ok(result.includes('const msg'), 'should keep multi-declarator const');
+	});
+
+	test('removes directly consumed const but keeps transitive dependency', async () => {
+		const input = `<script lang="ts">
+	import Mdz from '@fuzdev/fuz_ui/Mdz.svelte';
+	const a = '**bold**';
+	const b = a;
+</script>
+
+<Mdz content={b} />`;
+
+		const result = await run_preprocess(input);
+		assert.ok(result.includes('<strong>bold</strong>'), 'should transform content');
+		assert.ok(!result.includes('const b = a'), 'should remove directly consumed const b');
+		assert.ok(result.includes("const a = '**bold**'"), 'should keep transitive const a');
+	});
+
+	test('removes dead const consumed via ternary branch', async () => {
+		const input = `<script lang="ts">
+	import Mdz from '@fuzdev/fuz_ui/Mdz.svelte';
+	const x = '**from const**';
+	let show = $state(true);
+</script>
+
+<Mdz content={show ? x : '**literal**'} />`;
+
+		const result = await run_preprocess(input);
+		assert.ok(result.includes('{#if show}'), 'should produce {#if} block');
+		assert.ok(result.includes('<strong>from const</strong>'), 'should render const branch');
+		assert.ok(result.includes('<strong>literal</strong>'), 'should render literal branch');
+		assert.ok(
+			!result.includes("const x = '**from const**'"),
+			'should remove dead const from ternary',
+		);
+	});
+
+	test('keeps let binding even when only used in transformed Mdz', async () => {
+		const input = `<script lang="ts">
+	import Mdz from '@fuzdev/fuz_ui/Mdz.svelte';
+	let msg = '**bold**';
+</script>
+
+<Mdz content={msg} />`;
+
+		const result = await run_preprocess(input);
+		assert.ok(result.includes("let msg = '**bold**'"), 'should keep let binding');
+	});
+
+	test('keeps const declared in module script', async () => {
+		const input = `<script module>
+	const msg = '**bold**';
+</script>
+
+<script lang="ts">
+	import Mdz from '@fuzdev/fuz_ui/Mdz.svelte';
+</script>
+
+<Mdz content={msg} />`;
+
+		const result = await run_preprocess(input);
+		assert.ok(result.includes('<strong>bold</strong>'), 'should transform content');
+		assert.ok(result.includes("const msg = '**bold**'"), 'should keep module script const');
+	});
+
+	test('keeps const when referenced in template expression', async () => {
+		const input = `<script lang="ts">
+	import Mdz from '@fuzdev/fuz_ui/Mdz.svelte';
+	const msg = '**bold**';
+</script>
+
+<Mdz content={msg} />
+<p>{msg}</p>`;
+
+		const result = await run_preprocess(input);
+		assert.ok(result.includes('<strong>bold</strong>'), 'should transform content');
+		assert.ok(result.includes("const msg = '**bold**'"), 'should keep const used in template');
 	});
 });

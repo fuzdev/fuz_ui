@@ -88,7 +88,7 @@
 			"@changesets/changelog-git": "^0.2.1",
 			"@fuzdev/fuz_code": "^0.44.0",
 			"@fuzdev/fuz_css": "^0.47.0",
-			"@fuzdev/fuz_util": "^0.49.3",
+			"@fuzdev/fuz_util": "^0.50.0",
 			"@jridgewell/trace-mapping": "^0.3.31",
 			"@ryanatkn/eslint-config": "^0.9.0",
 			"@ryanatkn/gro": "^0.191.0",
@@ -6378,7 +6378,7 @@
 						"name": "SveltePreprocessMdzOptions",
 						"kind": "type",
 						"doc_comment": "Options for `svelte_preprocess_mdz`.",
-						"source_line": 48,
+						"source_line": 52,
 						"type_signature": "SveltePreprocessMdzOptions",
 						"properties": [
 							{
@@ -6423,7 +6423,7 @@
 						"name": "svelte_preprocess_mdz",
 						"kind": "function",
 						"doc_comment": "Creates a Svelte preprocessor that compiles static `<Mdz>` content at build time.",
-						"source_line": 100,
+						"source_line": 104,
 						"type_signature": "(options?: SveltePreprocessMdzOptions): PreprocessorGroup",
 						"return_type": "PreprocessorGroup",
 						"return_description": "A Svelte `PreprocessorGroup` for use in `svelte.config.js`.",
@@ -6437,7 +6437,7 @@
 						]
 					}
 				],
-				"module_comment": "Svelte preprocessor that compiles static `<Mdz>` content to Svelte markup at build time.\n\nDetects `<Mdz>` components with static string `content` props, parses the mdz content,\nrenders each `MdzNode` to equivalent Svelte markup via `mdz_to_svelte`, and replaces\nthe `<Mdz>` with `<MdzPrecompiled>` containing pre-rendered children.\n\nAlso handles ternary expressions (`content={cond ? 'a' : 'b'}`) where both branches\nare statically resolvable strings, emitting `{#if cond}markup_a{:else}markup_b{/if}`\nas children of a single `<MdzPrecompiled>`.\n\nTruly dynamic `content` props are left untouched.",
+				"module_comment": "Svelte preprocessor that compiles static `<Mdz>` content to Svelte markup at build time.\n\nDetects `<Mdz>` components with static string `content` props, parses the mdz content,\nrenders each `MdzNode` to equivalent Svelte markup via `mdz_to_svelte`, and replaces\nthe `<Mdz>` with `<MdzPrecompiled>` containing pre-rendered children.\n\nAlso handles ternary chains (`content={a ? 'x' : b ? 'y' : 'z'}`) where all leaf\nvalues are statically resolvable strings, emitting `{#if a}markup_x{:else if b}markup_y{:else}markup_z{/if}`\nas children of a single `<MdzPrecompiled>`.\n\nTruly dynamic `content` props are left untouched.",
 				"dependencies": ["mdz.ts", "mdz_to_svelte.ts"]
 			},
 			{

@@ -5,8 +5,8 @@
  * renders each `MdzNode` to equivalent Svelte markup via `mdz_to_svelte`, and replaces
  * the `<Mdz>` with `<MdzPrecompiled>` containing pre-rendered children.
  *
- * Also handles ternary expressions (`content={cond ? 'a' : 'b'}`) where both branches
- * are statically resolvable strings, emitting `{#if cond}markup_a{:else}markup_b{/if}`
+ * Also handles ternary chains (`content={a ? 'x' : b ? 'y' : 'z'}`) where all leaf
+ * values are statically resolvable strings, emitting `{#if a}markup_x{:else if b}markup_y{:else}markup_z{/if}`
  * as children of a single `<MdzPrecompiled>`.
  *
  * Truly dynamic `content` props are left untouched.
@@ -14,7 +14,7 @@
  * @module
  */
 
-import type {ImportDeclaration} from 'estree';
+import type {ImportDeclaration, VariableDeclaration} from 'estree';
 import {parse, type PreprocessorGroup, type AST} from 'svelte/compiler';
 import MagicString from 'magic-string';
 import {walk} from 'zimmerframe';
@@ -22,12 +22,16 @@ import {should_exclude_path} from '@fuzdev/fuz_util/path.js';
 import {
 	find_attribute,
 	extract_static_string,
-	try_extract_conditional,
+	try_extract_conditional_chain,
 	build_static_bindings,
 	resolve_component_names,
 	has_identifier_in_tree,
 	find_import_insert_position,
 	generate_import_lines,
+	remove_variable_declaration,
+	remove_import_declaration,
+	remove_import_specifier,
+	handle_preprocess_error,
 	type PreprocessImportInfo,
 	type ResolvedComponentImport,
 } from '@fuzdev/fuz_util/svelte_preprocess_helpers.js';
@@ -158,6 +162,9 @@ export const svelte_preprocess_mdz = (
 				s.overwrite(t.start, t.end, t.replacement);
 			}
 
+			// Remove dead const bindings that were consumed by transformations
+			remove_dead_const_bindings(s, ast, transformations, content);
+
 			// Determine which Mdz imports can be removed
 			const removable_imports = find_removable_mdz_imports(
 				ast,
@@ -189,6 +196,10 @@ interface MdzTransformation {
 	end: number;
 	replacement: string;
 	required_imports: Map<string, PreprocessImportInfo>;
+	/** Const binding names that were resolved to produce this transformation. */
+	consumed_bindings: Set<string>;
+	/** The original AST component node, used to skip during dead code analysis. */
+	component_node: AST.Component;
 }
 
 interface FindMdzUsagesResult {
@@ -226,6 +237,41 @@ const has_name_collision = (ast: AST.Root, compiled_component_import: string): b
 		}
 	}
 	return false;
+};
+
+/**
+ * Collects identifiers from an expression that resolved through bindings.
+ * Only collects top-level Identifier nodes that appear in the bindings map.
+ *
+ * TODO: support transitive dead const removal — currently only directly-consumed
+ * bindings (identifiers in the expression AST) are tracked. Transitive dependencies
+ * (e.g., `const a = 'x'; const b = a; content={b}` — `a` is not removed) are not
+ * traced. After removing a dead const, re-check whether identifiers in its
+ * initializer became dead too.
+ */
+const collect_consumed_bindings = (
+	value: AST.Attribute['value'],
+	bindings: ReadonlyMap<string, string>,
+): Set<string> => {
+	const consumed: Set<string> = new Set();
+	if (value === true || Array.isArray(value)) return consumed;
+	const collect_from_expr = (expr: {type: string; [key: string]: any}): void => {
+		if (expr.type === 'Identifier' && bindings.has(expr.name)) {
+			consumed.add(expr.name);
+		} else if (expr.type === 'BinaryExpression' && expr.operator === '+') {
+			collect_from_expr(expr.left);
+			collect_from_expr(expr.right);
+		} else if (expr.type === 'TemplateLiteral') {
+			for (const e of expr.expressions) {
+				collect_from_expr(e);
+			}
+		} else if (expr.type === 'ConditionalExpression') {
+			collect_from_expr(expr.consequent);
+			collect_from_expr(expr.alternate);
+		}
+	};
+	collect_from_expr(value.expression);
+	return consumed;
 };
 
 /**
@@ -268,13 +314,14 @@ const find_mdz_usages = (
 					const nodes = mdz_parse(content_value);
 					result = mdz_to_svelte(nodes, context.components, context.elements);
 				} catch (error) {
-					handle_mdz_error(error, context);
+					handle_preprocess_error(error, '[fuz-mdz]', context.filename, context.on_error);
 					return;
 				}
 
 				// If content has unconfigured tags, skip this usage (fall back to runtime)
 				if (result.has_unconfigured_tags) return;
 
+				const consumed = collect_consumed_bindings(content_attr.value, context.bindings);
 				const replacement = build_replacement(node, content_attr, result.markup, context.source);
 				transformed_usages.set(node.name, (transformed_usages.get(node.name) ?? 0) + 1);
 				transformations.push({
@@ -282,47 +329,69 @@ const find_mdz_usages = (
 					end: node.end,
 					replacement,
 					required_imports: result.imports,
+					consumed_bindings: consumed,
+					component_node: node,
 				});
 				return;
 			}
 
-			// Try conditional expression with static string branches
-			const conditional = try_extract_conditional(
+			// Try conditional chain (handles both simple and nested ternaries)
+			const chain = try_extract_conditional_chain(
 				content_attr.value,
 				context.source,
 				context.bindings,
 			);
-			if (conditional === null) return;
+			if (chain === null) return;
 
-			let result_consequent;
-			let result_alternate;
+			// Parse and render each branch
+			const branch_results: Array<{markup: string; imports: Map<string, PreprocessImportInfo>}> =
+				[];
 			try {
-				const nodes_a = mdz_parse(conditional.consequent);
-				result_consequent = mdz_to_svelte(nodes_a, context.components, context.elements);
-				const nodes_b = mdz_parse(conditional.alternate);
-				result_alternate = mdz_to_svelte(nodes_b, context.components, context.elements);
+				for (const branch of chain) {
+					const nodes = mdz_parse(branch.value);
+					const result = mdz_to_svelte(nodes, context.components, context.elements);
+					if (result.has_unconfigured_tags) return;
+					branch_results.push({markup: result.markup, imports: result.imports});
+				}
 			} catch (error) {
-				handle_mdz_error(error, context);
+				handle_preprocess_error(error, '[fuz-mdz]', context.filename, context.on_error);
 				return;
 			}
 
-			if (result_consequent.has_unconfigured_tags || result_alternate.has_unconfigured_tags) return;
+			// Build {#if}/{:else if}/{:else} markup
+			let children_markup = '';
+			for (let i = 0; i < chain.length; i++) {
+				const branch = chain[i]!;
+				const result = branch_results[i]!;
+				if (i === 0) {
+					children_markup += `{#if ${branch.test_source}}${result.markup}`;
+				} else if (branch.test_source !== null) {
+					children_markup += `{:else if ${branch.test_source}}${result.markup}`;
+				} else {
+					children_markup += `{:else}${result.markup}`;
+				}
+			}
+			children_markup += '{/if}';
 
-			const children_markup = `{#if ${conditional.test_source}}${result_consequent.markup}{:else}${result_alternate.markup}{/if}`;
 			const replacement = build_replacement(node, content_attr, children_markup, context.source);
 
-			// Merge imports from both branches
-			const merged_imports: Map<string, PreprocessImportInfo> = new Map([
-				...result_consequent.imports,
-				...result_alternate.imports,
-			]);
+			// Merge imports from all branches
+			const merged_imports: Map<string, PreprocessImportInfo> = new Map();
+			for (const result of branch_results) {
+				for (const [name, info] of result.imports) {
+					merged_imports.set(name, info);
+				}
+			}
 
+			const consumed = collect_consumed_bindings(content_attr.value, context.bindings);
 			transformed_usages.set(node.name, (transformed_usages.get(node.name) ?? 0) + 1);
 			transformations.push({
 				start: node.start,
 				end: node.end,
 				replacement,
 				required_imports: merged_imports,
+				consumed_bindings: consumed,
+				component_node: node,
 			});
 		},
 	});
@@ -330,14 +399,75 @@ const find_mdz_usages = (
 	return {transformations, total_usages, transformed_usages};
 };
 
-/** Handles errors during mdz parsing or rendering. */
-const handle_mdz_error = (error: unknown, context: FindMdzUsagesContext): void => {
-	const message = `[fuz-mdz] Preprocessing failed${context.filename ? ` in ${context.filename}` : ''}: ${error instanceof Error ? error.message : String(error)}`;
-	if (context.on_error === 'throw') {
-		throw new Error(message);
+/**
+ * Removes dead `const` bindings from the instance script that were consumed
+ * by transformations and are no longer referenced anywhere else in the file.
+ *
+ * Only handles single-declarator `const` statements. Skips `const a = 'x', b = 'y'`
+ * and module script variables (which could be exported/imported by other files).
+ */
+const remove_dead_const_bindings = (
+	s: MagicString,
+	ast: AST.Root,
+	transformations: Array<MdzTransformation>,
+	source: string,
+): void => {
+	// Collect all consumed binding names across transformations
+	const all_consumed: Set<string> = new Set();
+	for (const t of transformations) {
+		for (const name of t.consumed_bindings) {
+			all_consumed.add(name);
+		}
 	}
-	// eslint-disable-next-line no-console
-	console.error(message);
+	if (all_consumed.size === 0) return;
+
+	// Only remove from instance script (module script variables could be exported)
+	const instance = ast.instance;
+	if (!instance) return;
+
+	// Build a skip set of transformed component nodes so their attribute
+	// expressions (which still contain the old identifiers) don't false-match
+	const skip: Set<unknown> = new Set();
+	for (const t of transformations) {
+		skip.add(t.component_node);
+	}
+
+	for (const name of all_consumed) {
+		// Find the VariableDeclaration containing this binding in instance script
+		let declaration_node: (VariableDeclaration & {start: number; end: number}) | null = null;
+		for (const node of instance.content.body) {
+			if (node.type !== 'VariableDeclaration' || node.kind !== 'const') continue;
+			for (const decl of node.declarations) {
+				if (decl.id.type === 'Identifier' && decl.id.name === name) {
+					declaration_node = node as VariableDeclaration & {start: number; end: number};
+					break;
+				}
+			}
+			if (declaration_node) break;
+		}
+
+		if (!declaration_node) continue;
+
+		// Only handle single-declarator statements
+		if (declaration_node.declarations.length !== 1) continue;
+
+		// Check if the identifier is referenced anywhere else
+		const id_skip = new Set([...skip, declaration_node]);
+
+		// Check instance script (excluding the declaration itself)
+		if (has_identifier_in_tree(instance.content, name, id_skip)) continue;
+
+		// Check module script
+		if (ast.module?.content && has_identifier_in_tree(ast.module.content, name)) continue;
+
+		// Check template — skip transformed component nodes whose attribute expressions
+		// still contain the old identifier references in the AST
+		if (has_identifier_in_tree(ast.fragment, name, id_skip)) continue;
+
+		remove_variable_declaration(s, declaration_node, source);
+		// Add to skip set so chained dead const checks don't find references to this removed node
+		skip.add(declaration_node);
+	}
 };
 
 /**
@@ -369,31 +499,40 @@ const build_replacement = (
 	return `${opening}${children_markup}</${PRECOMPILED_NAME}>`;
 };
 
+/** Result of import removability analysis for a single Mdz name. */
+interface ImportRemovalAction {
+	/** The import declaration node. */
+	node: PositionedImportDeclaration;
+	/** 'full' removes the entire declaration; 'partial' removes only the Mdz specifier. */
+	kind: 'full' | 'partial';
+	/** For partial removal: the specifier to remove. */
+	specifier_to_remove?: ImportDeclaration['specifiers'][number];
+}
+
 /**
- * Determines which Mdz import declarations can be safely removed.
+ * Determines which Mdz import declarations can be safely removed or trimmed.
  *
  * An import is removable when:
  * 1. All template usages of that name were successfully transformed.
- * 2. The import has a single specifier (no partial removal of multi-specifier imports).
- * 3. The identifier is not referenced elsewhere in script or template expressions.
+ * 2. The identifier is not referenced elsewhere in script or template expressions.
+ *
+ * For multi-specifier imports, only the Mdz specifier is removed (partial removal).
+ * For single-specifier imports, the entire declaration is removed.
  */
 const find_removable_mdz_imports = (
 	ast: AST.Root,
 	mdz_names: Map<string, ResolvedComponentImport>,
 	total_usages: Map<string, number>,
 	transformed_usages: Map<string, number>,
-): Set<PositionedImportDeclaration> => {
-	const removable: Set<PositionedImportDeclaration> = new Set();
+): Map<string, ImportRemovalAction> => {
+	const removable: Map<string, ImportRemovalAction> = new Map();
 
-	for (const [name, {import_node}] of mdz_names) {
+	for (const [name, {import_node, specifier}] of mdz_names) {
 		const total = total_usages.get(name) ?? 0;
 		const transformed = transformed_usages.get(name) ?? 0;
 
 		// Only remove if ALL template usages were transformed
 		if (total === 0 || transformed < total) continue;
-
-		// Only remove single-specifier imports (don't try partial removal)
-		if (import_node.specifiers.length !== 1) continue;
 
 		// Check if identifier is referenced elsewhere in the AST
 		const skip: Set<unknown> = new Set([import_node]);
@@ -413,8 +552,16 @@ const find_removable_mdz_imports = (
 			continue;
 		}
 
-		// Svelte's parser adds start/end to all AST nodes including ImportDeclaration
-		removable.add(import_node as PositionedImportDeclaration);
+		const positioned_node = import_node as PositionedImportDeclaration;
+		if (import_node.specifiers.length === 1) {
+			removable.set(name, {node: positioned_node, kind: 'full'});
+		} else {
+			removable.set(name, {
+				node: positioned_node,
+				kind: 'partial',
+				specifier_to_remove: specifier,
+			});
+		}
 	}
 
 	return removable;
@@ -426,6 +573,9 @@ const find_removable_mdz_imports = (
  * Adds the `MdzPrecompiled` import and other required imports (DocsLink, Code, resolve).
  * Removes Mdz import declarations that are no longer referenced.
  *
+ * Handles both full removal (single-specifier imports) and partial removal
+ * (multi-specifier imports where only the Mdz specifier is removed).
+ *
  * To avoid MagicString boundary conflicts when the insertion position falls inside
  * a removal range, one removable Mdz import is overwritten with the MdzPrecompiled
  * import line instead of using separate remove + appendLeft.
@@ -434,7 +584,7 @@ const manage_imports = (
 	s: MagicString,
 	ast: AST.Root,
 	transformations: Array<MdzTransformation>,
-	removable_imports: Set<PositionedImportDeclaration>,
+	removable_imports: Map<string, ImportRemovalAction>,
 	compiled_component_import: string,
 	source: string,
 ): void => {
@@ -451,6 +601,17 @@ const manage_imports = (
 
 	const script = ast.instance;
 
+	// Separate full removals from partial removals
+	const full_removals: Set<PositionedImportDeclaration> = new Set();
+	const partial_removals: Array<ImportRemovalAction> = [];
+	for (const [, action] of removable_imports) {
+		if (action.kind === 'full') {
+			full_removals.add(action.node);
+		} else {
+			partial_removals.push(action);
+		}
+	}
+
 	if (!script) {
 		// No instance script — removable_imports won't apply (imports are in module script if any)
 		// Just add all required imports
@@ -461,8 +622,12 @@ const manage_imports = (
 			s.prepend(`<script lang="ts">\n${lines}\n</script>\n\n`);
 		}
 		// Remove Mdz imports from module script if removable
-		for (const node of removable_imports) {
+		for (const node of full_removals) {
 			remove_import_declaration(s, node, source);
+		}
+		// Apply partial removals
+		for (const action of partial_removals) {
+			remove_import_specifier(s, action.node, action.specifier_to_remove!, source);
 		}
 		return;
 	}
@@ -487,12 +652,12 @@ const manage_imports = (
 	}
 
 	// Strategy: if we're both adding MdzPrecompiled and removing an Mdz import,
-	// overwrite one removable import with the MdzPrecompiled line to avoid
+	// overwrite one full-removable import with the MdzPrecompiled line to avoid
 	// MagicString boundary conflicts. Other imports use normal appendLeft.
 	let overwrite_target: PositionedImportDeclaration | null = null;
-	if (to_add.has(PRECOMPILED_NAME) && removable_imports.size > 0) {
+	if (to_add.has(PRECOMPILED_NAME) && full_removals.size > 0) {
 		// Pick the first removable import to overwrite
-		overwrite_target = removable_imports.values().next().value ?? null;
+		overwrite_target = full_removals.values().next().value ?? null;
 	}
 
 	// Generate the MdzPrecompiled import line separately if using overwrite
@@ -516,48 +681,46 @@ const manage_imports = (
 		to_add.delete(PRECOMPILED_NAME);
 	}
 
-	// Add remaining imports normally
+	// When there are partial removals but no full-removal overwrite target,
+	// the appendLeft at find_import_insert_position can conflict with the
+	// partial removal's overwrite (they share the same node.end boundary).
+	// Bundle the new imports into the first partial removal's overwrite instead.
+	const insert_pos = find_import_insert_position(script);
+	let partial_carrier: ImportRemovalAction | null = null;
+	if (to_add.size > 0 && partial_removals.length > 0) {
+		for (const action of partial_removals) {
+			if (action.node.end === insert_pos) {
+				partial_carrier = action;
+				break;
+			}
+		}
+	}
+
+	// Add remaining imports — either bundled with a partial removal or via appendLeft
+	let carrier_lines = '';
+	if (partial_carrier && to_add.size > 0) {
+		carrier_lines = '\n' + generate_import_lines(to_add);
+		to_add.clear();
+	}
 	if (to_add.size > 0) {
-		const insert_pos = find_import_insert_position(script);
 		const lines = generate_import_lines(to_add);
 		s.appendLeft(insert_pos, '\n' + lines);
 	}
 
-	// Remove remaining Mdz imports (skip the overwrite target)
-	for (const node of removable_imports) {
+	// Remove remaining full Mdz imports (skip the overwrite target)
+	for (const node of full_removals) {
 		if (node === overwrite_target) continue;
 		remove_import_declaration(s, node, source);
 	}
-};
 
-/**
- * Removes an import declaration from the source using MagicString.
- * Consumes surrounding whitespace to avoid leaving blank lines.
- *
- * The leading whitespace check only looks for tabs and spaces, not `\r`.
- * This is correct for both Unix (`\n`) and Windows (`\r\n`) line endings:
- * in `\r\n`, the `\r` belongs to the previous line's terminator, not to
- * this line's leading whitespace.
- */
-const remove_import_declaration = (
-	s: MagicString,
-	import_node: PositionedImportDeclaration,
-	source: string,
-): void => {
-	let start: number = import_node.start;
-	let end: number = import_node.end;
-
-	// Consume trailing newline
-	if (source[end] === '\n') {
-		end++;
-	} else if (source[end] === '\r' && source[end + 1] === '\n') {
-		end += 2;
+	// Apply partial import removals
+	for (const action of partial_removals) {
+		remove_import_specifier(
+			s,
+			action.node,
+			action.specifier_to_remove!,
+			source,
+			action === partial_carrier ? carrier_lines : '',
+		);
 	}
-
-	// Consume leading whitespace on the same line
-	while (start > 0 && (source[start - 1] === '\t' || source[start - 1] === ' ')) {
-		start--;
-	}
-
-	s.remove(start, end);
 };
