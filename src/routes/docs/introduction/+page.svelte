@@ -18,7 +18,6 @@
 			components, helpers, and a documentation system for building zippy websites. It's in early
 			alpha with breaking changes ahead.
 		</p>
-		<p></p>
 	</section>
 	<TomeSection>
 		<TomeSectionHeader text="Usage" />
@@ -37,7 +36,7 @@
 		<p>
 			<TomeLink name="mdz" /> is a markdown dialect enhanced with Svelte components and other useful features.
 			To compile static content at build time instead of parsing at runtime with slower dynamic rendering,
-			use <TomeLink name="svelte_preprocess_mdz" /> :
+			use <TomeLink name="svelte_preprocess_mdz" />:
 		</p>
 		<Code
 			lang="ts"
@@ -52,8 +51,10 @@ export default {
 };`}
 		/>
 	</TomeSection>
-	<p>
-		fuz_ui is part of the <a href="https://www.fuz.dev/">Fuz stack</a>. See also the
-		<a href="https://github.com/fuzdev/fuz_ui">repo</a>.
-	</p>
+	<section>
+		<p>
+			fuz_ui is part of the <a href="https://www.fuz.dev/">Fuz stack</a>. See also the
+			<a href="https://github.com/fuzdev/fuz_ui">repo</a>.
+		</p>
+	</section>
 </TomeContent>

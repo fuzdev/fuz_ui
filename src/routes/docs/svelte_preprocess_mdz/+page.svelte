@@ -94,8 +94,8 @@ export default {
 				template literals without interpolation: <Code inline content={'content={`**bold**`}'} />
 			</li>
 			<li>
-				const variable references: <Code inline lang="ts" content="const msg = '**bold**';'" />
-				<Code inline content={`content={msg}'`} />
+				const variable references: <Code inline lang="ts" content="const msg = '**bold**';" />
+				<Code inline content={`content={msg}`} />
 			</li>
 			<li>ternary chains: <Code inline content={`content={show ? '**a**' : '**b**'}`} /></li>
 			<li>nested ternaries: <Code inline content={`content={a ? 'x' : b ? 'y' : 'z'}`} /></li>
