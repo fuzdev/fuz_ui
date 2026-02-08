@@ -47,43 +47,10 @@ export default {
 		/>
 		<p>
 			The preprocessor should run before other preprocessors like
-			<code>vitePreprocess()</code> so it can parse the original Svelte source.
+			<code>vitePreprocess()</code> so it can parse the original Svelte source. The input to <DeclarationLink
+				name="svelte_preprocess_mdz"
+			/> is <DeclarationLink name="SveltePreprocessMdzOptions" />.
 		</p>
-	</TomeSection>
-
-	<TomeSection>
-		<TomeSectionHeader text="Options" />
-		<p>
-			<DeclarationLink name="svelte_preprocess_mdz" /> accepts a
-			<DeclarationLink name="SveltePreprocessMdzOptions" /> object:
-		</p>
-		<ul>
-			<li>
-				<code>components</code> — maps mdz component names to import paths (e.g.,
-				<code>{'{'} Alert: '$lib/Alert.svelte' }</code>). Content referencing an unmapped component
-				falls back to runtime.
-			</li>
-			<li>
-				<code>elements</code> — allowed HTML element names in mdz content (e.g.,
-				<code>['aside', 'details']</code>). Content referencing an unlisted element falls back to
-				runtime.
-			</li>
-			<li>
-				<code>exclude</code> — file patterns to skip (<code>Array&lt;string | RegExp&gt;</code>).
-			</li>
-			<li>
-				<code>component_imports</code> — import sources that resolve to the Mdz component (default:
-				<code>['@fuzdev/fuz_ui/Mdz.svelte']</code>).
-			</li>
-			<li>
-				<code>compiled_component_import</code> — import path for MdzPrecompiled (default:
-				<code>'@fuzdev/fuz_ui/MdzPrecompiled.svelte'</code>).
-			</li>
-			<li>
-				<code>on_error</code> — <code>'log'</code> or <code>'throw'</code>
-				(default: <code>'throw'</code> in CI, <code>'log'</code> otherwise).
-			</li>
-		</ul>
 	</TomeSection>
 
 	<TomeSection>
