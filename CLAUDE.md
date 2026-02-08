@@ -2,7 +2,7 @@
 
 > friendly user zystem - Svelte UI library
 
-fuz_ui (`@fuzdev/fuz_ui`) is a Svelte 5 UI library built on fuz_css. It provides
+fuz_ui (`@fuzdev/fuz_ui`) is a Svelte UI library built on fuz_css. It provides
 components and TypeScript helpers for building user-friendly websites.
 
 For coding conventions, see [`fuz-stack`](../fuz-stack/CLAUDE.md).
@@ -71,12 +71,11 @@ src/
 represents a component or helper with `name`, `category`, `component`, and
 `related` fields. Central registry: `src/routes/docs/tomes.ts`
 
-**Identifier namespacing** - prefix-based naming with domain-first, action-last
-pattern: `url_github_file()`, `repo_url_parse()`, `package_is_published()`.
-Groups related functions in autocomplete without import aliasing.
+**Identifier namespacing** - fuz_ui uses domain-prefix naming for its helper
+clusters. See `fuz-stack` for the full naming conventions.
 
-Helper file prefixes by domain: `ts_*` (TypeScript API), `tsdoc_*` (JSDoc
-parsing), `svelte_*` (component analysis), `module_*` (path utilities),
+Helper file prefixes: `ts_*` (TypeScript API), `tsdoc_*` (JSDoc parsing),
+`svelte_*` (component analysis), `module_*` (path utilities),
 `package_gen_*` (Gro package generation).
 
 ## Components
@@ -176,26 +175,99 @@ parsing), `svelte_*` (component analysis), `module_*` (path utilities),
 - `intersect.svelte.ts` - Svelte 5 attachment for IntersectionObserver
 - `helpers.ts` - general utilities (`render_value_to_string`)
 
+### Preprocessor
+
+- `svelte_preprocess_mdz.ts` - build-time compilation of static `Mdz` content
+- `mdz_to_svelte.ts` - converts `MdzNode` arrays to Svelte markup strings
+- `MdzPrecompiled.svelte` - wrapper component for precompiled output
+
+## Preprocessor: svelte_preprocess_mdz
+
+Compiles static `<Mdz content="...">` usages to pre-rendered Svelte markup at
+build time, replacing `Mdz` with `MdzPrecompiled` containing children.
+Eliminates runtime mdz parsing for known-static content.
+
+### Setup
+
+```js
+// svelte.config.js
+import {svelte_preprocess_mdz} from '@fuzdev/fuz_ui/svelte_preprocess_mdz.js';
+
+export default {
+	preprocess: [
+		svelte_preprocess_mdz({
+			components: {Alert: '$lib/Alert.svelte'},
+			elements: ['aside', 'details'],
+		}),
+		// ...other preprocessors
+	],
+};
+```
+
+### Options
+
+- `exclude` — file patterns to skip (`Array<string | RegExp>`)
+- `components` — mdz component name to import path mapping (`Record<string, string>`)
+- `elements` — allowed HTML element names in mdz content (`Array<string>`)
+- `component_imports` — import sources that resolve to Mdz (default: `['@fuzdev/fuz_ui/Mdz.svelte']`)
+- `compiled_component_import` — import path for MdzPrecompiled (default: `'@fuzdev/fuz_ui/MdzPrecompiled.svelte'`)
+- `on_error` — `'log'` or `'throw'` (default: `'throw'` in CI, `'log'` otherwise)
+
+### Skip conditions
+
+The preprocessor leaves `Mdz` untouched (falls back to runtime) when:
+
+- File is excluded via `exclude` option
+- No matching import source found for Mdz
+- `import type` declaration (not a runtime import)
+- `MdzPrecompiled` name already imported from a different source
+- `content` prop is dynamic (variable, function call, `$state`, `$derived`)
+- Spread attributes present (`{...props}`)
+- Content references unconfigured components or elements
+- A ternary branch has dynamic content or unconfigured tags
+
+### What gets transformed
+
+- Static string attributes: `content="**bold**"`
+- JS string expressions: `content={'**bold**'}`
+- Template literals without interpolation: ``content={`**bold**`}``
+- Const variable references: `const msg = '**bold**'; content={msg}`
+- Ternary chains with static branches: `content={show ? '**a**' : '**b**'}`
+- Nested ternaries: `content={a ? 'x' : b ? 'y' : 'z'}` → `{#if}/{:else if}/{:else}`
+
+### Import management
+
+The preprocessor automatically:
+
+- Adds `MdzPrecompiled` import
+- Adds imports required by rendered content (`DocsLink`, `Code`, `resolve`, configured components)
+- Removes the `Mdz` import when all usages are transformed and the identifier is not referenced elsewhere
+- Removes dead `const` bindings that were only consumed by transformed content
+
 ## Context system
 
 All contexts use the standardized pattern via `context_helpers.ts`:
 
 **Core:**
+
 - `themer_context` - theme state (Themer class)
 - `library_context` - library API metadata (Library class)
 
 **Documentation:**
+
 - `tomes_context` - available documentation (Map<string, Tome>)
 - `tome_context` - current documentation page (Tome)
 - `docs_links_context` - documentation navigation (DocsLinks class)
 - `mdz_components_context` - custom mdz components
 
 **Contextmenu:**
+
 - `contextmenu_context` - context menu state
 - `contextmenu_submenu_context` - submenu state
 - `contextmenu_dimensions_context` - positioning
 
 **Other:**
+
 - `selected_variable_context` - style variable selection
 
 ## Documentation system

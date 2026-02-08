@@ -323,13 +323,13 @@
 					<Mdz content={prop.doc_comment} />
 				{/if}
 				{#if prop.type_signature}
-					<div class="row gap_md">
+					<div class="row gap_md mt_lg">
 						<strong>type</strong>
 						<TypeLink type={prop.type_signature} />
 					</div>
 				{/if}
 				{#if prop.modifiers?.length}
-					<div class="row gap_md">
+					<div class="row gap_md mt_lg">
 						{#each prop.modifiers as modifier (modifier)}
 							<span class="chip">{modifier}</span>
 						{/each}
