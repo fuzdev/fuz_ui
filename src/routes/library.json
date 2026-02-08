@@ -86,9 +86,9 @@
 		},
 		"devDependencies": {
 			"@changesets/changelog-git": "^0.2.1",
-			"@fuzdev/fuz_code": "^0.44.0",
+			"@fuzdev/fuz_code": "^0.44.1",
 			"@fuzdev/fuz_css": "^0.47.0",
-			"@fuzdev/fuz_util": "^0.50.0",
+			"@fuzdev/fuz_util": "^0.50.1",
 			"@jridgewell/trace-mapping": "^0.3.31",
 			"@ryanatkn/eslint-config": "^0.9.0",
 			"@ryanatkn/gro": "^0.191.0",
@@ -2737,7 +2737,7 @@
 						"name": "DOCS_PATH",
 						"kind": "variable",
 						"source_line": 29,
-						"type_signature": "\"/docs\" | \"/\" | \"/about\" | \"/docs/Alert\" | \"/docs/Breadcrumb\" | \"/docs/Breadcrumb/a\" | \"/docs/Breadcrumb/a/b\" | \"/docs/Breadcrumb/a/b/c\" | \"/docs/Breadcrumb/a/b/c/d\" | \"/docs/Card\" | ... 97 more ... | `/${string}/help/`"
+						"type_signature": "\"/docs\" | \"/\" | \"/about\" | \"/docs/Alert\" | \"/docs/Breadcrumb\" | \"/docs/Breadcrumb/a\" | \"/docs/Breadcrumb/a/b\" | \"/docs/Breadcrumb/a/b/c\" | \"/docs/Breadcrumb/a/b/c/d\" | \"/docs/Card\" | ... 100 more ... | `/${string}/help/`"
 					},
 					{
 						"name": "DOCS_API_PATH",
@@ -5159,7 +5159,7 @@
 					{
 						"name": "MdzPrecompiled",
 						"kind": "component",
-						"doc_comment": "Used by `svelte_preprocess_mdz`. Not intended for direct use.",
+						"doc_comment": "Wrapper for precompiled mdz content. Used by `svelte_preprocess_mdz`.\nNot intended for direct use.",
 						"props": [
 							{
 								"name": "inline",
@@ -5178,7 +5178,8 @@
 						],
 						"source_line": 1
 					}
-				]
+				],
+				"module_comment": "Wrapper for precompiled mdz content. Used by `svelte_preprocess_mdz`.\nNot intended for direct use."
 			},
 			{
 				"path": "module_contextmenu.ts",
