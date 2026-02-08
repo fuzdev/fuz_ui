@@ -15,9 +15,11 @@
 <TomeContent {tome}>
 	<section>
 		<p>
-			<DeclarationLink name="svelte_preprocess_mdz" /> is a Svelte preprocessor that compiles
-			static <code>&lt;Mdz&gt;</code> content to Svelte markup at build time. Instead of parsing mdz
-			at runtime, the preprocessor replaces <code>&lt;Mdz&gt;</code> with
+			<DeclarationLink name="svelte_preprocess_mdz" /> is a Svelte preprocessor that compiles static
+			<code>&lt;Mdz&gt;</code>
+			content to Svelte markup at build time. Instead of parsing mdz at runtime, the preprocessor replaces
+			<code>&lt;Mdz&gt;</code>
+			with
 			<DeclarationLink name="MdzPrecompiled" /> containing pre-rendered children.
 		</p>
 		<p>
@@ -56,26 +58,25 @@ export default {
 		</p>
 		<ul>
 			<li>
-				<code>components</code> — maps mdz component names to import paths
-				(e.g., <code>{'{'} Alert: '$lib/Alert.svelte' {'}'}</code>).
-				Content referencing an unmapped component falls back to runtime.
+				<code>components</code> — maps mdz component names to import paths (e.g.,
+				<code>{'{'} Alert: '$lib/Alert.svelte' {'}'}</code>). Content referencing an unmapped
+				component falls back to runtime.
 			</li>
 			<li>
-				<code>elements</code> — allowed HTML element names in mdz content
-				(e.g., <code>['aside', 'details']</code>).
-				Content referencing an unlisted element falls back to runtime.
+				<code>elements</code> — allowed HTML element names in mdz content (e.g.,
+				<code>['aside', 'details']</code>). Content referencing an unlisted element falls back to
+				runtime.
 			</li>
 			<li>
-				<code>exclude</code> — file patterns to skip
-				(<code>Array&lt;string | RegExp&gt;</code>).
+				<code>exclude</code> — file patterns to skip (<code>Array&lt;string | RegExp&gt;</code>).
 			</li>
 			<li>
-				<code>component_imports</code> — import sources that resolve to the Mdz component
-				(default: <code>['@fuzdev/fuz_ui/Mdz.svelte']</code>).
+				<code>component_imports</code> — import sources that resolve to the Mdz component (default:
+				<code>['@fuzdev/fuz_ui/Mdz.svelte']</code>).
 			</li>
 			<li>
-				<code>compiled_component_import</code> — import path for MdzPrecompiled
-				(default: <code>'@fuzdev/fuz_ui/MdzPrecompiled.svelte'</code>).
+				<code>compiled_component_import</code> — import path for MdzPrecompiled (default:
+				<code>'@fuzdev/fuz_ui/MdzPrecompiled.svelte'</code>).
 			</li>
 			<li>
 				<code>on_error</code> — <code>'log'</code> or <code>'throw'</code>
@@ -104,8 +105,10 @@ export default {
 		/>
 		<p>The preprocessor also manages imports automatically:</p>
 		<ul>
-			<li>adds imports required by the rendered content (e.g., <code>DocsLink</code>,
-				<code>Code</code>, <code>resolve</code>, configured components)</li>
+			<li>
+				adds imports required by the rendered content (e.g., <code>DocsLink</code>,
+				<code>Code</code>, <code>resolve</code>, configured components)
+			</li>
 			<li>removes the <code>Mdz</code> import when all usages are transformed</li>
 			<li>removes dead <code>const</code> bindings consumed only by transformed content</li>
 		</ul>
@@ -132,8 +135,10 @@ export default {
 			<li>no matching import source is found for Mdz</li>
 			<li>the import is <code>import type</code> (not a runtime import)</li>
 			<li><code>MdzPrecompiled</code> is already imported from a different source</li>
-			<li>the <code>content</code> prop is dynamic (variable, function call, <code>$state</code>,
-				<code>$derived</code>)</li>
+			<li>
+				the <code>content</code> prop is dynamic (variable, function call, <code>$state</code>,
+				<code>$derived</code>)
+			</li>
 			<li>spread attributes are present (<code>{'{'}...props{'}'}</code>)</li>
 			<li>content references unconfigured components or elements</li>
 			<li>a ternary branch has dynamic content or unconfigured tags</li>
