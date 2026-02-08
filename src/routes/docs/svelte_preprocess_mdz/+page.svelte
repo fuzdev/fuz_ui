@@ -59,8 +59,8 @@ export default {
 		<ul>
 			<li>
 				<code>components</code> — maps mdz component names to import paths (e.g.,
-				<code>{'{'} Alert: '$lib/Alert.svelte' {'}'}</code>). Content referencing an unmapped
-				component falls back to runtime.
+				<code>{'{'} Alert: '$lib/Alert.svelte' }</code>). Content referencing an unmapped component
+				falls back to runtime.
 			</li>
 			<li>
 				<code>elements</code> — allowed HTML element names in mdz content (e.g.,
@@ -119,11 +119,11 @@ export default {
 		<p>The preprocessor handles these static content patterns:</p>
 		<ul>
 			<li>string attributes: <code>content="**bold**"</code></li>
-			<li>JS string expressions: <code>content={'{'}'**bold**'{'}'}</code></li>
-			<li>template literals without interpolation: <code>content={'{'}` **bold** `{'}'}</code></li>
-			<li>const variable references: <code>const msg = '**bold**'; content={'{'}msg{'}'}</code></li>
-			<li>ternary chains: <code>content={'{'}show ? '**a**' : '**b**'{'}'}</code></li>
-			<li>nested ternaries: <code>content={'{'}a ? 'x' : b ? 'y' : 'z'{'}'}</code></li>
+			<li>JS string expressions: <code>content={'{'}'**bold**'}</code></li>
+			<li>template literals without interpolation: <code>content={'{'}` **bold** `}</code></li>
+			<li>const variable references: <code>const msg = '**bold**'; content={'{'}msg}</code></li>
+			<li>ternary chains: <code>content={'{'}show ? '**a**' : '**b**'}</code></li>
+			<li>nested ternaries: <code>content={'{'}a ? 'x' : b ? 'y' : 'z'}</code></li>
 		</ul>
 	</TomeSection>
 
@@ -139,7 +139,7 @@ export default {
 				the <code>content</code> prop is dynamic (variable, function call, <code>$state</code>,
 				<code>$derived</code>)
 			</li>
-			<li>spread attributes are present (<code>{'{'}...props{'}'}</code>)</li>
+			<li>spread attributes are present (<code>{'{'}...props}</code>)</li>
 			<li>content references unconfigured components or elements</li>
 			<li>a ternary branch has dynamic content or unconfigured tags</li>
 		</ul>
