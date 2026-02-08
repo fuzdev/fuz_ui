@@ -1,5 +1,12 @@
 # @fuzdev/fuz_ui
 
+## 0.182.0
+
+### Minor Changes
+
+- add `svelte_preprocess_mdz` ([#111](https://github.com/fuzdev/fuz_ui/pull/111))
+- update peer deps ([#111](https://github.com/fuzdev/fuz_ui/pull/111))
+
 ## 0.181.1
 
 ### Patch Changes
