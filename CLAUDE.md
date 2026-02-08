@@ -224,8 +224,7 @@ The preprocessor leaves `Mdz` untouched (falls back to runtime) when:
 - `content` prop is dynamic (variable, function call, `$state`, `$derived`)
 - Spread attributes present (`{...props}`)
 - Content references unconfigured components or elements
-- Ternary with a dynamic branch or unconfigured tags in any branch
-- Nested ternaries where all branches are not statically resolvable
+- A ternary branch has dynamic content or unconfigured tags
 
 ### What gets transformed
 
