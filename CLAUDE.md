@@ -177,14 +177,14 @@ Helper file prefixes: `ts_*` (TypeScript API), `tsdoc_*` (JSDoc parsing),
 
 ### Preprocessor
 
-- `svelte_preprocess_mdz.ts` - build-time compilation of static `<Mdz>` content
+- `svelte_preprocess_mdz.ts` - build-time compilation of static `Mdz` content
 - `mdz_to_svelte.ts` - converts `MdzNode` arrays to Svelte markup strings
 - `MdzPrecompiled.svelte` - wrapper component for precompiled output
 
 ## Preprocessor: svelte_preprocess_mdz
 
 Compiles static `<Mdz content="...">` usages to pre-rendered Svelte markup at
-build time, replacing `<Mdz>` with `<MdzPrecompiled>` containing children.
+build time, replacing `Mdz` with `MdzPrecompiled` containing children.
 Eliminates runtime mdz parsing for known-static content.
 
 ### Setup
@@ -215,7 +215,7 @@ export default {
 
 ### Skip conditions
 
-The preprocessor leaves `<Mdz>` untouched (falls back to runtime) when:
+The preprocessor leaves `Mdz` untouched (falls back to runtime) when:
 
 - File is excluded via `exclude` option
 - No matching import source found for Mdz

@@ -24,7 +24,7 @@ const format_reference = (ref: string): string => (mdz_is_url(ref) ? ref : `\`${
  * - Bare identifiers → wrapped in backticks
  *
  * @param content Raw `@see` tag content in TSDoc format
- * @returns mdz-formatted string ready for `<Mdz>` component
+ * @returns mdz-formatted string ready for `Mdz` component
  *
  * @example
  * ```ts

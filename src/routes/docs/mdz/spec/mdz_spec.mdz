@@ -69,6 +69,7 @@ Use `mdz_parse` to parse mdz content.
 Renders as `<code>` elements.
 
 **Restrictions:**
+
 - Cannot contain newlines (newline before closing backtick makes both backticks literal)
 - Empty code ` `` ` renders as literal backticks
 
@@ -128,6 +129,7 @@ foo`bar`baz → foo<code>bar</code>baz
 ```
 
 **Word boundary definition**:
+
 - **Bold**: No word boundary restrictions (works everywhere)
 - **Italic and strikethrough**: At word boundary if not surrounded by `a-z`, `A-Z`, `0-9`
 - Formatting delimiters (`*`, `_`, `~`) are NOT word characters for boundary checks
@@ -219,7 +221,7 @@ Second line.
 Third line.
 ```
 
-The newline character is preserved exactly as authored in text nodes. When rendered, the `<Mdz>` component applies CSS `white-space: pre-wrap` to display line breaks visually. No explicit `<br>` elements are created - whitespace preservation is purely CSS-based.
+The newline character is preserved exactly as authored in text nodes. When rendered, the `Mdz` component applies CSS `white-space: pre-wrap` to display line breaks visually. No explicit `<br>` elements are created - whitespace preservation is purely CSS-based.
 
 ### Double Newline
 
@@ -267,6 +269,7 @@ Use 1-6 hashes followed by a space and content:
 ```
 
 **Requirements:**
+
 - **Must start at column 0** (no leading whitespace) - any indentation makes it literal text
 - Must have exactly 1-6 `#` characters
 - Must have space after hashes
@@ -276,6 +279,7 @@ Use 1-6 hashes followed by a space and content:
 The column-0 requirement is a key differentiator from CommonMark - mdz requires block elements to start at the line beginning for unambiguous parsing.
 
 **Invalid patterns:**
+
 - `#No space` - missing space
 - ` # Indented` - leading whitespace
 - `####### Seven` - more than 6 hashes
@@ -302,12 +306,14 @@ Section two.
 ```
 
 **Requirements:**
+
 - Must be exactly 3 hyphens (not 2, not 4+)
 - **Must start at column 0** (no leading whitespace) - indented `---` is treated as literal text
 - Trailing whitespace allowed
 - Must be followed by blank line or EOF
 
 **Invalid patterns:**
+
 - `- - -` - spaces between hyphens
 - ` ---` - leading whitespace
 - `----` - four hyphens
@@ -350,6 +356,7 @@ Use ``` for codeblocks.
 The inner ` ``` ` does not close the outer ```` fence.
 
 **Requirements:**
+
 - **Opening fence must start at column 0** (no leading whitespace) - indented fences are literal text
 - Opening fence must have 3+ backticks
 - Closing fence must match opening length
@@ -360,6 +367,7 @@ The inner ` ``` ` does not close the outer ```` fence.
 Like all mdz block elements, the strict column-0 requirement distinguishes codeblocks from inline code and prevents ambiguity.
 
 **Invalid patterns:**
+
 - ` ``` ` - leading whitespace
 - Unclosed blocks
 - Empty blocks (no content)
@@ -396,21 +404,25 @@ Elements must be registered via context:
 ```typescript
 import {mdz_elements_context} from '@fuzdev/fuz_ui/mdz_components.js';
 
-mdz_elements_context.set(new Map([
-  ['aside', true],
-  ['code', true],
-  ['marquee', true],
-]));
+mdz_elements_context.set(
+	new Map([
+		['aside', true],
+		['code', true],
+		['marquee', true],
+	]),
+);
 ```
 
 Unregistered elements render as `<element-name />` placeholders for security.
 
 **Tag name rules:**
+
 - First character must be lowercase letter
 - Can contain letters, numbers, hyphens, underscores
 - Must have matching opening/closing tags
 
 **Limitations:**
+
 - Attributes are NOT currently supported
 - Future consideration: `<div class="container">`
 
@@ -444,10 +456,12 @@ import {mdz_components_context} from '@fuzdev/fuz_ui/mdz_components.js';
 import Alert from '@fuzdev/fuz_ui/Alert.svelte';
 import Card from '@fuzdev/fuz_ui/Card.svelte';
 
-mdz_components_context.set(new Map([
-  ['Alert', Alert],
-  ['Card', Card],
-]));
+mdz_components_context.set(
+	new Map([
+		['Alert', Alert],
+		['Card', Card],
+	]),
+);
 ```
 
 Unregistered components render as `<ComponentName />` placeholders.
@@ -457,6 +471,7 @@ Unregistered components render as `<ComponentName />` placeholders.
 If a paragraph consists solely of a single component with no other content, it does not get wrapped in `<p>` tags. This matches MDX behavior.
 
 **Limitations:**
+
 - Props/attributes NOT currently supported
 - Future consideration: `<Alert status="error">`
 
@@ -502,19 +517,19 @@ Block elements (headings, hr, codeblocks) must start at column 0. Leading whites
 
 mdz deliberately diverges from CommonMark and GitHub Flavored Markdown to minimize surprise for nontechnical users:
 
-| Feature | CommonMark/GFM | mdz |
-|---------|----------------|-----|
-| Bold | `**text**` or `__text__` | `**text**` only |
-| Italic | `*text*` or `_text_` | `_text_` only |
-| Single `*` | Creates italic | Literal text |
-| Intraword underscore | `foo_bar_baz` = literal (GFM) | Same: literal (word boundaries required) |
-| Intraword asterisk | `foo*bar*baz` = emphasis (allowed) | Same: `foo**bar**baz` = **bold** (allowed, no restrictions) |
-| Strikethrough | Not in CommonMark, `~~text~~` in GFM | `~text~` with word boundaries |
-| Horizontal rule | `---`, `***`, `___`, variable lengths | `---` exactly (3 hyphens) |
-| Indented code | 4 spaces creates codeblock | NOT supported |
-| Codeblock indent | Can be indented | Must be column 0 |
-| Heading no space | `#text` valid | Invalid (space required) |
-| Block spacing | Flexible | Requires blank lines |
+| Feature              | CommonMark/GFM                        | mdz                                                         |
+| -------------------- | ------------------------------------- | ----------------------------------------------------------- |
+| Bold                 | `**text**` or `__text__`              | `**text**` only                                             |
+| Italic               | `*text*` or `_text_`                  | `_text_` only                                               |
+| Single `*`           | Creates italic                        | Literal text                                                |
+| Intraword underscore | `foo_bar_baz` = literal (GFM)         | Same: literal (word boundaries required)                    |
+| Intraword asterisk   | `foo*bar*baz` = emphasis (allowed)    | Same: `foo**bar**baz` = **bold** (allowed, no restrictions) |
+| Strikethrough        | Not in CommonMark, `~~text~~` in GFM  | `~text~` with word boundaries                               |
+| Horizontal rule      | `---`, `***`, `___`, variable lengths | `---` exactly (3 hyphens)                                   |
+| Indented code        | 4 spaces creates codeblock            | NOT supported                                               |
+| Codeblock indent     | Can be indented                       | Must be column 0                                            |
+| Heading no space     | `#text` valid                         | Invalid (space required)                                    |
+| Block spacing        | Flexible                              | Requires blank lines                                        |
 
 **Rationale:**
 
@@ -565,6 +580,7 @@ Under consideration for future versions:
 mdz is an **early proof of concept**:
 
 **Current capabilities:**
+
 - Well-defined syntax and parsing rules
 - Core inline formatting (bold, italic, strikethrough, code)
 - Links (markdown, auto-detected URLs and paths)
@@ -573,6 +589,7 @@ mdz is an **early proof of concept**:
 - Whitespace preservation
 
 **Known limitations:**
+
 - No lists, blockquotes, or tables
 - No attributes/props for components/elements
 - Syntax may evolve based on real-world usage

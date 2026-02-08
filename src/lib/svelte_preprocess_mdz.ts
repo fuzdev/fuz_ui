@@ -1,13 +1,13 @@
 /**
- * Svelte preprocessor that compiles static `<Mdz>` content to Svelte markup at build time.
+ * Svelte preprocessor that compiles static `Mdz` content to Svelte markup at build time.
  *
- * Detects `<Mdz>` components with static string `content` props, parses the mdz content,
+ * Detects `Mdz` components with static string `content` props, parses the mdz content,
  * renders each `MdzNode` to equivalent Svelte markup via `mdz_to_svelte`, and replaces
- * the `<Mdz>` with `<MdzPrecompiled>` containing pre-rendered children.
+ * the `Mdz` with `MdzPrecompiled` containing pre-rendered children.
  *
  * Also handles ternary chains (`content={a ? 'x' : b ? 'y' : 'z'}`) where all leaf
  * values are statically resolvable strings, emitting `{#if a}markup_x{:else if b}markup_y{:else}markup_z{/if}`
- * as children of a single `<MdzPrecompiled>`.
+ * as children of a single `MdzPrecompiled`.
  *
  * Truly dynamic `content` props are left untouched.
  *
@@ -72,7 +72,7 @@ export interface SveltePreprocessMdzOptions {
 
 	/**
 	 * Import sources that resolve to the Mdz component.
-	 * Used to verify that `<Mdz>` in templates refers to fuz_ui's Mdz.svelte.
+	 * Used to verify that `Mdz` in templates refers to fuz_ui's Mdz.svelte.
 	 *
 	 * @default ['@fuzdev/fuz_ui/Mdz.svelte']
 	 */
@@ -96,7 +96,7 @@ export interface SveltePreprocessMdzOptions {
 const PRECOMPILED_NAME = 'MdzPrecompiled';
 
 /**
- * Creates a Svelte preprocessor that compiles static `<Mdz>` content at build time.
+ * Creates a Svelte preprocessor that compiles static `Mdz` content at build time.
  *
  * @param options Configuration for component/element resolution and file filtering.
  * @returns A Svelte `PreprocessorGroup` for use in `svelte.config.js`.
@@ -275,8 +275,8 @@ const collect_consumed_bindings = (
 };
 
 /**
- * Walks the AST to find `<Mdz>` component usages with static `content` props
- * and generates transformations to replace them with `<MdzPrecompiled>` children.
+ * Walks the AST to find `Mdz` component usages with static `content` props
+ * and generates transformations to replace them with `MdzPrecompiled` children.
  */
 const find_mdz_usages = (
 	ast: AST.Root,
