@@ -2,7 +2,7 @@
 
 > friendly user zystem - Svelte UI library
 
-fuz_ui (`@fuzdev/fuz_ui`) is a Svelte 5 UI library built on fuz_css. It provides
+fuz_ui (`@fuzdev/fuz_ui`) is a Svelte UI library built on fuz_css. It provides
 components and TypeScript helpers for building user-friendly websites.
 
 For coding conventions, see [`fuz-stack`](../fuz-stack/CLAUDE.md).
@@ -194,13 +194,13 @@ Eliminates runtime mdz parsing for known-static content.
 import {svelte_preprocess_mdz} from '@fuzdev/fuz_ui/svelte_preprocess_mdz.js';
 
 export default {
-  preprocess: [
-    svelte_preprocess_mdz({
-      components: {Alert: '$lib/Alert.svelte'},
-      elements: ['aside', 'details'],
-    }),
-    // ...other preprocessors
-  ],
+	preprocess: [
+		svelte_preprocess_mdz({
+			components: {Alert: '$lib/Alert.svelte'},
+			elements: ['aside', 'details'],
+		}),
+		// ...other preprocessors
+	],
 };
 ```
 
@@ -231,7 +231,7 @@ The preprocessor leaves `<Mdz>` untouched (falls back to runtime) when:
 
 - Static string attributes: `content="**bold**"`
 - JS string expressions: `content={'**bold**'}`
-- Template literals without interpolation: `` content={`**bold**`} ``
+- Template literals without interpolation: ``content={`**bold**`}``
 - Const variable references: `const msg = '**bold**'; content={msg}`
 - Ternary chains with static branches: `content={show ? '**a**' : '**b**'}`
 - Nested ternaries: `content={a ? 'x' : b ? 'y' : 'z'}` → `{#if}/{:else if}/{:else}`
@@ -239,6 +239,7 @@ The preprocessor leaves `<Mdz>` untouched (falls back to runtime) when:
 ### Import management
 
 The preprocessor automatically:
+
 - Adds `MdzPrecompiled` import
 - Adds imports required by rendered content (`DocsLink`, `Code`, `resolve`, configured components)
 - Removes the `Mdz` import when all usages are transformed and the identifier is not referenced elsewhere
@@ -249,21 +250,25 @@ The preprocessor automatically:
 All contexts use the standardized pattern via `context_helpers.ts`:
 
 **Core:**
+
 - `themer_context` - theme state (Themer class)
 - `library_context` - library API metadata (Library class)
 
 **Documentation:**
+
 - `tomes_context` - available documentation (Map<string, Tome>)
 - `tome_context` - current documentation page (Tome)
 - `docs_links_context` - documentation navigation (DocsLinks class)
 - `mdz_components_context` - custom mdz components
 
 **Contextmenu:**
+
 - `contextmenu_context` - context menu state
 - `contextmenu_submenu_context` - submenu state
 - `contextmenu_dimensions_context` - positioning
 
 **Other:**
+
 - `selected_variable_context` - style variable selection
 
 ## Documentation system
