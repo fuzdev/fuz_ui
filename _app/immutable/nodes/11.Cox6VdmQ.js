@@ -1,0 +1,1 @@
+import"../chunks/DsnmJJEf.js";import{f as s,a as m,s as p,b as i}from"../chunks/D3znixZ8.js";import{B as n}from"../chunks/DCR_vkQt.js";import{T as c,a as d}from"../chunks/Cc3awbOt.js";var f=s("<!> <!>",1);function v(t){c(t,{children:(e,l)=>{var a=f(),o=m(a);d(o,{text:"Custom paths"});var r=p(o,2);n(r,{selected_path:"/a/b/c"}),i(e,a)},$$slots:{default:!0}})}export{v as component};
