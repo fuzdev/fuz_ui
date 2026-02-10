@@ -52,10 +52,12 @@ export interface SourceFileInfo {
  * handles nested directories without special heuristics.
  *
  * @example
+ * ```ts
  * const options = module_create_source_options(process.cwd(), {
  *   source_paths: ['src/lib', 'src/routes'],
  *   source_root: 'src',
  * });
+ * ```
  */
 export interface ModuleSourceOptions {
 	/**
@@ -64,7 +66,10 @@ export interface ModuleSourceOptions {
 	 * All `source_paths` are relative to this. Typically `process.cwd()` when
 	 * running from the project root via Gro, Vite, or other build tools.
 	 *
-	 * @example '/home/user/my-project'
+	 * @example
+	 * ```ts
+	 * '/home/user/my-project'
+	 * ```
 	 */
 	project_root: string;
 	/**
@@ -73,8 +78,14 @@ export interface ModuleSourceOptions {
 	 * Paths should not have leading or trailing slashes - they are added
 	 * internally for correct matching.
 	 *
-	 * @example ['src/lib'] - single source directory
-	 * @example ['src/lib', 'src/routes'] - multiple directories
+	 * @example
+	 * ```ts
+	 * ['src/lib'] // single source directory
+	 * ```
+	 * @example
+	 * ```ts
+	 * ['src/lib', 'src/routes'] // multiple directories
+	 * ```
 	 */
 	source_paths: Array<string>;
 	/**
@@ -84,8 +95,14 @@ export interface ModuleSourceOptions {
 	 * - Single `source_path`: defaults to that path
 	 * - Multiple `source_paths`: required (no auto-derivation)
 	 *
-	 * @example 'src/lib' - module paths like 'foo.ts', 'utils/bar.ts'
-	 * @example 'src' - module paths like 'lib/foo.ts', 'routes/page.svelte'
+	 * @example
+	 * ```ts
+	 * 'src/lib' // module paths like 'foo.ts', 'utils/bar.ts'
+	 * ```
+	 * @example
+	 * ```ts
+	 * 'src' // module paths like 'lib/foo.ts', 'routes/page.svelte'
+	 * ```
 	 */
 	source_root?: string;
 	/** Patterns to exclude (matched against full path). */
@@ -100,20 +117,24 @@ export interface ModuleSourceOptions {
 	 * @default Uses file extension: `.svelte` → svelte, `.ts`/`.js` → typescript
 	 *
 	 * @example
+	 * ```ts
 	 * // Add MDsveX support
 	 * get_analyzer: (path) => {
 	 *   if (path.endsWith('.svelte') || path.endsWith('.svx')) return 'svelte';
 	 *   if (path.endsWith('.ts') || path.endsWith('.js')) return 'typescript';
 	 *   return null;
 	 * }
+	 * ```
 	 *
 	 * @example
+	 * ```ts
 	 * // Include .d.ts files
 	 * get_analyzer: (path) => {
 	 *   if (path.endsWith('.svelte')) return 'svelte';
 	 *   if (path.endsWith('.ts') || path.endsWith('.d.ts') || path.endsWith('.js')) return 'typescript';
 	 *   return null;
 	 * }
+	 * ```
 	 */
 	get_analyzer: (path: string) => AnalyzerType | null;
 }
@@ -157,21 +178,27 @@ export const MODULE_SOURCE_PARTIAL: ModuleSourcePartial = {
  * @param overrides Optional overrides for default options
  *
  * @example
+ * ```ts
  * // Standard SvelteKit library
  * const options = module_create_source_options(process.cwd());
+ * ```
  *
  * @example
+ * ```ts
  * // Multiple source directories
  * const options = module_create_source_options(process.cwd(), {
  *   source_paths: ['src/lib', 'src/routes'],
  *   source_root: 'src',
  * });
+ * ```
  *
  * @example
+ * ```ts
  * // Custom exclusions
  * const options = module_create_source_options(process.cwd(), {
  *   exclude_patterns: [/\.test\.ts$/, /\.internal\.ts$/],
  * });
+ * ```
  */
 export const module_create_source_options = (
 	project_root: string,
@@ -195,14 +222,17 @@ export const module_create_source_options = (
  * @throws Error if validation fails
  *
  * @example
+ * ```ts
  * // Valid - single source path (source_root auto-derived)
  * module_validate_source_options({
  *   project_root: '/home/user/project',
  *   source_paths: ['src/lib'],
  *   ...
  * });
+ * ```
  *
  * @example
+ * ```ts
  * // Valid - multiple source paths with explicit source_root
  * module_validate_source_options({
  *   project_root: '/home/user/project',
@@ -210,14 +240,17 @@ export const module_create_source_options = (
  *   source_root: 'src',
  *   ...
  * });
+ * ```
  *
  * @example
+ * ```ts
  * // Invalid - multiple source paths without source_root
  * module_validate_source_options({
  *   project_root: '/home/user/project',
  *   source_paths: ['src/lib', 'src/routes'],  // throws
  *   ...
  * });
+ * ```
  */
 export const module_validate_source_options = (options: ModuleSourceOptions): void => {
 	const {project_root, source_paths, source_root} = options;
@@ -319,17 +352,21 @@ export const module_get_source_root = (options: ModuleSourceOptions): string => 
  * @param options Module source options for path extraction
  *
  * @example
+ * ```ts
  * const options = module_create_source_options('/home/user/project');
  * module_extract_path('/home/user/project/src/lib/foo.ts', options) // => 'foo.ts'
  * module_extract_path('/home/user/project/src/lib/nested/bar.svelte', options) // => 'nested/bar.svelte'
+ * ```
  *
  * @example
+ * ```ts
  * const options = module_create_source_options('/home/user/project', {
  *   source_paths: ['src/lib', 'src/routes'],
  *   source_root: 'src',
  * });
  * module_extract_path('/home/user/project/src/lib/foo.ts', options) // => 'lib/foo.ts'
  * module_extract_path('/home/user/project/src/routes/page.svelte', options) // => 'routes/page.svelte'
+ * ```
  */
 export const module_extract_path = (source_id: string, options: ModuleSourceOptions): string => {
 	const effective_root = module_get_source_root(options);
@@ -347,8 +384,10 @@ export const module_extract_path = (source_id: string, options: ModuleSourceOpti
  * Extract component name from a Svelte module path.
  *
  * @example
+ * ```ts
  * module_get_component_name('Alert.svelte') // => 'Alert'
  * module_get_component_name('components/Button.svelte') // => 'Button'
+ * ```
  */
 export const module_get_component_name = (module_path: string): string =>
 	module_path.replace(/^.*\//, '').replace(/\.svelte$/, '');
@@ -357,7 +396,9 @@ export const module_get_component_name = (module_path: string): string =>
  * Convert module path to module key format (with ./ prefix).
  *
  * @example
+ * ```ts
  * module_get_key('foo.ts') // => './foo.ts'
+ * ```
  */
 export const module_get_key = (module_path: string): string => `./${module_path}`;
 
@@ -394,10 +435,12 @@ export const module_is_test = (path: string): boolean => path.endsWith('.test.ts
  * @returns True if the path is an analyzable source file
  *
  * @example
+ * ```ts
  * const options = module_create_source_options('/home/user/project');
  * module_is_source('/home/user/project/src/lib/foo.ts', options) // => true
  * module_is_source('/home/user/project/src/lib/foo.test.ts', options) // => false (excluded)
  * module_is_source('/home/user/project/src/fixtures/mini/src/lib/bar.ts', options) // => false (wrong prefix)
+ * ```
  */
 export const module_is_source = (path: string, options: ModuleSourceOptions): boolean => {
 	// Check exclusion patterns first (fast regex check)

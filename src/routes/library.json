@@ -2453,13 +2453,7 @@
 						"source_line": 1
 					}
 				],
-				"dependencies": [
-					"Details.svelte",
-					"Mdz.svelte",
-					"ModuleLink.svelte",
-					"TypeLink.svelte",
-					"tsdoc_mdz.ts"
-				],
+				"dependencies": ["Mdz.svelte", "ModuleLink.svelte", "TypeLink.svelte", "tsdoc_mdz.ts"],
 				"dependents": ["ApiDeclarationList.svelte"]
 			},
 			{
@@ -2532,8 +2526,7 @@
 						"source_line": 1
 					}
 				],
-				"module_comment": "Like `details` but renders children lazily by default.",
-				"dependents": ["DeclarationDetail.svelte"]
+				"module_comment": "Like `details` but renders children lazily by default."
 			},
 			{
 				"path": "Dialog.svelte",
@@ -5248,9 +5241,9 @@
 						"kind": "type",
 						"doc_comment": "Configuration for module source detection and path extraction.\n\nUses proper path semantics with `project_root` as the base for all path operations.\nPaths are matched using `startsWith` rather than substring search, which correctly\nhandles nested directories without special heuristics.",
 						"examples": [
-							"const options = module_create_source_options(process.cwd(), {\n  source_paths: ['src/lib', 'src/routes'],\n  source_root: 'src',\n});"
+							"```ts\nconst options = module_create_source_options(process.cwd(), {\n  source_paths: ['src/lib', 'src/routes'],\n  source_root: 'src',\n});\n```"
 						],
-						"source_line": 60,
+						"source_line": 62,
 						"type_signature": "ModuleSourceOptions",
 						"properties": [
 							{
@@ -5289,7 +5282,7 @@
 						"name": "module_get_analyzer_default",
 						"kind": "function",
 						"doc_comment": "Default analyzer resolver based on file extension.\n\n- `.svelte` → `'svelte'`\n- `.ts`, `.js` → `'typescript'`\n- Other extensions → `null` (skip)",
-						"source_line": 128,
+						"source_line": 149,
 						"type_signature": "(path: string): AnalyzerType | null",
 						"return_type": "AnalyzerType | null",
 						"parameters": [
@@ -5303,14 +5296,14 @@
 						"name": "ModuleSourcePartial",
 						"kind": "type",
 						"doc_comment": "Partial source options without `project_root`.\n\nUse with `module_create_source_options` to build complete options.",
-						"source_line": 139,
+						"source_line": 160,
 						"type_signature": "ModuleSourcePartial"
 					},
 					{
 						"name": "MODULE_SOURCE_PARTIAL",
 						"kind": "variable",
 						"doc_comment": "Default partial options for standard SvelteKit library structure.\n\nDoes not include `project_root` - use `module_create_source_options()` to create\ncomplete options with your project root.",
-						"source_line": 147,
+						"source_line": 168,
 						"type_signature": "ModuleSourcePartial"
 					},
 					{
@@ -5318,11 +5311,11 @@
 						"kind": "function",
 						"doc_comment": "Create complete source options from project root and optional overrides.",
 						"examples": [
-							"// Standard SvelteKit library\nconst options = module_create_source_options(process.cwd());",
-							"// Multiple source directories\nconst options = module_create_source_options(process.cwd(), {\n  source_paths: ['src/lib', 'src/routes'],\n  source_root: 'src',\n});",
-							"// Custom exclusions\nconst options = module_create_source_options(process.cwd(), {\n  exclude_patterns: [/\\.test\\.ts$/, /\\.internal\\.ts$/],\n});"
+							"```ts\n// Standard SvelteKit library\nconst options = module_create_source_options(process.cwd());\n```",
+							"```ts\n// Multiple source directories\nconst options = module_create_source_options(process.cwd(), {\n  source_paths: ['src/lib', 'src/routes'],\n  source_root: 'src',\n});\n```",
+							"```ts\n// Custom exclusions\nconst options = module_create_source_options(process.cwd(), {\n  exclude_patterns: [/\\.test\\.ts$/, /\\.internal\\.ts$/],\n});\n```"
 						],
-						"source_line": 176,
+						"source_line": 203,
 						"type_signature": "(project_root: string, overrides?: Partial<ModuleSourcePartial> | undefined): ModuleSourceOptions",
 						"return_type": "ModuleSourceOptions",
 						"parameters": [
@@ -5344,9 +5337,9 @@
 						"kind": "function",
 						"doc_comment": "Validate `ModuleSourceOptions` format and consistency.\n\nChecks:\n1. `project_root` is an absolute path (starts with `/`)\n2. `source_paths` entries don't have leading/trailing slashes\n3. `source_root` (if provided) doesn't have leading/trailing slashes\n4. Multiple `source_paths` require explicit `source_root`\n5. `source_root` is a prefix of all `source_paths`",
 						"examples": [
-							"// Valid - single source path (source_root auto-derived)\nmodule_validate_source_options({\n  project_root: '/home/user/project',\n  source_paths: ['src/lib'],\n  ...\n});",
-							"// Valid - multiple source paths with explicit source_root\nmodule_validate_source_options({\n  project_root: '/home/user/project',\n  source_paths: ['src/lib', 'src/routes'],\n  source_root: 'src',\n  ...\n});",
-							"// Invalid - multiple source paths without source_root\nmodule_validate_source_options({\n  project_root: '/home/user/project',\n  source_paths: ['src/lib', 'src/routes'],  // throws\n  ...\n});"
+							"```ts\n// Valid - single source path (source_root auto-derived)\nmodule_validate_source_options({\n  project_root: '/home/user/project',\n  source_paths: ['src/lib'],\n  ...\n});\n```",
+							"```ts\n// Valid - multiple source paths with explicit source_root\nmodule_validate_source_options({\n  project_root: '/home/user/project',\n  source_paths: ['src/lib', 'src/routes'],\n  source_root: 'src',\n  ...\n});\n```",
+							"```ts\n// Invalid - multiple source paths without source_root\nmodule_validate_source_options({\n  project_root: '/home/user/project',\n  source_paths: ['src/lib', 'src/routes'],  // throws\n  ...\n});\n```"
 						],
 						"throws": [
 							{
@@ -5354,7 +5347,7 @@
 								"description": "if validation fails"
 							}
 						],
-						"source_line": 222,
+						"source_line": 255,
 						"type_signature": "(options: ModuleSourceOptions): void",
 						"return_type": "void",
 						"parameters": [
@@ -5374,7 +5367,7 @@
 								"description": "if source_root is required but not provided (multiple source_paths)"
 							}
 						],
-						"source_line": 300,
+						"source_line": 333,
 						"type_signature": "(options: ModuleSourceOptions): string",
 						"return_type": "string",
 						"parameters": [
@@ -5389,10 +5382,10 @@
 						"kind": "function",
 						"doc_comment": "Extract module path relative to source root from absolute source ID.\n\nUses proper path semantics: strips `project_root/source_root/` prefix.",
 						"examples": [
-							"const options = module_create_source_options('/home/user/project');\nmodule_extract_path('/home/user/project/src/lib/foo.ts', options) // => 'foo.ts'\nmodule_extract_path('/home/user/project/src/lib/nested/bar.svelte', options) // => 'nested/bar.svelte'",
-							"const options = module_create_source_options('/home/user/project', {\n  source_paths: ['src/lib', 'src/routes'],\n  source_root: 'src',\n});\nmodule_extract_path('/home/user/project/src/lib/foo.ts', options) // => 'lib/foo.ts'\nmodule_extract_path('/home/user/project/src/routes/page.svelte', options) // => 'routes/page.svelte'"
+							"```ts\nconst options = module_create_source_options('/home/user/project');\nmodule_extract_path('/home/user/project/src/lib/foo.ts', options) // => 'foo.ts'\nmodule_extract_path('/home/user/project/src/lib/nested/bar.svelte', options) // => 'nested/bar.svelte'\n```",
+							"```ts\nconst options = module_create_source_options('/home/user/project', {\n  source_paths: ['src/lib', 'src/routes'],\n  source_root: 'src',\n});\nmodule_extract_path('/home/user/project/src/lib/foo.ts', options) // => 'lib/foo.ts'\nmodule_extract_path('/home/user/project/src/routes/page.svelte', options) // => 'routes/page.svelte'\n```"
 						],
-						"source_line": 334,
+						"source_line": 371,
 						"type_signature": "(source_id: string, options: ModuleSourceOptions): string",
 						"return_type": "string",
 						"parameters": [
@@ -5413,9 +5406,9 @@
 						"kind": "function",
 						"doc_comment": "Extract component name from a Svelte module path.",
 						"examples": [
-							"module_get_component_name('Alert.svelte') // => 'Alert'\nmodule_get_component_name('components/Button.svelte') // => 'Button'"
+							"```ts\nmodule_get_component_name('Alert.svelte') // => 'Alert'\nmodule_get_component_name('components/Button.svelte') // => 'Button'\n```"
 						],
-						"source_line": 353,
+						"source_line": 392,
 						"type_signature": "(module_path: string): string",
 						"return_type": "string",
 						"parameters": [
@@ -5429,8 +5422,8 @@
 						"name": "module_get_key",
 						"kind": "function",
 						"doc_comment": "Convert module path to module key format (with ./ prefix).",
-						"examples": ["module_get_key('foo.ts') // => './foo.ts'"],
-						"source_line": 362,
+						"examples": ["```ts\nmodule_get_key('foo.ts') // => './foo.ts'\n```"],
+						"source_line": 403,
 						"type_signature": "(module_path: string): string",
 						"return_type": "string",
 						"parameters": [
@@ -5444,7 +5437,7 @@
 						"name": "module_is_typescript",
 						"kind": "function",
 						"doc_comment": "Check if a path is a TypeScript or JS file.\n\nIncludes both `.ts` and `.js` files since JS files are valid in TS projects.\nExcludes `.d.ts` declaration files - use a custom `get_analyzer` to include them.",
-						"source_line": 370,
+						"source_line": 411,
 						"type_signature": "(path: string): boolean",
 						"return_type": "boolean",
 						"parameters": [
@@ -5457,7 +5450,7 @@
 					{
 						"name": "module_is_svelte",
 						"kind": "function",
-						"source_line": 373,
+						"source_line": 414,
 						"type_signature": "(path: string): boolean",
 						"return_type": "boolean",
 						"parameters": [
@@ -5470,7 +5463,7 @@
 					{
 						"name": "module_is_css",
 						"kind": "function",
-						"source_line": 375,
+						"source_line": 416,
 						"type_signature": "(path: string): boolean",
 						"return_type": "boolean",
 						"parameters": [
@@ -5483,7 +5476,7 @@
 					{
 						"name": "module_is_json",
 						"kind": "function",
-						"source_line": 377,
+						"source_line": 418,
 						"type_signature": "(path: string): boolean",
 						"return_type": "boolean",
 						"parameters": [
@@ -5496,7 +5489,7 @@
 					{
 						"name": "module_is_test",
 						"kind": "function",
-						"source_line": 379,
+						"source_line": 420,
 						"type_signature": "(path: string): boolean",
 						"return_type": "boolean",
 						"parameters": [
@@ -5511,9 +5504,9 @@
 						"kind": "function",
 						"doc_comment": "Check if a path is an analyzable source file.\n\nCombines all filtering: exclusion patterns, source directory paths,\nand analyzer availability. This is the single check for whether a\nfile should be included in library analysis.\n\nUses proper path semantics with `startsWith` matching against\n`project_root/source_path/`. No heuristics needed - nested directories\nare correctly excluded by the prefix check.",
 						"examples": [
-							"const options = module_create_source_options('/home/user/project');\nmodule_is_source('/home/user/project/src/lib/foo.ts', options) // => true\nmodule_is_source('/home/user/project/src/lib/foo.test.ts', options) // => false (excluded)\nmodule_is_source('/home/user/project/src/fixtures/mini/src/lib/bar.ts', options) // => false (wrong prefix)"
+							"```ts\nconst options = module_create_source_options('/home/user/project');\nmodule_is_source('/home/user/project/src/lib/foo.ts', options) // => true\nmodule_is_source('/home/user/project/src/lib/foo.test.ts', options) // => false (excluded)\nmodule_is_source('/home/user/project/src/fixtures/mini/src/lib/bar.ts', options) // => false (wrong prefix)\n```"
 						],
-						"source_line": 402,
+						"source_line": 445,
 						"type_signature": "(path: string, options: ModuleSourceOptions): boolean",
 						"return_type": "boolean",
 						"return_description": "True if the path is an analyzable source file",
@@ -5534,7 +5527,7 @@
 						"name": "module_extract_dependencies",
 						"kind": "function",
 						"doc_comment": "Extract dependencies and dependents for a module from source file info.\n\nFilters to only include source modules (excludes external packages, node_modules, tests).\nReturns sorted arrays of module paths (relative to source_root) for deterministic output.",
-						"source_line": 428,
+						"source_line": 471,
 						"type_signature": "(source_file: SourceFileInfo, options: ModuleSourceOptions): { dependencies: string[]; dependents: string[]; }",
 						"return_type": "{ dependencies: string[]; dependents: string[]; }",
 						"parameters": [
@@ -5708,10 +5701,10 @@
 						"kind": "function",
 						"doc_comment": "Build GitHub file URL for a repository.",
 						"examples": [
-							"url_github_file('https://github.com/foo/bar', 'src/index.ts')\n// => 'https://github.com/foo/bar/blob/main/src/index.ts'",
-							"url_github_file('https://github.com/foo/bar', './src/index.ts', 42)\n// => 'https://github.com/foo/bar/blob/main/src/index.ts#L42'"
+							"```ts\nurl_github_file('https://github.com/foo/bar', 'src/index.ts')\n// => 'https://github.com/foo/bar/blob/main/src/index.ts'\n```",
+							"```ts\nurl_github_file('https://github.com/foo/bar', './src/index.ts', 42)\n// => 'https://github.com/foo/bar/blob/main/src/index.ts#L42'\n```"
 						],
-						"source_line": 43,
+						"source_line": 47,
 						"type_signature": "(repo_url: string, file_path: string, line?: number | undefined): string",
 						"return_type": "string",
 						"return_description": "Full GitHub URL to the file on the main branch",
@@ -5739,9 +5732,9 @@
 						"kind": "function",
 						"doc_comment": "Build GitHub organization URL from repo URL and repo name.",
 						"examples": [
-							"url_github_org('https://github.com/fuzdev/fuz_ui', 'fuz_ui')\n// => 'https://github.com/fuzdev'"
+							"```ts\nurl_github_org('https://github.com/fuzdev/fuz_ui', 'fuz_ui')\n// => 'https://github.com/fuzdev'\n```"
 						],
-						"source_line": 60,
+						"source_line": 66,
 						"type_signature": "(repo_url: string, repo_name: string): string | null",
 						"return_type": "string | null",
 						"return_description": "Organization URL, or null if repo_url doesn't end with repo_name",
@@ -5763,10 +5756,10 @@
 						"kind": "function",
 						"doc_comment": "Extract GitHub owner/org name from repository URL.",
 						"examples": [
-							"repo_url_github_owner('https://github.com/fuzdev/fuz_ui')\n// => 'fuzdev'",
-							"repo_url_github_owner('https://gitlab.com/foo/bar')\n// => null (not a GitHub URL)"
+							"```ts\nrepo_url_github_owner('https://github.com/fuzdev/fuz_ui')\n// => 'fuzdev'\n```",
+							"```ts\nrepo_url_github_owner('https://gitlab.com/foo/bar')\n// => null (not a GitHub URL)\n```"
 						],
-						"source_line": 78,
+						"source_line": 88,
 						"type_signature": "(repo_url: string): string | null",
 						"return_type": "string | null",
 						"return_description": "Owner name, or null if not a valid GitHub URL",
@@ -5783,9 +5776,9 @@
 						"kind": "function",
 						"doc_comment": "Build npm package URL.",
 						"examples": [
-							"url_npm_package('@fuzdev/fuz_ui')\n// => 'https://www.npmjs.com/package/@fuzdev/fuz_ui'"
+							"```ts\nurl_npm_package('@fuzdev/fuz_ui')\n// => 'https://www.npmjs.com/package/@fuzdev/fuz_ui'\n```"
 						],
-						"source_line": 95,
+						"source_line": 107,
 						"type_signature": "(package_name: string): string",
 						"return_type": "string",
 						"return_description": "Full npm package page URL",
@@ -5801,7 +5794,7 @@
 						"name": "package_is_published",
 						"kind": "function",
 						"doc_comment": "Check if a package is published to npm.\n\nA package is considered published if:\n- It's not marked as private\n- It has exports defined\n- Its version is not the initial '0.0.1'",
-						"source_line": 109,
+						"source_line": 121,
 						"type_signature": "(package_json: { [x: string]: unknown; name: string; version: string; private?: boolean | undefined; description?: string | undefined; motto?: string | undefined; glyph?: string | undefined; logo?: string | undefined; ... 23 more ...; exports?: string | ... 2 more ... | undefined; }): boolean",
 						"return_type": "boolean",
 						"return_description": "True if the package appears to be published",
@@ -5818,8 +5811,8 @@
 						"kind": "function",
 						"doc_comment": "Extract repository name without scope from package name.",
 						"examples": [
-							"repo_name_parse('@fuzdev/fuz_ui')\n// => 'fuz_ui'",
-							"repo_name_parse('lodash')\n// => 'lodash'"
+							"```ts\nrepo_name_parse('@fuzdev/fuz_ui')\n// => 'fuz_ui'\n```",
+							"```ts\nrepo_name_parse('lodash')\n// => 'lodash'\n```"
 						],
 						"throws": [
 							{
@@ -5827,7 +5820,7 @@
 								"description": "if scoped package name is malformed"
 							}
 						],
-						"source_line": 128,
+						"source_line": 144,
 						"type_signature": "(name: string): string",
 						"return_type": "string",
 						"return_description": "Repository name without scope",
@@ -5844,11 +5837,11 @@
 						"kind": "function",
 						"doc_comment": "Parse repository URL from package.json format.\n\nHandles both string format and object format with `url` property.\nStrips common prefixes ('git+') and suffixes ('.git', '/').",
 						"examples": [
-							"repo_url_parse('https://github.com/foo/bar')\n// => 'https://github.com/foo/bar'",
-							"repo_url_parse({url: 'git+https://github.com/foo/bar.git'})\n// => 'https://github.com/foo/bar'",
-							"repo_url_parse(undefined)\n// => null"
+							"```ts\nrepo_url_parse('https://github.com/foo/bar')\n// => 'https://github.com/foo/bar'\n```",
+							"```ts\nrepo_url_parse({url: 'git+https://github.com/foo/bar.git'})\n// => 'https://github.com/foo/bar'\n```",
+							"```ts\nrepo_url_parse(undefined)\n// => null\n```"
 						],
-						"source_line": 160,
+						"source_line": 182,
 						"type_signature": "(repository: string | { [x: string]: unknown; type: string; url: string; directory?: string | undefined; } | undefined): string | null",
 						"return_type": "string | null",
 						"return_description": "Clean repository URL, or null if not provided",
@@ -5865,9 +5858,9 @@
 						"kind": "function",
 						"doc_comment": "Build .well-known URL for package metadata files.",
 						"examples": [
-							"url_well_known('https://fuz.dev', 'package.json')\n// => 'https://fuz.dev/.well-known/package.json'"
+							"```ts\nurl_well_known('https://fuz.dev', 'package.json')\n// => 'https://fuz.dev/.well-known/package.json'\n```"
 						],
-						"source_line": 178,
+						"source_line": 202,
 						"type_signature": "(homepage_url: string, filename: string): string",
 						"return_type": "string",
 						"return_description": "Full URL to the .well-known file",

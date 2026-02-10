@@ -33,12 +33,16 @@ import type {PackageJson} from '@fuzdev/fuz_util/package_json.js';
  * @returns Full GitHub URL to the file on the main branch
  *
  * @example
+ * ```ts
  * url_github_file('https://github.com/foo/bar', 'src/index.ts')
  * // => 'https://github.com/foo/bar/blob/main/src/index.ts'
+ * ```
  *
  * @example
+ * ```ts
  * url_github_file('https://github.com/foo/bar', './src/index.ts', 42)
  * // => 'https://github.com/foo/bar/blob/main/src/index.ts#L42'
+ * ```
  */
 export const url_github_file = (repo_url: string, file_path: string, line?: number): string => {
 	const clean_path = file_path.replace(/^\.\//, '');
@@ -54,8 +58,10 @@ export const url_github_file = (repo_url: string, file_path: string, line?: numb
  * @returns Organization URL, or null if repo_url doesn't end with repo_name
  *
  * @example
+ * ```ts
  * url_github_org('https://github.com/fuzdev/fuz_ui', 'fuz_ui')
  * // => 'https://github.com/fuzdev'
+ * ```
  */
 export const url_github_org = (repo_url: string, repo_name: string): string | null => {
 	return repo_url.endsWith('/' + repo_name) ? strip_end(repo_url, '/' + repo_name) : null;
@@ -68,12 +74,16 @@ export const url_github_org = (repo_url: string, repo_name: string): string | nu
  * @returns Owner name, or null if not a valid GitHub URL
  *
  * @example
+ * ```ts
  * repo_url_github_owner('https://github.com/fuzdev/fuz_ui')
  * // => 'fuzdev'
+ * ```
  *
  * @example
+ * ```ts
  * repo_url_github_owner('https://gitlab.com/foo/bar')
  * // => null (not a GitHub URL)
+ * ```
  */
 export const repo_url_github_owner = (repo_url: string): string | null => {
 	const stripped = strip_start(repo_url, 'https://github.com/');
@@ -89,8 +99,10 @@ export const repo_url_github_owner = (repo_url: string): string | null => {
  * @returns Full npm package page URL
  *
  * @example
+ * ```ts
  * url_npm_package('@fuzdev/fuz_ui')
  * // => 'https://www.npmjs.com/package/@fuzdev/fuz_ui'
+ * ```
  */
 export const url_npm_package = (package_name: string): string =>
 	'https://www.npmjs.com/package/' + package_name;
@@ -118,12 +130,16 @@ export const package_is_published = (package_json: PackageJson): boolean => {
  * @throws Error if scoped package name is malformed
  *
  * @example
+ * ```ts
  * repo_name_parse('@fuzdev/fuz_ui')
  * // => 'fuz_ui'
+ * ```
  *
  * @example
+ * ```ts
  * repo_name_parse('lodash')
  * // => 'lodash'
+ * ```
  */
 export const repo_name_parse = (name: string): string => {
 	if (name[0] === '@') {
@@ -146,16 +162,22 @@ export const repo_name_parse = (name: string): string => {
  * @returns Clean repository URL, or null if not provided
  *
  * @example
+ * ```ts
  * repo_url_parse('https://github.com/foo/bar')
  * // => 'https://github.com/foo/bar'
+ * ```
  *
  * @example
+ * ```ts
  * repo_url_parse({url: 'git+https://github.com/foo/bar.git'})
  * // => 'https://github.com/foo/bar'
+ * ```
  *
  * @example
+ * ```ts
  * repo_url_parse(undefined)
  * // => null
+ * ```
  */
 export const repo_url_parse = (repository: PackageJson['repository']): string | null => {
 	if (!repository) return null;
@@ -172,8 +194,10 @@ export const repo_url_parse = (repository: PackageJson['repository']): string | 
  * @returns Full URL to the .well-known file
  *
  * @example
+ * ```ts
  * url_well_known('https://fuz.dev', 'package.json')
  * // => 'https://fuz.dev/.well-known/package.json'
+ * ```
  */
 export const url_well_known = (homepage_url: string, filename: string): string => {
 	return `${ensure_end(homepage_url, '/')}.well-known/${filename}`;
