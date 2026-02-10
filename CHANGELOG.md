@@ -1,5 +1,11 @@
 # @fuzdev/fuz_ui
 
+## 0.182.1
+
+### Patch Changes
+
+- improve the `DeclarationDetail` examples rendering ([5193ddd](https://github.com/fuzdev/fuz_ui/commit/5193ddd))
+
 ## 0.182.0
 
 ### Minor Changes
