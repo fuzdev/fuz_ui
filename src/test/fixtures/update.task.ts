@@ -1,4 +1,4 @@
-import type {Task} from '@ryanatkn/gro';
+import type {Task} from '@fuzdev/gro';
 
 export const task: Task = {
 	summary: 'generate all fixture expected.json files',

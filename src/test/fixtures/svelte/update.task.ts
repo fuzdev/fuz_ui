@@ -1,4 +1,4 @@
-import type {Task} from '@ryanatkn/gro';
+import type {Task} from '@fuzdev/gro';
 import {join} from 'node:path';
 import ts from 'typescript';
 import {svelte2tsx} from 'svelte2tsx';

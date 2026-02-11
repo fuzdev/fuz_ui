@@ -26,7 +26,7 @@ dev server.
 - SvelteKit - application framework
 - fuz_css (@fuzdev/fuz_css) - CSS framework and design system foundation
 - fuz_util (@fuzdev/fuz_util) - utility library
-- Gro (@ryanatkn/gro) - build system and CLI
+- Gro (@fuzdev/gro) - build system and CLI
 
 ## Scope
 

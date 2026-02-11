@@ -932,13 +932,13 @@
 
 ### Patch Changes
 
-- make `@ryanatkn/gro` and optional peer dep ([589aef5](https://github.com/ryanatkn/fuz/commit/589aef5))
+- make `@fuzdev/gro` and optional peer dep ([589aef5](https://github.com/ryanatkn/fuz/commit/589aef5))
 
 ## 0.115.0
 
 ### Minor Changes
 
-- upgrade `@ryanatkn/gro@0.133.0` from 0.132.0 ([49b6948](https://github.com/ryanatkn/fuz/commit/49b6948))
+- upgrade `@fuzdev/gro@0.133.0` from 0.132.0 ([49b6948](https://github.com/ryanatkn/fuz/commit/49b6948))
 
 ## 0.114.0
 
@@ -1144,7 +1144,7 @@
 
 ### Minor Changes
 
-- upgrade @ryanatkn/gro@0.119 ([d364646](https://github.com/ryanatkn/fuz/commit/d364646))
+- upgrade @fuzdev/gro@0.119 ([d364646](https://github.com/ryanatkn/fuz/commit/d364646))
 
 ## 0.102.1
 
@@ -1775,7 +1775,7 @@
 ### Minor Changes
 
 - extract contextmenu ([ddb3bf1](https://github.com/ryanatkn/fuz/commit/ddb3bf1))
-- upgrade to @ryanatkn/gro from @feltjs/gro ([e802137](https://github.com/ryanatkn/fuz/commit/e802137))
+- upgrade to @fuzdev/gro from @feltjs/gro ([e802137](https://github.com/ryanatkn/fuz/commit/e802137))
 - upgrade `@ryanatkn/belt@0.15.0` from `0.13.1` ([ddb3bf1](https://github.com/ryanatkn/fuz/commit/ddb3bf1))
 
 ### Patch Changes
@@ -2757,7 +2757,7 @@
 
 ## 0.1.3
 
-- move utils from `@ryanatkn/gro`
+- move utils from `@fuzdev/gro`
   ([#30](https://github.com/ryanatkn/fuz/pull/30))
 
 ## 0.1.2

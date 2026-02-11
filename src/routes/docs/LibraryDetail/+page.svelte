@@ -18,7 +18,7 @@
 	<section>
 		<p>
 			This is a component related to <a
-				href="https://github.com/ryanatkn/gro/blob/main/src/docs/package_json.md#public-packages"
+				href="https://github.com/fuzdev/gro/blob/main/src/docs/package_json.md#public-packages"
 				>Gro's public packages</a
 			> features.
 		</p>

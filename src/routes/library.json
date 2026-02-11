@@ -46,9 +46,10 @@
 			"node": ">=22.15"
 		},
 		"peerDependencies": {
-			"@fuzdev/fuz_code": ">=0.44.0",
+			"@fuzdev/fuz_code": ">=0.45.0",
 			"@fuzdev/fuz_css": ">=0.47.0",
-			"@fuzdev/fuz_util": ">=0.49.2",
+			"@fuzdev/fuz_util": ">=0.50.1",
+			"@fuzdev/gro": ">=0.192.0",
 			"@jridgewell/trace-mapping": "^0.3",
 			"@ryanatkn/gro": ">=0.191.0",
 			"@sveltejs/kit": "^2.47.3",
@@ -63,6 +64,9 @@
 				"optional": true
 			},
 			"@fuzdev/fuz_util": {
+				"optional": true
+			},
+			"@fuzdev/gro": {
 				"optional": true
 			},
 			"@jridgewell/trace-mapping": {
@@ -86,9 +90,10 @@
 		},
 		"devDependencies": {
 			"@changesets/changelog-git": "^0.2.1",
-			"@fuzdev/fuz_code": "^0.44.1",
-			"@fuzdev/fuz_css": "^0.47.0",
+			"@fuzdev/fuz_code": "^0.45.0",
+			"@fuzdev/fuz_css": "^0.49.0",
 			"@fuzdev/fuz_util": "^0.50.1",
+			"@fuzdev/gro": "^0.192.1",
 			"@jridgewell/trace-mapping": "^0.3.31",
 			"@ryanatkn/eslint-config": "^0.9.0",
 			"@ryanatkn/gro": "^0.191.0",
