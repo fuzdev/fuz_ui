@@ -1,5 +1,11 @@
 # @fuzdev/fuz_ui
 
+## 0.183.1
+
+### Patch Changes
+
+- remove @ryanatkn/gro from deps to finish migration to @fuzdev/gro ([599b3b0](https://github.com/fuzdev/fuz_ui/commit/599b3b0))
+
 ## 0.183.0
 
 ### Minor Changes
