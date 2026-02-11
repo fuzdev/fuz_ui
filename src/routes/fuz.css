@@ -1353,6 +1353,10 @@ a.chip {
 	padding-top: var(--space_xs);
 	padding-bottom: var(--space_xs);
 }
+.py_sm {
+	padding-top: var(--space_sm);
+	padding-bottom: var(--space_sm);
+}
 .py_md {
 	padding-top: var(--space_md);
 	padding-bottom: var(--space_md);
