@@ -1,5 +1,11 @@
 # @fuzdev/fuz_ui
 
+## 0.183.0
+
+### Minor Changes
+
+- upgrade gro after fuzdev transfer ([1925513](https://github.com/fuzdev/fuz_ui/commit/1925513))
+
 ## 0.182.1
 
 ### Patch Changes
