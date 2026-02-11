@@ -19,7 +19,9 @@
 		<section class="box">
 			<h1 class="mb_sm" style:margin-top={MAIN_HEADER_MARGIN_TOP}>fuz_ui</h1>
 			<div class="box mb_lg"><Svg data={logo_fuz_ui} size="var(--icon_size_xl2)" /></div>
-			<p class="shadow_bottom_sm py_md px_xl border_radius_xs">friendly user zystem 🧶</p>
+			<blockquote class="unstyled panel shade_05 shadow_bottom_sm py_md px_xl mb_xl3">
+				friendly user zystem 🧶
+			</blockquote>
 			<div class="mb_lg p_xs2 shadow_md border_radius_sm">
 				<div class="width_atmost_sm panel p_lg shadow_inset_xs shade_00">
 					<p>
