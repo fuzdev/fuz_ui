@@ -8,10 +8,10 @@
 import ts from 'typescript';
 
 import {
-	module_create_source_options,
+	createSourceOptions,
 	type ModuleSourceOptions,
 	type ModuleSourcePartial,
-} from '@fuzdev/svelte-docinfo/module_helpers.js';
+} from '@fuzdev/svelte-docinfo/source.js';
 
 /** Default project root for tests. */
 export const TEST_PROJECT_ROOT = '/home/user/project';
@@ -25,7 +25,7 @@ export const TEST_PROJECT_ROOT = '/home/user/project';
 export const create_test_source_options = (
 	project_root: string = TEST_PROJECT_ROOT,
 	overrides?: Partial<ModuleSourcePartial>,
-): ModuleSourceOptions => module_create_source_options(project_root, overrides);
+): ModuleSourceOptions => createSourceOptions(project_root, overrides);
 
 /**
  * Create a minimal TypeScript program from source code for testing.

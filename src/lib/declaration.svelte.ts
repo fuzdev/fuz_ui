@@ -1,8 +1,8 @@
 import {
 	type DeclarationJson,
-	declaration_generate_import,
-	declaration_get_display_name,
-} from '@fuzdev/svelte-docinfo/source_json.js';
+	generateImport,
+	getDisplayName,
+} from '@fuzdev/svelte-docinfo/types.js';
 
 import type {Module} from './module.svelte.js';
 import {url_github_file} from './package_helpers.js';
@@ -46,7 +46,7 @@ export class Declaration {
 	 * Generated TypeScript import statement.
 	 */
 	import_statement = $derived(
-		declaration_generate_import(
+		generateImport(
 			this.declaration_json,
 			this.module_path,
 			this.library.package_json.name,
@@ -65,7 +65,7 @@ export class Declaration {
 	/**
 	 * Display name with generic parameters.
 	 */
-	display_name = $derived(declaration_get_display_name(this.declaration_json));
+	display_name = $derived(getDisplayName(this.declaration_json));
 
 	type_signature = $derived(this.declaration_json.type_signature);
 	doc_comment = $derived(this.declaration_json.doc_comment);

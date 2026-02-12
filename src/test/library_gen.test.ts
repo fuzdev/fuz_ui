@@ -1,6 +1,6 @@
 import {test, assert, describe} from 'vitest';
-import type {DuplicateInfo} from '@fuzdev/svelte-docinfo/library_pipeline.js';
-import {library_throw_on_duplicates} from '@fuzdev/svelte-docinfo/library_analyze.js';
+import type {DuplicateInfo} from '@fuzdev/svelte-docinfo/pipeline.js';
+import {throwOnDuplicates} from '@fuzdev/svelte-docinfo/analyze.js';
 
 import {
 	source_file_from_disknode,
@@ -199,13 +199,13 @@ const create_duplicate_info = (
 	module,
 });
 
-describe('library_throw_on_duplicates', () => {
+describe('throwOnDuplicates', () => {
 	test('does nothing when duplicates map is empty', () => {
 		const log = create_mock_log();
 		const duplicates: Map<string, Array<DuplicateInfo>> = new Map();
 
 		// Should not throw
-		library_throw_on_duplicates(duplicates, log);
+		throwOnDuplicates(duplicates, log);
 
 		assert.strictEqual(log.errors.length, 0);
 	});
@@ -223,7 +223,7 @@ describe('library_throw_on_duplicates', () => {
 		]);
 
 		assert.throws(
-			() => library_throw_on_duplicates(duplicates, log),
+			() => throwOnDuplicates(duplicates, log),
 			/1 duplicate declaration name/,
 		);
 	});
@@ -236,7 +236,7 @@ describe('library_throw_on_duplicates', () => {
 		]);
 
 		assert.throws(
-			() => library_throw_on_duplicates(duplicates, log),
+			() => throwOnDuplicates(duplicates, log),
 			/2 duplicate declaration names/,
 		);
 	});
@@ -254,7 +254,7 @@ describe('library_throw_on_duplicates', () => {
 		]);
 
 		try {
-			library_throw_on_duplicates(duplicates, log);
+			throwOnDuplicates(duplicates, log);
 		} catch (_error) {
 			// expected
 		}
@@ -284,7 +284,7 @@ describe('library_throw_on_duplicates', () => {
 		]);
 
 		try {
-			library_throw_on_duplicates(duplicates, log);
+			throwOnDuplicates(duplicates, log);
 		} catch (_error) {
 			// expected
 		}
@@ -302,7 +302,7 @@ describe('library_throw_on_duplicates', () => {
 		]);
 
 		try {
-			library_throw_on_duplicates(duplicates, log);
+			throwOnDuplicates(duplicates, log);
 			assert.fail('should have thrown');
 		} catch (e) {
 			const message = (e as Error).message;
