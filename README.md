@@ -84,7 +84,7 @@ npm run build
 npm start
 ```
 
-Fuz uses [Gro](https://github.com/ryanatkn/gro),
+Fuz uses [Gro](https://github.com/fuzdev/gro),
 my CLI and toolkit that I use to run tasks in all of my projects.
 If you're not allergic it's handy to install globally.
 

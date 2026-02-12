@@ -15,9 +15,18 @@
 	}: SvelteHTMLElements['a'] & {
 		/**
 		 * GitHub path - can be a full URL or a relative path like `owner/repo` or `owner/repo/blob/main/file.ts`
-		 * @example fuzdev/fuz_ui
-		 * @example fuzdev/fuz_ui/blob/main/src/lib/Card.svelte
-		 * @example https://github.com/fuzdev/fuz_ui/issues/123
+		 * @example
+		 * ```ts
+		 * 'fuzdev/fuz_ui'
+		 * ```
+		 * @example
+		 * ```ts
+		 * 'fuzdev/fuz_ui/blob/main/src/lib/Card.svelte'
+		 * ```
+		 * @example
+		 * ```ts
+		 * 'https://github.com/fuzdev/fuz_ui/issues/123'
+		 * ```
 		 */
 		path?: string;
 		/** URL fragment to append, with or without the `#`. */

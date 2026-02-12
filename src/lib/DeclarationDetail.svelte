@@ -2,7 +2,6 @@
 	import Code from '@fuzdev/fuz_code/Code.svelte';
 
 	import type {Declaration} from './declaration.svelte.js';
-	import Details from './Details.svelte';
 	import TypeLink from './TypeLink.svelte';
 	import ModuleLink from './ModuleLink.svelte';
 	import Mdz from './Mdz.svelte';
@@ -200,11 +199,8 @@
 {#if declaration.examples?.length}
 	<section>
 		<h4>examples</h4>
-		{#each declaration.examples as example, i (example)}
-			<Details>
-				{#snippet summary()}Example {i + 1}{/snippet}
-				<Code lang="ts" content={example} />
-			</Details>
+		{#each declaration.examples as example (example)}
+			<Mdz content={example} />
 		{/each}
 	</section>
 {/if}
@@ -323,13 +319,13 @@
 					<Mdz content={prop.doc_comment} />
 				{/if}
 				{#if prop.type_signature}
-					<div class="row gap_md">
+					<div class="row gap_md mt_lg">
 						<strong>type</strong>
 						<TypeLink type={prop.type_signature} />
 					</div>
 				{/if}
 				{#if prop.modifiers?.length}
-					<div class="row gap_md">
+					<div class="row gap_md mt_lg">
 						{#each prop.modifiers as modifier (modifier)}
 							<span class="chip">{modifier}</span>
 						{/each}

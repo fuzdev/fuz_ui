@@ -96,8 +96,9 @@ All inline formatting can nest within each other. For example, `**~_text_~**` pr
 **Validation:**
 
 Bold, italic, and strikethrough require at least one character between delimiters. Empty formatting renders as literal text:
-- `****` → literal text "****" (empty bold)
-- `__` → literal text "__" (empty italic)
+
+- `****` → literal text "\*\*\*\*" (empty bold)
+- `__` → literal text "\_\_" (empty italic)
 - `~~` → literal text "~~" (empty strikethrough)
 
 Inline code cannot contain newlines - if a newline appears before the closing backtick, both backticks render as literal text.
@@ -107,14 +108,16 @@ Empty inline code ` `` ` renders as literal backticks.
 
 Different delimiters have different word boundary rules:
 
-**Bold (`**`) has no word boundary restrictions** - works everywhere including intraword:
+**Bold (`**`) has no word boundary restrictions\*\* - works everywhere including intraword:
+
 - `foo**bar**baz` → foo**bar**baz (creates bold)
-- `snake**_case_**` → snake**_case_** (bold containing italic)
+- `snake**_case_**` → snake***case*** (bold containing italic)
 - `word **bold** word` → word **bold** word (also works with boundaries)
 
 **Italic (`_`) and strikethrough (`~`) require word boundaries:**
 
 Underscores and tildes cannot create formatting in the middle of words (prevents false positives with `snake_case` identifiers):
+
 - `foo_bar_baz` → literal text (underscores intraword)
 - `foo~bar~baz` → literal text (tildes intraword)
 - `word _emphasis_ word` → word _emphasis_ word (at boundaries)
@@ -123,6 +126,7 @@ Underscores and tildes cannot create formatting in the middle of words (prevents
 **Delimiter transparency:**
 
 Formatting delimiters (`*`, `_`, `~`) are NOT considered word characters for boundary checks - they are transparent:
+
 - `**bold**_italic_` → **bold**_italic_ (both work, delimiters don't interfere)
 - `_italic_~strike~` → _italic_~strike~ (both work)
 
@@ -133,6 +137,7 @@ For italic and strikethrough: `a-z`, `A-Z`, `0-9`
 Notably, underscores (`_`), asterisks (`*`), and tildes (`~`) are NOT word characters - they are transparent for boundary detection.
 
 **Inline code has no word boundary requirement** - backticks work anywhere:
+
 - `foo\`bar\`baz` → foo<code>bar</code>baz
 
 **Implementation note:**
@@ -171,6 +176,7 @@ URLs cannot contain whitespace or newlines.
 Closing `)` terminates the URL.
 
 Link nodes have a `link_type` field:
+
 - `'external'` - URL starts with `https://` or `http://`
 - `'internal'` - URL starts with `/` (root-relative path)
 
@@ -369,7 +375,7 @@ First line.
 Second line.
 ```
 
-The newline character is preserved exactly as authored in the text content. When rendered by the `<Mdz>` component with CSS `white-space: pre-wrap`, it displays as a line break. No explicit `<br>` nodes are created in the AST.
+The newline character is preserved exactly as authored in the text content. When rendered by the `Mdz` component with CSS `white-space: pre-wrap`, it displays as a line break. No explicit `<br>` nodes are created in the AST.
 
 **Double newline:**
 
@@ -433,6 +439,7 @@ Invalid syntax renders as literal text rather than causing parse errors.
 The parser uses a bounded search strategy for nested formatting delimiters to prevent nested formatters from consuming parent delimiters.
 
 When parsing formatted content like `**bold with _italic_**`, the parser:
+
 1. Finds the opening `**` at position X
 2. Searches for the closing `**`, finding it at position Y
 3. Sets `#max_search_index = Y` to create a boundary
@@ -453,88 +460,88 @@ The parser produces an abstract syntax tree with these node types:
 
 ```typescript
 type MdzNode =
-  | MdzTextNode
-  | MdzCodeNode
-  | MdzCodeblockNode
-  | MdzBoldNode
-  | MdzItalicNode
-  | MdzStrikethroughNode
-  | MdzLinkNode
-  | MdzParagraphNode
-  | MdzHrNode
-  | MdzHeadingNode
-  | MdzElementNode
-  | MdzComponentNode
+	| MdzTextNode
+	| MdzCodeNode
+	| MdzCodeblockNode
+	| MdzBoldNode
+	| MdzItalicNode
+	| MdzStrikethroughNode
+	| MdzLinkNode
+	| MdzParagraphNode
+	| MdzHrNode
+	| MdzHeadingNode
+	| MdzElementNode
+	| MdzComponentNode;
 
 interface MdzBaseNode {
-  type: string
-  start: number
-  end: number
+	type: string;
+	start: number;
+	end: number;
 }
 
 interface MdzTextNode extends MdzBaseNode {
-  type: 'Text'
-  content: string
+	type: 'Text';
+	content: string;
 }
 
 interface MdzCodeNode extends MdzBaseNode {
-  type: 'Code'
-  content: string
+	type: 'Code';
+	content: string;
 }
 
 interface MdzCodeblockNode extends MdzBaseNode {
-  type: 'Codeblock'
-  lang: string | null
-  content: string
+	type: 'Codeblock';
+	lang: string | null;
+	content: string;
 }
 
 interface MdzBoldNode extends MdzBaseNode {
-  type: 'Bold'
-  children: Array<MdzNode>
+	type: 'Bold';
+	children: Array<MdzNode>;
 }
 
 interface MdzItalicNode extends MdzBaseNode {
-  type: 'Italic'
-  children: Array<MdzNode>
+	type: 'Italic';
+	children: Array<MdzNode>;
 }
 
 interface MdzStrikethroughNode extends MdzBaseNode {
-  type: 'Strikethrough'
-  children: Array<MdzNode>
+	type: 'Strikethrough';
+	children: Array<MdzNode>;
 }
 
 interface MdzLinkNode extends MdzBaseNode {
-  type: 'Link'
-  reference: string
-  children: Array<MdzNode>
-  link_type: 'external' | 'internal'
+	type: 'Link';
+	reference: string;
+	children: Array<MdzNode>;
+	link_type: 'external' | 'internal';
 }
 
 interface MdzParagraphNode extends MdzBaseNode {
-  type: 'Paragraph'
-  children: Array<MdzNode>
+	type: 'Paragraph';
+	children: Array<MdzNode>;
 }
 
 interface MdzHrNode extends MdzBaseNode {
-  type: 'Hr'
+	type: 'Hr';
 }
 
 interface MdzHeadingNode extends MdzBaseNode {
-  type: 'Heading'
-  level: 1 | 2 | 3 | 4 | 5 | 6
-  children: Array<MdzNode>
+	type: 'Heading';
+	level: 1 | 2 | 3 | 4 | 5 | 6;
+	children: Array<MdzNode>;
 }
 
 interface MdzElementNode extends MdzBaseNode {
-  type: 'Element'
-  name: string
-  children: Array<MdzNode>
+	type: 'Element';
+	name: string;
+	children: Array<MdzNode>;
 }
 
 interface MdzComponentNode extends MdzBaseNode {
-  type: 'Component'
-  name: string
-  children: Array<MdzNode>
+	type: 'Component';
+	name: string;
+	children: Array<MdzNode>;
 }
 ```
 

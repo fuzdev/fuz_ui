@@ -21,7 +21,7 @@
 <svelte:element
 	this={inline ? 'span' : 'div'}
 	{...rest}
-	class="{rest.class} {nowrap ? 'white-space:pre' : 'white-space:pre-wrap'}"
+	style:white-space={nowrap ? 'pre' : 'pre-wrap'}
 >
 	{#each nodes as node (node)}
 		<MdzNodeView {node} />

@@ -14,14 +14,10 @@
  * @module
  */
 
-import type {Gen} from '@ryanatkn/gro';
-import {package_json_load} from '@ryanatkn/gro/package_json.js';
-import type {Disknode} from '@ryanatkn/gro/disknode.js';
-import {
-	library_analyze,
-	type OnDuplicatesCallback,
-} from '@fuzdev/svelte-docinfo/library_analyze.js';
-import type {SourceJson} from '@fuzdev/fuz_util/source_json.js';
+import type {Gen} from '@fuzdev/gro';
+import {package_json_load} from '@fuzdev/gro/package_json.js';
+import type {Disknode} from '@fuzdev/gro/disknode.js';
+
 import {
 	type SourceFileInfo,
 	type ModuleSourceOptions,
