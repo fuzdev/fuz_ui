@@ -222,10 +222,7 @@ describe('throwOnDuplicates', () => {
 			],
 		]);
 
-		assert.throws(
-			() => throwOnDuplicates(duplicates, log),
-			/1 duplicate declaration name/,
-		);
+		assert.throws(() => throwOnDuplicates(duplicates, log), /1 duplicate declaration name/);
 	});
 
 	test('error message pluralizes correctly for multiple duplicates', () => {
@@ -235,10 +232,7 @@ describe('throwOnDuplicates', () => {
 			['bar', [create_duplicate_info('bar', 'c.ts'), create_duplicate_info('bar', 'd.ts')]],
 		]);
 
-		assert.throws(
-			() => throwOnDuplicates(duplicates, log),
-			/2 duplicate declaration names/,
-		);
+		assert.throws(() => throwOnDuplicates(duplicates, log), /2 duplicate declaration names/);
 	});
 
 	test('logs each duplicate with locations', () => {

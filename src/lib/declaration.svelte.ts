@@ -46,11 +46,7 @@ export class Declaration {
 	 * Generated TypeScript import statement.
 	 */
 	import_statement = $derived(
-		generateImport(
-			this.declaration_json,
-			this.module_path,
-			this.library.package_json.name,
-		),
+		generateImport(this.declaration_json, this.module_path, this.library.package_json.name),
 	);
 
 	/**

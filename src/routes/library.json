@@ -48,7 +48,7 @@
 		"peerDependencies": {
 			"@fuzdev/fuz_code": ">=0.45.0",
 			"@fuzdev/fuz_css": ">=0.47.0",
-			"@fuzdev/fuz_util": ">=0.50.1",
+			"@fuzdev/fuz_util": "file:../fuz_util",
 			"@fuzdev/gro": ">=0.192.0",
 			"@jridgewell/trace-mapping": "^0.3",
 			"@sveltejs/kit": "^2.47.3",
@@ -88,7 +88,7 @@
 			"@changesets/changelog-git": "^0.2.1",
 			"@fuzdev/fuz_code": "^0.45.0",
 			"@fuzdev/fuz_css": "^0.50.0",
-			"@fuzdev/fuz_util": "^0.50.1",
+			"@fuzdev/fuz_util": "file:../fuz_util",
 			"@fuzdev/gro": "^0.193.0",
 			"@fuzdev/svelte-docinfo": "file:../private_svelte-docinfo",
 			"@jridgewell/trace-mapping": "^0.3.31",
@@ -3407,7 +3407,7 @@
 						"name": "LibraryGenOptions",
 						"kind": "type",
 						"doc_comment": "Options for Gro library generation.",
-						"source_line": 39,
+						"source_line": 36,
 						"type_signature": "LibraryGenOptions",
 						"properties": [
 							{
@@ -3437,7 +3437,7 @@
 								"description": "if disknode has no content (should be loaded by Gro filer)"
 							}
 						],
-						"source_line": 77,
+						"source_line": 74,
 						"type_signature": "(disknode: Disknode): SourceFileInfo",
 						"return_type": "SourceFileInfo",
 						"parameters": [
@@ -3451,7 +3451,7 @@
 						"name": "library_collect_source_files_from_disknodes",
 						"kind": "function",
 						"doc_comment": "Collect source files from Gro disknodes, filtering BEFORE conversion to SourceFileInfo.\n\nThis avoids errors from files outside source directories (like test fixtures that may\nhave malformed paths or missing content). The filtering uses `isSource` which\nchecks `source_paths` to only include files in configured source directories.",
-						"source_line": 102,
+						"source_line": 99,
 						"type_signature": "(disknodes: Iterable<Disknode>, options: ModuleSourceOptions, log?: { info: (...args: unknown[]) => void; warn: (...args: unknown[]) => void; } | undefined): SourceFileInfo[]",
 						"return_type": "SourceFileInfo[]",
 						"parameters": [
@@ -3477,7 +3477,7 @@
 						"name": "library_gen",
 						"kind": "function",
 						"doc_comment": "Creates a Gen object for generating library metadata with full TypeScript analysis.\n\nThis is the Gro-specific entry point. It handles:\n- Reading files from Gro's filer\n- Loading package.json via Gro utilities\n- Analyzing source with svelte-docinfo (pure analysis)\n- Wrapping with LibraryJson (GitHub/npm metadata)\n- Returning output in Gro's Gen format\n\nFor build-tool agnostic usage, use `analyze` directly.\n\nUsage in a `.gen.ts` file:\n\n```ts\nimport {library_gen} from '@fuzdev/fuz_ui/library_gen.js';\n\nexport const gen = library_gen();\n```",
-						"source_line": 159,
+						"source_line": 156,
 						"type_signature": "(options?: LibraryGenOptions | undefined): Gen",
 						"return_type": "Gen",
 						"parameters": [
@@ -3639,7 +3639,7 @@
 							},
 							{
 								"name": "source_json",
-								"type": "{ [x: string]: unknown; name: string; version: string; modules?: { [x: string]: unknown; path: string; declarations?: { [x: string]: unknown; name: string; kind: \"function\" | \"type\" | \"variable\" | \"class\" | \"constructor\" | \"component\" | \"json\" | \"css\"; ... 19 more ...; alias_of?: { ...; } | undefined; }[] | undefine..."
+								"type": "{ [x: string]: unknown; name: string; version: string; modules?: { [x: string]: unknown; path: string; declarations?: { [x: string]: unknown; name: string; kind: \"function\" | \"type\" | \"variable\" | \"class\" | \"constructor\" | \"component\" | \"json\" | \"css\"; ... 20 more ...; alias_of?: { ...; } | undefined; }[] | undefine..."
 							}
 						]
 					}
@@ -3658,7 +3658,7 @@
 							"module.svelte.ts for Module class",
 							"declaration.svelte.ts for Declaration class"
 						],
-						"source_line": 17,
+						"source_line": 16,
 						"members": [
 							{
 								"name": "library_json",
@@ -3807,7 +3807,7 @@
 					{
 						"name": "library_context",
 						"kind": "variable",
-						"source_line": 104,
+						"source_line": 101,
 						"type_signature": "{ get: (error_message?: string | undefined) => Library; get_maybe: () => Library | undefined; set: (value: Library) => Library; }"
 					}
 				],

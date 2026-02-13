@@ -8,12 +8,7 @@
 	import DeclarationLink from './DeclarationLink.svelte';
 	import ModuleLink from './ModuleLink.svelte';
 	import {url_github_file, repo_url_parse, url_well_known} from './package_helpers.js';
-	import {
-		isTypescript,
-		isSvelte,
-		isCss,
-		isJson,
-	} from '@fuzdev/svelte-docinfo/source.js';
+	import {isTypescript, isSvelte, isCss, isJson} from '@fuzdev/svelte-docinfo/source.js';
 
 	const {
 		library,

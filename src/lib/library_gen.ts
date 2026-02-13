@@ -28,10 +28,7 @@ import {
 	getSourceRoot,
 } from '@fuzdev/svelte-docinfo/source.js';
 
-import {
-	analyze,
-	type OnDuplicatesCallback,
-} from '@fuzdev/svelte-docinfo/analyze.js';
+import {analyze, type OnDuplicatesCallback} from '@fuzdev/svelte-docinfo/analyze.js';
 import type {SourceJson} from '@fuzdev/fuz_util/source_json.js';
 import {library_generate_output} from './library_output.js';
 
