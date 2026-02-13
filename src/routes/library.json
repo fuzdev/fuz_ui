@@ -2172,7 +2172,7 @@
 							{
 								"name": "constructor",
 								"kind": "constructor",
-								"type_signature": "(module: Module, declaration_json: { [x: string]: unknown; name: string; kind: \"function\" | \"type\" | \"variable\" | \"class\" | \"constructor\" | \"component\" | \"json\" | \"css\"; doc_comment?: string | undefined; ... 19 more ...; alias_of?: { ...; } | undefined; }): Declaration",
+								"type_signature": "(module: Module, declaration_json: { [x: string]: unknown; name: string; kind: \"function\" | \"type\" | \"variable\" | \"class\" | \"constructor\" | \"component\"; doc_comment?: string | undefined; type_signature?: string | undefined; ... 18 more ...; alias_of?: { ...; } | undefined; }): Declaration",
 								"parameters": [
 									{
 										"name": "module",
@@ -2180,7 +2180,7 @@
 									},
 									{
 										"name": "declaration_json",
-										"type": "{ [x: string]: unknown; name: string; kind: \"function\" | \"type\" | \"variable\" | \"class\" | \"constructor\" | \"component\" | \"json\" | \"css\"; doc_comment?: string | undefined; type_signature?: string | undefined; ... 18 more ...; alias_of?: { ...; } | undefined; }"
+										"type": "{ [x: string]: unknown; name: string; kind: \"function\" | \"type\" | \"variable\" | \"class\" | \"constructor\" | \"component\"; doc_comment?: string | undefined; type_signature?: string | undefined; ... 18 more ...; alias_of?: { ...; } | undefined; }"
 									}
 								]
 							}
