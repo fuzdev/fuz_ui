@@ -3407,7 +3407,7 @@
 						"name": "LibraryGenOptions",
 						"kind": "type",
 						"doc_comment": "Options for Gro library generation.",
-						"source_line": 36,
+						"source_line": 35,
 						"type_signature": "LibraryGenOptions",
 						"properties": [
 							{
@@ -3437,7 +3437,7 @@
 								"description": "if disknode has no content (should be loaded by Gro filer)"
 							}
 						],
-						"source_line": 74,
+						"source_line": 73,
 						"type_signature": "(disknode: Disknode): SourceFileInfo",
 						"return_type": "SourceFileInfo",
 						"parameters": [
@@ -3451,7 +3451,7 @@
 						"name": "library_collect_source_files_from_disknodes",
 						"kind": "function",
 						"doc_comment": "Collect source files from Gro disknodes, filtering BEFORE conversion to SourceFileInfo.\n\nThis avoids errors from files outside source directories (like test fixtures that may\nhave malformed paths or missing content). The filtering uses `isSource` which\nchecks `source_paths` to only include files in configured source directories.",
-						"source_line": 99,
+						"source_line": 98,
 						"type_signature": "(disknodes: Iterable<Disknode>, options: ModuleSourceOptions, log?: { info: (...args: unknown[]) => void; warn: (...args: unknown[]) => void; } | undefined): SourceFileInfo[]",
 						"return_type": "SourceFileInfo[]",
 						"parameters": [
@@ -3477,7 +3477,7 @@
 						"name": "library_gen",
 						"kind": "function",
 						"doc_comment": "Creates a Gen object for generating library metadata with full TypeScript analysis.\n\nThis is the Gro-specific entry point. It handles:\n- Reading files from Gro's filer\n- Loading package.json via Gro utilities\n- Analyzing source with svelte-docinfo (pure analysis)\n- Wrapping with LibraryJson (GitHub/npm metadata)\n- Returning output in Gro's Gen format\n\nFor build-tool agnostic usage, use `analyze` directly.\n\nUsage in a `.gen.ts` file:\n\n```ts\nimport {library_gen} from '@fuzdev/fuz_ui/library_gen.js';\n\nexport const gen = library_gen();\n```",
-						"source_line": 156,
+						"source_line": 155,
 						"type_signature": "(options?: LibraryGenOptions | undefined): Gen",
 						"return_type": "Gen",
 						"parameters": [
