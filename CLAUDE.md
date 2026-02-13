@@ -5,7 +5,7 @@
 fuz_ui (`@fuzdev/fuz_ui`) is a Svelte UI library built on fuz_css. It provides
 components and TypeScript helpers for building user-friendly websites.
 
-For coding conventions, see [`fuz_stack`](../fuz_stack/CLAUDE.md).
+For coding conventions, see Skill(fuz_stack).
 
 ## Gro commands
 
