@@ -17,7 +17,6 @@
 import type {Gen} from '@fuzdev/gro';
 import {package_json_load} from '@fuzdev/gro/package_json.js';
 import type {Disknode} from '@fuzdev/gro/disknode.js';
-
 import {
 	type SourceFileInfo,
 	type ModuleSourceOptions,
@@ -27,9 +26,9 @@ import {
 	isSource,
 	getSourceRoot,
 } from '@fuzdev/svelte-docinfo/source.js';
-
 import {analyze, type OnDuplicatesCallback} from '@fuzdev/svelte-docinfo/analyze.js';
 import type {SourceJson} from '@fuzdev/fuz_util/source_json.js';
+
 import {library_generate_output} from './library_output.js';
 
 /** Options for Gro library generation. */
