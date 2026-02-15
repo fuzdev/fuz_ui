@@ -1,5 +1,11 @@
 # @fuzdev/fuz_ui
 
+## 0.183.2
+
+### Patch Changes
+
+- add more projects to `ProjectLinks` ([60fdd60](https://github.com/fuzdev/fuz_ui/commit/60fdd60))
+
 ## 0.183.1
 
 ### Patch Changes
