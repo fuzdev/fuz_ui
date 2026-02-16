@@ -57,8 +57,8 @@
 			environment's capabilities, while being simple and friendly to nontechnical users.
 		</p>
 		<p>
-			mdz prioritizes predictability: strict syntax with one canonical pattern per feature,
-			preferring false negatives over false positives to minimize surprise.
+			mdz prioritizes predictability with one canonical pattern per feature, preferring false
+			negatives over false positives to minimize surprise.
 		</p>
 		<p>
 			For better performance, static mdz content can be compiled at build time with the
@@ -69,13 +69,16 @@
 			blockquotes
 		</aside>
 		<aside>
-			<p>Possible changes?</p>
+			<p>Planned changes:</p>
 			<ul>
+				<li>
+					remove blank-line requirements around block elements (headings, HR, codeblocks) to align
+					with CommonMark/GFM
+				</li>
 				<li>
 					allow ending lines with <code class="white-space:pre"> \</code> to opt out of rendering the
 					line break?
 				</li>
-				<li>loosen/tighten some restrictions like requiring blank newline separators?</li>
 			</ul>
 		</aside>
 	</section>
@@ -137,8 +140,8 @@
 		<TomeSectionHeader text="Horizontal rules" />
 		<p>
 			Use exactly three hyphens (<code>---</code>) at the start of a line to create a horizontal
-			rule. Must be separated from other content by blank lines (paragraph breaks), except at
-			document start/end:
+			rule. Currently requires blank lines around it, but this will be relaxed to match
+			CommonMark/GFM:
 		</p>
 		<Code content={hr_example} />
 		<Mdz content={hr_example} class="mb_xl5" />
@@ -261,8 +264,9 @@ const nodes = mdz_parse(content);`}
 		<Code content={heading_example} />
 		<Mdz content={heading_example} class="mb_xl5" />
 		<p>
-			Must start at column 0, have a space after hashes, and be followed by a blank line or EOF.
-			Headings can include inline formatting.
+			Must start at column 0 and have a space after hashes. Currently requires a blank line or EOF
+			after, but this will be relaxed to match CommonMark/GFM. Headings can include inline
+			formatting.
 		</p>
 	</TomeSection>
 
@@ -272,8 +276,8 @@ const nodes = mdz_parse(content);`}
 		<Code content={code_block_example} />
 		<Mdz content={code_block_example} class="mb_xl5" />
 		<p>
-			Must start at column 0, closing fence must match opening length, and be followed by a blank
-			line or EOF.
+			Must start at column 0 and closing fence must match opening length. Currently requires a blank
+			line or EOF after, but this will be relaxed to match CommonMark/GFM.
 		</p>
 	</TomeSection>
 
@@ -289,10 +293,9 @@ const nodes = mdz_parse(content);`}
 			and renders as literal text. This choice creates a clear visual distinction between bold and italics.
 		</p>
 		<p>
-			In general, mdz wants to minimize surprise to nontechnical users, so it's strict in what it
-			accepts and prefers false negatives over false positives. For example, it requires a
-			separating blank line and <code>```</code> with no preceding spaces or characters to start a code
-			block.
+			mdz follows CommonMark/GFM conventions for block element recognition (headings, HR,
+			codeblocks) while preferring false negatives over false positives for inline formatting. For
+			example, <code>```</code> must have no preceding spaces or characters to start a code block.
 		</p>
 	</TomeSection>
 

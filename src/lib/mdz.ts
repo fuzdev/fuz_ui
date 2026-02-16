@@ -16,8 +16,8 @@
  *
  * ## Design philosophy
  *
- * - **False negatives over false positives**: Strict syntax prevents accidentally
- *   interpreting plain text as formatting. When in doubt, treat as plain text.
+ * - **False negatives over false positives**: When in doubt, treat as plain text.
+ *   Block elements follow CommonMark/GFM conventions; inline formatting is strict.
  * - **One way to do things**: Single unambiguous syntax per feature. No alternatives.
  * - **Explicit over implicit**: Clear delimiters and column-0 requirements avoid ambiguity.
  * - **Simple over complete**: Prefer simple parsing rules over complex edge case handling.
@@ -899,9 +899,10 @@ export class MdzParser {
 	 *
 	 * Block elements must:
 	 * - Start at column 0 (no leading whitespace)
-	 * - Be followed by blank line or EOF
+	 * - Be followed by blank line or EOF (planned for removal to align with CommonMark/GFM)
 	 *
 	 * This helper eliminates duplication between document start and post-paragraph-break parsing.
+	 * TODO: also check for block elements at line starts within paragraphs (CommonMark alignment).
 	 */
 	#try_parse_block_element(): MdzHeadingNode | MdzHrNode | MdzCodeblockNode | null {
 		if (this.#match_heading()) {
@@ -1397,11 +1398,9 @@ export class MdzParser {
 	 * Check if current position matches a horizontal rule.
 	 * HR must be exactly `---` at column 0, followed by blank line or EOF.
 	 *
-	 * Blank line requirement rationale:
-	 * Prevents block elements from accidentally consuming following content.
-	 * Without this, `---` followed by regular text would create an hr and treat
-	 * the next line as a new paragraph, which could be surprising. The blank line
-	 * makes block element boundaries explicit and predictable.
+	 * TODO: Remove blank-line-after requirement to align with CommonMark/GFM,
+	 * where thematic breaks need no blank line before or after.
+	 * Note: mdz has no setext headings, so `---` after a paragraph is unambiguous.
 	 */
 	#match_hr(): boolean {
 		let i = this.#index;
@@ -1478,10 +1477,8 @@ export class MdzParser {
 	 * Heading must be 1-6 hashes at column 0, followed by space and content,
 	 * followed by blank line or EOF.
 	 *
-	 * Blank line requirement rationale:
-	 * Ensures headings are visually and semantically separate from following content.
-	 * Without this, `# Heading\nText` would be ambiguous - is the text part of the
-	 * heading or a new paragraph? The blank line makes document structure explicit.
+	 * TODO: Remove blank-line-after requirement to align with CommonMark/GFM,
+	 * where ATX headings need no blank lines and can interrupt paragraphs.
 	 */
 	#match_heading(): boolean {
 		let i = this.#index;
@@ -1619,11 +1616,8 @@ export class MdzParser {
 	 * Code block must be 3+ backticks at column 0, followed by blank line or EOF.
 	 * Empty code blocks (no content) are treated as invalid.
 	 *
-	 * Blank line requirement rationale:
-	 * Separates code blocks from following content to prevent ambiguity.
-	 * Codeblocks are distinct semantic units that should be visually isolated.
-	 * The blank line makes it explicit where the code block ends and regular
-	 * content begins, following the "explicit over implicit" design principle.
+	 * TODO: Remove blank-line-after requirement to align with CommonMark/GFM,
+	 * where fenced code blocks need no blank lines and can interrupt paragraphs.
 	 */
 	#match_code_block(): boolean {
 		let i = this.#index;
