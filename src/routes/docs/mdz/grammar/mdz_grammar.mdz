@@ -255,6 +255,8 @@ Must be followed by a newline or end of file.
 
 Other markdown flavors support `***`, `___`, or variable numbers of hyphens. mdz requires exactly `---` to avoid ambiguity and maintain the "one way to do things" principle.
 
+mdz has no setext headings, so `---` after a paragraph is always a horizontal rule (unlike CommonMark where `text\n---` becomes an `<h2>` setext heading). This makes `---` unambiguous in all contexts.
+
 ---
 
 ## Codeblocks
