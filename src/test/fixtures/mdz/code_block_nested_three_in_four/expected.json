@@ -5,18 +5,5 @@
 		"content": "Use ``` to create code blocks",
 		"start": 0,
 		"end": 39
-	},
-	{
-		"type": "Paragraph",
-		"children": [
-			{
-				"type": "Text",
-				"content": "\n",
-				"start": 39,
-				"end": 40
-			}
-		],
-		"start": 39,
-		"end": 40
 	}
 ]

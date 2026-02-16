@@ -19,18 +19,5 @@
 		"content": "third block",
 		"start": 45,
 		"end": 64
-	},
-	{
-		"type": "Paragraph",
-		"children": [
-			{
-				"type": "Text",
-				"content": "\n",
-				"start": 64,
-				"end": 65
-			}
-		],
-		"start": 64,
-		"end": 65
 	}
 ]

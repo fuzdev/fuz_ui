@@ -4,25 +4,30 @@
 		"children": [
 			{
 				"type": "Text",
-				"content": "paragraph 1",
+				"content": "Some text.",
 				"start": 0,
-				"end": 11
+				"end": 10
 			}
 		],
 		"start": 0,
-		"end": 11
+		"end": 10
+	},
+	{
+		"type": "Hr",
+		"start": 11,
+		"end": 14
 	},
 	{
 		"type": "Paragraph",
 		"children": [
 			{
 				"type": "Text",
-				"content": "paragraph 2\n",
-				"start": 14,
+				"content": "More text.\n",
+				"start": 15,
 				"end": 26
 			}
 		],
-		"start": 14,
+		"start": 15,
 		"end": 26
 	}
 ]

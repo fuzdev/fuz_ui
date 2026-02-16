@@ -5104,7 +5104,7 @@
 							{
 								"name": "parse",
 								"kind": "function",
-								"doc_comment": "Main parse method. Returns flat array of nodes,\nwith paragraph nodes wrapping content between double newlines.",
+								"doc_comment": "Main parse method. Returns flat array of nodes,\nwith paragraph nodes wrapping content between double newlines.\n\nBlock elements (headings, HR, codeblocks) are detected at every column-0\nposition — they can interrupt paragraphs without requiring blank lines,\nfollowing CommonMark/GFM conventions.",
 								"type_signature": "(): MdzNode[]",
 								"return_type": "MdzNode[]",
 								"parameters": []
@@ -5114,7 +5114,7 @@
 					{
 						"name": "mdz_is_url",
 						"kind": "function",
-						"source_line": 1822,
+						"source_line": 1831,
 						"type_signature": "(s: string): boolean",
 						"return_type": "boolean",
 						"parameters": [

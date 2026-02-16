@@ -186,92 +186,123 @@ export class MdzParser {
 	/**
 	 * Main parse method. Returns flat array of nodes,
 	 * with paragraph nodes wrapping content between double newlines.
+	 *
+	 * Block elements (headings, HR, codeblocks) are detected at every column-0
+	 * position — they can interrupt paragraphs without requiring blank lines,
+	 * following CommonMark/GFM conventions.
 	 */
 	parse(): Array<MdzNode> {
 		this.#nodes.length = 0;
 		const root_nodes: Array<MdzNode> = [];
 		const paragraph_children: Array<MdzNode> = [];
 
-		// Check for block element at document start
-		const start_block = this.#try_parse_block_element();
-		if (start_block) {
-			root_nodes.push(start_block);
-		}
+		// Skip leading newlines
+		this.#skip_newlines();
 
 		while (this.#index < this.#template.length) {
+			// Peek for block element (read-only match), flush paragraph first, then parse.
+			// Flush must happen before parse because parse modifies accumulation state.
+			if (this.#peek_block_element()) {
+				this.#flush_paragraph(paragraph_children, root_nodes, true);
+				const block = this.#try_parse_block_element()!;
+				root_nodes.push(block);
+				this.#skip_newlines();
+				continue;
+			}
+
 			// Check for paragraph break (double newline)
 			if (this.#is_at_paragraph_break()) {
-				this.#flush_text();
-				// Move flushed nodes to paragraph_children
-				if (this.#nodes.length > 0) {
-					paragraph_children.push(...this.#nodes);
-					this.#nodes.length = 0;
-				}
-				// Wrap accumulated nodes in paragraph (or add single tag directly)
-				if (paragraph_children.length > 0) {
-					if (this.#is_single_tag(paragraph_children)) {
-						// Single tag (component/element) - add directly without paragraph wrapper (MDX convention)
-						const tag = paragraph_children.find(
-							(n) => n.type === 'Component' || n.type === 'Element',
-						)!;
-						root_nodes.push(tag);
-					} else {
-						// Regular paragraph
-						root_nodes.push({
-							type: 'Paragraph',
-							children: paragraph_children.slice(),
-							start: paragraph_children[0]!.start,
-							end: paragraph_children[paragraph_children.length - 1]!.end,
-						});
-					}
-					paragraph_children.length = 0;
-				}
-				// Consume the paragraph break
-				this.#eat('\n\n');
+				this.#flush_paragraph(paragraph_children, root_nodes, true);
+				this.#skip_newlines();
+				continue;
+			}
 
-				// Check for block element after paragraph break
-				const block = this.#try_parse_block_element();
-				if (block) {
-					root_nodes.push(block);
-				}
+			// Parse inline content
+			const node = this.#parse_node();
+			if (node.type === 'Text') {
+				this.#accumulate_text(node.content, node.start);
 			} else {
-				const node = this.#parse_node();
-				if (node.type === 'Text') {
-					this.#accumulate_text(node.content, node.start);
-				} else {
-					this.#flush_text();
-					this.#nodes.push(node);
-				}
-				if (this.#nodes.length > 0) {
-					paragraph_children.push(...this.#nodes);
-					this.#nodes.length = 0;
-				}
+				this.#flush_text();
+				this.#nodes.push(node);
+			}
+			if (this.#nodes.length > 0) {
+				paragraph_children.push(...this.#nodes);
+				this.#nodes.length = 0;
 			}
 		}
 
+		// Flush remaining content as final paragraph
+		this.#flush_paragraph(paragraph_children, root_nodes);
+
+		return root_nodes;
+	}
+
+	/**
+	 * Flush accumulated inline content as a paragraph node (or single tag).
+	 * When `trim_trailing` is true, trims trailing newlines from the last text node
+	 * (the line break before a block element or paragraph break).
+	 */
+	#flush_paragraph(
+		paragraph_children: Array<MdzNode>,
+		root_nodes: Array<MdzNode>,
+		trim_trailing = false,
+	): void {
 		this.#flush_text();
 		if (this.#nodes.length > 0) {
 			paragraph_children.push(...this.#nodes);
+			this.#nodes.length = 0;
 		}
 
-		// Wrap remaining nodes in final paragraph if any (or add single tag directly)
-		if (paragraph_children.length > 0) {
-			if (this.#is_single_tag(paragraph_children)) {
-				// Single tag (component/element) - add directly without paragraph wrapper (MDX convention)
-				const tag = paragraph_children.find((n) => n.type === 'Component' || n.type === 'Element')!;
-				root_nodes.push(tag);
-			} else {
-				// Regular paragraph
-				root_nodes.push({
-					type: 'Paragraph',
-					children: paragraph_children,
-					start: paragraph_children[0]!.start,
-					end: paragraph_children[paragraph_children.length - 1]!.end,
-				});
+		if (paragraph_children.length === 0) {
+			return;
+		}
+
+		if (trim_trailing) {
+			// Trim trailing newlines from the last text node (line break before block element)
+			const last = paragraph_children[paragraph_children.length - 1]!;
+			if (last.type === 'Text') {
+				const trimmed = last.content.replace(/\n+$/, '');
+				if (trimmed) {
+					last.content = trimmed;
+					last.end = last.start + trimmed.length;
+				} else {
+					paragraph_children.pop();
+				}
+			}
+
+			// Skip whitespace-only paragraphs (e.g. newlines between consecutive blocks)
+			const has_content = paragraph_children.some(
+				(n) => n.type !== 'Text' || n.content.trim().length > 0,
+			);
+			if (!has_content) {
+				paragraph_children.length = 0;
+				return;
 			}
 		}
 
-		return root_nodes;
+		if (this.#is_single_tag(paragraph_children)) {
+			// Single tag (component/element) - add directly without paragraph wrapper (MDX convention)
+			const tag = paragraph_children.find((n) => n.type === 'Component' || n.type === 'Element')!;
+			root_nodes.push(tag);
+		} else {
+			// Regular paragraph
+			root_nodes.push({
+				type: 'Paragraph',
+				children: paragraph_children.slice(),
+				start: paragraph_children[0]!.start,
+				end: paragraph_children[paragraph_children.length - 1]!.end,
+			});
+		}
+		paragraph_children.length = 0;
+	}
+
+	/**
+	 * Consume consecutive newline characters.
+	 */
+	#skip_newlines(): void {
+		while (this.#index < this.#template.length && this.#current_char() === NEWLINE) {
+			this.#index++;
+		}
 	}
 
 	/**
@@ -894,15 +925,23 @@ export class MdzParser {
 	}
 
 	/**
+	 * Read-only check if current position matches a block element.
+	 * Does not modify parser state — used to peek before flushing paragraph.
+	 */
+	#peek_block_element(): boolean {
+		return this.#match_heading() || this.#match_hr() || this.#match_code_block();
+	}
+
+	/**
 	 * Try to parse a block element (heading, hr, or codeblock) at current position.
 	 * Returns the parsed block node if a match is found, null otherwise.
 	 *
-	 * Block elements must:
-	 * - Start at column 0 (no leading whitespace)
-	 * - Be followed by blank line or EOF (planned for removal to align with CommonMark/GFM)
+	 * Block elements must start at column 0 (no leading whitespace) and be followed
+	 * by newline or EOF. They can interrupt paragraphs (no blank lines required),
+	 * following CommonMark/GFM conventions.
 	 *
-	 * This helper eliminates duplication between document start and post-paragraph-break parsing.
-	 * TODO: also check for block elements at line starts within paragraphs (CommonMark alignment).
+	 * IMPORTANT: Caller must flush paragraph content before calling this,
+	 * because parse functions modify the text accumulation state.
 	 */
 	#try_parse_block_element(): MdzHeadingNode | MdzHrNode | MdzCodeblockNode | null {
 		if (this.#match_heading()) {
@@ -1289,6 +1328,18 @@ export class MdzParser {
 				break;
 			}
 
+			// Stop before newline when next line could start a block element,
+			// so the main loop can try block detection at column 0
+			if (char_code === NEWLINE) {
+				const next_i = this.#index + 1;
+				if (next_i < this.#template.length) {
+					const next_char = this.#template.charCodeAt(next_i);
+					if (next_char === HASH || next_char === HYPHEN || next_char === BACKTICK) {
+						break;
+					}
+				}
+			}
+
 			// Check for URL or internal path mid-text
 			if (this.#is_at_url() || this.#is_at_internal_path()) {
 				break;
@@ -1396,11 +1447,10 @@ export class MdzParser {
 
 	/**
 	 * Check if current position matches a horizontal rule.
-	 * HR must be exactly `---` at column 0, followed by blank line or EOF.
+	 * HR must be exactly `---` at column 0, followed by newline or EOF.
 	 *
-	 * TODO: Remove blank-line-after requirement to align with CommonMark/GFM,
-	 * where thematic breaks need no blank line before or after.
-	 * Note: mdz has no setext headings, so `---` after a paragraph is unambiguous.
+	 * mdz has no setext headings, so `---` after a paragraph is unambiguous
+	 * (always an HR, unlike CommonMark where it becomes a setext heading).
 	 */
 	#match_hr(): boolean {
 		let i = this.#index;
@@ -1425,15 +1475,7 @@ export class MdzParser {
 		while (i < this.#template.length) {
 			const char_code = this.#template.charCodeAt(i);
 			if (char_code === NEWLINE) {
-				// Found newline - check if followed by another newline (blank line) or EOF
-				const next_i = i + 1;
-				if (next_i >= this.#template.length) {
-					return true; // hr followed by newline + EOF
-				}
-				if (this.#template.charCodeAt(next_i) === NEWLINE) {
-					return true; // hr followed by blank line
-				}
-				return false; // hr followed by single newline + content
+				return true;
 			}
 			if (char_code !== SPACE) {
 				return false; // Non-whitespace after ---, not an hr
@@ -1475,10 +1517,7 @@ export class MdzParser {
 	/**
 	 * Check if current position matches a heading.
 	 * Heading must be 1-6 hashes at column 0, followed by space and content,
-	 * followed by blank line or EOF.
-	 *
-	 * TODO: Remove blank-line-after requirement to align with CommonMark/GFM,
-	 * where ATX headings need no blank lines and can interrupt paragraphs.
+	 * followed by newline or EOF.
 	 */
 	#match_heading(): boolean {
 		let i = this.#index;
@@ -1523,27 +1562,8 @@ export class MdzParser {
 			return false; // heading with only whitespace, treat as plain text
 		}
 
-		// At this point we're at newline or EOF
-		// Check for blank line after (newline + newline) or EOF
-		if (i >= this.#template.length) {
-			return true; // heading at EOF
-		}
-
-		// Must have newline
-		if (this.#template.charCodeAt(i) !== NEWLINE) {
-			return false;
-		}
-
-		const next_i = i + 1;
-		if (next_i >= this.#template.length) {
-			return true; // heading followed by newline + EOF
-		}
-
-		if (this.#template.charCodeAt(next_i) === NEWLINE) {
-			return true; // heading followed by blank line
-		}
-
-		return false; // heading followed by single newline + content
+		// At newline or EOF — both are valid
+		return true;
 	}
 
 	/**
@@ -1613,11 +1633,8 @@ export class MdzParser {
 
 	/**
 	 * Check if current position matches a code block.
-	 * Code block must be 3+ backticks at column 0, followed by blank line or EOF.
+	 * Code block must be 3+ backticks at column 0, closing fence followed by newline or EOF.
 	 * Empty code blocks (no content) are treated as invalid.
-	 *
-	 * TODO: Remove blank-line-after requirement to align with CommonMark/GFM,
-	 * where fenced code blocks need no blank lines and can interrupt paragraphs.
 	 */
 	#match_code_block(): boolean {
 		let i = this.#index;
@@ -1698,15 +1715,7 @@ export class MdzParser {
 						return false;
 					}
 
-					// Check if followed by blank line or EOF
-					const next_j = j + 1;
-					if (next_j >= this.#template.length) {
-						return true; // code block followed by newline + EOF
-					}
-					if (this.#template.charCodeAt(next_j) === NEWLINE) {
-						return true; // code block followed by blank line
-					}
-					return false; // code block followed by single newline + content
+					return true; // code block followed by newline or EOF
 				}
 			}
 			i++;

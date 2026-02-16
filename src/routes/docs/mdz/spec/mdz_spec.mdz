@@ -274,7 +274,7 @@ Use 1-6 hashes followed by a space and content:
 - Must have exactly 1-6 `#` characters
 - Must have space after hashes
 - Must have non-whitespace content after space
-- Must be followed by blank line or EOF (planned for removal to align with CommonMark/GFM)
+- Must be followed by newline or EOF (no blank line required, following CommonMark/GFM)
 
 **Invalid patterns:**
 
@@ -308,7 +308,7 @@ Section two.
 - Must be exactly 3 hyphens (not 2, not 4+)
 - **Must start at column 0** (no leading whitespace) - indented `---` is treated as literal text
 - Trailing whitespace allowed
-- Must be followed by blank line or EOF (planned for removal to align with CommonMark/GFM)
+- Must be followed by newline or EOF (no blank line required, following CommonMark/GFM)
 
 **Invalid patterns:**
 
@@ -359,7 +359,7 @@ The inner ` ``` ` does not close the outer ```` fence.
 - Opening fence must have 3+ backticks
 - Closing fence must match opening length
 - Opening fence followed by newline
-- Closing fence followed by blank line or EOF (planned for removal to align with CommonMark/GFM)
+- Closing fence followed by newline or EOF (no blank line required, following CommonMark/GFM)
 - Cannot be empty (must have content)
 
 Like all mdz block elements, the strict column-0 requirement distinguishes codeblocks from inline code and prevents ambiguity.
@@ -527,11 +527,12 @@ mdz deliberately diverges from CommonMark and GitHub Flavored Markdown to minimi
 | Indented code        | 4 spaces creates codeblock            | NOT supported                                               |
 | Codeblock indent     | Can be indented                       | Must be column 0                                            |
 | Heading no space     | `#text` valid                         | Invalid (space required)                                    |
-| Block spacing        | Flexible                              | Aligning with CommonMark/GFM (currently requires blank lines) |
+| Block spacing        | Flexible                              | Follows CommonMark/GFM (no blank lines required)            |
+| Setext headings      | `text\n---` = `<h2>`                  | NOT supported (`---` always = HR)                           |
 
 **Rationale:**
 
-One canonical syntax per feature reduces cognitive load. Block element recognition follows CommonMark/GFM conventions; inline formatting uses stricter rules to minimize false positives for nontechnical users.
+One canonical syntax per feature reduces cognitive load. Block element recognition follows CommonMark/GFM conventions; inline formatting uses stricter rules to minimize false positives for nontechnical users. mdz has no setext headings, so `---` after a paragraph always creates a horizontal rule (unlike CommonMark where it becomes an `<h2>` setext heading).
 
 ---
 

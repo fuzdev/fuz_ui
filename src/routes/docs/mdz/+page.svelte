@@ -69,12 +69,8 @@
 			blockquotes
 		</aside>
 		<aside>
-			<p>Planned changes:</p>
+			<p>Possible changes?</p>
 			<ul>
-				<li>
-					remove blank-line requirements around block elements (headings, HR, codeblocks) to align
-					with CommonMark/GFM
-				</li>
 				<li>
 					allow ending lines with <code class="white-space:pre"> \</code> to opt out of rendering the
 					line break?
@@ -140,8 +136,8 @@
 		<TomeSectionHeader text="Horizontal rules" />
 		<p>
 			Use exactly three hyphens (<code>---</code>) at the start of a line to create a horizontal
-			rule. Currently requires blank lines around it, but this will be relaxed to match
-			CommonMark/GFM:
+			rule. No blank lines are required around it, following CommonMark/GFM conventions. mdz has no
+			setext headings, so <code>---</code> after a paragraph is always an HR:
 		</p>
 		<Code content={hr_example} />
 		<Mdz content={hr_example} class="mb_xl5" />
@@ -264,9 +260,8 @@ const nodes = mdz_parse(content);`}
 		<Code content={heading_example} />
 		<Mdz content={heading_example} class="mb_xl5" />
 		<p>
-			Must start at column 0 and have a space after hashes. Currently requires a blank line or EOF
-			after, but this will be relaxed to match CommonMark/GFM. Headings can include inline
-			formatting.
+			Must start at column 0 and have a space after hashes. No blank lines are required around
+			headings, following CommonMark/GFM conventions. Headings can include inline formatting.
 		</p>
 	</TomeSection>
 
@@ -276,8 +271,8 @@ const nodes = mdz_parse(content);`}
 		<Code content={code_block_example} />
 		<Mdz content={code_block_example} class="mb_xl5" />
 		<p>
-			Must start at column 0 and closing fence must match opening length. Currently requires a blank
-			line or EOF after, but this will be relaxed to match CommonMark/GFM.
+			Must start at column 0 and closing fence must match opening length. No blank lines are
+			required around code blocks, following CommonMark/GFM conventions.
 		</p>
 	</TomeSection>
 
