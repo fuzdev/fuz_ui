@@ -11,7 +11,7 @@
 	"published": true,
 	"package_json": {
 		"name": "@fuzdev/fuz_ui",
-		"version": "0.183.1",
+		"version": "0.184.0",
 		"description": "Svelte UI library",
 		"motto": "friendly user zystem",
 		"glyph": "🧶",
@@ -86,10 +86,10 @@
 		},
 		"devDependencies": {
 			"@changesets/changelog-git": "^0.2.1",
-			"@fuzdev/fuz_code": "^0.45.0",
+			"@fuzdev/fuz_code": "^0.45.1",
 			"@fuzdev/fuz_css": "^0.51.0",
-			"@fuzdev/fuz_util": "^0.51.0",
-			"@fuzdev/gro": "^0.193.0",
+			"@fuzdev/fuz_util": "^0.50.1",
+			"@fuzdev/gro": "^0.194.0",
 			"@fuzdev/svelte-docinfo": "file:../private_svelte-docinfo",
 			"@jridgewell/trace-mapping": "^0.3.31",
 			"@ryanatkn/eslint-config": "^0.9.0",
@@ -153,7 +153,7 @@
 	},
 	"source_json": {
 		"name": "@fuzdev/fuz_ui",
-		"version": "0.183.1",
+		"version": "0.184.0",
 		"repository": "git+https://github.com/fuzdev/fuz_ui.git",
 		"modules": [
 			{
@@ -7483,7 +7483,7 @@
 							},
 							{
 								"name": "source_json",
-								"type": "{ [x: string]: unknown; name: string; version: string; modules?: { [x: string]: unknown; path: string; declarations?: { [x: string]: unknown; name: string; kind: \"function\" | \"type\" | \"variable\" | \"class\" | \"constructor\" | \"component\" | \"json\" | \"css\"; ... 20 more ...; alias_of?: { ...; } | undefined; }[] | undefine..."
+								"type": "{ [x: string]: unknown; name: string; version: string; modules?: { [x: string]: unknown; path: string; declarations?: { [x: string]: unknown; name: string; kind: \"function\" | \"type\" | \"variable\" | \"class\" | \"constructor\" | \"component\" | \"json\" | \"css\"; ... 19 more ...; alias_of?: { ...; } | undefined; }[] | undefine..."
 							}
 						],
 						"return_type": "LibraryOutputResult",
@@ -7508,11 +7508,36 @@
 				"path": "library.svelte.ts",
 				"declarations": [
 					{
+						"name": "parse_library_url_prefix",
+						"kind": "function",
+						"doc_comment": "Normalizes a URL prefix: ensures leading `/`, strips trailing `/`, returns `''` for falsy and non-string values.",
+						"type_signature": "(value: unknown): string",
+						"modifiers": [],
+						"source_line": 11,
+						"parameters": [
+							{
+								"name": "value",
+								"type": "unknown"
+							}
+						],
+						"return_type": "string",
+						"generic_params": [],
+						"examples": [],
+						"see_also": [],
+						"throws": [],
+						"extends": [],
+						"implements": [],
+						"members": [],
+						"properties": [],
+						"props": [],
+						"also_exported_from": []
+					},
+					{
 						"name": "Library",
 						"kind": "class",
 						"doc_comment": "Rich runtime representation of a library.\n\nWraps `LibraryJson` with computed properties and provides the root\nof the API documentation hierarchy: Library → modules → declarations",
 						"modifiers": [],
-						"source_line": 16,
+						"source_line": 25,
 						"parameters": [],
 						"generic_params": [],
 						"examples": [],
@@ -7528,6 +7553,24 @@
 								"name": "library_json",
 								"kind": "variable",
 								"type_signature": "LibraryJson",
+								"modifiers": ["readonly"],
+								"parameters": [],
+								"generic_params": [],
+								"examples": [],
+								"see_also": [],
+								"throws": [],
+								"extends": [],
+								"implements": [],
+								"members": [],
+								"properties": [],
+								"props": [],
+								"also_exported_from": []
+							},
+							{
+								"name": "url_prefix",
+								"kind": "variable",
+								"doc_comment": "URL path prefix for multi-package documentation sites.\nPrepended to `/docs/api/` paths in `Module.url_api` and `Declaration.url_api`.\nDefault `''` preserves single-package behavior.",
+								"type_signature": "string",
 								"modifiers": ["readonly"],
 								"parameters": [],
 								"generic_params": [],
@@ -7821,12 +7864,17 @@
 							{
 								"name": "constructor",
 								"kind": "constructor",
-								"type_signature": "(library_json: LibraryJson): Library",
+								"type_signature": "(library_json: LibraryJson, url_prefix?: string): Library",
 								"modifiers": [],
 								"parameters": [
 									{
 										"name": "library_json",
 										"type": "LibraryJson"
+									},
+									{
+										"name": "url_prefix",
+										"type": "string",
+										"default_value": "''"
 									}
 								],
 								"generic_params": [],
@@ -7946,7 +7994,7 @@
 						"kind": "variable",
 						"type_signature": "{ get: (error_message?: string | undefined) => Library; get_maybe: () => Library | undefined; set: (value: Library) => Library; }",
 						"modifiers": [],
-						"source_line": 101,
+						"source_line": 118,
 						"parameters": [],
 						"generic_params": [],
 						"examples": [],
@@ -9941,7 +9989,7 @@
 							{
 								"name": "constructor",
 								"kind": "constructor",
-								"type_signature": "(library: Library, module_json: { [x: string]: unknown; path: string; declarations?: { [x: string]: unknown; name: string; kind: \"function\" | \"type\" | \"variable\" | \"class\" | \"constructor\" | \"component\" | \"json\" | \"css\"; ... 20 more ...; alias_of?: { ...; } | undefined; }[] | undefined; module_comment?: string | undefined; dependencies?: string[] | undefined; dependents?: string[] | undefined; star_exports?: string[] | undefined; }): Module",
+								"type_signature": "(library: Library, module_json: { [x: string]: unknown; path: string; declarations?: { [x: string]: unknown; name: string; kind: \"function\" | \"type\" | \"variable\" | \"class\" | \"constructor\" | \"component\" | \"json\" | \"css\"; ... 19 more ...; alias_of?: { ...; } | undefined; }[] | undefined; module_comment?: string | undefined; dependencies?: string[] | undefined; dependents?: string[] | undefined; star_exports?: string[] | undefined; }): Module",
 								"modifiers": [],
 								"parameters": [
 									{
@@ -9950,7 +9998,7 @@
 									},
 									{
 										"name": "module_json",
-										"type": "{ [x: string]: unknown; path: string; declarations?: { [x: string]: unknown; name: string; kind: \"function\" | \"type\" | \"variable\" | \"class\" | \"constructor\" | \"component\" | \"json\" | \"css\"; doc_comment?: string | undefined; ... 19 more ...; alias_of?: { ...; } | undefined; }[] | undefined; module_comment?: string | un..."
+										"type": "{ [x: string]: unknown; path: string; declarations?: { [x: string]: unknown; name: string; kind: \"function\" | \"type\" | \"variable\" | \"class\" | \"constructor\" | \"component\" | \"json\" | \"css\"; doc_comment?: string | undefined; ... 18 more ...; alias_of?: { ...; } | undefined; }[] | undefined; module_comment?: string | un..."
 									}
 								],
 								"generic_params": [],

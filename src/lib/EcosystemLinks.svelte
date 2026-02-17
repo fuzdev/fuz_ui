@@ -9,7 +9,7 @@
 <ul>
 	<li>
 		<a rel="me" href="https://www.fuz.dev/" class:selected={selected === 'fuz.dev'}>fuz.dev</a>
-		- the Fuz project homepage{#if selected === 'fuz.dev'}, you are here{/if}
+		- the Fuz stack homepage{#if selected === 'fuz.dev'}, you are here{/if}
 	</li>
 	<li>
 		GitHub as <a rel="me" href="https://github.com/fuzdev">@fuzdev</a>

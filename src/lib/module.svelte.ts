@@ -37,7 +37,7 @@ export class Module {
 	/**
 	 * API documentation URL for this module.
 	 */
-	url_api = $derived(`/docs/api/${this.path}`);
+	url_api = $derived(`/docs/api${this.library.url_prefix}/${this.path}`);
 
 	/**
 	 * GitHub source URL.
