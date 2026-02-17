@@ -7596,7 +7596,7 @@
 						"name": "VitePluginLibraryJsonOptions",
 						"kind": "type",
 						"doc_comment": "Options for the library JSON Vite plugin.",
-						"source_line": 63,
+						"source_line": 64,
 						"type_signature": "VitePluginLibraryJsonOptions",
 						"properties": [
 							{
@@ -7623,8 +7623,8 @@
 						"name": "library_collect_source_files_from_fs",
 						"kind": "function",
 						"doc_comment": "Collect source files from the filesystem.\n\nScans configured source directories recursively, reads file contents,\nand filters through `module_is_source`. Returns `SourceFileInfo[]` without\ndependency/dependent info (these are optional and only available via Gro's filer).",
-						"source_line": 95,
-						"type_signature": "(source_options: ModuleSourceOptions, log?: { info: (...args: unknown[]) => void; warn: (...args: unknown[]) => void; } | undefined): Promise<SourceFileInfo[]>",
+						"source_line": 96,
+						"type_signature": "(source_options: ModuleSourceOptions, log?: Logger | undefined): Promise<SourceFileInfo[]>",
 						"return_type": "Promise<SourceFileInfo[]>",
 						"parameters": [
 							{
@@ -7634,7 +7634,7 @@
 							},
 							{
 								"name": "log",
-								"type": "{ info: (...args: unknown[]) => void; warn: (...args: unknown[]) => void; } | undefined",
+								"type": "Logger | undefined",
 								"optional": true,
 								"description": "Optional logger for status messages."
 							}
@@ -7644,7 +7644,7 @@
 						"name": "vite_plugin_library_json",
 						"kind": "function",
 						"doc_comment": "Creates the library JSON Vite plugin.\n\nGenerates library metadata by scanning source files from the filesystem\nand serves it via the `virtual:library.json` virtual module.\nIn dev mode, watches source files and regenerates on changes.",
-						"source_line": 131,
+						"source_line": 132,
 						"type_signature": "(options?: VitePluginLibraryJsonOptions): Plugin<any>",
 						"return_type": "Plugin<any>",
 						"parameters": [
