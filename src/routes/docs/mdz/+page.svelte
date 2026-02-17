@@ -136,8 +136,8 @@
 		<TomeSectionHeader text="Horizontal rules" />
 		<p>
 			Use exactly three hyphens (<code>---</code>) at the start of a line to create a horizontal
-			rule. No blank lines are required around it, following CommonMark/GFM conventions. mdz has no
-			setext headings, so <code>---</code> after a paragraph is always an HR:
+			rule. No blank lines are required around it. mdz has no setext headings, so
+			<code>---</code> after a paragraph is always an HR:
 		</p>
 		<Code content={hr_example} />
 		<Mdz content={hr_example} class="mb_xl5" />
@@ -261,7 +261,7 @@ const nodes = mdz_parse(content);`}
 		<Mdz content={heading_example} class="mb_xl5" />
 		<p>
 			Must start at column 0 and have a space after hashes. No blank lines are required around
-			headings, following CommonMark/GFM conventions. Headings can include inline formatting.
+			headings. Headings can include inline formatting.
 		</p>
 	</TomeSection>
 
@@ -272,7 +272,7 @@ const nodes = mdz_parse(content);`}
 		<Mdz content={code_block_example} class="mb_xl5" />
 		<p>
 			Must start at column 0 and closing fence must match opening length. No blank lines are
-			required around code blocks, following CommonMark/GFM conventions.
+			required around code blocks.
 		</p>
 	</TomeSection>
 
@@ -288,9 +288,9 @@ const nodes = mdz_parse(content);`}
 			and renders as literal text. This choice creates a clear visual distinction between bold and italics.
 		</p>
 		<p>
-			mdz follows CommonMark/GFM conventions for block element recognition (headings, HR,
-			codeblocks) while preferring false negatives over false positives for inline formatting. For
-			example, <code>```</code> must have no preceding spaces or characters to start a code block.
+			Block elements (headings, HR, codeblocks) can interrupt paragraphs without blank lines, while
+			inline formatting prefers false negatives over false positives. For example,
+			<code>```</code> must have no preceding spaces or characters to start a code block.
 		</p>
 	</TomeSection>
 

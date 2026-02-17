@@ -5,13 +5,13 @@
 		"children": [
 			{
 				"type": "Text",
-				"content": "Not a heading because no blank line after",
+				"content": "Heading without blank line after",
 				"start": 2,
-				"end": 43
+				"end": 34
 			}
 		],
 		"start": 0,
-		"end": 43
+		"end": 34
 	},
 	{
 		"type": "Paragraph",
@@ -19,11 +19,11 @@
 			{
 				"type": "Text",
 				"content": "More text continues here.\n",
-				"start": 44,
-				"end": 70
+				"start": 35,
+				"end": 61
 			}
 		],
-		"start": 44,
-		"end": 70
+		"start": 35,
+		"end": 61
 	}
 ]

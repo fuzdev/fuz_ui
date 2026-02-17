@@ -17,7 +17,7 @@
  * ## Design philosophy
  *
  * - **False negatives over false positives**: When in doubt, treat as plain text.
- *   Block elements follow CommonMark/GFM conventions; inline formatting is strict.
+ *   Block elements can interrupt paragraphs without blank lines; inline formatting is strict.
  * - **One way to do things**: Single unambiguous syntax per feature. No alternatives.
  * - **Explicit over implicit**: Clear delimiters and column-0 requirements avoid ambiguity.
  * - **Simple over complete**: Prefer simple parsing rules over complex edge case handling.
@@ -188,8 +188,7 @@ export class MdzParser {
 	 * with paragraph nodes wrapping content between double newlines.
 	 *
 	 * Block elements (headings, HR, codeblocks) are detected at every column-0
-	 * position — they can interrupt paragraphs without requiring blank lines,
-	 * following CommonMark/GFM conventions.
+	 * position — they can interrupt paragraphs without requiring blank lines.
 	 */
 	parse(): Array<MdzNode> {
 		this.#nodes.length = 0;
@@ -1448,8 +1447,8 @@ export class MdzParser {
 	#match_hr(): boolean {
 		let i = this.#index;
 
-		// Must start at column 0 (no leading whitespace)
-		if (i < this.#template.length && this.#template.charCodeAt(i) === SPACE) {
+		// Must start at column 0 (beginning of input or after newline)
+		if (i > 0 && this.#template.charCodeAt(i - 1) !== NEWLINE) {
 			return false;
 		}
 
@@ -1515,8 +1514,8 @@ export class MdzParser {
 	#match_heading(): boolean {
 		let i = this.#index;
 
-		// Must start at column 0 (no leading whitespace)
-		if (i < this.#template.length && this.#template.charCodeAt(i) === SPACE) {
+		// Must start at column 0 (beginning of input or after newline)
+		if (i > 0 && this.#template.charCodeAt(i - 1) !== NEWLINE) {
 			return false;
 		}
 
@@ -1632,8 +1631,8 @@ export class MdzParser {
 	#match_code_block(): boolean {
 		let i = this.#index;
 
-		// Must start at column 0 (no leading whitespace)
-		if (i < this.#template.length && this.#template.charCodeAt(i) === SPACE) {
+		// Must start at column 0 (beginning of input or after newline)
+		if (i > 0 && this.#template.charCodeAt(i - 1) !== NEWLINE) {
 			return false;
 		}
 

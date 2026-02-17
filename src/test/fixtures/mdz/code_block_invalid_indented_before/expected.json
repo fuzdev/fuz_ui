@@ -1,9 +1,15 @@
 [
 	{
-		"type": "Codeblock",
-		"lang": null,
-		"content": "not a code block (indented before)",
-		"start": 1,
-		"end": 43
+		"type": "Paragraph",
+		"children": [
+			{
+				"type": "Text",
+				"content": " ```\nnot a code block (indented before)\n```\n",
+				"start": 0,
+				"end": 44
+			}
+		],
+		"start": 0,
+		"end": 44
 	}
 ]
