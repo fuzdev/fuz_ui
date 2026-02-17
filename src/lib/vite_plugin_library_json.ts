@@ -34,10 +34,11 @@
  * @module
  */
 
-import type {Plugin, ViteDevServer} from 'vite';
+import type {Plugin} from 'vite';
 import {readdir, readFile} from 'node:fs/promises';
 import {join} from 'node:path';
 import type {PackageJson} from '@fuzdev/fuz_util/package_json.js';
+import type {Logger} from '@fuzdev/fuz_util/log.js';
 
 import {
 	type SourceFileInfo,
@@ -94,7 +95,7 @@ export interface VitePluginLibraryJsonOptions {
  */
 export const library_collect_source_files_from_fs = async (
 	source_options: ModuleSourceOptions,
-	log?: {info: (...args: Array<unknown>) => void; warn: (...args: Array<unknown>) => void},
+	log?: Logger,
 ): Promise<Array<SourceFileInfo>> => {
 	const raw_files: Array<SourceFileInfo> = [];
 
@@ -134,7 +135,6 @@ export const vite_plugin_library_json = (options: VitePluginLibraryJsonOptions =
 	let project_root: string;
 	let source_options: ModuleSourceOptions;
 	let resolved_package_json_path: string;
-	let server: ViteDevServer | null = null;
 	let generated_module: string | null = null;
 	let hmr_timeout: ReturnType<typeof setTimeout> | null = null;
 
@@ -180,8 +180,6 @@ export const vite_plugin_library_json = (options: VitePluginLibraryJsonOptions =
 		},
 
 		configureServer(dev_server) {
-			server = dev_server;
-
 			const schedule_regenerate = (file: string): void => {
 				if (!module_is_source(file, source_options)) return;
 				if (hmr_timeout) clearTimeout(hmr_timeout);
@@ -191,11 +189,10 @@ export const vite_plugin_library_json = (options: VitePluginLibraryJsonOptions =
 						const new_module = await generate();
 						if (new_module === generated_module) return;
 						generated_module = new_module;
-						const mod = server!.moduleGraph.getModuleById(RESOLVED_VIRTUAL_ID);
+						const mod = dev_server.moduleGraph.getModuleById(RESOLVED_VIRTUAL_ID);
 						if (mod) {
-							server!.moduleGraph.invalidateModule(mod);
-							const hot = server?.hot ?? server!.ws;
-							hot.send({type: 'full-reload'});
+							dev_server.moduleGraph.invalidateModule(mod);
+							dev_server.hot.send({type: 'full-reload'});
 						}
 					} catch (error) {
 						dev_server.config.logger.error(`[library_json] regeneration failed: ${error}`);
