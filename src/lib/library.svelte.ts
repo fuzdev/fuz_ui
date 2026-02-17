@@ -1,8 +1,17 @@
 import type {LibraryJson} from '@fuzdev/fuz_util/library_json.js';
+import {ensure_start, strip_end} from '@fuzdev/fuz_util/string.js';
 
 import {create_context} from './context_helpers.js';
 import {Declaration} from './declaration.svelte.js';
 import {Module} from './module.svelte.js';
+
+/**
+ * Normalizes a URL prefix: ensures leading `/`, strips trailing `/`, returns `''` for falsy values.
+ */
+export const parse_library_url_prefix = (value: unknown): string => {
+	if (!value || typeof value !== 'string') return '';
+	return ensure_start(strip_end(value, '/'), '/');
+};
 
 /**
  * Rich runtime representation of a library.
@@ -74,7 +83,7 @@ export class Library {
 
 	constructor(library_json: LibraryJson, url_prefix = '') {
 		this.library_json = library_json;
-		this.url_prefix = url_prefix;
+		this.url_prefix = parse_library_url_prefix(url_prefix);
 	}
 
 	/**
