@@ -4295,6 +4295,13 @@
 								"type_signature": "LibraryJson"
 							},
 							{
+								"name": "url_prefix",
+								"kind": "variable",
+								"modifiers": ["readonly"],
+								"doc_comment": "URL path prefix for multi-package documentation sites.\nPrepended to `/docs/api/` paths in `Module.url_api` and `Declaration.url_api`.\nDefault `''` preserves single-package behavior.",
+								"type_signature": "string"
+							},
+							{
 								"name": "package_json",
 								"kind": "variable"
 							},
@@ -4370,11 +4377,16 @@
 							{
 								"name": "constructor",
 								"kind": "constructor",
-								"type_signature": "(library_json: LibraryJson): Library",
+								"type_signature": "(library_json: LibraryJson, url_prefix?: string): Library",
 								"parameters": [
 									{
 										"name": "library_json",
 										"type": "LibraryJson"
+									},
+									{
+										"name": "url_prefix",
+										"type": "string",
+										"default_value": "''"
 									}
 								]
 							},
@@ -4435,7 +4447,7 @@
 					{
 						"name": "library_context",
 						"kind": "variable",
-						"source_line": 101,
+						"source_line": 109,
 						"type_signature": "{ get: (error_message?: string | undefined) => Library; get_maybe: () => Library | undefined; set: (value: Library) => Library; }"
 					}
 				],

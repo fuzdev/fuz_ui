@@ -16,6 +16,13 @@ import {Module} from './module.svelte.js';
 export class Library {
 	readonly library_json: LibraryJson = $state.raw()!;
 
+	/**
+	 * URL path prefix for multi-package documentation sites.
+	 * Prepended to `/docs/api/` paths in `Module.url_api` and `Declaration.url_api`.
+	 * Default `''` preserves single-package behavior.
+	 */
+	readonly url_prefix: string;
+
 	package_json = $derived(this.library_json.package_json);
 	source_json = $derived(this.library_json.source_json);
 
@@ -65,8 +72,9 @@ export class Library {
 	 */
 	declaration_map = $derived(new Map(this.declarations.map((d) => [d.name, d])));
 
-	constructor(library_json: LibraryJson) {
+	constructor(library_json: LibraryJson, url_prefix = '') {
 		this.library_json = library_json;
+		this.url_prefix = url_prefix;
 	}
 
 	/**

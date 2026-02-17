@@ -1,5 +1,5 @@
 ---
-'@fuzdev/fuz_ui': patch
+'@fuzdev/fuz_ui': minor
 ---
 
-todo
+add `url_prefix` to `Library` for multi-package API docs
