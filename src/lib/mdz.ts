@@ -202,17 +202,21 @@ export class MdzParser {
 		while (this.#index < this.#template.length) {
 			// Peek for block element (read-only match), flush paragraph first, then parse.
 			// Flush must happen before parse because parse modifies accumulation state.
-			if (this.#peek_block_element()) {
-				this.#flush_paragraph(paragraph_children, root_nodes, true);
-				const block = this.#try_parse_block_element()!;
-				root_nodes.push(block);
+			const block_type = this.#peek_block_element();
+			if (block_type) {
+				const flushed = this.#flush_paragraph(paragraph_children, true);
+				if (flushed) root_nodes.push(flushed);
+				if (block_type === 'heading') root_nodes.push(this.#parse_heading());
+				else if (block_type === 'hr') root_nodes.push(this.#parse_hr());
+				else root_nodes.push(this.#parse_code_block());
 				this.#skip_newlines();
 				continue;
 			}
 
 			// Check for paragraph break (double newline)
 			if (this.#is_at_paragraph_break()) {
-				this.#flush_paragraph(paragraph_children, root_nodes, true);
+				const flushed = this.#flush_paragraph(paragraph_children, true);
+				if (flushed) root_nodes.push(flushed);
 				this.#skip_newlines();
 				continue;
 			}
@@ -232,7 +236,8 @@ export class MdzParser {
 		}
 
 		// Flush remaining content as final paragraph
-		this.#flush_paragraph(paragraph_children, root_nodes);
+		const final_paragraph = this.#flush_paragraph(paragraph_children);
+		if (final_paragraph) root_nodes.push(final_paragraph);
 
 		return root_nodes;
 	}
@@ -241,12 +246,10 @@ export class MdzParser {
 	 * Flush accumulated inline content as a paragraph node (or single tag).
 	 * When `trim_trailing` is true, trims trailing newlines from the last text node
 	 * (the line break before a block element or paragraph break).
+	 *
+	 * @mutates paragraph_children - trims last text node, removes whitespace-only nodes, clears array
 	 */
-	#flush_paragraph(
-		paragraph_children: Array<MdzNode>,
-		root_nodes: Array<MdzNode>,
-		trim_trailing = false,
-	): void {
+	#flush_paragraph(paragraph_children: Array<MdzNode>, trim_trailing = false): MdzNode | null {
 		this.#flush_text();
 		if (this.#nodes.length > 0) {
 			paragraph_children.push(...this.#nodes);
@@ -254,7 +257,7 @@ export class MdzParser {
 		}
 
 		if (paragraph_children.length === 0) {
-			return;
+			return null;
 		}
 
 		if (trim_trailing) {
@@ -276,31 +279,36 @@ export class MdzParser {
 			);
 			if (!has_content) {
 				paragraph_children.length = 0;
-				return;
+				return null;
 			}
 		}
 
-		if (this.#is_single_tag(paragraph_children)) {
-			// Single tag (component/element) - add directly without paragraph wrapper (MDX convention)
-			const tag = paragraph_children.find((n) => n.type === 'Component' || n.type === 'Element')!;
-			root_nodes.push(tag);
-		} else {
-			// Regular paragraph
-			root_nodes.push({
-				type: 'Paragraph',
-				children: paragraph_children.slice(),
-				start: paragraph_children[0]!.start,
-				end: paragraph_children[paragraph_children.length - 1]!.end,
-			});
+		// Single tag (component/element) - add directly without paragraph wrapper (MDX convention)
+		const single_tag = this.#extract_single_tag(paragraph_children);
+		if (single_tag) {
+			paragraph_children.length = 0;
+			return single_tag;
 		}
+
+		// Regular paragraph
+		const result: MdzParagraphNode = {
+			type: 'Paragraph',
+			children: paragraph_children.slice(),
+			start: paragraph_children[0]!.start,
+			end: paragraph_children[paragraph_children.length - 1]!.end,
+		};
 		paragraph_children.length = 0;
+		return result;
 	}
 
 	/**
 	 * Consume consecutive newline characters.
 	 */
 	#skip_newlines(): void {
-		while (this.#index < this.#template.length && this.#current_char() === NEWLINE) {
+		while (
+			this.#index < this.#template.length &&
+			this.#template.charCodeAt(this.#index) === NEWLINE
+		) {
 			this.#index++;
 		}
 	}
@@ -901,56 +909,38 @@ export class MdzParser {
 	}
 
 	/**
-	 * Check if nodes represent a single tag (component or element) with only whitespace text nodes.
-	 * Used to determine if paragraph wrapping should be skipped (MDX convention).
-	 * Returns true if there's exactly one Component/Element node and all other nodes are whitespace-only Text nodes.
+	 * Extract a single tag (component or element) if it's the only non-whitespace content.
+	 * Returns the tag node if paragraph wrapping should be skipped (MDX convention),
+	 * or null if the content should be wrapped in a paragraph.
 	 */
-	#is_single_tag(nodes: Array<MdzNode>): boolean {
-		let found_tag = false;
+	#extract_single_tag(nodes: Array<MdzNode>): MdzComponentNode | MdzElementNode | null {
+		let tag: MdzComponentNode | MdzElementNode | null = null;
 
 		for (const node of nodes) {
 			if (node.type === 'Component' || node.type === 'Element') {
-				if (found_tag) return false; // Multiple tags
-				found_tag = true;
+				if (tag) return null; // Multiple tags
+				tag = node;
 			} else if (node.type === 'Text') {
 				// Allow only whitespace-only text nodes
-				if (node.content.trim() !== '') return false;
+				if (node.content.trim() !== '') return null;
 			} else {
 				// Any other node type means not a single tag
-				return false;
+				return null;
 			}
 		}
 
-		return found_tag;
+		return tag;
 	}
 
 	/**
 	 * Read-only check if current position matches a block element.
 	 * Does not modify parser state — used to peek before flushing paragraph.
+	 * Returns which block type matched, or null if none.
 	 */
-	#peek_block_element(): boolean {
-		return this.#match_heading() || this.#match_hr() || this.#match_code_block();
-	}
-
-	/**
-	 * Try to parse a block element (heading, hr, or codeblock) at current position.
-	 * Returns the parsed block node if a match is found, null otherwise.
-	 *
-	 * Block elements must start at column 0 (no leading whitespace) and be followed
-	 * by newline or EOF. They can interrupt paragraphs (no blank lines required),
-	 * following CommonMark/GFM conventions.
-	 *
-	 * IMPORTANT: Caller must flush paragraph content before calling this,
-	 * because parse functions modify the text accumulation state.
-	 */
-	#try_parse_block_element(): MdzHeadingNode | MdzHrNode | MdzCodeblockNode | null {
-		if (this.#match_heading()) {
-			return this.#parse_heading();
-		} else if (this.#match_hr()) {
-			return this.#parse_hr();
-		} else if (this.#match_code_block()) {
-			return this.#parse_code_block();
-		}
+	#peek_block_element(): 'heading' | 'hr' | 'codeblock' | null {
+		if (this.#match_heading()) return 'heading';
+		if (this.#match_hr()) return 'hr';
+		if (this.#match_code_block()) return 'codeblock';
 		return null;
 	}
 
@@ -1328,13 +1318,16 @@ export class MdzParser {
 				break;
 			}
 
-			// Stop before newline when next line could start a block element,
-			// so the main loop can try block detection at column 0
+			// When next line could start a block element, consume the newline and stop.
+			// The main loop will try block detection at the next character.
+			// Consuming the newline here avoids a 3-iteration detour (break before \n,
+			// fail peek at \n, safety-increment, then succeed peek at block char).
 			if (char_code === NEWLINE) {
 				const next_i = this.#index + 1;
 				if (next_i < this.#template.length) {
 					const next_char = this.#template.charCodeAt(next_i);
 					if (next_char === HASH || next_char === HYPHEN || next_char === BACKTICK) {
+						this.#index++; // consume the newline
 						break;
 					}
 				}
