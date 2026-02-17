@@ -40,7 +40,7 @@ export class Declaration {
 	/**
 	 * API documentation URL.
 	 */
-	url_api = $derived(`/docs/api/${this.module_path}#${this.name}`);
+	url_api = $derived(`/docs/api${this.library.url_prefix}/${this.module_path}#${this.name}`);
 
 	/**
 	 * Generated TypeScript import statement.

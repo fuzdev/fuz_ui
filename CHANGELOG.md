@@ -1,5 +1,15 @@
 # @fuzdev/fuz_ui
 
+## 0.184.0
+
+### Minor Changes
+
+- add `url_prefix` to `Library` for multi-package API docs ([#114](https://github.com/fuzdev/fuz_ui/pull/114))
+
+### Patch Changes
+
+- add `parse_library_url_prefix` ([#114](https://github.com/fuzdev/fuz_ui/pull/114))
+
 ## 0.183.2
 
 ### Patch Changes
