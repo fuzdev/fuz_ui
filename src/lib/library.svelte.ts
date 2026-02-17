@@ -6,7 +6,7 @@ import {Declaration} from './declaration.svelte.js';
 import {Module} from './module.svelte.js';
 
 /**
- * Normalizes a URL prefix: ensures leading `/`, strips trailing `/`, returns `''` for falsy values.
+ * Normalizes a URL prefix: ensures leading `/`, strips trailing `/`, returns `''` for falsy and non-string values.
  */
 export const parse_library_url_prefix = (value: unknown): string => {
 	if (!value || typeof value !== 'string') return '';

@@ -4281,7 +4281,7 @@
 					{
 						"name": "parse_library_url_prefix",
 						"kind": "function",
-						"doc_comment": "Normalizes a URL prefix: ensures leading `/`, strips trailing `/`, returns `''` for falsy values.",
+						"doc_comment": "Normalizes a URL prefix: ensures leading `/`, strips trailing `/`, returns `''` for falsy and non-string values.",
 						"source_line": 11,
 						"type_signature": "(value: unknown): string",
 						"return_type": "string",
