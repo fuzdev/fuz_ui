@@ -1,8 +1,17 @@
 import type {LibraryJson} from '@fuzdev/fuz_util/library_json.js';
+import {ensure_start, strip_end} from '@fuzdev/fuz_util/string.js';
 
 import {create_context} from './context_helpers.js';
 import {Declaration} from './declaration.svelte.js';
 import {Module} from './module.svelte.js';
+
+/**
+ * Normalizes a URL prefix: ensures leading `/`, strips trailing `/`, returns `''` for falsy and non-string values.
+ */
+export const parse_library_url_prefix = (value: unknown): string => {
+	if (!value || typeof value !== 'string') return '';
+	return ensure_start(strip_end(value, '/'), '/');
+};
 
 /**
  * Rich runtime representation of a library.
@@ -15,6 +24,13 @@ import {Module} from './module.svelte.js';
  */
 export class Library {
 	readonly library_json: LibraryJson = $state.raw()!;
+
+	/**
+	 * URL path prefix for multi-package documentation sites.
+	 * Prepended to `/docs/api/` paths in `Module.url_api` and `Declaration.url_api`.
+	 * Default `''` preserves single-package behavior.
+	 */
+	readonly url_prefix: string;
 
 	package_json = $derived(this.library_json.package_json);
 	source_json = $derived(this.library_json.source_json);
@@ -65,8 +81,9 @@ export class Library {
 	 */
 	declaration_map = $derived(new Map(this.declarations.map((d) => [d.name, d])));
 
-	constructor(library_json: LibraryJson) {
+	constructor(library_json: LibraryJson, url_prefix = '') {
 		this.library_json = library_json;
+		this.url_prefix = parse_library_url_prefix(url_prefix);
 	}
 
 	/**
