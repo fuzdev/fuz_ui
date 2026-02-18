@@ -14,15 +14,9 @@
 				],
 				"start": 0,
 				"end": 28
-			},
-			{
-				"type": "Text",
-				"content": "\n",
-				"start": 28,
-				"end": 29
 			}
 		],
 		"start": 0,
-		"end": 29
+		"end": 28
 	}
 ]

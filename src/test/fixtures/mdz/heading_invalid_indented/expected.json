@@ -4,12 +4,12 @@
 		"children": [
 			{
 				"type": "Text",
-				"content": " # Leading space\n",
+				"content": " # Leading space",
 				"start": 0,
-				"end": 17
+				"end": 16
 			}
 		],
 		"start": 0,
-		"end": 17
+		"end": 16
 	}
 ]

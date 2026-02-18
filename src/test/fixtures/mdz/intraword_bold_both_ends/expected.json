@@ -17,12 +17,12 @@
 			},
 			{
 				"type": "Text",
-				"content": "bar**\n",
+				"content": "bar**",
 				"start": 7,
-				"end": 13
+				"end": 12
 			}
 		],
 		"start": 0,
-		"end": 13
+		"end": 12
 	}
 ]

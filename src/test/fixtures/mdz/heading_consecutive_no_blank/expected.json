@@ -1,0 +1,30 @@
+[
+	{
+		"type": "Heading",
+		"level": 1,
+		"children": [
+			{
+				"type": "Text",
+				"content": "First heading",
+				"start": 2,
+				"end": 15
+			}
+		],
+		"start": 0,
+		"end": 15
+	},
+	{
+		"type": "Heading",
+		"level": 2,
+		"children": [
+			{
+				"type": "Text",
+				"content": "Second heading",
+				"start": 19,
+				"end": 33
+			}
+		],
+		"start": 16,
+		"end": 33
+	}
+]

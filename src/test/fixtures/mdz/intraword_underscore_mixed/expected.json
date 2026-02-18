@@ -23,12 +23,12 @@
 			},
 			{
 				"type": "Text",
-				"content": " and snake_case_name\n",
+				"content": " and snake_case_name",
 				"start": 15,
-				"end": 36
+				"end": 35
 			}
 		],
 		"start": 0,
-		"end": 36
+		"end": 35
 	}
 ]

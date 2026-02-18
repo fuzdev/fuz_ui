@@ -17,12 +17,12 @@
 		"children": [
 			{
 				"type": "Text",
-				"content": "unopened strikethrough~\n",
+				"content": "unopened strikethrough~",
 				"start": 25,
-				"end": 49
+				"end": 48
 			}
 		],
 		"start": 25,
-		"end": 49
+		"end": 48
 	}
 ]

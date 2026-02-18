@@ -5,18 +5,5 @@
 		"content": "\n",
 		"start": 0,
 		"end": 9
-	},
-	{
-		"type": "Paragraph",
-		"children": [
-			{
-				"type": "Text",
-				"content": "\n",
-				"start": 9,
-				"end": 10
-			}
-		],
-		"start": 9,
-		"end": 10
 	}
 ]

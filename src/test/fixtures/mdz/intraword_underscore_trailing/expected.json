@@ -4,12 +4,12 @@
 		"children": [
 			{
 				"type": "Text",
-				"content": "foo_bar_\n",
+				"content": "foo_bar_",
 				"start": 0,
-				"end": 9
+				"end": 8
 			}
 		],
 		"start": 0,
-		"end": 9
+		"end": 8
 	}
 ]

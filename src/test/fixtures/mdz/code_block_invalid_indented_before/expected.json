@@ -4,12 +4,12 @@
 		"children": [
 			{
 				"type": "Text",
-				"content": " ```\nnot a code block (indented before)\n```\n",
+				"content": " ```\nnot a code block (indented before)\n```",
 				"start": 0,
-				"end": 44
+				"end": 43
 			}
 		],
 		"start": 0,
-		"end": 44
+		"end": 43
 	}
 ]

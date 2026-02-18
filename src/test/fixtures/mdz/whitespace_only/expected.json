@@ -1,15 +1,1 @@
-[
-	{
-		"type": "Paragraph",
-		"children": [
-			{
-				"type": "Text",
-				"content": "\n",
-				"start": 0,
-				"end": 1
-			}
-		],
-		"start": 0,
-		"end": 1
-	}
-]
+[]

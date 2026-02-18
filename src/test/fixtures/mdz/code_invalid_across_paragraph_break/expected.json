@@ -17,12 +17,12 @@
 		"children": [
 			{
 				"type": "Text",
-				"content": "unopened code`\n",
+				"content": "unopened code`",
 				"start": 16,
-				"end": 31
+				"end": 30
 			}
 		],
 		"start": 16,
-		"end": 31
+		"end": 30
 	}
 ]

@@ -4,12 +4,12 @@
 		"children": [
 			{
 				"type": "Text",
-				"content": "text with `code that\nspans lines` more text\n",
+				"content": "text with `code that\nspans lines` more text",
 				"start": 0,
-				"end": 44
+				"end": 43
 			}
 		],
 		"start": 0,
-		"end": 44
+		"end": 43
 	}
 ]

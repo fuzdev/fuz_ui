@@ -22,12 +22,12 @@
 		"children": [
 			{
 				"type": "Text",
-				"content": "Bold ends**\n",
+				"content": "Bold ends**",
 				"start": 20,
-				"end": 32
+				"end": 31
 			}
 		],
 		"start": 20,
-		"end": 32
+		"end": 31
 	}
 ]

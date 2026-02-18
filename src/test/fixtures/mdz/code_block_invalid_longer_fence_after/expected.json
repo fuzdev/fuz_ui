@@ -4,12 +4,12 @@
 		"children": [
 			{
 				"type": "Text",
-				"content": "```\ncode\n````\n",
+				"content": "```\ncode\n````",
 				"start": 0,
-				"end": 14
+				"end": 13
 			}
 		],
 		"start": 0,
-		"end": 14
+		"end": 13
 	}
 ]

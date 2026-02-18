@@ -18,18 +18,5 @@
 		"content": "code at end",
 		"start": 19,
 		"end": 38
-	},
-	{
-		"type": "Paragraph",
-		"children": [
-			{
-				"type": "Text",
-				"content": "\n",
-				"start": 38,
-				"end": 39
-			}
-		],
-		"start": 38,
-		"end": 39
 	}
 ]

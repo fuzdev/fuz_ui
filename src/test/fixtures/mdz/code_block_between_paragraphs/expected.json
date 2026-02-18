@@ -24,12 +24,12 @@
 		"children": [
 			{
 				"type": "Text",
-				"content": "Second paragraph.\n",
+				"content": "Second paragraph.",
 				"start": 38,
-				"end": 56
+				"end": 55
 			}
 		],
 		"start": 38,
-		"end": 56
+		"end": 55
 	}
 ]
