@@ -6,7 +6,6 @@
   "glyph": "🧶",
   "logo": "logo.svg",
   "logo_alt": "a friendly brown spider facing you",
-  "public": true,
   "license": "MIT",
   "homepage": "https://ui.fuz.dev/",
   "author": {
@@ -76,7 +75,7 @@
   "devDependencies": {
     "@changesets/changelog-git": "^0.2.1",
     "@fuzdev/fuz_code": "^0.45.1",
-    "@fuzdev/fuz_css": "^0.51.0",
+    "@fuzdev/fuz_css": "^0.52.0",
     "@fuzdev/fuz_util": "^0.50.1",
     "@fuzdev/gro": "^0.194.0",
     "@jridgewell/trace-mapping": "^0.3.31",

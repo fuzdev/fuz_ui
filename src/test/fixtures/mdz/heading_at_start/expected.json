@@ -18,12 +18,12 @@
 		"children": [
 			{
 				"type": "Text",
-				"content": "First paragraph after heading.\n",
+				"content": "First paragraph after heading.",
 				"start": 29,
-				"end": 60
+				"end": 59
 			}
 		],
 		"start": 29,
-		"end": 60
+		"end": 59
 	}
 ]

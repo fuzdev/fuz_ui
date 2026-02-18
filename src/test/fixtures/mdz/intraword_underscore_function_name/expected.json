@@ -4,12 +4,12 @@
 		"children": [
 			{
 				"type": "Text",
-				"content": "function_name_with_underscores\n",
+				"content": "function_name_with_underscores",
 				"start": 0,
-				"end": 31
+				"end": 30
 			}
 		],
 		"start": 0,
-		"end": 31
+		"end": 30
 	}
 ]

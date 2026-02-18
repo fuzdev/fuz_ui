@@ -10,9 +10,9 @@ For a high-level introduction, see `mdz.mdz`. For formal grammar rules, see `mdz
 
 ## Design Philosophy
 
-mdz prioritizes _predictability_ over _flexibility_. It follows these principles:
+mdz prioritizes _predictability_ with one canonical pattern per feature, preferring false negatives over false positives to minimize surprise.
 
-**False negatives over false positives** - strict syntax prevents accidentally interpreting plain text as formatting.
+**False negatives over false positives** - when in doubt, treat as plain text. Block elements can interrupt paragraphs without blank lines; inline formatting is strict.
 
 **One way to do things** - single unambiguous syntax per feature, no alternatives.
 
@@ -274,9 +274,7 @@ Use 1-6 hashes followed by a space and content:
 - Must have exactly 1-6 `#` characters
 - Must have space after hashes
 - Must have non-whitespace content after space
-- Must be followed by blank line or EOF
-
-The column-0 requirement is a key differentiator from CommonMark - mdz requires block elements to start at the line beginning for unambiguous parsing.
+- Must be followed by newline or EOF
 
 **Invalid patterns:**
 
@@ -310,7 +308,7 @@ Section two.
 - Must be exactly 3 hyphens (not 2, not 4+)
 - **Must start at column 0** (no leading whitespace) - indented `---` is treated as literal text
 - Trailing whitespace allowed
-- Must be followed by blank line or EOF
+- Must be followed by newline or EOF
 
 **Invalid patterns:**
 
@@ -361,7 +359,7 @@ The inner ` ``` ` does not close the outer ```` fence.
 - Opening fence must have 3+ backticks
 - Closing fence must match opening length
 - Opening fence followed by newline
-- Closing fence followed by blank line or EOF
+- Closing fence followed by newline or EOF
 - Cannot be empty (must have content)
 
 Like all mdz block elements, the strict column-0 requirement distinguishes codeblocks from inline code and prevents ambiguity.
@@ -527,13 +525,13 @@ mdz deliberately diverges from CommonMark and GitHub Flavored Markdown to minimi
 | Strikethrough        | Not in CommonMark, `~~text~~` in GFM  | `~text~` with word boundaries                               |
 | Horizontal rule      | `---`, `***`, `___`, variable lengths | `---` exactly (3 hyphens)                                   |
 | Indented code        | 4 spaces creates codeblock            | NOT supported                                               |
-| Codeblock indent     | Can be indented                       | Must be column 0                                            |
+| Block indent         | Up to 3 spaces allowed                | Must be column 0 (all block elements)                       |
 | Heading no space     | `#text` valid                         | Invalid (space required)                                    |
-| Block spacing        | Flexible                              | Requires blank lines                                        |
+| Setext headings      | `text\n---` = `<h2>`                  | NOT supported (`---` always = HR)                           |
 
 **Rationale:**
 
-Strict syntax with one canonical way per feature reduces cognitive load and makes mdz more predictable for nontechnical users.
+One canonical syntax per feature reduces cognitive load, and stricter inline formatting rules minimize false positives for nontechnical users. mdz has no setext headings, so `---` after a paragraph always creates a horizontal rule (unlike CommonMark where it becomes an `<h2>` setext heading).
 
 ---
 

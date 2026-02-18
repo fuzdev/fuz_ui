@@ -26,7 +26,7 @@ Rule1 Rule2           `#` SPACE _Text_              Sequence of rules in order
 ~[ ]                  ~[`\n`]                       Any character except those listed
 ( )                   (`*` _InlineNode_)?           Groups items
 <column 0>            <must start at column 0>      Special constraint
-<followed by>         <followed by blank line>      Lookahead constraint
+<followed by>         <followed by newline or EOF>  Lookahead constraint
 ```
 
 Sequences have higher precedence than `|` alternation.
@@ -203,7 +203,7 @@ mdz content may be rendered at different URLs than where the source file lives. 
 ## Headings
 
 ```
-_Heading_ = <column 0> _HeadingMarker_ SPACE _HeadingContent_ <followed by blank line or EOF>
+_Heading_ = <column 0> _HeadingMarker_ SPACE _HeadingContent_ <followed by newline or EOF>
 
 _HeadingMarker_ = `#`{1..6}
 
@@ -216,7 +216,7 @@ Must start at column 0 (no leading whitespace).
 Must have exactly 1-6 `#` characters.
 Must have at least one space after the hashes.
 Must have non-whitespace content after the space.
-Must be followed by a blank line or end of file.
+Must be followed by a newline or end of file.
 
 **Invalid patterns:**
 
@@ -234,7 +234,7 @@ Heading content can include any inline formatting: `## **Bold** and _italic_`
 ## Horizontal Rules
 
 ```
-_HorizontalRule_ = <column 0> `---` SPACE* <followed by blank line or EOF>
+_HorizontalRule_ = <column 0> `---` SPACE* <followed by newline or EOF>
 ```
 
 **Requirements:**
@@ -242,7 +242,7 @@ _HorizontalRule_ = <column 0> `---` SPACE* <followed by blank line or EOF>
 Must be exactly 3 hyphens (not 2, not 4 or more).
 Must start at column 0 (no leading whitespace).
 Trailing spaces allowed after the three hyphens.
-Must be followed by a blank line or end of file.
+Must be followed by a newline or end of file.
 
 **Invalid patterns:**
 
@@ -255,12 +255,14 @@ Must be followed by a blank line or end of file.
 
 Other markdown flavors support `***`, `___`, or variable numbers of hyphens. mdz requires exactly `---` to avoid ambiguity and maintain the "one way to do things" principle.
 
+mdz has no setext headings, so `---` after a paragraph is always a horizontal rule (unlike CommonMark where `text\n---` becomes an `<h2>` setext heading). This makes `---` unambiguous in all contexts.
+
 ---
 
 ## Codeblocks
 
 ```
-_Codeblock_ = <column 0> _OpenFence_ NEWLINE _CodeContent_ _CloseFence_ <followed by blank line or EOF>
+_Codeblock_ = <column 0> _OpenFence_ NEWLINE _CodeContent_ _CloseFence_ <followed by newline or EOF>
 
 _OpenFence_  = BACKTICK{3..} _LanguageHint_?
 _CloseFence_ = BACKTICK{n}
@@ -279,7 +281,7 @@ Opening fence must start at column 0 (no leading whitespace).
 Opening fence must have 3 or more backticks.
 Closing fence must exactly match opening fence length.
 Opening fence must be followed by newline.
-Closing fence must be followed by blank line or EOF.
+Closing fence must be followed by newline or EOF.
 Codeblocks cannot be empty (must have at least one line of content).
 
 **Language hints:**
