@@ -24,12 +24,12 @@
 		"children": [
 			{
 				"type": "Text",
-				"content": "Bold ends**\n",
+				"content": "Bold ends**",
 				"start": 29,
-				"end": 41
+				"end": 40
 			}
 		],
 		"start": 29,
-		"end": 41
+		"end": 40
 	}
 ]

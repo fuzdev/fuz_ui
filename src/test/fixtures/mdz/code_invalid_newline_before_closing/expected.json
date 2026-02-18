@@ -4,12 +4,12 @@
 		"children": [
 			{
 				"type": "Text",
-				"content": "`invalid code with newline\n`\n",
+				"content": "`invalid code with newline\n`",
 				"start": 0,
-				"end": 29
+				"end": 28
 			}
 		],
 		"start": 0,
-		"end": 29
+		"end": 28
 	}
 ]

@@ -25,12 +25,12 @@
 			},
 			{
 				"type": "Text",
-				"content": "`foo for info.\n",
+				"content": "`foo for info.",
 				"start": 24,
-				"end": 39
+				"end": 38
 			}
 		],
 		"start": 0,
-		"end": 39
+		"end": 38
 	}
 ]

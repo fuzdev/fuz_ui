@@ -5,18 +5,5 @@
 		"content": "const x: number = 42;",
 		"start": 0,
 		"end": 31
-	},
-	{
-		"type": "Paragraph",
-		"children": [
-			{
-				"type": "Text",
-				"content": "\n",
-				"start": 31,
-				"end": 32
-			}
-		],
-		"start": 31,
-		"end": 32
 	}
 ]

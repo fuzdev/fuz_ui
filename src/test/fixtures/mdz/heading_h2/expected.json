@@ -12,18 +12,5 @@
 		],
 		"start": 0,
 		"end": 18
-	},
-	{
-		"type": "Paragraph",
-		"children": [
-			{
-				"type": "Text",
-				"content": "\n",
-				"start": 18,
-				"end": 19
-			}
-		],
-		"start": 18,
-		"end": 19
 	}
 ]

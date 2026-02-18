@@ -17,12 +17,12 @@
 		"children": [
 			{
 				"type": "Text",
-				"content": "\nparagraph 2\n",
-				"start": 13,
-				"end": 26
+				"content": "paragraph 2",
+				"start": 14,
+				"end": 25
 			}
 		],
-		"start": 13,
-		"end": 26
+		"start": 14,
+		"end": 25
 	}
 ]

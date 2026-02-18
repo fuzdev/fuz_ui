@@ -292,8 +292,8 @@ contexts for navigation.
 
 - **Early alpha** - API will change
 - **SvelteKit dependency** - Some components require SvelteKit
-- **Fixture tests** - Never manually edit `expected.json` files; create inputs
-  and run `gro src/test/fixtures/update` to regenerate
+- **Fixture tests** - Never manually edit `expected.json` (see Fixture tests
+  section below)
 - **Contextmenu focus** - APG-compliant focus management not yet implemented
 - **Color optimization** - Build-time color optimization not implemented
 
@@ -304,8 +304,7 @@ contexts for navigation.
 - Prettier with tabs, 100 char width
 - Node >= 22.15
 - Tests in `src/test/` (not co-located)
-- Fixture-based tests: input file + `expected.json`, regenerate with
-  `gro src/test/fixtures/update`
+- Fixture-based tests (see below)
 
 ### Code style
 
@@ -314,6 +313,46 @@ contexts for navigation.
 - Explicit file extensions in imports
 - JSDoc comments use proper sentences with periods; inline comments can be
   fragments without capitals
+
+## Fixture tests
+
+Fixture-based tests compare parser/analyzer output against expected JSON.
+Each fixture is a directory with an input file and `expected.json`.
+
+**Never manually edit `expected.json`** — create or modify input files and
+regenerate with update tasks.
+
+### Fixture categories
+
+| Category                          | Input file     | Tests                               |
+| --------------------------------- | -------------- | ----------------------------------- |
+| `fixtures/mdz/`                   | `input.mdz`    | mdz parser (`mdz_parse`)            |
+| `fixtures/tsdoc/`                 | `input.ts`     | TSDoc/JSDoc parsing (`tsdoc_parse`) |
+| `fixtures/ts/`                    | `input.ts`     | TypeScript declaration analysis     |
+| `fixtures/svelte/`                | `input.svelte` | Svelte component analysis           |
+| `fixtures/svelte_preprocess_mdz/` | `input.svelte` | mdz preprocessor transforms         |
+
+### Regenerating fixtures
+
+```bash
+gro src/test/fixtures/update                        # all categories
+gro src/test/fixtures/mdz/update                    # mdz only
+gro src/test/fixtures/svelte_preprocess_mdz/update  # preprocessor only
+gro src/test/fixtures/tsdoc/update                  # tsdoc only
+gro src/test/fixtures/ts/update                     # ts only
+gro src/test/fixtures/svelte/update                 # svelte only
+```
+
+### Adding a fixture
+
+1. Create a new directory under the appropriate category (e.g.
+   `fixtures/mdz/my_new_case/`)
+2. Add the input file (`input.mdz`, `input.ts`, or `input.svelte`)
+3. Run the category's update task to generate `expected.json`
+4. Run `gro test` to verify
+
+For `svelte_preprocess_mdz` fixtures, input files with fake imports need
+`// @ts-nocheck` in the script block.
 
 ## Related projects
 
