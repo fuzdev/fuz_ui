@@ -1,5 +1,16 @@
 # @fuzdev/fuz_ui
 
+## 0.185.0
+
+### Minor Changes
+
+- loosen mdz block detection: headings, HR, and codeblocks no longer require blank line separators and can interrupt paragraphs ([#112](https://github.com/fuzdev/fuz_ui/pull/112))
+- upgrade peer deps ([d4e7d54](https://github.com/fuzdev/fuz_ui/commit/d4e7d54))
+
+### Patch Changes
+
+- remove `"public": true` from `package.json` ([#112](https://github.com/fuzdev/fuz_ui/pull/112))
+
 ## 0.184.0
 
 ### Minor Changes
