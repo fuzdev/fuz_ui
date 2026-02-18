@@ -45,10 +45,10 @@
 			"node": ">=22.15"
 		},
 		"peerDependencies": {
-			"@fuzdev/fuz_code": ">=0.45.0",
-			"@fuzdev/fuz_css": ">=0.47.0",
-			"@fuzdev/fuz_util": ">=0.50.1",
-			"@fuzdev/gro": ">=0.192.0",
+			"@fuzdev/fuz_code": ">=0.45.1",
+			"@fuzdev/fuz_css": ">=0.53.0",
+			"@fuzdev/fuz_util": ">=0.52.0",
+			"@fuzdev/gro": ">=0.195.0",
 			"@jridgewell/trace-mapping": "^0.3",
 			"@sveltejs/kit": "^2.47.3",
 			"@types/estree": "^1",
@@ -86,9 +86,9 @@
 		"devDependencies": {
 			"@changesets/changelog-git": "^0.2.1",
 			"@fuzdev/fuz_code": "^0.45.1",
-			"@fuzdev/fuz_css": "^0.52.0",
-			"@fuzdev/fuz_util": "^0.50.1",
-			"@fuzdev/gro": "^0.194.0",
+			"@fuzdev/fuz_css": "^0.53.0",
+			"@fuzdev/fuz_util": "^0.52.0",
+			"@fuzdev/gro": "^0.195.0",
 			"@jridgewell/trace-mapping": "^0.3.31",
 			"@ryanatkn/eslint-config": "^0.9.0",
 			"@sveltejs/adapter-static": "^3.0.10",
@@ -2419,7 +2419,7 @@
 							{
 								"name": "constructor",
 								"kind": "constructor",
-								"type_signature": "(module: Module, declaration_json: { [x: string]: unknown; name: string; kind: \"function\" | \"type\" | \"json\" | \"variable\" | \"class\" | \"constructor\" | \"component\" | \"css\"; doc_comment?: string | undefined; ... 18 more ...; alias_of?: { ...; } | undefined; }): Declaration",
+								"type_signature": "(module: Module, declaration_json: { [x: string]: unknown; name: string; kind: \"function\" | \"json\" | \"type\" | \"variable\" | \"class\" | \"constructor\" | \"component\" | \"css\"; doc_comment?: string | undefined; ... 19 more ...; alias_of?: { ...; } | undefined; }): Declaration",
 								"parameters": [
 									{
 										"name": "module",
@@ -2427,7 +2427,7 @@
 									},
 									{
 										"name": "declaration_json",
-										"type": "{ [x: string]: unknown; name: string; kind: \"function\" | \"type\" | \"json\" | \"variable\" | \"class\" | \"constructor\" | \"component\" | \"css\"; doc_comment?: string | undefined; type_signature?: string | undefined; ... 17 more ...; alias_of?: { ...; } | undefined; }"
+										"type": "{ [x: string]: unknown; name: string; kind: \"function\" | \"json\" | \"type\" | \"variable\" | \"class\" | \"constructor\" | \"component\" | \"css\"; doc_comment?: string | undefined; type_signature?: string | undefined; ... 18 more ...; alias_of?: { ...; } | undefined; }"
 									}
 								]
 							}
@@ -4136,7 +4136,7 @@
 							},
 							{
 								"name": "source_json",
-								"type": "{ [x: string]: unknown; name: string; version: string; modules?: { [x: string]: unknown; path: string; declarations?: { [x: string]: unknown; name: string; kind: \"function\" | \"type\" | \"json\" | \"variable\" | \"class\" | \"constructor\" | \"component\" | \"css\"; ... 19 more ...; alias_of?: { ...; } | undefined; }[] | undefine..."
+								"type": "{ [x: string]: unknown; name: string; version: string; modules?: { [x: string]: unknown; path: string; declarations?: { [x: string]: unknown; name: string; kind: \"function\" | \"json\" | \"type\" | \"variable\" | \"class\" | \"constructor\" | \"component\" | \"css\"; ... 20 more ...; alias_of?: { ...; } | undefined; }[] | undefine..."
 							}
 						]
 					}
@@ -4176,12 +4176,12 @@
 							"const duplicates = library_find_duplicates(source_json);\nif (duplicates.size > 0) {\n  for (const [name, occurrences] of duplicates) {\n    console.error(`\"${name}\" found in:`);\n    for (const {declaration, module} of occurrences) {\n      console.error(`  - ${module}:${declaration.source_line} (${declaration.kind})`);\n    }\n  }\n  throw new Error(`Found ${duplicates.size} duplicate declaration names`);\n}"
 						],
 						"source_line": 62,
-						"type_signature": "(source_json: { [x: string]: unknown; name: string; version: string; modules?: { [x: string]: unknown; path: string; declarations?: { [x: string]: unknown; name: string; kind: \"function\" | \"type\" | \"json\" | \"variable\" | \"class\" | \"constructor\" | \"component\" | \"css\"; ... 19 more ...; alias_of?: { ...; } | undefined; }[] | undefined; module_comment?: string | undefined; dependencies?: string[] | undefined; dependents?: string[] | undefined; star_exports?: string[] | undefined; }[] | undefined; }): Map<...>",
+						"type_signature": "(source_json: { [x: string]: unknown; name: string; version: string; modules?: { [x: string]: unknown; path: string; declarations?: { [x: string]: unknown; name: string; kind: \"function\" | \"json\" | \"type\" | \"variable\" | \"class\" | \"constructor\" | \"component\" | \"css\"; ... 20 more ...; alias_of?: { ...; } | undefined; }[] | undefined; module_comment?: string | undefined; dependencies?: string[] | undefined; dependents?: string[] | undefined; star_exports?: string[] | undefined; }[] | undefined; }): Map<...>",
 						"return_type": "Map<string, DuplicateInfo[]>",
 						"parameters": [
 							{
 								"name": "source_json",
-								"type": "{ [x: string]: unknown; name: string; version: string; modules?: { [x: string]: unknown; path: string; declarations?: { [x: string]: unknown; name: string; kind: \"function\" | \"type\" | \"json\" | \"variable\" | \"class\" | \"constructor\" | \"component\" | \"css\"; ... 19 more ...; alias_of?: { ...; } | undefined; }[] | undefine..."
+								"type": "{ [x: string]: unknown; name: string; version: string; modules?: { [x: string]: unknown; path: string; declarations?: { [x: string]: unknown; name: string; kind: \"function\" | \"json\" | \"type\" | \"variable\" | \"class\" | \"constructor\" | \"component\" | \"css\"; ... 20 more ...; alias_of?: { ...; } | undefined; }[] | undefine..."
 							}
 						]
 					},
@@ -4190,12 +4190,12 @@
 						"kind": "function",
 						"doc_comment": "Sort modules alphabetically by path for deterministic output and cleaner diffs.",
 						"source_line": 95,
-						"type_signature": "(modules: { [x: string]: unknown; path: string; declarations?: { [x: string]: unknown; name: string; kind: \"function\" | \"type\" | \"json\" | \"variable\" | \"class\" | \"constructor\" | \"component\" | \"css\"; doc_comment?: string | undefined; ... 18 more ...; alias_of?: { ...; } | undefined; }[] | undefined; module_comment?: string | undefined; dependencies?: string[] | undefined; dependents?: string[] | undefined; star_exports?: string[] | undefined; }[]): { ...; }[]",
-						"return_type": "{ [x: string]: unknown; path: string; declarations?: { [x: string]: unknown; name: string; kind: \"function\" | \"type\" | \"json\" | \"variable\" | \"class\" | \"constructor\" | \"component\" | \"css\"; doc_comment?: string | undefined; ... 18 more ...; alias_of?: { ...; } | undefined; }[] | undefined; module_comment?: string | un...",
+						"type_signature": "(modules: { [x: string]: unknown; path: string; declarations?: { [x: string]: unknown; name: string; kind: \"function\" | \"json\" | \"type\" | \"variable\" | \"class\" | \"constructor\" | \"component\" | \"css\"; doc_comment?: string | undefined; ... 19 more ...; alias_of?: { ...; } | undefined; }[] | undefined; module_comment?: string | undefined; dependencies?: string[] | undefined; dependents?: string[] | undefined; star_exports?: string[] | undefined; }[]): { ...; }[]",
+						"return_type": "{ [x: string]: unknown; path: string; declarations?: { [x: string]: unknown; name: string; kind: \"function\" | \"json\" | \"type\" | \"variable\" | \"class\" | \"constructor\" | \"component\" | \"css\"; doc_comment?: string | undefined; ... 19 more ...; alias_of?: { ...; } | undefined; }[] | undefined; module_comment?: string | un...",
 						"parameters": [
 							{
 								"name": "modules",
-								"type": "{ [x: string]: unknown; path: string; declarations?: { [x: string]: unknown; name: string; kind: \"function\" | \"type\" | \"json\" | \"variable\" | \"class\" | \"constructor\" | \"component\" | \"css\"; doc_comment?: string | undefined; ... 18 more ...; alias_of?: { ...; } | undefined; }[] | undefined; module_comment?: string | un..."
+								"type": "{ [x: string]: unknown; path: string; declarations?: { [x: string]: unknown; name: string; kind: \"function\" | \"json\" | \"type\" | \"variable\" | \"class\" | \"constructor\" | \"component\" | \"css\"; doc_comment?: string | undefined; ... 19 more ...; alias_of?: { ...; } | undefined; }[] | undefined; module_comment?: string | un..."
 							}
 						]
 					},
@@ -4228,12 +4228,12 @@
 							"// helpers.ts exports: foo, bar\n// index.ts does: export {foo, bar} from './helpers.js'\n//\n// After processing:\n// - helpers.ts foo declaration gets: also_exported_from: ['index.ts']\n// - helpers.ts bar declaration gets: also_exported_from: ['index.ts']"
 						],
 						"source_line": 137,
-						"type_signature": "(source_json: { [x: string]: unknown; name: string; version: string; modules?: { [x: string]: unknown; path: string; declarations?: { [x: string]: unknown; name: string; kind: \"function\" | \"type\" | \"json\" | \"variable\" | \"class\" | \"constructor\" | \"component\" | \"css\"; ... 19 more ...; alias_of?: { ...; } | undefined; }[] | undefined; module_comment?: string | undefined; dependencies?: string[] | undefined; dependents?: string[] | undefined; star_exports?: string[] | undefined; }[] | undefined; }, collected_re_exports: CollectedReExport[]): void",
+						"type_signature": "(source_json: { [x: string]: unknown; name: string; version: string; modules?: { [x: string]: unknown; path: string; declarations?: { [x: string]: unknown; name: string; kind: \"function\" | \"json\" | \"type\" | \"variable\" | \"class\" | \"constructor\" | \"component\" | \"css\"; ... 20 more ...; alias_of?: { ...; } | undefined; }[] | undefined; module_comment?: string | undefined; dependencies?: string[] | undefined; dependents?: string[] | undefined; star_exports?: string[] | undefined; }[] | undefined; }, collected_re_exports: CollectedReExport[]): void",
 						"return_type": "void",
 						"parameters": [
 							{
 								"name": "source_json",
-								"type": "{ [x: string]: unknown; name: string; version: string; modules?: { [x: string]: unknown; path: string; declarations?: { [x: string]: unknown; name: string; kind: \"function\" | \"type\" | \"json\" | \"variable\" | \"class\" | \"constructor\" | \"component\" | \"css\"; ... 19 more ...; alias_of?: { ...; } | undefined; }[] | undefine...",
+								"type": "{ [x: string]: unknown; name: string; version: string; modules?: { [x: string]: unknown; path: string; declarations?: { [x: string]: unknown; name: string; kind: \"function\" | \"json\" | \"type\" | \"variable\" | \"class\" | \"constructor\" | \"component\" | \"css\"; ... 20 more ...; alias_of?: { ...; } | undefined; }[] | undefine...",
 								"description": "The source JSON with all modules (will be mutated)"
 							},
 							{
@@ -5652,7 +5652,7 @@
 							{
 								"name": "constructor",
 								"kind": "constructor",
-								"type_signature": "(library: Library, module_json: { [x: string]: unknown; path: string; declarations?: { [x: string]: unknown; name: string; kind: \"function\" | \"type\" | \"json\" | \"variable\" | \"class\" | \"constructor\" | \"component\" | \"css\"; ... 19 more ...; alias_of?: { ...; } | undefined; }[] | undefined; module_comment?: string | undefined; dependencies?: string[] | undefined; dependents?: string[] | undefined; star_exports?: string[] | undefined; }): Module",
+								"type_signature": "(library: Library, module_json: { [x: string]: unknown; path: string; declarations?: { [x: string]: unknown; name: string; kind: \"function\" | \"json\" | \"type\" | \"variable\" | \"class\" | \"constructor\" | \"component\" | \"css\"; ... 20 more ...; alias_of?: { ...; } | undefined; }[] | undefined; module_comment?: string | undefined; dependencies?: string[] | undefined; dependents?: string[] | undefined; star_exports?: string[] | undefined; }): Module",
 								"parameters": [
 									{
 										"name": "library",
@@ -5660,7 +5660,7 @@
 									},
 									{
 										"name": "module_json",
-										"type": "{ [x: string]: unknown; path: string; declarations?: { [x: string]: unknown; name: string; kind: \"function\" | \"type\" | \"json\" | \"variable\" | \"class\" | \"constructor\" | \"component\" | \"css\"; doc_comment?: string | undefined; ... 18 more ...; alias_of?: { ...; } | undefined; }[] | undefined; module_comment?: string | un..."
+										"type": "{ [x: string]: unknown; path: string; declarations?: { [x: string]: unknown; name: string; kind: \"function\" | \"json\" | \"type\" | \"variable\" | \"class\" | \"constructor\" | \"component\" | \"css\"; doc_comment?: string | undefined; ... 19 more ...; alias_of?: { ...; } | undefined; }[] | undefined; module_comment?: string | un..."
 									}
 								]
 							},
@@ -6323,7 +6323,7 @@
 						"doc_comment": "Analyze a Svelte component from its svelte2tsx transformation.",
 						"source_line": 190,
 						"type_signature": "(ts_code: string, source_file: SourceFile, checker: TypeChecker, component_name: string, file_path: string, source_map: TraceMap | null, ctx: AnalysisContext): { ...; }",
-						"return_type": "{ [x: string]: unknown; name: string; kind: \"function\" | \"type\" | \"json\" | \"variable\" | \"class\" | \"constructor\" | \"component\" | \"css\"; doc_comment?: string | undefined; type_signature?: string | undefined; ... 17 more ...; alias_of?: { ...; } | undefined; }",
+						"return_type": "{ [x: string]: unknown; name: string; kind: \"function\" | \"json\" | \"type\" | \"variable\" | \"class\" | \"constructor\" | \"component\" | \"css\"; doc_comment?: string | undefined; type_signature?: string | undefined; ... 18 more ...; alias_of?: { ...; } | undefined; }",
 						"parameters": [
 							{
 								"name": "ts_code",
@@ -7255,8 +7255,8 @@
 						"kind": "function",
 						"doc_comment": "Infer declaration kind from symbol and node.\n\nMaps TypeScript constructs to `DeclarationKind`:\n- Classes → `'class'`\n- Functions (declarations, expressions, arrows) → `'function'`\n- Interfaces, type aliases → `'type'`\n- Enums (regular and const) → `'type'`\n- Variables → `'variable'` (unless function-valued → `'function'`)",
 						"source_line": 400,
-						"type_signature": "(symbol: Symbol, node: Node): \"function\" | \"type\" | \"json\" | \"variable\" | \"class\" | \"constructor\" | \"component\" | \"css\"",
-						"return_type": "\"function\" | \"type\" | \"json\" | \"variable\" | \"class\" | \"constructor\" | \"component\" | \"css\"",
+						"type_signature": "(symbol: Symbol, node: Node): \"function\" | \"json\" | \"type\" | \"variable\" | \"class\" | \"constructor\" | \"component\" | \"css\"",
+						"return_type": "\"function\" | \"json\" | \"type\" | \"variable\" | \"class\" | \"constructor\" | \"component\" | \"css\"",
 						"parameters": [
 							{
 								"name": "symbol",
@@ -7299,7 +7299,7 @@
 						"kind": "function",
 						"doc_comment": "Extract function/method information including parameters\nwith descriptions and default values.",
 						"source_line": 491,
-						"type_signature": "(node: Node, symbol: Symbol, checker: TypeChecker, declaration: { [x: string]: unknown; name: string; kind: \"function\" | \"type\" | \"json\" | \"variable\" | \"class\" | \"constructor\" | \"component\" | \"css\"; ... 19 more ...; alias_of?: { ...; } | undefined; }, tsdoc: TsdocParsedComment | undefined, ctx: AnalysisContext): void",
+						"type_signature": "(node: Node, symbol: Symbol, checker: TypeChecker, declaration: { [x: string]: unknown; name: string; kind: \"function\" | \"json\" | \"type\" | \"variable\" | \"class\" | \"constructor\" | \"component\" | \"css\"; ... 20 more ...; alias_of?: { ...; } | undefined; }, tsdoc: TsdocParsedComment | undefined, ctx: AnalysisContext): void",
 						"return_type": "void",
 						"parameters": [
 							{
@@ -7316,7 +7316,7 @@
 							},
 							{
 								"name": "declaration",
-								"type": "{ [x: string]: unknown; name: string; kind: \"function\" | \"type\" | \"json\" | \"variable\" | \"class\" | \"constructor\" | \"component\" | \"css\"; doc_comment?: string | undefined; type_signature?: string | undefined; ... 17 more ...; alias_of?: { ...; } | undefined; }"
+								"type": "{ [x: string]: unknown; name: string; kind: \"function\" | \"json\" | \"type\" | \"variable\" | \"class\" | \"constructor\" | \"component\" | \"css\"; doc_comment?: string | undefined; type_signature?: string | undefined; ... 18 more ...; alias_of?: { ...; } | undefined; }"
 							},
 							{
 								"name": "tsdoc",
@@ -7333,7 +7333,7 @@
 						"kind": "function",
 						"doc_comment": "Extract type/interface information with rich property metadata.",
 						"source_line": 553,
-						"type_signature": "(node: Node, _symbol: Symbol, checker: TypeChecker, declaration: { [x: string]: unknown; name: string; kind: \"function\" | \"type\" | \"json\" | \"variable\" | \"class\" | \"constructor\" | \"component\" | \"css\"; ... 19 more ...; alias_of?: { ...; } | undefined; }, ctx: AnalysisContext): void",
+						"type_signature": "(node: Node, _symbol: Symbol, checker: TypeChecker, declaration: { [x: string]: unknown; name: string; kind: \"function\" | \"json\" | \"type\" | \"variable\" | \"class\" | \"constructor\" | \"component\" | \"css\"; ... 20 more ...; alias_of?: { ...; } | undefined; }, ctx: AnalysisContext): void",
 						"return_type": "void",
 						"parameters": [
 							{
@@ -7350,7 +7350,7 @@
 							},
 							{
 								"name": "declaration",
-								"type": "{ [x: string]: unknown; name: string; kind: \"function\" | \"type\" | \"json\" | \"variable\" | \"class\" | \"constructor\" | \"component\" | \"css\"; doc_comment?: string | undefined; type_signature?: string | undefined; ... 17 more ...; alias_of?: { ...; } | undefined; }"
+								"type": "{ [x: string]: unknown; name: string; kind: \"function\" | \"json\" | \"type\" | \"variable\" | \"class\" | \"constructor\" | \"component\" | \"css\"; doc_comment?: string | undefined; type_signature?: string | undefined; ... 18 more ...; alias_of?: { ...; } | undefined; }"
 							},
 							{
 								"name": "ctx",
@@ -7363,7 +7363,7 @@
 						"kind": "function",
 						"doc_comment": "Extract class information with rich member metadata.",
 						"source_line": 628,
-						"type_signature": "(node: Node, _symbol: Symbol, checker: TypeChecker, declaration: { [x: string]: unknown; name: string; kind: \"function\" | \"type\" | \"json\" | \"variable\" | \"class\" | \"constructor\" | \"component\" | \"css\"; ... 19 more ...; alias_of?: { ...; } | undefined; }, ctx: AnalysisContext): void",
+						"type_signature": "(node: Node, _symbol: Symbol, checker: TypeChecker, declaration: { [x: string]: unknown; name: string; kind: \"function\" | \"json\" | \"type\" | \"variable\" | \"class\" | \"constructor\" | \"component\" | \"css\"; ... 20 more ...; alias_of?: { ...; } | undefined; }, ctx: AnalysisContext): void",
 						"return_type": "void",
 						"parameters": [
 							{
@@ -7380,7 +7380,7 @@
 							},
 							{
 								"name": "declaration",
-								"type": "{ [x: string]: unknown; name: string; kind: \"function\" | \"type\" | \"json\" | \"variable\" | \"class\" | \"constructor\" | \"component\" | \"css\"; doc_comment?: string | undefined; type_signature?: string | undefined; ... 17 more ...; alias_of?: { ...; } | undefined; }"
+								"type": "{ [x: string]: unknown; name: string; kind: \"function\" | \"json\" | \"type\" | \"variable\" | \"class\" | \"constructor\" | \"component\" | \"css\"; doc_comment?: string | undefined; type_signature?: string | undefined; ... 18 more ...; alias_of?: { ...; } | undefined; }"
 							},
 							{
 								"name": "ctx",
@@ -7393,7 +7393,7 @@
 						"kind": "function",
 						"doc_comment": "Extract variable information.",
 						"source_line": 779,
-						"type_signature": "(node: Node, symbol: Symbol, checker: TypeChecker, declaration: { [x: string]: unknown; name: string; kind: \"function\" | \"type\" | \"json\" | \"variable\" | \"class\" | \"constructor\" | \"component\" | \"css\"; ... 19 more ...; alias_of?: { ...; } | undefined; }, ctx: AnalysisContext): void",
+						"type_signature": "(node: Node, symbol: Symbol, checker: TypeChecker, declaration: { [x: string]: unknown; name: string; kind: \"function\" | \"json\" | \"type\" | \"variable\" | \"class\" | \"constructor\" | \"component\" | \"css\"; ... 20 more ...; alias_of?: { ...; } | undefined; }, ctx: AnalysisContext): void",
 						"return_type": "void",
 						"parameters": [
 							{
@@ -7410,7 +7410,7 @@
 							},
 							{
 								"name": "declaration",
-								"type": "{ [x: string]: unknown; name: string; kind: \"function\" | \"type\" | \"json\" | \"variable\" | \"class\" | \"constructor\" | \"component\" | \"css\"; doc_comment?: string | undefined; type_signature?: string | undefined; ... 17 more ...; alias_of?: { ...; } | undefined; }"
+								"type": "{ [x: string]: unknown; name: string; kind: \"function\" | \"json\" | \"type\" | \"variable\" | \"class\" | \"constructor\" | \"component\" | \"css\"; doc_comment?: string | undefined; type_signature?: string | undefined; ... 18 more ...; alias_of?: { ...; } | undefined; }"
 							},
 							{
 								"name": "ctx",
@@ -7527,12 +7527,12 @@
 						"kind": "function",
 						"doc_comment": "Apply parsed TSDoc metadata to a declaration.\n\nConsolidates the common pattern of assigning TSDoc fields to declarations,\nwith conditional assignment for array fields (only if non-empty).",
 						"source_line": 192,
-						"type_signature": "(declaration: { [x: string]: unknown; name: string; kind: \"function\" | \"type\" | \"json\" | \"variable\" | \"class\" | \"constructor\" | \"component\" | \"css\"; doc_comment?: string | undefined; type_signature?: string | undefined; ... 17 more ...; alias_of?: { ...; } | undefined; }, tsdoc: TsdocParsedComment | undefined): void",
+						"type_signature": "(declaration: { [x: string]: unknown; name: string; kind: \"function\" | \"json\" | \"type\" | \"variable\" | \"class\" | \"constructor\" | \"component\" | \"css\"; doc_comment?: string | undefined; type_signature?: string | undefined; ... 18 more ...; alias_of?: { ...; } | undefined; }, tsdoc: TsdocParsedComment | undefined): void",
 						"return_type": "void",
 						"parameters": [
 							{
 								"name": "declaration",
-								"type": "{ [x: string]: unknown; name: string; kind: \"function\" | \"type\" | \"json\" | \"variable\" | \"class\" | \"constructor\" | \"component\" | \"css\"; doc_comment?: string | undefined; type_signature?: string | undefined; ... 17 more ...; alias_of?: { ...; } | undefined; }",
+								"type": "{ [x: string]: unknown; name: string; kind: \"function\" | \"json\" | \"type\" | \"variable\" | \"class\" | \"constructor\" | \"component\" | \"css\"; doc_comment?: string | undefined; type_signature?: string | undefined; ... 18 more ...; alias_of?: { ...; } | undefined; }",
 								"description": "declaration object to update"
 							},
 							{
