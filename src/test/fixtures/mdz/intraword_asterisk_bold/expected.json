@@ -23,12 +23,12 @@
 			},
 			{
 				"type": "Text",
-				"content": "baz\n",
+				"content": "baz",
 				"start": 10,
-				"end": 14
+				"end": 13
 			}
 		],
 		"start": 0,
-		"end": 14
+		"end": 13
 	}
 ]

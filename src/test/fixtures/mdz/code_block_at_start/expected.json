@@ -11,12 +11,12 @@
 		"children": [
 			{
 				"type": "Text",
-				"content": "Some text after.\n",
+				"content": "Some text after.",
 				"start": 23,
-				"end": 40
+				"end": 39
 			}
 		],
 		"start": 23,
-		"end": 40
+		"end": 39
 	}
 ]

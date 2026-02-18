@@ -4,12 +4,12 @@
 		"children": [
 			{
 				"type": "Text",
-				"content": "```ts\nfunction foo() {\n// Missing closing fence - entire thing is plain text with literal backticks\n",
+				"content": "```ts\nfunction foo() {\n// Missing closing fence - entire thing is plain text with literal backticks",
 				"start": 0,
-				"end": 100
+				"end": 99
 			}
 		],
 		"start": 0,
-		"end": 100
+		"end": 99
 	}
 ]

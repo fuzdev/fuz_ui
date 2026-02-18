@@ -18,12 +18,12 @@
 		"children": [
 			{
 				"type": "Text",
-				"content": "This is a new paragraph, not part of heading.\n",
+				"content": "This is a new paragraph, not part of heading.",
 				"start": 11,
-				"end": 57
+				"end": 56
 			}
 		],
 		"start": 11,
-		"end": 57
+		"end": 56
 	}
 ]

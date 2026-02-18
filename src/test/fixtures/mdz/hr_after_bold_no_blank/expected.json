@@ -29,12 +29,12 @@
 		"children": [
 			{
 				"type": "Text",
-				"content": "more text\n",
+				"content": "more text",
 				"start": 13,
-				"end": 23
+				"end": 22
 			}
 		],
 		"start": 13,
-		"end": 23
+		"end": 22
 	}
 ]

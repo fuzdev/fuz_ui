@@ -18,12 +18,12 @@
 		"children": [
 			{
 				"type": "Text",
-				"content": "More text continues here.\n",
+				"content": "More text continues here.",
 				"start": 35,
-				"end": 61
+				"end": 60
 			}
 		],
 		"start": 35,
-		"end": 61
+		"end": 60
 	}
 ]

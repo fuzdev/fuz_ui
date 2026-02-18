@@ -22,12 +22,12 @@
 		"children": [
 			{
 				"type": "Text",
-				"content": "More text.\n",
+				"content": "More text.",
 				"start": 15,
-				"end": 26
+				"end": 25
 			}
 		],
 		"start": 15,
-		"end": 26
+		"end": 25
 	}
 ]

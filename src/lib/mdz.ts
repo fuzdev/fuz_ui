@@ -235,7 +235,7 @@ export class MdzParser {
 		}
 
 		// Flush remaining content as final paragraph
-		const final_paragraph = this.#flush_paragraph(paragraph_children);
+		const final_paragraph = this.#flush_paragraph(paragraph_children, true);
 		if (final_paragraph) root_nodes.push(final_paragraph);
 
 		return root_nodes;

@@ -4,12 +4,12 @@
 		"children": [
 			{
 				"type": "Text",
-				"content": "CONSTANT_CASE_NAME\n",
+				"content": "CONSTANT_CASE_NAME",
 				"start": 0,
-				"end": 19
+				"end": 18
 			}
 		],
 		"start": 0,
-		"end": 19
+		"end": 18
 	}
 ]
