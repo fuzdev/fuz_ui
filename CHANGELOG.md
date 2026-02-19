@@ -1,5 +1,12 @@
 # @fuzdev/fuz_ui
 
+## 0.185.1
+
+### Patch Changes
+
+- fix `ts_helpers.ts` declaration ([c73a22e](https://github.com/fuzdev/fuz_ui/commit/c73a22e))
+- strip hyphens from parameters ([1ec7357](https://github.com/fuzdev/fuz_ui/commit/1ec7357))
+
 ## 0.185.0
 
 ### Minor Changes
