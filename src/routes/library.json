@@ -2270,7 +2270,7 @@
 						"name": "Declaration",
 						"kind": "class",
 						"doc_comment": "Rich runtime representation of an exported declaration.",
-						"source_line": 13,
+						"source_line": 15,
 						"members": [
 							{
 								"name": "module",
