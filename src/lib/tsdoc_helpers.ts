@@ -30,7 +30,8 @@
  * ## Behavioral notes
  *
  * Due to TS Compiler API limitations:
- * - Preserves dash separator in `@param` descriptions: `@param x desc` → `"- desc"`
+ * - `@param` and `@mutates` descriptions have leading `- ` stripped for visual consistency
+ *   (TSDoc spec uses `@param name - description` but the separator is aesthetic)
  * - `@throws` tags have `{Type}` stripped by TS API; fallback regex extracts first word as error type
  * - TS API strips URL protocols from `@see` tag text; we use `getText()` to preserve original format including `{@link}` syntax
  *
@@ -125,7 +126,7 @@ export const tsdoc_parse = (
 			// Extract parameter name and description
 			const param_name = ts.isIdentifier(tag.name) ? tag.name.text : tag.name.getText();
 			if (param_name && tag_text) {
-				params.set(param_name, tag_text.trim());
+				params.set(param_name, tag_text.trim().replace(/^-\s+/, ''));
 			}
 		} else if (tag_name === 'returns' && tag_text) {
 			returns = tag_text.trim();
@@ -157,7 +158,7 @@ export const tsdoc_parse = (
 		} else if (tag_name === 'since' && tag_text) {
 			since = tag_text.trim();
 		} else if (tag_name === 'mutates' && tag_text) {
-			mutates.push(tag_text.trim());
+			mutates.push(tag_text.trim().replace(/^-\s+/, ''));
 		} else if (tag_name === 'nodocs') {
 			nodocs = true;
 		}

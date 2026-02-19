@@ -8,12 +8,12 @@
 		{
 			"name": "items",
 			"type": "Array<T>",
-			"description": "- An array of items"
+			"description": "An array of items"
 		},
 		{
 			"name": "predicate",
 			"type": "(item: T) => boolean",
-			"description": "- A function to test each item"
+			"description": "A function to test each item"
 		}
 	],
 	"generic_params": [

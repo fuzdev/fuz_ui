@@ -7,6 +7,8 @@ import {
 import type {Module} from './module.svelte.js';
 import {url_github_file} from './package_helpers.js';
 
+/* eslint-disable @typescript-eslint/no-deprecated */
+
 /**
  * Rich runtime representation of an exported declaration.
  */

@@ -11,7 +11,7 @@
 	"published": true,
 	"package_json": {
 		"name": "@fuzdev/fuz_ui",
-		"version": "0.184.0",
+		"version": "0.185.1",
 		"description": "Svelte UI library",
 		"motto": "friendly user zystem",
 		"glyph": "🧶",
@@ -45,10 +45,10 @@
 			"node": ">=22.15"
 		},
 		"peerDependencies": {
-			"@fuzdev/fuz_code": ">=0.45.0",
-			"@fuzdev/fuz_css": ">=0.47.0",
-			"@fuzdev/fuz_util": ">=0.50.1",
-			"@fuzdev/gro": ">=0.192.0",
+			"@fuzdev/fuz_code": ">=0.45.1",
+			"@fuzdev/fuz_css": ">=0.53.0",
+			"@fuzdev/fuz_util": ">=0.52.0",
+			"@fuzdev/gro": ">=0.195.0",
 			"@jridgewell/trace-mapping": "^0.3",
 			"@sveltejs/kit": "^2.47.3",
 			"@types/estree": "^1",
@@ -86,9 +86,9 @@
 		"devDependencies": {
 			"@changesets/changelog-git": "^0.2.1",
 			"@fuzdev/fuz_code": "^0.45.1",
-			"@fuzdev/fuz_css": "^0.52.0",
-			"@fuzdev/fuz_util": "^0.50.1",
-			"@fuzdev/gro": "^0.194.0",
+			"@fuzdev/fuz_css": "^0.53.0",
+			"@fuzdev/fuz_util": "^0.52.0",
+			"@fuzdev/gro": "^0.195.0",
 			"@jridgewell/trace-mapping": "^0.3.31",
 			"@ryanatkn/eslint-config": "^0.9.0",
 			"@sveltejs/adapter-static": "^3.0.10",
@@ -151,7 +151,7 @@
 	},
 	"source_json": {
 		"name": "@fuzdev/fuz_ui",
-		"version": "0.184.0",
+		"version": "0.185.1",
 		"modules": [
 			{
 				"path": "Alert.svelte",
@@ -2270,7 +2270,7 @@
 						"name": "Declaration",
 						"kind": "class",
 						"doc_comment": "Rich runtime representation of an exported declaration.",
-						"source_line": 13,
+						"source_line": 15,
 						"members": [
 							{
 								"name": "module",
@@ -2419,7 +2419,7 @@
 							{
 								"name": "constructor",
 								"kind": "constructor",
-								"type_signature": "(module: Module, declaration_json: { [x: string]: unknown; name: string; kind: \"function\" | \"type\" | \"json\" | \"variable\" | \"class\" | \"constructor\" | \"component\" | \"css\"; doc_comment?: string | undefined; ... 18 more ...; alias_of?: { ...; } | undefined; }): Declaration",
+								"type_signature": "(module: Module, declaration_json: { [x: string]: unknown; name: string; kind: \"function\" | \"json\" | \"type\" | \"variable\" | \"class\" | \"constructor\" | \"component\" | \"css\"; doc_comment?: string | undefined; ... 19 more ...; alias_of?: { ...; } | undefined; }): Declaration",
 								"parameters": [
 									{
 										"name": "module",
@@ -2427,7 +2427,7 @@
 									},
 									{
 										"name": "declaration_json",
-										"type": "{ [x: string]: unknown; name: string; kind: \"function\" | \"type\" | \"json\" | \"variable\" | \"class\" | \"constructor\" | \"component\" | \"css\"; doc_comment?: string | undefined; type_signature?: string | undefined; ... 17 more ...; alias_of?: { ...; } | undefined; }"
+										"type": "{ [x: string]: unknown; name: string; kind: \"function\" | \"json\" | \"type\" | \"variable\" | \"class\" | \"constructor\" | \"component\" | \"css\"; doc_comment?: string | undefined; type_signature?: string | undefined; ... 18 more ...; alias_of?: { ...; } | undefined; }"
 									}
 								]
 							}
@@ -2715,7 +2715,7 @@
 							{
 								"name": "str",
 								"type": "string",
-								"description": "- The string to convert to a fragment"
+								"description": "The string to convert to a fragment"
 							}
 						]
 					},
@@ -4136,7 +4136,7 @@
 							},
 							{
 								"name": "source_json",
-								"type": "{ [x: string]: unknown; name: string; version: string; modules?: { [x: string]: unknown; path: string; declarations?: { [x: string]: unknown; name: string; kind: \"function\" | \"type\" | \"json\" | \"variable\" | \"class\" | \"constructor\" | \"component\" | \"css\"; ... 19 more ...; alias_of?: { ...; } | undefined; }[] | undefine..."
+								"type": "{ [x: string]: unknown; name: string; version: string; modules?: { [x: string]: unknown; path: string; declarations?: { [x: string]: unknown; name: string; kind: \"function\" | \"json\" | \"type\" | \"variable\" | \"class\" | \"constructor\" | \"component\" | \"css\"; ... 20 more ...; alias_of?: { ...; } | undefined; }[] | undefine..."
 							}
 						]
 					}
@@ -4176,12 +4176,12 @@
 							"const duplicates = library_find_duplicates(source_json);\nif (duplicates.size > 0) {\n  for (const [name, occurrences] of duplicates) {\n    console.error(`\"${name}\" found in:`);\n    for (const {declaration, module} of occurrences) {\n      console.error(`  - ${module}:${declaration.source_line} (${declaration.kind})`);\n    }\n  }\n  throw new Error(`Found ${duplicates.size} duplicate declaration names`);\n}"
 						],
 						"source_line": 62,
-						"type_signature": "(source_json: { [x: string]: unknown; name: string; version: string; modules?: { [x: string]: unknown; path: string; declarations?: { [x: string]: unknown; name: string; kind: \"function\" | \"type\" | \"json\" | \"variable\" | \"class\" | \"constructor\" | \"component\" | \"css\"; ... 19 more ...; alias_of?: { ...; } | undefined; }[] | undefined; module_comment?: string | undefined; dependencies?: string[] | undefined; dependents?: string[] | undefined; star_exports?: string[] | undefined; }[] | undefined; }): Map<...>",
+						"type_signature": "(source_json: { [x: string]: unknown; name: string; version: string; modules?: { [x: string]: unknown; path: string; declarations?: { [x: string]: unknown; name: string; kind: \"function\" | \"json\" | \"type\" | \"variable\" | \"class\" | \"constructor\" | \"component\" | \"css\"; ... 20 more ...; alias_of?: { ...; } | undefined; }[] | undefined; module_comment?: string | undefined; dependencies?: string[] | undefined; dependents?: string[] | undefined; star_exports?: string[] | undefined; }[] | undefined; }): Map<...>",
 						"return_type": "Map<string, DuplicateInfo[]>",
 						"parameters": [
 							{
 								"name": "source_json",
-								"type": "{ [x: string]: unknown; name: string; version: string; modules?: { [x: string]: unknown; path: string; declarations?: { [x: string]: unknown; name: string; kind: \"function\" | \"type\" | \"json\" | \"variable\" | \"class\" | \"constructor\" | \"component\" | \"css\"; ... 19 more ...; alias_of?: { ...; } | undefined; }[] | undefine..."
+								"type": "{ [x: string]: unknown; name: string; version: string; modules?: { [x: string]: unknown; path: string; declarations?: { [x: string]: unknown; name: string; kind: \"function\" | \"json\" | \"type\" | \"variable\" | \"class\" | \"constructor\" | \"component\" | \"css\"; ... 20 more ...; alias_of?: { ...; } | undefined; }[] | undefine..."
 							}
 						]
 					},
@@ -4190,12 +4190,12 @@
 						"kind": "function",
 						"doc_comment": "Sort modules alphabetically by path for deterministic output and cleaner diffs.",
 						"source_line": 95,
-						"type_signature": "(modules: { [x: string]: unknown; path: string; declarations?: { [x: string]: unknown; name: string; kind: \"function\" | \"type\" | \"json\" | \"variable\" | \"class\" | \"constructor\" | \"component\" | \"css\"; doc_comment?: string | undefined; ... 18 more ...; alias_of?: { ...; } | undefined; }[] | undefined; module_comment?: string | undefined; dependencies?: string[] | undefined; dependents?: string[] | undefined; star_exports?: string[] | undefined; }[]): { ...; }[]",
-						"return_type": "{ [x: string]: unknown; path: string; declarations?: { [x: string]: unknown; name: string; kind: \"function\" | \"type\" | \"json\" | \"variable\" | \"class\" | \"constructor\" | \"component\" | \"css\"; doc_comment?: string | undefined; ... 18 more ...; alias_of?: { ...; } | undefined; }[] | undefined; module_comment?: string | un...",
+						"type_signature": "(modules: { [x: string]: unknown; path: string; declarations?: { [x: string]: unknown; name: string; kind: \"function\" | \"json\" | \"type\" | \"variable\" | \"class\" | \"constructor\" | \"component\" | \"css\"; doc_comment?: string | undefined; ... 19 more ...; alias_of?: { ...; } | undefined; }[] | undefined; module_comment?: string | undefined; dependencies?: string[] | undefined; dependents?: string[] | undefined; star_exports?: string[] | undefined; }[]): { ...; }[]",
+						"return_type": "{ [x: string]: unknown; path: string; declarations?: { [x: string]: unknown; name: string; kind: \"function\" | \"json\" | \"type\" | \"variable\" | \"class\" | \"constructor\" | \"component\" | \"css\"; doc_comment?: string | undefined; ... 19 more ...; alias_of?: { ...; } | undefined; }[] | undefined; module_comment?: string | un...",
 						"parameters": [
 							{
 								"name": "modules",
-								"type": "{ [x: string]: unknown; path: string; declarations?: { [x: string]: unknown; name: string; kind: \"function\" | \"type\" | \"json\" | \"variable\" | \"class\" | \"constructor\" | \"component\" | \"css\"; doc_comment?: string | undefined; ... 18 more ...; alias_of?: { ...; } | undefined; }[] | undefined; module_comment?: string | un..."
+								"type": "{ [x: string]: unknown; path: string; declarations?: { [x: string]: unknown; name: string; kind: \"function\" | \"json\" | \"type\" | \"variable\" | \"class\" | \"constructor\" | \"component\" | \"css\"; doc_comment?: string | undefined; ... 19 more ...; alias_of?: { ...; } | undefined; }[] | undefined; module_comment?: string | un..."
 							}
 						]
 					},
@@ -4228,12 +4228,12 @@
 							"// helpers.ts exports: foo, bar\n// index.ts does: export {foo, bar} from './helpers.js'\n//\n// After processing:\n// - helpers.ts foo declaration gets: also_exported_from: ['index.ts']\n// - helpers.ts bar declaration gets: also_exported_from: ['index.ts']"
 						],
 						"source_line": 137,
-						"type_signature": "(source_json: { [x: string]: unknown; name: string; version: string; modules?: { [x: string]: unknown; path: string; declarations?: { [x: string]: unknown; name: string; kind: \"function\" | \"type\" | \"json\" | \"variable\" | \"class\" | \"constructor\" | \"component\" | \"css\"; ... 19 more ...; alias_of?: { ...; } | undefined; }[] | undefined; module_comment?: string | undefined; dependencies?: string[] | undefined; dependents?: string[] | undefined; star_exports?: string[] | undefined; }[] | undefined; }, collected_re_exports: CollectedReExport[]): void",
+						"type_signature": "(source_json: { [x: string]: unknown; name: string; version: string; modules?: { [x: string]: unknown; path: string; declarations?: { [x: string]: unknown; name: string; kind: \"function\" | \"json\" | \"type\" | \"variable\" | \"class\" | \"constructor\" | \"component\" | \"css\"; ... 20 more ...; alias_of?: { ...; } | undefined; }[] | undefined; module_comment?: string | undefined; dependencies?: string[] | undefined; dependents?: string[] | undefined; star_exports?: string[] | undefined; }[] | undefined; }, collected_re_exports: CollectedReExport[]): void",
 						"return_type": "void",
 						"parameters": [
 							{
 								"name": "source_json",
-								"type": "{ [x: string]: unknown; name: string; version: string; modules?: { [x: string]: unknown; path: string; declarations?: { [x: string]: unknown; name: string; kind: \"function\" | \"type\" | \"json\" | \"variable\" | \"class\" | \"constructor\" | \"component\" | \"css\"; ... 19 more ...; alias_of?: { ...; } | undefined; }[] | undefine...",
+								"type": "{ [x: string]: unknown; name: string; version: string; modules?: { [x: string]: unknown; path: string; declarations?: { [x: string]: unknown; name: string; kind: \"function\" | \"json\" | \"type\" | \"variable\" | \"class\" | \"constructor\" | \"component\" | \"css\"; ... 20 more ...; alias_of?: { ...; } | undefined; }[] | undefine...",
 								"description": "The source JSON with all modules (will be mutated)"
 							},
 							{
@@ -5653,7 +5653,7 @@
 							{
 								"name": "constructor",
 								"kind": "constructor",
-								"type_signature": "(library: Library, module_json: { [x: string]: unknown; path: string; declarations?: { [x: string]: unknown; name: string; kind: \"function\" | \"type\" | \"json\" | \"variable\" | \"class\" | \"constructor\" | \"component\" | \"css\"; ... 19 more ...; alias_of?: { ...; } | undefined; }[] | undefined; module_comment?: string | undefined; dependencies?: string[] | undefined; dependents?: string[] | undefined; star_exports?: string[] | undefined; }): Module",
+								"type_signature": "(library: Library, module_json: { [x: string]: unknown; path: string; declarations?: { [x: string]: unknown; name: string; kind: \"function\" | \"json\" | \"type\" | \"variable\" | \"class\" | \"constructor\" | \"component\" | \"css\"; ... 20 more ...; alias_of?: { ...; } | undefined; }[] | undefined; module_comment?: string | undefined; dependencies?: string[] | undefined; dependents?: string[] | undefined; star_exports?: string[] | undefined; }): Module",
 								"parameters": [
 									{
 										"name": "library",
@@ -5661,7 +5661,7 @@
 									},
 									{
 										"name": "module_json",
-										"type": "{ [x: string]: unknown; path: string; declarations?: { [x: string]: unknown; name: string; kind: \"function\" | \"type\" | \"json\" | \"variable\" | \"class\" | \"constructor\" | \"component\" | \"css\"; doc_comment?: string | undefined; ... 18 more ...; alias_of?: { ...; } | undefined; }[] | undefined; module_comment?: string | un..."
+										"type": "{ [x: string]: unknown; path: string; declarations?: { [x: string]: unknown; name: string; kind: \"function\" | \"json\" | \"type\" | \"variable\" | \"class\" | \"constructor\" | \"component\" | \"css\"; doc_comment?: string | undefined; ... 19 more ...; alias_of?: { ...; } | undefined; }[] | undefined; module_comment?: string | un..."
 									}
 								]
 							},
@@ -6324,7 +6324,7 @@
 						"doc_comment": "Analyze a Svelte component from its svelte2tsx transformation.",
 						"source_line": 190,
 						"type_signature": "(ts_code: string, source_file: SourceFile, checker: TypeChecker, component_name: string, file_path: string, source_map: TraceMap | null, ctx: AnalysisContext): { ...; }",
-						"return_type": "{ [x: string]: unknown; name: string; kind: \"function\" | \"type\" | \"json\" | \"variable\" | \"class\" | \"constructor\" | \"component\" | \"css\"; doc_comment?: string | undefined; type_signature?: string | undefined; ... 17 more ...; alias_of?: { ...; } | undefined; }",
+						"return_type": "{ [x: string]: unknown; name: string; kind: \"function\" | \"json\" | \"type\" | \"variable\" | \"class\" | \"constructor\" | \"component\" | \"css\"; doc_comment?: string | undefined; type_signature?: string | undefined; ... 18 more ...; alias_of?: { ...; } | undefined; }",
 						"parameters": [
 							{
 								"name": "ts_code",
@@ -6382,7 +6382,7 @@
 							{
 								"name": "script_content",
 								"type": "string",
-								"description": "- The content of the `<script>` tag."
+								"description": "The content of the `<script>` tag."
 							}
 						]
 					}
@@ -6850,7 +6850,7 @@
 								"name": "hash",
 								"type": "string | undefined",
 								"optional": true,
-								"description": "- URL fragment to append, with or without the `#`."
+								"description": "URL fragment to append, with or without the `#`."
 							}
 						]
 					},
@@ -7256,8 +7256,8 @@
 						"kind": "function",
 						"doc_comment": "Infer declaration kind from symbol and node.\n\nMaps TypeScript constructs to `DeclarationKind`:\n- Classes → `'class'`\n- Functions (declarations, expressions, arrows) → `'function'`\n- Interfaces, type aliases → `'type'`\n- Enums (regular and const) → `'type'`\n- Variables → `'variable'` (unless function-valued → `'function'`)",
 						"source_line": 400,
-						"type_signature": "(symbol: Symbol, node: Node): \"function\" | \"type\" | \"json\" | \"variable\" | \"class\" | \"constructor\" | \"component\" | \"css\"",
-						"return_type": "\"function\" | \"type\" | \"json\" | \"variable\" | \"class\" | \"constructor\" | \"component\" | \"css\"",
+						"type_signature": "(symbol: Symbol, node: Node): \"function\" | \"json\" | \"type\" | \"variable\" | \"class\" | \"constructor\" | \"component\" | \"css\"",
+						"return_type": "\"function\" | \"json\" | \"type\" | \"variable\" | \"class\" | \"constructor\" | \"component\" | \"css\"",
 						"parameters": [
 							{
 								"name": "symbol",
@@ -7300,7 +7300,7 @@
 						"kind": "function",
 						"doc_comment": "Extract function/method information including parameters\nwith descriptions and default values.",
 						"source_line": 491,
-						"type_signature": "(node: Node, symbol: Symbol, checker: TypeChecker, declaration: { [x: string]: unknown; name: string; kind: \"function\" | \"type\" | \"json\" | \"variable\" | \"class\" | \"constructor\" | \"component\" | \"css\"; ... 19 more ...; alias_of?: { ...; } | undefined; }, tsdoc: TsdocParsedComment | undefined, ctx: AnalysisContext): void",
+						"type_signature": "(node: Node, symbol: Symbol, checker: TypeChecker, declaration: { [x: string]: unknown; name: string; kind: \"function\" | \"json\" | \"type\" | \"variable\" | \"class\" | \"constructor\" | \"component\" | \"css\"; ... 20 more ...; alias_of?: { ...; } | undefined; }, tsdoc: TsdocParsedComment | undefined, ctx: AnalysisContext): void",
 						"return_type": "void",
 						"parameters": [
 							{
@@ -7317,7 +7317,7 @@
 							},
 							{
 								"name": "declaration",
-								"type": "{ [x: string]: unknown; name: string; kind: \"function\" | \"type\" | \"json\" | \"variable\" | \"class\" | \"constructor\" | \"component\" | \"css\"; doc_comment?: string | undefined; type_signature?: string | undefined; ... 17 more ...; alias_of?: { ...; } | undefined; }"
+								"type": "{ [x: string]: unknown; name: string; kind: \"function\" | \"json\" | \"type\" | \"variable\" | \"class\" | \"constructor\" | \"component\" | \"css\"; doc_comment?: string | undefined; type_signature?: string | undefined; ... 18 more ...; alias_of?: { ...; } | undefined; }"
 							},
 							{
 								"name": "tsdoc",
@@ -7334,7 +7334,7 @@
 						"kind": "function",
 						"doc_comment": "Extract type/interface information with rich property metadata.",
 						"source_line": 553,
-						"type_signature": "(node: Node, _symbol: Symbol, checker: TypeChecker, declaration: { [x: string]: unknown; name: string; kind: \"function\" | \"type\" | \"json\" | \"variable\" | \"class\" | \"constructor\" | \"component\" | \"css\"; ... 19 more ...; alias_of?: { ...; } | undefined; }, ctx: AnalysisContext): void",
+						"type_signature": "(node: Node, _symbol: Symbol, checker: TypeChecker, declaration: { [x: string]: unknown; name: string; kind: \"function\" | \"json\" | \"type\" | \"variable\" | \"class\" | \"constructor\" | \"component\" | \"css\"; ... 20 more ...; alias_of?: { ...; } | undefined; }, ctx: AnalysisContext): void",
 						"return_type": "void",
 						"parameters": [
 							{
@@ -7351,7 +7351,7 @@
 							},
 							{
 								"name": "declaration",
-								"type": "{ [x: string]: unknown; name: string; kind: \"function\" | \"type\" | \"json\" | \"variable\" | \"class\" | \"constructor\" | \"component\" | \"css\"; doc_comment?: string | undefined; type_signature?: string | undefined; ... 17 more ...; alias_of?: { ...; } | undefined; }"
+								"type": "{ [x: string]: unknown; name: string; kind: \"function\" | \"json\" | \"type\" | \"variable\" | \"class\" | \"constructor\" | \"component\" | \"css\"; doc_comment?: string | undefined; type_signature?: string | undefined; ... 18 more ...; alias_of?: { ...; } | undefined; }"
 							},
 							{
 								"name": "ctx",
@@ -7364,7 +7364,7 @@
 						"kind": "function",
 						"doc_comment": "Extract class information with rich member metadata.",
 						"source_line": 628,
-						"type_signature": "(node: Node, _symbol: Symbol, checker: TypeChecker, declaration: { [x: string]: unknown; name: string; kind: \"function\" | \"type\" | \"json\" | \"variable\" | \"class\" | \"constructor\" | \"component\" | \"css\"; ... 19 more ...; alias_of?: { ...; } | undefined; }, ctx: AnalysisContext): void",
+						"type_signature": "(node: Node, _symbol: Symbol, checker: TypeChecker, declaration: { [x: string]: unknown; name: string; kind: \"function\" | \"json\" | \"type\" | \"variable\" | \"class\" | \"constructor\" | \"component\" | \"css\"; ... 20 more ...; alias_of?: { ...; } | undefined; }, ctx: AnalysisContext): void",
 						"return_type": "void",
 						"parameters": [
 							{
@@ -7381,7 +7381,7 @@
 							},
 							{
 								"name": "declaration",
-								"type": "{ [x: string]: unknown; name: string; kind: \"function\" | \"type\" | \"json\" | \"variable\" | \"class\" | \"constructor\" | \"component\" | \"css\"; doc_comment?: string | undefined; type_signature?: string | undefined; ... 17 more ...; alias_of?: { ...; } | undefined; }"
+								"type": "{ [x: string]: unknown; name: string; kind: \"function\" | \"json\" | \"type\" | \"variable\" | \"class\" | \"constructor\" | \"component\" | \"css\"; doc_comment?: string | undefined; type_signature?: string | undefined; ... 18 more ...; alias_of?: { ...; } | undefined; }"
 							},
 							{
 								"name": "ctx",
@@ -7394,7 +7394,7 @@
 						"kind": "function",
 						"doc_comment": "Extract variable information.",
 						"source_line": 779,
-						"type_signature": "(node: Node, symbol: Symbol, checker: TypeChecker, declaration: { [x: string]: unknown; name: string; kind: \"function\" | \"type\" | \"json\" | \"variable\" | \"class\" | \"constructor\" | \"component\" | \"css\"; ... 19 more ...; alias_of?: { ...; } | undefined; }, ctx: AnalysisContext): void",
+						"type_signature": "(node: Node, symbol: Symbol, checker: TypeChecker, declaration: { [x: string]: unknown; name: string; kind: \"function\" | \"json\" | \"type\" | \"variable\" | \"class\" | \"constructor\" | \"component\" | \"css\"; ... 20 more ...; alias_of?: { ...; } | undefined; }, ctx: AnalysisContext): void",
 						"return_type": "void",
 						"parameters": [
 							{
@@ -7411,7 +7411,7 @@
 							},
 							{
 								"name": "declaration",
-								"type": "{ [x: string]: unknown; name: string; kind: \"function\" | \"type\" | \"json\" | \"variable\" | \"class\" | \"constructor\" | \"component\" | \"css\"; doc_comment?: string | undefined; type_signature?: string | undefined; ... 17 more ...; alias_of?: { ...; } | undefined; }"
+								"type": "{ [x: string]: unknown; name: string; kind: \"function\" | \"json\" | \"type\" | \"variable\" | \"class\" | \"constructor\" | \"component\" | \"css\"; doc_comment?: string | undefined; type_signature?: string | undefined; ... 18 more ...; alias_of?: { ...; } | undefined; }"
 							},
 							{
 								"name": "ctx",
@@ -7438,7 +7438,7 @@
 						"name": "TsdocParsedComment",
 						"kind": "type",
 						"doc_comment": "Parsed JSDoc/TSDoc comment with structured metadata.",
-						"source_line": 48,
+						"source_line": 49,
 						"type_signature": "TsdocParsedComment",
 						"properties": [
 							{
@@ -7507,7 +7507,7 @@
 						"name": "tsdoc_parse",
 						"kind": "function",
 						"doc_comment": "Parse JSDoc comment from a TypeScript node.\n\nExtracts and parses all JSDoc tags including:\n\n- `@param` - parameter descriptions\n- `@returns` - return value description\n- `@throws` - error documentation\n- `@example` - code examples\n- `@deprecated` - deprecation warnings\n- `@see` - related references\n- `@since` - version information\n- `@mutates` - mutation documentation (non-standard)",
-						"source_line": 88,
+						"source_line": 89,
 						"type_signature": "(node: Node, source_file: SourceFile): TsdocParsedComment | undefined",
 						"return_type": "TsdocParsedComment | undefined",
 						"parameters": [
@@ -7527,13 +7527,13 @@
 						"name": "tsdoc_apply_to_declaration",
 						"kind": "function",
 						"doc_comment": "Apply parsed TSDoc metadata to a declaration.\n\nConsolidates the common pattern of assigning TSDoc fields to declarations,\nwith conditional assignment for array fields (only if non-empty).",
-						"source_line": 192,
-						"type_signature": "(declaration: { [x: string]: unknown; name: string; kind: \"function\" | \"type\" | \"json\" | \"variable\" | \"class\" | \"constructor\" | \"component\" | \"css\"; doc_comment?: string | undefined; type_signature?: string | undefined; ... 17 more ...; alias_of?: { ...; } | undefined; }, tsdoc: TsdocParsedComment | undefined): void",
+						"source_line": 193,
+						"type_signature": "(declaration: { [x: string]: unknown; name: string; kind: \"function\" | \"json\" | \"type\" | \"variable\" | \"class\" | \"constructor\" | \"component\" | \"css\"; doc_comment?: string | undefined; type_signature?: string | undefined; ... 18 more ...; alias_of?: { ...; } | undefined; }, tsdoc: TsdocParsedComment | undefined): void",
 						"return_type": "void",
 						"parameters": [
 							{
 								"name": "declaration",
-								"type": "{ [x: string]: unknown; name: string; kind: \"function\" | \"type\" | \"json\" | \"variable\" | \"class\" | \"constructor\" | \"component\" | \"css\"; doc_comment?: string | undefined; type_signature?: string | undefined; ... 17 more ...; alias_of?: { ...; } | undefined; }",
+								"type": "{ [x: string]: unknown; name: string; kind: \"function\" | \"json\" | \"type\" | \"variable\" | \"class\" | \"constructor\" | \"component\" | \"css\"; doc_comment?: string | undefined; type_signature?: string | undefined; ... 18 more ...; alias_of?: { ...; } | undefined; }",
 								"description": "declaration object to update"
 							},
 							{
@@ -7547,7 +7547,7 @@
 						"name": "tsdoc_clean_comment",
 						"kind": "function",
 						"doc_comment": "Clean raw JSDoc comment text by removing comment markers and leading asterisks.\n\nTransforms `/** ... *\\/` style comments into clean text.",
-						"source_line": 224,
+						"source_line": 225,
 						"type_signature": "(comment_text: string): string | undefined",
 						"return_type": "string | undefined",
 						"return_description": "Cleaned comment text, or undefined if empty after cleaning",
@@ -7560,7 +7560,7 @@
 						]
 					}
 				],
-				"module_comment": "TSDoc/JSDoc parsing helpers using the TypeScript Compiler API.\n\nProvides `tsdoc_parse()` for extracting JSDoc/TSDoc from TypeScript nodes.\nPrimarily designed for build-time code generation but can be used at runtime.\n\n## Design\n\nPure extraction approach: extracts documentation as-is with minimal transformation,\npreserving source intent. Works around TypeScript Compiler API quirks where needed.\n\nSupports both regular TypeScript and Svelte components (via svelte2tsx output).\n\n## Tag support\n\nSupports a subset of standard TSDoc tags:\n`@param`, `@returns`, `@throws`, `@example`, `@deprecated`, `@see`, `@since`, `@nodocs`.\n\nThe `@nodocs` tag excludes exports from documentation and flat namespace validation.\nThe declaration is still exported and usable, just not documented.\n\nAlso supports `@mutates` (non-standard) for documenting mutations to parameters or external state.\nUse format: `@mutates paramName - description of mutation`.\n\nOnly `@returns` is supported (not `@return`).\n\nThe `@see` tag supports multiple formats: plain URLs (`https://...`), `{@link}` syntax, and module names.\nRelative/absolute path support in `@see` is TBD.\n\n## Behavioral notes\n\nDue to TS Compiler API limitations:\n- Preserves dash separator in `@param` descriptions: `@param x desc` → `\"- desc\"`\n- `@throws` tags have `{Type}` stripped by TS API; fallback regex extracts first word as error type\n- TS API strips URL protocols from `@see` tag text; we use `getText()` to preserve original format including `{@link}` syntax\n\nAll functions are prefixed with `tsdoc_` for clarity.",
+				"module_comment": "TSDoc/JSDoc parsing helpers using the TypeScript Compiler API.\n\nProvides `tsdoc_parse()` for extracting JSDoc/TSDoc from TypeScript nodes.\nPrimarily designed for build-time code generation but can be used at runtime.\n\n## Design\n\nPure extraction approach: extracts documentation as-is with minimal transformation,\npreserving source intent. Works around TypeScript Compiler API quirks where needed.\n\nSupports both regular TypeScript and Svelte components (via svelte2tsx output).\n\n## Tag support\n\nSupports a subset of standard TSDoc tags:\n`@param`, `@returns`, `@throws`, `@example`, `@deprecated`, `@see`, `@since`, `@nodocs`.\n\nThe `@nodocs` tag excludes exports from documentation and flat namespace validation.\nThe declaration is still exported and usable, just not documented.\n\nAlso supports `@mutates` (non-standard) for documenting mutations to parameters or external state.\nUse format: `@mutates paramName - description of mutation`.\n\nOnly `@returns` is supported (not `@return`).\n\nThe `@see` tag supports multiple formats: plain URLs (`https://...`), `{@link}` syntax, and module names.\nRelative/absolute path support in `@see` is TBD.\n\n## Behavioral notes\n\nDue to TS Compiler API limitations:\n- `@param` and `@mutates` descriptions have leading `- ` stripped for visual consistency\n  (TSDoc spec uses `@param name - description` but the separator is aesthetic)\n- `@throws` tags have `{Type}` stripped by TS API; fallback regex extracts first word as error type\n- TS API strips URL protocols from `@see` tag text; we use `getText()` to preserve original format including `{@link}` syntax\n\nAll functions are prefixed with `tsdoc_` for clarity.",
 				"dependents": ["svelte_helpers.ts", "ts_helpers.ts"]
 			},
 			{
@@ -7569,11 +7569,11 @@
 					{
 						"name": "tsdoc_see_to_mdz",
 						"kind": "function",
-						"doc_comment": "Convert raw TSDoc `@see` content to mdz format for rendering.\n\nHandles TSDoc link syntax:\n- `|text` → `[text](url)` (markdown link)\n- `://...` → `https://...` (bare URL, auto-linked by mdz)\n- `` → `` `identifier` `` (code formatting)\n- Bare URLs → returned as-is\n- Bare identifiers → wrapped in backticks",
+						"doc_comment": "Convert raw TSDoc `@see` content to mdz format for rendering.\n\nHandles TSDoc link syntax:\n- `|text` → `[text](url)` (markdown link)\n- `://...` → `https://...` (bare URL, auto-linked by mdz)\n- `` → `` `identifier` `` (code formatting)\n- Bare URLs → returned as-is\n- Bare identifiers → wrapped in backticks\n- `identifier description text` → `` `identifier` description text `` (first token is the reference)",
 						"examples": [
-							"```ts\ntsdoc_see_to_mdz('://fuz.dev|API Docs')\n// → '[API Docs](https://fuz.dev)'\n\ntsdoc_see_to_mdz('')\n// → '`SomeType`'\n\ntsdoc_see_to_mdz('https://example.com')\n// → 'https://example.com'\n```"
+							"```ts\ntsdoc_see_to_mdz('://fuz.dev|API Docs')\n// → '[API Docs](https://fuz.dev)'\n\ntsdoc_see_to_mdz('')\n// → '`SomeType`'\n\ntsdoc_see_to_mdz('https://example.com')\n// → 'https://example.com'\n\ntsdoc_see_to_mdz('library_gen.ts for Gro-specific integration')\n// → '`library_gen.ts` for Gro-specific integration'\n```"
 						],
-						"source_line": 41,
+						"source_line": 45,
 						"type_signature": "(content: string): string",
 						"return_type": "string",
 						"return_description": "mdz-formatted string ready for `Mdz` component",
@@ -7581,7 +7581,7 @@
 							{
 								"name": "content",
 								"type": "string",
-								"description": "Raw `@see` tag content in TSDoc format"
+								"description": "raw `@see` tag content in TSDoc format"
 							}
 						]
 					}
