@@ -228,7 +228,7 @@ export const ts_analyze_module_exports = (
 								const decl: DeclarationJson = {
 									name: export_symbol.name,
 									kind,
-									alias_of: {module: original_module, name: original_name},
+									alias_of: {module: original_module, name: original_name, kind},
 								};
 								// Renamed re-exports aren't nodocs - they're new declarations pointing to the original
 								declarations.push({declaration: decl, nodocs: false});
