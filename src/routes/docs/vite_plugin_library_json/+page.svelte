@@ -20,7 +20,8 @@
 			<DeclarationLink name="vite_plugin_library_json" /> generates library metadata via a
 			<code>virtual:library.json</code> virtual module. It is an alternative to the Gro genfile (<DeclarationLink
 				name="library_gen"
-			/>) for projects that do not use Gro.
+			/>) for projects that do not use Gro, or for those who don't like how it writes
+			<code>library.json</code> to the filesystem.
 		</p>
 		<p>
 			The plugin scans source files from the filesystem, analyzes them with the TypeScript compiler,
