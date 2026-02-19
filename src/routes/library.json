@@ -2715,7 +2715,7 @@
 							{
 								"name": "str",
 								"type": "string",
-								"description": "- The string to convert to a fragment"
+								"description": "The string to convert to a fragment"
 							}
 						]
 					},
@@ -6381,7 +6381,7 @@
 							{
 								"name": "script_content",
 								"type": "string",
-								"description": "- The content of the `<script>` tag."
+								"description": "The content of the `<script>` tag."
 							}
 						]
 					}
@@ -6849,7 +6849,7 @@
 								"name": "hash",
 								"type": "string | undefined",
 								"optional": true,
-								"description": "- URL fragment to append, with or without the `#`."
+								"description": "URL fragment to append, with or without the `#`."
 							}
 						]
 					},
@@ -7437,7 +7437,7 @@
 						"name": "TsdocParsedComment",
 						"kind": "type",
 						"doc_comment": "Parsed JSDoc/TSDoc comment with structured metadata.",
-						"source_line": 48,
+						"source_line": 49,
 						"type_signature": "TsdocParsedComment",
 						"properties": [
 							{
@@ -7506,7 +7506,7 @@
 						"name": "tsdoc_parse",
 						"kind": "function",
 						"doc_comment": "Parse JSDoc comment from a TypeScript node.\n\nExtracts and parses all JSDoc tags including:\n\n- `@param` - parameter descriptions\n- `@returns` - return value description\n- `@throws` - error documentation\n- `@example` - code examples\n- `@deprecated` - deprecation warnings\n- `@see` - related references\n- `@since` - version information\n- `@mutates` - mutation documentation (non-standard)",
-						"source_line": 88,
+						"source_line": 89,
 						"type_signature": "(node: Node, source_file: SourceFile): TsdocParsedComment | undefined",
 						"return_type": "TsdocParsedComment | undefined",
 						"parameters": [
@@ -7526,7 +7526,7 @@
 						"name": "tsdoc_apply_to_declaration",
 						"kind": "function",
 						"doc_comment": "Apply parsed TSDoc metadata to a declaration.\n\nConsolidates the common pattern of assigning TSDoc fields to declarations,\nwith conditional assignment for array fields (only if non-empty).",
-						"source_line": 192,
+						"source_line": 193,
 						"type_signature": "(declaration: { [x: string]: unknown; name: string; kind: \"function\" | \"json\" | \"type\" | \"variable\" | \"class\" | \"constructor\" | \"component\" | \"css\"; doc_comment?: string | undefined; type_signature?: string | undefined; ... 18 more ...; alias_of?: { ...; } | undefined; }, tsdoc: TsdocParsedComment | undefined): void",
 						"return_type": "void",
 						"parameters": [
@@ -7546,7 +7546,7 @@
 						"name": "tsdoc_clean_comment",
 						"kind": "function",
 						"doc_comment": "Clean raw JSDoc comment text by removing comment markers and leading asterisks.\n\nTransforms `/** ... *\\/` style comments into clean text.",
-						"source_line": 224,
+						"source_line": 225,
 						"type_signature": "(comment_text: string): string | undefined",
 						"return_type": "string | undefined",
 						"return_description": "Cleaned comment text, or undefined if empty after cleaning",
@@ -7559,7 +7559,7 @@
 						]
 					}
 				],
-				"module_comment": "TSDoc/JSDoc parsing helpers using the TypeScript Compiler API.\n\nProvides `tsdoc_parse()` for extracting JSDoc/TSDoc from TypeScript nodes.\nPrimarily designed for build-time code generation but can be used at runtime.\n\n## Design\n\nPure extraction approach: extracts documentation as-is with minimal transformation,\npreserving source intent. Works around TypeScript Compiler API quirks where needed.\n\nSupports both regular TypeScript and Svelte components (via svelte2tsx output).\n\n## Tag support\n\nSupports a subset of standard TSDoc tags:\n`@param`, `@returns`, `@throws`, `@example`, `@deprecated`, `@see`, `@since`, `@nodocs`.\n\nThe `@nodocs` tag excludes exports from documentation and flat namespace validation.\nThe declaration is still exported and usable, just not documented.\n\nAlso supports `@mutates` (non-standard) for documenting mutations to parameters or external state.\nUse format: `@mutates paramName - description of mutation`.\n\nOnly `@returns` is supported (not `@return`).\n\nThe `@see` tag supports multiple formats: plain URLs (`https://...`), `{@link}` syntax, and module names.\nRelative/absolute path support in `@see` is TBD.\n\n## Behavioral notes\n\nDue to TS Compiler API limitations:\n- Preserves dash separator in `@param` descriptions: `@param x desc` → `\"- desc\"`\n- `@throws` tags have `{Type}` stripped by TS API; fallback regex extracts first word as error type\n- TS API strips URL protocols from `@see` tag text; we use `getText()` to preserve original format including `{@link}` syntax\n\nAll functions are prefixed with `tsdoc_` for clarity.",
+				"module_comment": "TSDoc/JSDoc parsing helpers using the TypeScript Compiler API.\n\nProvides `tsdoc_parse()` for extracting JSDoc/TSDoc from TypeScript nodes.\nPrimarily designed for build-time code generation but can be used at runtime.\n\n## Design\n\nPure extraction approach: extracts documentation as-is with minimal transformation,\npreserving source intent. Works around TypeScript Compiler API quirks where needed.\n\nSupports both regular TypeScript and Svelte components (via svelte2tsx output).\n\n## Tag support\n\nSupports a subset of standard TSDoc tags:\n`@param`, `@returns`, `@throws`, `@example`, `@deprecated`, `@see`, `@since`, `@nodocs`.\n\nThe `@nodocs` tag excludes exports from documentation and flat namespace validation.\nThe declaration is still exported and usable, just not documented.\n\nAlso supports `@mutates` (non-standard) for documenting mutations to parameters or external state.\nUse format: `@mutates paramName - description of mutation`.\n\nOnly `@returns` is supported (not `@return`).\n\nThe `@see` tag supports multiple formats: plain URLs (`https://...`), `{@link}` syntax, and module names.\nRelative/absolute path support in `@see` is TBD.\n\n## Behavioral notes\n\nDue to TS Compiler API limitations:\n- `@param` and `@mutates` descriptions have leading `- ` stripped for visual consistency\n  (TSDoc spec uses `@param name - description` but the separator is aesthetic)\n- `@throws` tags have `{Type}` stripped by TS API; fallback regex extracts first word as error type\n- TS API strips URL protocols from `@see` tag text; we use `getText()` to preserve original format including `{@link}` syntax\n\nAll functions are prefixed with `tsdoc_` for clarity.",
 				"dependents": ["svelte_helpers.ts", "ts_helpers.ts"]
 			},
 			{
@@ -7568,11 +7568,11 @@
 					{
 						"name": "tsdoc_see_to_mdz",
 						"kind": "function",
-						"doc_comment": "Convert raw TSDoc `@see` content to mdz format for rendering.\n\nHandles TSDoc link syntax:\n- `|text` → `[text](url)` (markdown link)\n- `://...` → `https://...` (bare URL, auto-linked by mdz)\n- `` → `` `identifier` `` (code formatting)\n- Bare URLs → returned as-is\n- Bare identifiers → wrapped in backticks",
+						"doc_comment": "Convert raw TSDoc `@see` content to mdz format for rendering.\n\nHandles TSDoc link syntax:\n- `|text` → `[text](url)` (markdown link)\n- `://...` → `https://...` (bare URL, auto-linked by mdz)\n- `` → `` `identifier` `` (code formatting)\n- Bare URLs → returned as-is\n- Bare identifiers → wrapped in backticks\n- `identifier description text` → `` `identifier` description text `` (first token is the reference)",
 						"examples": [
-							"```ts\ntsdoc_see_to_mdz('://fuz.dev|API Docs')\n// → '[API Docs](https://fuz.dev)'\n\ntsdoc_see_to_mdz('')\n// → '`SomeType`'\n\ntsdoc_see_to_mdz('https://example.com')\n// → 'https://example.com'\n```"
+							"```ts\ntsdoc_see_to_mdz('://fuz.dev|API Docs')\n// → '[API Docs](https://fuz.dev)'\n\ntsdoc_see_to_mdz('')\n// → '`SomeType`'\n\ntsdoc_see_to_mdz('https://example.com')\n// → 'https://example.com'\n\ntsdoc_see_to_mdz('library_gen.ts for Gro-specific integration')\n// → '`library_gen.ts` for Gro-specific integration'\n```"
 						],
-						"source_line": 41,
+						"source_line": 45,
 						"type_signature": "(content: string): string",
 						"return_type": "string",
 						"return_description": "mdz-formatted string ready for `Mdz` component",
@@ -7580,7 +7580,7 @@
 							{
 								"name": "content",
 								"type": "string",
-								"description": "Raw `@see` tag content in TSDoc format"
+								"description": "raw `@see` tag content in TSDoc format"
 							}
 						]
 					}
