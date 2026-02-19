@@ -17,16 +17,16 @@
 import type {Gen} from '@fuzdev/gro';
 import {package_json_load} from '@fuzdev/gro/package_json.js';
 import type {Disknode} from '@fuzdev/gro/disknode.js';
+import type {Logger} from '@fuzdev/fuz_util/log.js';
 
 import {
 	type SourceFileInfo,
 	type ModuleSourceOptions,
 	type ModuleSourcePartial,
 	module_create_source_options,
-	module_validate_source_options,
 	module_is_source,
-	module_get_source_root,
 } from './module_helpers.js';
+import {library_collect_source_files} from './library_pipeline.js';
 import {library_generate, type OnDuplicatesCallback} from './library_generate.js';
 
 /** Options for Gro library generation. */
@@ -85,47 +85,26 @@ export const source_file_from_disknode = (disknode: Disknode): SourceFileInfo =>
 /**
  * Collect source files from Gro disknodes, filtering BEFORE conversion to SourceFileInfo.
  *
- * This avoids errors from files outside source directories (like test fixtures that may
- * have malformed paths or missing content). The filtering uses `module_is_source` which
- * checks `source_paths` to only include files in configured source directories.
+ * Pre-filters with `module_is_source` to avoid errors from files outside source directories
+ * (like test fixtures with malformed paths or missing content), then delegates to
+ * `library_collect_source_files` for validation, sorting, and logging.
  *
- * @param disknodes Iterator of Gro disknodes from filer
- * @param options Module source options for filtering
- * @param log Optional logger for status messages
+ * @param disknodes Iterator of Gro disknodes from filer.
+ * @param options Module source options for filtering.
+ * @param log Optional logger for status messages.
  */
 export const library_collect_source_files_from_disknodes = (
 	disknodes: Iterable<Disknode>,
 	options: ModuleSourceOptions,
-	log?: {info: (...args: Array<unknown>) => void; warn: (...args: Array<unknown>) => void},
+	log?: Logger,
 ): Array<SourceFileInfo> => {
-	// Validate options early to fail fast on misconfiguration
-	module_validate_source_options(options);
-
-	const all_disknodes = Array.from(disknodes);
-	log?.info(`received ${all_disknodes.length} files total from filer`);
-
 	const source_files: Array<SourceFileInfo> = [];
-	for (const disknode of all_disknodes) {
-		// Filter by source_paths BEFORE trying to convert
-		// This avoids errors from test fixtures or other non-source files
-		if (!module_is_source(disknode.id, options)) {
-			continue;
-		}
+	for (const disknode of disknodes) {
+		// Filter BEFORE conversion to avoid errors from non-source files
+		if (!module_is_source(disknode.id, options)) continue;
 		source_files.push(source_file_from_disknode(disknode));
 	}
-
-	log?.info(`found ${source_files.length} source files to analyze`);
-
-	if (source_files.length === 0) {
-		const effective_root = module_get_source_root(options);
-		log?.warn(`No source files found in ${effective_root} - generating empty library metadata`);
-		return [];
-	}
-
-	// Sort for deterministic output (stable alphabetical module ordering)
-	source_files.sort((a, b) => a.id.localeCompare(b.id));
-
-	return source_files;
+	return library_collect_source_files(source_files, options, log);
 };
 
 /**

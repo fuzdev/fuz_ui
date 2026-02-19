@@ -2729,7 +2729,7 @@
 						"name": "DOCS_PATH",
 						"kind": "variable",
 						"source_line": 29,
-						"type_signature": "\"/docs\" | \"/\" | \"/about\" | \"/docs/Alert\" | \"/docs/Breadcrumb\" | \"/docs/Breadcrumb/a\" | \"/docs/Breadcrumb/a/b\" | \"/docs/Breadcrumb/a/b/c\" | \"/docs/Breadcrumb/a/b/c/d\" | \"/docs/Card\" | ... 100 more ... | `/${string}/help/`"
+						"type_signature": "\"/docs\" | \"/\" | \"/about\" | \"/docs/Alert\" | \"/docs/Breadcrumb\" | \"/docs/Breadcrumb/a\" | \"/docs/Breadcrumb/a/b\" | \"/docs/Breadcrumb/a/b/c\" | \"/docs/Breadcrumb/a/b/c/d\" | \"/docs/Card\" | ... 103 more ... | `/${string}/help/`"
 					},
 					{
 						"name": "DOCS_API_PATH",
@@ -3813,26 +3813,26 @@
 					{
 						"name": "library_collect_source_files_from_disknodes",
 						"kind": "function",
-						"doc_comment": "Collect source files from Gro disknodes, filtering BEFORE conversion to SourceFileInfo.\n\nThis avoids errors from files outside source directories (like test fixtures that may\nhave malformed paths or missing content). The filtering uses `module_is_source` which\nchecks `source_paths` to only include files in configured source directories.",
+						"doc_comment": "Collect source files from Gro disknodes, filtering BEFORE conversion to SourceFileInfo.\n\nPre-filters with `module_is_source` to avoid errors from files outside source directories\n(like test fixtures with malformed paths or missing content), then delegates to\n`library_collect_source_files` for validation, sorting, and logging.",
 						"source_line": 96,
-						"type_signature": "(disknodes: Iterable<Disknode>, options: ModuleSourceOptions, log?: { info: (...args: unknown[]) => void; warn: (...args: unknown[]) => void; } | undefined): SourceFileInfo[]",
+						"type_signature": "(disknodes: Iterable<Disknode>, options: ModuleSourceOptions, log?: Logger | undefined): SourceFileInfo[]",
 						"return_type": "SourceFileInfo[]",
 						"parameters": [
 							{
 								"name": "disknodes",
 								"type": "Iterable<Disknode>",
-								"description": "Iterator of Gro disknodes from filer"
+								"description": "Iterator of Gro disknodes from filer."
 							},
 							{
 								"name": "options",
 								"type": "ModuleSourceOptions",
-								"description": "Module source options for filtering"
+								"description": "Module source options for filtering."
 							},
 							{
 								"name": "log",
-								"type": "{ info: (...args: unknown[]) => void; warn: (...args: unknown[]) => void; } | undefined",
+								"type": "Logger | undefined",
 								"optional": true,
-								"description": "Optional logger for status messages"
+								"description": "Optional logger for status messages."
 							}
 						]
 					},
@@ -3840,7 +3840,7 @@
 						"name": "library_gen",
 						"kind": "function",
 						"doc_comment": "Creates a Gen object for generating library metadata with full TypeScript analysis.\n\nThis is the Gro-specific entry point. It handles:\n- Reading files from Gro's filer\n- Loading package.json via Gro utilities\n- Returning output in Gro's Gen format\n\nFor build-tool agnostic usage, use `library_generate` directly.\n\nUsage in a `.gen.ts` file:\n\n```ts\nimport {library_gen} from '@fuzdev/fuz_ui/library_gen.js';\n\nexport const gen = library_gen();\n```",
-						"source_line": 151,
+						"source_line": 130,
 						"type_signature": "(options?: LibraryGenOptions | undefined): Gen",
 						"return_type": "Gen",
 						"parameters": [
@@ -3854,7 +3854,7 @@
 					}
 				],
 				"module_comment": "Gro-specific library metadata generation.\n\nThis module provides Gro integration for library generation. It wraps the generic\n`library_generate` function with Gro's `Gen` interface and provides adapters for\nconverting Gro's `Disknode` to the build-tool agnostic `SourceFileInfo`.\n\nFor build-tool agnostic usage, see `library_generate.ts`.\n\n@see library_generate.ts for the generic generation entry point\n@see library_pipeline.ts for pipeline helpers\n@see library_output.ts for output file generation",
-				"dependencies": ["library_generate.ts", "module_helpers.ts"]
+				"dependencies": ["library_generate.ts", "library_pipeline.ts", "module_helpers.ts"]
 			},
 			{
 				"path": "library_generate.ts",
@@ -3988,7 +3988,7 @@
 					"library_pipeline.ts",
 					"ts_helpers.ts"
 				],
-				"dependents": ["library_gen.ts"]
+				"dependents": ["library_gen.ts", "vite_plugin_library_json.ts"]
 			},
 			{
 				"path": "library_helpers.ts",
@@ -4272,7 +4272,7 @@
 				],
 				"module_comment": "Library metadata generation pipeline.\n\nThese functions handle collection, validation, and transformation of library metadata\nduring the generation pipeline.\n\nPipeline stages:\n1. **Collection** - `library_collect_source_files` gathers and filters source files\n2. **Analysis** - `library_analyze_module` (in library_analysis.ts) extracts metadata\n3. **Validation** - `library_find_duplicates` checks flat namespace constraints\n4. **Transformation** - `library_merge_re_exports` resolves re-export relationships\n5. **Output** - `library_sort_modules` prepares deterministic output\n\n@see library_generate.ts for the main generation entry point\n@see library_analysis.ts for module-level analysis\n@see library_output.ts for output file generation (JSON/TS wrapper)\n@see library_gen.ts for Gro-specific integration",
 				"dependencies": ["module_helpers.ts"],
-				"dependents": ["library_generate.ts"]
+				"dependents": ["library_gen.ts", "library_generate.ts", "vite_plugin_library_json.ts"]
 			},
 			{
 				"path": "library.svelte.ts",
@@ -5576,7 +5576,8 @@
 					"library_gen.ts",
 					"library_pipeline.ts",
 					"svelte_helpers.ts",
-					"ts_helpers.ts"
+					"ts_helpers.ts",
+					"vite_plugin_library_json.ts"
 				]
 			},
 			{
@@ -7612,6 +7613,76 @@
 				],
 				"dependencies": ["DeclarationLink.svelte", "library.svelte.ts"],
 				"dependents": ["DeclarationDetail.svelte"]
+			},
+			{
+				"path": "vite_plugin_library_json.ts",
+				"declarations": [
+					{
+						"name": "VitePluginLibraryJsonOptions",
+						"kind": "type",
+						"doc_comment": "Options for the library JSON Vite plugin.",
+						"source_line": 64,
+						"type_signature": "VitePluginLibraryJsonOptions",
+						"properties": [
+							{
+								"name": "source",
+								"kind": "variable",
+								"type_signature": "ModuleSourceOptions | Partial<ModuleSourcePartial>",
+								"doc_comment": "Module source options for filtering and path extraction.\n\nCan provide full `ModuleSourceOptions` or partial options that will be\nmerged with defaults. The `project_root` is automatically set from\nVite's resolved config root if not provided."
+							},
+							{
+								"name": "on_duplicates",
+								"kind": "variable",
+								"type_signature": "OnDuplicatesCallback",
+								"doc_comment": "Callback invoked when duplicate declaration names are found.\n\nUse `library_throw_on_duplicates` for strict flat namespace enforcement."
+							},
+							{
+								"name": "package_json_path",
+								"kind": "variable",
+								"type_signature": "string",
+								"doc_comment": "Path to package.json, relative to project root."
+							}
+						]
+					},
+					{
+						"name": "library_collect_source_files_from_fs",
+						"kind": "function",
+						"doc_comment": "Collect source files from the filesystem.\n\nScans configured source directories recursively, reads file contents,\nand filters through `module_is_source`. Returns `SourceFileInfo[]` without\ndependency/dependent info (these are optional and only available via Gro's filer).",
+						"source_line": 96,
+						"type_signature": "(source_options: ModuleSourceOptions, log?: Logger | undefined): Promise<SourceFileInfo[]>",
+						"return_type": "Promise<SourceFileInfo[]>",
+						"parameters": [
+							{
+								"name": "source_options",
+								"type": "ModuleSourceOptions",
+								"description": "Module source options for directory scanning and filtering."
+							},
+							{
+								"name": "log",
+								"type": "Logger | undefined",
+								"optional": true,
+								"description": "Optional logger for status messages."
+							}
+						]
+					},
+					{
+						"name": "vite_plugin_library_json",
+						"kind": "function",
+						"doc_comment": "Creates the library JSON Vite plugin.\n\nGenerates library metadata by scanning source files from the filesystem\nand serves it via the `virtual:library.json` virtual module.\nIn dev mode, watches source files and regenerates on changes.",
+						"source_line": 132,
+						"type_signature": "(options?: VitePluginLibraryJsonOptions): Plugin<any>",
+						"return_type": "Plugin<any>",
+						"parameters": [
+							{
+								"name": "options",
+								"type": "VitePluginLibraryJsonOptions",
+								"default_value": "{}"
+							}
+						]
+					}
+				],
+				"module_comment": "Vite plugin for library metadata generation.\n\nGenerates library metadata via virtual module as an alternative to the\nGro genfile (`library.gen.ts`). Scans source files from the filesystem and\ncalls `library_generate()` directly.\n\nConsumers import from `virtual:library.json`:\n\n```ts\nimport {library_json} from 'virtual:library.json';\n```\n\nFor TypeScript support, add to your `app.d.ts`:\n\n```ts\n/// <reference types=\"@fuzdev/fuz_ui/virtual_library_json.js\" />\n```\n\n@example\n```ts\n// vite.config.ts\nimport {vite_plugin_library_json} from '@fuzdev/fuz_ui/vite_plugin_library_json.js';\nimport {library_throw_on_duplicates} from '@fuzdev/fuz_ui/library_generate.js';\n\nexport default defineConfig({\n  plugins: [\n    vite_plugin_library_json({on_duplicates: library_throw_on_duplicates}),\n    sveltekit(),\n  ],\n});\n```",
+				"dependencies": ["library_generate.ts", "library_pipeline.ts", "module_helpers.ts"]
 			},
 			{
 				"path": "vite_plugin_library_well_known.ts",
