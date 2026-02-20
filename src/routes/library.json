@@ -754,6 +754,28 @@
 				"dependents": ["ApiIndex.svelte"]
 			},
 			{
+				"path": "autofocus.svelte.ts",
+				"declarations": [
+					{
+						"name": "autofocus",
+						"kind": "function",
+						"doc_comment": "Creates an attachment that focuses the element on mount.\nUse this instead of the HTML `autofocus` attribute for elements\nthat mount dynamically from reactive conditionals like `{#if}`.",
+						"source_line": 15,
+						"type_signature": "(options?: FocusOptions | undefined): Attachment<HTMLElement | SVGElement>",
+						"return_type": "Attachment<HTMLElement | SVGElement>",
+						"parameters": [
+							{
+								"name": "options",
+								"type": "FocusOptions | undefined",
+								"optional": true,
+								"description": "focus options forwarded to `element.focus()`; defaults to `{focusVisible: true}` to show focus indicators on programmatic focus"
+							}
+						]
+					}
+				],
+				"module_comment": "Svelte 5 attachment that focuses an element on mount."
+			},
+			{
 				"path": "Breadcrumb.svelte",
 				"declarations": [
 					{
