@@ -48,8 +48,9 @@ describe('tsdoc_see_to_mdz', () => {
 		expect(tsdoc_see_to_mdz('{@link Foo<Bar>}')).toBe('`Foo<Bar>`');
 	});
 
-	test('handles malformed {@link with unclosed brace as bare identifier', () => {
-		expect(tsdoc_see_to_mdz('{@link SomeType')).toBe('`{@link SomeType`');
+	test('handles malformed {@link with unclosed brace', () => {
+		// Malformed input: unclosed brace splits at first space
+		expect(tsdoc_see_to_mdz('{@link SomeType')).toBe('`{@link` SomeType');
 	});
 
 	test('returns empty string for empty input', () => {
@@ -82,5 +83,23 @@ describe('tsdoc_see_to_mdz', () => {
 
 	test('handles bare identifiers with dots', () => {
 		expect(tsdoc_see_to_mdz('some_module.some_function')).toBe('`some_module.some_function`');
+	});
+
+	test('splits identifier from description text', () => {
+		expect(tsdoc_see_to_mdz('library_gen.ts for Gro-specific integration')).toBe(
+			'`library_gen.ts` for Gro-specific integration',
+		);
+	});
+
+	test('splits module filename from description', () => {
+		expect(tsdoc_see_to_mdz('library_pipeline.ts for pipeline helpers')).toBe(
+			'`library_pipeline.ts` for pipeline helpers',
+		);
+	});
+
+	test('passes through URL with description as-is', () => {
+		expect(tsdoc_see_to_mdz('https://example.com for more info')).toBe(
+			'https://example.com for more info',
+		);
 	});
 });

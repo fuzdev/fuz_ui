@@ -172,6 +172,7 @@ full API. Key imports used by fuz_ui:
 ### Browser and DOM
 
 - `docs_helpers.svelte.ts` - docs navigation and linking (DocsLinks class)
+- `autofocus.svelte.ts` - Svelte 5 attachment for focusing elements on mount
 - `intersect.svelte.ts` - Svelte 5 attachment for IntersectionObserver
 - `helpers.ts` - general utilities (`render_value_to_string`)
 

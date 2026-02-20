@@ -1,0 +1,19 @@
+{
+	"name": "greet",
+	"kind": "function",
+	"type_signature": "(name: string, age: number): string",
+	"return_type": "string",
+	"return_description": "A greeting string",
+	"parameters": [
+		{
+			"name": "name",
+			"type": "string",
+			"description": "The user's name"
+		},
+		{
+			"name": "age",
+			"type": "number",
+			"description": "The user's age"
+		}
+	]
+}

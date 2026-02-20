@@ -1,0 +1,25 @@
+{
+	"name": "test_params",
+	"kind": "function",
+	"type_signature": "(required: string, optional?: number, withDefault?: boolean): void",
+	"return_type": "void",
+	"parameters": [
+		{
+			"name": "required",
+			"type": "string",
+			"description": "A required parameter"
+		},
+		{
+			"name": "optional",
+			"type": "number",
+			"optional": true,
+			"description": "An optional parameter"
+		},
+		{
+			"name": "withDefault",
+			"type": "boolean",
+			"description": "A parameter with a default value",
+			"default_value": "true"
+		}
+	]
+}
