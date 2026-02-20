@@ -1,12 +1,12 @@
 import {test, assert, describe} from 'vitest';
+import type {DuplicateInfo} from '@fuzdev/svelte-docinfo/pipeline.js';
+import {throwOnDuplicates} from '@fuzdev/svelte-docinfo/analyze.js';
 
 import {
 	source_file_from_disknode,
 	library_collect_source_files_from_disknodes,
 } from '$lib/library_gen.js';
-import type {DuplicateInfo} from '$lib/library_pipeline.js';
 import {TEST_PROJECT_ROOT, create_test_source_options} from './module_test_helpers.js';
-import {library_throw_on_duplicates} from '$lib/library_generate.js';
 
 /**
  * Create a mock Disknode for testing.
@@ -199,13 +199,13 @@ const create_duplicate_info = (
 	module,
 });
 
-describe('library_throw_on_duplicates', () => {
+describe('throwOnDuplicates', () => {
 	test('does nothing when duplicates map is empty', () => {
 		const log = create_mock_log();
 		const duplicates: Map<string, Array<DuplicateInfo>> = new Map();
 
 		// Should not throw
-		library_throw_on_duplicates(duplicates, log);
+		throwOnDuplicates(duplicates, log);
 
 		assert.strictEqual(log.errors.length, 0);
 	});
@@ -222,10 +222,7 @@ describe('library_throw_on_duplicates', () => {
 			],
 		]);
 
-		assert.throws(
-			() => library_throw_on_duplicates(duplicates, log),
-			/1 duplicate declaration name/,
-		);
+		assert.throws(() => throwOnDuplicates(duplicates, log), /1 duplicate declaration name/);
 	});
 
 	test('error message pluralizes correctly for multiple duplicates', () => {
@@ -235,10 +232,7 @@ describe('library_throw_on_duplicates', () => {
 			['bar', [create_duplicate_info('bar', 'c.ts'), create_duplicate_info('bar', 'd.ts')]],
 		]);
 
-		assert.throws(
-			() => library_throw_on_duplicates(duplicates, log),
-			/2 duplicate declaration names/,
-		);
+		assert.throws(() => throwOnDuplicates(duplicates, log), /2 duplicate declaration names/);
 	});
 
 	test('logs each duplicate with locations', () => {
@@ -254,7 +248,7 @@ describe('library_throw_on_duplicates', () => {
 		]);
 
 		try {
-			library_throw_on_duplicates(duplicates, log);
+			throwOnDuplicates(duplicates, log);
 		} catch (_error) {
 			// expected
 		}
@@ -284,7 +278,7 @@ describe('library_throw_on_duplicates', () => {
 		]);
 
 		try {
-			library_throw_on_duplicates(duplicates, log);
+			throwOnDuplicates(duplicates, log);
 		} catch (_error) {
 			// expected
 		}
@@ -302,7 +296,7 @@ describe('library_throw_on_duplicates', () => {
 		]);
 
 		try {
-			library_throw_on_duplicates(duplicates, log);
+			throwOnDuplicates(duplicates, log);
 			assert.fail('should have thrown');
 		} catch (e) {
 			const message = (e as Error).message;

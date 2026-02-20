@@ -26,6 +26,7 @@ dev server.
 - SvelteKit - application framework
 - fuz_css (@fuzdev/fuz_css) - CSS framework and design system foundation
 - fuz_util (@fuzdev/fuz_util) - utility library
+- svelte-docinfo (@fuzdev/svelte-docinfo) - TypeScript/Svelte static analysis
 - Gro (@fuzdev/gro) - build system and CLI
 
 ## Scope
@@ -71,12 +72,11 @@ src/
 represents a component or helper with `name`, `category`, `component`, and
 `related` fields. Central registry: `src/routes/docs/tomes.ts`
 
-**Identifier namespacing** - fuz_ui uses domain-prefix naming for its helper
-clusters. See `fuz-stack` for the full naming conventions.
-
-Helper file prefixes: `ts_*` (TypeScript API), `tsdoc_*` (JSDoc parsing),
-`svelte_*` (component analysis), `module_*` (path utilities),
-`package_gen_*` (Gro package generation).
+**svelte-docinfo** - TypeScript/Svelte static analysis is provided by the
+`@fuzdev/svelte-docinfo` package. fuz_ui imports analysis functions (`analyze`,
+`throwOnDuplicates` from `analyze.js`), source utilities (`isTypescript`,
+`isSvelte` from `source.js`), and types (`ModuleJson`, `DeclarationJson`,
+`generateImport`, `getDisplayName` from `types.js`).
 
 ## Components
 
@@ -147,27 +147,27 @@ Helper file prefixes: `ts_*` (TypeScript API), `tsdoc_*` (JSDoc parsing),
 
 ### Library and API generation
 
-- `library.gen.ts` - Gro genfile that orchestrates metadata generation
+- `library_gen.ts` - Gro integration: calls `analyze()` from svelte-docinfo,
+  wraps with `SourceJson` metadata, outputs Gro `Gen` format
 - `library.svelte.ts` - `Library` class wrapping library data
-- `declaration.svelte.ts` - `Declaration` class for code declarations
-- `module.svelte.ts` - `Module` class for source files
+- `declaration.svelte.ts` - `Declaration` class for code declarations (uses
+  `generateImport`, `getDisplayName` from `@fuzdev/svelte-docinfo/types.js`)
+- `module.svelte.ts` - `Module` class for source files (uses `ModuleJson` from
+  `@fuzdev/svelte-docinfo/types.js`)
+- `LibraryDetail.svelte` - library overview component (uses `isTypescript`,
+  `isSvelte`, `isCss`, `isJson` from `@fuzdev/svelte-docinfo/source.js`)
 - `library_helpers.ts` - docs URL helpers
 - `vite_plugin_library_well_known.ts` - RFC 8615 `.well-known/` metadata publishing
 
-### TypeScript and Svelte analysis
+Analysis is provided by `@fuzdev/svelte-docinfo`. See its CLAUDE.md for the
+full API. Key imports used by fuz_ui:
 
-- `ts_helpers.ts` - TypeScript compiler API utilities (`ts_analyze_declaration`,
-  `ts_analyze_module_exports`, `ts_create_program`)
-- `svelte_helpers.ts` - Svelte component analysis (`svelte_analyze_file`,
-  `svelte_analyze_component`)
-- `tsdoc_helpers.ts` - JSDoc/TSDoc parsing (`tsdoc_parse`,
-  `tsdoc_apply_to_declaration`). Supports `@param`, `@returns`, `@throws`,
-  `@example`, `@deprecated`, `@see`, `@since`, `@nodocs`, `@mutates`
-- `module_helpers.ts` - module path utilities (`module_is_typescript`,
-  `module_is_svelte`, `module_extract_path`)
-- `library_analysis.ts` - unified analysis entry point
-- `library_pipeline.ts` - pipeline orchestration (collect, analyze, validate,
-  transform, output)
+- `analyze.js` - `analyze()`, `throwOnDuplicates`, `OnDuplicatesCallback`
+- `source.js` - `createSourceOptions`, `validateSourceOptions`, `isSource`,
+  `getSourceRoot`, `isTypescript`, `isSvelte`, `isCss`, `isJson`,
+  `SourceFileInfo`, `ModuleSourceOptions`, `ModuleSourcePartial`
+- `types.js` - `ModuleJson`, `DeclarationJson`, `generateImport`, `getDisplayName`
+- `pipeline.js` - `DuplicateInfo`
 
 ### Browser and DOM
 
@@ -282,8 +282,9 @@ API docs.
 
 **API documentation** - auto-generated from TypeScript/Svelte source with full
 TSDoc support. Two-phase architecture: TSDoc extraction at build time
-(`tsdoc_helpers.ts`), mdz rendering at runtime (`mdz.ts`). Setup requires
-`library.gen.ts` and API routes. See `src/routes/docs/api/` for example routes.
+(via `@fuzdev/svelte-docinfo`), mdz rendering at runtime (`mdz.ts`). Setup
+requires `library.gen.ts` and API routes. See `src/routes/docs/api/` for
+example routes.
 
 **Docs layout** - `<Docs>` provides three-column responsive layout with managed
 contexts for navigation.
@@ -358,6 +359,7 @@ For `svelte_preprocess_mdz` fixtures, input files with fake imports need
 
 - [`fuz_css`](../fuz_css/CLAUDE.md) - CSS framework (peer dependency)
 - [`fuz_util`](../fuz_util/CLAUDE.md) - utility functions (peer dependency)
+- [`svelte-docinfo`](../private_svelte-docinfo/CLAUDE.md) - TypeScript/Svelte static analysis (dependency)
 - [`fuz_template`](../fuz_template/CLAUDE.md) - starter template using fuz_ui
 - [`fuz_blog`](../fuz_blog/CLAUDE.md) - blog template using fuz_ui
 - [`fuz_mastodon`](../fuz_mastodon/CLAUDE.md) - Mastodon components using fuz_ui

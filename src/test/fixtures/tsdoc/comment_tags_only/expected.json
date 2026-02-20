@@ -1,8 +1,0 @@
-{
-	"text": "",
-	"params": {
-		"x": "first number",
-		"y": "second number"
-	},
-	"returns": "sum of x and y"
-}
