@@ -1453,6 +1453,9 @@ a.chip {
 .align-items\:center {
 	align-items: center;
 }
+.border-radius\:0 {
+	border-radius: 0;
+}
 .display\:block {
 	display: block;
 }

@@ -116,7 +116,7 @@
 								>
 								<button
 									type="button"
-									class="border_radius_0 {selected_hue_class}"
+									class="border-radius:0 {selected_hue_class}"
 									disabled={!contextmenu.can_activate}
 									onmousedowncapture={async (e) => {
 										swallow(e);
