@@ -198,7 +198,7 @@ Trailing punctuation handling same as auto-URLs.
 
 **Rendering note:**
 
-Absolute paths are resolved through SvelteKit's `resolve()` to apply the base path. Relative paths use raw hrefs, letting the browser resolve them against the current URL.
+Absolute paths are resolved through SvelteKit's `resolve()` to apply the base path. Relative paths are resolved against the `base` prop/context when provided, producing absolute paths passed through `resolve()`. Without `base`, relative paths use raw hrefs, letting the browser resolve them against the current URL.
 
 ---
 

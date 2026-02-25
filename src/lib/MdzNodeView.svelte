@@ -5,7 +5,11 @@
 	import type {MdzNode} from './mdz.js';
 	import DocsLink from './DocsLink.svelte';
 	import MdzNodeView from './MdzNodeView.svelte';
-	import {mdz_components_context, mdz_elements_context} from './mdz_components.js';
+	import {
+		mdz_components_context,
+		mdz_elements_context,
+		mdz_base_context,
+	} from './mdz_components.js';
 
 	const {
 		node,
@@ -15,6 +19,7 @@
 
 	const components = mdz_components_context.get_maybe();
 	const elements = mdz_elements_context.get_maybe();
+	const mdz_base = mdz_base_context.get_maybe();
 	// TODO make `Code` customizable via context, maybe registered as component Codeblock?
 </script>
 
@@ -53,13 +58,17 @@
 {:else if node.type === 'Link'}
 	{@const {reference} = node}
 	{#if node.link_type === 'internal'}
-		{@const skip_resolve =
-			reference.startsWith('#') || reference.startsWith('?') || reference.startsWith('.')}
-		<!-- Fragment, query, and relative links skip resolve() -->
-		<!-- eslint-disable-next-line svelte/no-navigation-without-resolve -->
-		<a href={skip_resolve ? reference : resolve(reference as any)}
-			>{@render render_children(node.children)}</a
-		>
+		{@const skip_resolve = reference.startsWith('#') || reference.startsWith('?')}
+		{#if reference.startsWith('.') && mdz_base}
+			{@const resolved = new URL(reference, 'file://' + mdz_base).pathname}
+			<a href={resolve(resolved as any)}>{@render render_children(node.children)}</a>
+		{:else if skip_resolve || reference.startsWith('.')}
+			<!-- Fragment, query, and relative links without base skip resolve() -->
+			<!-- eslint-disable-next-line svelte/no-navigation-without-resolve -->
+			<a href={reference}>{@render render_children(node.children)}</a>
+		{:else}
+			<a href={resolve(reference as any)}>{@render render_children(node.children)}</a>
+		{/if}
 	{:else}
 		<!-- external link -->
 		<!-- eslint-disable-next-line svelte/no-navigation-without-resolve -->

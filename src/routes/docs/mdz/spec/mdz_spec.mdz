@@ -207,7 +207,7 @@ See ./sibling for a sibling file.
 See ../shared/utils for a parent-relative path.
 ```
 
-Absolute paths (`/docs/api`) are resolved through SvelteKit's `resolve()` to apply the base path. Relative paths (`./foo`, `../bar`) use raw hrefs, letting the browser resolve them against the current URL.
+Absolute paths (`/docs/api`) are resolved through SvelteKit's `resolve()` to apply the base path. Relative paths (`./foo`, `../bar`) are resolved against the `base` prop/context when provided, producing absolute paths passed through `resolve()`. Without `base`, relative paths use raw hrefs, letting the browser resolve them against the current URL.
 
 ---
 

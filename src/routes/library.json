@@ -4740,10 +4740,17 @@
 						"doc_comment": "Context for providing allowed HTML elements.\nMust be set by the application using mdz.\nBy default, no HTML elements are allowed.",
 						"source_line": 34,
 						"type_signature": "{ get: (error_message?: string | undefined) => MdzElements; get_maybe: () => MdzElements | undefined; set: (value: MdzElements) => MdzElements; }"
+					},
+					{
+						"name": "mdz_base_context",
+						"kind": "variable",
+						"doc_comment": "Context for providing a base path for resolving relative links in mdz content.\nWhen set (e.g., `'/docs/mdz/'`), relative paths like `./grammar` resolve\nto absolute paths like `/docs/mdz/grammar` before rendering.\nWhen not set, relative paths use raw hrefs (browser resolves them).",
+						"source_line": 42,
+						"type_signature": "{ get: (error_message?: string | undefined) => string; get_maybe: () => string | undefined; set: (value: string) => string; }"
 					}
 				],
 				"dependencies": ["context_helpers.ts"],
-				"dependents": ["MdzNodeView.svelte"]
+				"dependents": ["Mdz.svelte", "MdzNodeView.svelte"]
 			},
 			{
 				"path": "mdz_to_svelte.ts",
@@ -4779,8 +4786,8 @@
 						"name": "mdz_to_svelte",
 						"kind": "function",
 						"doc_comment": "Converts an array of `MdzNode` to a Svelte markup string.\n\nEach node type produces output matching what `MdzNodeView.svelte` renders at runtime.\nCollects required imports and flags unconfigured component/element references.",
-						"source_line": 43,
-						"type_signature": "(nodes: MdzNode[], components: Record<string, string>, elements: ReadonlySet<string>): MdzToSvelteResult",
+						"source_line": 46,
+						"type_signature": "(nodes: MdzNode[], components: Record<string, string>, elements: ReadonlySet<string>, base?: string | undefined): MdzToSvelteResult",
 						"return_type": "MdzToSvelteResult",
 						"parameters": [
 							{
@@ -4797,6 +4804,12 @@
 								"name": "elements",
 								"type": "ReadonlySet<string>",
 								"description": "Allowed HTML element names (e.g., `new Set(['aside', 'details'])`).\nIf content references an element not in this set, `has_unconfigured_tags` is set."
+							},
+							{
+								"name": "base",
+								"type": "string | undefined",
+								"optional": true,
+								"description": "Base path for resolving relative links (e.g., `'/docs/mdz/'`).\nWhen provided, relative references (`./`, `../`) are resolved to absolute paths\nand passed through `resolve()`. Trailing slash recommended."
 							}
 						]
 					}
@@ -4824,12 +4837,17 @@
 								"name": "nowrap",
 								"type": "boolean",
 								"optional": true
+							},
+							{
+								"name": "base",
+								"type": "string",
+								"optional": true
 							}
 						],
 						"source_line": 1
 					}
 				],
-				"dependencies": ["MdzNodeView.svelte", "mdz.ts"],
+				"dependencies": ["MdzNodeView.svelte", "mdz.ts", "mdz_components.ts"],
 				"dependents": ["ApiModule.svelte", "DeclarationDetail.svelte"]
 			},
 			{

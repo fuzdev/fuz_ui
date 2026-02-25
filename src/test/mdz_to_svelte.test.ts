@@ -382,6 +382,54 @@ describe('mdz_to_svelte', () => {
 		});
 	});
 
+	describe('relative path links', () => {
+		test('renders relative path without base as raw href', () => {
+			const result = convert('see ./docs/api');
+			assert.ok(result.markup.includes("href={'./docs/api'}"));
+			assert.ok(!result.imports.has('resolve'));
+		});
+
+		test('renders parent-relative path without base as raw href', () => {
+			const result = convert('see ../shared/utils');
+			assert.ok(result.markup.includes("href={'../shared/utils'}"));
+			assert.ok(!result.imports.has('resolve'));
+		});
+
+		test('resolves relative path with base and adds resolve import', () => {
+			const nodes = mdz_parse('see ./grammar');
+			const result = mdz_to_svelte(nodes, {}, new Set(), '/docs/mdz/');
+			assert.ok(result.markup.includes("href={resolve('/docs/mdz/grammar')}"));
+			assert_import(result, 'resolve', '$app/paths', 'named');
+		});
+
+		test('resolves parent-relative path with base', () => {
+			const nodes = mdz_parse('see ../mdz');
+			const result = mdz_to_svelte(nodes, {}, new Set(), '/docs/mdz/');
+			assert.ok(result.markup.includes("href={resolve('/docs/mdz')}"));
+			assert_import(result, 'resolve', '$app/paths', 'named');
+		});
+
+		test('base does not affect absolute paths', () => {
+			const nodes = mdz_parse('see /docs/api');
+			const result = mdz_to_svelte(nodes, {}, new Set(), '/docs/mdz/');
+			assert.ok(result.markup.includes("href={resolve('/docs/api')}"));
+		});
+
+		test('base does not affect fragment links', () => {
+			const nodes = mdz_parse('[section](#foo)');
+			const result = mdz_to_svelte(nodes, {}, new Set(), '/docs/mdz/');
+			assert.ok(result.markup.includes("href={'#foo'}"));
+			assert.ok(!result.imports.has('resolve'));
+		});
+
+		test('base does not affect external links', () => {
+			const nodes = mdz_parse('https://example.com');
+			const result = mdz_to_svelte(nodes, {}, new Set(), '/docs/mdz/');
+			assert.ok(result.markup.includes("href={'https://example.com'}"));
+			assert.ok(result.markup.includes('target="_blank"'));
+		});
+	});
+
 	describe('edge cases', () => {
 		test('handles empty node array', () => {
 			const result = mdz_to_svelte([], {}, new Set());

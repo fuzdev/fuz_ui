@@ -169,9 +169,13 @@
 		</ul>
 		<Code content={link_external_example} />
 		<Mdz content={link_external_example} class="mb_xl5" />
-		<p>Relative paths use raw hrefs (the browser resolves them against the current URL):</p>
+		<p>
+			Relative paths are resolved against the <code>base</code> prop when provided, producing
+			correct absolute paths. Without <code>base</code>, they use raw hrefs (the browser resolves
+			them against the current URL):
+		</p>
 		<Code content={link_relative_example} />
-		<Mdz content={link_relative_example} class="mb_xl5" />
+		<Mdz content={link_relative_example} base="/docs/mdz/" class="mb_xl5" />
 	</TomeSection>
 
 	<TomeSection>

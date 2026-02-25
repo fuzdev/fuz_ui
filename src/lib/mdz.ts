@@ -1318,7 +1318,7 @@ export class MdzParser {
 	#parse_text(): MdzTextNode | MdzLinkNode {
 		const start = this.#index;
 
-		// Check for URL or internal/relative path at current position
+		// Check for URL or internal absolute/relative path at current position
 		if (this.#is_at_url()) {
 			return this.#parse_auto_link_url();
 		}
@@ -1363,7 +1363,7 @@ export class MdzParser {
 				}
 			}
 
-			// Check for URL or internal/relative path mid-text
+			// Check for URL or internal absolute/relative path mid-text
 			if (this.#is_at_url() || this.#is_at_absolute_path() || this.#is_at_relative_path()) {
 				break;
 			}

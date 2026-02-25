@@ -39,11 +39,15 @@ export interface MdzToSvelteResult {
  *   If content references a component not in this map, `has_unconfigured_tags` is set.
  * @param elements Allowed HTML element names (e.g., `new Set(['aside', 'details'])`).
  *   If content references an element not in this set, `has_unconfigured_tags` is set.
+ * @param base Base path for resolving relative links (e.g., `'/docs/mdz/'`).
+ *   When provided, relative references (`./`, `../`) are resolved to absolute paths
+ *   and passed through `resolve()`. Trailing slash recommended.
  */
 export const mdz_to_svelte = (
 	nodes: Array<MdzNode>,
 	components: Record<string, string>,
 	elements: ReadonlySet<string>,
+	base?: string,
 ): MdzToSvelteResult => {
 	const imports: Map<string, {path: string; kind: 'default' | 'named'}> = new Map();
 	let has_unconfigured_tags = false;
@@ -80,6 +84,11 @@ export const mdz_to_svelte = (
 			case 'Link': {
 				const children_markup = render_nodes(node.children);
 				if (node.link_type === 'internal') {
+					if (node.reference.startsWith('.') && base) {
+						const resolved = new URL(node.reference, 'file://' + base).pathname;
+						imports.set('resolve', {path: '$app/paths', kind: 'named'});
+						return `<a href={resolve('${escape_js_string(resolved)}')}>${children_markup}</a>`;
+					}
 					if (
 						node.reference.startsWith('#') ||
 						node.reference.startsWith('?') ||
