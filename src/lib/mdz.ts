@@ -91,7 +91,7 @@ export interface MdzLinkNode extends MdzBaseNode {
 	type: 'Link';
 	reference: string; // URL or path
 	children: Array<MdzNode>; // Display content (can include inline formatting)
-	link_type: 'external' | 'internal'; // external: https/http, internal: /path
+	link_type: 'external' | 'internal'; // external: https/http, internal: /path, ./path, ../path
 }
 
 export interface MdzParagraphNode extends MdzBaseNode {
@@ -1124,14 +1124,13 @@ export class MdzParser {
 	}
 
 	/**
-	 * Check if current position is the start of an internal path (starts with /).
+	 * Check if current position is the start of an absolute path (starts with /).
 	 */
-	#is_at_internal_path(): boolean {
+	#is_at_absolute_path(): boolean {
 		if (this.#template.charCodeAt(this.#index) !== SLASH) {
 			return false;
 		}
 		// Check previous character - must be whitespace or start of string
-		// (to avoid matching / within relative paths like ./a/b or ../a/b)
 		if (this.#index > 0) {
 			const prev_char = this.#template.charCodeAt(this.#index - 1);
 			if (prev_char !== SPACE && prev_char !== NEWLINE && prev_char !== TAB) {
@@ -1146,6 +1145,38 @@ export class MdzParser {
 		}
 		const next_char = this.#template.charCodeAt(this.#index + 1);
 		return next_char !== SLASH && next_char !== SPACE && next_char !== NEWLINE;
+	}
+
+	/**
+	 * Check if current position is the start of a relative path (`./` or `../`).
+	 */
+	#is_at_relative_path(): boolean {
+		if (this.#template.charCodeAt(this.#index) !== PERIOD) {
+			return false;
+		}
+		// Check previous character - must be whitespace or start of string
+		if (this.#index > 0) {
+			const prev_char = this.#template.charCodeAt(this.#index - 1);
+			if (prev_char !== SPACE && prev_char !== NEWLINE && prev_char !== TAB) {
+				return false;
+			}
+		}
+		const remaining = this.#template.length - this.#index;
+		// Check for ../ (at least 4 chars: ../x)
+		if (
+			remaining >= 4 &&
+			this.#template.charCodeAt(this.#index + 1) === PERIOD &&
+			this.#template.charCodeAt(this.#index + 2) === SLASH
+		) {
+			const after = this.#template.charCodeAt(this.#index + 3);
+			return after !== SPACE && after !== NEWLINE && after !== SLASH;
+		}
+		// Check for ./ (at least 3 chars: ./x)
+		if (remaining >= 3 && this.#template.charCodeAt(this.#index + 1) === SLASH) {
+			const after = this.#template.charCodeAt(this.#index + 2);
+			return after !== SPACE && after !== NEWLINE && after !== SLASH;
+		}
+		return false;
 	}
 
 	/**
@@ -1191,10 +1222,10 @@ export class MdzParser {
 	}
 
 	/**
-	 * Parse auto-detected internal path (starts with /).
+	 * Parse auto-detected path (absolute `/`, relative `./` or `../`).
 	 * Uses RFC 3986 whitelist validation for valid URI characters.
 	 */
-	#parse_auto_link_internal(): MdzLinkNode {
+	#parse_auto_link_path(): MdzLinkNode {
 		const start = this.#index;
 
 		// Collect path characters using RFC 3986 whitelist
@@ -1287,12 +1318,12 @@ export class MdzParser {
 	#parse_text(): MdzTextNode | MdzLinkNode {
 		const start = this.#index;
 
-		// Check for URL or internal path at current position
+		// Check for URL or internal/relative path at current position
 		if (this.#is_at_url()) {
 			return this.#parse_auto_link_url();
 		}
-		if (this.#is_at_internal_path()) {
-			return this.#parse_auto_link_internal();
+		if (this.#is_at_absolute_path() || this.#is_at_relative_path()) {
+			return this.#parse_auto_link_path();
 		}
 
 		while (this.#index < this.#template.length) {
@@ -1332,8 +1363,8 @@ export class MdzParser {
 				}
 			}
 
-			// Check for URL or internal path mid-text
-			if (this.#is_at_url() || this.#is_at_internal_path()) {
+			// Check for URL or internal/relative path mid-text
+			if (this.#is_at_url() || this.#is_at_absolute_path() || this.#is_at_relative_path()) {
 				break;
 			}
 

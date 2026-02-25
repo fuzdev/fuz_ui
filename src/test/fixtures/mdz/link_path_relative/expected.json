@@ -1,0 +1,57 @@
+[
+	{
+		"type": "Paragraph",
+		"children": [
+			{
+				"type": "Text",
+				"content": "See ",
+				"start": 0,
+				"end": 4
+			},
+			{
+				"type": "Link",
+				"reference": "./a/b",
+				"children": [
+					{
+						"type": "Text",
+						"content": "./a/b",
+						"start": 4,
+						"end": 9
+					}
+				],
+				"link_type": "internal",
+				"start": 4,
+				"end": 9
+			},
+			{
+				"type": "Text",
+				"content": " and ",
+				"start": 9,
+				"end": 14
+			},
+			{
+				"type": "Link",
+				"reference": "../a/b",
+				"children": [
+					{
+						"type": "Text",
+						"content": "../a/b",
+						"start": 14,
+						"end": 20
+					}
+				],
+				"link_type": "internal",
+				"start": 14,
+				"end": 20
+			},
+			{
+				"type": "Text",
+				"content": " for details.",
+				"start": 20,
+				"end": 33
+			}
+		],
+		"start": 0,
+		"end": 33
+	}
+]

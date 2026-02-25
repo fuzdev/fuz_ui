@@ -196,16 +196,18 @@ https://en.wikipedia.org/wiki/Markdown_(markup_language)
 
 The closing `)` is included in the URL.
 
-### Auto-Detected Internal Paths
+### Auto-Detected Paths
 
-Paths starting with `/` are automatically linked (root-relative paths):
+Paths starting with `/`, `./`, or `../` are automatically linked:
 
 ```
 See /docs/api for the API documentation.
 Visit /docs/mdz/grammar for the formal grammar.
+See ./sibling for a sibling file.
+See ../shared/utils for a parent-relative path.
 ```
 
-**Important:** Relative paths (`./`, `../`) are NOT supported. mdz content may be rendered at different URLs than its source location, making relative paths ambiguous. Root-relative paths have unambiguous meaning regardless of context.
+Absolute paths (`/docs/api`) are resolved through SvelteKit's `resolve()` to apply the base path. Relative paths (`./foo`, `../bar`) use raw hrefs, letting the browser resolve them against the current URL.
 
 ---
 
@@ -528,6 +530,7 @@ mdz deliberately diverges from CommonMark and GitHub Flavored Markdown to minimi
 | Block indent         | Up to 3 spaces allowed                | Must be column 0 (all block elements)                       |
 | Heading no space     | `#text` valid                         | Invalid (space required)                                    |
 | Setext headings      | `text\n---` = `<h2>`                  | NOT supported (`---` always = HR)                           |
+| Relative path links  | Not auto-linked                       | `./path` and `../path` auto-link                            |
 
 **Rationale:**
 
@@ -548,6 +551,8 @@ mdz is designed for documentation and content where predictability and simplicit
 **Embedded help text** - Lightweight formatting without markdown's complexity or edge cases. Good for tooltips, error messages, and UI strings that need basic formatting.
 
 **Reference documentation** - Inline code formatting works well for documenting APIs, configuration options, and technical references.
+
+**File-structured static content** - Relative path auto-linking (`./sibling.md`, `../shared/utils`) makes mdz natural for wikis, indexes, and documentation trees where files reference their neighbors.
 
 ---
 
@@ -581,7 +586,7 @@ mdz is an **early proof of concept**:
 
 - Well-defined syntax and parsing rules
 - Core inline formatting (bold, italic, strikethrough, code)
-- Links (markdown, auto-detected URLs and paths)
+- Links (markdown, auto-detected URLs, absolute and relative paths)
 - Block elements (headings, horizontal rules, codeblocks)
 - Component and element integration
 - Whitespace preservation

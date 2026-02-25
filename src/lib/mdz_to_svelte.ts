@@ -80,7 +80,11 @@ export const mdz_to_svelte = (
 			case 'Link': {
 				const children_markup = render_nodes(node.children);
 				if (node.link_type === 'internal') {
-					if (node.reference.startsWith('#') || node.reference.startsWith('?')) {
+					if (
+						node.reference.startsWith('#') ||
+						node.reference.startsWith('?') ||
+						node.reference.startsWith('.')
+					) {
 						return `<a href={'${escape_js_string(node.reference)}'}>${children_markup}</a>`;
 					}
 					imports.set('resolve', {path: '$app/paths', kind: 'named'});

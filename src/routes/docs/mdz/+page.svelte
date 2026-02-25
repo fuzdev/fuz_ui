@@ -32,6 +32,7 @@
 	const code_plain_example = 'This `identifier` does not exist.';
 	const link_external_example =
 		'[Fuz API docs](https://fuz.dev/docs/api) and https://fuz.dev/docs/api and /docs/api';
+	const link_relative_example = 'See ./grammar and ./spec and ../mdz for relative paths.';
 	const linebreak_example = 'First line.\nSecond line.\nThird line.';
 	const paragraph_example = 'First paragraph.\n\nSecond paragraph.\nLinebreak in second paragraph.';
 	const triple_linebreak_example =
@@ -52,9 +53,10 @@
 	<section>
 		<p>
 			mdz is a small markdown dialect that supports Svelte components, auto-detected URLs prefixed
-			with <code>https://</code> and <code>/</code>, and Fuz integration like linkified identifiers
-			and modules in <code>`backticks`</code>. The goal is to securely integrate markdown with the
-			environment's capabilities, while being simple and friendly to nontechnical users.
+			with <code>https://</code>, <code>/</code>, <code>./</code>, and <code>../</code>, and Fuz
+			integration like linkified identifiers and modules in <code>`backticks`</code>. The goal is to
+			securely integrate markdown with the environment's capabilities, while being simple and
+			friendly to nontechnical users.
 		</p>
 		<p>
 			mdz prioritizes predictability with one canonical pattern per feature, preferring false
@@ -155,27 +157,21 @@
 
 	<TomeSection>
 		<TomeSectionHeader text="Links" />
-		<p>mdz supports three kinds of links:</p>
+		<p>mdz supports four kinds of links:</p>
 		<ul>
 			<li>standard markdown link syntax</li>
 			<li>
 				external URLs starting with <code>https://</code> or
 				<code>http://</code>
 			</li>
-			<li>internal paths starting with <code>/</code></li>
+			<li>absolute paths starting with <code>/</code></li>
+			<li>relative paths starting with <code>./</code> or <code>../</code></li>
 		</ul>
 		<Code content={link_external_example} />
 		<Mdz content={link_external_example} class="mb_xl5" />
-		<p>
-			<strong>Note:</strong> Relative paths (<code>./</code>, <code>../</code>) are not supported
-			(currently, I think this will be changed). mdz content may be rendered at different URLs than
-			where source files live (e.g., TSDoc comments from <code>src/lib/foo.ts</code> render at
-			<code>/docs/api/foo.ts</code>). Root-relative paths (<code>/docs/...</code>) have unambiguous
-			meaning regardless of render location, making them more portable. However it seems very useful
-			to make
-			<code>../</code> and <code>./</code> links work, maybe we can support it and make the renderer accept
-			a custom base path?
-		</p>
+		<p>Relative paths use raw hrefs (the browser resolves them against the current URL):</p>
+		<Code content={link_relative_example} />
+		<Mdz content={link_relative_example} class="mb_xl5" />
 	</TomeSection>
 
 	<TomeSection>

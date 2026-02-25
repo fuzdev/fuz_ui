@@ -53,10 +53,11 @@
 {:else if node.type === 'Link'}
 	{@const {reference} = node}
 	{#if node.link_type === 'internal'}
-		{@const is_fragment_or_query_only = reference.startsWith('#') || reference.startsWith('?')}
-		<!-- Fragment/query-only links skip resolve() to avoid unwanted `/` prefix -->
+		{@const skip_resolve =
+			reference.startsWith('#') || reference.startsWith('?') || reference.startsWith('.')}
+		<!-- Fragment, query, and relative links skip resolve() -->
 		<!-- eslint-disable-next-line svelte/no-navigation-without-resolve -->
-		<a href={is_fragment_or_query_only ? reference : resolve(reference as any)}
+		<a href={skip_resolve ? reference : resolve(reference as any)}
 			>{@render render_children(node.children)}</a
 		>
 	{:else}
