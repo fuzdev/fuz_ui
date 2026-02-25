@@ -1855,31 +1855,26 @@ export const mdz_is_url = (s: string): boolean => URL_PATTERN.test(s);
 
 /**
  * Resolves a relative path (`./` or `../`) against a base path.
- * Normalizes the base to have a trailing slash if missing.
+ * Base without trailing slash is treated as a directory (same as with).
  * Handles embedded `.` and `..` segments and clamps at root.
  *
  * @param reference A relative path starting with `./` or `../`.
  * @param base An absolute base path (e.g., `'/docs/mdz/'`).
  */
 export const resolve_relative_path = (reference: string, base: string): string => {
-	// Normalize base to have trailing slash, then split into segments.
-	// For short paths (typical: 3-8 segments), split/join is fast and correct.
-	const base_segments = (base.endsWith('/') ? base : base + '/').split('/');
-	base_segments.pop(); // remove trailing empty from the final '/'
-	const ref_segments = reference.split('/');
-	for (let i = 0; i < ref_segments.length; i++) {
-		const segment = ref_segments[i]!;
-		if (segment === '.') continue;
-		if (segment === '') {
-			// Preserve trailing slash (last empty segment), skip internal empty segments.
-			if (i === ref_segments.length - 1) base_segments.push('');
-			continue;
-		}
+	const segments = base.split('/');
+	// Remove trailing empty from split (e.g., '/docs/mdz/' → ['', 'docs', 'mdz', ''])
+	// but keep the root segment ([''] from '' base or ['', ''] from '/').
+	if (segments.length > 1 && segments.at(-1) === '') segments.pop();
+	const trailing = reference.endsWith('/');
+	for (const segment of reference.split('/')) {
+		if (segment === '.' || segment === '') continue;
 		if (segment === '..') {
-			if (base_segments.length > 1) base_segments.pop(); // clamp at root
+			if (segments.length > 1) segments.pop(); // clamp at root
 		} else {
-			base_segments.push(segment);
+			segments.push(segment);
 		}
 	}
-	return base_segments.join('/');
+	if (trailing) segments.push('');
+	return segments.join('/');
 };

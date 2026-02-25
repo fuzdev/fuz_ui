@@ -5193,7 +5193,7 @@
 					{
 						"name": "resolve_relative_path",
 						"kind": "function",
-						"doc_comment": "Resolves a relative path (`./` or `../`) against a base path.\nNormalizes the base to have a trailing slash if missing.\nHandles embedded `.` and `..` segments and clamps at root.",
+						"doc_comment": "Resolves a relative path (`./` or `../`) against a base path.\nBase without trailing slash is treated as a directory (same as with).\nHandles embedded `.` and `..` segments and clamps at root.",
 						"source_line": 1864,
 						"type_signature": "(reference: string, base: string): string",
 						"return_type": "string",
