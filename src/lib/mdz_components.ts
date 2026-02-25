@@ -34,9 +34,10 @@ export const mdz_components_context = create_context<MdzComponents>();
 export const mdz_elements_context = create_context<MdzElements>();
 
 /**
- * Context for providing a base path for resolving relative links in mdz content.
- * When set (e.g., `'/docs/mdz/'`), relative paths like `./grammar` resolve
- * to absolute paths like `/docs/mdz/grammar` before rendering.
+ * Context for providing a base path getter for resolving relative links in mdz content.
+ * Set to a getter (e.g., `() => base`) so changes to the base prop are reflected
+ * without needing an effect. When the getter returns a path like `'/docs/mdz/'`,
+ * relative paths like `./grammar` resolve to `/docs/mdz/grammar` before rendering.
  * When not set, relative paths use raw hrefs (browser resolves them).
  */
-export const mdz_base_context = create_context<string>();
+export const mdz_base_context = create_context<() => string | undefined>();

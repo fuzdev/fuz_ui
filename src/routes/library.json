@@ -4744,9 +4744,9 @@
 					{
 						"name": "mdz_base_context",
 						"kind": "variable",
-						"doc_comment": "Context for providing a base path for resolving relative links in mdz content.\nWhen set (e.g., `'/docs/mdz/'`), relative paths like `./grammar` resolve\nto absolute paths like `/docs/mdz/grammar` before rendering.\nWhen not set, relative paths use raw hrefs (browser resolves them).",
-						"source_line": 42,
-						"type_signature": "{ get: (error_message?: string | undefined) => string; get_maybe: () => string | undefined; set: (value: string) => string; }"
+						"doc_comment": "Context for providing a base path getter for resolving relative links in mdz content.\nSet to a getter (e.g., `() => base`) so changes to the base prop are reflected\nwithout needing an effect. When the getter returns a path like `'/docs/mdz/'`,\nrelative paths like `./grammar` resolve to `/docs/mdz/grammar` before rendering.\nWhen not set, relative paths use raw hrefs (browser resolves them).",
+						"source_line": 43,
+						"type_signature": "{ get: (error_message?: string | undefined) => () => string | undefined; get_maybe: () => (() => string | undefined) | undefined; set: (value: () => string | undefined) => () => string | undefined; }"
 					}
 				],
 				"dependencies": ["context_helpers.ts"],
@@ -4815,6 +4815,7 @@
 					}
 				],
 				"module_comment": "Converts parsed `MdzNode` arrays to Svelte markup strings.\n\nUsed by the `svelte_preprocess_mdz` preprocessor to expand static `<Mdz content=\"...\">` usages\ninto pre-rendered Svelte markup at build time. The output for each node type matches what\n`MdzNodeView.svelte` renders at runtime, so precompiled and runtime rendering are identical.",
+				"dependencies": ["mdz.ts"],
 				"dependents": ["svelte_preprocess_mdz.ts"]
 			},
 			{
@@ -5188,10 +5189,36 @@
 								"type": "string"
 							}
 						]
+					},
+					{
+						"name": "resolve_relative_path",
+						"kind": "function",
+						"doc_comment": "Resolves a relative path (`./` or `../`) against a base path.\nNormalizes the base to have a trailing slash if missing.\nHandles embedded `.` and `..` segments and clamps at root.",
+						"source_line": 1864,
+						"type_signature": "(reference: string, base: string): string",
+						"return_type": "string",
+						"parameters": [
+							{
+								"name": "reference",
+								"type": "string",
+								"description": "A relative path starting with `./` or `../`."
+							},
+							{
+								"name": "base",
+								"type": "string",
+								"description": "An absolute base path (e.g., `'/docs/mdz/'`)."
+							}
+						]
 					}
 				],
 				"module_comment": "mdz - minimal markdown dialect for Fuz documentation.\n\nParses an enhanced markdown dialect with:\n- inline formatting: `code`, **bold**, _italic_, ~strikethrough~\n- auto-detected links: external URLs (`https://...`) and internal paths (`/path`)\n- markdown links: `[text](url)` with custom display text\n- inline code in backticks (creates `Code` nodes; auto-linking to identifiers/modules\n  is handled by the rendering layer via `MdzNodeView.svelte`)\n- paragraph breaks (double newline)\n- block elements: headings, horizontal rules, code blocks\n- HTML elements and Svelte components (opt-in via context)\n\nKey constraint: preserves ALL whitespace exactly as authored,\nand is rendered with white-space pre or pre-wrap.\n\n## Design philosophy\n\n- **False negatives over false positives**: When in doubt, treat as plain text.\n  Block elements can interrupt paragraphs without blank lines; inline formatting is strict.\n- **One way to do things**: Single unambiguous syntax per feature. No alternatives.\n- **Explicit over implicit**: Clear delimiters and column-0 requirements avoid ambiguity.\n- **Simple over complete**: Prefer simple parsing rules over complex edge case handling.\n\n## Status\n\nThis is an early proof of concept with missing features and edge cases.",
-				"dependents": ["Mdz.svelte", "svelte_preprocess_mdz.ts", "tsdoc_mdz.ts"]
+				"dependents": [
+					"Mdz.svelte",
+					"MdzNodeView.svelte",
+					"mdz_to_svelte.ts",
+					"svelte_preprocess_mdz.ts",
+					"tsdoc_mdz.ts"
+				]
 			},
 			{
 				"path": "MdzNodeView.svelte",
@@ -5208,7 +5235,7 @@
 						"source_line": 1
 					}
 				],
-				"dependencies": ["DocsLink.svelte", "MdzNodeView.svelte", "mdz_components.ts"],
+				"dependencies": ["DocsLink.svelte", "MdzNodeView.svelte", "mdz.ts", "mdz_components.ts"],
 				"dependents": ["Mdz.svelte", "MdzNodeView.svelte"]
 			},
 			{

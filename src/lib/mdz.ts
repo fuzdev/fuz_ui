@@ -1852,3 +1852,34 @@ export class MdzParser {
  */
 const URL_PATTERN = /^https?:\/\/[^\s)\]}<>.,:/?#!]/;
 export const mdz_is_url = (s: string): boolean => URL_PATTERN.test(s);
+
+/**
+ * Resolves a relative path (`./` or `../`) against a base path.
+ * Normalizes the base to have a trailing slash if missing.
+ * Handles embedded `.` and `..` segments and clamps at root.
+ *
+ * @param reference A relative path starting with `./` or `../`.
+ * @param base An absolute base path (e.g., `'/docs/mdz/'`).
+ */
+export const resolve_relative_path = (reference: string, base: string): string => {
+	// Normalize base to have trailing slash, then split into segments.
+	// For short paths (typical: 3-8 segments), split/join is fast and correct.
+	const base_segments = (base.endsWith('/') ? base : base + '/').split('/');
+	base_segments.pop(); // remove trailing empty from the final '/'
+	const ref_segments = reference.split('/');
+	for (let i = 0; i < ref_segments.length; i++) {
+		const segment = ref_segments[i]!;
+		if (segment === '.') continue;
+		if (segment === '') {
+			// Preserve trailing slash (last empty segment), skip internal empty segments.
+			if (i === ref_segments.length - 1) base_segments.push('');
+			continue;
+		}
+		if (segment === '..') {
+			if (base_segments.length > 1) base_segments.pop(); // clamp at root
+		} else {
+			base_segments.push(segment);
+		}
+	}
+	return base_segments.join('/');
+};

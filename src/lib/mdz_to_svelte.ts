@@ -12,7 +12,7 @@ import {UnreachableError} from '@fuzdev/fuz_util/error.js';
 import {escape_svelte_text} from '@fuzdev/fuz_util/svelte_preprocess_helpers.js';
 import {escape_js_string} from '@fuzdev/fuz_util/string.js';
 
-import type {MdzNode} from './mdz.js';
+import {type MdzNode, resolve_relative_path} from './mdz.js';
 
 /**
  * Result of converting `MdzNode` arrays to Svelte markup.
@@ -85,7 +85,7 @@ export const mdz_to_svelte = (
 				const children_markup = render_nodes(node.children);
 				if (node.link_type === 'internal') {
 					if (node.reference.startsWith('.') && base) {
-						const resolved = new URL(node.reference, 'file://' + base).pathname;
+						const resolved = resolve_relative_path(node.reference, base);
 						imports.set('resolve', {path: '$app/paths', kind: 'named'});
 						return `<a href={resolve('${escape_js_string(resolved)}')}>${children_markup}</a>`;
 					}

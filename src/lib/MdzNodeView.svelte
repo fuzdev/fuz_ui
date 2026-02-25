@@ -2,7 +2,7 @@
 	import Code from '@fuzdev/fuz_code/Code.svelte';
 	import {resolve} from '$app/paths';
 
-	import type {MdzNode} from './mdz.js';
+	import {type MdzNode, resolve_relative_path} from './mdz.js';
 	import DocsLink from './DocsLink.svelte';
 	import MdzNodeView from './MdzNodeView.svelte';
 	import {
@@ -19,7 +19,7 @@
 
 	const components = mdz_components_context.get_maybe();
 	const elements = mdz_elements_context.get_maybe();
-	const mdz_base = mdz_base_context.get_maybe();
+	const get_mdz_base = mdz_base_context.get_maybe();
 	// TODO make `Code` customizable via context, maybe registered as component Codeblock?
 </script>
 
@@ -59,8 +59,9 @@
 	{@const {reference} = node}
 	{#if node.link_type === 'internal'}
 		{@const skip_resolve = reference.startsWith('#') || reference.startsWith('?')}
+		{@const mdz_base = get_mdz_base?.()}
 		{#if reference.startsWith('.') && mdz_base}
-			{@const resolved = new URL(reference, 'file://' + mdz_base).pathname}
+			{@const resolved = resolve_relative_path(reference, mdz_base)}
 			<a href={resolve(resolved as any)}>{@render render_children(node.children)}</a>
 		{:else if skip_resolve || reference.startsWith('.')}
 			<!-- Fragment, query, and relative links without base skip resolve() -->

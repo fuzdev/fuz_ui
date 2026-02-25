@@ -409,6 +409,12 @@ describe('mdz_to_svelte', () => {
 			assert_import(result, 'resolve', '$app/paths', 'named');
 		});
 
+		test('base without trailing slash resolves correctly', () => {
+			const nodes = mdz_parse('see ./grammar');
+			const result = mdz_to_svelte(nodes, {}, new Set(), '/docs/mdz');
+			assert.ok(result.markup.includes("href={resolve('/docs/mdz/grammar')}"));
+		});
+
 		test('base does not affect absolute paths', () => {
 			const nodes = mdz_parse('see /docs/api');
 			const result = mdz_to_svelte(nodes, {}, new Set(), '/docs/mdz/');
@@ -427,6 +433,32 @@ describe('mdz_to_svelte', () => {
 			const result = mdz_to_svelte(nodes, {}, new Set(), '/docs/mdz/');
 			assert.ok(result.markup.includes("href={'https://example.com'}"));
 			assert.ok(result.markup.includes('target="_blank"'));
+		});
+
+		test('markdown-syntax relative link resolves with base', () => {
+			const nodes = mdz_parse('[grammar](./grammar)');
+			const result = mdz_to_svelte(nodes, {}, new Set(), '/docs/mdz/');
+			assert.ok(result.markup.includes("href={resolve('/docs/mdz/grammar')}"));
+			assert.ok(result.markup.includes('>grammar</a>'));
+		});
+
+		test('markdown-syntax relative link without base uses raw href', () => {
+			const result = convert('[grammar](./grammar)');
+			assert.ok(result.markup.includes("href={'./grammar'}"));
+			assert.ok(!result.imports.has('resolve'));
+		});
+
+		test('markdown-syntax parent-relative link resolves with base', () => {
+			const nodes = mdz_parse('[up](../foo)');
+			const result = mdz_to_svelte(nodes, {}, new Set(), '/docs/mdz/');
+			assert.ok(result.markup.includes("href={resolve('/docs/foo')}"));
+		});
+
+		test('multiple relative links in same content resolve independently', () => {
+			const nodes = mdz_parse('see ./grammar and ../foo');
+			const result = mdz_to_svelte(nodes, {}, new Set(), '/docs/mdz/');
+			assert.ok(result.markup.includes("href={resolve('/docs/mdz/grammar')}"));
+			assert.ok(result.markup.includes("href={resolve('/docs/foo')}"));
 		});
 	});
 
