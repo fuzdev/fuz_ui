@@ -28,7 +28,7 @@ Trailing punctuation (`.,:;!?]`) is trimmed per GFM conventions.
 The `base` prop on `Mdz` (and `mdz_base_context` context) controls how
 relative paths (`./`, `../`) are resolved. When `base` is set (e.g.,
 `'/docs/mdz/'`), relative paths are resolved to absolute paths using
-`new URL(reference, 'file://' + base).pathname` and then passed through
+`resolve_relative_path()` from `$lib/mdz.js` and then passed through
 SvelteKit's `resolve()`. Without `base`, relative paths use raw hrefs
 (browser resolves them against the current URL).
 
