@@ -5090,7 +5090,7 @@
 					{
 						"name": "MdzTokenBase",
 						"kind": "type",
-						"source_line": 46,
+						"source_line": 47,
 						"type_signature": "MdzTokenBase",
 						"properties": [
 							{
@@ -5108,13 +5108,13 @@
 					{
 						"name": "MdzToken",
 						"kind": "type",
-						"source_line": 51,
+						"source_line": 52,
 						"type_signature": "MdzToken"
 					},
 					{
 						"name": "MdzTokenText",
 						"kind": "type",
-						"source_line": 73,
+						"source_line": 74,
 						"type_signature": "MdzTokenText",
 						"extends": ["MdzTokenBase"],
 						"properties": [
@@ -5133,7 +5133,7 @@
 					{
 						"name": "MdzTokenCode",
 						"kind": "type",
-						"source_line": 78,
+						"source_line": 79,
 						"type_signature": "MdzTokenCode",
 						"extends": ["MdzTokenBase"],
 						"properties": [
@@ -5152,7 +5152,7 @@
 					{
 						"name": "MdzTokenCodeblock",
 						"kind": "type",
-						"source_line": 83,
+						"source_line": 84,
 						"type_signature": "MdzTokenCodeblock",
 						"extends": ["MdzTokenBase"],
 						"properties": [
@@ -5176,7 +5176,7 @@
 					{
 						"name": "MdzTokenBoldOpen",
 						"kind": "type",
-						"source_line": 89,
+						"source_line": 90,
 						"type_signature": "MdzTokenBoldOpen",
 						"extends": ["MdzTokenBase"],
 						"properties": [
@@ -5190,7 +5190,7 @@
 					{
 						"name": "MdzTokenBoldClose",
 						"kind": "type",
-						"source_line": 93,
+						"source_line": 94,
 						"type_signature": "MdzTokenBoldClose",
 						"extends": ["MdzTokenBase"],
 						"properties": [
@@ -5204,7 +5204,7 @@
 					{
 						"name": "MdzTokenItalicOpen",
 						"kind": "type",
-						"source_line": 97,
+						"source_line": 98,
 						"type_signature": "MdzTokenItalicOpen",
 						"extends": ["MdzTokenBase"],
 						"properties": [
@@ -5218,7 +5218,7 @@
 					{
 						"name": "MdzTokenItalicClose",
 						"kind": "type",
-						"source_line": 101,
+						"source_line": 102,
 						"type_signature": "MdzTokenItalicClose",
 						"extends": ["MdzTokenBase"],
 						"properties": [
@@ -5232,7 +5232,7 @@
 					{
 						"name": "MdzTokenStrikethroughOpen",
 						"kind": "type",
-						"source_line": 105,
+						"source_line": 106,
 						"type_signature": "MdzTokenStrikethroughOpen",
 						"extends": ["MdzTokenBase"],
 						"properties": [
@@ -5246,7 +5246,7 @@
 					{
 						"name": "MdzTokenStrikethroughClose",
 						"kind": "type",
-						"source_line": 109,
+						"source_line": 110,
 						"type_signature": "MdzTokenStrikethroughClose",
 						"extends": ["MdzTokenBase"],
 						"properties": [
@@ -5260,7 +5260,7 @@
 					{
 						"name": "MdzTokenLinkTextOpen",
 						"kind": "type",
-						"source_line": 113,
+						"source_line": 114,
 						"type_signature": "MdzTokenLinkTextOpen",
 						"extends": ["MdzTokenBase"],
 						"properties": [
@@ -5274,7 +5274,7 @@
 					{
 						"name": "MdzTokenLinkTextClose",
 						"kind": "type",
-						"source_line": 117,
+						"source_line": 118,
 						"type_signature": "MdzTokenLinkTextClose",
 						"extends": ["MdzTokenBase"],
 						"properties": [
@@ -5288,7 +5288,7 @@
 					{
 						"name": "MdzTokenLinkRef",
 						"kind": "type",
-						"source_line": 121,
+						"source_line": 122,
 						"type_signature": "MdzTokenLinkRef",
 						"extends": ["MdzTokenBase"],
 						"properties": [
@@ -5312,7 +5312,7 @@
 					{
 						"name": "MdzTokenAutolink",
 						"kind": "type",
-						"source_line": 127,
+						"source_line": 128,
 						"type_signature": "MdzTokenAutolink",
 						"extends": ["MdzTokenBase"],
 						"properties": [
@@ -5336,7 +5336,7 @@
 					{
 						"name": "MdzTokenHeadingStart",
 						"kind": "type",
-						"source_line": 133,
+						"source_line": 134,
 						"type_signature": "MdzTokenHeadingStart",
 						"extends": ["MdzTokenBase"],
 						"properties": [
@@ -5355,7 +5355,7 @@
 					{
 						"name": "MdzTokenHr",
 						"kind": "type",
-						"source_line": 138,
+						"source_line": 139,
 						"type_signature": "MdzTokenHr",
 						"extends": ["MdzTokenBase"],
 						"properties": [
@@ -5369,7 +5369,7 @@
 					{
 						"name": "MdzTokenTagOpen",
 						"kind": "type",
-						"source_line": 142,
+						"source_line": 143,
 						"type_signature": "MdzTokenTagOpen",
 						"extends": ["MdzTokenBase"],
 						"properties": [
@@ -5393,7 +5393,7 @@
 					{
 						"name": "MdzTokenTagSelfClose",
 						"kind": "type",
-						"source_line": 148,
+						"source_line": 149,
 						"type_signature": "MdzTokenTagSelfClose",
 						"extends": ["MdzTokenBase"],
 						"properties": [
@@ -5417,7 +5417,7 @@
 					{
 						"name": "MdzTokenTagClose",
 						"kind": "type",
-						"source_line": 154,
+						"source_line": 155,
 						"type_signature": "MdzTokenTagClose",
 						"extends": ["MdzTokenBase"],
 						"properties": [
@@ -5436,7 +5436,7 @@
 					{
 						"name": "MdzTokenHeadingEnd",
 						"kind": "type",
-						"source_line": 159,
+						"source_line": 160,
 						"type_signature": "MdzTokenHeadingEnd",
 						"extends": ["MdzTokenBase"],
 						"properties": [
@@ -5450,7 +5450,7 @@
 					{
 						"name": "MdzTokenParagraphBreak",
 						"kind": "type",
-						"source_line": 163,
+						"source_line": 164,
 						"type_signature": "MdzTokenParagraphBreak",
 						"extends": ["MdzTokenBase"],
 						"properties": [
@@ -5464,7 +5464,7 @@
 					{
 						"name": "MdzLexer",
 						"kind": "class",
-						"source_line": 171,
+						"source_line": 172,
 						"members": [
 							{
 								"name": "constructor",
