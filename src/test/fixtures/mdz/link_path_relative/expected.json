@@ -10,48 +10,48 @@
 			},
 			{
 				"type": "Link",
-				"reference": "./a/b",
+				"reference": "./grammar",
 				"children": [
 					{
 						"type": "Text",
-						"content": "./a/b",
+						"content": "./grammar",
 						"start": 4,
-						"end": 9
+						"end": 13
 					}
 				],
 				"link_type": "internal",
 				"start": 4,
-				"end": 9
+				"end": 13
 			},
 			{
 				"type": "Text",
 				"content": " and ",
-				"start": 9,
-				"end": 14
+				"start": 13,
+				"end": 18
 			},
 			{
 				"type": "Link",
-				"reference": "../a/b",
+				"reference": "../mdz",
 				"children": [
 					{
 						"type": "Text",
-						"content": "../a/b",
-						"start": 14,
-						"end": 20
+						"content": "../mdz",
+						"start": 18,
+						"end": 24
 					}
 				],
 				"link_type": "internal",
-				"start": 14,
-				"end": 20
+				"start": 18,
+				"end": 24
 			},
 			{
 				"type": "Text",
 				"content": " for details.",
-				"start": 20,
-				"end": 33
+				"start": 24,
+				"end": 37
 			}
 		],
 		"start": 0,
-		"end": 33
+		"end": 37
 	}
 ]
