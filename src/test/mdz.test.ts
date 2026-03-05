@@ -1,6 +1,7 @@
 import {test, assert, describe, beforeAll} from 'vitest';
 
 import {mdz_parse, mdz_is_url} from '$lib/mdz.js';
+import {mdz_parse_lexer} from '$lib/mdz_token_parser.js';
 import {
 	load_fixtures,
 	validate_positions,
@@ -13,21 +14,28 @@ beforeAll(async () => {
 	fixtures = await load_fixtures();
 });
 
-describe('mdz parser', () => {
-	test('all fixtures parse correctly', () => {
-		for (const fixture of fixtures) {
-			const result = mdz_parse(fixture.input);
-			assert.deepEqual(result, fixture.expected, `Fixture "${fixture.name}" failed`);
-		}
-	});
+const parsers = [
+	{name: 'single-pass', parse: mdz_parse},
+	{name: 'lexer-based', parse: mdz_parse_lexer},
+];
 
-	test('all fixtures have valid positions', () => {
-		for (const fixture of fixtures) {
-			const result = mdz_parse(fixture.input);
-			validate_positions(result);
-		}
+for (const {name, parse} of parsers) {
+	describe(`mdz parser (${name})`, () => {
+		test('all fixtures parse correctly', () => {
+			for (const fixture of fixtures) {
+				const result = parse(fixture.input);
+				assert.deepEqual(result, fixture.expected, `Fixture "${fixture.name}" failed`);
+			}
+		});
+
+		test('all fixtures have valid positions', () => {
+			for (const fixture of fixtures) {
+				const result = parse(fixture.input);
+				validate_positions(result);
+			}
+		});
 	});
-});
+}
 
 describe('mdz_is_url', () => {
 	test('returns true for valid URLs', () => {
