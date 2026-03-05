@@ -1150,8 +1150,11 @@ export class MdzParser {
 				}
 			}
 
-			// Check for URL or internal path mid-text
-			if (this.#is_at_url() || this.#is_at_internal_path()) {
+			// Check for URL or internal path mid-text (char code guard avoids startsWith on every char)
+			if (
+				(char_code === 104 /* h */ && this.#is_at_url()) ||
+				(char_code === SLASH && this.#is_at_internal_path())
+			) {
 				break;
 			}
 
@@ -1234,8 +1237,8 @@ export class MdzParser {
 	 */
 	#is_at_paragraph_break(): boolean {
 		return (
-			this.#current_char() === NEWLINE &&
 			this.#index + 1 < this.#template.length &&
+			this.#template.charCodeAt(this.#index) === NEWLINE &&
 			this.#template.charCodeAt(this.#index + 1) === NEWLINE
 		);
 	}

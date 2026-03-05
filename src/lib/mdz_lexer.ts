@@ -213,8 +213,8 @@ export class MdzLexer {
 
 	#is_at_paragraph_break(): boolean {
 		return (
-			this.#char_at(this.#index) === NEWLINE &&
 			this.#index + 1 < this.#text.length &&
+			this.#text.charCodeAt(this.#index) === NEWLINE &&
 			this.#text.charCodeAt(this.#index + 1) === NEWLINE
 		);
 	}
@@ -223,8 +223,8 @@ export class MdzLexer {
 		return i < this.#text.length ? this.#text.charCodeAt(i) : -1;
 	}
 
-	#match(str: string, at?: number): boolean {
-		return this.#text.startsWith(str, at ?? this.#index);
+	#match(str: string): boolean {
+		return this.#text.startsWith(str, this.#index);
 	}
 
 	#skip_newlines(): void {
@@ -524,6 +524,7 @@ export class MdzLexer {
 
 		// Emit bold_open, tokenize children up to close, emit bold_close
 		this.#index += 2;
+		const open_token_index = this.#tokens.length;
 		this.#tokens.push({type: 'bold_open', start, end: this.#index});
 
 		// Set search boundary for nested parsers
@@ -540,8 +541,7 @@ export class MdzLexer {
 
 		if (this.#index === close_index && this.#match('**')) {
 			// Check if empty
-			const open_token_index = this.#find_last_token_index('bold_open');
-			const has_children = open_token_index !== -1 && open_token_index < this.#tokens.length - 1;
+			const has_children = open_token_index < this.#tokens.length - 1;
 
 			if (!has_children) {
 				// Empty bold - convert to text
@@ -556,10 +556,7 @@ export class MdzLexer {
 			this.#index = close_index + 2;
 		} else {
 			// Didn't reach closing - convert opening to text
-			const open_token_index = this.#find_last_token_index('bold_open');
-			if (open_token_index !== -1) {
-				this.#tokens[open_token_index] = {type: 'text', content: '**', start, end: start + 2};
-			}
+			this.#tokens[open_token_index] = {type: 'text', content: '**', start, end: start + 2};
 		}
 	}
 
@@ -603,6 +600,7 @@ export class MdzLexer {
 		this.#index++;
 		const open_type = kind === 'italic' ? 'italic_open' : 'strikethrough_open';
 		const close_type = kind === 'italic' ? 'italic_close' : 'strikethrough_close';
+		const open_token_index = this.#tokens.length;
 		this.#tokens.push({type: open_type, start, end: this.#index} as MdzToken);
 
 		// Set search boundary for nested parsers
@@ -619,8 +617,7 @@ export class MdzLexer {
 
 		if (this.#index === close_index && this.#match(delimiter)) {
 			// Check if empty
-			const open_token_index = this.#find_last_token_index(open_type);
-			const has_children = open_token_index !== -1 && open_token_index < this.#tokens.length - 1;
+			const has_children = open_token_index < this.#tokens.length - 1;
 
 			if (!has_children) {
 				// Empty - convert to text
@@ -639,15 +636,12 @@ export class MdzLexer {
 			this.#index = close_index + 1;
 		} else {
 			// Convert opening to text
-			const open_token_index = this.#find_last_token_index(open_type);
-			if (open_token_index !== -1) {
-				this.#tokens[open_token_index] = {
-					type: 'text',
-					content: delimiter,
-					start,
-					end: start + 1,
-				};
-			}
+			this.#tokens[open_token_index] = {
+				type: 'text',
+				content: delimiter,
+				start,
+				end: start + 1,
+			};
 		}
 	}
 
@@ -882,8 +876,13 @@ export class MdzLexer {
 				}
 			}
 
-			// Check for URL or internal path mid-text
-			if (this.#is_at_url() || this.#is_at_internal_path()) break;
+			// Check for URL or internal path mid-text (char code guard avoids startsWith on every char)
+			if (
+				(char_code === 104 /* h */ && this.#is_at_url()) ||
+				(char_code === SLASH && this.#is_at_internal_path())
+			) {
+				break;
+			}
 
 			this.#index++;
 		}
@@ -960,13 +959,6 @@ export class MdzLexer {
 
 	#emit_text(content: string, start: number): void {
 		this.#tokens.push({type: 'text', content, start, end: start + content.length});
-	}
-
-	#find_last_token_index(type: string): number {
-		for (let i = this.#tokens.length - 1; i >= 0; i--) {
-			if (this.#tokens[i]!.type === type) return i;
-		}
-		return -1;
 	}
 
 	#has_paragraph_break_between(from: number, to: number): boolean {
