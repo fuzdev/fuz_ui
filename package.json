@@ -27,7 +27,8 @@
     "test": "gro test",
     "fixtures:update": "gro src/test/fixtures/update",
     "preview": "vite preview",
-    "deploy": "gro deploy"
+    "deploy": "gro deploy",
+    "benchmark_mdz": "gro run src/benchmarks/mdz.benchmark.ts"
   },
   "type": "module",
   "engines": {
