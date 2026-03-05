@@ -188,9 +188,10 @@ export class MdzParser {
 		this.#skip_newlines();
 
 		while (this.#index < this.#template.length) {
-			// Peek for block element (read-only match), flush paragraph first, then parse.
-			// Flush must happen before parse because parse modifies accumulation state.
-			const block_type = this.#peek_block_element();
+			// Block elements only start at column 0 — skip peek for mid-line characters
+			const block_type =
+				(this.#index === 0 || this.#template.charCodeAt(this.#index - 1) === NEWLINE) &&
+				this.#peek_block_element();
 			if (block_type) {
 				const flushed = this.#flush_paragraph(paragraph_children, true);
 				if (flushed) root_nodes.push(flushed);
@@ -342,7 +343,7 @@ export class MdzParser {
 	 * Uses switch for performance (avoids regex in hot loop).
 	 */
 	#parse_node(): MdzNode {
-		const char_code = this.#current_char();
+		const char_code = this.#template.charCodeAt(this.#index);
 
 		// Use character codes for performance in hot path
 		switch (char_code) {
@@ -899,7 +900,7 @@ export class MdzParser {
 	/**
 	 * Read-only check if current position matches a block element.
 	 * Does not modify parser state — used to peek before flushing paragraph.
-	 * Returns which block type matched, or null if none.
+	 * Caller must verify column-0 position before calling.
 	 */
 	#peek_block_element(): 'heading' | 'hr' | 'codeblock' | null {
 		if (this.#match_heading()) return 'heading';
@@ -1037,7 +1038,7 @@ export class MdzParser {
 		// Collect URL characters using RFC 3986 whitelist
 		// Stop at whitespace or any character invalid in URIs
 		while (this.#index < this.#template.length) {
-			const char_code = this.#current_char();
+			const char_code = this.#template.charCodeAt(this.#index);
 			if (char_code === SPACE || char_code === NEWLINE || !is_valid_path_char(char_code)) {
 				break;
 			}
@@ -1072,7 +1073,7 @@ export class MdzParser {
 		// Collect path characters using RFC 3986 whitelist
 		// Stop at whitespace or any character invalid in URIs
 		while (this.#index < this.#template.length) {
-			const char_code = this.#current_char();
+			const char_code = this.#template.charCodeAt(this.#index);
 			if (char_code === SPACE || char_code === NEWLINE || !is_valid_path_char(char_code)) {
 				break;
 			}
@@ -1114,7 +1115,7 @@ export class MdzParser {
 		}
 
 		while (this.#index < this.#template.length) {
-			const char_code = this.#current_char();
+			const char_code = this.#template.charCodeAt(this.#index);
 
 			// Stop at special characters (but preserve single newlines)
 			if (
@@ -1226,13 +1227,6 @@ export class MdzParser {
 	}
 
 	/**
-	 * Get character code at current index, or -1 if at EOF.
-	 */
-	#current_char(): number {
-		return this.#index < this.#template.length ? this.#template.charCodeAt(this.#index) : -1;
-	}
-
-	/**
 	 * Check if current position is at a paragraph break (double newline).
 	 */
 	#is_at_paragraph_break(): boolean {
@@ -1267,11 +1261,6 @@ export class MdzParser {
 	 */
 	#match_hr(): boolean {
 		let i = this.#index;
-
-		// Must start at column 0 (beginning of input or after newline)
-		if (i > 0 && this.#template.charCodeAt(i - 1) !== NEWLINE) {
-			return false;
-		}
 
 		// Must have exactly three hyphens
 		if (
@@ -1335,11 +1324,6 @@ export class MdzParser {
 	#match_heading(): boolean {
 		let i = this.#index;
 
-		// Must start at column 0 (beginning of input or after newline)
-		if (i > 0 && this.#template.charCodeAt(i - 1) !== NEWLINE) {
-			return false;
-		}
-
 		// Count hashes (must be 1-6)
 		let hash_count = 0;
 		while (
@@ -1361,22 +1345,16 @@ export class MdzParser {
 		}
 		i++; // consume the space
 
-		// Must have non-whitespace content after the space (not just whitespace until newline)
-		let has_content = false;
-		while (i < this.#template.length && this.#template.charCodeAt(i) !== NEWLINE) {
+		// Must have at least one non-whitespace character after the space
+		while (i < this.#template.length) {
 			const char_code = this.#template.charCodeAt(i);
-			if (char_code !== SPACE && char_code !== TAB) {
-				has_content = true;
-			}
+			if (char_code === NEWLINE) return false; // reached end of line with only whitespace
+			if (char_code !== SPACE && char_code !== TAB) return true;
 			i++;
 		}
 
-		if (!has_content) {
-			return false; // heading with only whitespace, treat as plain text
-		}
-
-		// At newline or EOF — both are valid
-		return true;
+		// Reached EOF with only whitespace after hashes
+		return false;
 	}
 
 	/**
@@ -1451,11 +1429,6 @@ export class MdzParser {
 	 */
 	#match_code_block(): boolean {
 		let i = this.#index;
-
-		// Must start at column 0 (beginning of input or after newline)
-		if (i > 0 && this.#template.charCodeAt(i - 1) !== NEWLINE) {
-			return false;
-		}
 
 		// Must have at least three backticks
 		let backtick_count = 0;

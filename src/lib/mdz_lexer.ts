@@ -219,10 +219,6 @@ export class MdzLexer {
 		);
 	}
 
-	#char_at(i: number): number {
-		return i < this.#text.length ? this.#text.charCodeAt(i) : -1;
-	}
-
 	#match(str: string): boolean {
 		return this.#text.startsWith(str, this.#index);
 	}
@@ -255,15 +251,15 @@ export class MdzLexer {
 		if (i >= this.#text.length || this.#text.charCodeAt(i) !== SPACE) return false;
 		i++; // consume the space
 
-		// Must have non-whitespace content after the space
+		// Must have at least one non-whitespace character after the space
 		let has_content = false;
-		let line_end = i;
-		while (line_end < this.#text.length && this.#text.charCodeAt(line_end) !== NEWLINE) {
-			const char_code = this.#text.charCodeAt(line_end);
+		for (let j = i; j < this.#text.length; j++) {
+			const char_code = this.#text.charCodeAt(j);
+			if (char_code === NEWLINE) break;
 			if (char_code !== SPACE && char_code !== TAB) {
 				has_content = true;
+				break;
 			}
-			line_end++;
 		}
 
 		if (!has_content) return false;
@@ -429,7 +425,7 @@ export class MdzLexer {
 	// -- Inline tokenizers --
 
 	#tokenize_inline(): void {
-		const char_code = this.#char_at(this.#index);
+		const char_code = this.#text.charCodeAt(this.#index);
 
 		switch (char_code) {
 			case BACKTICK:
@@ -748,14 +744,17 @@ export class MdzLexer {
 		this.#index++; // consume <
 
 		// Tag name must start with a letter
-		if (this.#index >= this.#text.length || !is_letter(this.#char_at(this.#index))) {
+		if (this.#index >= this.#text.length || !is_letter(this.#text.charCodeAt(this.#index))) {
 			this.#emit_text('<', start);
 			return;
 		}
 
 		// Collect tag name
 		const tag_name_start = this.#index;
-		while (this.#index < this.#text.length && is_tag_name_char(this.#char_at(this.#index))) {
+		while (
+			this.#index < this.#text.length &&
+			is_tag_name_char(this.#text.charCodeAt(this.#index))
+		) {
 			this.#index++;
 		}
 		const tag_name = this.#text.slice(tag_name_start, this.#index);
@@ -845,7 +844,7 @@ export class MdzLexer {
 		}
 
 		while (this.#index < this.#text.length) {
-			const char_code = this.#char_at(this.#index);
+			const char_code = this.#text.charCodeAt(this.#index);
 
 			// Stop at special characters
 			if (
@@ -910,7 +909,7 @@ export class MdzLexer {
 
 		// Collect URL characters
 		while (this.#index < this.#text.length) {
-			const char_code = this.#char_at(this.#index);
+			const char_code = this.#text.charCodeAt(this.#index);
 			if (char_code === SPACE || char_code === NEWLINE || !is_valid_path_char(char_code)) {
 				break;
 			}
@@ -935,7 +934,7 @@ export class MdzLexer {
 
 		// Collect path characters
 		while (this.#index < this.#text.length) {
-			const char_code = this.#char_at(this.#index);
+			const char_code = this.#text.charCodeAt(this.#index);
 			if (char_code === SPACE || char_code === NEWLINE || !is_valid_path_char(char_code)) {
 				break;
 			}
