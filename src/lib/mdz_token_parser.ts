@@ -18,20 +18,20 @@ import type {
 	MdzElementNode,
 	MdzComponentNode,
 } from './mdz.js';
-import type {
-	MdzToken,
-	MdzTokenHeadingStart,
-	MdzTokenBoldOpen,
-	MdzTokenItalicOpen,
-	MdzTokenStrikethroughOpen,
-	MdzTokenLinkTextOpen,
-	MdzTokenLinkRef,
-	MdzTokenAutolink,
-	MdzTokenTagOpen,
-	MdzTokenTagClose,
-	MdzTokenTagSelfClose,
+import {extract_single_tag} from './mdz_helpers.js';
+import {
+	MdzLexer,
+	type MdzToken,
+	type MdzTokenHeadingStart,
+	type MdzTokenBoldOpen,
+	type MdzTokenItalicOpen,
+	type MdzTokenStrikethroughOpen,
+	type MdzTokenLinkTextOpen,
+	type MdzTokenLinkRef,
+	type MdzTokenAutolink,
+	type MdzTokenTagOpen,
+	type MdzTokenTagSelfClose,
 } from './mdz_lexer.js';
-import {MdzLexer} from './mdz_lexer.js';
 
 /**
  * Parses text to an array of `MdzNode` using a two-phase lexer+parser approach.
@@ -358,7 +358,7 @@ class MdzTokenParser {
 
 		while (this.#index < this.#tokens.length) {
 			const t = this.#tokens[this.#index]!;
-			if (t.type === 'tag_close' && (t as MdzTokenTagClose).name === tag_name) {
+			if (t.type === 'tag_close' && t.name === tag_name) {
 				this.#index++;
 				return {type: node_type, name: tag_name, children, start, end: t.end};
 			}
@@ -406,7 +406,7 @@ class MdzTokenParser {
 		}
 
 		// Single tag extraction (MDX convention)
-		const single_tag = this.#extract_single_tag(paragraph_children);
+		const single_tag = extract_single_tag(paragraph_children);
 		if (single_tag) {
 			paragraph_children.length = 0;
 			return single_tag;
@@ -424,23 +424,6 @@ class MdzTokenParser {
 			start: merged[0]!.start,
 			end: merged[merged.length - 1]!.end,
 		};
-	}
-
-	#extract_single_tag(nodes: Array<MdzNode>): MdzComponentNode | MdzElementNode | null {
-		let tag: MdzComponentNode | MdzElementNode | null = null;
-
-		for (const node of nodes) {
-			if (node.type === 'Component' || node.type === 'Element') {
-				if (tag) return null;
-				tag = node;
-			} else if (node.type === 'Text') {
-				if (node.content.trim() !== '') return null;
-			} else {
-				return null;
-			}
-		}
-
-		return tag;
 	}
 
 	#merge_adjacent_text(nodes: Array<MdzNode>): Array<MdzNode> {

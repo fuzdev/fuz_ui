@@ -9,6 +9,13 @@
 
 import {mdz_is_url} from './mdz.js';
 import {
+	is_letter,
+	is_tag_name_char,
+	is_word_char,
+	is_valid_path_char,
+	trim_trailing_punctuation,
+} from './mdz_helpers.js';
+import {
 	BACKTICK,
 	ASTERISK,
 	UNDERSCORE,
@@ -24,26 +31,9 @@ import {
 	LEFT_BRACKET,
 	LEFT_PAREN,
 	RIGHT_PAREN,
-	COLON,
-	PERIOD,
-	COMMA,
-	SEMICOLON,
-	EXCLAMATION,
-	QUESTION,
-	DOLLAR,
-	PERCENT,
-	AMPERSAND,
-	APOSTROPHE,
-	PLUS,
-	EQUALS,
-	AT,
 	RIGHT_BRACKET,
 	A_UPPER,
 	Z_UPPER,
-	A_LOWER,
-	Z_LOWER,
-	ZERO,
-	NINE,
 	HR_HYPHEN_COUNT,
 	MIN_CODEBLOCK_BACKTICKS,
 	MAX_HEADING_LEVEL,
@@ -676,7 +666,6 @@ export class MdzLexer {
 		this.#tokens.push({type: 'link_text_open', start, end: this.#index});
 
 		// Tokenize children until ]
-		const saved_index = this.#index;
 		while (this.#index < this.#text.length) {
 			if (this.#text.charCodeAt(this.#index) === RIGHT_BRACKET) break;
 			if (this.#is_at_paragraph_break()) break;
@@ -688,7 +677,7 @@ export class MdzLexer {
 		// Check for ]
 		if (this.#index >= this.#text.length || this.#text.charCodeAt(this.#index) !== RIGHT_BRACKET) {
 			// Revert - remove link_text_open and all children tokens added
-			this.#revert_tokens_from_link_open(start, saved_index);
+			this.#revert_tokens_from_link_open(start);
 			return;
 		}
 
@@ -702,7 +691,7 @@ export class MdzLexer {
 
 		// Check for (
 		if (this.#index >= this.#text.length || this.#text.charCodeAt(this.#index) !== LEFT_PAREN) {
-			this.#revert_tokens_from_link_open(start, saved_index);
+			this.#revert_tokens_from_link_open(start);
 			return;
 		}
 		this.#index++; // consume (
@@ -710,7 +699,7 @@ export class MdzLexer {
 		// Find closing )
 		const close_paren = this.#text.indexOf(')', this.#index);
 		if (close_paren === -1) {
-			this.#revert_tokens_from_link_open(start, saved_index);
+			this.#revert_tokens_from_link_open(start);
 			return;
 		}
 
@@ -718,15 +707,15 @@ export class MdzLexer {
 
 		// Validate reference
 		if (!reference.trim()) {
-			this.#revert_tokens_from_link_open(start, saved_index);
+			this.#revert_tokens_from_link_open(start);
 			return;
 		}
 
 		// Validate all characters
 		for (let i = 0; i < reference.length; i++) {
 			const char_code = reference.charCodeAt(i);
-			if (!this.#is_valid_path_char(char_code)) {
-				this.#revert_tokens_from_link_open(start, saved_index);
+			if (!is_valid_path_char(char_code)) {
+				this.#revert_tokens_from_link_open(start);
 				return;
 			}
 		}
@@ -744,7 +733,7 @@ export class MdzLexer {
 		});
 	}
 
-	#revert_tokens_from_link_open(start: number, saved_index: number): void {
+	#revert_tokens_from_link_open(start: number): void {
 		// Find and remove link_text_open and all tokens after it
 		let open_idx = -1;
 		for (let i = this.#tokens.length - 1; i >= 0; i--) {
@@ -765,14 +754,14 @@ export class MdzLexer {
 		this.#index++; // consume <
 
 		// Tag name must start with a letter
-		if (this.#index >= this.#text.length || !this.#is_letter(this.#char_at(this.#index))) {
+		if (this.#index >= this.#text.length || !is_letter(this.#char_at(this.#index))) {
 			this.#emit_text('<', start);
 			return;
 		}
 
 		// Collect tag name
 		const tag_name_start = this.#index;
-		while (this.#index < this.#text.length && this.#is_tag_name_char(this.#char_at(this.#index))) {
+		while (this.#index < this.#text.length && is_tag_name_char(this.#char_at(this.#index))) {
 			this.#index++;
 		}
 		const tag_name = this.#text.slice(tag_name_start, this.#index);
@@ -923,14 +912,14 @@ export class MdzLexer {
 		// Collect URL characters
 		while (this.#index < this.#text.length) {
 			const char_code = this.#char_at(this.#index);
-			if (char_code === SPACE || char_code === NEWLINE || !this.#is_valid_path_char(char_code)) {
+			if (char_code === SPACE || char_code === NEWLINE || !is_valid_path_char(char_code)) {
 				break;
 			}
 			this.#index++;
 		}
 
 		let reference = this.#text.slice(start, this.#index);
-		reference = this.#trim_trailing_punctuation(reference);
+		reference = trim_trailing_punctuation(reference);
 		this.#index = start + reference.length;
 
 		this.#tokens.push({
@@ -948,14 +937,14 @@ export class MdzLexer {
 		// Collect path characters
 		while (this.#index < this.#text.length) {
 			const char_code = this.#char_at(this.#index);
-			if (char_code === SPACE || char_code === NEWLINE || !this.#is_valid_path_char(char_code)) {
+			if (char_code === SPACE || char_code === NEWLINE || !is_valid_path_char(char_code)) {
 				break;
 			}
 			this.#index++;
 		}
 
 		let reference = this.#text.slice(start, this.#index);
-		reference = this.#trim_trailing_punctuation(reference);
+		reference = trim_trailing_punctuation(reference);
 		this.#index = start + reference.length;
 
 		this.#tokens.push({
@@ -1014,110 +1003,15 @@ export class MdzLexer {
 		return next_char !== SLASH && next_char !== SPACE && next_char !== NEWLINE;
 	}
 
-	#is_word_char(char_code: number): boolean {
-		if (char_code === ASTERISK || char_code === UNDERSCORE || char_code === TILDE) return false;
-		return (
-			(char_code >= A_UPPER && char_code <= Z_UPPER) ||
-			(char_code >= A_LOWER && char_code <= Z_LOWER) ||
-			(char_code >= ZERO && char_code <= NINE)
-		);
-	}
-
 	#is_at_word_boundary(index: number, check_before: boolean, check_after: boolean): boolean {
 		if (check_before && index > 0) {
 			const prev = this.#text.charCodeAt(index - 1);
-			if (this.#is_word_char(prev)) return false;
+			if (is_word_char(prev)) return false;
 		}
 		if (check_after && index < this.#text.length) {
 			const next = this.#text.charCodeAt(index);
-			if (this.#is_word_char(next)) return false;
+			if (is_word_char(next)) return false;
 		}
 		return true;
-	}
-
-	#is_letter(char_code: number): boolean {
-		return (
-			(char_code >= A_UPPER && char_code <= Z_UPPER) ||
-			(char_code >= A_LOWER && char_code <= Z_LOWER)
-		);
-	}
-
-	#is_tag_name_char(char_code: number): boolean {
-		return (
-			this.#is_letter(char_code) ||
-			(char_code >= ZERO && char_code <= NINE) ||
-			char_code === HYPHEN ||
-			char_code === UNDERSCORE
-		);
-	}
-
-	#is_valid_path_char(char_code: number): boolean {
-		return (
-			(char_code >= A_UPPER && char_code <= Z_UPPER) ||
-			(char_code >= A_LOWER && char_code <= Z_LOWER) ||
-			(char_code >= ZERO && char_code <= NINE) ||
-			char_code === HYPHEN ||
-			char_code === PERIOD ||
-			char_code === UNDERSCORE ||
-			char_code === TILDE ||
-			char_code === EXCLAMATION ||
-			char_code === DOLLAR ||
-			char_code === AMPERSAND ||
-			char_code === APOSTROPHE ||
-			char_code === LEFT_PAREN ||
-			char_code === RIGHT_PAREN ||
-			char_code === ASTERISK ||
-			char_code === PLUS ||
-			char_code === COMMA ||
-			char_code === SEMICOLON ||
-			char_code === EQUALS ||
-			char_code === COLON ||
-			char_code === AT ||
-			char_code === SLASH ||
-			char_code === QUESTION ||
-			char_code === HASH ||
-			char_code === PERCENT
-		);
-	}
-
-	#trim_trailing_punctuation(url: string): string {
-		let end = url.length;
-
-		while (end > 0) {
-			const last_char = url.charCodeAt(end - 1);
-			if (
-				last_char === PERIOD ||
-				last_char === COMMA ||
-				last_char === SEMICOLON ||
-				last_char === COLON ||
-				last_char === EXCLAMATION ||
-				last_char === QUESTION ||
-				last_char === RIGHT_BRACKET
-			) {
-				end--;
-			} else {
-				break;
-			}
-		}
-
-		let open_count = 0;
-		let close_count = 0;
-		for (let i = 0; i < end; i++) {
-			const char = url.charCodeAt(i);
-			if (char === LEFT_PAREN) open_count++;
-			if (char === RIGHT_PAREN) close_count++;
-		}
-
-		while (end > 0 && close_count > open_count) {
-			const last_char = url.charCodeAt(end - 1);
-			if (last_char === RIGHT_PAREN) {
-				end--;
-				close_count--;
-			} else {
-				break;
-			}
-		}
-
-		return end === url.length ? url : url.slice(0, end);
 	}
 }
