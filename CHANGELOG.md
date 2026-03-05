@@ -1,5 +1,12 @@
 # @fuzdev/fuz_ui
 
+## 0.186.0
+
+### Minor Changes
+
+- add a lexer-based mdz alternative ([#116](https://github.com/fuzdev/fuz_ui/pull/116))
+- feat: add relative path auto-linking and base prop for path resolution ([#115](https://github.com/fuzdev/fuz_ui/pull/115))
+
 ## 0.185.2
 
 ### Patch Changes

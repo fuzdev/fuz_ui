@@ -26,6 +26,7 @@ import {
 	LEFT_ANGLE,
 	RIGHT_ANGLE,
 	SLASH,
+	PERIOD,
 	LEFT_BRACKET,
 	LEFT_PAREN,
 	RIGHT_PAREN,
@@ -37,6 +38,8 @@ import {
 	MAX_HEADING_LEVEL,
 	HTTPS_PREFIX_LENGTH,
 	HTTP_PREFIX_LENGTH,
+	is_at_absolute_path,
+	is_at_relative_path,
 } from './mdz_helpers.js';
 
 // ============================================================================
@@ -836,7 +839,11 @@ export class MdzLexer {
 			this.#tokenize_auto_link_url();
 			return;
 		}
-		if (this.#is_at_internal_path()) {
+		if (is_at_absolute_path(this.#text, this.#index)) {
+			this.#tokenize_auto_link_internal();
+			return;
+		}
+		if (is_at_relative_path(this.#text, this.#index)) {
 			this.#tokenize_auto_link_internal();
 			return;
 		}
@@ -876,7 +883,8 @@ export class MdzLexer {
 			// Check for URL or internal path mid-text (char code guard avoids startsWith on every char)
 			if (
 				(char_code === 104 /* h */ && this.#is_at_url()) ||
-				(char_code === SLASH && this.#is_at_internal_path())
+				(char_code === SLASH && is_at_absolute_path(this.#text, this.#index)) ||
+				(char_code === PERIOD && is_at_relative_path(this.#text, this.#index))
 			) {
 				break;
 			}
@@ -979,17 +987,6 @@ export class MdzLexer {
 			return next_char !== SPACE && next_char !== NEWLINE;
 		}
 		return false;
-	}
-
-	#is_at_internal_path(): boolean {
-		if (this.#text.charCodeAt(this.#index) !== SLASH) return false;
-		if (this.#index > 0) {
-			const prev_char = this.#text.charCodeAt(this.#index - 1);
-			if (prev_char !== SPACE && prev_char !== NEWLINE && prev_char !== TAB) return false;
-		}
-		if (this.#index + 1 >= this.#text.length) return false;
-		const next_char = this.#text.charCodeAt(this.#index + 1);
-		return next_char !== SLASH && next_char !== SPACE && next_char !== NEWLINE;
 	}
 
 	#is_at_word_boundary(index: number, check_before: boolean, check_after: boolean): boolean {

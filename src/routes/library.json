@@ -11,7 +11,7 @@
 	"published": true,
 	"package_json": {
 		"name": "@fuzdev/fuz_ui",
-		"version": "0.185.2",
+		"version": "0.186.0",
 		"description": "Svelte UI library",
 		"motto": "friendly user zystem",
 		"glyph": "🧶",
@@ -153,8 +153,14 @@
 	},
 	"source_json": {
 		"name": "@fuzdev/fuz_ui",
+<<<<<<< HEAD
 		"version": "0.185.2",
 		"repository": "git+https://github.com/fuzdev/fuz_ui.git",
+||||||| f3de5931
+		"version": "0.185.2",
+=======
+		"version": "0.186.0",
+>>>>>>> main
 		"modules": [
 			{
 				"path": "Alert.svelte",
@@ -9461,6 +9467,7 @@
 						"type_signature": "{ get: (error_message?: string | undefined) => MdzElements; get_maybe: () => MdzElements | undefined; set: (value: MdzElements) => MdzElements; }",
 						"modifiers": [],
 						"source_line": 34,
+<<<<<<< HEAD
 						"parameters": [],
 						"generic_params": [],
 						"overloads": [],
@@ -9473,11 +9480,29 @@
 						"properties": [],
 						"props": [],
 						"also_exported_from": []
+||||||| f3de5931
+						"type_signature": "{ get: (error_message?: string | undefined) => MdzElements; get_maybe: () => MdzElements | undefined; set: (value: MdzElements) => MdzElements; }"
+=======
+						"type_signature": "{ get: (error_message?: string | undefined) => MdzElements; get_maybe: () => MdzElements | undefined; set: (value: MdzElements) => MdzElements; }"
+					},
+					{
+						"name": "mdz_base_context",
+						"kind": "variable",
+						"doc_comment": "Context for providing a base path getter for resolving relative links in mdz content.\nSet to a getter (e.g., `() => base`) so changes to the base prop are reflected\nwithout needing an effect. When the getter returns a path like `'/docs/mdz/'`,\nrelative paths like `./grammar` resolve to `/docs/mdz/grammar` before rendering.\nWhen not set, relative paths use raw hrefs (browser resolves them).",
+						"source_line": 43,
+						"type_signature": "{ get: (error_message?: string | undefined) => () => string | undefined; get_maybe: () => (() => string | undefined) | undefined; set: (value: () => string | undefined) => () => string | undefined; }"
+>>>>>>> main
 					}
 				],
 				"dependencies": ["context_helpers.ts"],
+<<<<<<< HEAD
 				"dependents": ["MdzNodeView.svelte"],
 				"star_exports": []
+||||||| f3de5931
+				"dependents": ["MdzNodeView.svelte"]
+=======
+				"dependents": ["Mdz.svelte", "MdzNodeView.svelte"]
+>>>>>>> main
 			},
 			{
 				"path": "mdz_helpers.ts",
@@ -10383,9 +10408,52 @@
 						"also_exported_from": []
 					},
 					{
+						"name": "is_at_absolute_path",
+						"kind": "function",
+						"doc_comment": "Check if position in text is the start of an absolute path (starts with `/`).\nMust be preceded by whitespace or be at the start of the string.\nRejects `//` (comments/protocol-relative) and `/ ` (bare slash).",
+						"source_line": 192,
+						"type_signature": "(text: string, index: number): boolean",
+						"return_type": "boolean",
+						"parameters": [
+							{
+								"name": "text",
+								"type": "string"
+							},
+							{
+								"name": "index",
+								"type": "number"
+							}
+						]
+					},
+					{
+						"name": "is_at_relative_path",
+						"kind": "function",
+						"doc_comment": "Check if position in text is the start of a relative path (`./` or `../`).\nMust be preceded by whitespace or be at the start of the string.\nRequires at least one path character after the prefix.",
+						"source_line": 208,
+						"type_signature": "(text: string, index: number): boolean",
+						"return_type": "boolean",
+						"parameters": [
+							{
+								"name": "text",
+								"type": "string"
+							},
+							{
+								"name": "index",
+								"type": "number"
+							}
+						]
+					},
+					{
 						"name": "extract_single_tag",
 						"kind": "function",
+<<<<<<< HEAD
 						"doc_comment": "Extract a single tag (component or element) if it's the only non-whitespace content.\nReturns the tag node if paragraph wrapping should be skipped (MDX convention),\nor null if the content should be wrapped in a paragraph.",
+||||||| f3de5931
+						"doc_comment": "Extract a single tag (component or element) if it's the only non-whitespace content.\nReturns the tag node if paragraph wrapping should be skipped (MDX convention),\nor null if the content should be wrapped in a paragraph.",
+						"source_line": 187,
+=======
+						"source_line": 232,
+>>>>>>> main
 						"type_signature": "(nodes: MdzNode[]): MdzElementNode | MdzComponentNode | null",
 						"modifiers": [],
 						"source_line": 187,
@@ -10421,7 +10489,15 @@
 				"declarations": [
 					{
 						"name": "MdzTokenBase",
+<<<<<<< HEAD
 						"kind": "interface",
+||||||| f3de5931
+						"kind": "type",
+						"source_line": 46,
+=======
+						"kind": "type",
+						"source_line": 49,
+>>>>>>> main
 						"type_signature": "MdzTokenBase",
 						"modifiers": [],
 						"source_line": 46,
@@ -10478,6 +10554,7 @@
 					{
 						"name": "MdzToken",
 						"kind": "type",
+<<<<<<< HEAD
 						"type_signature": "MdzToken",
 						"modifiers": [],
 						"source_line": 51,
@@ -10493,10 +10570,25 @@
 						"properties": [],
 						"props": [],
 						"also_exported_from": []
+||||||| f3de5931
+						"source_line": 51,
+						"type_signature": "MdzToken"
+=======
+						"source_line": 54,
+						"type_signature": "MdzToken"
+>>>>>>> main
 					},
 					{
 						"name": "MdzTokenText",
+<<<<<<< HEAD
 						"kind": "interface",
+||||||| f3de5931
+						"kind": "type",
+						"source_line": 73,
+=======
+						"kind": "type",
+						"source_line": 76,
+>>>>>>> main
 						"type_signature": "MdzTokenText",
 						"modifiers": [],
 						"source_line": 73,
@@ -10552,7 +10644,15 @@
 					},
 					{
 						"name": "MdzTokenCode",
+<<<<<<< HEAD
 						"kind": "interface",
+||||||| f3de5931
+						"kind": "type",
+						"source_line": 78,
+=======
+						"kind": "type",
+						"source_line": 81,
+>>>>>>> main
 						"type_signature": "MdzTokenCode",
 						"modifiers": [],
 						"source_line": 78,
@@ -10608,7 +10708,15 @@
 					},
 					{
 						"name": "MdzTokenCodeblock",
+<<<<<<< HEAD
 						"kind": "interface",
+||||||| f3de5931
+						"kind": "type",
+						"source_line": 83,
+=======
+						"kind": "type",
+						"source_line": 86,
+>>>>>>> main
 						"type_signature": "MdzTokenCodeblock",
 						"modifiers": [],
 						"source_line": 83,
@@ -10682,7 +10790,15 @@
 					},
 					{
 						"name": "MdzTokenBoldOpen",
+<<<<<<< HEAD
 						"kind": "interface",
+||||||| f3de5931
+						"kind": "type",
+						"source_line": 89,
+=======
+						"kind": "type",
+						"source_line": 92,
+>>>>>>> main
 						"type_signature": "MdzTokenBoldOpen",
 						"modifiers": [],
 						"source_line": 89,
@@ -10720,7 +10836,15 @@
 					},
 					{
 						"name": "MdzTokenBoldClose",
+<<<<<<< HEAD
 						"kind": "interface",
+||||||| f3de5931
+						"kind": "type",
+						"source_line": 93,
+=======
+						"kind": "type",
+						"source_line": 96,
+>>>>>>> main
 						"type_signature": "MdzTokenBoldClose",
 						"modifiers": [],
 						"source_line": 93,
@@ -10758,7 +10882,15 @@
 					},
 					{
 						"name": "MdzTokenItalicOpen",
+<<<<<<< HEAD
 						"kind": "interface",
+||||||| f3de5931
+						"kind": "type",
+						"source_line": 97,
+=======
+						"kind": "type",
+						"source_line": 100,
+>>>>>>> main
 						"type_signature": "MdzTokenItalicOpen",
 						"modifiers": [],
 						"source_line": 97,
@@ -10796,7 +10928,15 @@
 					},
 					{
 						"name": "MdzTokenItalicClose",
+<<<<<<< HEAD
 						"kind": "interface",
+||||||| f3de5931
+						"kind": "type",
+						"source_line": 101,
+=======
+						"kind": "type",
+						"source_line": 104,
+>>>>>>> main
 						"type_signature": "MdzTokenItalicClose",
 						"modifiers": [],
 						"source_line": 101,
@@ -10834,7 +10974,15 @@
 					},
 					{
 						"name": "MdzTokenStrikethroughOpen",
+<<<<<<< HEAD
 						"kind": "interface",
+||||||| f3de5931
+						"kind": "type",
+						"source_line": 105,
+=======
+						"kind": "type",
+						"source_line": 108,
+>>>>>>> main
 						"type_signature": "MdzTokenStrikethroughOpen",
 						"modifiers": [],
 						"source_line": 105,
@@ -10872,7 +11020,15 @@
 					},
 					{
 						"name": "MdzTokenStrikethroughClose",
+<<<<<<< HEAD
 						"kind": "interface",
+||||||| f3de5931
+						"kind": "type",
+						"source_line": 109,
+=======
+						"kind": "type",
+						"source_line": 112,
+>>>>>>> main
 						"type_signature": "MdzTokenStrikethroughClose",
 						"modifiers": [],
 						"source_line": 109,
@@ -10910,7 +11066,15 @@
 					},
 					{
 						"name": "MdzTokenLinkTextOpen",
+<<<<<<< HEAD
 						"kind": "interface",
+||||||| f3de5931
+						"kind": "type",
+						"source_line": 113,
+=======
+						"kind": "type",
+						"source_line": 116,
+>>>>>>> main
 						"type_signature": "MdzTokenLinkTextOpen",
 						"modifiers": [],
 						"source_line": 113,
@@ -10948,7 +11112,15 @@
 					},
 					{
 						"name": "MdzTokenLinkTextClose",
+<<<<<<< HEAD
 						"kind": "interface",
+||||||| f3de5931
+						"kind": "type",
+						"source_line": 117,
+=======
+						"kind": "type",
+						"source_line": 120,
+>>>>>>> main
 						"type_signature": "MdzTokenLinkTextClose",
 						"modifiers": [],
 						"source_line": 117,
@@ -10986,7 +11158,15 @@
 					},
 					{
 						"name": "MdzTokenLinkRef",
+<<<<<<< HEAD
 						"kind": "interface",
+||||||| f3de5931
+						"kind": "type",
+						"source_line": 121,
+=======
+						"kind": "type",
+						"source_line": 124,
+>>>>>>> main
 						"type_signature": "MdzTokenLinkRef",
 						"modifiers": [],
 						"source_line": 121,
@@ -11060,7 +11240,15 @@
 					},
 					{
 						"name": "MdzTokenAutolink",
+<<<<<<< HEAD
 						"kind": "interface",
+||||||| f3de5931
+						"kind": "type",
+						"source_line": 127,
+=======
+						"kind": "type",
+						"source_line": 130,
+>>>>>>> main
 						"type_signature": "MdzTokenAutolink",
 						"modifiers": [],
 						"source_line": 127,
@@ -11134,7 +11322,15 @@
 					},
 					{
 						"name": "MdzTokenHeadingStart",
+<<<<<<< HEAD
 						"kind": "interface",
+||||||| f3de5931
+						"kind": "type",
+						"source_line": 133,
+=======
+						"kind": "type",
+						"source_line": 136,
+>>>>>>> main
 						"type_signature": "MdzTokenHeadingStart",
 						"modifiers": [],
 						"source_line": 133,
@@ -11190,7 +11386,15 @@
 					},
 					{
 						"name": "MdzTokenHr",
+<<<<<<< HEAD
 						"kind": "interface",
+||||||| f3de5931
+						"kind": "type",
+						"source_line": 138,
+=======
+						"kind": "type",
+						"source_line": 141,
+>>>>>>> main
 						"type_signature": "MdzTokenHr",
 						"modifiers": [],
 						"source_line": 138,
@@ -11228,7 +11432,15 @@
 					},
 					{
 						"name": "MdzTokenTagOpen",
+<<<<<<< HEAD
 						"kind": "interface",
+||||||| f3de5931
+						"kind": "type",
+						"source_line": 142,
+=======
+						"kind": "type",
+						"source_line": 145,
+>>>>>>> main
 						"type_signature": "MdzTokenTagOpen",
 						"modifiers": [],
 						"source_line": 142,
@@ -11302,7 +11514,15 @@
 					},
 					{
 						"name": "MdzTokenTagSelfClose",
+<<<<<<< HEAD
 						"kind": "interface",
+||||||| f3de5931
+						"kind": "type",
+						"source_line": 148,
+=======
+						"kind": "type",
+						"source_line": 151,
+>>>>>>> main
 						"type_signature": "MdzTokenTagSelfClose",
 						"modifiers": [],
 						"source_line": 148,
@@ -11376,7 +11596,15 @@
 					},
 					{
 						"name": "MdzTokenTagClose",
+<<<<<<< HEAD
 						"kind": "interface",
+||||||| f3de5931
+						"kind": "type",
+						"source_line": 154,
+=======
+						"kind": "type",
+						"source_line": 157,
+>>>>>>> main
 						"type_signature": "MdzTokenTagClose",
 						"modifiers": [],
 						"source_line": 154,
@@ -11432,7 +11660,15 @@
 					},
 					{
 						"name": "MdzTokenHeadingEnd",
+<<<<<<< HEAD
 						"kind": "interface",
+||||||| f3de5931
+						"kind": "type",
+						"source_line": 159,
+=======
+						"kind": "type",
+						"source_line": 162,
+>>>>>>> main
 						"type_signature": "MdzTokenHeadingEnd",
 						"modifiers": [],
 						"source_line": 159,
@@ -11470,7 +11706,15 @@
 					},
 					{
 						"name": "MdzTokenParagraphBreak",
+<<<<<<< HEAD
 						"kind": "interface",
+||||||| f3de5931
+						"kind": "type",
+						"source_line": 163,
+=======
+						"kind": "type",
+						"source_line": 166,
+>>>>>>> main
 						"type_signature": "MdzTokenParagraphBreak",
 						"modifiers": [],
 						"source_line": 163,
@@ -11509,6 +11753,7 @@
 					{
 						"name": "MdzLexer",
 						"kind": "class",
+<<<<<<< HEAD
 						"modifiers": [],
 						"source_line": 171,
 						"parameters": [],
@@ -11519,6 +11764,11 @@
 						"throws": [],
 						"extends": [],
 						"implements": [],
+||||||| f3de5931
+						"source_line": 171,
+=======
+						"source_line": 174,
+>>>>>>> main
 						"members": [
 							{
 								"name": "constructor",
@@ -11660,9 +11910,19 @@
 						"name": "mdz_to_svelte",
 						"kind": "function",
 						"doc_comment": "Converts an array of `MdzNode` to a Svelte markup string.\n\nEach node type produces output matching what `MdzNodeView.svelte` renders at runtime.\nCollects required imports and flags unconfigured component/element references.",
+<<<<<<< HEAD
 						"type_signature": "(nodes: MdzNode[], components: Record<string, string>, elements: ReadonlySet<string>): MdzToSvelteResult",
 						"modifiers": [],
 						"source_line": 43,
+||||||| f3de5931
+						"source_line": 43,
+						"type_signature": "(nodes: MdzNode[], components: Record<string, string>, elements: ReadonlySet<string>): MdzToSvelteResult",
+						"return_type": "MdzToSvelteResult",
+=======
+						"source_line": 46,
+						"type_signature": "(nodes: MdzNode[], components: Record<string, string>, elements: ReadonlySet<string>, base?: string | undefined): MdzToSvelteResult",
+						"return_type": "MdzToSvelteResult",
+>>>>>>> main
 						"parameters": [
 							{
 								"name": "nodes",
@@ -11684,6 +11944,12 @@
 								"optional": false,
 								"is_rest": false,
 								"description": "Allowed HTML element names (e.g., `new Set(['aside', 'details'])`).\nIf content references an element not in this set, `has_unconfigured_tags` is set."
+							},
+							{
+								"name": "base",
+								"type": "string | undefined",
+								"optional": true,
+								"description": "Base path for resolving relative links (e.g., `'/docs/mdz/'`).\nWhen provided, relative references (`./`, `../`) are resolved to absolute paths\nand passed through `resolve()`. Trailing slash recommended."
 							}
 						],
 						"return_type": "MdzToSvelteResult",
@@ -11701,9 +11967,16 @@
 					}
 				],
 				"module_comment": "Converts parsed `MdzNode` arrays to Svelte markup strings.\n\nUsed by the `svelte_preprocess_mdz` preprocessor to expand static `<Mdz content=\"...\">` usages\ninto pre-rendered Svelte markup at build time. The output for each node type matches what\n`MdzNodeView.svelte` renders at runtime, so precompiled and runtime rendering are identical.",
+<<<<<<< HEAD
 				"dependencies": [],
 				"dependents": ["svelte_preprocess_mdz.ts"],
 				"star_exports": []
+||||||| f3de5931
+				"dependents": ["svelte_preprocess_mdz.ts"]
+=======
+				"dependencies": ["mdz.ts"],
+				"dependents": ["svelte_preprocess_mdz.ts"]
+>>>>>>> main
 			},
 			{
 				"path": "mdz_token_parser.ts",
@@ -11785,6 +12058,7 @@
 							{
 								"name": "nowrap",
 								"type": "boolean",
+<<<<<<< HEAD
 								"optional": true,
 								"is_rest": false,
 								"default_value": "false",
@@ -11792,14 +12066,32 @@
 								"examples": [],
 								"see_also": [],
 								"throws": []
+||||||| f3de5931
+								"optional": true
+=======
+								"optional": true
+							},
+							{
+								"name": "base",
+								"type": "string",
+								"optional": true
+>>>>>>> main
 							}
 						],
 						"also_exported_from": []
 					}
 				],
+<<<<<<< HEAD
 				"dependencies": ["MdzNodeView.svelte", "mdz.ts"],
 				"dependents": ["ApiModule.svelte", "DeclarationDetail.svelte"],
 				"star_exports": []
+||||||| f3de5931
+				"dependencies": ["MdzNodeView.svelte", "mdz.ts"],
+				"dependents": ["ApiModule.svelte", "DeclarationDetail.svelte"]
+=======
+				"dependencies": ["MdzNodeView.svelte", "mdz.ts", "mdz_components.ts"],
+				"dependents": ["ApiModule.svelte", "DeclarationDetail.svelte"]
+>>>>>>> main
 			},
 			{
 				"path": "mdz.ts",
@@ -11808,6 +12100,12 @@
 						"name": "mdz_parse",
 						"kind": "function",
 						"doc_comment": "Parses text to an array of `MdzNode`.",
+<<<<<<< HEAD
+||||||| f3de5931
+						"source_line": 69,
+=======
+						"source_line": 72,
+>>>>>>> main
 						"type_signature": "(text: string): MdzNode[]",
 						"modifiers": [],
 						"source_line": 69,
@@ -11835,6 +12133,7 @@
 					{
 						"name": "MdzNode",
 						"kind": "type",
+<<<<<<< HEAD
 						"type_signature": "MdzNode",
 						"modifiers": [],
 						"source_line": 71,
@@ -11850,10 +12149,25 @@
 						"properties": [],
 						"props": [],
 						"also_exported_from": []
+||||||| f3de5931
+						"source_line": 71,
+						"type_signature": "MdzNode"
+=======
+						"source_line": 74,
+						"type_signature": "MdzNode"
+>>>>>>> main
 					},
 					{
 						"name": "MdzBaseNode",
+<<<<<<< HEAD
 						"kind": "interface",
+||||||| f3de5931
+						"kind": "type",
+						"source_line": 85,
+=======
+						"kind": "type",
+						"source_line": 88,
+>>>>>>> main
 						"type_signature": "MdzBaseNode",
 						"modifiers": [],
 						"source_line": 85,
@@ -11927,7 +12241,15 @@
 					},
 					{
 						"name": "MdzTextNode",
+<<<<<<< HEAD
 						"kind": "interface",
+||||||| f3de5931
+						"kind": "type",
+						"source_line": 91,
+=======
+						"kind": "type",
+						"source_line": 94,
+>>>>>>> main
 						"type_signature": "MdzTextNode",
 						"modifiers": [],
 						"source_line": 91,
@@ -11983,7 +12305,15 @@
 					},
 					{
 						"name": "MdzCodeNode",
+<<<<<<< HEAD
 						"kind": "interface",
+||||||| f3de5931
+						"kind": "type",
+						"source_line": 96,
+=======
+						"kind": "type",
+						"source_line": 99,
+>>>>>>> main
 						"type_signature": "MdzCodeNode",
 						"modifiers": [],
 						"source_line": 96,
@@ -12039,7 +12369,15 @@
 					},
 					{
 						"name": "MdzCodeblockNode",
+<<<<<<< HEAD
 						"kind": "interface",
+||||||| f3de5931
+						"kind": "type",
+						"source_line": 101,
+=======
+						"kind": "type",
+						"source_line": 104,
+>>>>>>> main
 						"type_signature": "MdzCodeblockNode",
 						"modifiers": [],
 						"source_line": 101,
@@ -12113,7 +12451,15 @@
 					},
 					{
 						"name": "MdzBoldNode",
+<<<<<<< HEAD
 						"kind": "interface",
+||||||| f3de5931
+						"kind": "type",
+						"source_line": 107,
+=======
+						"kind": "type",
+						"source_line": 110,
+>>>>>>> main
 						"type_signature": "MdzBoldNode",
 						"modifiers": [],
 						"source_line": 107,
@@ -12169,7 +12515,15 @@
 					},
 					{
 						"name": "MdzItalicNode",
+<<<<<<< HEAD
 						"kind": "interface",
+||||||| f3de5931
+						"kind": "type",
+						"source_line": 112,
+=======
+						"kind": "type",
+						"source_line": 115,
+>>>>>>> main
 						"type_signature": "MdzItalicNode",
 						"modifiers": [],
 						"source_line": 112,
@@ -12225,7 +12579,15 @@
 					},
 					{
 						"name": "MdzStrikethroughNode",
+<<<<<<< HEAD
 						"kind": "interface",
+||||||| f3de5931
+						"kind": "type",
+						"source_line": 117,
+=======
+						"kind": "type",
+						"source_line": 120,
+>>>>>>> main
 						"type_signature": "MdzStrikethroughNode",
 						"modifiers": [],
 						"source_line": 117,
@@ -12281,7 +12643,15 @@
 					},
 					{
 						"name": "MdzLinkNode",
+<<<<<<< HEAD
 						"kind": "interface",
+||||||| f3de5931
+						"kind": "type",
+						"source_line": 122,
+=======
+						"kind": "type",
+						"source_line": 125,
+>>>>>>> main
 						"type_signature": "MdzLinkNode",
 						"modifiers": [],
 						"source_line": 122,
@@ -12373,7 +12743,15 @@
 					},
 					{
 						"name": "MdzParagraphNode",
+<<<<<<< HEAD
 						"kind": "interface",
+||||||| f3de5931
+						"kind": "type",
+						"source_line": 129,
+=======
+						"kind": "type",
+						"source_line": 132,
+>>>>>>> main
 						"type_signature": "MdzParagraphNode",
 						"modifiers": [],
 						"source_line": 129,
@@ -12429,7 +12807,15 @@
 					},
 					{
 						"name": "MdzHrNode",
+<<<<<<< HEAD
 						"kind": "interface",
+||||||| f3de5931
+						"kind": "type",
+						"source_line": 134,
+=======
+						"kind": "type",
+						"source_line": 137,
+>>>>>>> main
 						"type_signature": "MdzHrNode",
 						"modifiers": [],
 						"source_line": 134,
@@ -12467,7 +12853,15 @@
 					},
 					{
 						"name": "MdzHeadingNode",
+<<<<<<< HEAD
 						"kind": "interface",
+||||||| f3de5931
+						"kind": "type",
+						"source_line": 138,
+=======
+						"kind": "type",
+						"source_line": 141,
+>>>>>>> main
 						"type_signature": "MdzHeadingNode",
 						"modifiers": [],
 						"source_line": 138,
@@ -12541,7 +12935,15 @@
 					},
 					{
 						"name": "MdzElementNode",
+<<<<<<< HEAD
 						"kind": "interface",
+||||||| f3de5931
+						"kind": "type",
+						"source_line": 144,
+=======
+						"kind": "type",
+						"source_line": 147,
+>>>>>>> main
 						"type_signature": "MdzElementNode",
 						"modifiers": [],
 						"source_line": 144,
@@ -12615,7 +13017,15 @@
 					},
 					{
 						"name": "MdzComponentNode",
+<<<<<<< HEAD
 						"kind": "interface",
+||||||| f3de5931
+						"kind": "type",
+						"source_line": 150,
+=======
+						"kind": "type",
+						"source_line": 153,
+>>>>>>> main
 						"type_signature": "MdzComponentNode",
 						"modifiers": [],
 						"source_line": 150,
@@ -12691,6 +13101,7 @@
 						"name": "MdzParser",
 						"kind": "class",
 						"doc_comment": "Parser for mdz format.\nSingle-pass lexer/parser with text accumulation for efficiency.\nUsed by `mdz_parse`, which should be preferred for simple usage.",
+<<<<<<< HEAD
 						"modifiers": [],
 						"source_line": 161,
 						"parameters": [],
@@ -12701,6 +13112,11 @@
 						"throws": [],
 						"extends": [],
 						"implements": [],
+||||||| f3de5931
+						"source_line": 161,
+=======
+						"source_line": 164,
+>>>>>>> main
 						"members": [
 							{
 								"name": "constructor",
@@ -12755,6 +13171,12 @@
 					{
 						"name": "mdz_is_url",
 						"kind": "function",
+<<<<<<< HEAD
+||||||| f3de5931
+						"source_line": 1615,
+=======
+						"source_line": 1597,
+>>>>>>> main
 						"type_signature": "(s: string): boolean",
 						"modifiers": [],
 						"source_line": 1615,
@@ -12765,6 +13187,7 @@
 								"optional": false,
 								"is_rest": false
 							}
+<<<<<<< HEAD
 						],
 						"return_type": "boolean",
 						"generic_params": [],
@@ -12778,12 +13201,51 @@
 						"properties": [],
 						"props": [],
 						"also_exported_from": []
+||||||| f3de5931
+						]
+=======
+						]
+					},
+					{
+						"name": "resolve_relative_path",
+						"kind": "function",
+						"doc_comment": "Resolves a relative path (`./` or `../`) against a base path.\nThe base is treated as a directory regardless of trailing slash\n(`'/docs/mdz'` and `'/docs/mdz/'` behave identically).\nHandles embedded `.` and `..` segments within the reference\n(e.g., `'./a/../b'` → navigates up then down).\nClamps at root — excess `..` segments stop at `/` rather than escaping.",
+						"source_line": 1611,
+						"type_signature": "(reference: string, base: string): string",
+						"return_type": "string",
+						"return_description": "An absolute resolved path (e.g., `'/docs/mdz/grammar'`).",
+						"parameters": [
+							{
+								"name": "reference",
+								"type": "string",
+								"description": "A relative path starting with `./` or `../`."
+							},
+							{
+								"name": "base",
+								"type": "string",
+								"description": "An absolute base path (e.g., `'/docs/mdz/'`). Empty string is treated as root."
+							}
+						]
+>>>>>>> main
 					}
 				],
 				"module_comment": "mdz - minimal markdown dialect for Fuz documentation.\n\nParses an enhanced markdown dialect with:\n- inline formatting: `code`, **bold**, _italic_, ~strikethrough~\n- auto-detected links: external URLs (`https://...`) and internal paths (`/path`)\n- markdown links: `[text](url)` with custom display text\n- inline code in backticks (creates `Code` nodes; auto-linking to identifiers/modules\n  is handled by the rendering layer via `MdzNodeView.svelte`)\n- paragraph breaks (double newline)\n- block elements: headings, horizontal rules, code blocks\n- HTML elements and Svelte components (opt-in via context)\n\nKey constraint: preserves ALL whitespace exactly as authored,\nand is rendered with white-space pre or pre-wrap.\n\n## Design philosophy\n\n- **False negatives over false positives**: When in doubt, treat as plain text.\n  Block elements can interrupt paragraphs without blank lines; inline formatting is strict.\n- **One way to do things**: Single unambiguous syntax per feature. No alternatives.\n- **Explicit over implicit**: Clear delimiters and column-0 requirements avoid ambiguity.\n- **Simple over complete**: Prefer simple parsing rules over complex edge case handling.\n\n## Status\n\nThis is an early proof of concept with missing features and edge cases.",
 				"dependencies": ["mdz_helpers.ts"],
+<<<<<<< HEAD
 				"dependents": ["Mdz.svelte", "mdz_lexer.ts", "svelte_preprocess_mdz.ts", "tsdoc_mdz.ts"],
 				"star_exports": []
+||||||| f3de5931
+				"dependents": ["Mdz.svelte", "mdz_lexer.ts", "svelte_preprocess_mdz.ts", "tsdoc_mdz.ts"]
+=======
+				"dependents": [
+					"Mdz.svelte",
+					"MdzNodeView.svelte",
+					"mdz_lexer.ts",
+					"mdz_to_svelte.ts",
+					"svelte_preprocess_mdz.ts",
+					"tsdoc_mdz.ts"
+				]
+>>>>>>> main
 			},
 			{
 				"path": "MdzNodeView.svelte",
@@ -12818,9 +13280,17 @@
 						"also_exported_from": []
 					}
 				],
+<<<<<<< HEAD
 				"dependencies": ["DocsLink.svelte", "MdzNodeView.svelte", "mdz_components.ts"],
 				"dependents": ["Mdz.svelte", "MdzNodeView.svelte"],
 				"star_exports": []
+||||||| f3de5931
+				"dependencies": ["DocsLink.svelte", "MdzNodeView.svelte", "mdz_components.ts"],
+				"dependents": ["Mdz.svelte", "MdzNodeView.svelte"]
+=======
+				"dependencies": ["DocsLink.svelte", "MdzNodeView.svelte", "mdz.ts", "mdz_components.ts"],
+				"dependents": ["Mdz.svelte", "MdzNodeView.svelte"]
+>>>>>>> main
 			},
 			{
 				"path": "MdzPrecompiled.svelte",

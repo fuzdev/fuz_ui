@@ -2,10 +2,14 @@
 	import Code from '@fuzdev/fuz_code/Code.svelte';
 	import {resolve} from '$app/paths';
 
-	import type {MdzNode} from './mdz.js';
+	import {type MdzNode, resolve_relative_path} from './mdz.js';
 	import DocsLink from './DocsLink.svelte';
 	import MdzNodeView from './MdzNodeView.svelte';
-	import {mdz_components_context, mdz_elements_context} from './mdz_components.js';
+	import {
+		mdz_components_context,
+		mdz_elements_context,
+		mdz_base_context,
+	} from './mdz_components.js';
 
 	const {
 		node,
@@ -15,6 +19,7 @@
 
 	const components = mdz_components_context.get_maybe();
 	const elements = mdz_elements_context.get_maybe();
+	const get_mdz_base = mdz_base_context.get_maybe();
 	// TODO make `Code` customizable via context, maybe registered as component Codeblock?
 </script>
 
@@ -53,12 +58,18 @@
 {:else if node.type === 'Link'}
 	{@const {reference} = node}
 	{#if node.link_type === 'internal'}
-		{@const is_fragment_or_query_only = reference.startsWith('#') || reference.startsWith('?')}
-		<!-- Fragment/query-only links skip resolve() to avoid unwanted `/` prefix -->
-		<!-- eslint-disable-next-line svelte/no-navigation-without-resolve -->
-		<a href={is_fragment_or_query_only ? reference : resolve(reference as any)}
-			>{@render render_children(node.children)}</a
-		>
+		{@const skip_resolve = reference.startsWith('#') || reference.startsWith('?')}
+		{@const mdz_base = get_mdz_base?.()}
+		{#if reference.startsWith('.') && mdz_base}
+			{@const resolved = resolve_relative_path(reference, mdz_base)}
+			<a href={resolve(resolved as any)}>{@render render_children(node.children)}</a>
+		{:else if skip_resolve || reference.startsWith('.')}
+			<!-- Fragment, query, and relative links without base skip resolve() -->
+			<!-- eslint-disable-next-line svelte/no-navigation-without-resolve -->
+			<a href={reference}>{@render render_children(node.children)}</a>
+		{:else}
+			<a href={resolve(reference as any)}>{@render render_children(node.children)}</a>
+		{/if}
 	{:else}
 		<!-- external link -->
 		<!-- eslint-disable-next-line svelte/no-navigation-without-resolve -->
