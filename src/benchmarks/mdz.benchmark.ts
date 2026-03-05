@@ -1,7 +1,7 @@
 import {Benchmark} from '@fuzdev/fuz_util/benchmark.js';
 
 import {mdz_parse} from '../lib/mdz.js';
-import {mdz_parse_lexer} from '../lib/mdz_lexer.js';
+import {mdz_parse_lexer} from '../lib/mdz_token_parser.js';
 
 /* eslint-disable no-console */
 

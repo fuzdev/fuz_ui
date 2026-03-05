@@ -1,7 +1,7 @@
 import {test, assert, describe, beforeAll} from 'vitest';
 
 import {mdz_parse, mdz_is_url} from '$lib/mdz.js';
-import {mdz_parse_lexer} from '$lib/mdz_lexer.js';
+import {mdz_parse_lexer} from '$lib/mdz_token_parser.js';
 import {
 	load_fixtures,
 	validate_positions,

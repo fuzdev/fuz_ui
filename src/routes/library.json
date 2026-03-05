@@ -4998,22 +4998,408 @@
 				"path": "mdz_lexer.ts",
 				"declarations": [
 					{
-						"name": "mdz_parse_lexer",
-						"kind": "function",
-						"doc_comment": "Parses text to an array of `MdzNode` using a two-phase lexer+parser approach.",
-						"source_line": 75,
-						"type_signature": "(text: string): MdzNode[]",
-						"return_type": "MdzNode[]",
-						"parameters": [
+						"name": "MdzTokenBase",
+						"kind": "type",
+						"source_line": 58,
+						"type_signature": "MdzTokenBase",
+						"properties": [
 							{
-								"name": "text",
-								"type": "string"
+								"name": "start",
+								"kind": "variable",
+								"type_signature": "number"
+							},
+							{
+								"name": "end",
+								"kind": "variable",
+								"type_signature": "number"
+							}
+						]
+					},
+					{
+						"name": "MdzToken",
+						"kind": "type",
+						"source_line": 63,
+						"type_signature": "MdzToken"
+					},
+					{
+						"name": "MdzTokenText",
+						"kind": "type",
+						"source_line": 85,
+						"type_signature": "MdzTokenText",
+						"extends": ["MdzTokenBase"],
+						"properties": [
+							{
+								"name": "type",
+								"kind": "variable",
+								"type_signature": "'text'"
+							},
+							{
+								"name": "content",
+								"kind": "variable",
+								"type_signature": "string"
+							}
+						]
+					},
+					{
+						"name": "MdzTokenCode",
+						"kind": "type",
+						"source_line": 90,
+						"type_signature": "MdzTokenCode",
+						"extends": ["MdzTokenBase"],
+						"properties": [
+							{
+								"name": "type",
+								"kind": "variable",
+								"type_signature": "'code'"
+							},
+							{
+								"name": "content",
+								"kind": "variable",
+								"type_signature": "string"
+							}
+						]
+					},
+					{
+						"name": "MdzTokenCodeblock",
+						"kind": "type",
+						"source_line": 95,
+						"type_signature": "MdzTokenCodeblock",
+						"extends": ["MdzTokenBase"],
+						"properties": [
+							{
+								"name": "type",
+								"kind": "variable",
+								"type_signature": "'codeblock'"
+							},
+							{
+								"name": "lang",
+								"kind": "variable",
+								"type_signature": "string | null"
+							},
+							{
+								"name": "content",
+								"kind": "variable",
+								"type_signature": "string"
+							}
+						]
+					},
+					{
+						"name": "MdzTokenBoldOpen",
+						"kind": "type",
+						"source_line": 101,
+						"type_signature": "MdzTokenBoldOpen",
+						"extends": ["MdzTokenBase"],
+						"properties": [
+							{
+								"name": "type",
+								"kind": "variable",
+								"type_signature": "'bold_open'"
+							}
+						]
+					},
+					{
+						"name": "MdzTokenBoldClose",
+						"kind": "type",
+						"source_line": 105,
+						"type_signature": "MdzTokenBoldClose",
+						"extends": ["MdzTokenBase"],
+						"properties": [
+							{
+								"name": "type",
+								"kind": "variable",
+								"type_signature": "'bold_close'"
+							}
+						]
+					},
+					{
+						"name": "MdzTokenItalicOpen",
+						"kind": "type",
+						"source_line": 109,
+						"type_signature": "MdzTokenItalicOpen",
+						"extends": ["MdzTokenBase"],
+						"properties": [
+							{
+								"name": "type",
+								"kind": "variable",
+								"type_signature": "'italic_open'"
+							}
+						]
+					},
+					{
+						"name": "MdzTokenItalicClose",
+						"kind": "type",
+						"source_line": 113,
+						"type_signature": "MdzTokenItalicClose",
+						"extends": ["MdzTokenBase"],
+						"properties": [
+							{
+								"name": "type",
+								"kind": "variable",
+								"type_signature": "'italic_close'"
+							}
+						]
+					},
+					{
+						"name": "MdzTokenStrikethroughOpen",
+						"kind": "type",
+						"source_line": 117,
+						"type_signature": "MdzTokenStrikethroughOpen",
+						"extends": ["MdzTokenBase"],
+						"properties": [
+							{
+								"name": "type",
+								"kind": "variable",
+								"type_signature": "'strikethrough_open'"
+							}
+						]
+					},
+					{
+						"name": "MdzTokenStrikethroughClose",
+						"kind": "type",
+						"source_line": 121,
+						"type_signature": "MdzTokenStrikethroughClose",
+						"extends": ["MdzTokenBase"],
+						"properties": [
+							{
+								"name": "type",
+								"kind": "variable",
+								"type_signature": "'strikethrough_close'"
+							}
+						]
+					},
+					{
+						"name": "MdzTokenLinkTextOpen",
+						"kind": "type",
+						"source_line": 125,
+						"type_signature": "MdzTokenLinkTextOpen",
+						"extends": ["MdzTokenBase"],
+						"properties": [
+							{
+								"name": "type",
+								"kind": "variable",
+								"type_signature": "'link_text_open'"
+							}
+						]
+					},
+					{
+						"name": "MdzTokenLinkTextClose",
+						"kind": "type",
+						"source_line": 129,
+						"type_signature": "MdzTokenLinkTextClose",
+						"extends": ["MdzTokenBase"],
+						"properties": [
+							{
+								"name": "type",
+								"kind": "variable",
+								"type_signature": "'link_text_close'"
+							}
+						]
+					},
+					{
+						"name": "MdzTokenLinkRef",
+						"kind": "type",
+						"source_line": 133,
+						"type_signature": "MdzTokenLinkRef",
+						"extends": ["MdzTokenBase"],
+						"properties": [
+							{
+								"name": "type",
+								"kind": "variable",
+								"type_signature": "'link_ref'"
+							},
+							{
+								"name": "reference",
+								"kind": "variable",
+								"type_signature": "string"
+							},
+							{
+								"name": "link_type",
+								"kind": "variable",
+								"type_signature": "'external' | 'internal'"
+							}
+						]
+					},
+					{
+						"name": "MdzTokenAutolink",
+						"kind": "type",
+						"source_line": 139,
+						"type_signature": "MdzTokenAutolink",
+						"extends": ["MdzTokenBase"],
+						"properties": [
+							{
+								"name": "type",
+								"kind": "variable",
+								"type_signature": "'autolink'"
+							},
+							{
+								"name": "reference",
+								"kind": "variable",
+								"type_signature": "string"
+							},
+							{
+								"name": "link_type",
+								"kind": "variable",
+								"type_signature": "'external' | 'internal'"
+							}
+						]
+					},
+					{
+						"name": "MdzTokenHeadingStart",
+						"kind": "type",
+						"source_line": 145,
+						"type_signature": "MdzTokenHeadingStart",
+						"extends": ["MdzTokenBase"],
+						"properties": [
+							{
+								"name": "type",
+								"kind": "variable",
+								"type_signature": "'heading_start'"
+							},
+							{
+								"name": "level",
+								"kind": "variable",
+								"type_signature": "1 | 2 | 3 | 4 | 5 | 6"
+							}
+						]
+					},
+					{
+						"name": "MdzTokenHr",
+						"kind": "type",
+						"source_line": 150,
+						"type_signature": "MdzTokenHr",
+						"extends": ["MdzTokenBase"],
+						"properties": [
+							{
+								"name": "type",
+								"kind": "variable",
+								"type_signature": "'hr'"
+							}
+						]
+					},
+					{
+						"name": "MdzTokenTagOpen",
+						"kind": "type",
+						"source_line": 154,
+						"type_signature": "MdzTokenTagOpen",
+						"extends": ["MdzTokenBase"],
+						"properties": [
+							{
+								"name": "type",
+								"kind": "variable",
+								"type_signature": "'tag_open'"
+							},
+							{
+								"name": "name",
+								"kind": "variable",
+								"type_signature": "string"
+							},
+							{
+								"name": "is_component",
+								"kind": "variable",
+								"type_signature": "boolean"
+							}
+						]
+					},
+					{
+						"name": "MdzTokenTagSelfClose",
+						"kind": "type",
+						"source_line": 160,
+						"type_signature": "MdzTokenTagSelfClose",
+						"extends": ["MdzTokenBase"],
+						"properties": [
+							{
+								"name": "type",
+								"kind": "variable",
+								"type_signature": "'tag_self_close'"
+							},
+							{
+								"name": "name",
+								"kind": "variable",
+								"type_signature": "string"
+							},
+							{
+								"name": "is_component",
+								"kind": "variable",
+								"type_signature": "boolean"
+							}
+						]
+					},
+					{
+						"name": "MdzTokenTagClose",
+						"kind": "type",
+						"source_line": 166,
+						"type_signature": "MdzTokenTagClose",
+						"extends": ["MdzTokenBase"],
+						"properties": [
+							{
+								"name": "type",
+								"kind": "variable",
+								"type_signature": "'tag_close'"
+							},
+							{
+								"name": "name",
+								"kind": "variable",
+								"type_signature": "string"
+							}
+						]
+					},
+					{
+						"name": "MdzTokenHeadingEnd",
+						"kind": "type",
+						"source_line": 171,
+						"type_signature": "MdzTokenHeadingEnd",
+						"extends": ["MdzTokenBase"],
+						"properties": [
+							{
+								"name": "type",
+								"kind": "variable",
+								"type_signature": "'heading_end'"
+							}
+						]
+					},
+					{
+						"name": "MdzTokenParagraphBreak",
+						"kind": "type",
+						"source_line": 175,
+						"type_signature": "MdzTokenParagraphBreak",
+						"extends": ["MdzTokenBase"],
+						"properties": [
+							{
+								"name": "type",
+								"kind": "variable",
+								"type_signature": "'paragraph_break'"
+							}
+						]
+					},
+					{
+						"name": "MdzLexer",
+						"kind": "class",
+						"source_line": 183,
+						"members": [
+							{
+								"name": "constructor",
+								"kind": "constructor",
+								"type_signature": "(text: string): MdzLexer",
+								"parameters": [
+									{
+										"name": "text",
+										"type": "string"
+									}
+								]
+							},
+							{
+								"name": "tokenize",
+								"kind": "function",
+								"type_signature": "(): MdzToken[]",
+								"return_type": "MdzToken[]",
+								"parameters": []
 							}
 						]
 					}
 				],
-				"module_comment": "Lexer-based mdz parser — a two-phase alternative to the single-pass parser in `mdz.ts`.\n\nPhase 1 (Lexer): Tokenizes input into a flat `MdzToken[]` stream.\nPhase 2 (Parser): Consumes the token stream to build the `MdzNode[]` AST.\n\nProduces identical output to `mdz_parse` for all inputs. Exists as a parallel\nimplementation for comparison — see grimoire lore/mdz/TODO.md.",
-				"dependencies": ["mdz.ts", "mdz_constants.ts"]
+				"module_comment": "mdz lexer — tokenizes input into a flat `MdzToken[]` stream.\n\nPhase 1 of the two-phase lexer+parser alternative to the single-pass parser\nin `mdz.ts`. Phase 2 is in `mdz_token_parser.ts`.",
+				"dependencies": ["mdz.ts", "mdz_constants.ts"],
+				"dependents": ["mdz_token_parser.ts"]
 			},
 			{
 				"path": "mdz_to_svelte.ts",
@@ -5073,6 +5459,27 @@
 				],
 				"module_comment": "Converts parsed `MdzNode` arrays to Svelte markup strings.\n\nUsed by the `svelte_preprocess_mdz` preprocessor to expand static `<Mdz content=\"...\">` usages\ninto pre-rendered Svelte markup at build time. The output for each node type matches what\n`MdzNodeView.svelte` renders at runtime, so precompiled and runtime rendering are identical.",
 				"dependents": ["svelte_preprocess_mdz.ts"]
+			},
+			{
+				"path": "mdz_token_parser.ts",
+				"declarations": [
+					{
+						"name": "mdz_parse_lexer",
+						"kind": "function",
+						"doc_comment": "Parses text to an array of `MdzNode` using a two-phase lexer+parser approach.",
+						"source_line": 39,
+						"type_signature": "(text: string): MdzNode[]",
+						"return_type": "MdzNode[]",
+						"parameters": [
+							{
+								"name": "text",
+								"type": "string"
+							}
+						]
+					}
+				],
+				"module_comment": "mdz token parser — consumes a `MdzToken[]` stream to build the `MdzNode[]` AST.\n\nPhase 2 of the two-phase lexer+parser alternative to the single-pass parser\nin `mdz.ts`. Phase 1 (lexer) is in `mdz_lexer.ts`.",
+				"dependencies": ["mdz_lexer.ts"]
 			},
 			{
 				"path": "Mdz.svelte",

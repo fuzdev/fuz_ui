@@ -1,30 +1,12 @@
 /**
- * Lexer-based mdz parser — a two-phase alternative to the single-pass parser in `mdz.ts`.
+ * mdz lexer — tokenizes input into a flat `MdzToken[]` stream.
  *
- * Phase 1 (Lexer): Tokenizes input into a flat `MdzToken[]` stream.
- * Phase 2 (Parser): Consumes the token stream to build the `MdzNode[]` AST.
- *
- * Produces identical output to `mdz_parse` for all inputs. Exists as a parallel
- * implementation for comparison — see grimoire lore/mdz/TODO.md.
+ * Phase 1 of the two-phase lexer+parser alternative to the single-pass parser
+ * in `mdz.ts`. Phase 2 is in `mdz_token_parser.ts`.
  *
  * @module
  */
 
-import type {
-	MdzNode,
-	MdzTextNode,
-	MdzCodeNode,
-	MdzCodeblockNode,
-	MdzBoldNode,
-	MdzItalicNode,
-	MdzStrikethroughNode,
-	MdzLinkNode,
-	MdzParagraphNode,
-	MdzHrNode,
-	MdzHeadingNode,
-	MdzElementNode,
-	MdzComponentNode,
-} from './mdz.js';
 import {mdz_is_url} from './mdz.js';
 import {
 	BACKTICK,
@@ -69,24 +51,16 @@ import {
 	HTTP_PREFIX_LENGTH,
 } from './mdz_constants.js';
 
-/**
- * Parses text to an array of `MdzNode` using a two-phase lexer+parser approach.
- */
-export const mdz_parse_lexer = (text: string): Array<MdzNode> => {
-	const tokens = new MdzLexer(text).tokenize();
-	return new MdzTokenParser(tokens).parse();
-};
-
 // ============================================================================
-// Token types (internal)
+// Token types
 // ============================================================================
 
-interface MdzTokenBase {
+export interface MdzTokenBase {
 	start: number;
 	end: number;
 }
 
-type MdzToken =
+export type MdzToken =
 	| MdzTokenText
 	| MdzTokenCode
 	| MdzTokenCodeblock
@@ -108,97 +82,97 @@ type MdzToken =
 	| MdzTokenHeadingEnd
 	| MdzTokenParagraphBreak;
 
-interface MdzTokenText extends MdzTokenBase {
+export interface MdzTokenText extends MdzTokenBase {
 	type: 'text';
 	content: string;
 }
 
-interface MdzTokenCode extends MdzTokenBase {
+export interface MdzTokenCode extends MdzTokenBase {
 	type: 'code';
 	content: string;
 }
 
-interface MdzTokenCodeblock extends MdzTokenBase {
+export interface MdzTokenCodeblock extends MdzTokenBase {
 	type: 'codeblock';
 	lang: string | null;
 	content: string;
 }
 
-interface MdzTokenBoldOpen extends MdzTokenBase {
+export interface MdzTokenBoldOpen extends MdzTokenBase {
 	type: 'bold_open';
 }
 
-interface MdzTokenBoldClose extends MdzTokenBase {
+export interface MdzTokenBoldClose extends MdzTokenBase {
 	type: 'bold_close';
 }
 
-interface MdzTokenItalicOpen extends MdzTokenBase {
+export interface MdzTokenItalicOpen extends MdzTokenBase {
 	type: 'italic_open';
 }
 
-interface MdzTokenItalicClose extends MdzTokenBase {
+export interface MdzTokenItalicClose extends MdzTokenBase {
 	type: 'italic_close';
 }
 
-interface MdzTokenStrikethroughOpen extends MdzTokenBase {
+export interface MdzTokenStrikethroughOpen extends MdzTokenBase {
 	type: 'strikethrough_open';
 }
 
-interface MdzTokenStrikethroughClose extends MdzTokenBase {
+export interface MdzTokenStrikethroughClose extends MdzTokenBase {
 	type: 'strikethrough_close';
 }
 
-interface MdzTokenLinkTextOpen extends MdzTokenBase {
+export interface MdzTokenLinkTextOpen extends MdzTokenBase {
 	type: 'link_text_open';
 }
 
-interface MdzTokenLinkTextClose extends MdzTokenBase {
+export interface MdzTokenLinkTextClose extends MdzTokenBase {
 	type: 'link_text_close';
 }
 
-interface MdzTokenLinkRef extends MdzTokenBase {
+export interface MdzTokenLinkRef extends MdzTokenBase {
 	type: 'link_ref';
 	reference: string;
 	link_type: 'external' | 'internal';
 }
 
-interface MdzTokenAutolink extends MdzTokenBase {
+export interface MdzTokenAutolink extends MdzTokenBase {
 	type: 'autolink';
 	reference: string;
 	link_type: 'external' | 'internal';
 }
 
-interface MdzTokenHeadingStart extends MdzTokenBase {
+export interface MdzTokenHeadingStart extends MdzTokenBase {
 	type: 'heading_start';
 	level: 1 | 2 | 3 | 4 | 5 | 6;
 }
 
-interface MdzTokenHr extends MdzTokenBase {
+export interface MdzTokenHr extends MdzTokenBase {
 	type: 'hr';
 }
 
-interface MdzTokenTagOpen extends MdzTokenBase {
+export interface MdzTokenTagOpen extends MdzTokenBase {
 	type: 'tag_open';
 	name: string;
 	is_component: boolean;
 }
 
-interface MdzTokenTagSelfClose extends MdzTokenBase {
+export interface MdzTokenTagSelfClose extends MdzTokenBase {
 	type: 'tag_self_close';
 	name: string;
 	is_component: boolean;
 }
 
-interface MdzTokenTagClose extends MdzTokenBase {
+export interface MdzTokenTagClose extends MdzTokenBase {
 	type: 'tag_close';
 	name: string;
 }
 
-interface MdzTokenHeadingEnd extends MdzTokenBase {
+export interface MdzTokenHeadingEnd extends MdzTokenBase {
 	type: 'heading_end';
 }
 
-interface MdzTokenParagraphBreak extends MdzTokenBase {
+export interface MdzTokenParagraphBreak extends MdzTokenBase {
 	type: 'paragraph_break';
 }
 
@@ -206,7 +180,7 @@ interface MdzTokenParagraphBreak extends MdzTokenBase {
 // Lexer
 // ============================================================================
 
-class MdzLexer {
+export class MdzLexer {
 	#text: string;
 	#index: number = 0;
 	#tokens: Array<MdzToken> = [];
@@ -1145,444 +1119,5 @@ class MdzLexer {
 		}
 
 		return end === url.length ? url : url.slice(0, end);
-	}
-}
-
-// ============================================================================
-// Token Parser
-// ============================================================================
-
-class MdzTokenParser {
-	#tokens: Array<MdzToken>;
-	#index: number = 0;
-
-	constructor(tokens: Array<MdzToken>) {
-		this.#tokens = tokens;
-	}
-
-	parse(): Array<MdzNode> {
-		const root_nodes: Array<MdzNode> = [];
-		const paragraph_children: Array<MdzNode> = [];
-
-		while (this.#index < this.#tokens.length) {
-			const token = this.#tokens[this.#index]!;
-
-			// Block-level tokens
-			if (token.type === 'heading_start') {
-				const flushed = this.#flush_paragraph(paragraph_children, true);
-				if (flushed) root_nodes.push(flushed);
-				root_nodes.push(this.#parse_heading());
-				continue;
-			}
-
-			if (token.type === 'hr') {
-				const flushed = this.#flush_paragraph(paragraph_children, true);
-				if (flushed) root_nodes.push(flushed);
-				root_nodes.push({type: 'Hr', start: token.start, end: token.end});
-				this.#index++;
-				continue;
-			}
-
-			if (token.type === 'codeblock') {
-				const flushed = this.#flush_paragraph(paragraph_children, true);
-				if (flushed) root_nodes.push(flushed);
-				root_nodes.push({
-					type: 'Codeblock',
-					lang: token.lang,
-					content: token.content,
-					start: token.start,
-					end: token.end,
-				});
-				this.#index++;
-				continue;
-			}
-
-			if (token.type === 'paragraph_break') {
-				const flushed = this.#flush_paragraph(paragraph_children, true);
-				if (flushed) root_nodes.push(flushed);
-				this.#index++;
-				continue;
-			}
-
-			// Inline tokens → paragraph children
-			const node = this.#parse_inline();
-			if (node) paragraph_children.push(node);
-		}
-
-		// Flush remaining content
-		const final_paragraph = this.#flush_paragraph(paragraph_children, true);
-		if (final_paragraph) root_nodes.push(final_paragraph);
-
-		return root_nodes;
-	}
-
-	#parse_heading(): MdzHeadingNode {
-		const token = this.#tokens[this.#index]! as MdzTokenHeadingStart;
-		const start = token.start;
-		const level = token.level;
-		this.#index++;
-
-		const children: Array<MdzNode> = [];
-
-		// Collect inline nodes until heading_end marker
-		while (this.#index < this.#tokens.length) {
-			const t = this.#tokens[this.#index]!;
-			if (t.type === 'heading_end') {
-				this.#index++; // consume the marker
-				break;
-			}
-			const node = this.#parse_inline();
-			if (node) children.push(node);
-		}
-
-		const end = children.length > 0 ? children[children.length - 1]!.end : start + level + 1;
-
-		return {type: 'Heading', level, children, start, end};
-	}
-
-	#parse_inline(): MdzNode | null {
-		if (this.#index >= this.#tokens.length) return null;
-
-		const token = this.#tokens[this.#index]!;
-
-		switch (token.type) {
-			case 'text':
-				this.#index++;
-				return {type: 'Text', content: token.content, start: token.start, end: token.end};
-
-			case 'code':
-				this.#index++;
-				return {type: 'Code', content: token.content, start: token.start, end: token.end};
-
-			case 'bold_open':
-				return this.#parse_bold();
-
-			case 'italic_open':
-				return this.#parse_italic();
-
-			case 'strikethrough_open':
-				return this.#parse_strikethrough();
-
-			case 'link_text_open':
-				return this.#parse_link();
-
-			case 'autolink':
-				return this.#parse_autolink();
-
-			case 'tag_open':
-				return this.#parse_tag_node();
-
-			case 'tag_self_close':
-				return this.#parse_self_close_tag();
-
-			// Orphaned close tokens - treat as text
-			case 'bold_close':
-				this.#index++;
-				return {type: 'Text', content: '**', start: token.start, end: token.end};
-
-			case 'italic_close':
-				this.#index++;
-				return {type: 'Text', content: '_', start: token.start, end: token.end};
-
-			case 'strikethrough_close':
-				this.#index++;
-				return {type: 'Text', content: '~', start: token.start, end: token.end};
-
-			case 'link_text_close':
-				this.#index++;
-				return {type: 'Text', content: ']', start: token.start, end: token.end};
-
-			case 'link_ref':
-				this.#index++;
-				return {
-					type: 'Text',
-					content: `(${token.reference})`,
-					start: token.start,
-					end: token.end,
-				};
-
-			case 'tag_close':
-				this.#index++;
-				return {
-					type: 'Text',
-					content: `</${token.name}>`,
-					start: token.start,
-					end: token.end,
-				};
-
-			default:
-				this.#index++;
-				return null;
-		}
-	}
-
-	#parse_bold(): MdzBoldNode | MdzTextNode {
-		const token = this.#tokens[this.#index]! as MdzTokenBoldOpen;
-		const start = token.start;
-		this.#index++;
-
-		const children: Array<MdzNode> = [];
-
-		while (this.#index < this.#tokens.length) {
-			const t = this.#tokens[this.#index]!;
-			if (t.type === 'bold_close') {
-				this.#index++;
-				return {type: 'Bold', children, start, end: t.end};
-			}
-			if (
-				t.type === 'paragraph_break' ||
-				t.type === 'heading_start' ||
-				t.type === 'hr' ||
-				t.type === 'codeblock'
-			) {
-				break;
-			}
-			const node = this.#parse_inline();
-			if (node) children.push(node);
-		}
-
-		// Unclosed - treat as text
-		return {type: 'Text', content: '**', start, end: start + 2};
-	}
-
-	#parse_italic(): MdzItalicNode | MdzTextNode {
-		const token = this.#tokens[this.#index]! as MdzTokenItalicOpen;
-		const start = token.start;
-		this.#index++;
-
-		const children: Array<MdzNode> = [];
-
-		while (this.#index < this.#tokens.length) {
-			const t = this.#tokens[this.#index]!;
-			if (t.type === 'italic_close') {
-				this.#index++;
-				return {type: 'Italic', children, start, end: t.end};
-			}
-			if (
-				t.type === 'paragraph_break' ||
-				t.type === 'heading_start' ||
-				t.type === 'hr' ||
-				t.type === 'codeblock'
-			) {
-				break;
-			}
-			const node = this.#parse_inline();
-			if (node) children.push(node);
-		}
-
-		return {type: 'Text', content: '_', start, end: start + 1};
-	}
-
-	#parse_strikethrough(): MdzStrikethroughNode | MdzTextNode {
-		const token = this.#tokens[this.#index]! as MdzTokenStrikethroughOpen;
-		const start = token.start;
-		this.#index++;
-
-		const children: Array<MdzNode> = [];
-
-		while (this.#index < this.#tokens.length) {
-			const t = this.#tokens[this.#index]!;
-			if (t.type === 'strikethrough_close') {
-				this.#index++;
-				return {type: 'Strikethrough', children, start, end: t.end};
-			}
-			if (
-				t.type === 'paragraph_break' ||
-				t.type === 'heading_start' ||
-				t.type === 'hr' ||
-				t.type === 'codeblock'
-			) {
-				break;
-			}
-			const node = this.#parse_inline();
-			if (node) children.push(node);
-		}
-
-		return {type: 'Text', content: '~', start, end: start + 1};
-	}
-
-	#parse_link(): MdzLinkNode | MdzTextNode {
-		const open_token = this.#tokens[this.#index]! as MdzTokenLinkTextOpen;
-		const start = open_token.start;
-		this.#index++;
-
-		const children: Array<MdzNode> = [];
-
-		while (this.#index < this.#tokens.length) {
-			const t = this.#tokens[this.#index]!;
-			if (t.type === 'link_text_close') {
-				this.#index++;
-
-				// Expect link_ref next
-				if (this.#index < this.#tokens.length && this.#tokens[this.#index]!.type === 'link_ref') {
-					const ref_token = this.#tokens[this.#index]! as MdzTokenLinkRef;
-					this.#index++;
-					return {
-						type: 'Link',
-						reference: ref_token.reference,
-						children,
-						link_type: ref_token.link_type,
-						start,
-						end: ref_token.end,
-					};
-				}
-
-				// No link_ref - treat as text
-				return {type: 'Text', content: '[', start, end: start + 1};
-			}
-			if (
-				t.type === 'paragraph_break' ||
-				t.type === 'heading_start' ||
-				t.type === 'hr' ||
-				t.type === 'codeblock'
-			) {
-				break;
-			}
-			const node = this.#parse_inline();
-			if (node) children.push(node);
-		}
-
-		return {type: 'Text', content: '[', start, end: start + 1};
-	}
-
-	#parse_autolink(): MdzLinkNode {
-		const token = this.#tokens[this.#index]! as MdzTokenAutolink;
-		this.#index++;
-		return {
-			type: 'Link',
-			reference: token.reference,
-			children: [{type: 'Text', content: token.reference, start: token.start, end: token.end}],
-			link_type: token.link_type,
-			start: token.start,
-			end: token.end,
-		};
-	}
-
-	#parse_tag_node(): MdzElementNode | MdzComponentNode | MdzTextNode {
-		const open_token = this.#tokens[this.#index]! as MdzTokenTagOpen;
-		const start = open_token.start;
-		const tag_name = open_token.name;
-		const node_type: 'Component' | 'Element' = open_token.is_component ? 'Component' : 'Element';
-		this.#index++;
-
-		const children: Array<MdzNode> = [];
-
-		while (this.#index < this.#tokens.length) {
-			const t = this.#tokens[this.#index]!;
-			if (t.type === 'tag_close' && (t as MdzTokenTagClose).name === tag_name) {
-				this.#index++;
-				return {type: node_type, name: tag_name, children, start, end: t.end};
-			}
-			const node = this.#parse_inline();
-			if (node) children.push(node);
-		}
-
-		// Unclosed tag
-		return {type: 'Text', content: '<', start, end: start + 1};
-	}
-
-	#parse_self_close_tag(): MdzElementNode | MdzComponentNode {
-		const token = this.#tokens[this.#index]! as MdzTokenTagSelfClose;
-		const node_type: 'Component' | 'Element' = token.is_component ? 'Component' : 'Element';
-		this.#index++;
-		return {type: node_type, name: token.name, children: [], start: token.start, end: token.end};
-	}
-
-	// -- Paragraph flushing --
-
-	#flush_paragraph(paragraph_children: Array<MdzNode>, trim_trailing = false): MdzNode | null {
-		if (paragraph_children.length === 0) return null;
-
-		if (trim_trailing) {
-			// Trim trailing newlines from last text node
-			const last = paragraph_children[paragraph_children.length - 1]!;
-			if (last.type === 'Text') {
-				const trimmed = last.content.replace(/\n+$/, '');
-				if (trimmed) {
-					last.content = trimmed;
-					last.end = last.start + trimmed.length;
-				} else {
-					paragraph_children.pop();
-				}
-			}
-
-			// Skip whitespace-only paragraphs
-			const has_content = paragraph_children.some(
-				(n) => n.type !== 'Text' || n.content.trim().length > 0,
-			);
-			if (!has_content) {
-				paragraph_children.length = 0;
-				return null;
-			}
-		}
-
-		// Single tag extraction (MDX convention)
-		const single_tag = this.#extract_single_tag(paragraph_children);
-		if (single_tag) {
-			paragraph_children.length = 0;
-			return single_tag;
-		}
-
-		// Merge adjacent text nodes
-		const merged = this.#merge_adjacent_text(paragraph_children.slice());
-		paragraph_children.length = 0;
-
-		if (merged.length === 0) return null;
-
-		return {
-			type: 'Paragraph',
-			children: merged,
-			start: merged[0]!.start,
-			end: merged[merged.length - 1]!.end,
-		};
-	}
-
-	#extract_single_tag(nodes: Array<MdzNode>): MdzComponentNode | MdzElementNode | null {
-		let tag: MdzComponentNode | MdzElementNode | null = null;
-
-		for (const node of nodes) {
-			if (node.type === 'Component' || node.type === 'Element') {
-				if (tag) return null;
-				tag = node;
-			} else if (node.type === 'Text') {
-				if (node.content.trim() !== '') return null;
-			} else {
-				return null;
-			}
-		}
-
-		return tag;
-	}
-
-	#merge_adjacent_text(nodes: Array<MdzNode>): Array<MdzNode> {
-		if (nodes.length <= 1) return nodes;
-
-		const merged: Array<MdzNode> = [];
-		let pending_text: MdzTextNode | null = null;
-
-		for (const node of nodes) {
-			if (node.type === 'Text') {
-				if (pending_text) {
-					pending_text = {
-						type: 'Text',
-						content: pending_text.content + node.content,
-						start: pending_text.start,
-						end: node.end,
-					};
-				} else {
-					pending_text = {...node} as MdzTextNode;
-				}
-			} else {
-				if (pending_text) {
-					merged.push(pending_text);
-					pending_text = null;
-				}
-				merged.push(node);
-			}
-		}
-
-		if (pending_text) merged.push(pending_text);
-
-		return merged;
 	}
 }
