@@ -239,6 +239,47 @@ describe('missing or wrong imports', () => {
 	});
 });
 
+describe('dynamic base prop', () => {
+	test('skips precompilation when base is dynamic', async () => {
+		const input = `<script lang="ts">
+	import Mdz from '@fuzdev/fuz_ui/Mdz.svelte';
+	let base_path = $state('/docs/mdz/');
+</script>
+
+<Mdz content="see ./grammar" base={base_path} />`;
+
+		const result = await run_preprocess(input);
+		assert.equal(result, input, 'should be unchanged for dynamic base');
+	});
+
+	test('transforms when base is static string', async () => {
+		const input = `<script lang="ts">
+	import Mdz from '@fuzdev/fuz_ui/Mdz.svelte';
+</script>
+
+<Mdz content="see ./grammar" base="/docs/mdz/" />`;
+
+		const result = await run_preprocess(input);
+		assert.ok(result.includes("resolve('/docs/mdz/grammar')"), 'should resolve relative path');
+		assert.ok(result.includes('<MdzPrecompiled>'), 'should use MdzPrecompiled');
+		assert.ok(!result.includes('base='), 'should exclude base from output');
+	});
+
+	test('normalizes base without trailing slash', async () => {
+		const input = `<script lang="ts">
+	import Mdz from '@fuzdev/fuz_ui/Mdz.svelte';
+</script>
+
+<Mdz content="see ./grammar" base="/docs/mdz" />`;
+
+		const result = await run_preprocess(input);
+		assert.ok(
+			result.includes("resolve('/docs/mdz/grammar')"),
+			'should resolve with normalized trailing slash',
+		);
+	});
+});
+
 describe('excluded files', () => {
 	test('skips excluded files with regex', async () => {
 		const input = `<script lang="ts">

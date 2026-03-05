@@ -1,6 +1,6 @@
 import {test, assert, describe, beforeAll} from 'vitest';
 
-import {mdz_parse, mdz_is_url} from '$lib/mdz.js';
+import {mdz_parse, mdz_is_url, resolve_relative_path} from '$lib/mdz.js';
 import {mdz_parse_lexer} from '$lib/mdz_token_parser.js';
 import {
 	load_fixtures,
@@ -96,5 +96,75 @@ describe('mdz_is_url', () => {
 		assert.equal(mdz_is_url('example.com'), false);
 		assert.equal(mdz_is_url('/path'), false);
 		assert.equal(mdz_is_url('ftp://example.com'), false);
+	});
+});
+
+describe('resolve_relative_path', () => {
+	test('resolves ./ path', () => {
+		assert.equal(resolve_relative_path('./grammar', '/docs/mdz/'), '/docs/mdz/grammar');
+	});
+
+	test('resolves ../ path', () => {
+		assert.equal(resolve_relative_path('../mdz', '/docs/mdz/'), '/docs/mdz');
+	});
+
+	test('resolves nested ./ path', () => {
+		assert.equal(resolve_relative_path('./a/b/c', '/docs/mdz/'), '/docs/mdz/a/b/c');
+	});
+
+	test('resolves multiple ../ segments', () => {
+		assert.equal(resolve_relative_path('../../foo', '/docs/mdz/'), '/foo');
+	});
+
+	test('normalizes base without trailing slash', () => {
+		assert.equal(resolve_relative_path('./grammar', '/docs/mdz'), '/docs/mdz/grammar');
+	});
+
+	test('normalizes base without trailing slash for ../', () => {
+		assert.equal(resolve_relative_path('../foo', '/docs/mdz'), '/docs/foo');
+	});
+
+	test('clamps at root', () => {
+		assert.equal(resolve_relative_path('../../../foo', '/docs/'), '/foo');
+	});
+
+	test('handles embedded .. segments', () => {
+		assert.equal(resolve_relative_path('./a/../b', '/docs/mdz/'), '/docs/mdz/b');
+	});
+
+	test('handles embedded . segments', () => {
+		assert.equal(resolve_relative_path('./a/./b', '/docs/mdz/'), '/docs/mdz/a/b');
+	});
+
+	test('resolves to base directory for ../dirname', () => {
+		assert.equal(resolve_relative_path('../mdz', '/docs/mdz/'), '/docs/mdz');
+	});
+
+	test('handles root base', () => {
+		assert.equal(resolve_relative_path('./foo', '/'), '/foo');
+	});
+
+	test('handles root base with ../ clamped', () => {
+		assert.equal(resolve_relative_path('../foo', '/'), '/foo');
+	});
+
+	test('handles multiple embedded ..', () => {
+		assert.equal(resolve_relative_path('./a/b/../../c', '/docs/mdz/'), '/docs/mdz/c');
+	});
+
+	test('preserves trailing slash in reference', () => {
+		assert.equal(resolve_relative_path('./foo/', '/docs/mdz/'), '/docs/mdz/foo/');
+	});
+
+	test('handles deeply nested base', () => {
+		assert.equal(resolve_relative_path('../bar', '/a/b/c/d/e/'), '/a/b/c/d/bar');
+	});
+
+	test('handles empty base', () => {
+		assert.equal(resolve_relative_path('./foo', ''), '/foo');
+	});
+
+	test('skips internal double slashes', () => {
+		assert.equal(resolve_relative_path('.//foo', '/docs/mdz/'), '/docs/mdz/foo');
 	});
 });

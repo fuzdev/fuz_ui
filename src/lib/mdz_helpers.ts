@@ -184,6 +184,51 @@ export const trim_trailing_punctuation = (url: string): string => {
  * Returns the tag node if paragraph wrapping should be skipped (MDX convention),
  * or null if the content should be wrapped in a paragraph.
  */
+/**
+ * Check if position in text is the start of an absolute path (starts with `/`).
+ * Must be preceded by whitespace or be at the start of the string.
+ * Rejects `//` (comments/protocol-relative) and `/ ` (bare slash).
+ */
+export const is_at_absolute_path = (text: string, index: number): boolean => {
+	if (text.charCodeAt(index) !== SLASH) return false;
+	if (index > 0) {
+		const prev_char = text.charCodeAt(index - 1);
+		if (prev_char !== SPACE && prev_char !== NEWLINE && prev_char !== TAB) return false;
+	}
+	if (index + 1 >= text.length) return false;
+	const next_char = text.charCodeAt(index + 1);
+	return next_char !== SLASH && next_char !== SPACE && next_char !== NEWLINE;
+};
+
+/**
+ * Check if position in text is the start of a relative path (`./` or `../`).
+ * Must be preceded by whitespace or be at the start of the string.
+ * Requires at least one path character after the prefix.
+ */
+export const is_at_relative_path = (text: string, index: number): boolean => {
+	if (text.charCodeAt(index) !== PERIOD) return false;
+	if (index > 0) {
+		const prev_char = text.charCodeAt(index - 1);
+		if (prev_char !== SPACE && prev_char !== NEWLINE && prev_char !== TAB) return false;
+	}
+	const remaining = text.length - index;
+	// Check for ../ (at least 4 chars: ../x)
+	if (
+		remaining >= 4 &&
+		text.charCodeAt(index + 1) === PERIOD &&
+		text.charCodeAt(index + 2) === SLASH
+	) {
+		const after = text.charCodeAt(index + 3);
+		return after !== SPACE && after !== NEWLINE && after !== SLASH;
+	}
+	// Check for ./ (at least 3 chars: ./x)
+	if (remaining >= 3 && text.charCodeAt(index + 1) === SLASH) {
+		const after = text.charCodeAt(index + 2);
+		return after !== SPACE && after !== NEWLINE && after !== SLASH;
+	}
+	return false;
+};
+
 export const extract_single_tag = (
 	nodes: Array<MdzNode>,
 ): MdzComponentNode | MdzElementNode | null => {

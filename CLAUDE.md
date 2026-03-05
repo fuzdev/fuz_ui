@@ -225,6 +225,7 @@ The preprocessor leaves `Mdz` untouched (falls back to runtime) when:
 - `content` prop is dynamic (variable, function call, `$state`, `$derived`)
 - Spread attributes present (`{...props}`)
 - Content references unconfigured components or elements
+- `base` prop is dynamic (falls back to runtime for correct resolution)
 - A ternary branch has dynamic content or unconfigured tags
 
 ### What gets transformed
@@ -260,6 +261,7 @@ All contexts use the standardized pattern via `context_helpers.ts`:
 - `tome_context` - current documentation page (Tome)
 - `docs_links_context` - documentation navigation (DocsLinks class)
 - `mdz_components_context` - custom mdz components
+- `mdz_base_context` - base path for relative link resolution
 
 **Contextmenu:**
 

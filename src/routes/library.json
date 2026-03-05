@@ -11,7 +11,7 @@
 	"published": true,
 	"package_json": {
 		"name": "@fuzdev/fuz_ui",
-		"version": "0.185.2",
+		"version": "0.186.0",
 		"description": "Svelte UI library",
 		"motto": "friendly user zystem",
 		"glyph": "🧶",
@@ -152,7 +152,7 @@
 	},
 	"source_json": {
 		"name": "@fuzdev/fuz_ui",
-		"version": "0.185.2",
+		"version": "0.186.0",
 		"modules": [
 			{
 				"path": "Alert.svelte",
@@ -4741,10 +4741,17 @@
 						"doc_comment": "Context for providing allowed HTML elements.\nMust be set by the application using mdz.\nBy default, no HTML elements are allowed.",
 						"source_line": 34,
 						"type_signature": "{ get: (error_message?: string | undefined) => MdzElements; get_maybe: () => MdzElements | undefined; set: (value: MdzElements) => MdzElements; }"
+					},
+					{
+						"name": "mdz_base_context",
+						"kind": "variable",
+						"doc_comment": "Context for providing a base path getter for resolving relative links in mdz content.\nSet to a getter (e.g., `() => base`) so changes to the base prop are reflected\nwithout needing an effect. When the getter returns a path like `'/docs/mdz/'`,\nrelative paths like `./grammar` resolve to `/docs/mdz/grammar` before rendering.\nWhen not set, relative paths use raw hrefs (browser resolves them).",
+						"source_line": 43,
+						"type_signature": "{ get: (error_message?: string | undefined) => () => string | undefined; get_maybe: () => (() => string | undefined) | undefined; set: (value: () => string | undefined) => () => string | undefined; }"
 					}
 				],
 				"dependencies": ["context_helpers.ts"],
-				"dependents": ["MdzNodeView.svelte"]
+				"dependents": ["Mdz.svelte", "MdzNodeView.svelte"]
 			},
 			{
 				"path": "mdz_helpers.ts",
@@ -5060,10 +5067,45 @@
 						]
 					},
 					{
+						"name": "is_at_absolute_path",
+						"kind": "function",
+						"doc_comment": "Check if position in text is the start of an absolute path (starts with `/`).\nMust be preceded by whitespace or be at the start of the string.\nRejects `//` (comments/protocol-relative) and `/ ` (bare slash).",
+						"source_line": 192,
+						"type_signature": "(text: string, index: number): boolean",
+						"return_type": "boolean",
+						"parameters": [
+							{
+								"name": "text",
+								"type": "string"
+							},
+							{
+								"name": "index",
+								"type": "number"
+							}
+						]
+					},
+					{
+						"name": "is_at_relative_path",
+						"kind": "function",
+						"doc_comment": "Check if position in text is the start of a relative path (`./` or `../`).\nMust be preceded by whitespace or be at the start of the string.\nRequires at least one path character after the prefix.",
+						"source_line": 208,
+						"type_signature": "(text: string, index: number): boolean",
+						"return_type": "boolean",
+						"parameters": [
+							{
+								"name": "text",
+								"type": "string"
+							},
+							{
+								"name": "index",
+								"type": "number"
+							}
+						]
+					},
+					{
 						"name": "extract_single_tag",
 						"kind": "function",
-						"doc_comment": "Extract a single tag (component or element) if it's the only non-whitespace content.\nReturns the tag node if paragraph wrapping should be skipped (MDX convention),\nor null if the content should be wrapped in a paragraph.",
-						"source_line": 187,
+						"source_line": 232,
 						"type_signature": "(nodes: MdzNode[]): MdzElementNode | MdzComponentNode | null",
 						"return_type": "MdzElementNode | MdzComponentNode | null",
 						"parameters": [
@@ -5083,7 +5125,7 @@
 					{
 						"name": "MdzTokenBase",
 						"kind": "type",
-						"source_line": 46,
+						"source_line": 49,
 						"type_signature": "MdzTokenBase",
 						"properties": [
 							{
@@ -5101,13 +5143,13 @@
 					{
 						"name": "MdzToken",
 						"kind": "type",
-						"source_line": 51,
+						"source_line": 54,
 						"type_signature": "MdzToken"
 					},
 					{
 						"name": "MdzTokenText",
 						"kind": "type",
-						"source_line": 73,
+						"source_line": 76,
 						"type_signature": "MdzTokenText",
 						"extends": ["MdzTokenBase"],
 						"properties": [
@@ -5126,7 +5168,7 @@
 					{
 						"name": "MdzTokenCode",
 						"kind": "type",
-						"source_line": 78,
+						"source_line": 81,
 						"type_signature": "MdzTokenCode",
 						"extends": ["MdzTokenBase"],
 						"properties": [
@@ -5145,7 +5187,7 @@
 					{
 						"name": "MdzTokenCodeblock",
 						"kind": "type",
-						"source_line": 83,
+						"source_line": 86,
 						"type_signature": "MdzTokenCodeblock",
 						"extends": ["MdzTokenBase"],
 						"properties": [
@@ -5169,7 +5211,7 @@
 					{
 						"name": "MdzTokenBoldOpen",
 						"kind": "type",
-						"source_line": 89,
+						"source_line": 92,
 						"type_signature": "MdzTokenBoldOpen",
 						"extends": ["MdzTokenBase"],
 						"properties": [
@@ -5183,7 +5225,7 @@
 					{
 						"name": "MdzTokenBoldClose",
 						"kind": "type",
-						"source_line": 93,
+						"source_line": 96,
 						"type_signature": "MdzTokenBoldClose",
 						"extends": ["MdzTokenBase"],
 						"properties": [
@@ -5197,7 +5239,7 @@
 					{
 						"name": "MdzTokenItalicOpen",
 						"kind": "type",
-						"source_line": 97,
+						"source_line": 100,
 						"type_signature": "MdzTokenItalicOpen",
 						"extends": ["MdzTokenBase"],
 						"properties": [
@@ -5211,7 +5253,7 @@
 					{
 						"name": "MdzTokenItalicClose",
 						"kind": "type",
-						"source_line": 101,
+						"source_line": 104,
 						"type_signature": "MdzTokenItalicClose",
 						"extends": ["MdzTokenBase"],
 						"properties": [
@@ -5225,7 +5267,7 @@
 					{
 						"name": "MdzTokenStrikethroughOpen",
 						"kind": "type",
-						"source_line": 105,
+						"source_line": 108,
 						"type_signature": "MdzTokenStrikethroughOpen",
 						"extends": ["MdzTokenBase"],
 						"properties": [
@@ -5239,7 +5281,7 @@
 					{
 						"name": "MdzTokenStrikethroughClose",
 						"kind": "type",
-						"source_line": 109,
+						"source_line": 112,
 						"type_signature": "MdzTokenStrikethroughClose",
 						"extends": ["MdzTokenBase"],
 						"properties": [
@@ -5253,7 +5295,7 @@
 					{
 						"name": "MdzTokenLinkTextOpen",
 						"kind": "type",
-						"source_line": 113,
+						"source_line": 116,
 						"type_signature": "MdzTokenLinkTextOpen",
 						"extends": ["MdzTokenBase"],
 						"properties": [
@@ -5267,7 +5309,7 @@
 					{
 						"name": "MdzTokenLinkTextClose",
 						"kind": "type",
-						"source_line": 117,
+						"source_line": 120,
 						"type_signature": "MdzTokenLinkTextClose",
 						"extends": ["MdzTokenBase"],
 						"properties": [
@@ -5281,7 +5323,7 @@
 					{
 						"name": "MdzTokenLinkRef",
 						"kind": "type",
-						"source_line": 121,
+						"source_line": 124,
 						"type_signature": "MdzTokenLinkRef",
 						"extends": ["MdzTokenBase"],
 						"properties": [
@@ -5305,7 +5347,7 @@
 					{
 						"name": "MdzTokenAutolink",
 						"kind": "type",
-						"source_line": 127,
+						"source_line": 130,
 						"type_signature": "MdzTokenAutolink",
 						"extends": ["MdzTokenBase"],
 						"properties": [
@@ -5329,7 +5371,7 @@
 					{
 						"name": "MdzTokenHeadingStart",
 						"kind": "type",
-						"source_line": 133,
+						"source_line": 136,
 						"type_signature": "MdzTokenHeadingStart",
 						"extends": ["MdzTokenBase"],
 						"properties": [
@@ -5348,7 +5390,7 @@
 					{
 						"name": "MdzTokenHr",
 						"kind": "type",
-						"source_line": 138,
+						"source_line": 141,
 						"type_signature": "MdzTokenHr",
 						"extends": ["MdzTokenBase"],
 						"properties": [
@@ -5362,7 +5404,7 @@
 					{
 						"name": "MdzTokenTagOpen",
 						"kind": "type",
-						"source_line": 142,
+						"source_line": 145,
 						"type_signature": "MdzTokenTagOpen",
 						"extends": ["MdzTokenBase"],
 						"properties": [
@@ -5386,7 +5428,7 @@
 					{
 						"name": "MdzTokenTagSelfClose",
 						"kind": "type",
-						"source_line": 148,
+						"source_line": 151,
 						"type_signature": "MdzTokenTagSelfClose",
 						"extends": ["MdzTokenBase"],
 						"properties": [
@@ -5410,7 +5452,7 @@
 					{
 						"name": "MdzTokenTagClose",
 						"kind": "type",
-						"source_line": 154,
+						"source_line": 157,
 						"type_signature": "MdzTokenTagClose",
 						"extends": ["MdzTokenBase"],
 						"properties": [
@@ -5429,7 +5471,7 @@
 					{
 						"name": "MdzTokenHeadingEnd",
 						"kind": "type",
-						"source_line": 159,
+						"source_line": 162,
 						"type_signature": "MdzTokenHeadingEnd",
 						"extends": ["MdzTokenBase"],
 						"properties": [
@@ -5443,7 +5485,7 @@
 					{
 						"name": "MdzTokenParagraphBreak",
 						"kind": "type",
-						"source_line": 163,
+						"source_line": 166,
 						"type_signature": "MdzTokenParagraphBreak",
 						"extends": ["MdzTokenBase"],
 						"properties": [
@@ -5457,7 +5499,7 @@
 					{
 						"name": "MdzLexer",
 						"kind": "class",
-						"source_line": 171,
+						"source_line": 174,
 						"members": [
 							{
 								"name": "constructor",
@@ -5518,8 +5560,8 @@
 						"name": "mdz_to_svelte",
 						"kind": "function",
 						"doc_comment": "Converts an array of `MdzNode` to a Svelte markup string.\n\nEach node type produces output matching what `MdzNodeView.svelte` renders at runtime.\nCollects required imports and flags unconfigured component/element references.",
-						"source_line": 43,
-						"type_signature": "(nodes: MdzNode[], components: Record<string, string>, elements: ReadonlySet<string>): MdzToSvelteResult",
+						"source_line": 46,
+						"type_signature": "(nodes: MdzNode[], components: Record<string, string>, elements: ReadonlySet<string>, base?: string | undefined): MdzToSvelteResult",
 						"return_type": "MdzToSvelteResult",
 						"parameters": [
 							{
@@ -5536,11 +5578,18 @@
 								"name": "elements",
 								"type": "ReadonlySet<string>",
 								"description": "Allowed HTML element names (e.g., `new Set(['aside', 'details'])`).\nIf content references an element not in this set, `has_unconfigured_tags` is set."
+							},
+							{
+								"name": "base",
+								"type": "string | undefined",
+								"optional": true,
+								"description": "Base path for resolving relative links (e.g., `'/docs/mdz/'`).\nWhen provided, relative references (`./`, `../`) are resolved to absolute paths\nand passed through `resolve()`. Trailing slash recommended."
 							}
 						]
 					}
 				],
 				"module_comment": "Converts parsed `MdzNode` arrays to Svelte markup strings.\n\nUsed by the `svelte_preprocess_mdz` preprocessor to expand static `<Mdz content=\"...\">` usages\ninto pre-rendered Svelte markup at build time. The output for each node type matches what\n`MdzNodeView.svelte` renders at runtime, so precompiled and runtime rendering are identical.",
+				"dependencies": ["mdz.ts"],
 				"dependents": ["svelte_preprocess_mdz.ts"]
 			},
 			{
@@ -5584,12 +5633,17 @@
 								"name": "nowrap",
 								"type": "boolean",
 								"optional": true
+							},
+							{
+								"name": "base",
+								"type": "string",
+								"optional": true
 							}
 						],
 						"source_line": 1
 					}
 				],
-				"dependencies": ["MdzNodeView.svelte", "mdz.ts"],
+				"dependencies": ["MdzNodeView.svelte", "mdz.ts", "mdz_components.ts"],
 				"dependents": ["ApiModule.svelte", "DeclarationDetail.svelte"]
 			},
 			{
@@ -5599,7 +5653,7 @@
 						"name": "mdz_parse",
 						"kind": "function",
 						"doc_comment": "Parses text to an array of `MdzNode`.",
-						"source_line": 69,
+						"source_line": 72,
 						"type_signature": "(text: string): MdzNode[]",
 						"return_type": "MdzNode[]",
 						"parameters": [
@@ -5612,13 +5666,13 @@
 					{
 						"name": "MdzNode",
 						"kind": "type",
-						"source_line": 71,
+						"source_line": 74,
 						"type_signature": "MdzNode"
 					},
 					{
 						"name": "MdzBaseNode",
 						"kind": "type",
-						"source_line": 85,
+						"source_line": 88,
 						"type_signature": "MdzBaseNode",
 						"properties": [
 							{
@@ -5641,7 +5695,7 @@
 					{
 						"name": "MdzTextNode",
 						"kind": "type",
-						"source_line": 91,
+						"source_line": 94,
 						"type_signature": "MdzTextNode",
 						"extends": ["MdzBaseNode"],
 						"properties": [
@@ -5660,7 +5714,7 @@
 					{
 						"name": "MdzCodeNode",
 						"kind": "type",
-						"source_line": 96,
+						"source_line": 99,
 						"type_signature": "MdzCodeNode",
 						"extends": ["MdzBaseNode"],
 						"properties": [
@@ -5679,7 +5733,7 @@
 					{
 						"name": "MdzCodeblockNode",
 						"kind": "type",
-						"source_line": 101,
+						"source_line": 104,
 						"type_signature": "MdzCodeblockNode",
 						"extends": ["MdzBaseNode"],
 						"properties": [
@@ -5703,7 +5757,7 @@
 					{
 						"name": "MdzBoldNode",
 						"kind": "type",
-						"source_line": 107,
+						"source_line": 110,
 						"type_signature": "MdzBoldNode",
 						"extends": ["MdzBaseNode"],
 						"properties": [
@@ -5722,7 +5776,7 @@
 					{
 						"name": "MdzItalicNode",
 						"kind": "type",
-						"source_line": 112,
+						"source_line": 115,
 						"type_signature": "MdzItalicNode",
 						"extends": ["MdzBaseNode"],
 						"properties": [
@@ -5741,7 +5795,7 @@
 					{
 						"name": "MdzStrikethroughNode",
 						"kind": "type",
-						"source_line": 117,
+						"source_line": 120,
 						"type_signature": "MdzStrikethroughNode",
 						"extends": ["MdzBaseNode"],
 						"properties": [
@@ -5760,7 +5814,7 @@
 					{
 						"name": "MdzLinkNode",
 						"kind": "type",
-						"source_line": 122,
+						"source_line": 125,
 						"type_signature": "MdzLinkNode",
 						"extends": ["MdzBaseNode"],
 						"properties": [
@@ -5789,7 +5843,7 @@
 					{
 						"name": "MdzParagraphNode",
 						"kind": "type",
-						"source_line": 129,
+						"source_line": 132,
 						"type_signature": "MdzParagraphNode",
 						"extends": ["MdzBaseNode"],
 						"properties": [
@@ -5808,7 +5862,7 @@
 					{
 						"name": "MdzHrNode",
 						"kind": "type",
-						"source_line": 134,
+						"source_line": 137,
 						"type_signature": "MdzHrNode",
 						"extends": ["MdzBaseNode"],
 						"properties": [
@@ -5822,7 +5876,7 @@
 					{
 						"name": "MdzHeadingNode",
 						"kind": "type",
-						"source_line": 138,
+						"source_line": 141,
 						"type_signature": "MdzHeadingNode",
 						"extends": ["MdzBaseNode"],
 						"properties": [
@@ -5846,7 +5900,7 @@
 					{
 						"name": "MdzElementNode",
 						"kind": "type",
-						"source_line": 144,
+						"source_line": 147,
 						"type_signature": "MdzElementNode",
 						"extends": ["MdzBaseNode"],
 						"properties": [
@@ -5870,7 +5924,7 @@
 					{
 						"name": "MdzComponentNode",
 						"kind": "type",
-						"source_line": 150,
+						"source_line": 153,
 						"type_signature": "MdzComponentNode",
 						"extends": ["MdzBaseNode"],
 						"properties": [
@@ -5895,7 +5949,7 @@
 						"name": "MdzParser",
 						"kind": "class",
 						"doc_comment": "Parser for mdz format.\nSingle-pass lexer/parser with text accumulation for efficiency.\nUsed by `mdz_parse`, which should be preferred for simple usage.",
-						"source_line": 161,
+						"source_line": 164,
 						"members": [
 							{
 								"name": "constructor",
@@ -5921,7 +5975,7 @@
 					{
 						"name": "mdz_is_url",
 						"kind": "function",
-						"source_line": 1615,
+						"source_line": 1597,
 						"type_signature": "(s: string): boolean",
 						"return_type": "boolean",
 						"parameters": [
@@ -5930,11 +5984,39 @@
 								"type": "string"
 							}
 						]
+					},
+					{
+						"name": "resolve_relative_path",
+						"kind": "function",
+						"doc_comment": "Resolves a relative path (`./` or `../`) against a base path.\nThe base is treated as a directory regardless of trailing slash\n(`'/docs/mdz'` and `'/docs/mdz/'` behave identically).\nHandles embedded `.` and `..` segments within the reference\n(e.g., `'./a/../b'` → navigates up then down).\nClamps at root — excess `..` segments stop at `/` rather than escaping.",
+						"source_line": 1611,
+						"type_signature": "(reference: string, base: string): string",
+						"return_type": "string",
+						"return_description": "An absolute resolved path (e.g., `'/docs/mdz/grammar'`).",
+						"parameters": [
+							{
+								"name": "reference",
+								"type": "string",
+								"description": "A relative path starting with `./` or `../`."
+							},
+							{
+								"name": "base",
+								"type": "string",
+								"description": "An absolute base path (e.g., `'/docs/mdz/'`). Empty string is treated as root."
+							}
+						]
 					}
 				],
 				"module_comment": "mdz - minimal markdown dialect for Fuz documentation.\n\nParses an enhanced markdown dialect with:\n- inline formatting: `code`, **bold**, _italic_, ~strikethrough~\n- auto-detected links: external URLs (`https://...`) and internal paths (`/path`)\n- markdown links: `[text](url)` with custom display text\n- inline code in backticks (creates `Code` nodes; auto-linking to identifiers/modules\n  is handled by the rendering layer via `MdzNodeView.svelte`)\n- paragraph breaks (double newline)\n- block elements: headings, horizontal rules, code blocks\n- HTML elements and Svelte components (opt-in via context)\n\nKey constraint: preserves ALL whitespace exactly as authored,\nand is rendered with white-space pre or pre-wrap.\n\n## Design philosophy\n\n- **False negatives over false positives**: When in doubt, treat as plain text.\n  Block elements can interrupt paragraphs without blank lines; inline formatting is strict.\n- **One way to do things**: Single unambiguous syntax per feature. No alternatives.\n- **Explicit over implicit**: Clear delimiters and column-0 requirements avoid ambiguity.\n- **Simple over complete**: Prefer simple parsing rules over complex edge case handling.\n\n## Status\n\nThis is an early proof of concept with missing features and edge cases.",
 				"dependencies": ["mdz_helpers.ts"],
-				"dependents": ["Mdz.svelte", "mdz_lexer.ts", "svelte_preprocess_mdz.ts", "tsdoc_mdz.ts"]
+				"dependents": [
+					"Mdz.svelte",
+					"MdzNodeView.svelte",
+					"mdz_lexer.ts",
+					"mdz_to_svelte.ts",
+					"svelte_preprocess_mdz.ts",
+					"tsdoc_mdz.ts"
+				]
 			},
 			{
 				"path": "MdzNodeView.svelte",
@@ -5951,7 +6033,7 @@
 						"source_line": 1
 					}
 				],
-				"dependencies": ["DocsLink.svelte", "MdzNodeView.svelte", "mdz_components.ts"],
+				"dependencies": ["DocsLink.svelte", "MdzNodeView.svelte", "mdz.ts", "mdz_components.ts"],
 				"dependents": ["Mdz.svelte", "MdzNodeView.svelte"]
 			},
 			{
