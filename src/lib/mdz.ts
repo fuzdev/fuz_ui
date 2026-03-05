@@ -53,8 +53,6 @@ import {
 	MAX_HEADING_LEVEL,
 	HTTPS_PREFIX_LENGTH,
 	HTTP_PREFIX_LENGTH,
-} from './mdz_constants.js';
-import {
 	is_letter,
 	is_tag_name_char,
 	is_word_char,

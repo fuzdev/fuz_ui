@@ -14,8 +14,6 @@ import {
 	is_word_char,
 	is_valid_path_char,
 	trim_trailing_punctuation,
-} from './mdz_helpers.js';
-import {
 	BACKTICK,
 	ASTERISK,
 	UNDERSCORE,
@@ -39,7 +37,7 @@ import {
 	MAX_HEADING_LEVEL,
 	HTTPS_PREFIX_LENGTH,
 	HTTP_PREFIX_LENGTH,
-} from './mdz_constants.js';
+} from './mdz_helpers.js';
 
 // ============================================================================
 // Token types
