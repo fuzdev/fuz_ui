@@ -185,6 +185,22 @@ export const trim_trailing_punctuation = (url: string): string => {
  * or null if the content should be wrapped in a paragraph.
  */
 /**
+ * Check if position in text is the start of an absolute path (starts with `/`).
+ * Must be preceded by whitespace or be at the start of the string.
+ * Rejects `//` (comments/protocol-relative) and `/ ` (bare slash).
+ */
+export const is_at_absolute_path = (text: string, index: number): boolean => {
+	if (text.charCodeAt(index) !== SLASH) return false;
+	if (index > 0) {
+		const prev_char = text.charCodeAt(index - 1);
+		if (prev_char !== SPACE && prev_char !== NEWLINE && prev_char !== TAB) return false;
+	}
+	if (index + 1 >= text.length) return false;
+	const next_char = text.charCodeAt(index + 1);
+	return next_char !== SLASH && next_char !== SPACE && next_char !== NEWLINE;
+};
+
+/**
  * Check if position in text is the start of a relative path (`./` or `../`).
  * Must be preceded by whitespace or be at the start of the string.
  * Requires at least one path character after the prefix.

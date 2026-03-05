@@ -5067,10 +5067,45 @@
 						]
 					},
 					{
+						"name": "is_at_absolute_path",
+						"kind": "function",
+						"doc_comment": "Check if position in text is the start of an absolute path (starts with `/`).\nMust be preceded by whitespace or be at the start of the string.\nRejects `//` (comments/protocol-relative) and `/ ` (bare slash).",
+						"source_line": 192,
+						"type_signature": "(text: string, index: number): boolean",
+						"return_type": "boolean",
+						"parameters": [
+							{
+								"name": "text",
+								"type": "string"
+							},
+							{
+								"name": "index",
+								"type": "number"
+							}
+						]
+					},
+					{
+						"name": "is_at_relative_path",
+						"kind": "function",
+						"doc_comment": "Check if position in text is the start of a relative path (`./` or `../`).\nMust be preceded by whitespace or be at the start of the string.\nRequires at least one path character after the prefix.",
+						"source_line": 208,
+						"type_signature": "(text: string, index: number): boolean",
+						"return_type": "boolean",
+						"parameters": [
+							{
+								"name": "text",
+								"type": "string"
+							},
+							{
+								"name": "index",
+								"type": "number"
+							}
+						]
+					},
+					{
 						"name": "extract_single_tag",
 						"kind": "function",
-						"doc_comment": "Extract a single tag (component or element) if it's the only non-whitespace content.\nReturns the tag node if paragraph wrapping should be skipped (MDX convention),\nor null if the content should be wrapped in a paragraph.",
-						"source_line": 187,
+						"source_line": 232,
 						"type_signature": "(nodes: MdzNode[]): MdzElementNode | MdzComponentNode | null",
 						"return_type": "MdzElementNode | MdzComponentNode | null",
 						"parameters": [
@@ -5090,7 +5125,7 @@
 					{
 						"name": "MdzTokenBase",
 						"kind": "type",
-						"source_line": 47,
+						"source_line": 49,
 						"type_signature": "MdzTokenBase",
 						"properties": [
 							{
@@ -5108,13 +5143,13 @@
 					{
 						"name": "MdzToken",
 						"kind": "type",
-						"source_line": 52,
+						"source_line": 54,
 						"type_signature": "MdzToken"
 					},
 					{
 						"name": "MdzTokenText",
 						"kind": "type",
-						"source_line": 74,
+						"source_line": 76,
 						"type_signature": "MdzTokenText",
 						"extends": ["MdzTokenBase"],
 						"properties": [
@@ -5133,7 +5168,7 @@
 					{
 						"name": "MdzTokenCode",
 						"kind": "type",
-						"source_line": 79,
+						"source_line": 81,
 						"type_signature": "MdzTokenCode",
 						"extends": ["MdzTokenBase"],
 						"properties": [
@@ -5152,7 +5187,7 @@
 					{
 						"name": "MdzTokenCodeblock",
 						"kind": "type",
-						"source_line": 84,
+						"source_line": 86,
 						"type_signature": "MdzTokenCodeblock",
 						"extends": ["MdzTokenBase"],
 						"properties": [
@@ -5176,7 +5211,7 @@
 					{
 						"name": "MdzTokenBoldOpen",
 						"kind": "type",
-						"source_line": 90,
+						"source_line": 92,
 						"type_signature": "MdzTokenBoldOpen",
 						"extends": ["MdzTokenBase"],
 						"properties": [
@@ -5190,7 +5225,7 @@
 					{
 						"name": "MdzTokenBoldClose",
 						"kind": "type",
-						"source_line": 94,
+						"source_line": 96,
 						"type_signature": "MdzTokenBoldClose",
 						"extends": ["MdzTokenBase"],
 						"properties": [
@@ -5204,7 +5239,7 @@
 					{
 						"name": "MdzTokenItalicOpen",
 						"kind": "type",
-						"source_line": 98,
+						"source_line": 100,
 						"type_signature": "MdzTokenItalicOpen",
 						"extends": ["MdzTokenBase"],
 						"properties": [
@@ -5218,7 +5253,7 @@
 					{
 						"name": "MdzTokenItalicClose",
 						"kind": "type",
-						"source_line": 102,
+						"source_line": 104,
 						"type_signature": "MdzTokenItalicClose",
 						"extends": ["MdzTokenBase"],
 						"properties": [
@@ -5232,7 +5267,7 @@
 					{
 						"name": "MdzTokenStrikethroughOpen",
 						"kind": "type",
-						"source_line": 106,
+						"source_line": 108,
 						"type_signature": "MdzTokenStrikethroughOpen",
 						"extends": ["MdzTokenBase"],
 						"properties": [
@@ -5246,7 +5281,7 @@
 					{
 						"name": "MdzTokenStrikethroughClose",
 						"kind": "type",
-						"source_line": 110,
+						"source_line": 112,
 						"type_signature": "MdzTokenStrikethroughClose",
 						"extends": ["MdzTokenBase"],
 						"properties": [
@@ -5260,7 +5295,7 @@
 					{
 						"name": "MdzTokenLinkTextOpen",
 						"kind": "type",
-						"source_line": 114,
+						"source_line": 116,
 						"type_signature": "MdzTokenLinkTextOpen",
 						"extends": ["MdzTokenBase"],
 						"properties": [
@@ -5274,7 +5309,7 @@
 					{
 						"name": "MdzTokenLinkTextClose",
 						"kind": "type",
-						"source_line": 118,
+						"source_line": 120,
 						"type_signature": "MdzTokenLinkTextClose",
 						"extends": ["MdzTokenBase"],
 						"properties": [
@@ -5288,7 +5323,7 @@
 					{
 						"name": "MdzTokenLinkRef",
 						"kind": "type",
-						"source_line": 122,
+						"source_line": 124,
 						"type_signature": "MdzTokenLinkRef",
 						"extends": ["MdzTokenBase"],
 						"properties": [
@@ -5312,7 +5347,7 @@
 					{
 						"name": "MdzTokenAutolink",
 						"kind": "type",
-						"source_line": 128,
+						"source_line": 130,
 						"type_signature": "MdzTokenAutolink",
 						"extends": ["MdzTokenBase"],
 						"properties": [
@@ -5336,7 +5371,7 @@
 					{
 						"name": "MdzTokenHeadingStart",
 						"kind": "type",
-						"source_line": 134,
+						"source_line": 136,
 						"type_signature": "MdzTokenHeadingStart",
 						"extends": ["MdzTokenBase"],
 						"properties": [
@@ -5355,7 +5390,7 @@
 					{
 						"name": "MdzTokenHr",
 						"kind": "type",
-						"source_line": 139,
+						"source_line": 141,
 						"type_signature": "MdzTokenHr",
 						"extends": ["MdzTokenBase"],
 						"properties": [
@@ -5369,7 +5404,7 @@
 					{
 						"name": "MdzTokenTagOpen",
 						"kind": "type",
-						"source_line": 143,
+						"source_line": 145,
 						"type_signature": "MdzTokenTagOpen",
 						"extends": ["MdzTokenBase"],
 						"properties": [
@@ -5393,7 +5428,7 @@
 					{
 						"name": "MdzTokenTagSelfClose",
 						"kind": "type",
-						"source_line": 149,
+						"source_line": 151,
 						"type_signature": "MdzTokenTagSelfClose",
 						"extends": ["MdzTokenBase"],
 						"properties": [
@@ -5417,7 +5452,7 @@
 					{
 						"name": "MdzTokenTagClose",
 						"kind": "type",
-						"source_line": 155,
+						"source_line": 157,
 						"type_signature": "MdzTokenTagClose",
 						"extends": ["MdzTokenBase"],
 						"properties": [
@@ -5436,7 +5471,7 @@
 					{
 						"name": "MdzTokenHeadingEnd",
 						"kind": "type",
-						"source_line": 160,
+						"source_line": 162,
 						"type_signature": "MdzTokenHeadingEnd",
 						"extends": ["MdzTokenBase"],
 						"properties": [
@@ -5450,7 +5485,7 @@
 					{
 						"name": "MdzTokenParagraphBreak",
 						"kind": "type",
-						"source_line": 164,
+						"source_line": 166,
 						"type_signature": "MdzTokenParagraphBreak",
 						"extends": ["MdzTokenBase"],
 						"properties": [
@@ -5464,7 +5499,7 @@
 					{
 						"name": "MdzLexer",
 						"kind": "class",
-						"source_line": 172,
+						"source_line": 174,
 						"members": [
 							{
 								"name": "constructor",
@@ -5618,7 +5653,7 @@
 						"name": "mdz_parse",
 						"kind": "function",
 						"doc_comment": "Parses text to an array of `MdzNode`.",
-						"source_line": 70,
+						"source_line": 72,
 						"type_signature": "(text: string): MdzNode[]",
 						"return_type": "MdzNode[]",
 						"parameters": [
@@ -5631,13 +5666,13 @@
 					{
 						"name": "MdzNode",
 						"kind": "type",
-						"source_line": 72,
+						"source_line": 74,
 						"type_signature": "MdzNode"
 					},
 					{
 						"name": "MdzBaseNode",
 						"kind": "type",
-						"source_line": 86,
+						"source_line": 88,
 						"type_signature": "MdzBaseNode",
 						"properties": [
 							{
@@ -5660,7 +5695,7 @@
 					{
 						"name": "MdzTextNode",
 						"kind": "type",
-						"source_line": 92,
+						"source_line": 94,
 						"type_signature": "MdzTextNode",
 						"extends": ["MdzBaseNode"],
 						"properties": [
@@ -5679,7 +5714,7 @@
 					{
 						"name": "MdzCodeNode",
 						"kind": "type",
-						"source_line": 97,
+						"source_line": 99,
 						"type_signature": "MdzCodeNode",
 						"extends": ["MdzBaseNode"],
 						"properties": [
@@ -5698,7 +5733,7 @@
 					{
 						"name": "MdzCodeblockNode",
 						"kind": "type",
-						"source_line": 102,
+						"source_line": 104,
 						"type_signature": "MdzCodeblockNode",
 						"extends": ["MdzBaseNode"],
 						"properties": [
@@ -5722,7 +5757,7 @@
 					{
 						"name": "MdzBoldNode",
 						"kind": "type",
-						"source_line": 108,
+						"source_line": 110,
 						"type_signature": "MdzBoldNode",
 						"extends": ["MdzBaseNode"],
 						"properties": [
@@ -5741,7 +5776,7 @@
 					{
 						"name": "MdzItalicNode",
 						"kind": "type",
-						"source_line": 113,
+						"source_line": 115,
 						"type_signature": "MdzItalicNode",
 						"extends": ["MdzBaseNode"],
 						"properties": [
@@ -5760,7 +5795,7 @@
 					{
 						"name": "MdzStrikethroughNode",
 						"kind": "type",
-						"source_line": 118,
+						"source_line": 120,
 						"type_signature": "MdzStrikethroughNode",
 						"extends": ["MdzBaseNode"],
 						"properties": [
@@ -5779,7 +5814,7 @@
 					{
 						"name": "MdzLinkNode",
 						"kind": "type",
-						"source_line": 123,
+						"source_line": 125,
 						"type_signature": "MdzLinkNode",
 						"extends": ["MdzBaseNode"],
 						"properties": [
@@ -5808,7 +5843,7 @@
 					{
 						"name": "MdzParagraphNode",
 						"kind": "type",
-						"source_line": 130,
+						"source_line": 132,
 						"type_signature": "MdzParagraphNode",
 						"extends": ["MdzBaseNode"],
 						"properties": [
@@ -5827,7 +5862,7 @@
 					{
 						"name": "MdzHrNode",
 						"kind": "type",
-						"source_line": 135,
+						"source_line": 137,
 						"type_signature": "MdzHrNode",
 						"extends": ["MdzBaseNode"],
 						"properties": [
@@ -5841,7 +5876,7 @@
 					{
 						"name": "MdzHeadingNode",
 						"kind": "type",
-						"source_line": 139,
+						"source_line": 141,
 						"type_signature": "MdzHeadingNode",
 						"extends": ["MdzBaseNode"],
 						"properties": [
@@ -5865,7 +5900,7 @@
 					{
 						"name": "MdzElementNode",
 						"kind": "type",
-						"source_line": 145,
+						"source_line": 147,
 						"type_signature": "MdzElementNode",
 						"extends": ["MdzBaseNode"],
 						"properties": [
@@ -5889,7 +5924,7 @@
 					{
 						"name": "MdzComponentNode",
 						"kind": "type",
-						"source_line": 151,
+						"source_line": 153,
 						"type_signature": "MdzComponentNode",
 						"extends": ["MdzBaseNode"],
 						"properties": [
@@ -5914,7 +5949,7 @@
 						"name": "MdzParser",
 						"kind": "class",
 						"doc_comment": "Parser for mdz format.\nSingle-pass lexer/parser with text accumulation for efficiency.\nUsed by `mdz_parse`, which should be preferred for simple usage.",
-						"source_line": 162,
+						"source_line": 164,
 						"members": [
 							{
 								"name": "constructor",
@@ -5940,7 +5975,7 @@
 					{
 						"name": "mdz_is_url",
 						"kind": "function",
-						"source_line": 1648,
+						"source_line": 1597,
 						"type_signature": "(s: string): boolean",
 						"return_type": "boolean",
 						"parameters": [
@@ -5953,10 +5988,11 @@
 					{
 						"name": "resolve_relative_path",
 						"kind": "function",
-						"doc_comment": "Resolves a relative path (`./` or `../`) against a base path.\nBase without trailing slash is treated as a directory (same as with).\nHandles embedded `.` and `..` segments and clamps at root.",
-						"source_line": 1658,
+						"doc_comment": "Resolves a relative path (`./` or `../`) against a base path.\nThe base is treated as a directory regardless of trailing slash\n(`'/docs/mdz'` and `'/docs/mdz/'` behave identically).\nHandles embedded `.` and `..` segments within the reference\n(e.g., `'./a/../b'` → navigates up then down).\nClamps at root — excess `..` segments stop at `/` rather than escaping.",
+						"source_line": 1611,
 						"type_signature": "(reference: string, base: string): string",
 						"return_type": "string",
+						"return_description": "An absolute resolved path (e.g., `'/docs/mdz/grammar'`).",
 						"parameters": [
 							{
 								"name": "reference",
@@ -5966,7 +6002,7 @@
 							{
 								"name": "base",
 								"type": "string",
-								"description": "An absolute base path (e.g., `'/docs/mdz/'`)."
+								"description": "An absolute base path (e.g., `'/docs/mdz/'`). Empty string is treated as root."
 							}
 						]
 					}

@@ -59,6 +59,7 @@ import {
 	PERIOD,
 	is_valid_path_char,
 	trim_trailing_punctuation,
+	is_at_absolute_path,
 	is_at_relative_path,
 	extract_single_tag,
 } from './mdz_helpers.js';
@@ -997,30 +998,6 @@ export class MdzParser {
 	}
 
 	/**
-	 * Check if current position is the start of an absolute path (starts with /).
-	 */
-	#is_at_absolute_path(): boolean {
-		if (this.#template.charCodeAt(this.#index) !== SLASH) {
-			return false;
-		}
-		// Check previous character - must be whitespace or start of string
-		if (this.#index > 0) {
-			const prev_char = this.#template.charCodeAt(this.#index - 1);
-			if (prev_char !== SPACE && prev_char !== NEWLINE && prev_char !== TAB) {
-				return false;
-			}
-		}
-		// Must have at least one more character after /, and it must NOT be:
-		// - another / (to avoid matching // which is used for comments or protocol-relative URLs)
-		// - whitespace (a bare / followed by space is not a useful link)
-		if (this.#index + 1 >= this.#template.length) {
-			return false;
-		}
-		const next_char = this.#template.charCodeAt(this.#index + 1);
-		return next_char !== SLASH && next_char !== SPACE && next_char !== NEWLINE;
-	}
-
-	/**
 	 * Parse auto-detected external URL (`https://` or `http://`).
 	 * Uses RFC 3986 whitelist validation for valid URI characters.
 	 */
@@ -1109,7 +1086,10 @@ export class MdzParser {
 		if (this.#is_at_url()) {
 			return this.#parse_auto_link_url();
 		}
-		if (this.#is_at_absolute_path() || is_at_relative_path(this.#template, this.#index)) {
+		if (
+			is_at_absolute_path(this.#template, this.#index) ||
+			is_at_relative_path(this.#template, this.#index)
+		) {
 			return this.#parse_auto_link_path();
 		}
 
@@ -1153,7 +1133,7 @@ export class MdzParser {
 			// Check for URL or internal absolute/relative path mid-text (char code guard avoids startsWith on every char)
 			if (
 				(char_code === 104 /* h */ && this.#is_at_url()) ||
-				(char_code === SLASH && this.#is_at_absolute_path()) ||
+				(char_code === SLASH && is_at_absolute_path(this.#template, this.#index)) ||
 				(char_code === PERIOD && is_at_relative_path(this.#template, this.#index))
 			) {
 				break;
