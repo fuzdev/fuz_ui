@@ -29,6 +29,49 @@
  * @module
  */
 
+import {
+	BACKTICK,
+	ASTERISK,
+	UNDERSCORE,
+	TILDE,
+	NEWLINE,
+	HYPHEN,
+	HASH,
+	SPACE,
+	TAB,
+	LEFT_ANGLE,
+	RIGHT_ANGLE,
+	SLASH,
+	LEFT_BRACKET,
+	RIGHT_BRACKET,
+	LEFT_PAREN,
+	RIGHT_PAREN,
+	COLON,
+	PERIOD,
+	COMMA,
+	SEMICOLON,
+	EXCLAMATION,
+	QUESTION,
+	DOLLAR,
+	PERCENT,
+	AMPERSAND,
+	APOSTROPHE,
+	PLUS,
+	EQUALS,
+	AT,
+	A_UPPER,
+	Z_UPPER,
+	A_LOWER,
+	Z_LOWER,
+	ZERO,
+	NINE,
+	HR_HYPHEN_COUNT,
+	MIN_CODEBLOCK_BACKTICKS,
+	MAX_HEADING_LEVEL,
+	HTTPS_PREFIX_LENGTH,
+	HTTP_PREFIX_LENGTH,
+} from './mdz_constants.js';
+
 // TODO design incremental parsing or some system that preserves Svelte components across re-renders when possible
 
 /**
@@ -120,51 +163,6 @@ export interface MdzComponentNode extends MdzBaseNode {
 	name: string; // Svelte component name (e.g., 'Alert', 'Card')
 	children: Array<MdzNode>;
 }
-
-// Character codes for performance
-const BACKTICK = 96; // `
-const ASTERISK = 42; // *
-const UNDERSCORE = 95; // _
-const TILDE = 126; // ~
-const NEWLINE = 10; // \n
-const HYPHEN = 45; // -
-const HASH = 35; // #
-const SPACE = 32; // (space)
-const TAB = 9; // \t
-const LEFT_ANGLE = 60; // <
-const RIGHT_ANGLE = 62; // >
-const SLASH = 47; // /
-const LEFT_BRACKET = 91; // [
-const RIGHT_BRACKET = 93; // ]
-const LEFT_PAREN = 40; // (
-const RIGHT_PAREN = 41; // )
-const COLON = 58; // :
-const PERIOD = 46; // .
-const COMMA = 44; // ,
-const SEMICOLON = 59; // ;
-const EXCLAMATION = 33; // !
-const QUESTION = 63; // ?
-// RFC 3986 URI characters
-const DOLLAR = 36; // $
-const PERCENT = 37; // %
-const AMPERSAND = 38; // &
-const APOSTROPHE = 39; // '
-const PLUS = 43; // +
-const EQUALS = 61; // =
-const AT = 64; // @
-// Character ranges
-const A_UPPER = 65; // A
-const Z_UPPER = 90; // Z
-const A_LOWER = 97; // a
-const Z_LOWER = 122; // z
-const ZERO = 48; // 0
-const NINE = 57; // 9
-// mdz specification constants
-const HR_HYPHEN_COUNT = 3; // Horizontal rule requires exactly 3 hyphens
-const MIN_CODEBLOCK_BACKTICKS = 3; // Code blocks require minimum 3 backticks
-const MAX_HEADING_LEVEL = 6; // Headings support levels 1-6
-const HTTPS_PREFIX_LENGTH = 8; // Length of "https://"
-const HTTP_PREFIX_LENGTH = 7; // Length of "http://"
 
 /**
  * Parser for mdz format.

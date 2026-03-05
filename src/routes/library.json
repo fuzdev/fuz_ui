@@ -38,7 +38,8 @@
 			"test": "gro test",
 			"fixtures:update": "gro src/test/fixtures/update",
 			"preview": "vite preview",
-			"deploy": "gro deploy"
+			"deploy": "gro deploy",
+			"benchmark_mdz": "gro run src/benchmarks/mdz.benchmark.ts"
 		},
 		"type": "module",
 		"engines": {
@@ -4746,6 +4747,275 @@
 				"dependents": ["MdzNodeView.svelte"]
 			},
 			{
+				"path": "mdz_constants.ts",
+				"declarations": [
+					{
+						"name": "BACKTICK",
+						"kind": "variable",
+						"doc_comment": "Shared character code constants for mdz parsers.",
+						"source_line": 8,
+						"type_signature": "96"
+					},
+					{
+						"name": "ASTERISK",
+						"kind": "variable",
+						"source_line": 9,
+						"type_signature": "42"
+					},
+					{
+						"name": "UNDERSCORE",
+						"kind": "variable",
+						"source_line": 10,
+						"type_signature": "95"
+					},
+					{
+						"name": "TILDE",
+						"kind": "variable",
+						"source_line": 11,
+						"type_signature": "126"
+					},
+					{
+						"name": "NEWLINE",
+						"kind": "variable",
+						"source_line": 12,
+						"type_signature": "10"
+					},
+					{
+						"name": "HYPHEN",
+						"kind": "variable",
+						"source_line": 13,
+						"type_signature": "45"
+					},
+					{
+						"name": "HASH",
+						"kind": "variable",
+						"source_line": 14,
+						"type_signature": "35"
+					},
+					{
+						"name": "SPACE",
+						"kind": "variable",
+						"source_line": 15,
+						"type_signature": "32"
+					},
+					{
+						"name": "TAB",
+						"kind": "variable",
+						"source_line": 16,
+						"type_signature": "9"
+					},
+					{
+						"name": "LEFT_ANGLE",
+						"kind": "variable",
+						"source_line": 17,
+						"type_signature": "60"
+					},
+					{
+						"name": "RIGHT_ANGLE",
+						"kind": "variable",
+						"source_line": 18,
+						"type_signature": "62"
+					},
+					{
+						"name": "SLASH",
+						"kind": "variable",
+						"source_line": 19,
+						"type_signature": "47"
+					},
+					{
+						"name": "LEFT_BRACKET",
+						"kind": "variable",
+						"source_line": 20,
+						"type_signature": "91"
+					},
+					{
+						"name": "RIGHT_BRACKET",
+						"kind": "variable",
+						"source_line": 21,
+						"type_signature": "93"
+					},
+					{
+						"name": "LEFT_PAREN",
+						"kind": "variable",
+						"source_line": 22,
+						"type_signature": "40"
+					},
+					{
+						"name": "RIGHT_PAREN",
+						"kind": "variable",
+						"source_line": 23,
+						"type_signature": "41"
+					},
+					{
+						"name": "COLON",
+						"kind": "variable",
+						"source_line": 24,
+						"type_signature": "58"
+					},
+					{
+						"name": "PERIOD",
+						"kind": "variable",
+						"source_line": 25,
+						"type_signature": "46"
+					},
+					{
+						"name": "COMMA",
+						"kind": "variable",
+						"source_line": 26,
+						"type_signature": "44"
+					},
+					{
+						"name": "SEMICOLON",
+						"kind": "variable",
+						"source_line": 27,
+						"type_signature": "59"
+					},
+					{
+						"name": "EXCLAMATION",
+						"kind": "variable",
+						"source_line": 28,
+						"type_signature": "33"
+					},
+					{
+						"name": "QUESTION",
+						"kind": "variable",
+						"source_line": 29,
+						"type_signature": "63"
+					},
+					{
+						"name": "DOLLAR",
+						"kind": "variable",
+						"source_line": 31,
+						"type_signature": "36"
+					},
+					{
+						"name": "PERCENT",
+						"kind": "variable",
+						"source_line": 32,
+						"type_signature": "37"
+					},
+					{
+						"name": "AMPERSAND",
+						"kind": "variable",
+						"source_line": 33,
+						"type_signature": "38"
+					},
+					{
+						"name": "APOSTROPHE",
+						"kind": "variable",
+						"source_line": 34,
+						"type_signature": "39"
+					},
+					{
+						"name": "PLUS",
+						"kind": "variable",
+						"source_line": 35,
+						"type_signature": "43"
+					},
+					{
+						"name": "EQUALS",
+						"kind": "variable",
+						"source_line": 36,
+						"type_signature": "61"
+					},
+					{
+						"name": "AT",
+						"kind": "variable",
+						"source_line": 37,
+						"type_signature": "64"
+					},
+					{
+						"name": "A_UPPER",
+						"kind": "variable",
+						"source_line": 39,
+						"type_signature": "65"
+					},
+					{
+						"name": "Z_UPPER",
+						"kind": "variable",
+						"source_line": 40,
+						"type_signature": "90"
+					},
+					{
+						"name": "A_LOWER",
+						"kind": "variable",
+						"source_line": 41,
+						"type_signature": "97"
+					},
+					{
+						"name": "Z_LOWER",
+						"kind": "variable",
+						"source_line": 42,
+						"type_signature": "122"
+					},
+					{
+						"name": "ZERO",
+						"kind": "variable",
+						"source_line": 43,
+						"type_signature": "48"
+					},
+					{
+						"name": "NINE",
+						"kind": "variable",
+						"source_line": 44,
+						"type_signature": "57"
+					},
+					{
+						"name": "HR_HYPHEN_COUNT",
+						"kind": "variable",
+						"source_line": 46,
+						"type_signature": "3"
+					},
+					{
+						"name": "MIN_CODEBLOCK_BACKTICKS",
+						"kind": "variable",
+						"source_line": 47,
+						"type_signature": "3"
+					},
+					{
+						"name": "MAX_HEADING_LEVEL",
+						"kind": "variable",
+						"source_line": 48,
+						"type_signature": "6"
+					},
+					{
+						"name": "HTTPS_PREFIX_LENGTH",
+						"kind": "variable",
+						"source_line": 49,
+						"type_signature": "8"
+					},
+					{
+						"name": "HTTP_PREFIX_LENGTH",
+						"kind": "variable",
+						"source_line": 50,
+						"type_signature": "7"
+					}
+				],
+				"module_comment": "Shared character code constants for mdz parsers.",
+				"dependents": ["mdz.ts", "mdz_lexer.ts"]
+			},
+			{
+				"path": "mdz_lexer.ts",
+				"declarations": [
+					{
+						"name": "mdz_parse_lexer",
+						"kind": "function",
+						"doc_comment": "Parses text to an array of `MdzNode` using a two-phase lexer+parser approach.",
+						"source_line": 75,
+						"type_signature": "(text: string): MdzNode[]",
+						"return_type": "MdzNode[]",
+						"parameters": [
+							{
+								"name": "text",
+								"type": "string"
+							}
+						]
+					}
+				],
+				"module_comment": "Lexer-based mdz parser — a two-phase alternative to the single-pass parser in `mdz.ts`.\n\nPhase 1 (Lexer): Tokenizes input into a flat `MdzToken[]` stream.\nPhase 2 (Parser): Consumes the token stream to build the `MdzNode[]` AST.\n\nProduces identical output to `mdz_parse` for all inputs. Exists as a parallel\nimplementation for comparison — see grimoire lore/mdz/TODO.md.",
+				"dependencies": ["mdz.ts", "mdz_constants.ts"]
+			},
+			{
 				"path": "mdz_to_svelte.ts",
 				"declarations": [
 					{
@@ -4839,7 +5109,7 @@
 						"name": "mdz_parse",
 						"kind": "function",
 						"doc_comment": "Parses text to an array of `MdzNode`.",
-						"source_line": 37,
+						"source_line": 80,
 						"type_signature": "(text: string): MdzNode[]",
 						"return_type": "MdzNode[]",
 						"parameters": [
@@ -4852,13 +5122,13 @@
 					{
 						"name": "MdzNode",
 						"kind": "type",
-						"source_line": 39,
+						"source_line": 82,
 						"type_signature": "MdzNode"
 					},
 					{
 						"name": "MdzBaseNode",
 						"kind": "type",
-						"source_line": 53,
+						"source_line": 96,
 						"type_signature": "MdzBaseNode",
 						"properties": [
 							{
@@ -4881,7 +5151,7 @@
 					{
 						"name": "MdzTextNode",
 						"kind": "type",
-						"source_line": 59,
+						"source_line": 102,
 						"type_signature": "MdzTextNode",
 						"extends": ["MdzBaseNode"],
 						"properties": [
@@ -4900,7 +5170,7 @@
 					{
 						"name": "MdzCodeNode",
 						"kind": "type",
-						"source_line": 64,
+						"source_line": 107,
 						"type_signature": "MdzCodeNode",
 						"extends": ["MdzBaseNode"],
 						"properties": [
@@ -4919,7 +5189,7 @@
 					{
 						"name": "MdzCodeblockNode",
 						"kind": "type",
-						"source_line": 69,
+						"source_line": 112,
 						"type_signature": "MdzCodeblockNode",
 						"extends": ["MdzBaseNode"],
 						"properties": [
@@ -4943,7 +5213,7 @@
 					{
 						"name": "MdzBoldNode",
 						"kind": "type",
-						"source_line": 75,
+						"source_line": 118,
 						"type_signature": "MdzBoldNode",
 						"extends": ["MdzBaseNode"],
 						"properties": [
@@ -4962,7 +5232,7 @@
 					{
 						"name": "MdzItalicNode",
 						"kind": "type",
-						"source_line": 80,
+						"source_line": 123,
 						"type_signature": "MdzItalicNode",
 						"extends": ["MdzBaseNode"],
 						"properties": [
@@ -4981,7 +5251,7 @@
 					{
 						"name": "MdzStrikethroughNode",
 						"kind": "type",
-						"source_line": 85,
+						"source_line": 128,
 						"type_signature": "MdzStrikethroughNode",
 						"extends": ["MdzBaseNode"],
 						"properties": [
@@ -5000,7 +5270,7 @@
 					{
 						"name": "MdzLinkNode",
 						"kind": "type",
-						"source_line": 90,
+						"source_line": 133,
 						"type_signature": "MdzLinkNode",
 						"extends": ["MdzBaseNode"],
 						"properties": [
@@ -5029,7 +5299,7 @@
 					{
 						"name": "MdzParagraphNode",
 						"kind": "type",
-						"source_line": 97,
+						"source_line": 140,
 						"type_signature": "MdzParagraphNode",
 						"extends": ["MdzBaseNode"],
 						"properties": [
@@ -5048,7 +5318,7 @@
 					{
 						"name": "MdzHrNode",
 						"kind": "type",
-						"source_line": 102,
+						"source_line": 145,
 						"type_signature": "MdzHrNode",
 						"extends": ["MdzBaseNode"],
 						"properties": [
@@ -5062,7 +5332,7 @@
 					{
 						"name": "MdzHeadingNode",
 						"kind": "type",
-						"source_line": 106,
+						"source_line": 149,
 						"type_signature": "MdzHeadingNode",
 						"extends": ["MdzBaseNode"],
 						"properties": [
@@ -5086,7 +5356,7 @@
 					{
 						"name": "MdzElementNode",
 						"kind": "type",
-						"source_line": 112,
+						"source_line": 155,
 						"type_signature": "MdzElementNode",
 						"extends": ["MdzBaseNode"],
 						"properties": [
@@ -5110,7 +5380,7 @@
 					{
 						"name": "MdzComponentNode",
 						"kind": "type",
-						"source_line": 118,
+						"source_line": 161,
 						"type_signature": "MdzComponentNode",
 						"extends": ["MdzBaseNode"],
 						"properties": [
@@ -5135,7 +5405,7 @@
 						"name": "MdzParser",
 						"kind": "class",
 						"doc_comment": "Parser for mdz format.\nSingle-pass lexer/parser with text accumulation for efficiency.\nUsed by `mdz_parse`, which should be preferred for simple usage.",
-						"source_line": 174,
+						"source_line": 172,
 						"members": [
 							{
 								"name": "constructor",
@@ -5161,7 +5431,7 @@
 					{
 						"name": "mdz_is_url",
 						"kind": "function",
-						"source_line": 1823,
+						"source_line": 1821,
 						"type_signature": "(s: string): boolean",
 						"return_type": "boolean",
 						"parameters": [
@@ -5173,7 +5443,8 @@
 					}
 				],
 				"module_comment": "mdz - minimal markdown dialect for Fuz documentation.\n\nParses an enhanced markdown dialect with:\n- inline formatting: `code`, **bold**, _italic_, ~strikethrough~\n- auto-detected links: external URLs (`https://...`) and internal paths (`/path`)\n- markdown links: `[text](url)` with custom display text\n- inline code in backticks (creates `Code` nodes; auto-linking to identifiers/modules\n  is handled by the rendering layer via `MdzNodeView.svelte`)\n- paragraph breaks (double newline)\n- block elements: headings, horizontal rules, code blocks\n- HTML elements and Svelte components (opt-in via context)\n\nKey constraint: preserves ALL whitespace exactly as authored,\nand is rendered with white-space pre or pre-wrap.\n\n## Design philosophy\n\n- **False negatives over false positives**: When in doubt, treat as plain text.\n  Block elements can interrupt paragraphs without blank lines; inline formatting is strict.\n- **One way to do things**: Single unambiguous syntax per feature. No alternatives.\n- **Explicit over implicit**: Clear delimiters and column-0 requirements avoid ambiguity.\n- **Simple over complete**: Prefer simple parsing rules over complex edge case handling.\n\n## Status\n\nThis is an early proof of concept with missing features and edge cases.",
-				"dependents": ["Mdz.svelte", "svelte_preprocess_mdz.ts", "tsdoc_mdz.ts"]
+				"dependencies": ["mdz_constants.ts"],
+				"dependents": ["Mdz.svelte", "mdz_lexer.ts", "svelte_preprocess_mdz.ts", "tsdoc_mdz.ts"]
 			},
 			{
 				"path": "MdzNodeView.svelte",
