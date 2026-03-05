@@ -38,6 +38,7 @@ import {
 	MAX_HEADING_LEVEL,
 	HTTPS_PREFIX_LENGTH,
 	HTTP_PREFIX_LENGTH,
+	is_at_relative_path,
 } from './mdz_helpers.js';
 
 // ============================================================================
@@ -841,7 +842,7 @@ export class MdzLexer {
 			this.#tokenize_auto_link_internal();
 			return;
 		}
-		if (this.#is_at_relative_path()) {
+		if (is_at_relative_path(this.#text, this.#index)) {
 			this.#tokenize_auto_link_internal();
 			return;
 		}
@@ -882,7 +883,7 @@ export class MdzLexer {
 			if (
 				(char_code === 104 /* h */ && this.#is_at_url()) ||
 				(char_code === SLASH && this.#is_at_internal_path()) ||
-				(char_code === PERIOD && this.#is_at_relative_path())
+				(char_code === PERIOD && is_at_relative_path(this.#text, this.#index))
 			) {
 				break;
 			}
@@ -996,30 +997,6 @@ export class MdzLexer {
 		if (this.#index + 1 >= this.#text.length) return false;
 		const next_char = this.#text.charCodeAt(this.#index + 1);
 		return next_char !== SLASH && next_char !== SPACE && next_char !== NEWLINE;
-	}
-
-	#is_at_relative_path(): boolean {
-		if (this.#text.charCodeAt(this.#index) !== PERIOD) return false;
-		if (this.#index > 0) {
-			const prev_char = this.#text.charCodeAt(this.#index - 1);
-			if (prev_char !== SPACE && prev_char !== NEWLINE && prev_char !== TAB) return false;
-		}
-		const remaining = this.#text.length - this.#index;
-		// Check for ../ (at least 4 chars: ../x)
-		if (
-			remaining >= 4 &&
-			this.#text.charCodeAt(this.#index + 1) === PERIOD &&
-			this.#text.charCodeAt(this.#index + 2) === SLASH
-		) {
-			const after = this.#text.charCodeAt(this.#index + 3);
-			return after !== SPACE && after !== NEWLINE && after !== SLASH;
-		}
-		// Check for ./ (at least 3 chars: ./x)
-		if (remaining >= 3 && this.#text.charCodeAt(this.#index + 1) === SLASH) {
-			const after = this.#text.charCodeAt(this.#index + 2);
-			return after !== SPACE && after !== NEWLINE && after !== SLASH;
-		}
-		return false;
 	}
 
 	#is_at_word_boundary(index: number, check_before: boolean, check_after: boolean): boolean {

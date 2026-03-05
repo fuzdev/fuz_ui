@@ -59,6 +59,7 @@ import {
 	PERIOD,
 	is_valid_path_char,
 	trim_trailing_punctuation,
+	is_at_relative_path,
 	extract_single_tag,
 } from './mdz_helpers.js';
 
@@ -1020,38 +1021,6 @@ export class MdzParser {
 	}
 
 	/**
-	 * Check if current position is the start of a relative path (`./` or `../`).
-	 */
-	#is_at_relative_path(): boolean {
-		if (this.#template.charCodeAt(this.#index) !== PERIOD) {
-			return false;
-		}
-		// Check previous character - must be whitespace or start of string
-		if (this.#index > 0) {
-			const prev_char = this.#template.charCodeAt(this.#index - 1);
-			if (prev_char !== SPACE && prev_char !== NEWLINE && prev_char !== TAB) {
-				return false;
-			}
-		}
-		const remaining = this.#template.length - this.#index;
-		// Check for ../ (at least 4 chars: ../x)
-		if (
-			remaining >= 4 &&
-			this.#template.charCodeAt(this.#index + 1) === PERIOD &&
-			this.#template.charCodeAt(this.#index + 2) === SLASH
-		) {
-			const after = this.#template.charCodeAt(this.#index + 3);
-			return after !== SPACE && after !== NEWLINE && after !== SLASH;
-		}
-		// Check for ./ (at least 3 chars: ./x)
-		if (remaining >= 3 && this.#template.charCodeAt(this.#index + 1) === SLASH) {
-			const after = this.#template.charCodeAt(this.#index + 2);
-			return after !== SPACE && after !== NEWLINE && after !== SLASH;
-		}
-		return false;
-	}
-
-	/**
 	 * Parse auto-detected external URL (`https://` or `http://`).
 	 * Uses RFC 3986 whitelist validation for valid URI characters.
 	 */
@@ -1140,7 +1109,7 @@ export class MdzParser {
 		if (this.#is_at_url()) {
 			return this.#parse_auto_link_url();
 		}
-		if (this.#is_at_absolute_path() || this.#is_at_relative_path()) {
+		if (this.#is_at_absolute_path() || is_at_relative_path(this.#template, this.#index)) {
 			return this.#parse_auto_link_path();
 		}
 
@@ -1185,7 +1154,7 @@ export class MdzParser {
 			if (
 				(char_code === 104 /* h */ && this.#is_at_url()) ||
 				(char_code === SLASH && this.#is_at_absolute_path()) ||
-				(char_code === PERIOD && this.#is_at_relative_path())
+				(char_code === PERIOD && is_at_relative_path(this.#template, this.#index))
 			) {
 				break;
 			}
@@ -1649,11 +1618,15 @@ export const mdz_is_url = (s: string): boolean => URL_PATTERN.test(s);
 
 /**
  * Resolves a relative path (`./` or `../`) against a base path.
- * Base without trailing slash is treated as a directory (same as with).
- * Handles embedded `.` and `..` segments and clamps at root.
+ * The base is treated as a directory regardless of trailing slash
+ * (`'/docs/mdz'` and `'/docs/mdz/'` behave identically).
+ * Handles embedded `.` and `..` segments within the reference
+ * (e.g., `'./a/../b'` → navigates up then down).
+ * Clamps at root — excess `..` segments stop at `/` rather than escaping.
  *
  * @param reference A relative path starting with `./` or `../`.
- * @param base An absolute base path (e.g., `'/docs/mdz/'`).
+ * @param base An absolute base path (e.g., `'/docs/mdz/'`). Empty string is treated as root.
+ * @returns An absolute resolved path (e.g., `'/docs/mdz/grammar'`).
  */
 export const resolve_relative_path = (reference: string, base: string): string => {
 	const segments = base.split('/');

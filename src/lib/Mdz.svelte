@@ -18,7 +18,7 @@
 		base?: string;
 	} = $props();
 
-	if (base !== undefined) mdz_base_context.set(() => base);
+	mdz_base_context.set(() => base);
 
 	const nodes = $derived(mdz_parse(content));
 </script>
