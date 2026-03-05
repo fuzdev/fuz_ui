@@ -1,6 +1,6 @@
 {
   "name": "@fuzdev/fuz_ui",
-  "version": "0.185.1",
+  "version": "0.185.2",
   "description": "Svelte UI library",
   "motto": "friendly user zystem",
   "glyph": "🧶",
@@ -27,7 +27,8 @@
     "test": "gro test",
     "fixtures:update": "gro src/test/fixtures/update",
     "preview": "vite preview",
-    "deploy": "gro deploy"
+    "deploy": "gro deploy",
+    "benchmark_mdz": "gro run src/benchmarks/mdz.benchmark.ts"
   },
   "type": "module",
   "engines": {

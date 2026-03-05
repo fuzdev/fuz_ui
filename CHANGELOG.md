@@ -1,5 +1,11 @@
 # @fuzdev/fuz_ui
 
+## 0.185.2
+
+### Patch Changes
+
+- add `autofocus` attachment ([fbecd93](https://github.com/fuzdev/fuz_ui/commit/fbecd93))
+
 ## 0.185.1
 
 ### Patch Changes

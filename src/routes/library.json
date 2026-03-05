@@ -11,7 +11,7 @@
 	"published": true,
 	"package_json": {
 		"name": "@fuzdev/fuz_ui",
-		"version": "0.185.1",
+		"version": "0.185.2",
 		"description": "Svelte UI library",
 		"motto": "friendly user zystem",
 		"glyph": "🧶",
@@ -38,7 +38,8 @@
 			"test": "gro test",
 			"fixtures:update": "gro src/test/fixtures/update",
 			"preview": "vite preview",
-			"deploy": "gro deploy"
+			"deploy": "gro deploy",
+			"benchmark_mdz": "gro run src/benchmarks/mdz.benchmark.ts"
 		},
 		"type": "module",
 		"engines": {
@@ -151,7 +152,7 @@
 	},
 	"source_json": {
 		"name": "@fuzdev/fuz_ui",
-		"version": "0.185.1",
+		"version": "0.185.2",
 		"modules": [
 			{
 				"path": "Alert.svelte",
@@ -752,6 +753,28 @@
 				],
 				"dependencies": ["ModuleLink.svelte", "TomeSection.svelte", "TomeSectionHeader.svelte"],
 				"dependents": ["ApiIndex.svelte"]
+			},
+			{
+				"path": "autofocus.svelte.ts",
+				"declarations": [
+					{
+						"name": "autofocus",
+						"kind": "function",
+						"doc_comment": "Creates an attachment that focuses the element on mount.\nUse this instead of the HTML `autofocus` attribute for elements\nthat mount dynamically from reactive conditionals like `{#if}`.",
+						"source_line": 15,
+						"type_signature": "(options?: FocusOptions | undefined): Attachment<HTMLElement | SVGElement>",
+						"return_type": "Attachment<HTMLElement | SVGElement>",
+						"parameters": [
+							{
+								"name": "options",
+								"type": "FocusOptions | undefined",
+								"optional": true,
+								"description": "focus options forwarded to `element.focus()`; defaults to `{focusVisible: true}` to show focus indicators on programmatic focus"
+							}
+						]
+					}
+				],
+				"module_comment": "Svelte 5 attachment that focuses an element on mount."
 			},
 			{
 				"path": "Breadcrumb.svelte",
@@ -4724,6 +4747,744 @@
 				"dependents": ["MdzNodeView.svelte"]
 			},
 			{
+				"path": "mdz_helpers.ts",
+				"declarations": [
+					{
+						"name": "BACKTICK",
+						"kind": "variable",
+						"source_line": 13,
+						"type_signature": "96"
+					},
+					{
+						"name": "ASTERISK",
+						"kind": "variable",
+						"source_line": 14,
+						"type_signature": "42"
+					},
+					{
+						"name": "UNDERSCORE",
+						"kind": "variable",
+						"source_line": 15,
+						"type_signature": "95"
+					},
+					{
+						"name": "TILDE",
+						"kind": "variable",
+						"source_line": 16,
+						"type_signature": "126"
+					},
+					{
+						"name": "NEWLINE",
+						"kind": "variable",
+						"source_line": 17,
+						"type_signature": "10"
+					},
+					{
+						"name": "HYPHEN",
+						"kind": "variable",
+						"source_line": 18,
+						"type_signature": "45"
+					},
+					{
+						"name": "HASH",
+						"kind": "variable",
+						"source_line": 19,
+						"type_signature": "35"
+					},
+					{
+						"name": "SPACE",
+						"kind": "variable",
+						"source_line": 20,
+						"type_signature": "32"
+					},
+					{
+						"name": "TAB",
+						"kind": "variable",
+						"source_line": 21,
+						"type_signature": "9"
+					},
+					{
+						"name": "LEFT_ANGLE",
+						"kind": "variable",
+						"source_line": 22,
+						"type_signature": "60"
+					},
+					{
+						"name": "RIGHT_ANGLE",
+						"kind": "variable",
+						"source_line": 23,
+						"type_signature": "62"
+					},
+					{
+						"name": "SLASH",
+						"kind": "variable",
+						"source_line": 24,
+						"type_signature": "47"
+					},
+					{
+						"name": "LEFT_BRACKET",
+						"kind": "variable",
+						"source_line": 25,
+						"type_signature": "91"
+					},
+					{
+						"name": "RIGHT_BRACKET",
+						"kind": "variable",
+						"source_line": 26,
+						"type_signature": "93"
+					},
+					{
+						"name": "LEFT_PAREN",
+						"kind": "variable",
+						"source_line": 27,
+						"type_signature": "40"
+					},
+					{
+						"name": "RIGHT_PAREN",
+						"kind": "variable",
+						"source_line": 28,
+						"type_signature": "41"
+					},
+					{
+						"name": "COLON",
+						"kind": "variable",
+						"source_line": 29,
+						"type_signature": "58"
+					},
+					{
+						"name": "PERIOD",
+						"kind": "variable",
+						"source_line": 30,
+						"type_signature": "46"
+					},
+					{
+						"name": "COMMA",
+						"kind": "variable",
+						"source_line": 31,
+						"type_signature": "44"
+					},
+					{
+						"name": "SEMICOLON",
+						"kind": "variable",
+						"source_line": 32,
+						"type_signature": "59"
+					},
+					{
+						"name": "EXCLAMATION",
+						"kind": "variable",
+						"source_line": 33,
+						"type_signature": "33"
+					},
+					{
+						"name": "QUESTION",
+						"kind": "variable",
+						"source_line": 34,
+						"type_signature": "63"
+					},
+					{
+						"name": "DOLLAR",
+						"kind": "variable",
+						"source_line": 36,
+						"type_signature": "36"
+					},
+					{
+						"name": "PERCENT",
+						"kind": "variable",
+						"source_line": 37,
+						"type_signature": "37"
+					},
+					{
+						"name": "AMPERSAND",
+						"kind": "variable",
+						"source_line": 38,
+						"type_signature": "38"
+					},
+					{
+						"name": "APOSTROPHE",
+						"kind": "variable",
+						"source_line": 39,
+						"type_signature": "39"
+					},
+					{
+						"name": "PLUS",
+						"kind": "variable",
+						"source_line": 40,
+						"type_signature": "43"
+					},
+					{
+						"name": "EQUALS",
+						"kind": "variable",
+						"source_line": 41,
+						"type_signature": "61"
+					},
+					{
+						"name": "AT",
+						"kind": "variable",
+						"source_line": 42,
+						"type_signature": "64"
+					},
+					{
+						"name": "A_UPPER",
+						"kind": "variable",
+						"source_line": 44,
+						"type_signature": "65"
+					},
+					{
+						"name": "Z_UPPER",
+						"kind": "variable",
+						"source_line": 45,
+						"type_signature": "90"
+					},
+					{
+						"name": "A_LOWER",
+						"kind": "variable",
+						"source_line": 46,
+						"type_signature": "97"
+					},
+					{
+						"name": "Z_LOWER",
+						"kind": "variable",
+						"source_line": 47,
+						"type_signature": "122"
+					},
+					{
+						"name": "ZERO",
+						"kind": "variable",
+						"source_line": 48,
+						"type_signature": "48"
+					},
+					{
+						"name": "NINE",
+						"kind": "variable",
+						"source_line": 49,
+						"type_signature": "57"
+					},
+					{
+						"name": "HR_HYPHEN_COUNT",
+						"kind": "variable",
+						"source_line": 51,
+						"type_signature": "3"
+					},
+					{
+						"name": "MIN_CODEBLOCK_BACKTICKS",
+						"kind": "variable",
+						"source_line": 52,
+						"type_signature": "3"
+					},
+					{
+						"name": "MAX_HEADING_LEVEL",
+						"kind": "variable",
+						"source_line": 53,
+						"type_signature": "6"
+					},
+					{
+						"name": "HTTPS_PREFIX_LENGTH",
+						"kind": "variable",
+						"source_line": 54,
+						"type_signature": "8"
+					},
+					{
+						"name": "HTTP_PREFIX_LENGTH",
+						"kind": "variable",
+						"source_line": 55,
+						"type_signature": "7"
+					},
+					{
+						"name": "is_letter",
+						"kind": "function",
+						"doc_comment": "Check if character code is a letter (A-Z, a-z).",
+						"source_line": 60,
+						"type_signature": "(char_code: number): boolean",
+						"return_type": "boolean",
+						"parameters": [
+							{
+								"name": "char_code",
+								"type": "number"
+							}
+						]
+					},
+					{
+						"name": "is_tag_name_char",
+						"kind": "function",
+						"doc_comment": "Check if character code is valid for tag name (letter, number, hyphen, underscore).",
+						"source_line": 66,
+						"type_signature": "(char_code: number): boolean",
+						"return_type": "boolean",
+						"parameters": [
+							{
+								"name": "char_code",
+								"type": "number"
+							}
+						]
+					},
+					{
+						"name": "is_word_char",
+						"kind": "function",
+						"doc_comment": "Check if character is part of a word for word boundary detection.\nUsed to prevent intraword emphasis with `_` and `~` delimiters.\n\nFormatting delimiters (`*`, `_`, `~`) are NOT word characters - they're transparent.\nOnly alphanumeric characters (A-Z, a-z, 0-9) are considered word characters.\n\nThis prevents false positives with snake_case identifiers while allowing\nadjacent formatting like `**bold**_italic_`.",
+						"source_line": 82,
+						"type_signature": "(char_code: number): boolean",
+						"return_type": "boolean",
+						"parameters": [
+							{
+								"name": "char_code",
+								"type": "number"
+							}
+						]
+					},
+					{
+						"name": "is_valid_path_char",
+						"kind": "function",
+						"doc_comment": "Check if character code is valid in URI path per RFC 3986.\nValidates against the `pchar` production plus path/query/fragment separators.\n\nValid characters:\n- unreserved: A-Z a-z 0-9 - . _ ~\n- sub-delims: ! $ & ' ( ) * + , ; =\n- path allowed: : @\n- separators: / ? #\n- percent-encoding: %",
+						"source_line": 102,
+						"type_signature": "(char_code: number): boolean",
+						"return_type": "boolean",
+						"parameters": [
+							{
+								"name": "char_code",
+								"type": "number"
+							}
+						]
+					},
+					{
+						"name": "trim_trailing_punctuation",
+						"kind": "function",
+						"doc_comment": "Trim trailing punctuation from URL/path per RFC 3986 and GFM rules.\n- Trims simple trailing: .,;:!?]\n- Balanced logic for () only (valid in path components)\n- Invalid chars like [] {} are already stopped by whitelist, but ] trimmed as fallback\n\nOptimized to avoid O(n²) string slicing - tracks end index and slices once at the end.",
+						"source_line": 136,
+						"type_signature": "(url: string): string",
+						"return_type": "string",
+						"parameters": [
+							{
+								"name": "url",
+								"type": "string"
+							}
+						]
+					},
+					{
+						"name": "extract_single_tag",
+						"kind": "function",
+						"doc_comment": "Extract a single tag (component or element) if it's the only non-whitespace content.\nReturns the tag node if paragraph wrapping should be skipped (MDX convention),\nor null if the content should be wrapped in a paragraph.",
+						"source_line": 187,
+						"type_signature": "(nodes: MdzNode[]): MdzElementNode | MdzComponentNode | null",
+						"return_type": "MdzElementNode | MdzComponentNode | null",
+						"parameters": [
+							{
+								"name": "nodes",
+								"type": "MdzNode[]"
+							}
+						]
+					}
+				],
+				"module_comment": "Shared constants and pure helper functions for mdz parsers.\n\nUsed by both the single-pass parser (`mdz.ts`) and the two-phase\nlexer+parser (`mdz_lexer.ts` + `mdz_token_parser.ts`).",
+				"dependents": ["mdz.ts", "mdz_lexer.ts", "mdz_token_parser.ts"]
+			},
+			{
+				"path": "mdz_lexer.ts",
+				"declarations": [
+					{
+						"name": "MdzTokenBase",
+						"kind": "type",
+						"source_line": 46,
+						"type_signature": "MdzTokenBase",
+						"properties": [
+							{
+								"name": "start",
+								"kind": "variable",
+								"type_signature": "number"
+							},
+							{
+								"name": "end",
+								"kind": "variable",
+								"type_signature": "number"
+							}
+						]
+					},
+					{
+						"name": "MdzToken",
+						"kind": "type",
+						"source_line": 51,
+						"type_signature": "MdzToken"
+					},
+					{
+						"name": "MdzTokenText",
+						"kind": "type",
+						"source_line": 73,
+						"type_signature": "MdzTokenText",
+						"extends": ["MdzTokenBase"],
+						"properties": [
+							{
+								"name": "type",
+								"kind": "variable",
+								"type_signature": "'text'"
+							},
+							{
+								"name": "content",
+								"kind": "variable",
+								"type_signature": "string"
+							}
+						]
+					},
+					{
+						"name": "MdzTokenCode",
+						"kind": "type",
+						"source_line": 78,
+						"type_signature": "MdzTokenCode",
+						"extends": ["MdzTokenBase"],
+						"properties": [
+							{
+								"name": "type",
+								"kind": "variable",
+								"type_signature": "'code'"
+							},
+							{
+								"name": "content",
+								"kind": "variable",
+								"type_signature": "string"
+							}
+						]
+					},
+					{
+						"name": "MdzTokenCodeblock",
+						"kind": "type",
+						"source_line": 83,
+						"type_signature": "MdzTokenCodeblock",
+						"extends": ["MdzTokenBase"],
+						"properties": [
+							{
+								"name": "type",
+								"kind": "variable",
+								"type_signature": "'codeblock'"
+							},
+							{
+								"name": "lang",
+								"kind": "variable",
+								"type_signature": "string | null"
+							},
+							{
+								"name": "content",
+								"kind": "variable",
+								"type_signature": "string"
+							}
+						]
+					},
+					{
+						"name": "MdzTokenBoldOpen",
+						"kind": "type",
+						"source_line": 89,
+						"type_signature": "MdzTokenBoldOpen",
+						"extends": ["MdzTokenBase"],
+						"properties": [
+							{
+								"name": "type",
+								"kind": "variable",
+								"type_signature": "'bold_open'"
+							}
+						]
+					},
+					{
+						"name": "MdzTokenBoldClose",
+						"kind": "type",
+						"source_line": 93,
+						"type_signature": "MdzTokenBoldClose",
+						"extends": ["MdzTokenBase"],
+						"properties": [
+							{
+								"name": "type",
+								"kind": "variable",
+								"type_signature": "'bold_close'"
+							}
+						]
+					},
+					{
+						"name": "MdzTokenItalicOpen",
+						"kind": "type",
+						"source_line": 97,
+						"type_signature": "MdzTokenItalicOpen",
+						"extends": ["MdzTokenBase"],
+						"properties": [
+							{
+								"name": "type",
+								"kind": "variable",
+								"type_signature": "'italic_open'"
+							}
+						]
+					},
+					{
+						"name": "MdzTokenItalicClose",
+						"kind": "type",
+						"source_line": 101,
+						"type_signature": "MdzTokenItalicClose",
+						"extends": ["MdzTokenBase"],
+						"properties": [
+							{
+								"name": "type",
+								"kind": "variable",
+								"type_signature": "'italic_close'"
+							}
+						]
+					},
+					{
+						"name": "MdzTokenStrikethroughOpen",
+						"kind": "type",
+						"source_line": 105,
+						"type_signature": "MdzTokenStrikethroughOpen",
+						"extends": ["MdzTokenBase"],
+						"properties": [
+							{
+								"name": "type",
+								"kind": "variable",
+								"type_signature": "'strikethrough_open'"
+							}
+						]
+					},
+					{
+						"name": "MdzTokenStrikethroughClose",
+						"kind": "type",
+						"source_line": 109,
+						"type_signature": "MdzTokenStrikethroughClose",
+						"extends": ["MdzTokenBase"],
+						"properties": [
+							{
+								"name": "type",
+								"kind": "variable",
+								"type_signature": "'strikethrough_close'"
+							}
+						]
+					},
+					{
+						"name": "MdzTokenLinkTextOpen",
+						"kind": "type",
+						"source_line": 113,
+						"type_signature": "MdzTokenLinkTextOpen",
+						"extends": ["MdzTokenBase"],
+						"properties": [
+							{
+								"name": "type",
+								"kind": "variable",
+								"type_signature": "'link_text_open'"
+							}
+						]
+					},
+					{
+						"name": "MdzTokenLinkTextClose",
+						"kind": "type",
+						"source_line": 117,
+						"type_signature": "MdzTokenLinkTextClose",
+						"extends": ["MdzTokenBase"],
+						"properties": [
+							{
+								"name": "type",
+								"kind": "variable",
+								"type_signature": "'link_text_close'"
+							}
+						]
+					},
+					{
+						"name": "MdzTokenLinkRef",
+						"kind": "type",
+						"source_line": 121,
+						"type_signature": "MdzTokenLinkRef",
+						"extends": ["MdzTokenBase"],
+						"properties": [
+							{
+								"name": "type",
+								"kind": "variable",
+								"type_signature": "'link_ref'"
+							},
+							{
+								"name": "reference",
+								"kind": "variable",
+								"type_signature": "string"
+							},
+							{
+								"name": "link_type",
+								"kind": "variable",
+								"type_signature": "'external' | 'internal'"
+							}
+						]
+					},
+					{
+						"name": "MdzTokenAutolink",
+						"kind": "type",
+						"source_line": 127,
+						"type_signature": "MdzTokenAutolink",
+						"extends": ["MdzTokenBase"],
+						"properties": [
+							{
+								"name": "type",
+								"kind": "variable",
+								"type_signature": "'autolink'"
+							},
+							{
+								"name": "reference",
+								"kind": "variable",
+								"type_signature": "string"
+							},
+							{
+								"name": "link_type",
+								"kind": "variable",
+								"type_signature": "'external' | 'internal'"
+							}
+						]
+					},
+					{
+						"name": "MdzTokenHeadingStart",
+						"kind": "type",
+						"source_line": 133,
+						"type_signature": "MdzTokenHeadingStart",
+						"extends": ["MdzTokenBase"],
+						"properties": [
+							{
+								"name": "type",
+								"kind": "variable",
+								"type_signature": "'heading_start'"
+							},
+							{
+								"name": "level",
+								"kind": "variable",
+								"type_signature": "1 | 2 | 3 | 4 | 5 | 6"
+							}
+						]
+					},
+					{
+						"name": "MdzTokenHr",
+						"kind": "type",
+						"source_line": 138,
+						"type_signature": "MdzTokenHr",
+						"extends": ["MdzTokenBase"],
+						"properties": [
+							{
+								"name": "type",
+								"kind": "variable",
+								"type_signature": "'hr'"
+							}
+						]
+					},
+					{
+						"name": "MdzTokenTagOpen",
+						"kind": "type",
+						"source_line": 142,
+						"type_signature": "MdzTokenTagOpen",
+						"extends": ["MdzTokenBase"],
+						"properties": [
+							{
+								"name": "type",
+								"kind": "variable",
+								"type_signature": "'tag_open'"
+							},
+							{
+								"name": "name",
+								"kind": "variable",
+								"type_signature": "string"
+							},
+							{
+								"name": "is_component",
+								"kind": "variable",
+								"type_signature": "boolean"
+							}
+						]
+					},
+					{
+						"name": "MdzTokenTagSelfClose",
+						"kind": "type",
+						"source_line": 148,
+						"type_signature": "MdzTokenTagSelfClose",
+						"extends": ["MdzTokenBase"],
+						"properties": [
+							{
+								"name": "type",
+								"kind": "variable",
+								"type_signature": "'tag_self_close'"
+							},
+							{
+								"name": "name",
+								"kind": "variable",
+								"type_signature": "string"
+							},
+							{
+								"name": "is_component",
+								"kind": "variable",
+								"type_signature": "boolean"
+							}
+						]
+					},
+					{
+						"name": "MdzTokenTagClose",
+						"kind": "type",
+						"source_line": 154,
+						"type_signature": "MdzTokenTagClose",
+						"extends": ["MdzTokenBase"],
+						"properties": [
+							{
+								"name": "type",
+								"kind": "variable",
+								"type_signature": "'tag_close'"
+							},
+							{
+								"name": "name",
+								"kind": "variable",
+								"type_signature": "string"
+							}
+						]
+					},
+					{
+						"name": "MdzTokenHeadingEnd",
+						"kind": "type",
+						"source_line": 159,
+						"type_signature": "MdzTokenHeadingEnd",
+						"extends": ["MdzTokenBase"],
+						"properties": [
+							{
+								"name": "type",
+								"kind": "variable",
+								"type_signature": "'heading_end'"
+							}
+						]
+					},
+					{
+						"name": "MdzTokenParagraphBreak",
+						"kind": "type",
+						"source_line": 163,
+						"type_signature": "MdzTokenParagraphBreak",
+						"extends": ["MdzTokenBase"],
+						"properties": [
+							{
+								"name": "type",
+								"kind": "variable",
+								"type_signature": "'paragraph_break'"
+							}
+						]
+					},
+					{
+						"name": "MdzLexer",
+						"kind": "class",
+						"source_line": 171,
+						"members": [
+							{
+								"name": "constructor",
+								"kind": "constructor",
+								"type_signature": "(text: string): MdzLexer",
+								"parameters": [
+									{
+										"name": "text",
+										"type": "string"
+									}
+								]
+							},
+							{
+								"name": "tokenize",
+								"kind": "function",
+								"type_signature": "(): MdzToken[]",
+								"return_type": "MdzToken[]",
+								"parameters": []
+							}
+						]
+					}
+				],
+				"module_comment": "mdz lexer — tokenizes input into a flat `MdzToken[]` stream.\n\nPhase 1 of the two-phase lexer+parser alternative to the single-pass parser\nin `mdz.ts`. Phase 2 is in `mdz_token_parser.ts`.",
+				"dependencies": ["mdz.ts", "mdz_helpers.ts"],
+				"dependents": ["mdz_token_parser.ts"]
+			},
+			{
 				"path": "mdz_to_svelte.ts",
 				"declarations": [
 					{
@@ -4783,6 +5544,27 @@
 				"dependents": ["svelte_preprocess_mdz.ts"]
 			},
 			{
+				"path": "mdz_token_parser.ts",
+				"declarations": [
+					{
+						"name": "mdz_parse_lexer",
+						"kind": "function",
+						"doc_comment": "Parses text to an array of `MdzNode` using a two-phase lexer+parser approach.",
+						"source_line": 39,
+						"type_signature": "(text: string): MdzNode[]",
+						"return_type": "MdzNode[]",
+						"parameters": [
+							{
+								"name": "text",
+								"type": "string"
+							}
+						]
+					}
+				],
+				"module_comment": "mdz token parser — consumes a `MdzToken[]` stream to build the `MdzNode[]` AST.\n\nPhase 2 of the two-phase lexer+parser alternative to the single-pass parser\nin `mdz.ts`. Phase 1 (lexer) is in `mdz_lexer.ts`.",
+				"dependencies": ["mdz_helpers.ts", "mdz_lexer.ts"]
+			},
+			{
 				"path": "Mdz.svelte",
 				"declarations": [
 					{
@@ -4817,7 +5599,7 @@
 						"name": "mdz_parse",
 						"kind": "function",
 						"doc_comment": "Parses text to an array of `MdzNode`.",
-						"source_line": 37,
+						"source_line": 69,
 						"type_signature": "(text: string): MdzNode[]",
 						"return_type": "MdzNode[]",
 						"parameters": [
@@ -4830,13 +5612,13 @@
 					{
 						"name": "MdzNode",
 						"kind": "type",
-						"source_line": 39,
+						"source_line": 71,
 						"type_signature": "MdzNode"
 					},
 					{
 						"name": "MdzBaseNode",
 						"kind": "type",
-						"source_line": 53,
+						"source_line": 85,
 						"type_signature": "MdzBaseNode",
 						"properties": [
 							{
@@ -4859,7 +5641,7 @@
 					{
 						"name": "MdzTextNode",
 						"kind": "type",
-						"source_line": 59,
+						"source_line": 91,
 						"type_signature": "MdzTextNode",
 						"extends": ["MdzBaseNode"],
 						"properties": [
@@ -4878,7 +5660,7 @@
 					{
 						"name": "MdzCodeNode",
 						"kind": "type",
-						"source_line": 64,
+						"source_line": 96,
 						"type_signature": "MdzCodeNode",
 						"extends": ["MdzBaseNode"],
 						"properties": [
@@ -4897,7 +5679,7 @@
 					{
 						"name": "MdzCodeblockNode",
 						"kind": "type",
-						"source_line": 69,
+						"source_line": 101,
 						"type_signature": "MdzCodeblockNode",
 						"extends": ["MdzBaseNode"],
 						"properties": [
@@ -4921,7 +5703,7 @@
 					{
 						"name": "MdzBoldNode",
 						"kind": "type",
-						"source_line": 75,
+						"source_line": 107,
 						"type_signature": "MdzBoldNode",
 						"extends": ["MdzBaseNode"],
 						"properties": [
@@ -4940,7 +5722,7 @@
 					{
 						"name": "MdzItalicNode",
 						"kind": "type",
-						"source_line": 80,
+						"source_line": 112,
 						"type_signature": "MdzItalicNode",
 						"extends": ["MdzBaseNode"],
 						"properties": [
@@ -4959,7 +5741,7 @@
 					{
 						"name": "MdzStrikethroughNode",
 						"kind": "type",
-						"source_line": 85,
+						"source_line": 117,
 						"type_signature": "MdzStrikethroughNode",
 						"extends": ["MdzBaseNode"],
 						"properties": [
@@ -4978,7 +5760,7 @@
 					{
 						"name": "MdzLinkNode",
 						"kind": "type",
-						"source_line": 90,
+						"source_line": 122,
 						"type_signature": "MdzLinkNode",
 						"extends": ["MdzBaseNode"],
 						"properties": [
@@ -5007,7 +5789,7 @@
 					{
 						"name": "MdzParagraphNode",
 						"kind": "type",
-						"source_line": 97,
+						"source_line": 129,
 						"type_signature": "MdzParagraphNode",
 						"extends": ["MdzBaseNode"],
 						"properties": [
@@ -5026,7 +5808,7 @@
 					{
 						"name": "MdzHrNode",
 						"kind": "type",
-						"source_line": 102,
+						"source_line": 134,
 						"type_signature": "MdzHrNode",
 						"extends": ["MdzBaseNode"],
 						"properties": [
@@ -5040,7 +5822,7 @@
 					{
 						"name": "MdzHeadingNode",
 						"kind": "type",
-						"source_line": 106,
+						"source_line": 138,
 						"type_signature": "MdzHeadingNode",
 						"extends": ["MdzBaseNode"],
 						"properties": [
@@ -5064,7 +5846,7 @@
 					{
 						"name": "MdzElementNode",
 						"kind": "type",
-						"source_line": 112,
+						"source_line": 144,
 						"type_signature": "MdzElementNode",
 						"extends": ["MdzBaseNode"],
 						"properties": [
@@ -5088,7 +5870,7 @@
 					{
 						"name": "MdzComponentNode",
 						"kind": "type",
-						"source_line": 118,
+						"source_line": 150,
 						"type_signature": "MdzComponentNode",
 						"extends": ["MdzBaseNode"],
 						"properties": [
@@ -5113,7 +5895,7 @@
 						"name": "MdzParser",
 						"kind": "class",
 						"doc_comment": "Parser for mdz format.\nSingle-pass lexer/parser with text accumulation for efficiency.\nUsed by `mdz_parse`, which should be preferred for simple usage.",
-						"source_line": 174,
+						"source_line": 161,
 						"members": [
 							{
 								"name": "constructor",
@@ -5139,7 +5921,7 @@
 					{
 						"name": "mdz_is_url",
 						"kind": "function",
-						"source_line": 1823,
+						"source_line": 1615,
 						"type_signature": "(s: string): boolean",
 						"return_type": "boolean",
 						"parameters": [
@@ -5151,7 +5933,8 @@
 					}
 				],
 				"module_comment": "mdz - minimal markdown dialect for Fuz documentation.\n\nParses an enhanced markdown dialect with:\n- inline formatting: `code`, **bold**, _italic_, ~strikethrough~\n- auto-detected links: external URLs (`https://...`) and internal paths (`/path`)\n- markdown links: `[text](url)` with custom display text\n- inline code in backticks (creates `Code` nodes; auto-linking to identifiers/modules\n  is handled by the rendering layer via `MdzNodeView.svelte`)\n- paragraph breaks (double newline)\n- block elements: headings, horizontal rules, code blocks\n- HTML elements and Svelte components (opt-in via context)\n\nKey constraint: preserves ALL whitespace exactly as authored,\nand is rendered with white-space pre or pre-wrap.\n\n## Design philosophy\n\n- **False negatives over false positives**: When in doubt, treat as plain text.\n  Block elements can interrupt paragraphs without blank lines; inline formatting is strict.\n- **One way to do things**: Single unambiguous syntax per feature. No alternatives.\n- **Explicit over implicit**: Clear delimiters and column-0 requirements avoid ambiguity.\n- **Simple over complete**: Prefer simple parsing rules over complex edge case handling.\n\n## Status\n\nThis is an early proof of concept with missing features and edge cases.",
-				"dependents": ["Mdz.svelte", "svelte_preprocess_mdz.ts", "tsdoc_mdz.ts"]
+				"dependencies": ["mdz_helpers.ts"],
+				"dependents": ["Mdz.svelte", "mdz_lexer.ts", "svelte_preprocess_mdz.ts", "tsdoc_mdz.ts"]
 			},
 			{
 				"path": "MdzNodeView.svelte",
