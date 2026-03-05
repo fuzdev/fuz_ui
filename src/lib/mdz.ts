@@ -29,6 +29,39 @@
  * @module
  */
 
+import {
+	BACKTICK,
+	ASTERISK,
+	UNDERSCORE,
+	TILDE,
+	NEWLINE,
+	HYPHEN,
+	HASH,
+	SPACE,
+	TAB,
+	LEFT_ANGLE,
+	RIGHT_ANGLE,
+	SLASH,
+	LEFT_BRACKET,
+	RIGHT_BRACKET,
+	LEFT_PAREN,
+	RIGHT_PAREN,
+	A_UPPER,
+	Z_UPPER,
+	HR_HYPHEN_COUNT,
+	MIN_CODEBLOCK_BACKTICKS,
+	MAX_HEADING_LEVEL,
+	HTTPS_PREFIX_LENGTH,
+	HTTP_PREFIX_LENGTH,
+	is_letter,
+	is_tag_name_char,
+	is_word_char,
+	PERIOD,
+	is_valid_path_char,
+	trim_trailing_punctuation,
+	extract_single_tag,
+} from './mdz_helpers.js';
+
 // TODO design incremental parsing or some system that preserves Svelte components across re-renders when possible
 
 /**
@@ -121,51 +154,6 @@ export interface MdzComponentNode extends MdzBaseNode {
 	children: Array<MdzNode>;
 }
 
-// Character codes for performance
-const BACKTICK = 96; // `
-const ASTERISK = 42; // *
-const UNDERSCORE = 95; // _
-const TILDE = 126; // ~
-const NEWLINE = 10; // \n
-const HYPHEN = 45; // -
-const HASH = 35; // #
-const SPACE = 32; // (space)
-const TAB = 9; // \t
-const LEFT_ANGLE = 60; // <
-const RIGHT_ANGLE = 62; // >
-const SLASH = 47; // /
-const LEFT_BRACKET = 91; // [
-const RIGHT_BRACKET = 93; // ]
-const LEFT_PAREN = 40; // (
-const RIGHT_PAREN = 41; // )
-const COLON = 58; // :
-const PERIOD = 46; // .
-const COMMA = 44; // ,
-const SEMICOLON = 59; // ;
-const EXCLAMATION = 33; // !
-const QUESTION = 63; // ?
-// RFC 3986 URI characters
-const DOLLAR = 36; // $
-const PERCENT = 37; // %
-const AMPERSAND = 38; // &
-const APOSTROPHE = 39; // '
-const PLUS = 43; // +
-const EQUALS = 61; // =
-const AT = 64; // @
-// Character ranges
-const A_UPPER = 65; // A
-const Z_UPPER = 90; // Z
-const A_LOWER = 97; // a
-const Z_LOWER = 122; // z
-const ZERO = 48; // 0
-const NINE = 57; // 9
-// mdz specification constants
-const HR_HYPHEN_COUNT = 3; // Horizontal rule requires exactly 3 hyphens
-const MIN_CODEBLOCK_BACKTICKS = 3; // Code blocks require minimum 3 backticks
-const MAX_HEADING_LEVEL = 6; // Headings support levels 1-6
-const HTTPS_PREFIX_LENGTH = 8; // Length of "https://"
-const HTTP_PREFIX_LENGTH = 7; // Length of "http://"
-
 /**
  * Parser for mdz format.
  * Single-pass lexer/parser with text accumulation for efficiency.
@@ -199,9 +187,10 @@ export class MdzParser {
 		this.#skip_newlines();
 
 		while (this.#index < this.#template.length) {
-			// Peek for block element (read-only match), flush paragraph first, then parse.
-			// Flush must happen before parse because parse modifies accumulation state.
-			const block_type = this.#peek_block_element();
+			// Block elements only start at column 0 — skip peek for mid-line characters
+			const block_type =
+				(this.#index === 0 || this.#template.charCodeAt(this.#index - 1) === NEWLINE) &&
+				this.#peek_block_element();
 			if (block_type) {
 				const flushed = this.#flush_paragraph(paragraph_children, true);
 				if (flushed) root_nodes.push(flushed);
@@ -283,7 +272,7 @@ export class MdzParser {
 		}
 
 		// Single tag (component/element) - add directly without paragraph wrapper (MDX convention)
-		const single_tag = this.#extract_single_tag(paragraph_children);
+		const single_tag = extract_single_tag(paragraph_children);
 		if (single_tag) {
 			paragraph_children.length = 0;
 			return single_tag;
@@ -353,7 +342,7 @@ export class MdzParser {
 	 * Uses switch for performance (avoids regex in hot loop).
 	 */
 	#parse_node(): MdzNode {
-		const char_code = this.#current_char();
+		const char_code = this.#template.charCodeAt(this.#index);
 
 		// Use character codes for performance in hot path
 		switch (char_code) {
@@ -683,7 +672,7 @@ export class MdzParser {
 		// Follows GFM behavior: invalid chars cause fallback to text, then auto-detection
 		for (let i = 0; i < reference.length; i++) {
 			const char_code = reference.charCodeAt(i);
-			if (!this.#is_valid_path_char(char_code)) {
+			if (!is_valid_path_char(char_code)) {
 				// Invalid character in URL, treat as text and let auto-detection handle it
 				this.#index = start + 1;
 				return {
@@ -767,7 +756,7 @@ export class MdzParser {
 		}
 
 		const first_char = this.#template.charCodeAt(this.#index);
-		if (!this.#is_letter(first_char)) {
+		if (!is_letter(first_char)) {
 			// Not a valid tag, treat as text - restore parent state
 			this.#restore_accumulation_state(saved_state);
 			return {
@@ -781,7 +770,7 @@ export class MdzParser {
 		// Collect tag name (letters, numbers, hyphens, underscores)
 		while (this.#index < this.#template.length) {
 			const char_code = this.#template.charCodeAt(this.#index);
-			if (this.#is_tag_name_char(char_code)) {
+			if (is_tag_name_char(char_code)) {
 				this.#index++;
 			} else {
 				break;
@@ -908,33 +897,9 @@ export class MdzParser {
 	}
 
 	/**
-	 * Extract a single tag (component or element) if it's the only non-whitespace content.
-	 * Returns the tag node if paragraph wrapping should be skipped (MDX convention),
-	 * or null if the content should be wrapped in a paragraph.
-	 */
-	#extract_single_tag(nodes: Array<MdzNode>): MdzComponentNode | MdzElementNode | null {
-		let tag: MdzComponentNode | MdzElementNode | null = null;
-
-		for (const node of nodes) {
-			if (node.type === 'Component' || node.type === 'Element') {
-				if (tag) return null; // Multiple tags
-				tag = node;
-			} else if (node.type === 'Text') {
-				// Allow only whitespace-only text nodes
-				if (node.content.trim() !== '') return null;
-			} else {
-				// Any other node type means not a single tag
-				return null;
-			}
-		}
-
-		return tag;
-	}
-
-	/**
 	 * Read-only check if current position matches a block element.
 	 * Does not modify parser state — used to peek before flushing paragraph.
-	 * Returns which block type matched, or null if none.
+	 * Caller must verify column-0 position before calling.
 	 */
 	#peek_block_element(): 'heading' | 'hr' | 'codeblock' | null {
 		if (this.#match_heading()) return 'heading';
@@ -977,54 +942,6 @@ export class MdzParser {
 	}
 
 	/**
-	 * Check if character code is a letter (A-Z, a-z).
-	 */
-	#is_letter(char_code: number): boolean {
-		return (
-			(char_code >= A_UPPER && char_code <= Z_UPPER) ||
-			(char_code >= A_LOWER && char_code <= Z_LOWER)
-		);
-	}
-
-	/**
-	 * Check if character code is valid for tag name (letter, number, hyphen, underscore).
-	 */
-	#is_tag_name_char(char_code: number): boolean {
-		return (
-			this.#is_letter(char_code) ||
-			(char_code >= ZERO && char_code <= NINE) ||
-			char_code === HYPHEN ||
-			char_code === UNDERSCORE
-		);
-	}
-
-	/**
-	 * Check if character is part of a word for word boundary detection.
-	 * Used to prevent intraword emphasis with `_` and `~` delimiters.
-	 *
-	 * Formatting delimiters (`*`, `_`, `~`) are NOT word characters - they're transparent.
-	 * Only alphanumeric characters (A-Z, a-z, 0-9) are considered word characters.
-	 *
-	 * This prevents false positives with snake_case identifiers while allowing
-	 * adjacent formatting like `**bold**_italic_`.
-	 *
-	 * @param char_code - Character code to check
-	 */
-	#is_word_char(char_code: number): boolean {
-		// Formatting delimiters are never word chars (transparent for boundary checks)
-		if (char_code === ASTERISK || char_code === UNDERSCORE || char_code === TILDE) {
-			return false;
-		}
-
-		// Alphanumeric characters are word chars for all delimiters
-		return (
-			(char_code >= A_UPPER && char_code <= Z_UPPER) ||
-			(char_code >= A_LOWER && char_code <= Z_LOWER) ||
-			(char_code >= ZERO && char_code <= NINE)
-		);
-	}
-
-	/**
 	 * Check if position is at a word boundary.
 	 * Word boundary = not surrounded by word characters (A-Z, a-z, 0-9).
 	 * Used to prevent intraword emphasis for underscores and tildes.
@@ -1037,7 +954,7 @@ export class MdzParser {
 		if (check_before && index > 0) {
 			const prev = this.#template.charCodeAt(index - 1);
 			// If preceded by word char, not at boundary
-			if (this.#is_word_char(prev)) {
+			if (is_word_char(prev)) {
 				return false;
 			}
 		}
@@ -1045,57 +962,12 @@ export class MdzParser {
 		if (check_after && index < this.#template.length) {
 			const next = this.#template.charCodeAt(index);
 			// If followed by word char, not at boundary
-			if (this.#is_word_char(next)) {
+			if (is_word_char(next)) {
 				return false;
 			}
 		}
 
 		return true;
-	}
-
-	/**
-	 * Check if character code is valid in URI path per RFC 3986.
-	 * Validates against the `pchar` production plus path/query/fragment separators.
-	 *
-	 * Valid characters:
-	 * - unreserved: A-Z a-z 0-9 - . _ ~
-	 * - sub-delims: ! $ & ' ( ) * + , ; =
-	 * - path allowed: : @
-	 * - separators: / ? #
-	 * - percent-encoding: %
-	 */
-	#is_valid_path_char(char_code: number): boolean {
-		return (
-			(char_code >= A_UPPER && char_code <= Z_UPPER) ||
-			(char_code >= A_LOWER && char_code <= Z_LOWER) ||
-			(char_code >= ZERO && char_code <= NINE) ||
-			// unreserved: - . _ ~
-			char_code === HYPHEN ||
-			char_code === PERIOD ||
-			char_code === UNDERSCORE ||
-			char_code === TILDE ||
-			// sub-delims: ! $ & ' ( ) * + , ; =
-			char_code === EXCLAMATION ||
-			char_code === DOLLAR ||
-			char_code === AMPERSAND ||
-			char_code === APOSTROPHE ||
-			char_code === LEFT_PAREN ||
-			char_code === RIGHT_PAREN ||
-			char_code === ASTERISK ||
-			char_code === PLUS ||
-			char_code === COMMA ||
-			char_code === SEMICOLON ||
-			char_code === EQUALS ||
-			// path allowed: : @
-			char_code === COLON ||
-			char_code === AT ||
-			// separators: / ? #
-			char_code === SLASH ||
-			char_code === QUESTION ||
-			char_code === HASH ||
-			// percent-encoding: %
-			char_code === PERCENT
-		);
 	}
 
 	/**
@@ -1196,8 +1068,8 @@ export class MdzParser {
 		// Collect URL characters using RFC 3986 whitelist
 		// Stop at whitespace or any character invalid in URIs
 		while (this.#index < this.#template.length) {
-			const char_code = this.#current_char();
-			if (char_code === SPACE || char_code === NEWLINE || !this.#is_valid_path_char(char_code)) {
+			const char_code = this.#template.charCodeAt(this.#index);
+			if (char_code === SPACE || char_code === NEWLINE || !is_valid_path_char(char_code)) {
 				break;
 			}
 			this.#index++;
@@ -1206,7 +1078,7 @@ export class MdzParser {
 		let reference = this.#template.slice(start, this.#index);
 
 		// Apply GFM trailing punctuation trimming with balanced parentheses
-		reference = this.#trim_trailing_punctuation(reference);
+		reference = trim_trailing_punctuation(reference);
 
 		// Update index after trimming
 		this.#index = start + reference.length;
@@ -1231,8 +1103,8 @@ export class MdzParser {
 		// Collect path characters using RFC 3986 whitelist
 		// Stop at whitespace or any character invalid in URIs
 		while (this.#index < this.#template.length) {
-			const char_code = this.#current_char();
-			if (char_code === SPACE || char_code === NEWLINE || !this.#is_valid_path_char(char_code)) {
+			const char_code = this.#template.charCodeAt(this.#index);
+			if (char_code === SPACE || char_code === NEWLINE || !is_valid_path_char(char_code)) {
 				break;
 			}
 			this.#index++;
@@ -1241,7 +1113,7 @@ export class MdzParser {
 		let reference = this.#template.slice(start, this.#index);
 
 		// Apply GFM trailing punctuation trimming
-		reference = this.#trim_trailing_punctuation(reference);
+		reference = trim_trailing_punctuation(reference);
 
 		// Update index after trimming
 		this.#index = start + reference.length;
@@ -1254,60 +1126,6 @@ export class MdzParser {
 			start,
 			end: this.#index,
 		};
-	}
-
-	/**
-	 * Trim trailing punctuation from URL/path per RFC 3986 and GFM rules.
-	 * - Trims simple trailing: .,;:!?]
-	 * - Balanced logic for () only (valid in path components)
-	 * - Invalid chars like [] {} are already stopped by whitelist, but ] trimmed as fallback
-	 *
-	 * Optimized to avoid O(n²) string slicing - tracks end index and slices once at the end.
-	 */
-	#trim_trailing_punctuation(url: string): string {
-		let end = url.length;
-
-		// Trim simple trailing punctuation (] as fallback - whitelist should prevent it)
-		while (end > 0) {
-			const last_char = url.charCodeAt(end - 1);
-			if (
-				last_char === PERIOD ||
-				last_char === COMMA ||
-				last_char === SEMICOLON ||
-				last_char === COLON ||
-				last_char === EXCLAMATION ||
-				last_char === QUESTION ||
-				last_char === RIGHT_BRACKET
-			) {
-				end--;
-			} else {
-				break;
-			}
-		}
-
-		// Handle balanced parentheses ONLY (parens are valid in URI path components)
-		// Count parentheses in the trimmed portion
-		let open_count = 0;
-		let close_count = 0;
-		for (let i = 0; i < end; i++) {
-			const char = url.charCodeAt(i);
-			if (char === LEFT_PAREN) open_count++;
-			if (char === RIGHT_PAREN) close_count++;
-		}
-
-		// Trim unmatched trailing closing parens
-		while (end > 0 && close_count > open_count) {
-			const last_char = url.charCodeAt(end - 1);
-			if (last_char === RIGHT_PAREN) {
-				end--;
-				close_count--;
-			} else {
-				break;
-			}
-		}
-
-		// Return original string if no trimming, otherwise slice once
-		return end === url.length ? url : url.slice(0, end);
 	}
 
 	/**
@@ -1327,7 +1145,7 @@ export class MdzParser {
 		}
 
 		while (this.#index < this.#template.length) {
-			const char_code = this.#current_char();
+			const char_code = this.#template.charCodeAt(this.#index);
 
 			// Stop at special characters (but preserve single newlines)
 			if (
@@ -1363,8 +1181,12 @@ export class MdzParser {
 				}
 			}
 
-			// Check for URL or internal absolute/relative path mid-text
-			if (this.#is_at_url() || this.#is_at_absolute_path() || this.#is_at_relative_path()) {
+			// Check for URL or internal absolute/relative path mid-text (char code guard avoids startsWith on every char)
+			if (
+				(char_code === 104 /* h */ && this.#is_at_url()) ||
+				(char_code === SLASH && this.#is_at_absolute_path()) ||
+				(char_code === PERIOD && this.#is_at_relative_path())
+			) {
 				break;
 			}
 
@@ -1436,19 +1258,12 @@ export class MdzParser {
 	}
 
 	/**
-	 * Get character code at current index, or -1 if at EOF.
-	 */
-	#current_char(): number {
-		return this.#index < this.#template.length ? this.#template.charCodeAt(this.#index) : -1;
-	}
-
-	/**
 	 * Check if current position is at a paragraph break (double newline).
 	 */
 	#is_at_paragraph_break(): boolean {
 		return (
-			this.#current_char() === NEWLINE &&
 			this.#index + 1 < this.#template.length &&
+			this.#template.charCodeAt(this.#index) === NEWLINE &&
 			this.#template.charCodeAt(this.#index + 1) === NEWLINE
 		);
 	}
@@ -1477,11 +1292,6 @@ export class MdzParser {
 	 */
 	#match_hr(): boolean {
 		let i = this.#index;
-
-		// Must start at column 0 (beginning of input or after newline)
-		if (i > 0 && this.#template.charCodeAt(i - 1) !== NEWLINE) {
-			return false;
-		}
 
 		// Must have exactly three hyphens
 		if (
@@ -1545,11 +1355,6 @@ export class MdzParser {
 	#match_heading(): boolean {
 		let i = this.#index;
 
-		// Must start at column 0 (beginning of input or after newline)
-		if (i > 0 && this.#template.charCodeAt(i - 1) !== NEWLINE) {
-			return false;
-		}
-
 		// Count hashes (must be 1-6)
 		let hash_count = 0;
 		while (
@@ -1571,22 +1376,16 @@ export class MdzParser {
 		}
 		i++; // consume the space
 
-		// Must have non-whitespace content after the space (not just whitespace until newline)
-		let has_content = false;
-		while (i < this.#template.length && this.#template.charCodeAt(i) !== NEWLINE) {
+		// Must have at least one non-whitespace character after the space
+		while (i < this.#template.length) {
 			const char_code = this.#template.charCodeAt(i);
-			if (char_code !== SPACE && char_code !== TAB) {
-				has_content = true;
-			}
+			if (char_code === NEWLINE) return false; // reached end of line with only whitespace
+			if (char_code !== SPACE && char_code !== TAB) return true;
 			i++;
 		}
 
-		if (!has_content) {
-			return false; // heading with only whitespace, treat as plain text
-		}
-
-		// At newline or EOF — both are valid
-		return true;
+		// Reached EOF with only whitespace after hashes
+		return false;
 	}
 
 	/**
@@ -1661,11 +1460,6 @@ export class MdzParser {
 	 */
 	#match_code_block(): boolean {
 		let i = this.#index;
-
-		// Must start at column 0 (beginning of input or after newline)
-		if (i > 0 && this.#template.charCodeAt(i - 1) !== NEWLINE) {
-			return false;
-		}
 
 		// Must have at least three backticks
 		let backtick_count = 0;
