@@ -56,8 +56,11 @@ import {
 	is_letter,
 	is_tag_name_char,
 	is_word_char,
+	PERIOD,
 	is_valid_path_char,
 	trim_trailing_punctuation,
+	is_at_absolute_path,
+	is_at_relative_path,
 	extract_single_tag,
 } from './mdz_helpers.js';
 
@@ -123,7 +126,7 @@ export interface MdzLinkNode extends MdzBaseNode {
 	type: 'Link';
 	reference: string; // URL or path
 	children: Array<MdzNode>; // Display content (can include inline formatting)
-	link_type: 'external' | 'internal'; // external: https/http, internal: /path
+	link_type: 'external' | 'internal'; // external: https/http, internal: /path, ./path, ../path
 }
 
 export interface MdzParagraphNode extends MdzBaseNode {
@@ -995,31 +998,6 @@ export class MdzParser {
 	}
 
 	/**
-	 * Check if current position is the start of an internal path (starts with /).
-	 */
-	#is_at_internal_path(): boolean {
-		if (this.#template.charCodeAt(this.#index) !== SLASH) {
-			return false;
-		}
-		// Check previous character - must be whitespace or start of string
-		// (to avoid matching / within relative paths like ./a/b or ../a/b)
-		if (this.#index > 0) {
-			const prev_char = this.#template.charCodeAt(this.#index - 1);
-			if (prev_char !== SPACE && prev_char !== NEWLINE && prev_char !== TAB) {
-				return false;
-			}
-		}
-		// Must have at least one more character after /, and it must NOT be:
-		// - another / (to avoid matching // which is used for comments or protocol-relative URLs)
-		// - whitespace (a bare / followed by space is not a useful link)
-		if (this.#index + 1 >= this.#template.length) {
-			return false;
-		}
-		const next_char = this.#template.charCodeAt(this.#index + 1);
-		return next_char !== SLASH && next_char !== SPACE && next_char !== NEWLINE;
-	}
-
-	/**
 	 * Parse auto-detected external URL (`https://` or `http://`).
 	 * Uses RFC 3986 whitelist validation for valid URI characters.
 	 */
@@ -1062,10 +1040,10 @@ export class MdzParser {
 	}
 
 	/**
-	 * Parse auto-detected internal path (starts with /).
+	 * Parse auto-detected path (absolute `/`, relative `./` or `../`).
 	 * Uses RFC 3986 whitelist validation for valid URI characters.
 	 */
-	#parse_auto_link_internal(): MdzLinkNode {
+	#parse_auto_link_path(): MdzLinkNode {
 		const start = this.#index;
 
 		// Collect path characters using RFC 3986 whitelist
@@ -1104,12 +1082,15 @@ export class MdzParser {
 	#parse_text(): MdzTextNode | MdzLinkNode {
 		const start = this.#index;
 
-		// Check for URL or internal path at current position
+		// Check for URL or internal absolute/relative path at current position
 		if (this.#is_at_url()) {
 			return this.#parse_auto_link_url();
 		}
-		if (this.#is_at_internal_path()) {
-			return this.#parse_auto_link_internal();
+		if (
+			is_at_absolute_path(this.#template, this.#index) ||
+			is_at_relative_path(this.#template, this.#index)
+		) {
+			return this.#parse_auto_link_path();
 		}
 
 		while (this.#index < this.#template.length) {
@@ -1149,10 +1130,11 @@ export class MdzParser {
 				}
 			}
 
-			// Check for URL or internal path mid-text (char code guard avoids startsWith on every char)
+			// Check for URL or internal absolute/relative path mid-text (char code guard avoids startsWith on every char)
 			if (
 				(char_code === 104 /* h */ && this.#is_at_url()) ||
-				(char_code === SLASH && this.#is_at_internal_path())
+				(char_code === SLASH && is_at_absolute_path(this.#template, this.#index)) ||
+				(char_code === PERIOD && is_at_relative_path(this.#template, this.#index))
 			) {
 				break;
 			}
@@ -1613,3 +1595,33 @@ export class MdzParser {
  */
 const URL_PATTERN = /^https?:\/\/[^\s)\]}<>.,:/?#!]/;
 export const mdz_is_url = (s: string): boolean => URL_PATTERN.test(s);
+
+/**
+ * Resolves a relative path (`./` or `../`) against a base path.
+ * The base is treated as a directory regardless of trailing slash
+ * (`'/docs/mdz'` and `'/docs/mdz/'` behave identically).
+ * Handles embedded `.` and `..` segments within the reference
+ * (e.g., `'./a/../b'` → navigates up then down).
+ * Clamps at root — excess `..` segments stop at `/` rather than escaping.
+ *
+ * @param reference A relative path starting with `./` or `../`.
+ * @param base An absolute base path (e.g., `'/docs/mdz/'`). Empty string is treated as root.
+ * @returns An absolute resolved path (e.g., `'/docs/mdz/grammar'`).
+ */
+export const resolve_relative_path = (reference: string, base: string): string => {
+	const segments = base.split('/');
+	// Remove trailing empty from split (e.g., '/docs/mdz/' → ['', 'docs', 'mdz', ''])
+	// but keep the root segment ([''] from '' base or ['', ''] from '/').
+	if (segments.length > 1 && segments.at(-1) === '') segments.pop();
+	const trailing = reference.endsWith('/');
+	for (const segment of reference.split('/')) {
+		if (segment === '.' || segment === '') continue;
+		if (segment === '..') {
+			if (segments.length > 1) segments.pop(); // clamp at root
+		} else {
+			segments.push(segment);
+		}
+	}
+	if (trailing) segments.push('');
+	return segments.join('/');
+};

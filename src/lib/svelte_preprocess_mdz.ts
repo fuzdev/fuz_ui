@@ -305,6 +305,22 @@ const find_mdz_usages = (
 			const content_attr = find_attribute(node, 'content');
 			if (!content_attr) return;
 
+			// Extract optional static base prop for relative path resolution.
+			// If base is present but dynamic, skip precompilation entirely —
+			// MdzPrecompiled doesn't resolve relative paths at runtime,
+			// so precompiling with unresolved relative links would be wrong.
+			const base_attr = find_attribute(node, 'base');
+			let base: string | undefined;
+			if (base_attr) {
+				const base_value = extract_static_string(base_attr.value, context.bindings);
+				if (base_value === null) return; // dynamic base — fall back to runtime
+				base = base_value;
+			}
+
+			// Collect attributes to exclude from precompiled output
+			const exclude_attrs: Set<AST.Attribute> = new Set([content_attr]);
+			if (base_attr) exclude_attrs.add(base_attr);
+
 			// Extract static string value
 			const content_value = extract_static_string(content_attr.value, context.bindings);
 			if (content_value !== null) {
@@ -312,7 +328,7 @@ const find_mdz_usages = (
 				let result;
 				try {
 					const nodes = mdz_parse(content_value);
-					result = mdz_to_svelte(nodes, context.components, context.elements);
+					result = mdz_to_svelte(nodes, context.components, context.elements, base);
 				} catch (error) {
 					handle_preprocess_error(error, '[fuz-mdz]', context.filename, context.on_error);
 					return;
@@ -322,7 +338,7 @@ const find_mdz_usages = (
 				if (result.has_unconfigured_tags) return;
 
 				const consumed = collect_consumed_bindings(content_attr.value, context.bindings);
-				const replacement = build_replacement(node, content_attr, result.markup, context.source);
+				const replacement = build_replacement(node, exclude_attrs, result.markup, context.source);
 				transformed_usages.set(node.name, (transformed_usages.get(node.name) ?? 0) + 1);
 				transformations.push({
 					start: node.start,
@@ -349,7 +365,7 @@ const find_mdz_usages = (
 			try {
 				for (const branch of chain) {
 					const nodes = mdz_parse(branch.value);
-					const result = mdz_to_svelte(nodes, context.components, context.elements);
+					const result = mdz_to_svelte(nodes, context.components, context.elements, base);
 					if (result.has_unconfigured_tags) return;
 					branch_results.push({markup: result.markup, imports: result.imports});
 				}
@@ -373,7 +389,7 @@ const find_mdz_usages = (
 			}
 			children_markup += '{/if}';
 
-			const replacement = build_replacement(node, content_attr, children_markup, context.source);
+			const replacement = build_replacement(node, exclude_attrs, children_markup, context.source);
 
 			// Merge imports from all branches
 			const merged_imports: Map<string, PreprocessImportInfo> = new Map();
@@ -478,14 +494,14 @@ const remove_dead_const_bindings = (
  */
 const build_replacement = (
 	node: AST.Component,
-	content_attr: AST.Attribute,
+	exclude_attrs: ReadonlySet<AST.Attribute>,
 	children_markup: string,
 	source: string,
 ): string => {
-	// Collect source ranges of all attributes EXCEPT content
+	// Collect source ranges of all attributes except excluded ones (content, base when resolved)
 	const other_attr_ranges: Array<{start: number; end: number}> = [];
 	for (const attr of node.attributes) {
-		if (attr === content_attr) continue;
+		if (exclude_attrs.has(attr as AST.Attribute)) continue;
 		other_attr_ranges.push({start: attr.start, end: attr.end});
 	}
 

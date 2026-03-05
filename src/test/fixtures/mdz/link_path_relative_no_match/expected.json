@@ -4,12 +4,12 @@
 		"children": [
 			{
 				"type": "Text",
-				"content": "Relative paths like ./a/b and ../a/b should not auto-link.",
+				"content": "No match: x./foo or ./ alone or .. alone or ..",
 				"start": 0,
-				"end": 58
+				"end": 46
 			}
 		],
 		"start": 0,
-		"end": 58
+		"end": 46
 	}
 ]

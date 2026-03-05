@@ -162,7 +162,9 @@ _UrlChar_      = ~[`)` | `\n` | WHITESPACE]
 
 _AutoUrl_ = (`https://` | `http://`) _UrlChar_+
 
-_AutoPath_ = `/` _PathChar_+
+_AutoPath_ = _AbsolutePath_ | _RelativePath_
+_AbsolutePath_ = `/` _PathChar_+
+_RelativePath_ = (`./` | `../`) _PathChar_+
 _PathChar_ = ~[WHITESPACE | _TrailingPunctuation_]
 
 _TrailingPunctuation_ = `.` | `,` | `;` | `:` | `!` | `?` | `]`
@@ -178,7 +180,7 @@ Closing `)` terminates the URL.
 Link nodes have a `link_type` field:
 
 - `'external'` - URL starts with `https://` or `http://`
-- `'internal'` - URL starts with `/` (root-relative path)
+- `'internal'` - absolute (`/path`) or relative (`./path`, `../path`)
 
 **Auto-detected URLs:**
 
@@ -189,14 +191,14 @@ Balanced parentheses: `https://fuz.dev/page_(disambiguation)` keeps the closing 
 
 **Auto-detected paths:**
 
-Must start with `/` (root-relative only).
-Relative paths (`./`, `../`) are NOT supported.
+Absolute paths start with `/`. Relative paths start with `./` or `../`.
+All path types must be preceded by whitespace or start of string.
 Continues until whitespace or trailing punctuation.
 Trailing punctuation handling same as auto-URLs.
 
-**Rationale for path restrictions:**
+**Rendering note:**
 
-mdz content may be rendered at different URLs than where the source file lives. Relative paths would be ambiguous. Root-relative paths (`/docs/api`) have unambiguous meaning regardless of where the mdz content is rendered.
+Absolute paths are resolved through SvelteKit's `resolve()` to apply the base path. Relative paths are resolved against the `base` prop/context when provided, producing absolute paths passed through `resolve()`. Without `base`, relative paths use raw hrefs, letting the browser resolve them against the current URL.
 
 ---
 
@@ -557,6 +559,6 @@ interface MdzComponentNode extends MdzBaseNode {
 - Code nodes have `content` field with the code string (identifier/module name)
 - Codeblock nodes have `lang` (language hint, nullable) and `content` (raw code)
 - Heading nodes have `level` (1-6) and `children` (inline content)
-- Link nodes have `reference` (URL/path), `link_type` ('external' | 'internal'), and `children` (display content)
+- Link nodes have `reference` (URL/path), `link_type` ('external' | 'internal'), and `children` (display content). Internal covers both absolute (`/path`) and relative (`./path`, `../path`) references
 - Component and Element nodes have `name` and `children`
 - Bold, Italic, Strikethrough, and Paragraph nodes have `children` arrays
