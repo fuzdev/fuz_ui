@@ -29,13 +29,13 @@
 {/if}
 
 <!-- type signature -->
-{#if declaration.type_signature}
-	<Code lang="ts" content={declaration.type_signature} />
+{#if declaration.typeSignature}
+	<Code lang="ts" content={declaration.typeSignature} />
 {/if}
 
 <!-- documentation -->
 {#if declaration.has_documentation}
-	<Mdz content={declaration.doc_comment!} />
+	<Mdz content={declaration.docComment!} />
 {/if}
 
 <!-- parameters -->
@@ -55,14 +55,14 @@
 					<strong>type</strong>
 					<TypeLink type={param.type} />
 				</div>
-				{#if param.optional || param.default_value}
+				{#if param.optional || param.defaultValue}
 					<div class="row gap_md">
 						{#if param.optional}
 							<span class="chip">optional</span>
 						{/if}
-						{#if param.default_value}
+						{#if param.defaultValue}
 							<strong>default</strong>
-							<Code lang="ts" content={param.default_value} />
+							<Code lang="ts" content={param.defaultValue} />
 						{/if}
 					</div>
 				{/if}
@@ -88,7 +88,7 @@
 					<strong>type</strong>
 					<TypeLink type={prop.type} />
 				</div>
-				{#if prop.optional || prop.bindable || prop.default_value}
+				{#if prop.optional || prop.bindable || prop.defaultValue}
 					<div class="row gap_md">
 						{#if prop.optional}
 							<span class="chip">optional</span>
@@ -96,9 +96,9 @@
 						{#if prop.bindable}
 							<span class="chip">bindable</span>
 						{/if}
-						{#if prop.default_value}
+						{#if prop.defaultValue}
 							<strong>default</strong>
-							<Code lang="ts" content={prop.default_value} />
+							<Code lang="ts" content={prop.defaultValue} />
 						{/if}
 					</div>
 				{/if}
@@ -108,12 +108,12 @@
 {/if}
 
 <!-- returns -->
-{#if declaration.return_type}
+{#if declaration.returnType}
 	<section>
 		<h4>returns</h4>
-		<Code lang="ts" content={declaration.return_type} />
-		{#if declaration.return_description}
-			<Mdz content={declaration.return_description} />
+		<Code lang="ts" content={declaration.returnType} />
+		{#if declaration.returnDescription}
+			<Mdz content={declaration.returnDescription} />
 		{/if}
 	</section>
 {/if}
@@ -225,16 +225,16 @@
 		{#each declaration.members as member (member)}
 			<section>
 				<h4><code>{member.name}</code></h4>
-				{#if member.doc_comment}
-					<Mdz content={member.doc_comment} />
+				{#if member.docComment}
+					<Mdz content={member.docComment} />
 				{/if}
-				{#if member.type_signature}
+				{#if member.typeSignature}
 					<p class="row gap_md">
 						<strong>type</strong>
 						<TypeLink
 							type={member.kind === 'constructor'
-								? `new ${member.type_signature}`
-								: member.type_signature}
+								? `new ${member.typeSignature}`
+								: member.typeSignature}
 						/>
 					</p>
 				{/if}
@@ -262,14 +262,14 @@
 									<strong>type</strong>
 									<TypeLink type={param.type} />
 								</div>
-								{#if param.optional || param.default_value}
+								{#if param.optional || param.defaultValue}
 									<div class="row gap_md">
 										{#if param.optional}
 											<span class="chip">optional</span>
 										{/if}
-										{#if param.default_value}
+										{#if param.defaultValue}
 											<strong>default</strong>
-											<Code lang="ts" content={param.default_value} />
+											<Code lang="ts" content={param.defaultValue} />
 										{/if}
 									</div>
 								{/if}
@@ -278,13 +278,13 @@
 					</section>
 				{/if}
 				<!-- return type for methods -->
-				{#if member.return_type}
+				{#if member.returnType}
 					<div class="row gap_md">
 						<strong>returns</strong>
-						<TypeLink type={member.return_type} />
+						<TypeLink type={member.returnType} />
 					</div>
-					{#if member.return_description}
-						<Mdz content={member.return_description} />
+					{#if member.returnDescription}
+						<Mdz content={member.returnDescription} />
 					{/if}
 				{/if}
 				<!-- throws for methods and constructors -->
@@ -315,13 +315,13 @@
 		{#each declaration.properties as prop (prop)}
 			<section>
 				<h4><code>{prop.name}</code></h4>
-				{#if prop.doc_comment}
-					<Mdz content={prop.doc_comment} />
+				{#if prop.docComment}
+					<Mdz content={prop.docComment} />
 				{/if}
-				{#if prop.type_signature}
+				{#if prop.typeSignature}
 					<div class="row gap_md mt_lg">
 						<strong>type</strong>
-						<TypeLink type={prop.type_signature} />
+						<TypeLink type={prop.typeSignature} />
 					</div>
 				{/if}
 				{#if prop.modifiers?.length}

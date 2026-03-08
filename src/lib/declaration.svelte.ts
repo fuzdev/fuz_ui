@@ -65,8 +65,8 @@ export class Declaration {
 	 */
 	display_name = $derived(getDisplayName(this.declaration_json));
 
-	type_signature = $derived(this.declaration_json.type_signature);
-	doc_comment = $derived(this.declaration_json.doc_comment);
+	type_signature = $derived(this.declaration_json.typeSignature);
+	doc_comment = $derived(this.declaration_json.docComment);
 	deprecated_message = $derived(this.declaration_json.deprecated_message);
 	parameters = $derived(this.declaration_json.parameters);
 	props = $derived(this.declaration_json.props);
@@ -88,7 +88,7 @@ export class Declaration {
 
 	has_examples = $derived(!!(this.examples && this.examples.length > 0));
 	is_deprecated = $derived(!!this.deprecated_message);
-	has_documentation = $derived(!!this.doc_comment);
+	has_documentation = $derived(!!this.docComment);
 	has_parameters = $derived(!!(this.parameters && this.parameters.length > 0));
 	has_props = $derived(!!(this.props && this.props.length > 0));
 	has_generics = $derived(!!(this.generic_params && this.generic_params.length > 0));
