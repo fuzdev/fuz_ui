@@ -7,9 +7,6 @@ import {
 	RootMenuState,
 } from '$lib/contextmenu_state.svelte.js';
 
-/* eslint-disable @typescript-eslint/require-await */
-/* eslint-disable @typescript-eslint/no-empty-function */
-
 describe('ContextmenuState - Edge Cases', () => {
 	let contextmenu: ContextmenuState;
 

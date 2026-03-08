@@ -8,8 +8,6 @@ import {
 	type PreprocessMdzFixture,
 } from './fixtures/svelte_preprocess_mdz/svelte_preprocess_mdz_test_helpers.js';
 
-/* eslint-disable no-await-in-loop */
-
 let fixtures: Array<PreprocessMdzFixture> = [];
 
 beforeAll(async () => {

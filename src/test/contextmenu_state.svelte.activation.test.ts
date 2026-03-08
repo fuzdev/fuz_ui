@@ -2,9 +2,6 @@ import {describe, test, assert, beforeEach} from 'vitest';
 
 import {ContextmenuState, EntryState, SubmenuState} from '$lib/contextmenu_state.svelte.js';
 
-/* eslint-disable @typescript-eslint/require-await */
-/* eslint-disable @typescript-eslint/no-empty-function */
-
 describe('ContextmenuState - Activation', () => {
 	let contextmenu: ContextmenuState;
 

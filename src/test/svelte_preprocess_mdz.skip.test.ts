@@ -395,7 +395,7 @@ describe('on_error', () => {
 		const parse_spy = vi.spyOn(mdz_module, 'mdz_parse').mockImplementation(() => {
 			throw new Error('mock parse failure');
 		});
-		// eslint-disable-next-line @typescript-eslint/no-empty-function
+
 		const error_spy = vi.spyOn(console, 'error').mockImplementation(() => {});
 
 		const input = `<script lang="ts">
@@ -677,7 +677,7 @@ describe('ternary/conditional expressions', () => {
 		const parse_spy = vi.spyOn(mdz_module, 'mdz_parse').mockImplementation(() => {
 			throw new Error('mock ternary parse failure');
 		});
-		// eslint-disable-next-line @typescript-eslint/no-empty-function
+
 		const error_spy = vi.spyOn(console, 'error').mockImplementation(() => {});
 
 		const input = `<script lang="ts">
