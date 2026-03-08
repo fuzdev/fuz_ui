@@ -1,15 +1,15 @@
 /**
  * Gro-specific library metadata generation.
  *
- * This module provides Gro integration for library generation. It wraps the generic
- * `library_generate` function with Gro's `Gen` interface and provides adapters for
- * converting Gro's `Disknode` to the build-tool agnostic `SourceFileInfo`.
+ * This module provides Gro integration for library generation. It uses svelte-docinfo's
+ * pure analysis (`analyze`) and wraps the results with fuz_ui's opinionated
+ * LibraryJson format (GitHub/npm metadata).
  *
- * For build-tool agnostic usage, see `library_generate.ts`.
+ * For build-tool agnostic usage, see `@fuzdev/svelte-docinfo`.
  *
- * @see library_generate.ts for the generic generation entry point
- * @see library_pipeline.ts for pipeline helpers
- * @see library_output.ts for output file generation
+ * @see @fuzdev/svelte-docinfo/analyze.js for the generic analysis entry point
+ * @see @fuzdev/svelte-docinfo/pipeline.js for pipeline helpers
+ * @see library_output.js for output file generation
  *
  * @module
  */
@@ -17,17 +17,19 @@
 import type {Gen} from '@fuzdev/gro';
 import {package_json_load} from '@fuzdev/gro/package_json.js';
 import type {Disknode} from '@fuzdev/gro/disknode.js';
-
 import {
 	type SourceFileInfo,
 	type ModuleSourceOptions,
 	type ModuleSourcePartial,
-	module_create_source_options,
-	module_validate_source_options,
-	module_is_source,
-	module_get_source_root,
-} from './module_helpers.js';
-import {library_generate, type OnDuplicatesCallback} from './library_generate.js';
+	createSourceOptions,
+	validateSourceOptions,
+	isSource,
+	getSourceRoot,
+} from '@fuzdev/svelte-docinfo/source.js';
+import {analyze, type OnDuplicatesCallback} from '@fuzdev/svelte-docinfo/analyze.js';
+import type {SourceJson} from '@fuzdev/fuz_util/source_json.js';
+
+import {library_generate_output} from './library_output.js';
 
 /** Options for Gro library generation. */
 export interface LibraryGenOptions {
@@ -43,11 +45,11 @@ export interface LibraryGenOptions {
 	 * Callback invoked when duplicate declaration names are found.
 	 *
 	 * Consumers decide how to handle duplicates: throw, warn, or ignore.
-	 * Use `library_throw_on_duplicates` for strict flat namespace enforcement.
+	 * Use `throwOnDuplicates` for strict flat namespace enforcement.
 	 *
 	 * @example
 	 * // Throw on duplicates (strict flat namespace)
-	 * library_gen({ on_duplicates: library_throw_on_duplicates });
+	 * library_gen({ on_duplicates: throwOnDuplicates });
 	 *
 	 * // Warn but continue
 	 * library_gen({
@@ -86,7 +88,7 @@ export const source_file_from_disknode = (disknode: Disknode): SourceFileInfo =>
  * Collect source files from Gro disknodes, filtering BEFORE conversion to SourceFileInfo.
  *
  * This avoids errors from files outside source directories (like test fixtures that may
- * have malformed paths or missing content). The filtering uses `module_is_source` which
+ * have malformed paths or missing content). The filtering uses `isSource` which
  * checks `source_paths` to only include files in configured source directories.
  *
  * @param disknodes Iterator of Gro disknodes from filer
@@ -99,7 +101,7 @@ export const library_collect_source_files_from_disknodes = (
 	log?: {info: (...args: Array<unknown>) => void; warn: (...args: Array<unknown>) => void},
 ): Array<SourceFileInfo> => {
 	// Validate options early to fail fast on misconfiguration
-	module_validate_source_options(options);
+	validateSourceOptions(options);
 
 	const all_disknodes = Array.from(disknodes);
 	log?.info(`received ${all_disknodes.length} files total from filer`);
@@ -108,7 +110,7 @@ export const library_collect_source_files_from_disknodes = (
 	for (const disknode of all_disknodes) {
 		// Filter by source_paths BEFORE trying to convert
 		// This avoids errors from test fixtures or other non-source files
-		if (!module_is_source(disknode.id, options)) {
+		if (!isSource(disknode.id, options)) {
 			continue;
 		}
 		source_files.push(source_file_from_disknode(disknode));
@@ -117,7 +119,7 @@ export const library_collect_source_files_from_disknodes = (
 	log?.info(`found ${source_files.length} source files to analyze`);
 
 	if (source_files.length === 0) {
-		const effective_root = module_get_source_root(options);
+		const effective_root = getSourceRoot(options);
 		log?.warn(`No source files found in ${effective_root} - generating empty library metadata`);
 		return [];
 	}
@@ -134,9 +136,11 @@ export const library_collect_source_files_from_disknodes = (
  * This is the Gro-specific entry point. It handles:
  * - Reading files from Gro's filer
  * - Loading package.json via Gro utilities
+ * - Analyzing source with svelte-docinfo (pure analysis)
+ * - Wrapping with LibraryJson (GitHub/npm metadata)
  * - Returning output in Gro's Gen format
  *
- * For build-tool agnostic usage, use `library_generate` directly.
+ * For build-tool agnostic usage, use `analyze` directly.
  *
  * Usage in a `.gen.ts` file:
  *
@@ -158,7 +162,7 @@ export const library_gen = (options?: LibraryGenOptions): Gen => {
 			const source_options: ModuleSourceOptions =
 				options?.source && 'project_root' in options.source
 					? options.source
-					: module_create_source_options(process.cwd(), options?.source);
+					: createSourceOptions(process.cwd(), options?.source);
 
 			// Ensure filer is initialized
 			await filer.init();
@@ -173,22 +177,32 @@ export const library_gen = (options?: LibraryGenOptions): Gen => {
 				log,
 			);
 
-			// Use generic library_generate for the actual work
-			const result = library_generate({
+			// Get pure analysis from svelte-docinfo (no package metadata)
+			const {modules} = analyze({
 				source_files,
-				package_json,
 				source_options,
 				on_duplicates: options?.on_duplicates,
-				log,
+				log: log as any, // Type cast needed due to workspace dependency duplication
 			});
+
+			// Wrap modules with package metadata (fuz_ui's own SourceJson type)
+			const source_json: SourceJson = {
+				name: package_json.name,
+				version: package_json.version,
+				repository:
+					typeof package_json.repository === 'string'
+						? package_json.repository
+						: package_json.repository?.url,
+				modules,
+			};
+
+			// Generate output files with fuz_ui's LibraryJson wrapper
+			const {json_content, ts_content} = library_generate_output(package_json, source_json);
 
 			log.info('library metadata generation complete');
 
 			// Return array of files in Gro's expected format
-			return [
-				{content: result.ts_content},
-				{content: result.json_content, filename: 'library.json'},
-			];
+			return [{content: ts_content}, {content: json_content, filename: 'library.json'}];
 		},
 	};
 };

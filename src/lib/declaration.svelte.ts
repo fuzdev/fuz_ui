@@ -1,8 +1,8 @@
 import {
 	type DeclarationJson,
-	declaration_generate_import,
-	declaration_get_display_name,
-} from '@fuzdev/fuz_util/source_json.js';
+	generateImport,
+	getDisplayName,
+} from '@fuzdev/svelte-docinfo/types.js';
 
 import type {Module} from './module.svelte.js';
 import {url_github_file} from './package_helpers.js';
@@ -48,11 +48,7 @@ export class Declaration {
 	 * Generated TypeScript import statement.
 	 */
 	import_statement = $derived(
-		declaration_generate_import(
-			this.declaration_json,
-			this.module_path,
-			this.library.package_json.name,
-		),
+		generateImport(this.declaration_json, this.module_path, this.library.package_json.name),
 	);
 
 	/**
@@ -67,10 +63,10 @@ export class Declaration {
 	/**
 	 * Display name with generic parameters.
 	 */
-	display_name = $derived(declaration_get_display_name(this.declaration_json));
+	display_name = $derived(getDisplayName(this.declaration_json));
 
-	type_signature = $derived(this.declaration_json.type_signature);
-	doc_comment = $derived(this.declaration_json.doc_comment);
+	type_signature = $derived(this.declaration_json.typeSignature);
+	doc_comment = $derived(this.declaration_json.docComment);
 	deprecated_message = $derived(this.declaration_json.deprecated_message);
 	parameters = $derived(this.declaration_json.parameters);
 	props = $derived(this.declaration_json.props);
@@ -92,7 +88,7 @@ export class Declaration {
 
 	has_examples = $derived(!!(this.examples && this.examples.length > 0));
 	is_deprecated = $derived(!!this.deprecated_message);
-	has_documentation = $derived(!!this.doc_comment);
+	has_documentation = $derived(!!this.docComment);
 	has_parameters = $derived(!!(this.parameters && this.parameters.length > 0));
 	has_props = $derived(!!(this.props && this.props.length > 0));
 	has_generics = $derived(!!(this.generic_params && this.generic_params.length > 0));
