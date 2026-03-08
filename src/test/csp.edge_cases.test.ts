@@ -140,7 +140,7 @@ describe('parse function edge cases', () => {
 		assert.strictEqual(parse_csp_directive({}), null);
 		assert.strictEqual(parse_csp_directive([]), null);
 		assert.strictEqual(
-			parse_csp_directive(() => {}), // eslint-disable-line @typescript-eslint/no-empty-function
+			parse_csp_directive(() => {}),
 			null,
 		);
 	});

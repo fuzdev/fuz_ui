@@ -7,8 +7,6 @@ import {
 	RootMenuState,
 } from '$lib/contextmenu_state.svelte.js';
 
-/* eslint-disable @typescript-eslint/no-empty-function */
-
 describe('ContextmenuState - Structure', () => {
 	let contextmenu: ContextmenuState;
 

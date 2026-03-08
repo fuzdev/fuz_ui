@@ -13,8 +13,6 @@ import {
 	DEFAULT_TEST_OPTIONS,
 } from './fixtures/svelte_preprocess_mdz/svelte_preprocess_mdz_test_helpers.js';
 
-/* eslint-disable no-await-in-loop */
-
 // Extend default options with elements used in mdz fixtures
 const CROSS_TEST_PREPROCESS_OPTIONS = {
 	...DEFAULT_TEST_OPTIONS,
