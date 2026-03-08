@@ -3,9 +3,7 @@
  *
  * Generates the library.json and library.ts files from analyzed metadata.
  *
- * @see library_generate.ts for the main generation entry point
- * @see library_pipeline.ts for pipeline orchestration functions
- * @see library_gen.ts for Gro-specific integration
+ * @see library_gen.ts for the main generation entry point
  *
  * @module
  */
@@ -39,9 +37,6 @@ export const library_generate_output = (
 	package_json: PackageJson,
 	source_json: SourceJson,
 ): LibraryOutputResult => {
-	const is_this_fuz_util = package_json.name === '@fuzdev/fuz_util';
-	const fuz_util_prefix = is_this_fuz_util ? './' : '@fuzdev/fuz_util/';
-
 	// Parse at generation time, not runtime
 	const library_json: LibraryJson = library_json_parse(package_json, source_json);
 
@@ -51,7 +46,7 @@ export const library_generate_output = (
 
 	const ts_content = `${banner}
 
-import type {LibraryJson} from '${fuz_util_prefix}library_json.js';
+import type {LibraryJson} from '@fuzdev/fuz_util/library_json.js';
 
 import json from './library.json' with {type: 'json'};
 
