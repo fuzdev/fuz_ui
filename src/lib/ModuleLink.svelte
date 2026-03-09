@@ -20,7 +20,7 @@
 
 	const library = library_context.get();
 
-	const module = $derived(library.lookup_module(module_path));
+	const module = $derived(library.module_by_path.get(module_path));
 
 	const color_class = $derived(module_path.endsWith('.svelte') ? 'color_h' : '');
 

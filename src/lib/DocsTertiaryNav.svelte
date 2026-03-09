@@ -33,13 +33,13 @@
 
 	const modules_related_to_selected = $derived(
 		selected_tome?.related_modules
-			.map((path) => library.lookup_module(path))
+			.map((path) => library.module_by_path.get(path))
 			.filter((m) => m !== undefined) ?? [],
 	);
 
 	const declarations_related_to_selected = $derived(
 		selected_tome?.related_declarations
-			.map((name) => library.lookup_declaration(name))
+			.map((name) => library.declaration_by_name.get(name))
 			.filter((d) => d !== undefined) ?? [],
 	);
 

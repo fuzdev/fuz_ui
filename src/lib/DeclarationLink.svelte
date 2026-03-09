@@ -20,7 +20,7 @@
 
 	const library = library_context.get();
 
-	const declaration = $derived(library.lookup_declaration(name));
+	const declaration = $derived(library.declaration_by_name.get(name));
 
 	const contextmenu_entries = $derived(
 		declaration ? create_declaration_contextmenu(declaration) : undefined,

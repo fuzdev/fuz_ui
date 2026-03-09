@@ -37,10 +37,15 @@
 	);
 
 	// find the module using the lookup helper
-	const module = $derived(library.lookup_module(module_path));
+	const module = $derived(library.module_by_path.get(module_path));
+
+	// check if this is a directory prefix containing child modules
+	const directory_modules = $derived(module ? null : library.lookup_directory_modules(module_path));
 
 	// fallback for 404
-	const module_name = $derived(module?.path || '[missing module]');
+	const module_name = $derived(
+		module?.path || (directory_modules ? module_path : '[missing module]'),
+	);
 
 	const search = $derived(create_module_declaration_search(module?.declarations ?? []));
 
@@ -57,7 +62,18 @@
 		<h1 class="mt_xl4">{module_name}</h1>
 	{/snippet}
 
-	{#if !module}
+	{#if !module && directory_modules}
+		<section>
+			<p>{directory_modules.length} module{directory_modules.length === 1 ? '' : 's'}</p>
+			<ul>
+				{#each directory_modules as child_module (child_module.path)}
+					<li>
+						<ModuleLink module_path={child_module.path} />
+					</li>
+				{/each}
+			</ul>
+		</section>
+	{:else if !module}
 		<section>
 			<p>Module not found: {module_path}</p>
 		</section>
@@ -67,7 +83,7 @@
 				<Mdz content={module.module_comment} />
 			</section>
 		{/if}
-		<!-- Declarations Section -->
+		<!-- Declarations section -->
 		<TomeSection>
 			<TomeSectionHeader text="Declarations" />
 
@@ -92,7 +108,7 @@
 			<ApiDeclarationList declarations={search.filtered} search_query={search.query} />
 		</TomeSection>
 
-		<!-- Depends on Section -->
+		<!-- Depends on section -->
 		{#if module.dependencies}
 			<TomeSection>
 				<TomeSectionHeader text="Depends on" />
@@ -106,7 +122,7 @@
 			</TomeSection>
 		{/if}
 
-		<!-- Imported by Section -->
+		<!-- Imported by section -->
 		{#if module.dependents}
 			<TomeSection>
 				<TomeSectionHeader text="Imported by" />
