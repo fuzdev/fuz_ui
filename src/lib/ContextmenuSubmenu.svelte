@@ -16,13 +16,14 @@
 	} = $props();
 
 	const get_contextmenu = contextmenu_context.get();
+	const contextmenu = $derived(get_contextmenu());
 
 	// add_submenu registers on the current instance at init — not reactive to contextmenu getter changes
 	const submenu = get_contextmenu().add_submenu();
 
-	const {layout} = $derived(get_contextmenu());
+	const {layout} = $derived(contextmenu);
 
-	const selected = $derived(submenu.selected);
+	const {selected} = $derived(submenu);
 
 	let el: HTMLElement | undefined = $state();
 
@@ -72,7 +73,7 @@
 			// fires immediately when the contextmenu appears,
 			// and then the newly mounted selected entry immediately receives a click event.
 			// The timeout ensures the click event is not passed through.
-			setTimeout(() => get_contextmenu().select(submenu));
+			setTimeout(() => contextmenu.select(submenu));
 		}}
 		aria-expanded={selected}
 	>

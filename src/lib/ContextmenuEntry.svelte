@@ -18,6 +18,7 @@
 	} = $props();
 
 	const get_contextmenu = contextmenu_context.get();
+	const contextmenu = $derived(get_contextmenu());
 
 	// add_entry registers on the current instance at init — not reactive to contextmenu getter changes
 	const entry = get_contextmenu().add_entry(
@@ -45,13 +46,13 @@
 		: () => {
 				// This timeout lets event handlers react to the current DOM
 				// before the item's changes are applied.
-				setTimeout(() => get_contextmenu().activate(entry));
+				setTimeout(() => contextmenu.activate(entry));
 			}}
 	onmouseenter={disabled
 		? undefined
 		: (e) => {
 				swallow(e);
-				get_contextmenu().select(entry);
+				contextmenu.select(entry);
 			}}
 >
 	<div class="content">

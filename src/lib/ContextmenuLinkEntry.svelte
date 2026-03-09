@@ -21,6 +21,7 @@
 	} = $props();
 
 	const get_contextmenu = contextmenu_context.get();
+	const contextmenu = $derived(get_contextmenu());
 
 	let anchor_el: HTMLAnchorElement | undefined = $state();
 
@@ -62,7 +63,7 @@
 		tabindex="-1"
 		{href}
 		{rel}
-		onclick={disabled ? undefined : () => get_contextmenu().close()}
+		onclick={disabled ? undefined : () => contextmenu.close()}
 		oncontextmenu={(e) => {
 			// Stop propagation to prevent the window handler from opening another Fuz contextmenu.
 			// Without this, the event would bubble to the window handler, which calls
@@ -75,7 +76,7 @@
 			? undefined
 			: (e) => {
 					swallow(e);
-					get_contextmenu().select(entry);
+					contextmenu.select(entry);
 				}}
 	>
 		<div class="content">
