@@ -77,34 +77,18 @@ export class Library {
 	declarations = $derived(this.modules.flatMap((module) => module.declarations));
 
 	/**
+	 * Module lookup map by path. Provides O(1) lookup.
+	 */
+	module_by_path = $derived(new Map(this.modules.map((m) => [m.path, m])));
+
+	/**
 	 * Declaration lookup map by name. Provides O(1) lookup.
 	 */
-	declaration_map = $derived(new Map(this.declarations.map((d) => [d.name, d])));
+	declaration_by_name = $derived(new Map(this.declarations.map((d) => [d.name, d])));
 
 	constructor(library_json: LibraryJson, url_prefix = '') {
 		this.library_json = library_json;
 		this.url_prefix = parse_library_url_prefix(url_prefix);
-	}
-
-	/**
-	 * Look up a declaration by name.
-	 */
-	lookup_declaration(name: string): Declaration | undefined {
-		return this.declaration_map.get(name);
-	}
-
-	/**
-	 * Check if a declaration exists.
-	 */
-	has_declaration(name: string): boolean {
-		return this.declaration_map.has(name);
-	}
-
-	/**
-	 * Look up a module by its canonical path.
-	 */
-	lookup_module(path: string): Module | undefined {
-		return this.modules.find((m) => m.path === path);
 	}
 
 	/**

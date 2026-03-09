@@ -22,8 +22,8 @@
 	const library = library_context.get();
 
 	// Try to find as declaration first, then module
-	const declaration = $derived(library.lookup_declaration(reference));
-	const module = $derived(declaration ? declaration.module : library.lookup_module(reference));
+	const declaration = $derived(library.declaration_by_name.get(reference));
+	const module = $derived(declaration ? declaration.module : library.module_by_path.get(reference));
 </script>
 
 {#if declaration}

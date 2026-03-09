@@ -37,7 +37,7 @@
 	);
 
 	// find the module using the lookup helper
-	const module = $derived(library.lookup_module(module_path));
+	const module = $derived(library.module_by_path.get(module_path));
 
 	// check if this is a directory prefix containing child modules
 	const directory_modules = $derived(module ? null : library.lookup_directory_modules(module_path));
