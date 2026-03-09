@@ -69,9 +69,6 @@
 				{#each directory_modules as child_module (child_module.path)}
 					<li>
 						<ModuleLink module_path={child_module.path} />
-						{#if child_module.module_comment}
-							— {child_module.module_comment}
-						{/if}
 					</li>
 				{/each}
 			</ul>
