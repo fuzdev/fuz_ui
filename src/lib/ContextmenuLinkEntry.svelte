@@ -20,13 +20,14 @@
 		external_rel?: string;
 	} = $props();
 
-	const contextmenu = contextmenu_context.get();
+	const get_contextmenu = contextmenu_context.get();
 
 	let anchor_el: HTMLAnchorElement | undefined = $state();
 
 	// Register with state management for keyboard navigation
 	// When activated via keyboard, programmatically click the anchor to trigger navigation
-	const entry = contextmenu.add_entry(
+	// add_entry registers on the current instance at init — not reactive to contextmenu getter changes
+	const entry = get_contextmenu().add_entry(
 		() => () => {
 			if (anchor_el) anchor_el.click();
 		},
@@ -61,7 +62,7 @@
 		tabindex="-1"
 		{href}
 		{rel}
-		onclick={disabled ? undefined : () => contextmenu.close()}
+		onclick={disabled ? undefined : () => get_contextmenu().close()}
 		oncontextmenu={(e) => {
 			// Stop propagation to prevent the window handler from opening another Fuz contextmenu.
 			// Without this, the event would bubble to the window handler, which calls
@@ -74,7 +75,7 @@
 			? undefined
 			: (e) => {
 					swallow(e);
-					contextmenu.select(entry);
+					get_contextmenu().select(entry);
 				}}
 	>
 		<div class="content">

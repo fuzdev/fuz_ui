@@ -15,11 +15,12 @@
 		children: Snippet;
 	} = $props();
 
-	const contextmenu = contextmenu_context.get();
+	const get_contextmenu = contextmenu_context.get();
 
-	const submenu = contextmenu.add_submenu();
+	// add_submenu registers on the current instance at init — not reactive to contextmenu getter changes
+	const submenu = get_contextmenu().add_submenu();
 
-	const {layout} = contextmenu;
+	const {layout} = $derived(get_contextmenu());
 
 	const selected = $derived(submenu.selected);
 
@@ -71,7 +72,7 @@
 			// fires immediately when the contextmenu appears,
 			// and then the newly mounted selected entry immediately receives a click event.
 			// The timeout ensures the click event is not passed through.
-			setTimeout(() => contextmenu.select(submenu));
+			setTimeout(() => get_contextmenu().select(submenu));
 		}}
 		aria-expanded={selected}
 	>

@@ -474,7 +474,7 @@ const contextmenu_query_params = (
 	return params;
 };
 
-export const contextmenu_context = create_context<ContextmenuState>();
+export const contextmenu_context = create_context<() => ContextmenuState>();
 
 export const contextmenu_submenu_context = create_context<SubmenuState>();
 

@@ -33,7 +33,7 @@ export class Themer {
 		};
 	}
 }
-export const themer_context = create_context<Themer>();
+export const themer_context = create_context<() => Themer>();
 
 export const sync_color_scheme = (color_scheme: ColorScheme | null): void => {
 	if (!BROWSER) return;

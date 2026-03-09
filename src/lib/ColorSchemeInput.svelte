@@ -6,7 +6,7 @@
 	import {themer_context} from './themer.svelte.js';
 
 	const {
-		value = themer_context.get(),
+		value = themer_context.get()(),
 		...rest
 	}: SvelteHTMLElements['menu'] & {
 		value?: {color_scheme: ColorScheme};

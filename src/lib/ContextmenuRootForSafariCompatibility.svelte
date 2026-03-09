@@ -61,14 +61,6 @@
 		separator_entry = separator_entry_default,
 		children,
 	}: {
-		/**
-		 * The `contextmenu` prop is not reactive because that's a rare corner case and
-		 * it's easier to put the `contextmenu` directly in the context
-		 * rather than wrapping with a store or other reactivity.
-		 * If you need to change the contextmenu prop for some reason, use a `{#key contextmenu}` block:
-		 * https://svelte.dev/docs#template-syntax-key
-		 * @nonreactive
-		 */
 		contextmenu?: ContextmenuState;
 		/**
 		 * The number of pixels the pointer can be moved without canceling `longpress`.
@@ -131,7 +123,7 @@
 		children: Snippet;
 	} = $props();
 
-	contextmenu_context.set(contextmenu);
+	contextmenu_context.set(() => contextmenu);
 
 	if (DEV) contextmenu_check_global_root(() => scoped); // TODO @many is this import tree-shaken?
 
