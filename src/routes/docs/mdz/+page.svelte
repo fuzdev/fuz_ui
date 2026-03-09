@@ -63,8 +63,9 @@
 			negatives over false positives to minimize surprise.
 		</p>
 		<p>
-			For better performance, static mdz content can be compiled at build time with the
-			<TomeLink name="svelte_preprocess_mdz" />.
+			For better performance, static mdz content can be compiled at build time with <TomeLink
+				name="svelte_preprocess_mdz"
+			/>.
 		</p>
 		<aside>
 			⚠️ This is an early proof of concept with missing features. Next: attributes, lists,
