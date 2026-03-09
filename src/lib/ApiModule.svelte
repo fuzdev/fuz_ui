@@ -62,21 +62,27 @@
 		<h1 class="mt_xl4">{module_name}</h1>
 	{/snippet}
 
-	{#if !module && directory_modules}
-		<section>
-			<p>{directory_modules.length} module{directory_modules.length === 1 ? '' : 's'}</p>
-			<ul>
-				{#each directory_modules as child_module (child_module.path)}
-					<li>
-						<ModuleLink module_path={child_module.path} />
-					</li>
-				{/each}
-			</ul>
-		</section>
-	{:else if !module}
-		<section>
-			<p>Module not found: {module_path}</p>
-		</section>
+	{#if !module}
+		<!-- no module, maybe a dir? -->
+		{#if !directory_modules}
+			<section>
+				<p>Module not found: {module_path}</p>
+			</section>
+		{:else}
+			<section>
+				<p>{directory_modules.length} module{directory_modules.length === 1 ? '' : 's'}</p>
+				<ul class="unstyled">
+					{#each directory_modules as child_module (child_module.path)}
+						<li>
+							<h3><ModuleLink module_path={child_module.path} /></h3>
+							{#if child_module.module_comment}
+								<Mdz content={child_module.module_comment} />
+							{/if}
+						</li>
+					{/each}
+				</ul>
+			</section>
+		{/if}
 	{:else}
 		{#if module.module_comment}
 			<section>
