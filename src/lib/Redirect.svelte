@@ -2,8 +2,7 @@
 	import {page} from '$app/state';
 	import {strip_start} from '@fuzdev/fuz_util/string.js';
 	import {goto} from '$app/navigation';
-	import type {Snippet} from 'svelte';
-	import {BROWSER} from 'esm-env';
+	import {onMount, type Snippet} from 'svelte';
 
 	const {
 		host = '',
@@ -12,26 +11,25 @@
 		children,
 	}: {
 		/**
-		 * The target host to redirect to. Defaults to the current `location.host`.
-		 * @nonreactive
+		 * The target host to redirect to. Defaults to `''` (relative URL).
 		 */
 		host?: string;
 		/**
 		 * The target path to redirect to. Defaults to the current `location.pathname`.
-		 * @nonreactive
 		 */
 		path?: string;
 		/**
 		 * Should the redirect happen automatically without user input? Defaults to `true`.
-		 * @nonreactive
 		 */
 		auto?: boolean;
 		children?: Snippet<[url: string]>;
 	} = $props();
 
-	const url = host + path;
+	const url = $derived(host + path);
 
-	if (auto && BROWSER) void goto(url, {replaceState: true}); // eslint-disable-line svelte/no-navigation-without-resolve
+	onMount(() => {
+		if (auto) void goto(url, {replaceState: true}); // eslint-disable-line svelte/no-navigation-without-resolve
+	});
 </script>
 
 <svelte:head>
