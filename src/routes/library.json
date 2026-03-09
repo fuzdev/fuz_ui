@@ -4339,80 +4339,98 @@
 							},
 							{
 								"name": "package_json",
-								"kind": "variable"
+								"kind": "variable",
+								"modifiers": ["readonly"]
 							},
 							{
 								"name": "source_json",
-								"kind": "variable"
+								"kind": "variable",
+								"modifiers": ["readonly"]
 							},
 							{
 								"name": "name",
-								"kind": "variable"
+								"kind": "variable",
+								"modifiers": ["readonly"]
 							},
 							{
 								"name": "repo_name",
-								"kind": "variable"
+								"kind": "variable",
+								"modifiers": ["readonly"]
 							},
 							{
 								"name": "repo_url",
-								"kind": "variable"
+								"kind": "variable",
+								"modifiers": ["readonly"]
 							},
 							{
 								"name": "owner_name",
-								"kind": "variable"
+								"kind": "variable",
+								"modifiers": ["readonly"]
 							},
 							{
 								"name": "homepage_url",
-								"kind": "variable"
+								"kind": "variable",
+								"modifiers": ["readonly"]
 							},
 							{
 								"name": "logo_url",
-								"kind": "variable"
+								"kind": "variable",
+								"modifiers": ["readonly"]
 							},
 							{
 								"name": "logo_alt",
-								"kind": "variable"
+								"kind": "variable",
+								"modifiers": ["readonly"]
 							},
 							{
 								"name": "npm_url",
-								"kind": "variable"
+								"kind": "variable",
+								"modifiers": ["readonly"]
 							},
 							{
 								"name": "changelog_url",
-								"kind": "variable"
+								"kind": "variable",
+								"modifiers": ["readonly"]
 							},
 							{
 								"name": "published",
-								"kind": "variable"
+								"kind": "variable",
+								"modifiers": ["readonly"]
 							},
 							{
 								"name": "org_url",
 								"kind": "variable",
+								"modifiers": ["readonly"],
 								"doc_comment": "Organization URL (e.g., 'https://github.com/ryanatkn')."
 							},
 							{
 								"name": "modules",
 								"kind": "variable",
+								"modifiers": ["readonly"],
 								"doc_comment": "All modules as rich Module instances."
 							},
 							{
 								"name": "modules_sorted",
 								"kind": "variable",
+								"modifiers": ["readonly"],
 								"doc_comment": "All modules sorted alphabetically by path."
 							},
 							{
 								"name": "declarations",
 								"kind": "variable",
+								"modifiers": ["readonly"],
 								"doc_comment": "All declarations across all modules as a flat array."
 							},
 							{
 								"name": "module_by_path",
 								"kind": "variable",
+								"modifiers": ["readonly"],
 								"doc_comment": "Module lookup map by path. Provides O(1) lookup."
 							},
 							{
 								"name": "declaration_by_name",
 								"kind": "variable",
+								"modifiers": ["readonly"],
 								"doc_comment": "Declaration lookup map by name. Provides O(1) lookup."
 							},
 							{
@@ -4462,7 +4480,7 @@
 					{
 						"name": "library_context",
 						"kind": "variable",
-						"source_line": 117,
+						"source_line": 119,
 						"type_signature": "{ get: (error_message?: string | undefined) => Library; get_maybe: () => Library | undefined; set: (value: Library) => Library; }"
 					}
 				],
