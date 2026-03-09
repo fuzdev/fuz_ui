@@ -1,5 +1,15 @@
 # @fuzdev/fuz_ui
 
+## 0.187.0
+
+### Minor Changes
+
+- change `Library` to export maps directly ([#117](https://github.com/fuzdev/fuz_ui/pull/117))
+
+### Patch Changes
+
+- add an index to API dir paths ([#117](https://github.com/fuzdev/fuz_ui/pull/117))
+
 ## 0.186.0
 
 ### Minor Changes
