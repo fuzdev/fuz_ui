@@ -108,6 +108,21 @@ export class Library {
 	}
 
 	/**
+	 * Look up modules within a directory prefix.
+	 * Returns modules whose paths start with `path + "/"`, or `null` if none match.
+	 */
+	lookup_directory_modules(path: string): Array<Module> | null {
+		const prefix = path + '/';
+		let result: Array<Module> | null = null;
+		for (const m of this.modules_sorted) {
+			if (m.path.startsWith(prefix)) {
+				(result ??= []).push(m);
+			}
+		}
+		return result;
+	}
+
+	/**
 	 * Search declarations by query string with multi-term AND logic.
 	 */
 	search_declarations(query: string): Array<Declaration> {

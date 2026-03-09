@@ -4466,6 +4466,19 @@
 								]
 							},
 							{
+								"name": "lookup_directory_modules",
+								"kind": "function",
+								"doc_comment": "Look up modules within a directory prefix.\nReturns modules whose paths start with `path + \"/\"`.",
+								"type_signature": "(path: string): Module[]",
+								"return_type": "Module[]",
+								"parameters": [
+									{
+										"name": "path",
+										"type": "string"
+									}
+								]
+							},
+							{
 								"name": "search_declarations",
 								"kind": "function",
 								"doc_comment": "Search declarations by query string with multi-term AND logic.",
@@ -4483,7 +4496,7 @@
 					{
 						"name": "library_context",
 						"kind": "variable",
-						"source_line": 118,
+						"source_line": 127,
 						"type_signature": "{ get: (error_message?: string | undefined) => Library; get_maybe: () => Library | undefined; set: (value: Library) => Library; }"
 					}
 				],
