@@ -1,5 +1,11 @@
 # @fuzdev/fuz_ui
 
+## 0.187.1
+
+### Patch Changes
+
+- fix and improve `ApiModule` ([e9ffc67](https://github.com/fuzdev/fuz_ui/commit/e9ffc67))
+
 ## 0.187.0
 
 ### Minor Changes
