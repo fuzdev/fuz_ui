@@ -4406,7 +4406,12 @@
 								"doc_comment": "All declarations across all modules as a flat array."
 							},
 							{
-								"name": "declaration_map",
+								"name": "module_by_path",
+								"kind": "variable",
+								"doc_comment": "Module lookup map by path. Provides O(1) lookup."
+							},
+							{
+								"name": "declaration_by_name",
 								"kind": "variable",
 								"doc_comment": "Declaration lookup map by name. Provides O(1) lookup."
 							},
@@ -4427,50 +4432,11 @@
 								]
 							},
 							{
-								"name": "lookup_declaration",
-								"kind": "function",
-								"doc_comment": "Look up a declaration by name.",
-								"type_signature": "(name: string): Declaration | undefined",
-								"return_type": "Declaration | undefined",
-								"parameters": [
-									{
-										"name": "name",
-										"type": "string"
-									}
-								]
-							},
-							{
-								"name": "has_declaration",
-								"kind": "function",
-								"doc_comment": "Check if a declaration exists.",
-								"type_signature": "(name: string): boolean",
-								"return_type": "boolean",
-								"parameters": [
-									{
-										"name": "name",
-										"type": "string"
-									}
-								]
-							},
-							{
-								"name": "lookup_module",
-								"kind": "function",
-								"doc_comment": "Look up a module by its canonical path.",
-								"type_signature": "(path: string): Module | undefined",
-								"return_type": "Module | undefined",
-								"parameters": [
-									{
-										"name": "path",
-										"type": "string"
-									}
-								]
-							},
-							{
 								"name": "lookup_directory_modules",
 								"kind": "function",
-								"doc_comment": "Look up modules within a directory prefix.\nReturns modules whose paths start with `path + \"/\"`.",
-								"type_signature": "(path: string): Module[]",
-								"return_type": "Module[]",
+								"doc_comment": "Look up modules within a directory prefix.\nReturns modules whose paths start with `path + \"/\"`, or `null` if none match.",
+								"type_signature": "(path: string): Module[] | null",
+								"return_type": "Module[] | null",
 								"parameters": [
 									{
 										"name": "path",
@@ -4496,7 +4462,7 @@
 					{
 						"name": "library_context",
 						"kind": "variable",
-						"source_line": 127,
+						"source_line": 117,
 						"type_signature": "{ get: (error_message?: string | undefined) => Library; get_maybe: () => Library | undefined; set: (value: Library) => Library; }"
 					}
 				],
