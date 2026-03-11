@@ -1948,12 +1948,12 @@
 				]
 			},
 			{
-				"path": "csp_of_ryanatkn.ts",
+				"path": "csp_of_fuzdev.ts",
 				"declarations": [
 					{
-						"name": "csp_trusted_sources_of_ryanatkn",
+						"name": "csp_trusted_sources_of_fuzdev",
 						"kind": "variable",
-						"doc_comment": "Trusted sources owned by ryanatkn.",
+						"doc_comment": "Trusted sources owned by fuz.dev.",
 						"source_line": 6,
 						"type_signature": "CspSourceSpec[]"
 					}
