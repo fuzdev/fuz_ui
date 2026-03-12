@@ -1,5 +1,14 @@
 # @fuzdev/fuz_ui
 
+## 0.189.0
+
+### Minor Changes
+
+- rename `ThemeState` from `Themer` ([f6a99d1](https://github.com/fuzdev/fuz_ui/commit/f6a99d1))
+- rename `ThemeRoot` from `Themed` ([9d7faa3](https://github.com/fuzdev/fuz_ui/commit/9d7faa3))
+- rename `tagline` from `motto` ([553a54d](https://github.com/fuzdev/fuz_ui/commit/553a54d))
+- change some APIs to getters to improve reactivity ([#118](https://github.com/fuzdev/fuz_ui/pull/118))
+
 ## 0.188.0
 
 ### Minor Changes
