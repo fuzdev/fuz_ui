@@ -45,8 +45,8 @@ export const tomes: Array<Tome> = [
 		category: 'guide',
 		Component: theming,
 		related_tomes: ['ThemeRoot'],
-		related_modules: ['themer.svelte.ts'],
-		related_declarations: ['ThemeRoot', 'Themer'],
+		related_modules: ['theme_state.svelte.ts'],
+		related_declarations: ['ThemeRoot', 'ThemeState'],
 	},
 	{
 		name: 'api',

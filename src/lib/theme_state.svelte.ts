@@ -5,35 +5,35 @@ import {BROWSER} from 'esm-env';
 import {create_context} from './context_helpers.js';
 import {load_from_storage, save_to_storage} from './storage.js';
 
-export interface ThemerJson {
+export interface ThemeStateJson {
 	theme: Theme;
 	color_scheme: ColorScheme;
 }
 
-export type ThemerOptions = Partial<ThemerJson>;
+export type ThemeStateOptions = Partial<ThemeStateJson>;
 
-export class Themer {
+export class ThemeState {
 	theme: Theme = $state()!;
 	color_scheme: ColorScheme = $state()!;
 
-	constructor(options?: ThemerOptions) {
+	constructor(options?: ThemeStateOptions) {
 		const theme = options?.theme ?? default_themes[0]!;
 		const color_scheme = options?.color_scheme ?? 'auto';
 		if (parse_color_scheme(color_scheme) === null) {
 			throw Error('unknown color scheme: ' + color_scheme);
 		}
 		this.theme = theme;
-		this.color_scheme = color_scheme; // TODO `resolved_color_scheme` if auto? users could then do different things based on the final value - would not be added to `ThemerJson`
+		this.color_scheme = color_scheme; // TODO `resolved_color_scheme` if auto? users could then do different things based on the final value - would not be added to `ThemeStateJson`
 	}
 
-	toJSON(): ThemerJson {
+	toJSON(): ThemeStateJson {
 		return {
 			theme: this.theme,
 			color_scheme: this.color_scheme,
 		};
 	}
 }
-export const themer_context = create_context<() => Themer>();
+export const theme_state_context = create_context<() => ThemeState>();
 
 export const sync_color_scheme = (color_scheme: ColorScheme | null): void => {
 	if (!BROWSER) return;

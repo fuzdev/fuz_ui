@@ -131,7 +131,7 @@ Helper file prefixes: `ts_*` (TypeScript API), `tsdoc_*` (JSDoc parsing),
 ### Core systems
 
 - `tome.ts` - documentation system types and utilities
-- `themer.svelte.ts` - theme and color scheme management (Themer class)
+- `theme_state.svelte.ts` - theme and color scheme management (ThemeState class)
 - `context_helpers.ts` - Svelte context utilities (`create_context()`)
 - `mdz.ts` - minimal markdown dialect parser and renderer
 
@@ -252,7 +252,7 @@ All contexts use the standardized pattern via `context_helpers.ts`:
 
 **Core:**
 
-- `themer_context` - theme state (Themer class)
+- `theme_state_context` - theme state (ThemeState class)
 - `library_context` - library API metadata (Library class)
 
 **Documentation:**

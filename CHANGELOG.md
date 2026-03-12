@@ -553,7 +553,7 @@
 - fix inline theme script with CSP ([#59](https://github.com/ryanatkn/fuz/pull/59))
   - remove `create_theme_style_html`
   - change `COLOR_SCHEME_STORAGE_KEY` value to have a prefix, `'fuz:color-scheme'`
-  - rename `themer.svelte.ts` from `theme.svelte.ts`
+  - rename `theme_state.svelte.ts` from `theme.svelte.ts`
   - add `storage.ts` localStorage helpers
 
 ### Patch Changes
@@ -1132,7 +1132,7 @@
 
 - rework `ThemeRoot.svelte` ([#38](https://github.com/ryanatkn/fuz/pull/38))
   - move some helpers from `ThemeRoot.svelte` to `theme.ts`
-  - replace `get_theme` and `get_color_scheme` with `get_themer`
+  - replace `get_theme` and `get_color_scheme` with `get_theme_state`
   - remove `ThemeRootScope.svelte` for now because it's too broken
 
 ### Patch Changes
@@ -1751,7 +1751,7 @@
 
 ### Minor Changes
 
-- remove unused `ThemerParams` ([305546f](https://github.com/ryanatkn/fuz/commit/305546f))
+- remove unused `ThemeStateParams` ([305546f](https://github.com/ryanatkn/fuz/commit/305546f))
 
 ### Patch Changes
 

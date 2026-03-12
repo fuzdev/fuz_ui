@@ -4,12 +4,12 @@
 	import {default_themes} from '@fuzdev/fuz_css/themes.js';
 	import type {SvelteHTMLElements} from 'svelte/elements';
 
-	import {themer_context} from './themer.svelte.js';
+	import {theme_state_context} from './theme_state.svelte.js';
 
-	const get_themer = themer_context.get();
+	const get_theme_state = theme_state_context.get();
 
 	const {
-		selected_theme = get_themer(),
+		selected_theme = get_theme_state(),
 		themes = default_themes,
 		enable_editing = false,
 		select = (theme) => {

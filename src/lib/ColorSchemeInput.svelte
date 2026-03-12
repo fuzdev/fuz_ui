@@ -3,12 +3,12 @@
 	import {color_schemes, type ColorScheme} from '@fuzdev/fuz_css/theme.js';
 	import type {SvelteHTMLElements} from 'svelte/elements';
 
-	import {themer_context} from './themer.svelte.js';
+	import {theme_state_context} from './theme_state.svelte.js';
 
-	const get_themer = themer_context.get();
+	const get_theme_state = theme_state_context.get();
 
 	const {
-		value = get_themer(),
+		value = get_theme_state(),
 		...rest
 	}: SvelteHTMLElements['menu'] & {
 		value?: {color_scheme: ColorScheme};

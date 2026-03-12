@@ -870,7 +870,7 @@
 						"source_line": 1
 					}
 				],
-				"dependencies": ["themer.svelte.ts"]
+				"dependencies": ["theme_state.svelte.ts"]
 			},
 			{
 				"path": "constants.ts",
@@ -913,7 +913,7 @@
 					"library.svelte.ts",
 					"mdz_components.ts",
 					"style_variable_helpers.svelte.ts",
-					"themer.svelte.ts",
+					"theme_state.svelte.ts",
 					"tome.ts"
 				]
 			},
@@ -7026,7 +7026,7 @@
 						]
 					}
 				],
-				"dependents": ["themer.svelte.ts"]
+				"dependents": ["theme_state.svelte.ts"]
 			},
 			{
 				"path": "style_variable_helpers.svelte.ts",
@@ -7417,56 +7417,13 @@
 				"dependents": ["Dialog.svelte"]
 			},
 			{
-				"path": "ThemeInput.svelte",
+				"path": "theme_state.svelte.ts",
 				"declarations": [
 					{
-						"name": "ThemeInput",
-						"kind": "component",
-						"props": [
-							{
-								"name": "selected_theme",
-								"type": "{theme: Theme}",
-								"optional": true
-							},
-							{
-								"name": "themes",
-								"type": "Array<Theme>",
-								"optional": true
-							},
-							{
-								"name": "enable_editing",
-								"type": "boolean",
-								"optional": true
-							},
-							{
-								"name": "select",
-								"type": "((theme: Theme) => void | boolean) | null",
-								"optional": true
-							},
-							{
-								"name": "onselect",
-								"type": "(theme: Theme) => void",
-								"optional": true
-							},
-							{
-								"name": "onedit",
-								"type": "(theme: Theme) => void",
-								"optional": true
-							}
-						],
-						"source_line": 1
-					}
-				],
-				"dependencies": ["themer.svelte.ts"]
-			},
-			{
-				"path": "themer.svelte.ts",
-				"declarations": [
-					{
-						"name": "ThemerJson",
+						"name": "ThemeStateJson",
 						"kind": "type",
 						"source_line": 8,
-						"type_signature": "ThemerJson",
+						"type_signature": "ThemeStateJson",
 						"properties": [
 							{
 								"name": "theme",
@@ -7481,13 +7438,13 @@
 						]
 					},
 					{
-						"name": "ThemerOptions",
+						"name": "ThemeStateOptions",
 						"kind": "type",
 						"source_line": 13,
-						"type_signature": "Partial<ThemerJson>"
+						"type_signature": "Partial<ThemeStateJson>"
 					},
 					{
-						"name": "Themer",
+						"name": "ThemeState",
 						"kind": "class",
 						"source_line": 15,
 						"members": [
@@ -7504,11 +7461,11 @@
 							{
 								"name": "constructor",
 								"kind": "constructor",
-								"type_signature": "(options?: Partial<ThemerJson> | undefined): Themer",
+								"type_signature": "(options?: Partial<ThemeStateJson> | undefined): ThemeState",
 								"parameters": [
 									{
 										"name": "options",
-										"type": "Partial<ThemerJson> | undefined",
+										"type": "Partial<ThemeStateJson> | undefined",
 										"optional": true
 									}
 								]
@@ -7516,17 +7473,17 @@
 							{
 								"name": "toJSON",
 								"kind": "function",
-								"type_signature": "(): ThemerJson",
-								"return_type": "ThemerJson",
+								"type_signature": "(): ThemeStateJson",
+								"return_type": "ThemeStateJson",
 								"parameters": []
 							}
 						]
 					},
 					{
-						"name": "themer_context",
+						"name": "theme_state_context",
 						"kind": "variable",
 						"source_line": 36,
-						"type_signature": "{ get: (error_message?: string | undefined) => () => Themer; get_maybe: () => (() => Themer) | undefined; set: (value: () => Themer) => () => Themer; }"
+						"type_signature": "{ get: (error_message?: string | undefined) => () => ThemeState; get_maybe: () => (() => ThemeState) | undefined; set: (value: () => ThemeState) => () => ThemeState; }"
 					},
 					{
 						"name": "sync_color_scheme",
@@ -7632,6 +7589,49 @@
 				"dependents": ["ColorSchemeInput.svelte", "ThemeInput.svelte", "ThemeRoot.svelte"]
 			},
 			{
+				"path": "ThemeInput.svelte",
+				"declarations": [
+					{
+						"name": "ThemeInput",
+						"kind": "component",
+						"props": [
+							{
+								"name": "selected_theme",
+								"type": "{theme: Theme}",
+								"optional": true
+							},
+							{
+								"name": "themes",
+								"type": "Array<Theme>",
+								"optional": true
+							},
+							{
+								"name": "enable_editing",
+								"type": "boolean",
+								"optional": true
+							},
+							{
+								"name": "select",
+								"type": "((theme: Theme) => void | boolean) | null",
+								"optional": true
+							},
+							{
+								"name": "onselect",
+								"type": "(theme: Theme) => void",
+								"optional": true
+							},
+							{
+								"name": "onedit",
+								"type": "(theme: Theme) => void",
+								"optional": true
+							}
+						],
+						"source_line": 1
+					}
+				],
+				"dependencies": ["theme_state.svelte.ts"]
+			},
+			{
 				"path": "ThemeRoot.svelte",
 				"declarations": [
 					{
@@ -7669,21 +7669,21 @@
 								"optional": true
 							},
 							{
-								"name": "themer",
-								"type": "Themer",
+								"name": "theme_state",
+								"type": "ThemeState",
 								"optional": true,
 								"description": "A reactive class containing the selected theme and color scheme.\nDefaults to the first default theme."
 							},
 							{
 								"name": "children",
-								"type": "Snippet<[themer: Themer, style: string | null, theme_style_html: string | null]>"
+								"type": "Snippet<\n\t\t\t[theme_state: ThemeState, style: string | null, theme_style_html: string | null]\n\t\t>"
 							}
 						],
 						"source_line": 1
 					}
 				],
-				"module_comment": "`ThemeRoot` adds global color scheme and theme support to the page.\nIt also sets in the Svelte context a reactive `themer` containing the theme and color scheme.",
-				"dependencies": ["rune_helpers.svelte.ts", "themer.svelte.ts"]
+				"module_comment": "`ThemeRoot` adds global color scheme and theme support to the page.\nIt also sets in the Svelte context a reactive `theme_state` containing the theme and color scheme.",
+				"dependencies": ["rune_helpers.svelte.ts", "theme_state.svelte.ts"]
 			},
 			{
 				"path": "tome.ts",

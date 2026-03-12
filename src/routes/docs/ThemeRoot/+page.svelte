@@ -13,7 +13,7 @@
 	import ThemeInput from '$lib/ThemeInput.svelte';
 	import ThemeForm from '$routes/ThemeForm.svelte';
 	import MdnLink from '$lib/MdnLink.svelte';
-	import {themer_context} from '$lib/themer.svelte.js';
+	import {theme_state_context} from '$lib/theme_state.svelte.js';
 
 	const LIBRARY_ITEM_NAME = 'ThemeRoot';
 
@@ -21,8 +21,8 @@
 
 	const themes = default_themes.slice();
 
-	const get_themer = themer_context.get();
-	const themer = $derived(get_themer());
+	const get_theme_state = theme_state_context.get();
+	const theme_state = $derived(get_theme_state());
 
 	// let show_create_theme_dialog = false;
 	let editing_theme: null | Theme = $state(null);
@@ -70,33 +70,34 @@
 			<aside>
 				<p>
 					<code>ThemeRoot</code> is designed to wrap every page at the top level so it can provide
-					the selected theme and color scheme in the Svelte context via a <code>themer</code>
-					instance. It works without children, but <code>themer_context.get()</code> will fail
+					the selected theme and color scheme in the Svelte context via a <code>theme_state</code>
+					instance. It works without children, but <code>theme_state_context.get()</code> will fail
 					unless you call
-					<code>themer_context.set()</code> yourself.
+					<code>theme_state_context.set()</code> yourself.
 				</p>
 				<p>
-					This lets you call <code>themer_context.get()</code> to access the reactive
-					<code>Themer</code>
+					This lets you call <code>theme_state_context.get()</code> to access the reactive
+					<code>ThemeState</code>
 					class instance anywhere in your code. The helper components on this page like
 					<code>ColorSchemeInput</code> and <code>ThemeInput</code> use it so they don't require a
-					<code>themer</code> prop.
+					<code>theme_state</code> prop.
 				</p>
 				<p>
 					If you don't don't want to wrap everything in <code>ThemeRoot</code> for some reason, you
-					can set a <code>Themer</code> in context manually. It must be the same reference as the
+					can set a <code>ThemeState</code> in context manually. It must be the same reference as
+					the
 					<code>ThemeRoot</code> prop:
 				</p>
 				<Code
 					content={'<' +
 						`script>
-	const themer = new Themer(...);
-	set_themer(themer);
+	const theme_state = new ThemeState(...);
+	set_theme_state(theme_state);
 </script>
-<ThemeRoot {themer} />
+<ThemeRoot {theme_state} />
 <!--
 	sibling components not nested in \`ThemeRoot\`
-	can now call \`themer_context.get()\`
+	can now call \`theme_state_context.get()\`
 -->`}
 				/>
 			</aside>
@@ -122,7 +123,7 @@
 		<!-- TODO this is bugged on page load, auto is SSR'd but doesn't update here, can we fix? Should Svelte prefer the client value? -->
 		<Code
 			content={`<ColorSchemeInput\n\tvalue={{color_scheme: ${
-				"'" + JSON.stringify(themer.color_scheme).replace(/"/g, '') + "'"
+				"'" + JSON.stringify(theme_state.color_scheme).replace(/"/g, '') + "'"
 			}}}\n\tonchange={...}\n/>`}
 		/>
 		<p>
@@ -137,11 +138,12 @@
 				</p>
 				<p>
 					By default, <code>ColorSchemeInput</code> works with <code>ThemeRoot</code>'s
-					<code>themer</code> in context to save the user's preference to <code>localStorage</code>.
-					To customize this behavior, pass your own <code>value</code> or <code>onchange</code>
-					props. The <code>value</code> defaults to <code>themer_context.get()</code> so technically
-					you could call <code>set_themer</code>, but it's unlikely you want to override it in
-					context.
+					<code>theme_state</code> in context to save the user's preference to
+					<code>localStorage</code>. To customize this behavior, pass your own <code>value</code> or
+					<code>onchange</code>
+					props. The <code>value</code> defaults to <code>theme_state_context.get()</code> so
+					technically you could call <code>set_theme_state</code>, but it's unlikely you want to
+					override it in context.
 				</p>
 			</aside>
 		</Details>
@@ -194,32 +196,32 @@
 		/>
 		<p>
 			<code>ThemeRoot</code> can be customized with the the nonreactive prop
-			<code>themer</code>:
+			<code>theme_state</code>:
 		</p>
 		<Code
 			lang="ts"
-			content={`import {Themer} from '@fuzdev/fuz_ui/themer.svelte.js';\nconst themer = new Themer(...);`}
+			content={`import {ThemeState} from '@fuzdev/fuz_ui/theme_state.svelte.js';\nconst theme_state = new ThemeState(...);`}
 		/>
 		<Code
-			content={`<ThemeRoot {themer}>
+			content={`<ThemeRoot {theme_state}>
 	{@render children()}
 </ThemeRoot>`}
 		/>
 		<aside>
-			The <code>themer</code> prop is not reactive because it's put in Svelte context without a wrapper.
+			The <code>theme_state</code> prop is not reactive because it's put in Svelte context without a wrapper.
 			This could be fixed, let me know if you have a usecase.
 		</aside>
 		<p>
-			<code>ThemeRoot</code> sets the <code>themer</code> in the Svelte context:
+			<code>ThemeRoot</code> sets the <code>theme_state</code> in the Svelte context:
 		</p>
 		<Code
 			lang="ts"
 			content={`// get values from the Svelte context provided by
 // the nearest \`ThemeRoot\` ancestor:
-import {themer_context} from '@fuzdev/fuz_ui/themer.svelte.js';
-const themer = themer_context.get();
-themer.theme.name; // '${themer.theme.name}'
-themer.color_scheme; // '${themer.color_scheme}'`}
+import {theme_state_context} from '@fuzdev/fuz_ui/theme_state.svelte.js';
+const theme_state = theme_state_context.get();
+theme_state.theme.name; // '${theme_state.theme.name}'
+theme_state.color_scheme; // '${theme_state.color_scheme}'`}
 		/>
 		<p>
 			For a more complete example, see <a href="https://github.com/fuzdev/fuz_template"
