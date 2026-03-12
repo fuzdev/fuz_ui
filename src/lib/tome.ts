@@ -30,13 +30,13 @@ export const to_tome_pathname = (
 	return resolve((hash ? path + ensure_start(hash, '#') : path) as any);
 };
 
-export const tomes_context = create_context<Map<string, Tome>>();
+export const tomes_context = create_context<() => Map<string, Tome>>();
 
 export const get_tome_by_name = (name: string): Tome => {
-	const tomes = tomes_context.get();
-	const tome = tomes.get(name);
+	const get_tomes = tomes_context.get();
+	const tome = get_tomes().get(name);
 	if (!tome) throw Error(`unable to find tome "${name}"`);
 	return tome;
 };
 
-export const tome_context = create_context<Tome>();
+export const tome_context = create_context<() => Tome>();

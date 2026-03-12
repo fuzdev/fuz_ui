@@ -20,13 +20,15 @@
 		external_rel?: string;
 	} = $props();
 
-	const contextmenu = contextmenu_context.get();
+	const get_contextmenu = contextmenu_context.get();
+	const contextmenu = $derived(get_contextmenu());
 
 	let anchor_el: HTMLAnchorElement | undefined = $state();
 
 	// Register with state management for keyboard navigation
 	// When activated via keyboard, programmatically click the anchor to trigger navigation
-	const entry = contextmenu.add_entry(
+	// add_entry registers on the current instance at init — not reactive to contextmenu getter changes
+	const entry = get_contextmenu().add_entry(
 		() => () => {
 			if (anchor_el) anchor_el.click();
 		},

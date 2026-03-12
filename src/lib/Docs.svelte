@@ -27,8 +27,8 @@
 	} = $props();
 
 	// TODO this API is messy, inconsistent usage of props/context
-	const tomes_by_name = new Map(tomes.map((t) => [t.name, t]));
-	tomes_context.set(tomes_by_name);
+	const tomes_by_name = $derived(new Map(tomes.map((t) => [t.name, t])));
+	tomes_context.set(() => tomes_by_name);
 
 	// TODO @many dialog navs - this is messy to satisfy SSR with the current design that puts the secondary nav in a dialog
 	const TERTIARY_NAV_BREAKPOINT = 1000;

@@ -17,9 +17,11 @@
 		disabled?: boolean;
 	} = $props();
 
-	const contextmenu = contextmenu_context.get();
+	const get_contextmenu = contextmenu_context.get();
+	const contextmenu = $derived(get_contextmenu());
 
-	const entry = contextmenu.add_entry(
+	// add_entry registers on the current instance at init — not reactive to contextmenu getter changes
+	const entry = get_contextmenu().add_entry(
 		() => run,
 		() => disabled_prop,
 	);

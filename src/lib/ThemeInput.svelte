@@ -6,8 +6,10 @@
 
 	import {themer_context} from './themer.svelte.js';
 
+	const get_themer = themer_context.get();
+
 	const {
-		selected_theme = themer_context.get(),
+		selected_theme = get_themer(),
 		themes = default_themes,
 		enable_editing = false,
 		select = (theme) => {

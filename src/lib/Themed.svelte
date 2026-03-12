@@ -26,7 +26,6 @@
 		load_theme = default_load_theme,
 		save_theme = default_save_theme,
 		theme_fallback,
-		// TODO make reactive? by passing getters as options?
 		themer = new Themer({theme: load_theme(theme_fallback), color_scheme: load_color_scheme()}),
 		children,
 	}: {
@@ -39,9 +38,6 @@
 		/**
 		 * A reactive class containing the selected theme and color scheme.
 		 * Defaults to the first default theme.
-		 * The class reference is not reactive
-		 * because it's set in context without a wrapper, use `{#key theme}` if it changes.
-		 * @nonreactive
 		 */
 		themer?: Themer;
 		children: Snippet<[themer: Themer, style: string | null, theme_style_html: string | null]>;
@@ -67,7 +63,7 @@
 	 * @module
 	 */
 
-	themer_context.set(themer);
+	themer_context.set(() => themer);
 
 	const selected_theme_name = $derived(themer.theme.name);
 	const style = $derived(

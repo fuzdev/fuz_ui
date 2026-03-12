@@ -15,13 +15,15 @@
 		children: Snippet;
 	} = $props();
 
-	const contextmenu = contextmenu_context.get();
+	const get_contextmenu = contextmenu_context.get();
+	const contextmenu = $derived(get_contextmenu());
 
-	const submenu = contextmenu.add_submenu();
+	// add_submenu registers on the current instance at init — not reactive to contextmenu getter changes
+	const submenu = get_contextmenu().add_submenu();
 
-	const {layout} = contextmenu;
+	const {layout} = $derived(contextmenu);
 
-	const selected = $derived(submenu.selected);
+	const {selected} = $derived(submenu);
 
 	let el: HTMLElement | undefined = $state();
 
