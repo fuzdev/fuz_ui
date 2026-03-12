@@ -10,7 +10,7 @@
 		library,
 		repo_name,
 		logo,
-		motto,
+		tagline,
 		description,
 		npm_url,
 		homepage_url,
@@ -19,7 +19,7 @@
 		library: Library;
 		repo_name?: Snippet<[repo_name: string]>;
 		logo?: Snippet<[logo_url: string, logo_alt: string]>;
-		motto?: Snippet<[motto: string, glyph?: string]>;
+		tagline?: Snippet<[tagline: string, glyph?: string]>;
 		description?: Snippet<[description: string, glyph?: string]>;
 		npm_url?: Snippet<[npm_url: string]>;
 		homepage_url?: Snippet<[homepage_url: string]>;
@@ -51,12 +51,12 @@
 			{/if}
 		{/if}
 	</header>
-	{#if package_json.motto}
-		{#if motto}
-			{@render motto(package_json.motto, package_json.glyph)}
+	{#if package_json.tagline}
+		{#if tagline}
+			{@render tagline(package_json.tagline, package_json.glyph)}
 		{:else}
 			<p class="panel py_md px_xl">
-				{package_json.motto}
+				{package_json.tagline}
 				{package_json.glyph}
 			</p>
 		{/if}
@@ -67,7 +67,7 @@
 		{:else}
 			<p class="text-align:center">
 				{package_json.description}
-				{#if !package_json.motto}
+				{#if !package_json.tagline}
 					{package_json.glyph}
 				{/if}
 			</p>

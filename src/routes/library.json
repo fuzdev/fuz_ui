@@ -13,7 +13,7 @@
 		"name": "@fuzdev/fuz_ui",
 		"version": "0.188.0",
 		"description": "Svelte UI library",
-		"motto": "friendly user zystem",
+		"tagline": "friendly user zystem",
 		"glyph": "🧶",
 		"logo": "logo.svg",
 		"logo_alt": "a friendly brown spider facing you",
@@ -92,10 +92,11 @@
 			"@changesets/changelog-git": "^0.2.1",
 			"@fuzdev/fuz_code": "^0.45.1",
 			"@fuzdev/fuz_css": "^0.55.0",
-			"@fuzdev/fuz_util": "^0.53.4",
+			"@fuzdev/fuz_util": "^0.54.0",
 			"@fuzdev/gro": "^0.197.0",
 			"@jridgewell/trace-mapping": "^0.3.31",
 			"@ryanatkn/eslint-config": "^0.10.1",
+			"@sveltejs/acorn-typescript": "^1.0.9",
 			"@sveltejs/adapter-static": "^3.0.10",
 			"@sveltejs/kit": "^2.53.4",
 			"@sveltejs/package": "^2.5.7",
@@ -4155,12 +4156,12 @@
 						"kind": "function",
 						"doc_comment": "Generate the library.json and library.ts file contents.\nParses at generation time so runtime only needs the pre-computed result.\n\nReturns JSON + .ts wrapper because:\n- JSON is natively importable by Node.js and Vite without TypeScript loaders\n- Works in CI environments that don't have TS compilation\n- The .ts wrapper validates with zod and exports with proper types\n  (JSON imports get widened types like `string` instead of literal unions)",
 						"source_line": 38,
-						"type_signature": "(package_json: { [x: string]: unknown; name: string; version: string; private?: boolean | undefined; description?: string | undefined; motto?: string | undefined; glyph?: string | undefined; logo?: string | undefined; ... 23 more ...; exports?: string | ... 2 more ... | undefined; }, source_json: { ...; }): LibraryOutputResult",
+						"type_signature": "(package_json: { [x: string]: unknown; name: string; version: string; private?: boolean | undefined; description?: string | undefined; tagline?: string | undefined; glyph?: string | undefined; logo?: string | undefined; ... 23 more ...; exports?: string | ... 2 more ... | undefined; }, source_json: { ...; }): LibraryOutputResult",
 						"return_type": "LibraryOutputResult",
 						"parameters": [
 							{
 								"name": "package_json",
-								"type": "{ [x: string]: unknown; name: string; version: string; private?: boolean | undefined; description?: string | undefined; motto?: string | undefined; glyph?: string | undefined; logo?: string | undefined; ... 23 more ...; exports?: string | ... 2 more ... | undefined; }"
+								"type": "{ [x: string]: unknown; name: string; version: string; private?: boolean | undefined; description?: string | undefined; tagline?: string | undefined; glyph?: string | undefined; logo?: string | undefined; ... 23 more ...; exports?: string | ... 2 more ... | undefined; }"
 							},
 							{
 								"name": "source_json",
@@ -4522,7 +4523,7 @@
 								"optional": true
 							},
 							{
-								"name": "motto",
+								"name": "tagline",
 								"type": "Snippet<[description: string]>",
 								"optional": true
 							},
@@ -4575,8 +4576,8 @@
 								"optional": true
 							},
 							{
-								"name": "motto",
-								"type": "Snippet<[motto: string, glyph?: string]>",
+								"name": "tagline",
+								"type": "Snippet<[tagline: string, glyph?: string]>",
 								"optional": true
 							},
 							{
@@ -6687,13 +6688,13 @@
 						"kind": "function",
 						"doc_comment": "Check if a package is published to npm.\n\nA package is considered published if:\n- It's not marked as private\n- It has exports defined\n- Its version is not the initial '0.0.1'",
 						"source_line": 121,
-						"type_signature": "(package_json: { [x: string]: unknown; name: string; version: string; private?: boolean | undefined; description?: string | undefined; motto?: string | undefined; glyph?: string | undefined; logo?: string | undefined; ... 23 more ...; exports?: string | ... 2 more ... | undefined; }): boolean",
+						"type_signature": "(package_json: { [x: string]: unknown; name: string; version: string; private?: boolean | undefined; description?: string | undefined; tagline?: string | undefined; glyph?: string | undefined; logo?: string | undefined; ... 23 more ...; exports?: string | ... 2 more ... | undefined; }): boolean",
 						"return_type": "boolean",
 						"return_description": "True if the package appears to be published",
 						"parameters": [
 							{
 								"name": "package_json",
-								"type": "{ [x: string]: unknown; name: string; version: string; private?: boolean | undefined; description?: string | undefined; motto?: string | undefined; glyph?: string | undefined; logo?: string | undefined; ... 23 more ...; exports?: string | ... 2 more ... | undefined; }",
+								"type": "{ [x: string]: unknown; name: string; version: string; private?: boolean | undefined; description?: string | undefined; tagline?: string | undefined; glyph?: string | undefined; logo?: string | undefined; ... 23 more ...; exports?: string | ... 2 more ... | undefined; }",
 								"description": "The package.json object to check"
 							}
 						]
