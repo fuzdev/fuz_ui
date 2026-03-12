@@ -219,7 +219,8 @@
 			content={`// get values from the Svelte context provided by
 // the nearest \`ThemeRoot\` ancestor:
 import {theme_state_context} from '@fuzdev/fuz_ui/theme_state.svelte.js';
-const theme_state = theme_state_context.get();
+const get_theme_state = theme_state_context.get();
+const theme_state = $derived(get_theme_state());
 theme_state.theme.name; // '${theme_state.theme.name}'
 theme_state.color_scheme; // '${theme_state.color_scheme}'`}
 		/>
