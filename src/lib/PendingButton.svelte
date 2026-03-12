@@ -15,10 +15,7 @@
 		...rest
 	}: SvelteHTMLElements['button'] & {
 		pending: boolean;
-		onclick: () => void;
 		running?: boolean;
-		title?: string;
-		disabled?: boolean;
 		animation?: Snippet;
 		children: Snippet;
 	} = $props();

@@ -6838,21 +6838,7 @@
 								"type": "boolean"
 							},
 							{
-								"name": "onclick",
-								"type": "() => void"
-							},
-							{
 								"name": "running",
-								"type": "boolean",
-								"optional": true
-							},
-							{
-								"name": "title",
-								"type": "string",
-								"optional": true
-							},
-							{
-								"name": "disabled",
 								"type": "boolean",
 								"optional": true
 							},
