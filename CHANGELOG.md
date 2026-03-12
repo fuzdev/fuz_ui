@@ -1,5 +1,11 @@
 # @fuzdev/fuz_ui
 
+## 0.189.1
+
+### Patch Changes
+
+- loosen prop types for `PendingButton` ([fe5e456](https://github.com/fuzdev/fuz_ui/commit/fe5e456))
+
 ## 0.189.0
 
 ### Minor Changes
