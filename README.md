@@ -59,7 +59,7 @@ import '@fuzdev/fuz_css/theme.css'; // or bring your own
 import '$routes/fuz.css';
 
 // then import Fuz Svelte components:
-import Themed from '@fuzdev/fuz_ui/Themed.svelte';
+import ThemeRoot from '@fuzdev/fuz_ui/ThemeRoot.svelte';
 
 // and Fuz TypeScript modules:
 import {type Theme, themer_context} from '@fuzdev/fuz_ui/themer.svelte.js';

@@ -43,11 +43,11 @@
 		children: Snippet<[themer: Themer, style: string | null, theme_style_html: string | null]>;
 	} = $props();
 
-	// In dev mode only, warn about misuse of the singleton `Themed`.
+	// In dev mode only, warn about misuse of the singleton `ThemeRoot`.
 	if (DEV) {
 		onMount(() => {
 			if (mounted) {
-				console.warn('more than one Themed was mounted'); // eslint-disable-line no-console
+				console.warn('more than one ThemeRoot was mounted'); // eslint-disable-line no-console
 			}
 			mounted = true;
 			return () => {
@@ -57,7 +57,7 @@
 	}
 
 	/**
-	 * `Themed` adds global color scheme and theme support to the page.
+	 * `ThemeRoot` adds global color scheme and theme support to the page.
 	 * It also sets in the Svelte context a reactive `themer` containing the theme and color scheme.
 	 *
 	 * @module

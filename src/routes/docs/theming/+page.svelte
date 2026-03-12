@@ -14,7 +14,7 @@
 		<p>
 			Fuz bases its theme support on <a href="https://css.fuz.dev/">fuz_css</a>, which is based on
 			semantic HTML and <MdnLink path="Web/CSS/--*">CSS custom properties</MdnLink>. For usage docs
-			see <TomeLink name="Themed" />.
+			see <TomeLink name="ThemeRoot" />.
 		</p>
 	</section>
 </TomeContent>

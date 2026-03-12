@@ -1,6 +1,6 @@
 import type {Tome} from '$lib/tome.js';
 import introduction from '$routes/docs/introduction/+page.svelte';
-import Themed from '$routes/docs/Themed/+page.svelte';
+import ThemeRoot from '$routes/docs/ThemeRoot/+page.svelte';
 import PendingAnimation from '$routes/docs/PendingAnimation/+page.svelte';
 import PendingButton from '$routes/docs/PendingButton/+page.svelte';
 import LibrarySummary from '$routes/docs/LibrarySummary/+page.svelte';
@@ -44,9 +44,9 @@ export const tomes: Array<Tome> = [
 		name: 'theming',
 		category: 'guide',
 		Component: theming,
-		related_tomes: ['Themed'],
+		related_tomes: ['ThemeRoot'],
 		related_modules: ['themer.svelte.ts'],
-		related_declarations: ['Themed', 'Themer'],
+		related_declarations: ['ThemeRoot', 'Themer'],
 	},
 	{
 		name: 'api',
@@ -225,11 +225,11 @@ export const tomes: Array<Tome> = [
 		related_declarations: ['Teleport'],
 	},
 	{
-		name: 'Themed',
+		name: 'ThemeRoot',
 		category: 'components',
-		Component: Themed,
+		Component: ThemeRoot,
 		related_tomes: ['theming'],
 		related_modules: [],
-		related_declarations: ['Themed'],
+		related_declarations: ['ThemeRoot'],
 	},
 ];

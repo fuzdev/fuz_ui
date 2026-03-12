@@ -538,7 +538,7 @@
 
 ### Minor Changes
 
-- add the `theming` tome and move the `Themed` tome to components ([54a8a95](https://github.com/ryanatkn/fuz/commit/54a8a95))
+- add the `theming` tome and move the `ThemeRoot` tome to components ([54a8a95](https://github.com/ryanatkn/fuz/commit/54a8a95))
 
 ## 0.137.1
 
@@ -1130,10 +1130,10 @@
 
 ### Minor Changes
 
-- rework `Themed.svelte` ([#38](https://github.com/ryanatkn/fuz/pull/38))
-  - move some helpers from `Themed.svelte` to `theme.ts`
+- rework `ThemeRoot.svelte` ([#38](https://github.com/ryanatkn/fuz/pull/38))
+  - move some helpers from `ThemeRoot.svelte` to `theme.ts`
   - replace `get_theme` and `get_color_scheme` with `get_themer`
-  - remove `ThemedScope.svelte` for now because it's too broken
+  - remove `ThemeRootScope.svelte` for now because it's too broken
 
 ### Patch Changes
 
@@ -1443,7 +1443,7 @@
 
 ### Minor Changes
 
-- move theme Svelte helpers to `Themed.svelte` from `theme.ts` to prepare for Moss ([3ccf53c](https://github.com/ryanatkn/fuz/commit/3ccf53c))
+- move theme Svelte helpers to `ThemeRoot.svelte` from `theme.ts` to prepare for Moss ([3ccf53c](https://github.com/ryanatkn/fuz/commit/3ccf53c))
 
 ## 0.94.0
 
@@ -1622,7 +1622,7 @@
 
 ### Minor Changes
 
-- remove `theme_color` from `Themed` and `THEME_COLOR` ([#9](https://github.com/ryanatkn/fuz/pull/9))
+- remove `theme_color` from `ThemeRoot` and `THEME_COLOR` ([#9](https://github.com/ryanatkn/fuz/pull/9))
 - add suffix `_5` to all base variable names ([#9](https://github.com/ryanatkn/fuz/pull/9))
   - `color_a` to `color_a_5`
   - `color_b` to `color_b_5`
@@ -1958,8 +1958,8 @@
   ([#324](https://github.com/ryanatkn/fuz/pull/324))
 - **break**: change the `.icon_button` size to match `--input_height`
   ([#318](https://github.com/ryanatkn/fuz/pull/318))
-- **break**: replace `scoped` behavior of `Themed` with `ThemedScope`, publish it,
-  and revamp the API of `Themed`
+- **break**: replace `scoped` behavior of `ThemeRoot` with `ThemeRootScope`, publish it,
+  and revamp the API of `ThemeRoot`
   ([#317](https://github.com/ryanatkn/fuz/pull/317),
   [#318](https://github.com/ryanatkn/fuz/pull/318))
 - **break**: remove `PendingButton` usage of `$$restProps`, use `buttonAttrs` prop instead
@@ -2006,7 +2006,7 @@
 
 ## 0.60.0
 
-- **break**: change `Themed` to initialize the color scheme from `localStorage`
+- **break**: change `ThemeRoot` to initialize the color scheme from `localStorage`
   and add helpers `get_color_scheme` and `set_color_scheme`,
   and rename its `sync` prop to `sync_color_scheme`
   ([#308](https://github.com/ryanatkn/fuz/pull/308))
@@ -2055,7 +2055,7 @@
   - add and publish `$lib/themes.ts` with the default theme data,
     including the base theme along with low and high contrast themes
   - add and publish `$lib/variables.ts` with the default `StyleVariable` data
-  - add and publish `$lib/Themed.svelte` for mounting a theme to the page or a part of it
+  - add and publish `$lib/ThemeRoot.svelte` for mounting a theme to the page or a part of it
   - add and publish `$lib/ColorSchemeInput.svelte`
   - remove the `error` param from `createContextmenu` and add the `contextmenu.error` store
   - rename `.prose` from `.markup`

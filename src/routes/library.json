@@ -6941,7 +6941,7 @@
 						]
 					}
 				],
-				"dependents": ["Themed.svelte"]
+				"dependents": ["ThemeRoot.svelte"]
 			},
 			{
 				"path": "Spiders.svelte",
@@ -7417,60 +7417,6 @@
 				"dependents": ["Dialog.svelte"]
 			},
 			{
-				"path": "Themed.svelte",
-				"declarations": [
-					{
-						"name": "Themed",
-						"kind": "component",
-						"props": [
-							{
-								"name": "sync_color_scheme",
-								"type": "typeof default_sync_color_scheme",
-								"optional": true
-							},
-							{
-								"name": "load_color_scheme",
-								"type": "typeof default_load_color_scheme",
-								"optional": true
-							},
-							{
-								"name": "save_color_scheme",
-								"type": "typeof default_save_color_scheme",
-								"optional": true
-							},
-							{
-								"name": "load_theme",
-								"type": "typeof default_load_theme",
-								"optional": true
-							},
-							{
-								"name": "save_theme",
-								"type": "typeof default_save_theme",
-								"optional": true
-							},
-							{
-								"name": "theme_fallback",
-								"type": "Theme | undefined",
-								"optional": true
-							},
-							{
-								"name": "themer",
-								"type": "Themer",
-								"optional": true,
-								"description": "A reactive class containing the selected theme and color scheme.\nDefaults to the first default theme."
-							},
-							{
-								"name": "children",
-								"type": "Snippet<[themer: Themer, style: string | null, theme_style_html: string | null]>"
-							}
-						],
-						"source_line": 1
-					}
-				],
-				"module_comment": "`Themed` adds global color scheme and theme support to the page.\nIt also sets in the Svelte context a reactive `themer` containing the theme and color scheme.",
-				"dependencies": ["rune_helpers.svelte.ts", "themer.svelte.ts"]
-			},
-			{
 				"path": "ThemeInput.svelte",
 				"declarations": [
 					{
@@ -7683,7 +7629,61 @@
 					}
 				],
 				"dependencies": ["context_helpers.ts", "storage.ts"],
-				"dependents": ["ColorSchemeInput.svelte", "ThemeInput.svelte", "Themed.svelte"]
+				"dependents": ["ColorSchemeInput.svelte", "ThemeInput.svelte", "ThemeRoot.svelte"]
+			},
+			{
+				"path": "ThemeRoot.svelte",
+				"declarations": [
+					{
+						"name": "ThemeRoot",
+						"kind": "component",
+						"props": [
+							{
+								"name": "sync_color_scheme",
+								"type": "typeof default_sync_color_scheme",
+								"optional": true
+							},
+							{
+								"name": "load_color_scheme",
+								"type": "typeof default_load_color_scheme",
+								"optional": true
+							},
+							{
+								"name": "save_color_scheme",
+								"type": "typeof default_save_color_scheme",
+								"optional": true
+							},
+							{
+								"name": "load_theme",
+								"type": "typeof default_load_theme",
+								"optional": true
+							},
+							{
+								"name": "save_theme",
+								"type": "typeof default_save_theme",
+								"optional": true
+							},
+							{
+								"name": "theme_fallback",
+								"type": "Theme | undefined",
+								"optional": true
+							},
+							{
+								"name": "themer",
+								"type": "Themer",
+								"optional": true,
+								"description": "A reactive class containing the selected theme and color scheme.\nDefaults to the first default theme."
+							},
+							{
+								"name": "children",
+								"type": "Snippet<[themer: Themer, style: string | null, theme_style_html: string | null]>"
+							}
+						],
+						"source_line": 1
+					}
+				],
+				"module_comment": "`ThemeRoot` adds global color scheme and theme support to the page.\nIt also sets in the Svelte context a reactive `themer` containing the theme and color scheme.",
+				"dependencies": ["rune_helpers.svelte.ts", "themer.svelte.ts"]
 			},
 			{
 				"path": "tome.ts",

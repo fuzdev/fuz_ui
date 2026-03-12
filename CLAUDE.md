@@ -123,7 +123,7 @@ Helper file prefixes: `ts_*` (TypeScript API), `tsdoc_*` (JSDoc parsing),
 
 ### Utilities
 
-- `Themed` - theme provider component
+- `ThemeRoot` - theme provider component
 - `Redirect` - client-side redirects
 
 ## Key library files
