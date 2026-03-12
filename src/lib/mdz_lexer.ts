@@ -42,9 +42,9 @@ import {
 	is_at_relative_path,
 } from './mdz_helpers.js';
 
-// ============================================================================
+//
 // Token types
-// ============================================================================
+//
 
 export interface MdzTokenBase {
 	start: number;
@@ -167,9 +167,9 @@ export interface MdzTokenParagraphBreak extends MdzTokenBase {
 	type: 'paragraph_break';
 }
 
-// ============================================================================
+//
 // Lexer
-// ============================================================================
+//
 
 export class MdzLexer {
 	#text: string;

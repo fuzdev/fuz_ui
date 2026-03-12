@@ -16,23 +16,9 @@ try {
 	];
 } catch {}
 
-// SvelteKit currently can't import local TS directly,
-// so this is my one project that hardcodes the CSP for now. Needs to be kept in sync.
-//
-// import {create_csp_directives} from './dist/csp.js';
-// import {csp_trusted_sources_of_ryanatkn} from './dist/csp_of_ryanatkn.js';
-// const directives = create_csp_directives({trusted_sources: csp_trusted_sources_of_ryanatkn});
+// TODO see `csp_trusted_sources_of_fuzdev`, it shouldn't be in fuz
 /** @type {any[]} */
-const csp_trusted_sources_of_ryanatkn = [
-	'https://*.ryanatkn.com/',
-	'https://*.spiderspace.org/',
-	'https://*.webdevladder.net/',
-	'https://*.dealt.dev/',
-	'https://*.fuz.dev/',
-	'https://*.zzz.software/',
-	'https://*.cosmicplayground.org/',
-	'https://ryanatkn.github.io/',
-];
+const csp_trusted_sources_of_fuz = ['https://*.fuz.dev/', 'https://*.zzz.software/'];
 
 /** @type {import('@sveltejs/kit').Config} */
 export default {
@@ -52,15 +38,15 @@ export default {
 				'style-src': ['self', 'unsafe-inline'],
 				'style-src-elem': ['self', 'unsafe-inline'],
 				'style-src-attr': ['unsafe-inline'],
-				'img-src': ['self', 'data:', 'blob:', 'filesystem:', ...csp_trusted_sources_of_ryanatkn],
+				'img-src': ['self', 'data:', 'blob:', 'filesystem:', ...csp_trusted_sources_of_fuz],
 				'media-src': [
 					'self',
 					'blob:',
 					'mediastream:',
 					'filesystem:',
-					...csp_trusted_sources_of_ryanatkn,
+					...csp_trusted_sources_of_fuz,
 				],
-				'font-src': ['self', 'data:', ...csp_trusted_sources_of_ryanatkn],
+				'font-src': ['self', 'data:', ...csp_trusted_sources_of_fuz],
 				'manifest-src': ['self'],
 				'child-src': ['none'],
 				'connect-src': ['self'],

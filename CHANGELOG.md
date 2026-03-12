@@ -1,5 +1,12 @@
 # @fuzdev/fuz_ui
 
+## 0.188.0
+
+### Minor Changes
+
+- rename `csp_of_fuzdev.ts` from `csp_of_ryanatkn.ts` ([e221814](https://github.com/fuzdev/fuz_ui/commit/e221814))
+- add vite peer dep ([63826b1](https://github.com/fuzdev/fuz_ui/commit/63826b1))
+
 ## 0.187.1
 
 ### Patch Changes
