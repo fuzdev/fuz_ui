@@ -58,7 +58,7 @@
 			<h4 class="mb_sm">related tomes</h4>
 			<ul class="unstyled">
 				{#each tomes_related_to_selected as tome (tome.name)}
-					<li><TomeLink name={tome.name} class="menu_item" /></li>
+					<li><TomeLink name={tome.name} class="menuitem" /></li>
 				{/each}
 			</ul>
 		</section>
@@ -68,7 +68,7 @@
 			<h4 class="mb_sm">related modules</h4>
 			<ul class="unstyled">
 				{#each modules_related_to_selected as module (module.path)}
-					<li><ModuleLink module_path={module.path} class="menu_item" /></li>
+					<li><ModuleLink module_path={module.path} class="menuitem" /></li>
 				{/each}
 			</ul>
 		</section>
@@ -78,7 +78,7 @@
 			<h4 class="mb_sm">related declarations</h4>
 			<ul class="unstyled">
 				{#each declarations_related_to_selected as declaration (declaration.name)}
-					<li><DeclarationLink name={declaration.name} class="menu_item" /></li>
+					<li><DeclarationLink name={declaration.name} class="menuitem" /></li>
 				{/each}
 			</ul>
 		</section>

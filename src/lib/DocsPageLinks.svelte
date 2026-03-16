@@ -41,7 +41,7 @@
 					class:pl_xl3={item.depth >= 4}
 				>
 					<a
-						class="menu_item"
+						class="menuitem"
 						href="#{item.fragment}"
 						class:selected={item.fragment === hash}
 						class:highlighted={docs_links.fragments_onscreen.has(item.fragment)}

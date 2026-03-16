@@ -61,7 +61,7 @@
 <li role="none" style:--contextmenu_depth={submenu.depth}>
 	<!-- disabling the a11y warning because a parent element handles keyboard events -->
 	<div
-		class="menu_item plain selectable"
+		class="menuitem plain selectable"
 		class:selected
 		role="menuitem"
 		aria-label="contextmenu submenmu"
@@ -111,8 +111,8 @@
 		max-width: var(--contextmenu_width);
 		width: 100%;
 	}
-	/* TODO hacky, needed because the base `.menu_item` added z-index */
-	.menu_item {
+	/* TODO hacky, needed because the base `.menuitem` added z-index */
+	.menuitem {
 		z-index: unset;
 	}
 </style>
