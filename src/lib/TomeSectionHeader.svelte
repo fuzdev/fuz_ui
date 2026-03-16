@@ -1,5 +1,5 @@
 <script lang="ts">
-	import {onDestroy, type Snippet} from 'svelte';
+	import type {Snippet} from 'svelte';
 	import type {SvelteHTMLElements} from 'svelte/elements';
 	import {page} from '$app/state';
 	import {resolve} from '$app/paths';
@@ -41,12 +41,12 @@
 	const my_section_id = section_id_context.get();
 
 	// Register with parent section to get parent's ID back
-	const parent_section_id = register_section_header(fragment);
+	const parent_section_id = register_section_header(() => fragment);
 
-	// Register with docs_links using own section ID and parent section ID
-	let id: string | undefined;
-	if (page.url.pathname !== resolve(docs_links.root_path as any)) {
-		id = docs_links.add(
+	// Register with docs_links — re-registers when reactive values change
+	$effect(() => {
+		if (page.url.pathname === resolve(docs_links.root_path as any)) return;
+		const id = docs_links.add(
 			fragment,
 			text,
 			page.url.pathname,
@@ -55,11 +55,7 @@
 			parent_section_id,
 			my_section_id,
 		);
-	}
-
-	// Cleanup on unmount
-	onDestroy(() => {
-		if (id) docs_links.remove(id);
+		return () => docs_links.remove(id);
 	});
 </script>
 

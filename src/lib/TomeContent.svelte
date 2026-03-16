@@ -22,7 +22,7 @@
 
 	const docs_links = docs_links_context.get();
 
-	tome_context.set(tome); // TODO make reactive?
+	tome_context.set(() => tome);
 
 	const fragment = $derived(docs_slugify(tome.name));
 

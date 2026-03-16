@@ -14,7 +14,7 @@
 		library,
 		repo_name,
 		description,
-		motto,
+		tagline,
 		npm_url,
 		homepage_url,
 		children,
@@ -22,7 +22,7 @@
 		library: Library;
 		repo_name?: Snippet<[repo_name: string]>;
 		description?: Snippet<[description: string]>;
-		motto?: Snippet<[description: string]>;
+		tagline?: Snippet<[description: string]>;
 		npm_url?: Snippet<[npm_url: string]>;
 		homepage_url?: Snippet<[homepage_url: string]>;
 		children?: Snippet<[library: Library]>;
@@ -63,11 +63,11 @@
 						<div class="description">{package_json.description}</div>
 					{/if}
 				{/if}
-				{#if package_json.motto}
-					{#if motto}
-						{@render motto(package_json.motto)}
+				{#if package_json.tagline}
+					{#if tagline}
+						{@render tagline(package_json.tagline)}
 					{:else}
-						<div class="motto">{package_json.motto}</div>
+						<div class="tagline">{package_json.tagline}</div>
 					{/if}
 				{/if}
 				{#if library.npm_url}
@@ -240,7 +240,7 @@
 	.description {
 		margin-bottom: var(--space_lg);
 	}
-	.motto {
+	.tagline {
 		margin-bottom: var(--space_lg);
 	}
 	.properties {

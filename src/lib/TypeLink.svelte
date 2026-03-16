@@ -19,7 +19,7 @@
 	// TODO maybe better name?
 </script>
 
-{#if library.lookup_declaration(type)}
+{#if library.declaration_by_name.has(type)}
 	<DeclarationLink name={type} {hash} />
 {:else}
 	<Code lang="ts" content={type} inline />

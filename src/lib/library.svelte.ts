@@ -32,24 +32,24 @@ export class Library {
 	 */
 	readonly url_prefix: string;
 
-	package_json = $derived(this.library_json.package_json);
-	source_json = $derived(this.library_json.source_json);
+	readonly package_json = $derived(this.library_json.package_json);
+	readonly source_json = $derived(this.library_json.source_json);
 
-	name = $derived(this.library_json.name);
-	repo_name = $derived(this.library_json.repo_name);
-	repo_url = $derived(this.library_json.repo_url);
-	owner_name = $derived(this.library_json.owner_name);
-	homepage_url = $derived(this.library_json.homepage_url);
-	logo_url = $derived(this.library_json.logo_url);
-	logo_alt = $derived(this.library_json.logo_alt);
-	npm_url = $derived(this.library_json.npm_url);
-	changelog_url = $derived(this.library_json.changelog_url);
-	published = $derived(this.library_json.published);
+	readonly name = $derived(this.library_json.name);
+	readonly repo_name = $derived(this.library_json.repo_name);
+	readonly repo_url = $derived(this.library_json.repo_url);
+	readonly owner_name = $derived(this.library_json.owner_name);
+	readonly homepage_url = $derived(this.library_json.homepage_url);
+	readonly logo_url = $derived(this.library_json.logo_url);
+	readonly logo_alt = $derived(this.library_json.logo_alt);
+	readonly npm_url = $derived(this.library_json.npm_url);
+	readonly changelog_url = $derived(this.library_json.changelog_url);
+	readonly published = $derived(this.library_json.published);
 
 	/**
 	 * Organization URL (e.g., 'https://github.com/ryanatkn').
 	 */
-	org_url = $derived(
+	readonly org_url = $derived(
 		this.repo_url && this.repo_name
 			? this.repo_url.endsWith('/' + this.repo_name)
 				? this.repo_url.slice(0, -this.repo_name.length - 1)
@@ -60,7 +60,7 @@ export class Library {
 	/**
 	 * All modules as rich Module instances.
 	 */
-	modules = $derived(
+	readonly modules = $derived(
 		this.source_json.modules
 			? this.source_json.modules.map((module_json) => new Module(this, module_json))
 			: [],
@@ -69,17 +69,24 @@ export class Library {
 	/**
 	 * All modules sorted alphabetically by path.
 	 */
-	modules_sorted = $derived([...this.modules].sort((a, b) => a.path.localeCompare(b.path)));
+	readonly modules_sorted = $derived(
+		[...this.modules].sort((a, b) => a.path.localeCompare(b.path)),
+	);
 
 	/**
 	 * All declarations across all modules as a flat array.
 	 */
-	declarations = $derived(this.modules.flatMap((module) => module.declarations));
+	readonly declarations = $derived(this.modules.flatMap((module) => module.declarations));
+
+	/**
+	 * Module lookup map by path. Provides O(1) lookup.
+	 */
+	readonly module_by_path = $derived(new Map(this.modules.map((m) => [m.path, m])));
 
 	/**
 	 * Declaration lookup map by name. Provides O(1) lookup.
 	 */
-	declaration_map = $derived(new Map(this.declarations.map((d) => [d.name, d])));
+	readonly declaration_by_name = $derived(new Map(this.declarations.map((d) => [d.name, d])));
 
 	constructor(library_json: LibraryJson, url_prefix = '') {
 		this.library_json = library_json;
@@ -87,24 +94,18 @@ export class Library {
 	}
 
 	/**
-	 * Look up a declaration by name.
+	 * Look up modules within a directory prefix.
+	 * Returns modules whose paths start with `path + "/"`, or `null` if none match.
 	 */
-	lookup_declaration(name: string): Declaration | undefined {
-		return this.declaration_map.get(name);
-	}
-
-	/**
-	 * Check if a declaration exists.
-	 */
-	has_declaration(name: string): boolean {
-		return this.declaration_map.has(name);
-	}
-
-	/**
-	 * Look up a module by its canonical path.
-	 */
-	lookup_module(path: string): Module | undefined {
-		return this.modules.find((m) => m.path === path);
+	lookup_directory_modules(path: string): Array<Module> | null {
+		const prefix = path + '/';
+		let result: Array<Module> | null = null;
+		for (const m of this.modules_sorted) {
+			if (m.path.startsWith(prefix)) {
+				(result ??= []).push(m);
+			}
+		}
+		return result;
 	}
 
 	/**

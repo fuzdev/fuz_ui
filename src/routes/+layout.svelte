@@ -4,7 +4,7 @@
 
 	import type {Snippet} from 'svelte';
 
-	import Themed from '$lib/Themed.svelte';
+	import ThemeRoot from '$lib/ThemeRoot.svelte';
 	import ContextmenuRoot from '$lib/ContextmenuRoot.svelte';
 	import {library_context, Library} from '$lib/library.svelte.js';
 	import {library_json} from '$routes/library.js';
@@ -23,9 +23,9 @@
 	<title>Fuz - friendly user zystem</title>
 </svelte:head>
 
-<Themed>
+<ThemeRoot>
 	<ContextmenuRoot>
 		{@render children()}
 		<Spiders />
 	</ContextmenuRoot>
-</Themed>
+</ThemeRoot>

@@ -17,9 +17,11 @@
 		disabled?: boolean;
 	} = $props();
 
-	const contextmenu = contextmenu_context.get();
+	const get_contextmenu = contextmenu_context.get();
+	const contextmenu = $derived(get_contextmenu());
 
-	const entry = contextmenu.add_entry(
+	// add_entry registers on the current instance at init — not reactive to contextmenu getter changes
+	const entry = get_contextmenu().add_entry(
 		() => run,
 		() => disabled_prop,
 	);
@@ -31,7 +33,7 @@
 <!-- disabling the a11y warning because a parent element handles keyboard events -->
 <!-- svelte-ignore a11y_click_events_have_key_events -->
 <li
-	class="menu_item plain selectable deselectable"
+	class="menuitem plain selectable deselectable"
 	class:selected
 	class:disabled
 	role="menuitem"
@@ -67,8 +69,8 @@
 </li>
 
 <style>
-	/* TODO hacky, needed because the base `.menu_item` added z-index */
-	.menu_item {
+	/* TODO hacky, needed because the base `.menuitem` added z-index */
+	.menuitem {
 		z-index: unset;
 	}
 </style>

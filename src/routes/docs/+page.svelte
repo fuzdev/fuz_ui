@@ -3,9 +3,8 @@
 	import {tomes_context} from '$lib/tome.js';
 	import {library_context} from '$lib/library.svelte.js';
 
-	const tomes_by_name = tomes_context.get();
-
-	const tomes = Array.from(tomes_by_name.values());
+	const get_tomes_by_name = tomes_context.get();
+	const tomes = $derived(Array.from(get_tomes_by_name().values()));
 
 	const library = library_context.get();
 </script>

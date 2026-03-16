@@ -14,9 +14,9 @@
 		sync_color_scheme as default_sync_color_scheme,
 		save_theme as default_save_theme,
 		load_theme as default_load_theme,
-		themer_context,
-		Themer,
-	} from './themer.svelte.js';
+		theme_state_context,
+		ThemeState,
+	} from './theme_state.svelte.js';
 	import {effect_with_count} from './rune_helpers.svelte.js';
 
 	const {
@@ -26,8 +26,10 @@
 		load_theme = default_load_theme,
 		save_theme = default_save_theme,
 		theme_fallback,
-		// TODO make reactive? by passing getters as options?
-		themer = new Themer({theme: load_theme(theme_fallback), color_scheme: load_color_scheme()}),
+		theme_state = new ThemeState({
+			theme: load_theme(theme_fallback),
+			color_scheme: load_color_scheme(),
+		}),
 		children,
 	}: {
 		sync_color_scheme?: typeof default_sync_color_scheme;
@@ -39,19 +41,18 @@
 		/**
 		 * A reactive class containing the selected theme and color scheme.
 		 * Defaults to the first default theme.
-		 * The class reference is not reactive
-		 * because it's set in context without a wrapper, use `{#key theme}` if it changes.
-		 * @nonreactive
 		 */
-		themer?: Themer;
-		children: Snippet<[themer: Themer, style: string | null, theme_style_html: string | null]>;
+		theme_state?: ThemeState;
+		children: Snippet<
+			[theme_state: ThemeState, style: string | null, theme_style_html: string | null]
+		>;
 	} = $props();
 
-	// In dev mode only, warn about misuse of the singleton `Themed`.
+	// In dev mode only, warn about misuse of the singleton `ThemeRoot`.
 	if (DEV) {
 		onMount(() => {
 			if (mounted) {
-				console.warn('more than one Themed was mounted'); // eslint-disable-line no-console
+				console.warn('more than one ThemeRoot was mounted'); // eslint-disable-line no-console
 			}
 			mounted = true;
 			return () => {
@@ -61,34 +62,34 @@
 	}
 
 	/**
-	 * `Themed` adds global color scheme and theme support to the page.
-	 * It also sets in the Svelte context a reactive `themer` containing the theme and color scheme.
+	 * `ThemeRoot` adds global color scheme and theme support to the page.
+	 * It also sets in the Svelte context a reactive `theme_state` containing the theme and color scheme.
 	 *
 	 * @module
 	 */
 
-	themer_context.set(themer);
+	theme_state_context.set(() => theme_state);
 
-	const selected_theme_name = $derived(themer.theme.name);
+	const selected_theme_name = $derived(theme_state.theme.name);
 	const style = $derived(
 		selected_theme_name === DEFAULT_THEME.name // TODO @many proper equality check, won't work when we allow editing, need an id or unique names and a deep equality check
 			? null
-			: render_theme_style(themer.theme),
+			: render_theme_style(theme_state.theme),
 	);
 	const theme_style_html = $derived(style ? `<style>${style}</style>` : null);
 
 	effect_with_count((count) => {
-		const v = themer.color_scheme;
+		const v = theme_state.color_scheme;
 		if (count === 1) return;
 		sync_color_scheme(v);
 	});
 	effect_with_count((count) => {
-		const v = themer.color_scheme;
+		const v = theme_state.color_scheme;
 		if (count === 1) return;
 		save_color_scheme(v); // helper may change, so is separate from `sync_color_scheme`
 	});
 	effect_with_count((count) => {
-		const v = themer.theme;
+		const v = theme_state.theme;
 		if (count === 1) return;
 		save_theme(v);
 	});
@@ -101,4 +102,4 @@
 	{#if theme_style_html}{@html theme_style_html}{/if}
 </svelte:head>
 
-{@render children(themer, style, theme_style_html)}
+{@render children(theme_state, style, theme_style_html)}

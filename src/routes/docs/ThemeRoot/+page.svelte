@@ -13,15 +13,16 @@
 	import ThemeInput from '$lib/ThemeInput.svelte';
 	import ThemeForm from '$routes/ThemeForm.svelte';
 	import MdnLink from '$lib/MdnLink.svelte';
-	import {themer_context} from '$lib/themer.svelte.js';
+	import {theme_state_context} from '$lib/theme_state.svelte.js';
 
-	const LIBRARY_ITEM_NAME = 'Themed';
+	const LIBRARY_ITEM_NAME = 'ThemeRoot';
 
 	const tome = get_tome_by_name(LIBRARY_ITEM_NAME);
 
 	const themes = default_themes.slice();
 
-	const themer = themer_context.get();
+	const get_theme_state = theme_state_context.get();
+	const theme_state = $derived(get_theme_state());
 
 	// let show_create_theme_dialog = false;
 	let editing_theme: null | Theme = $state(null);
@@ -37,22 +38,22 @@
 			> for dark mode and custom themes.
 		</p>
 		<p>
-			<code>Themed</code> adds global support for both the browser's
+			<code>ThemeRoot</code> adds global support for both the browser's
 			<MdnLink path="Web/CSS/color-scheme" />
 			and custom themes based on
 			<a href="https://css.fuz.dev/docs/variables">fuz_css style variables</a>, which use
 			<MdnLink path="Web/CSS/--*">CSS custom properties</MdnLink>.
-			<code>Themed</code> is a singleton component that's mounted at the top-level of the page:
+			<code>ThemeRoot</code> is a singleton component that's mounted at the top-level of the page:
 		</p>
-		<Code lang="ts" content={`import Themed from '@fuzdev/fuz_ui/Themed.svelte';`} />
-		<Code content={`<!-- +layout.svelte -->\n<Themed>\n\t{@render children()}\n</Themed>`} />
+		<Code lang="ts" content={`import ThemeRoot from '@fuzdev/fuz_ui/ThemeRoot.svelte';`} />
+		<Code content={`<!-- +layout.svelte -->\n<ThemeRoot>\n\t{@render children()}\n</ThemeRoot>`} />
 		<Details>
 			{#snippet summary()}Why the singleton?{/snippet}
 			<aside>
 				<p>Most theme usage affects the whole page, so Fuz makes that easy.</p>
 				<p>
-					By default <code>Themed</code> syncs its settings to the global <code>:root</code> tag and
-					persists to <code>localStorage</code>.
+					By default <code>ThemeRoot</code> syncs its settings to the global <code>:root</code> tag
+					and persists to <code>localStorage</code>.
 				</p>
 				<p>These behaviors can be customized with its props:</p>
 				<ul>
@@ -68,33 +69,35 @@
 			{#snippet summary()}Why nested children?{/snippet}
 			<aside>
 				<p>
-					<code>Themed</code> is designed to wrap every page at the top level so it can provide the
-					selected theme and color scheme in the Svelte context via a <code>themer</code> instance.
-					It works without children, but <code>themer_context.get()</code> will fail unless you call
-					<code>themer_context.set()</code> yourself.
+					<code>ThemeRoot</code> is designed to wrap every page at the top level so it can provide
+					the selected theme and color scheme in the Svelte context via a <code>theme_state</code>
+					instance. It works without children, but <code>theme_state_context.get()</code> will fail
+					unless you call
+					<code>theme_state_context.set()</code> yourself.
 				</p>
 				<p>
-					This lets you call <code>themer_context.get()</code> to access the reactive
-					<code>Themer</code>
+					This lets you call <code>theme_state_context.get()</code> to access the reactive
+					<code>ThemeState</code>
 					class instance anywhere in your code. The helper components on this page like
 					<code>ColorSchemeInput</code> and <code>ThemeInput</code> use it so they don't require a
-					<code>themer</code> prop.
+					<code>theme_state</code> prop.
 				</p>
 				<p>
-					If you don't don't want to wrap everything in <code>Themed</code> for some reason, you can
-					set a <code>Themer</code> in context manually. It must be the same reference as the
-					<code>Themed</code> prop:
+					If you don't don't want to wrap everything in <code>ThemeRoot</code> for some reason, you
+					can set a <code>ThemeState</code> in context manually. It must be the same reference as
+					the
+					<code>ThemeRoot</code> prop:
 				</p>
 				<Code
 					content={'<' +
 						`script>
-	const themer = new Themer(...);
-	set_themer(themer);
+	const theme_state = new ThemeState(...);
+	set_theme_state(theme_state);
 </script>
-<Themed {themer} />
+<ThemeRoot {theme_state} />
 <!--
-	sibling components not nested in \`Themed\`
-	can now call \`themer_context.get()\`
+	sibling components not nested in \`ThemeRoot\`
+	can now call \`theme_state_context.get()\`
 -->`}
 				/>
 			</aside>
@@ -103,7 +106,7 @@
 	<TomeSection>
 		<TomeSectionHeader text="Color scheme" />
 		<p>
-			<code>Themed</code> defaults to automatic
+			<code>ThemeRoot</code> defaults to automatic
 			<MdnLink path="Web/CSS/color-scheme" />
 			detection with
 			<MdnLink path="Web/CSS/@media/prefers-color-scheme" />, and users can also set it directly:
@@ -120,7 +123,7 @@
 		<!-- TODO this is bugged on page load, auto is SSR'd but doesn't update here, can we fix? Should Svelte prefer the client value? -->
 		<Code
 			content={`<ColorSchemeInput\n\tvalue={{color_scheme: ${
-				"'" + JSON.stringify(themer.color_scheme).replace(/"/g, '') + "'"
+				"'" + JSON.stringify(theme_state.color_scheme).replace(/"/g, '') + "'"
 			}}}\n\tonchange={...}\n/>`}
 		/>
 		<p>
@@ -134,12 +137,13 @@
 					<code>ColorSchemeInput</code> enables users to choose and persist the color scheme without boilerplate.
 				</p>
 				<p>
-					By default, <code>ColorSchemeInput</code> works with <code>Themed</code>'s
-					<code>themer</code> in context to save the user's preference to <code>localStorage</code>.
-					To customize this behavior, pass your own <code>value</code> or <code>onchange</code>
-					props. The <code>value</code> defaults to <code>themer_context.get()</code> so technically
-					you could call <code>set_themer</code>, but it's unlikely you want to override it in
-					context.
+					By default, <code>ColorSchemeInput</code> works with <code>ThemeRoot</code>'s
+					<code>theme_state</code> in context to save the user's preference to
+					<code>localStorage</code>. To customize this behavior, pass your own <code>value</code> or
+					<code>onchange</code>
+					props. The <code>value</code> defaults to <code>theme_state_context.get()</code> so
+					technically you could call <code>set_theme_state</code>, but it's unlikely you want to
+					override it in context.
 				</p>
 			</aside>
 		</Details>
@@ -179,45 +183,46 @@
 				`script>
 	import '@fuzdev/fuz_css/style.css';
 	import '@fuzdev/fuz_css/theme.css';
-	import Themed from '@fuzdev/fuz_ui/Themed.svelte';
+	import ThemeRoot from '@fuzdev/fuz_ui/ThemeRoot.svelte';
 	import type {Snippet} from 'svelte';
 	
 	const {children}: {children: Snippet} = $props();
 </script>
 
 <!-- enable theme and color-scheme support -->
-<Themed>
+<ThemeRoot>
 	{@render children()}
-</Themed>`}
+</ThemeRoot>`}
 		/>
 		<p>
-			<code>Themed</code> can be customized with the the nonreactive prop
-			<code>themer</code>:
+			<code>ThemeRoot</code> can be customized with the the nonreactive prop
+			<code>theme_state</code>:
 		</p>
 		<Code
 			lang="ts"
-			content={`import {Themer} from '@fuzdev/fuz_ui/themer.svelte.js';\nconst themer = new Themer(...);`}
+			content={`import {ThemeState} from '@fuzdev/fuz_ui/theme_state.svelte.js';\nconst theme_state = new ThemeState(...);`}
 		/>
 		<Code
-			content={`<Themed {themer}>
+			content={`<ThemeRoot {theme_state}>
 	{@render children()}
-</Themed>`}
+</ThemeRoot>`}
 		/>
 		<aside>
-			The <code>themer</code> prop is not reactive because it's put in Svelte context without a wrapper.
+			The <code>theme_state</code> prop is not reactive because it's put in Svelte context without a wrapper.
 			This could be fixed, let me know if you have a usecase.
 		</aside>
 		<p>
-			<code>Themed</code> sets the <code>themer</code> in the Svelte context:
+			<code>ThemeRoot</code> sets the <code>theme_state</code> in the Svelte context:
 		</p>
 		<Code
 			lang="ts"
 			content={`// get values from the Svelte context provided by
-// the nearest \`Themed\` ancestor:
-import {themer_context} from '@fuzdev/fuz_ui/themer.svelte.js';
-const themer = themer_context.get();
-themer.theme.name; // '${themer.theme.name}'
-themer.color_scheme; // '${themer.color_scheme}'`}
+// the nearest \`ThemeRoot\` ancestor:
+import {theme_state_context} from '@fuzdev/fuz_ui/theme_state.svelte.js';
+const get_theme_state = theme_state_context.get();
+const theme_state = $derived(get_theme_state());
+theme_state.theme.name; // '${theme_state.theme.name}'
+theme_state.color_scheme; // '${theme_state.color_scheme}'`}
 		/>
 		<p>
 			For a more complete example, see <a href="https://github.com/fuzdev/fuz_template"
@@ -228,10 +233,10 @@ themer.color_scheme; // '${themer.color_scheme}'`}
 	<TomeSection>
 		<TomeSectionHeader text="More details" />
 		<p>
-			<code>Themed</code> initializes the system's theme support. Without it, the page will not
+			<code>ThemeRoot</code> initializes the system's theme support. Without it, the page will not
 			reflect the user's system
-			<code>color-scheme</code>. By default, <code>Themed</code> applies the base theme to the root
-			of the page via <code>create_theme_setup_script</code>. It uses JS to add the
+			<code>color-scheme</code>. By default, <code>ThemeRoot</code> applies the base theme to the
+			root of the page via <code>create_theme_setup_script</code>. It uses JS to add the
 			<code>.dark</code> CSS class to the <code>:root</code> element.
 		</p>
 		<p>

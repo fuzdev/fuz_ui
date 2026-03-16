@@ -1,7 +1,7 @@
 <script lang="ts" module>
 	import {create_context} from './context_helpers.js';
 
-	export type RegisterSectionHeader = (fragment: string) => string | undefined;
+	export type RegisterSectionHeader = (get_fragment: () => string) => string | undefined;
 	export const register_section_header_context = create_context<RegisterSectionHeader>();
 	export const section_depth_context = create_context(() => 0);
 	export const section_id_context = create_context<string | undefined>();
@@ -39,15 +39,15 @@
 	// Provide own section ID to direct children (header) via context
 	section_id_context.set(section_id);
 
-	let fragment: string | undefined;
+	let get_fragment: (() => string) | undefined = $state();
 
-	register_section_header_context.set((f) => {
-		if (DEV && fragment !== undefined) {
+	register_section_header_context.set((gf) => {
+		if (DEV && get_fragment !== undefined) {
 			throw Error(
-				`TomeSection already has header "${fragment}", cannot add "${f}". Did you forget to wrap a TomeSectionHeader in its own TomeSection?`,
+				`TomeSection already has header "${get_fragment()}", cannot add "${gf()}". Did you forget to wrap a TomeSectionHeader in its own TomeSection?`,
 			);
 		}
-		fragment = f;
+		get_fragment = gf;
 		return parent_section_id; // Return parent section ID to header
 	});
 </script>
@@ -55,6 +55,7 @@
 <section
 	{...rest}
 	{@attach intersect(() => ({intersecting}) => {
+		const fragment = get_fragment?.();
 		if (!fragment) {
 			if (DEV) console.error('TomeSectionHeader must be a child of TomeSection'); // eslint-disable-line no-console
 			return;

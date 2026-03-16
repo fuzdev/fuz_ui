@@ -37,10 +37,15 @@
 	);
 
 	// find the module using the lookup helper
-	const module = $derived(library.lookup_module(module_path));
+	const module = $derived(library.module_by_path.get(module_path));
+
+	// check if this is a directory prefix containing child modules
+	const directory_modules = $derived(module ? null : library.lookup_directory_modules(module_path));
 
 	// fallback for 404
-	const module_name = $derived(module?.path || '[missing module]');
+	const module_name = $derived(
+		module?.path || (directory_modules ? module_path : '[missing module]'),
+	);
 
 	const search = $derived(create_module_declaration_search(module?.declarations ?? []));
 
@@ -58,16 +63,33 @@
 	{/snippet}
 
 	{#if !module}
-		<section>
-			<p>Module not found: {module_path}</p>
-		</section>
+		<!-- no module, maybe a dir? -->
+		{#if !directory_modules}
+			<section>
+				<p>Module not found: {module_path}</p>
+			</section>
+		{:else}
+			<section>
+				<p>{directory_modules.length} module{directory_modules.length === 1 ? '' : 's'}</p>
+				<ul class="unstyled">
+					{#each directory_modules as child_module (child_module.path)}
+						<li>
+							<h3><ModuleLink module_path={child_module.path} /></h3>
+							{#if child_module.module_comment}
+								<Mdz content={child_module.module_comment} />
+							{/if}
+						</li>
+					{/each}
+				</ul>
+			</section>
+		{/if}
 	{:else}
 		{#if module.module_comment}
 			<section>
 				<Mdz content={module.module_comment} />
 			</section>
 		{/if}
-		<!-- Declarations Section -->
+		<!-- Declarations section -->
 		<TomeSection>
 			<TomeSectionHeader text="Declarations" />
 
@@ -92,7 +114,7 @@
 			<ApiDeclarationList declarations={search.filtered} search_query={search.query} />
 		</TomeSection>
 
-		<!-- Depends on Section -->
+		<!-- Depends on section -->
 		{#if module.dependencies}
 			<TomeSection>
 				<TomeSectionHeader text="Depends on" />
@@ -106,7 +128,7 @@
 			</TomeSection>
 		{/if}
 
-		<!-- Imported by Section -->
+		<!-- Imported by section -->
 		{#if module.dependents}
 			<TomeSection>
 				<TomeSectionHeader text="Imported by" />

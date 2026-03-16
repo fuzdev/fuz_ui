@@ -1,6 +1,5 @@
 <script lang="ts">
 	import {page} from '$app/state';
-	import {onDestroy} from 'svelte';
 	import {DEV} from 'esm-env';
 	import type {SvelteHTMLElements} from 'svelte/elements';
 
@@ -11,17 +10,17 @@
 	// eslint-disable-next-line @typescript-eslint/no-duplicate-type-constituents
 	const props: SvelteHTMLElements['h1'] | SvelteHTMLElements['h2'] = $props();
 
-	const tome = tome_context.get(); // TODO make reactive?
-	if (DEV && !tome) throw Error('TomeHeader expects a tome in context'); // eslint-disable-line @typescript-eslint/no-unnecessary-condition
+	const get_tome = tome_context.get();
+	if (DEV && !get_tome) throw Error('TomeHeader expects a tome in context'); // eslint-disable-line @typescript-eslint/no-unnecessary-condition
+	const tome = $derived(get_tome());
 
 	const docs_links = docs_links_context.get();
 
-	const fragment = docs_slugify(tome.name);
-	const path_slug = docs_slugify(tome.name);
-	const id = docs_links.add(fragment, tome.name, page.url.pathname);
-
-	onDestroy(() => {
-		docs_links.remove(id);
+	const fragment = $derived(docs_slugify(tome.name));
+	const path_slug = $derived(docs_slugify(tome.name));
+	$effect(() => {
+		const id = docs_links.add(fragment, tome.name, page.url.pathname);
+		return () => docs_links.remove(id);
 	});
 
 	const {path, path_is_selected} = $derived(to_docs_path_info(path_slug, page.url.pathname));
