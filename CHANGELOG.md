@@ -1,5 +1,11 @@
 # @fuzdev/fuz_ui
 
+## 0.190.0
+
+### Minor Changes
+
+- rename `menuitem` from `menu_item` and upgrade fuz_css ([b85650d](https://github.com/fuzdev/fuz_ui/commit/b85650d))
+
 ## 0.189.1
 
 ### Patch Changes
