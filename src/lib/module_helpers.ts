@@ -432,7 +432,7 @@ export const module_is_test = (path: string): boolean => path.endsWith('.test.ts
  *
  * @param path - full absolute path to check
  * @param options - module source options for filtering
- * @returns True if the path is an analyzable source file
+ * @returns true if the path is an analyzable source file
  *
  * @example
  * ```ts

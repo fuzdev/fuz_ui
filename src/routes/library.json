@@ -6439,7 +6439,7 @@
 						"source_line": 445,
 						"type_signature": "(path: string, options: ModuleSourceOptions): boolean",
 						"return_type": "boolean",
-						"return_description": "True if the path is an analyzable source file",
+						"return_description": "true if the path is an analyzable source file",
 						"parameters": [
 							{
 								"name": "path",
