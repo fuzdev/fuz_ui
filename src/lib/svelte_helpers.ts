@@ -81,7 +81,7 @@ export interface SvelteFileAnalysis {
  * @param checker - TypeScript type checker
  * @param options - module source options for path extraction
  * @param ctx - analysis context for collecting diagnostics
- * @returns module analysis matching ModuleAnalysis structure
+ * @returns module analysis matching `ModuleAnalysis` structure
  */
 export const svelte_analyze_module = (
 	source_file: SourceFileInfo,
