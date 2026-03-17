@@ -1,23 +1,65 @@
+/**
+ * mdz parser benchmarks with baseline comparison.
+ *
+ * Usage:
+ *   gro run src/benchmarks/mdz.benchmark.ts          # run and compare against baseline
+ *   gro run src/benchmarks/mdz.benchmark.ts --save   # run and save as new baseline
+ */
+
+import {readFile, writeFile} from 'node:fs/promises';
 import {Benchmark} from '@fuzdev/fuz_util/benchmark.js';
+import {
+	benchmark_baseline_save,
+	benchmark_baseline_compare,
+	benchmark_baseline_format,
+} from '@fuzdev/fuz_util/benchmark_baseline.js';
+import {format_file} from '@fuzdev/gro/format_file.js';
 
 import {mdz_parse} from '../lib/mdz.js';
 import {mdz_parse_lexer} from '../lib/mdz_token_parser.js';
 
 /* eslint-disable no-console */
 
+const save_baseline = process.argv.includes('--save');
+const BASELINE_PATH = 'src/benchmarks';
+const BASELINE_FILE = `${BASELINE_PATH}/baseline.json`;
+
 // -- Benchmark inputs --
 
-const INPUT_TINY = 'hello **bold** world';
+// Generate a large synthetic input
+const generate_large_input = (): string => {
+	const sections: Array<string> = [];
+	for (let i = 0; i < 50; i++) {
+		sections.push(`## Section ${i + 1}
 
-const INPUT_SMALL = `# Small Document
+This is paragraph ${i + 1} with **bold** and _italic_ text.
+Here's a \`code snippet\` and a [link](https://example.com/${i}).
+
+\`\`\`
+code block ${i + 1}
+const value = ${i};
+\`\`\`
+
+Some more text with https://auto.link/${i} and ~strikethrough~ content.`);
+	}
+	return `# Large Document\n\n${sections.join('\n\n')}`;
+};
+
+const inputs = [
+	{name: 'tiny', content: 'hello **bold** world'},
+	{
+		name: 'small',
+		content: `# Small Document
 
 This is a _simple_ paragraph with **bold** text and \`inline code\`.
 
 Here's a link: [click here](https://example.com) and an auto-link https://example.com/path.
 
-Some ~strikethrough~ text and more _italic_ words.`;
-
-const INPUT_MEDIUM = `# Medium Document
+Some ~strikethrough~ text and more _italic_ words.`,
+	},
+	{
+		name: 'medium',
+		content: `# Medium Document
 
 ## Introduction
 
@@ -49,33 +91,15 @@ Multiple **bold** words in a **single** line with \`code\` mixed in.
 
 Final section after a horizontal rule.
 
-More content with [multiple](https://a.com) links [here](https://b.com) and [there](/c).`;
-
-// Generate a large synthetic input
-const generate_large_input = (): string => {
-	const sections: Array<string> = [];
-	for (let i = 0; i < 50; i++) {
-		sections.push(`## Section ${i + 1}
-
-This is paragraph ${i + 1} with **bold** and _italic_ text.
-Here's a \`code snippet\` and a [link](https://example.com/${i}).
-
-\`\`\`
-code block ${i + 1}
-const value = ${i};
-\`\`\`
-
-Some more text with https://auto.link/${i} and ~strikethrough~ content.`);
-	}
-	return `# Large Document\n\n${sections.join('\n\n')}`;
-};
-
-const INPUT_LARGE = generate_large_input();
-
-// Angle brackets without closing tags — exercises tag bail-out paths.
-// Before the pre-check fix, unclosed tags like <GodType> caused O(n*k)
-// scanning through the rest of the document.
-const INPUT_ANGLE_BRACKETS = `# TypeScript-Heavy Document
+More content with [multiple](https://a.com) links [here](https://b.com) and [there](/c).`,
+	},
+	{name: 'large', content: generate_large_input()},
+	{
+		name: 'angle brackets',
+		// Angle brackets without closing tags — exercises tag bail-out paths.
+		// Before the pre-check fix, unclosed tags like <GodType> caused O(n*k)
+		// scanning through the rest of the document.
+		content: `# TypeScript-Heavy Document
 
 ### Why object literals beat Pick<GodType>
 
@@ -116,79 +140,39 @@ Functions with Array<string>, Promise<void>, and Map<string, number> in prose.
 | --- | --- |
 | \`Array<string>\` | list of names |
 | \`Promise<Result<object>>\` | async result |
-| \`Pick<Deps, 'key'>\` | narrowed deps |`;
+| \`Pick<Deps, 'key'>\` | narrowed deps |`,
+	},
+	{
+		name: 'many angles',
+		// Many unclosed angle brackets in a single paragraph — worst case for
+		// repeated tag bail-outs within one parse unit
+		content: Array.from(
+			{length: 50},
+			(_, i) => `Item ${i}: Array<string> and Map<number, Result<object>> end.`,
+		).join('\n'),
+	},
+];
 
-// Many unclosed angle brackets in a single paragraph — worst case for
-// repeated tag bail-outs within one parse unit
-const INPUT_MANY_ANGLES = Array.from(
-	{length: 50},
-	(_, i) => `Item ${i}: Array<string> and Map<number, Result<object>> end.`,
-).join('\n');
+const parsers = [
+	{name: 'single-pass', parse: mdz_parse},
+	{name: 'lexer-based', parse: mdz_parse_lexer},
+];
 
 // -- Benchmark --
 
 const bench = new Benchmark({
 	duration_ms: 3000,
 	warmup_iterations: 20,
+	min_iterations: 50,
 });
 
-// Tiny input
-bench.add('single-pass: tiny', () => {
-	mdz_parse(INPUT_TINY);
-});
-bench.add('lexer-based: tiny', () => {
-	mdz_parse_lexer(INPUT_TINY);
-});
-
-// Small input
-bench.add('single-pass: small', () => {
-	mdz_parse(INPUT_SMALL);
-});
-bench.add('lexer-based: small', () => {
-	mdz_parse_lexer(INPUT_SMALL);
-});
-
-// Medium input
-bench.add('single-pass: medium', () => {
-	mdz_parse(INPUT_MEDIUM);
-});
-bench.add('lexer-based: medium', () => {
-	mdz_parse_lexer(INPUT_MEDIUM);
-});
-
-// Large input
-bench.add('single-pass: large', () => {
-	mdz_parse(INPUT_LARGE);
-});
-bench.add('lexer-based: large', () => {
-	mdz_parse_lexer(INPUT_LARGE);
-});
-
-// Angle brackets (tag bail-out paths)
-bench.add('single-pass: angle brackets', () => {
-	mdz_parse(INPUT_ANGLE_BRACKETS);
-});
-bench.add('lexer-based: angle brackets', () => {
-	mdz_parse_lexer(INPUT_ANGLE_BRACKETS);
-});
-
-// Many unclosed angles in one paragraph
-bench.add('single-pass: many angles', () => {
-	mdz_parse(INPUT_MANY_ANGLES);
-});
-bench.add('lexer-based: many angles', () => {
-	mdz_parse_lexer(INPUT_MANY_ANGLES);
-});
-
-// Input size map for throughput calculation
-const input_sizes: Record<string, number> = {
-	tiny: INPUT_TINY.length,
-	small: INPUT_SMALL.length,
-	medium: INPUT_MEDIUM.length,
-	large: INPUT_LARGE.length,
-	'angle brackets': INPUT_ANGLE_BRACKETS.length,
-	'many angles': INPUT_MANY_ANGLES.length,
-};
+for (const input of inputs) {
+	for (const parser of parsers) {
+		bench.add(`${parser.name}: ${input.name}`, () => {
+			parser.parse(input.content);
+		});
+	}
+}
 
 await bench.run();
 
@@ -200,8 +184,7 @@ console.log(bench.table());
 console.log('\n Throughput (MB/s)\n');
 
 const results_by_name = bench.results_by_name();
-const parsers = ['single-pass', 'lexer-based'];
-const input_names = Object.keys(input_sizes);
+const parser_names = parsers.map((p) => p.name);
 
 // Header
 const col_w = 12;
@@ -209,23 +192,43 @@ const name_w = 16;
 console.log(
 	'  ' +
 		''.padEnd(name_w) +
-		parsers.map((p) => p.padStart(col_w)).join('') +
+		parser_names.map((p) => p.padStart(col_w)).join('') +
 		'    chars'.padStart(col_w),
 );
-console.log('  ' + '-'.repeat(name_w + parsers.length * col_w + col_w));
+console.log('  ' + '-'.repeat(name_w + parser_names.length * col_w + col_w));
 
-for (const input_name of input_names) {
-	const size_bytes = input_sizes[input_name]!;
-	const cols = parsers.map((parser) => {
-		const result = results_by_name.get(`${parser}: ${input_name}`);
+for (const input of inputs) {
+	const cols = parser_names.map((parser_name) => {
+		const result = results_by_name.get(`${parser_name}: ${input.name}`);
 		if (!result) return '—'.padStart(col_w);
-		const mb_per_sec = (result.stats.ops_per_second * size_bytes) / 1_000_000;
+		const mb_per_sec = (result.stats.ops_per_second * input.content.length) / 1_000_000;
 		return mb_per_sec.toFixed(1).padStart(col_w);
 	});
 	console.log(
-		'  ' + input_name.padEnd(name_w) + cols.join('') + String(size_bytes).padStart(col_w),
+		'  ' + input.name.padEnd(name_w) + cols.join('') + String(input.content.length).padStart(col_w),
 	);
 }
 
 console.log('\n Summary\n');
 console.log(bench.summary());
+
+// -- Baseline comparison --
+
+const comparison = await benchmark_baseline_compare(bench.results(), {
+	path: BASELINE_PATH,
+	regression_threshold: 1.1, // 10% threshold — system-level variance (thermal, scheduler) easily causes 5-8% swings
+	staleness_warning_days: 30,
+});
+
+console.log('\n Baseline Comparison\n');
+console.log(benchmark_baseline_format(comparison));
+
+if (save_baseline) {
+	await benchmark_baseline_save(bench.results(), {path: BASELINE_PATH});
+	const content = await readFile(BASELINE_FILE, 'utf-8');
+	const formatted = await format_file(content, {filepath: BASELINE_FILE});
+	await writeFile(BASELINE_FILE, formatted);
+	console.log(`\n✓ Baseline saved to ${BASELINE_FILE}`);
+} else if (comparison.baseline_found && comparison.regressions.length > 0) {
+	console.log('\n⚠️  Regressions detected. Run with --save to update baseline if intentional.');
+}
