@@ -231,6 +231,10 @@ Must be followed by a newline or end of file.
 
 Heading content can include any inline formatting: `## **Bold** and _italic_`
 
+**Fragment IDs:**
+
+Each heading gets a lowercase slugified `id` derived from its text content, enabling fragment links. Inline formatting is stripped to extract plain text, then `slugify` produces the id (e.g. `## Async Patterns` → `id="async-patterns"`, `## AsyncStatus` → `id="asyncstatus"`).
+
 ---
 
 ## Horizontal Rules
@@ -533,6 +537,7 @@ interface MdzHrNode extends MdzBaseNode {
 interface MdzHeadingNode extends MdzBaseNode {
 	type: 'Heading';
 	level: 1 | 2 | 3 | 4 | 5 | 6;
+	id: string; // slugified heading text for fragment links
 	children: Array<MdzNode>;
 }
 
@@ -558,7 +563,7 @@ interface MdzComponentNode extends MdzBaseNode {
 - Text nodes have `content` field with the text string
 - Code nodes have `content` field with the code string (identifier/module name)
 - Codeblock nodes have `lang` (language hint, nullable) and `content` (raw code)
-- Heading nodes have `level` (1-6) and `children` (inline content)
+- Heading nodes have `level` (1-6), `id` (lowercase slugified text for fragment links), and `children` (inline content)
 - Link nodes have `reference` (URL/path), `link_type` ('external' | 'internal'), and `children` (display content). Internal covers both absolute (`/path`) and relative (`./path`, `../path`) references
 - Component and Element nodes have `name` and `children`
 - Bold, Italic, Strikethrough, and Paragraph nodes have `children` arrays

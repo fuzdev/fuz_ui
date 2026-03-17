@@ -277,6 +277,7 @@ Use 1-6 hashes followed by a space and content:
 - Must have space after hashes
 - Must have non-whitespace content after space
 - Must be followed by newline or EOF
+- Each heading gets a lowercase slugified `id` for fragment links (e.g. `## Async Patterns` → `id="async-patterns"`)
 
 **Invalid patterns:**
 
