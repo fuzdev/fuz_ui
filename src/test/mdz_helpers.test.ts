@@ -209,14 +209,8 @@ describe('trim_trailing_punctuation', () => {
 	});
 
 	test('trims unmatched trailing closing parens', () => {
-		assert.equal(
-			trim_trailing_punctuation('https://example.com)'),
-			'https://example.com',
-		);
-		assert.equal(
-			trim_trailing_punctuation('https://example.com))'),
-			'https://example.com',
-		);
+		assert.equal(trim_trailing_punctuation('https://example.com)'), 'https://example.com');
+		assert.equal(trim_trailing_punctuation('https://example.com))'), 'https://example.com');
 	});
 
 	test('keeps matched parens but trims excess', () => {
@@ -285,6 +279,10 @@ describe('is_at_absolute_path', () => {
 		assert.equal(is_at_absolute_path('/\n', 0), false);
 	});
 
+	test('rejects slash followed by tab', () => {
+		assert.equal(is_at_absolute_path('/\tfoo', 0), false);
+	});
+
 	test('rejects slash at end of string', () => {
 		assert.equal(is_at_absolute_path('/', 0), false);
 	});
@@ -339,6 +337,10 @@ describe('is_at_relative_path', () => {
 		assert.equal(is_at_relative_path('../\n', 0), false);
 	});
 
+	test('rejects ../ followed by tab', () => {
+		assert.equal(is_at_relative_path('../\tfoo', 0), false);
+	});
+
 	test('rejects period not preceded by whitespace', () => {
 		assert.equal(is_at_relative_path('x./foo', 1), false);
 	});
@@ -349,6 +351,10 @@ describe('is_at_relative_path', () => {
 
 	test('rejects ./ followed by newline', () => {
 		assert.equal(is_at_relative_path('./\n', 0), false);
+	});
+
+	test('rejects ./ followed by tab', () => {
+		assert.equal(is_at_relative_path('./\tfoo', 0), false);
 	});
 
 	test('rejects non-period character', () => {
@@ -416,7 +422,10 @@ describe('mdz_heading_id', () => {
 	});
 
 	test('handles code in headings', () => {
-		assert.equal(mdz_heading_id([text('The '), code('foo'), text(' function')]), 'the-foo-function');
+		assert.equal(
+			mdz_heading_id([text('The '), code('foo'), text(' function')]),
+			'the-foo-function',
+		);
 	});
 });
 
@@ -566,17 +575,11 @@ describe('extract_single_tag', () => {
 	});
 
 	test('returns null for multiple tags', () => {
-		assert.equal(
-			extract_single_tag([component('A', []), component('B', [])]),
-			null,
-		);
+		assert.equal(extract_single_tag([component('A', []), component('B', [])]), null);
 	});
 
 	test('returns null when non-whitespace text is present', () => {
-		assert.equal(
-			extract_single_tag([text('hello'), component('Alert', [])]),
-			null,
-		);
+		assert.equal(extract_single_tag([text('hello'), component('Alert', [])]), null);
 	});
 
 	test('returns null for non-tag node types', () => {
@@ -592,10 +595,7 @@ describe('extract_single_tag', () => {
 	});
 
 	test('returns null for mixed component and element', () => {
-		assert.equal(
-			extract_single_tag([component('Alert', []), element('div', [])]),
-			null,
-		);
+		assert.equal(extract_single_tag([component('Alert', []), element('div', [])]), null);
 	});
 
 	test('returns null for empty array', () => {

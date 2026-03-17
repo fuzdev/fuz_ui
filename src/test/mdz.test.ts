@@ -36,4 +36,3 @@ for (const {name, parse} of parsers) {
 		});
 	});
 }
-
