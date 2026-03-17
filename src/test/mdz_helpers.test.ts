@@ -313,6 +313,10 @@ describe('is_at_relative_path', () => {
 		assert.equal(is_at_relative_path('see\n../foo', 4), true);
 	});
 
+	test('detects ./ path after tab', () => {
+		assert.equal(is_at_relative_path('see\t./foo', 4), true);
+	});
+
 	test('rejects ./ without following path char', () => {
 		assert.equal(is_at_relative_path('./', 0), false);
 	});
@@ -321,8 +325,16 @@ describe('is_at_relative_path', () => {
 		assert.equal(is_at_relative_path('../', 0), false);
 	});
 
+	test('rejects ../ at end of string', () => {
+		assert.equal(is_at_relative_path('see ../', 4), false);
+	});
+
 	test('rejects ./ followed by space', () => {
 		assert.equal(is_at_relative_path('./ foo', 0), false);
+	});
+
+	test('rejects ./ followed by slash', () => {
+		assert.equal(is_at_relative_path('.//foo', 0), false);
 	});
 
 	test('rejects ../ followed by slash', () => {

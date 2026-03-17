@@ -5071,7 +5071,7 @@
 					{
 						"name": "is_at_absolute_path",
 						"kind": "function",
-						"doc_comment": "Check if position in text is the start of an absolute path (starts with `/`).\nMust be preceded by whitespace or be at the start of the string.\nRejects `//` (comments/protocol-relative) and `/ ` (bare slash).",
+						"doc_comment": "Check if position in text is the start of an absolute path (starts with `/`).\nMust be preceded by whitespace or be at the start of the string.\nRejects `//` (comments/protocol-relative) and slash followed by whitespace.",
 						"source_line": 193,
 						"type_signature": "(text: string, index: number): boolean",
 						"return_type": "boolean",
@@ -5089,7 +5089,7 @@
 					{
 						"name": "is_at_relative_path",
 						"kind": "function",
-						"doc_comment": "Check if position in text is the start of a relative path (`./` or `../`).\nMust be preceded by whitespace or be at the start of the string.\nRequires at least one path character after the prefix.",
+						"doc_comment": "Check if position in text is the start of a relative path (`./` or `../`).\nMust be preceded by whitespace or be at the start of the string.\nRejects prefix followed by whitespace, slash, or end of string.",
 						"source_line": 209,
 						"type_signature": "(text: string, index: number): boolean",
 						"return_type": "boolean",
