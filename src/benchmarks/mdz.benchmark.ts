@@ -72,6 +72,59 @@ Some more text with https://auto.link/${i} and ~strikethrough~ content.`);
 
 const INPUT_LARGE = generate_large_input();
 
+// Angle brackets without closing tags — exercises tag bail-out paths.
+// Before the pre-check fix, unclosed tags like <GodType> caused O(n*k)
+// scanning through the rest of the document.
+const INPUT_ANGLE_BRACKETS = `# TypeScript-Heavy Document
+
+### Why object literals beat Pick<GodType>
+
+A \`Pick<AppRuntime, 'env_get'>\` pattern forces every consumer to import the
+god type. Small standalone interfaces have no such coupling.
+
+## Generic Signatures
+
+\`\`\`typescript
+export interface GitDeps {
+  checkout: (options: {branch: string}) => Promise<Result<object, {message: string}>>;
+  push: (options: {cwd?: string}) => Promise<Result<object, {message: string}>>;
+}
+
+export const update = async (
+  repos: Array<LocalRepo>,
+  updates: Map<string, string>,
+): Promise<void> => {};
+
+export const read_json = <T>(path: string): Promise<T | null> => {};
+\`\`\`
+
+### Narrowing with \`Pick<>\`
+
+\`Pick<>\` on small \`*Deps\` interfaces is fine:
+
+\`\`\`typescript
+password: Pick<PasswordHashDeps, 'hash_password'>;
+\`\`\`
+
+The anti-pattern is \`Pick<GodType>\` — coupling every consumer to a large type.
+
+## More Generics
+
+Functions with Array<string>, Promise<void>, and Map<string, number> in prose.
+
+| Type | Example |
+| --- | --- |
+| \`Array<string>\` | list of names |
+| \`Promise<Result<object>>\` | async result |
+| \`Pick<Deps, 'key'>\` | narrowed deps |`;
+
+// Many unclosed angle brackets in a single paragraph — worst case for
+// repeated tag bail-outs within one parse unit
+const INPUT_MANY_ANGLES = Array.from(
+	{length: 50},
+	(_, i) => `Item ${i}: Array<string> and Map<number, Result<object>> end.`,
+).join('\n');
+
 // -- Benchmark --
 
 const bench = new Benchmark({
@@ -111,16 +164,68 @@ bench.add('lexer-based: large', () => {
 	mdz_parse_lexer(INPUT_LARGE);
 });
 
+// Angle brackets (tag bail-out paths)
+bench.add('single-pass: angle brackets', () => {
+	mdz_parse(INPUT_ANGLE_BRACKETS);
+});
+bench.add('lexer-based: angle brackets', () => {
+	mdz_parse_lexer(INPUT_ANGLE_BRACKETS);
+});
+
+// Many unclosed angles in one paragraph
+bench.add('single-pass: many angles', () => {
+	mdz_parse(INPUT_MANY_ANGLES);
+});
+bench.add('lexer-based: many angles', () => {
+	mdz_parse_lexer(INPUT_MANY_ANGLES);
+});
+
+// Input size map for throughput calculation
+const input_sizes: Record<string, number> = {
+	tiny: INPUT_TINY.length,
+	small: INPUT_SMALL.length,
+	medium: INPUT_MEDIUM.length,
+	large: INPUT_LARGE.length,
+	'angle brackets': INPUT_ANGLE_BRACKETS.length,
+	'many angles': INPUT_MANY_ANGLES.length,
+};
+
 await bench.run();
 
-console.log('\n📊 mdz Parser Benchmark Results\n');
+console.log('\n mdz Parser Benchmark Results\n');
 console.log(bench.table());
 
-console.log('\n📈 Summary\n');
-console.log(bench.summary());
+// Throughput table — normalizes across input sizes to spot pathologies at a glance.
+// A significantly lower MB/s for one input signals non-linear scaling.
+console.log('\n Throughput (MB/s)\n');
 
-console.log('\nInput sizes:');
-console.log(`  tiny:   ${INPUT_TINY.length} chars`);
-console.log(`  small:  ${INPUT_SMALL.length} chars`);
-console.log(`  medium: ${INPUT_MEDIUM.length} chars`);
-console.log(`  large:  ${INPUT_LARGE.length} chars`);
+const results_by_name = bench.results_by_name();
+const parsers = ['single-pass', 'lexer-based'];
+const input_names = Object.keys(input_sizes);
+
+// Header
+const col_w = 12;
+const name_w = 16;
+console.log(
+	'  ' +
+		''.padEnd(name_w) +
+		parsers.map((p) => p.padStart(col_w)).join('') +
+		'    chars'.padStart(col_w),
+);
+console.log('  ' + '-'.repeat(name_w + parsers.length * col_w + col_w));
+
+for (const input_name of input_names) {
+	const size_bytes = input_sizes[input_name]!;
+	const cols = parsers.map((parser) => {
+		const result = results_by_name.get(`${parser}: ${input_name}`);
+		if (!result) return '—'.padStart(col_w);
+		const mb_per_sec = (result.stats.ops_per_second * size_bytes) / 1_000_000;
+		return mb_per_sec.toFixed(1).padStart(col_w);
+	});
+	console.log(
+		'  ' + input_name.padEnd(name_w) + cols.join('') + String(size_bytes).padStart(col_w),
+	);
+}
+
+console.log('\n Summary\n');
+console.log(bench.summary());

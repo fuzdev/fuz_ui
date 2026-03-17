@@ -770,10 +770,12 @@ export class MdzParser {
 
 		const content_start = i + 1; // past >
 
-		// Bail early if closing tag is missing or past a paragraph break
+		// Bail early if closing tag is missing, past a paragraph break,
+		// or past the search boundary (e.g. heading line end)
 		const closing_tag = `</${tag_name}>`;
+		const search_limit = Math.min(this.#max_search_index, this.#template.length);
 		const close_tag_index = this.#template.indexOf(closing_tag, content_start);
-		if (close_tag_index === -1) {
+		if (close_tag_index === -1 || close_tag_index >= search_limit) {
 			this.#index = start + 1;
 			return this.#make_text_node('<', start);
 		}
@@ -1282,31 +1284,29 @@ export class MdzParser {
 		// Consume the space after hashes (already verified to exist)
 		this.#index++;
 
-		// Parse inline content until newline
+		// Find end-of-line to bound nested parsers (prevents tag scanner from scanning past heading)
+		let eol = this.#template.indexOf('\n', this.#index);
+		if (eol === -1) eol = this.#template.length;
+
+		const saved_max_search_index = this.#max_search_index;
+		this.#max_search_index = eol;
+
+		// Parse inline content until end of line
 		const content_nodes: Array<MdzNode> = [];
 
-		while (this.#index < this.#template.length) {
-			const char_code = this.#template.charCodeAt(this.#index);
-
-			if (char_code === NEWLINE) {
-				break;
-			}
-
+		while (this.#index < eol) {
 			const node = this.#parse_node();
 			if (node.type === 'Text') {
-				// Check if text node includes a newline (since #parse_text doesn't stop at single newlines)
-				// If so, trim it and move index back
-				const newline_index = node.content.indexOf('\n');
-				if (newline_index !== -1) {
-					const trimmed_content = node.content.slice(0, newline_index);
+				// Trim if #parse_text overshot past the newline
+				if (node.end > eol) {
+					const trimmed_content = node.content.slice(0, eol - node.start);
 					if (trimmed_content) {
 						this.#accumulate_text(trimmed_content, node.start);
 					}
-					this.#index = node.start + newline_index;
+					this.#index = eol;
 					break;
-				} else {
-					this.#accumulate_text(node.content, node.start);
 				}
+				this.#accumulate_text(node.content, node.start);
 			} else {
 				this.#flush_text();
 				content_nodes.push(...this.#nodes);
@@ -1314,6 +1314,8 @@ export class MdzParser {
 				content_nodes.push(node);
 			}
 		}
+
+		this.#max_search_index = saved_max_search_index;
 
 		this.#flush_text();
 		content_nodes.push(...this.#nodes);

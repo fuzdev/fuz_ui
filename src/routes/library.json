@@ -5976,7 +5976,7 @@
 					{
 						"name": "mdz_is_url",
 						"kind": "function",
-						"source_line": 1597,
+						"source_line": 1527,
 						"type_signature": "(s: string): boolean",
 						"return_type": "boolean",
 						"parameters": [
@@ -5990,7 +5990,7 @@
 						"name": "resolve_relative_path",
 						"kind": "function",
 						"doc_comment": "Resolves a relative path (`./` or `../`) against a base path.\nThe base is treated as a directory regardless of trailing slash\n(`'/docs/mdz'` and `'/docs/mdz/'` behave identically).\nHandles embedded `.` and `..` segments within the reference\n(e.g., `'./a/../b'` → navigates up then down).\nClamps at root — excess `..` segments stop at `/` rather than escaping.",
-						"source_line": 1611,
+						"source_line": 1541,
 						"type_signature": "(reference: string, base: string): string",
 						"return_type": "string",
 						"return_description": "An absolute resolved path (e.g., `'/docs/mdz/grammar'`).",
