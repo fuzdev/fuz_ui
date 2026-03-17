@@ -2,7 +2,8 @@
 	import Code from '@fuzdev/fuz_code/Code.svelte';
 	import {resolve} from '$app/paths';
 
-	import {type MdzNode, resolve_relative_path} from './mdz.js';
+	import type {MdzNode} from './mdz.js';
+	import {resolve_relative_path} from './mdz_helpers.js';
 	import DocsLink from './DocsLink.svelte';
 	import MdzNodeView from './MdzNodeView.svelte';
 	import {
@@ -80,7 +81,7 @@
 {:else if node.type === 'Hr'}
 	<hr />
 {:else if node.type === 'Heading'}
-	<svelte:element this={`h${node.level}`}>
+	<svelte:element this={`h${node.level}`} id={node.id}>
 		{@render render_children(node.children)}
 	</svelte:element>
 {:else if node.type === 'Codeblock'}

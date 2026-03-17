@@ -12,7 +12,8 @@ import {UnreachableError} from '@fuzdev/fuz_util/error.js';
 import {escape_svelte_text} from '@fuzdev/fuz_util/svelte_preprocess_helpers.js';
 import {escape_js_string} from '@fuzdev/fuz_util/string.js';
 
-import {type MdzNode, resolve_relative_path} from './mdz.js';
+import type {MdzNode} from './mdz.js';
+import {resolve_relative_path} from './mdz_helpers.js';
 
 /**
  * Result of converting `MdzNode` arrays to Svelte markup.

@@ -8,6 +8,7 @@
  */
 
 import type {MdzNode, MdzComponentNode, MdzElementNode} from './mdz.js';
+import {slugify} from '@fuzdev/fuz_util/path.js';
 
 // Character codes for performance
 export const BACKTICK = 96; // `
@@ -187,7 +188,7 @@ export const trim_trailing_punctuation = (url: string): string => {
 /**
  * Check if position in text is the start of an absolute path (starts with `/`).
  * Must be preceded by whitespace or be at the start of the string.
- * Rejects `//` (comments/protocol-relative) and `/ ` (bare slash).
+ * Rejects `//` (comments/protocol-relative) and slash followed by whitespace.
  */
 export const is_at_absolute_path = (text: string, index: number): boolean => {
 	if (text.charCodeAt(index) !== SLASH) return false;
@@ -197,13 +198,13 @@ export const is_at_absolute_path = (text: string, index: number): boolean => {
 	}
 	if (index + 1 >= text.length) return false;
 	const next_char = text.charCodeAt(index + 1);
-	return next_char !== SLASH && next_char !== SPACE && next_char !== NEWLINE;
+	return next_char !== SLASH && next_char !== SPACE && next_char !== NEWLINE && next_char !== TAB;
 };
 
 /**
  * Check if position in text is the start of a relative path (`./` or `../`).
  * Must be preceded by whitespace or be at the start of the string.
- * Requires at least one path character after the prefix.
+ * Rejects prefix followed by whitespace, slash, or end of string.
  */
 export const is_at_relative_path = (text: string, index: number): boolean => {
 	if (text.charCodeAt(index) !== PERIOD) return false;
@@ -219,14 +220,68 @@ export const is_at_relative_path = (text: string, index: number): boolean => {
 		text.charCodeAt(index + 2) === SLASH
 	) {
 		const after = text.charCodeAt(index + 3);
-		return after !== SPACE && after !== NEWLINE && after !== SLASH;
+		return after !== SPACE && after !== NEWLINE && after !== TAB && after !== SLASH;
 	}
 	// Check for ./ (at least 3 chars: ./x)
 	if (remaining >= 3 && text.charCodeAt(index + 1) === SLASH) {
 		const after = text.charCodeAt(index + 2);
-		return after !== SPACE && after !== NEWLINE && after !== SLASH;
+		return after !== SPACE && after !== NEWLINE && after !== TAB && after !== SLASH;
 	}
 	return false;
+};
+
+/**
+ * Extracts plain text content from an array of mdz nodes, recursing into children.
+ */
+export const mdz_text_content = (nodes: Array<MdzNode>): string =>
+	nodes
+		.map((n) => ('children' in n ? mdz_text_content(n.children) : 'content' in n ? n.content : ''))
+		.join('');
+
+/**
+ * Generates a lowercase slug id for a heading from its child nodes.
+ * Follows standard markdown conventions (GitHub, etc.) where heading IDs are lowercased.
+ * For case-preserving IDs (e.g. API declarations), see `docs_slugify` in `docs_helpers.svelte.ts`.
+ */
+export const mdz_heading_id = (nodes: Array<MdzNode>): string =>
+	slugify(mdz_text_content(nodes), false);
+
+/**
+ * Check if a string is a URL (`https://` or `http://`).
+ * Requires at least one valid character after the protocol.
+ * Rejects whitespace and characters that can't start a valid hostname.
+ */
+const URL_PATTERN = /^https?:\/\/[^\s)\]}<>.,:/?#!]/;
+export const mdz_is_url = (s: string): boolean => URL_PATTERN.test(s);
+
+/**
+ * Resolves a relative path (`./` or `../`) against a base path.
+ * The base is treated as a directory regardless of trailing slash
+ * (`'/docs/mdz'` and `'/docs/mdz/'` behave identically).
+ * Handles embedded `.` and `..` segments within the reference
+ * (e.g., `'./a/../b'` → navigates up then down).
+ * Clamps at root — excess `..` segments stop at `/` rather than escaping.
+ *
+ * @param reference A relative path starting with `./` or `../`.
+ * @param base An absolute base path (e.g., `'/docs/mdz/'`). Empty string is treated as root.
+ * @returns An absolute resolved path (e.g., `'/docs/mdz/grammar'`).
+ */
+export const resolve_relative_path = (reference: string, base: string): string => {
+	const segments = base.split('/');
+	// Remove trailing empty from split (e.g., '/docs/mdz/' → ['', 'docs', 'mdz', ''])
+	// but keep the root segment ([''] from '' base or ['', ''] from '/').
+	if (segments.length > 1 && segments.at(-1) === '') segments.pop();
+	const trailing = reference.endsWith('/');
+	for (const segment of reference.split('/')) {
+		if (segment === '.' || segment === '') continue;
+		if (segment === '..') {
+			if (segments.length > 1) segments.pop(); // clamp at root
+		} else {
+			segments.push(segment);
+		}
+	}
+	if (trailing) segments.push('');
+	return segments.join('/');
 };
 
 export const extract_single_tag = (

@@ -93,7 +93,7 @@
 			"@changesets/changelog-git": "^0.2.1",
 			"@fuzdev/fuz_code": "^0.45.1",
 			"@fuzdev/fuz_css": "^0.56.0",
-			"@fuzdev/fuz_util": "^0.54.0",
+			"@fuzdev/fuz_util": "^0.55.0",
 			"@fuzdev/gro": "^0.197.0",
 			"@jridgewell/trace-mapping": "^0.3.31",
 			"@ryanatkn/eslint-config": "^0.10.1",
@@ -2734,41 +2734,41 @@
 					{
 						"name": "docs_slugify",
 						"kind": "function",
-						"doc_comment": "Convert a string to a URL-safe fragment identifier, preserving case for API declarations.\nOnly transforms spaces and special characters, keeping valid identifier characters intact.\nUsed for hash anchors in documentation.",
-						"source_line": 14,
+						"doc_comment": "Convert a string to a URL-safe fragment identifier, preserving case.\nUnlike `slugify` from `@fuzdev/fuz_util/path.js` which lowercases,\nthis keeps the original casing so API declarations like `AsyncStatus`\nand `async_status` produce distinct fragment IDs.\nUsed by the Tome documentation system for heading and section anchors.",
+						"source_line": 16,
 						"type_signature": "(str: string): string",
 						"return_type": "string",
-						"return_description": "A URL-safe fragment identifier",
+						"return_description": "a URL-safe fragment identifier with case preserved",
 						"parameters": [
 							{
 								"name": "str",
 								"type": "string",
-								"description": "The string to convert to a fragment"
+								"description": "the string to convert to a fragment"
 							}
 						]
 					},
 					{
 						"name": "DOCS_PATH_DEFAULT",
 						"kind": "variable",
-						"source_line": 28,
+						"source_line": 30,
 						"type_signature": "\"/docs\""
 					},
 					{
 						"name": "DOCS_PATH",
 						"kind": "variable",
-						"source_line": 29,
+						"source_line": 31,
 						"type_signature": "\"/docs\" | \"/\" | \"/about\" | \"/docs/Alert\" | \"/docs/Breadcrumb\" | \"/docs/Breadcrumb/a\" | \"/docs/Breadcrumb/a/b\" | \"/docs/Breadcrumb/a/b/c\" | \"/docs/Breadcrumb/a/b/c/d\" | \"/docs/Card\" | ... 63 more ... | `/${string}${`/docs/api/${string}` & {}}`"
 					},
 					{
 						"name": "DOCS_API_PATH",
 						"kind": "variable",
-						"source_line": 30,
+						"source_line": 32,
 						"type_signature": "string"
 					},
 					{
 						"name": "to_docs_path_info",
 						"kind": "function",
-						"source_line": 32,
+						"source_line": 34,
 						"type_signature": "(path_slug: string, pathname: string, root_path?: string): { path: string; path_is_selected: boolean; path_segment: string | undefined; }",
 						"return_type": "{ path: string; path_is_selected: boolean; path_segment: string | undefined; }",
 						"parameters": [
@@ -2790,19 +2790,19 @@
 					{
 						"name": "docs_links_context",
 						"kind": "variable",
-						"source_line": 43,
+						"source_line": 45,
 						"type_signature": "{ get: (error_message?: string | undefined) => DocsLinks; get_maybe: () => DocsLinks | undefined; set: (value: DocsLinks) => DocsLinks; }"
 					},
 					{
 						"name": "DocsLinkTag",
 						"kind": "type",
-						"source_line": 45,
+						"source_line": 47,
 						"type_signature": "DocsLinkTag"
 					},
 					{
 						"name": "DocsLinkInfo",
 						"kind": "type",
-						"source_line": 47,
+						"source_line": 49,
 						"type_signature": "DocsLinkInfo",
 						"properties": [
 							{
@@ -2845,7 +2845,7 @@
 					{
 						"name": "DocsLinks",
 						"kind": "class",
-						"source_line": 57,
+						"source_line": 59,
 						"members": [
 							{
 								"name": "root_path",
@@ -4761,248 +4761,248 @@
 					{
 						"name": "BACKTICK",
 						"kind": "variable",
-						"source_line": 13,
+						"source_line": 14,
 						"type_signature": "96"
 					},
 					{
 						"name": "ASTERISK",
 						"kind": "variable",
-						"source_line": 14,
+						"source_line": 15,
 						"type_signature": "42"
 					},
 					{
 						"name": "UNDERSCORE",
 						"kind": "variable",
-						"source_line": 15,
+						"source_line": 16,
 						"type_signature": "95"
 					},
 					{
 						"name": "TILDE",
 						"kind": "variable",
-						"source_line": 16,
+						"source_line": 17,
 						"type_signature": "126"
 					},
 					{
 						"name": "NEWLINE",
 						"kind": "variable",
-						"source_line": 17,
+						"source_line": 18,
 						"type_signature": "10"
 					},
 					{
 						"name": "HYPHEN",
 						"kind": "variable",
-						"source_line": 18,
+						"source_line": 19,
 						"type_signature": "45"
 					},
 					{
 						"name": "HASH",
 						"kind": "variable",
-						"source_line": 19,
+						"source_line": 20,
 						"type_signature": "35"
 					},
 					{
 						"name": "SPACE",
 						"kind": "variable",
-						"source_line": 20,
+						"source_line": 21,
 						"type_signature": "32"
 					},
 					{
 						"name": "TAB",
 						"kind": "variable",
-						"source_line": 21,
+						"source_line": 22,
 						"type_signature": "9"
 					},
 					{
 						"name": "LEFT_ANGLE",
 						"kind": "variable",
-						"source_line": 22,
+						"source_line": 23,
 						"type_signature": "60"
 					},
 					{
 						"name": "RIGHT_ANGLE",
 						"kind": "variable",
-						"source_line": 23,
+						"source_line": 24,
 						"type_signature": "62"
 					},
 					{
 						"name": "SLASH",
 						"kind": "variable",
-						"source_line": 24,
+						"source_line": 25,
 						"type_signature": "47"
 					},
 					{
 						"name": "LEFT_BRACKET",
 						"kind": "variable",
-						"source_line": 25,
+						"source_line": 26,
 						"type_signature": "91"
 					},
 					{
 						"name": "RIGHT_BRACKET",
 						"kind": "variable",
-						"source_line": 26,
+						"source_line": 27,
 						"type_signature": "93"
 					},
 					{
 						"name": "LEFT_PAREN",
 						"kind": "variable",
-						"source_line": 27,
+						"source_line": 28,
 						"type_signature": "40"
 					},
 					{
 						"name": "RIGHT_PAREN",
 						"kind": "variable",
-						"source_line": 28,
+						"source_line": 29,
 						"type_signature": "41"
 					},
 					{
 						"name": "COLON",
 						"kind": "variable",
-						"source_line": 29,
+						"source_line": 30,
 						"type_signature": "58"
 					},
 					{
 						"name": "PERIOD",
 						"kind": "variable",
-						"source_line": 30,
+						"source_line": 31,
 						"type_signature": "46"
 					},
 					{
 						"name": "COMMA",
 						"kind": "variable",
-						"source_line": 31,
+						"source_line": 32,
 						"type_signature": "44"
 					},
 					{
 						"name": "SEMICOLON",
 						"kind": "variable",
-						"source_line": 32,
+						"source_line": 33,
 						"type_signature": "59"
 					},
 					{
 						"name": "EXCLAMATION",
 						"kind": "variable",
-						"source_line": 33,
+						"source_line": 34,
 						"type_signature": "33"
 					},
 					{
 						"name": "QUESTION",
 						"kind": "variable",
-						"source_line": 34,
+						"source_line": 35,
 						"type_signature": "63"
 					},
 					{
 						"name": "DOLLAR",
 						"kind": "variable",
-						"source_line": 36,
+						"source_line": 37,
 						"type_signature": "36"
 					},
 					{
 						"name": "PERCENT",
 						"kind": "variable",
-						"source_line": 37,
+						"source_line": 38,
 						"type_signature": "37"
 					},
 					{
 						"name": "AMPERSAND",
 						"kind": "variable",
-						"source_line": 38,
+						"source_line": 39,
 						"type_signature": "38"
 					},
 					{
 						"name": "APOSTROPHE",
 						"kind": "variable",
-						"source_line": 39,
+						"source_line": 40,
 						"type_signature": "39"
 					},
 					{
 						"name": "PLUS",
 						"kind": "variable",
-						"source_line": 40,
+						"source_line": 41,
 						"type_signature": "43"
 					},
 					{
 						"name": "EQUALS",
 						"kind": "variable",
-						"source_line": 41,
+						"source_line": 42,
 						"type_signature": "61"
 					},
 					{
 						"name": "AT",
 						"kind": "variable",
-						"source_line": 42,
+						"source_line": 43,
 						"type_signature": "64"
 					},
 					{
 						"name": "A_UPPER",
 						"kind": "variable",
-						"source_line": 44,
+						"source_line": 45,
 						"type_signature": "65"
 					},
 					{
 						"name": "Z_UPPER",
 						"kind": "variable",
-						"source_line": 45,
+						"source_line": 46,
 						"type_signature": "90"
 					},
 					{
 						"name": "A_LOWER",
 						"kind": "variable",
-						"source_line": 46,
+						"source_line": 47,
 						"type_signature": "97"
 					},
 					{
 						"name": "Z_LOWER",
 						"kind": "variable",
-						"source_line": 47,
+						"source_line": 48,
 						"type_signature": "122"
 					},
 					{
 						"name": "ZERO",
 						"kind": "variable",
-						"source_line": 48,
+						"source_line": 49,
 						"type_signature": "48"
 					},
 					{
 						"name": "NINE",
 						"kind": "variable",
-						"source_line": 49,
+						"source_line": 50,
 						"type_signature": "57"
 					},
 					{
 						"name": "HR_HYPHEN_COUNT",
 						"kind": "variable",
-						"source_line": 51,
+						"source_line": 52,
 						"type_signature": "3"
 					},
 					{
 						"name": "MIN_CODEBLOCK_BACKTICKS",
 						"kind": "variable",
-						"source_line": 52,
+						"source_line": 53,
 						"type_signature": "3"
 					},
 					{
 						"name": "MAX_HEADING_LEVEL",
 						"kind": "variable",
-						"source_line": 53,
+						"source_line": 54,
 						"type_signature": "6"
 					},
 					{
 						"name": "HTTPS_PREFIX_LENGTH",
 						"kind": "variable",
-						"source_line": 54,
+						"source_line": 55,
 						"type_signature": "8"
 					},
 					{
 						"name": "HTTP_PREFIX_LENGTH",
 						"kind": "variable",
-						"source_line": 55,
+						"source_line": 56,
 						"type_signature": "7"
 					},
 					{
 						"name": "is_letter",
 						"kind": "function",
 						"doc_comment": "Check if character code is a letter (A-Z, a-z).",
-						"source_line": 60,
+						"source_line": 61,
 						"type_signature": "(char_code: number): boolean",
 						"return_type": "boolean",
 						"parameters": [
@@ -5016,7 +5016,7 @@
 						"name": "is_tag_name_char",
 						"kind": "function",
 						"doc_comment": "Check if character code is valid for tag name (letter, number, hyphen, underscore).",
-						"source_line": 66,
+						"source_line": 67,
 						"type_signature": "(char_code: number): boolean",
 						"return_type": "boolean",
 						"parameters": [
@@ -5030,7 +5030,7 @@
 						"name": "is_word_char",
 						"kind": "function",
 						"doc_comment": "Check if character is part of a word for word boundary detection.\nUsed to prevent intraword emphasis with `_` and `~` delimiters.\n\nFormatting delimiters (`*`, `_`, `~`) are NOT word characters - they're transparent.\nOnly alphanumeric characters (A-Z, a-z, 0-9) are considered word characters.\n\nThis prevents false positives with snake_case identifiers while allowing\nadjacent formatting like `**bold**_italic_`.",
-						"source_line": 82,
+						"source_line": 83,
 						"type_signature": "(char_code: number): boolean",
 						"return_type": "boolean",
 						"parameters": [
@@ -5044,7 +5044,7 @@
 						"name": "is_valid_path_char",
 						"kind": "function",
 						"doc_comment": "Check if character code is valid in URI path per RFC 3986.\nValidates against the `pchar` production plus path/query/fragment separators.\n\nValid characters:\n- unreserved: A-Z a-z 0-9 - . _ ~\n- sub-delims: ! $ & ' ( ) * + , ; =\n- path allowed: : @\n- separators: / ? #\n- percent-encoding: %",
-						"source_line": 102,
+						"source_line": 103,
 						"type_signature": "(char_code: number): boolean",
 						"return_type": "boolean",
 						"parameters": [
@@ -5058,7 +5058,7 @@
 						"name": "trim_trailing_punctuation",
 						"kind": "function",
 						"doc_comment": "Trim trailing punctuation from URL/path per RFC 3986 and GFM rules.\n- Trims simple trailing: .,;:!?]\n- Balanced logic for () only (valid in path components)\n- Invalid chars like [] {} are already stopped by whitelist, but ] trimmed as fallback\n\nOptimized to avoid O(n²) string slicing - tracks end index and slices once at the end.",
-						"source_line": 136,
+						"source_line": 137,
 						"type_signature": "(url: string): string",
 						"return_type": "string",
 						"parameters": [
@@ -5071,8 +5071,8 @@
 					{
 						"name": "is_at_absolute_path",
 						"kind": "function",
-						"doc_comment": "Check if position in text is the start of an absolute path (starts with `/`).\nMust be preceded by whitespace or be at the start of the string.\nRejects `//` (comments/protocol-relative) and `/ ` (bare slash).",
-						"source_line": 192,
+						"doc_comment": "Check if position in text is the start of an absolute path (starts with `/`).\nMust be preceded by whitespace or be at the start of the string.\nRejects `//` (comments/protocol-relative) and slash followed by whitespace.",
+						"source_line": 193,
 						"type_signature": "(text: string, index: number): boolean",
 						"return_type": "boolean",
 						"parameters": [
@@ -5089,8 +5089,8 @@
 					{
 						"name": "is_at_relative_path",
 						"kind": "function",
-						"doc_comment": "Check if position in text is the start of a relative path (`./` or `../`).\nMust be preceded by whitespace or be at the start of the string.\nRequires at least one path character after the prefix.",
-						"source_line": 208,
+						"doc_comment": "Check if position in text is the start of a relative path (`./` or `../`).\nMust be preceded by whitespace or be at the start of the string.\nRejects prefix followed by whitespace, slash, or end of string.",
+						"source_line": 209,
 						"type_signature": "(text: string, index: number): boolean",
 						"return_type": "boolean",
 						"parameters": [
@@ -5105,9 +5105,71 @@
 						]
 					},
 					{
+						"name": "mdz_text_content",
+						"kind": "function",
+						"doc_comment": "Extracts plain text content from an array of mdz nodes, recursing into children.",
+						"source_line": 236,
+						"type_signature": "(nodes: MdzNode[]): string",
+						"return_type": "string",
+						"parameters": [
+							{
+								"name": "nodes",
+								"type": "MdzNode[]"
+							}
+						]
+					},
+					{
+						"name": "mdz_heading_id",
+						"kind": "function",
+						"doc_comment": "Generates a lowercase slug id for a heading from its child nodes.\nFollows standard markdown conventions (GitHub, etc.) where heading IDs are lowercased.\nFor case-preserving IDs (e.g. API declarations), see `docs_slugify` in `docs_helpers.svelte.ts`.",
+						"source_line": 246,
+						"type_signature": "(nodes: MdzNode[]): string",
+						"return_type": "string",
+						"parameters": [
+							{
+								"name": "nodes",
+								"type": "MdzNode[]"
+							}
+						]
+					},
+					{
+						"name": "mdz_is_url",
+						"kind": "function",
+						"source_line": 255,
+						"type_signature": "(s: string): boolean",
+						"return_type": "boolean",
+						"parameters": [
+							{
+								"name": "s",
+								"type": "string"
+							}
+						]
+					},
+					{
+						"name": "resolve_relative_path",
+						"kind": "function",
+						"doc_comment": "Resolves a relative path (`./` or `../`) against a base path.\nThe base is treated as a directory regardless of trailing slash\n(`'/docs/mdz'` and `'/docs/mdz/'` behave identically).\nHandles embedded `.` and `..` segments within the reference\n(e.g., `'./a/../b'` → navigates up then down).\nClamps at root — excess `..` segments stop at `/` rather than escaping.",
+						"source_line": 269,
+						"type_signature": "(reference: string, base: string): string",
+						"return_type": "string",
+						"return_description": "An absolute resolved path (e.g., `'/docs/mdz/grammar'`).",
+						"parameters": [
+							{
+								"name": "reference",
+								"type": "string",
+								"description": "A relative path starting with `./` or `../`."
+							},
+							{
+								"name": "base",
+								"type": "string",
+								"description": "An absolute base path (e.g., `'/docs/mdz/'`). Empty string is treated as root."
+							}
+						]
+					},
+					{
 						"name": "extract_single_tag",
 						"kind": "function",
-						"source_line": 232,
+						"source_line": 287,
 						"type_signature": "(nodes: MdzNode[]): MdzElementNode | MdzComponentNode | null",
 						"return_type": "MdzElementNode | MdzComponentNode | null",
 						"parameters": [
@@ -5119,7 +5181,14 @@
 					}
 				],
 				"module_comment": "Shared constants and pure helper functions for mdz parsers.\n\nUsed by both the single-pass parser (`mdz.ts`) and the two-phase\nlexer+parser (`mdz_lexer.ts` + `mdz_token_parser.ts`).",
-				"dependents": ["mdz.ts", "mdz_lexer.ts", "mdz_token_parser.ts"]
+				"dependents": [
+					"MdzNodeView.svelte",
+					"mdz.ts",
+					"mdz_lexer.ts",
+					"mdz_to_svelte.ts",
+					"mdz_token_parser.ts",
+					"tsdoc_mdz.ts"
+				]
 			},
 			{
 				"path": "mdz_lexer.ts",
@@ -5525,7 +5594,7 @@
 					}
 				],
 				"module_comment": "mdz lexer — tokenizes input into a flat `MdzToken[]` stream.\n\nPhase 1 of the two-phase lexer+parser alternative to the single-pass parser\nin `mdz.ts`. Phase 2 is in `mdz_token_parser.ts`.",
-				"dependencies": ["mdz.ts", "mdz_helpers.ts"],
+				"dependencies": ["mdz_helpers.ts"],
 				"dependents": ["mdz_token_parser.ts"]
 			},
 			{
@@ -5535,7 +5604,7 @@
 						"name": "MdzToSvelteResult",
 						"kind": "type",
 						"doc_comment": "Result of converting `MdzNode` arrays to Svelte markup.",
-						"source_line": 20,
+						"source_line": 21,
 						"type_signature": "MdzToSvelteResult",
 						"properties": [
 							{
@@ -5562,7 +5631,7 @@
 						"name": "mdz_to_svelte",
 						"kind": "function",
 						"doc_comment": "Converts an array of `MdzNode` to a Svelte markup string.\n\nEach node type produces output matching what `MdzNodeView.svelte` renders at runtime.\nCollects required imports and flags unconfigured component/element references.",
-						"source_line": 46,
+						"source_line": 47,
 						"type_signature": "(nodes: MdzNode[], components: Record<string, string>, elements: ReadonlySet<string>, base?: string | undefined): MdzToSvelteResult",
 						"return_type": "MdzToSvelteResult",
 						"parameters": [
@@ -5591,7 +5660,7 @@
 					}
 				],
 				"module_comment": "Converts parsed `MdzNode` arrays to Svelte markup strings.\n\nUsed by the `svelte_preprocess_mdz` preprocessor to expand static `<Mdz content=\"...\">` usages\ninto pre-rendered Svelte markup at build time. The output for each node type matches what\n`MdzNodeView.svelte` renders at runtime, so precompiled and runtime rendering are identical.",
-				"dependencies": ["mdz.ts"],
+				"dependencies": ["mdz_helpers.ts"],
 				"dependents": ["svelte_preprocess_mdz.ts"]
 			},
 			{
@@ -5655,7 +5724,7 @@
 						"name": "mdz_parse",
 						"kind": "function",
 						"doc_comment": "Parses text to an array of `MdzNode`.",
-						"source_line": 72,
+						"source_line": 74,
 						"type_signature": "(text: string): MdzNode[]",
 						"return_type": "MdzNode[]",
 						"parameters": [
@@ -5668,13 +5737,13 @@
 					{
 						"name": "MdzNode",
 						"kind": "type",
-						"source_line": 74,
+						"source_line": 76,
 						"type_signature": "MdzNode"
 					},
 					{
 						"name": "MdzBaseNode",
 						"kind": "type",
-						"source_line": 88,
+						"source_line": 90,
 						"type_signature": "MdzBaseNode",
 						"properties": [
 							{
@@ -5697,7 +5766,7 @@
 					{
 						"name": "MdzTextNode",
 						"kind": "type",
-						"source_line": 94,
+						"source_line": 96,
 						"type_signature": "MdzTextNode",
 						"extends": ["MdzBaseNode"],
 						"properties": [
@@ -5716,7 +5785,7 @@
 					{
 						"name": "MdzCodeNode",
 						"kind": "type",
-						"source_line": 99,
+						"source_line": 101,
 						"type_signature": "MdzCodeNode",
 						"extends": ["MdzBaseNode"],
 						"properties": [
@@ -5735,7 +5804,7 @@
 					{
 						"name": "MdzCodeblockNode",
 						"kind": "type",
-						"source_line": 104,
+						"source_line": 106,
 						"type_signature": "MdzCodeblockNode",
 						"extends": ["MdzBaseNode"],
 						"properties": [
@@ -5759,7 +5828,7 @@
 					{
 						"name": "MdzBoldNode",
 						"kind": "type",
-						"source_line": 110,
+						"source_line": 112,
 						"type_signature": "MdzBoldNode",
 						"extends": ["MdzBaseNode"],
 						"properties": [
@@ -5778,7 +5847,7 @@
 					{
 						"name": "MdzItalicNode",
 						"kind": "type",
-						"source_line": 115,
+						"source_line": 117,
 						"type_signature": "MdzItalicNode",
 						"extends": ["MdzBaseNode"],
 						"properties": [
@@ -5797,7 +5866,7 @@
 					{
 						"name": "MdzStrikethroughNode",
 						"kind": "type",
-						"source_line": 120,
+						"source_line": 122,
 						"type_signature": "MdzStrikethroughNode",
 						"extends": ["MdzBaseNode"],
 						"properties": [
@@ -5816,7 +5885,7 @@
 					{
 						"name": "MdzLinkNode",
 						"kind": "type",
-						"source_line": 125,
+						"source_line": 127,
 						"type_signature": "MdzLinkNode",
 						"extends": ["MdzBaseNode"],
 						"properties": [
@@ -5845,7 +5914,7 @@
 					{
 						"name": "MdzParagraphNode",
 						"kind": "type",
-						"source_line": 132,
+						"source_line": 134,
 						"type_signature": "MdzParagraphNode",
 						"extends": ["MdzBaseNode"],
 						"properties": [
@@ -5864,7 +5933,7 @@
 					{
 						"name": "MdzHrNode",
 						"kind": "type",
-						"source_line": 137,
+						"source_line": 139,
 						"type_signature": "MdzHrNode",
 						"extends": ["MdzBaseNode"],
 						"properties": [
@@ -5878,7 +5947,7 @@
 					{
 						"name": "MdzHeadingNode",
 						"kind": "type",
-						"source_line": 141,
+						"source_line": 143,
 						"type_signature": "MdzHeadingNode",
 						"extends": ["MdzBaseNode"],
 						"properties": [
@@ -5893,6 +5962,11 @@
 								"type_signature": "1 | 2 | 3 | 4 | 5 | 6"
 							},
 							{
+								"name": "id",
+								"kind": "variable",
+								"type_signature": "string"
+							},
+							{
 								"name": "children",
 								"kind": "variable",
 								"type_signature": "Array<MdzNode>"
@@ -5902,7 +5976,7 @@
 					{
 						"name": "MdzElementNode",
 						"kind": "type",
-						"source_line": 147,
+						"source_line": 150,
 						"type_signature": "MdzElementNode",
 						"extends": ["MdzBaseNode"],
 						"properties": [
@@ -5926,7 +6000,7 @@
 					{
 						"name": "MdzComponentNode",
 						"kind": "type",
-						"source_line": 153,
+						"source_line": 156,
 						"type_signature": "MdzComponentNode",
 						"extends": ["MdzBaseNode"],
 						"properties": [
@@ -5951,7 +6025,7 @@
 						"name": "MdzParser",
 						"kind": "class",
 						"doc_comment": "Parser for mdz format.\nSingle-pass lexer/parser with text accumulation for efficiency.\nUsed by `mdz_parse`, which should be preferred for simple usage.",
-						"source_line": 164,
+						"source_line": 167,
 						"members": [
 							{
 								"name": "constructor",
@@ -5973,52 +6047,11 @@
 								"parameters": []
 							}
 						]
-					},
-					{
-						"name": "mdz_is_url",
-						"kind": "function",
-						"source_line": 1527,
-						"type_signature": "(s: string): boolean",
-						"return_type": "boolean",
-						"parameters": [
-							{
-								"name": "s",
-								"type": "string"
-							}
-						]
-					},
-					{
-						"name": "resolve_relative_path",
-						"kind": "function",
-						"doc_comment": "Resolves a relative path (`./` or `../`) against a base path.\nThe base is treated as a directory regardless of trailing slash\n(`'/docs/mdz'` and `'/docs/mdz/'` behave identically).\nHandles embedded `.` and `..` segments within the reference\n(e.g., `'./a/../b'` → navigates up then down).\nClamps at root — excess `..` segments stop at `/` rather than escaping.",
-						"source_line": 1541,
-						"type_signature": "(reference: string, base: string): string",
-						"return_type": "string",
-						"return_description": "An absolute resolved path (e.g., `'/docs/mdz/grammar'`).",
-						"parameters": [
-							{
-								"name": "reference",
-								"type": "string",
-								"description": "A relative path starting with `./` or `../`."
-							},
-							{
-								"name": "base",
-								"type": "string",
-								"description": "An absolute base path (e.g., `'/docs/mdz/'`). Empty string is treated as root."
-							}
-						]
 					}
 				],
 				"module_comment": "mdz - minimal markdown dialect for Fuz documentation.\n\nParses an enhanced markdown dialect with:\n- inline formatting: `code`, **bold**, _italic_, ~strikethrough~\n- auto-detected links: external URLs (`https://...`) and internal paths (`/path`)\n- markdown links: `[text](url)` with custom display text\n- inline code in backticks (creates `Code` nodes; auto-linking to identifiers/modules\n  is handled by the rendering layer via `MdzNodeView.svelte`)\n- paragraph breaks (double newline)\n- block elements: headings, horizontal rules, code blocks\n- HTML elements and Svelte components (opt-in via context)\n\nKey constraint: preserves ALL whitespace exactly as authored,\nand is rendered with white-space pre or pre-wrap.\n\n## Design philosophy\n\n- **False negatives over false positives**: When in doubt, treat as plain text.\n  Block elements can interrupt paragraphs without blank lines; inline formatting is strict.\n- **One way to do things**: Single unambiguous syntax per feature. No alternatives.\n- **Explicit over implicit**: Clear delimiters and column-0 requirements avoid ambiguity.\n- **Simple over complete**: Prefer simple parsing rules over complex edge case handling.\n\n## Status\n\nThis is an early proof of concept with missing features and edge cases.",
 				"dependencies": ["mdz_helpers.ts"],
-				"dependents": [
-					"Mdz.svelte",
-					"MdzNodeView.svelte",
-					"mdz_lexer.ts",
-					"mdz_to_svelte.ts",
-					"svelte_preprocess_mdz.ts",
-					"tsdoc_mdz.ts"
-				]
+				"dependents": ["Mdz.svelte", "svelte_preprocess_mdz.ts"]
 			},
 			{
 				"path": "MdzNodeView.svelte",
@@ -6035,7 +6068,12 @@
 						"source_line": 1
 					}
 				],
-				"dependencies": ["DocsLink.svelte", "MdzNodeView.svelte", "mdz.ts", "mdz_components.ts"],
+				"dependencies": [
+					"DocsLink.svelte",
+					"MdzNodeView.svelte",
+					"mdz_components.ts",
+					"mdz_helpers.ts"
+				],
 				"dependents": ["Mdz.svelte", "MdzNodeView.svelte"]
 			},
 			{
@@ -8439,7 +8477,7 @@
 					}
 				],
 				"module_comment": "Bridge between TSDoc format and mdz for rendering.\n\nThis module converts raw TSDoc syntax (from the analysis library) to mdz format\n(Fuz's documentation rendering dialect). It lives in fuz_ui, not the extracted\nanalysis library, to keep that library format-agnostic.",
-				"dependencies": ["mdz.ts"],
+				"dependencies": ["mdz_helpers.ts"],
 				"dependents": ["DeclarationDetail.svelte"]
 			},
 			{
