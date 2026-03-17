@@ -7267,12 +7267,12 @@
 						"source_line": 265,
 						"type_signature": "(script_content: string): string | undefined",
 						"return_type": "string | undefined",
-						"return_description": "The cleaned module comment text, or undefined if none found.",
+						"return_description": "the cleaned module comment text, or undefined if none found",
 						"parameters": [
 							{
 								"name": "script_content",
 								"type": "string",
-								"description": "The content of the `<script>` tag."
+								"description": "the content of the `<script>` tag."
 							}
 						]
 					}

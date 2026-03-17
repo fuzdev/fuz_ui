@@ -493,8 +493,8 @@ export class MdzParser {
 	 * - Empty content (e.g., `__` or `~~`)
 	 * - Paragraph break interrupts before closing delimiter
 	 *
-	 * @param delimiter - The delimiter character (`_` for italic, `~` for strikethrough)
-	 * @param node_type - The node type to create ('Italic' or 'Strikethrough')
+	 * @param delimiter - the delimiter character (`_` for italic, `~` for strikethrough)
+	 * @param node_type - the node type to create ('Italic' or 'Strikethrough')
 	 * @returns Formatted node or text node if validation fails
 	 */
 	#parse_single_delimiter_formatting(
@@ -863,7 +863,7 @@ export class MdzParser {
 	/**
 	 * Restore previously saved text accumulation state.
 	 * Used to restore parent state when exiting nested structure parsing.
-	 * @param state - State object returned from `#save_accumulation_state()`
+	 * @param state - state object returned from `#save_accumulation_state()`
 	 */
 	#restore_accumulation_state(state: {
 		accumulated_text: string;
@@ -881,9 +881,9 @@ export class MdzParser {
 	 * Word boundary = not surrounded by word characters (A-Z, a-z, 0-9).
 	 * Used to prevent intraword emphasis for underscores and tildes.
 	 *
-	 * @param index - Position to check
-	 * @param check_before - Whether to check the character before this position
-	 * @param check_after - Whether to check the character after this position
+	 * @param index - position to check
+	 * @param check_before - whether to check the character before this position
+	 * @param check_after - whether to check the character after this position
 	 */
 	#is_at_word_boundary(index: number, check_before: boolean, check_after: boolean): boolean {
 		if (check_before && index > 0) {
@@ -1106,8 +1106,8 @@ export class MdzParser {
 	 * - Paragraph break (double newline) is encountered (allows block elements to interrupt inline formatting)
 	 * - `end_index` boundary is reached
 	 *
-	 * @param delimiter - The delimiter string to stop at (e.g., '**', '_', ']')
-	 * @param end_index - Optional maximum index to parse up to (for greedy/bounded parsing)
+	 * @param delimiter - the delimiter string to stop at (e.g., '**', '_', ']')
+	 * @param end_index - optional maximum index to parse up to (for greedy/bounded parsing)
 	 * @returns Array of parsed nodes (may be empty if delimiter found immediately)
 	 */
 	#parse_nodes_until(delimiter: string, end_index?: number): Array<MdzNode> {

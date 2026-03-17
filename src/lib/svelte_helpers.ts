@@ -259,8 +259,8 @@ export const svelte_extract_script_content = (svelte_source: string): string | u
  * Requires `@module` tag to identify module comments. The tag line is stripped
  * from the output.
  *
- * @param script_content - The content of the `<script>` tag.
- * @returns The cleaned module comment text, or undefined if none found.
+ * @param script_content - the content of the `<script>` tag.
+ * @returns the cleaned module comment text, or undefined if none found
  */
 export const svelte_extract_module_comment = (script_content: string): string | undefined => {
 	// Parse the script content as TypeScript and reuse the shared extraction logic
