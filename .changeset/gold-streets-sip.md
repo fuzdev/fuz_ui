@@ -2,4 +2,4 @@
 '@fuzdev/fuz_ui': patch
 ---
 
-optimize mdz parsing
+chore: optimize mdz parsing
