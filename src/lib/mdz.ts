@@ -718,107 +718,41 @@ export class MdzParser {
 	#parse_tag(): MdzElementNode | MdzComponentNode | MdzTextNode {
 		const start = this.#index;
 
-		// Save parent accumulation state to avoid polluting component children with parent's accumulated text
-		const saved_state = this.#save_accumulation_state();
-
-		// Clear accumulation state for parsing component children
-		this.#accumulated_text = '';
-		this.#nodes.length = 0;
-
-		// Consume <
-		if (!this.#match('<')) {
-			// Restore parent state before returning
-			this.#restore_accumulation_state(saved_state);
-
-			const content = this.#template[this.#index]!;
-			this.#index++;
-			return {
-				type: 'Text',
-				content,
-				start,
-				end: this.#index,
-			};
-		}
-		this.#index++;
-
-		// Parse tag name
-		const tag_name_start = this.#index;
-		let tag_name_end = this.#index;
+		// Phase 1: Validate tag structure using a local scan index.
+		// Avoids save/restore of accumulation state on the fast path
+		// (most `<` characters are not valid tags).
+		let i = start + 1; // skip <
 
 		// Tag name must start with a letter
-		if (this.#index >= this.#template.length) {
-			// Just a `<` at EOF - restore parent state
-			this.#restore_accumulation_state(saved_state);
-			return {
-				type: 'Text',
-				content: '<',
-				start,
-				end: this.#index,
-			};
-		}
-
-		const first_char = this.#template.charCodeAt(this.#index);
-		if (!is_letter(first_char)) {
-			// Not a valid tag, treat as text - restore parent state
-			this.#restore_accumulation_state(saved_state);
-			return {
-				type: 'Text',
-				content: '<',
-				start,
-				end: start + 1,
-			};
+		if (i >= this.#template.length || !is_letter(this.#template.charCodeAt(i))) {
+			this.#index = start + 1;
+			return this.#make_text_node('<', start);
 		}
 
 		// Collect tag name (letters, numbers, hyphens, underscores)
-		while (this.#index < this.#template.length) {
-			const char_code = this.#template.charCodeAt(this.#index);
-			if (is_tag_name_char(char_code)) {
-				this.#index++;
-			} else {
-				break;
-			}
+		while (i < this.#template.length && is_tag_name_char(this.#template.charCodeAt(i))) {
+			i++;
 		}
 
-		tag_name_end = this.#index;
-		const tag_name = this.#template.slice(tag_name_start, tag_name_end);
-
-		if (tag_name.length === 0) {
-			// Empty tag name - restore parent state
-			this.#restore_accumulation_state(saved_state);
-			return {
-				type: 'Text',
-				content: '<',
-				start,
-				end: start + 1,
-			};
-		}
-
-		// Determine if this is a Component (uppercase) or Element (lowercase)
+		const tag_name = this.#template.slice(start + 1, i);
 		const first_char_code = tag_name.charCodeAt(0);
-		const is_component = first_char_code >= A_UPPER && first_char_code <= Z_UPPER;
-		const node_type: 'Component' | 'Element' = is_component ? 'Component' : 'Element';
+		const node_type: 'Component' | 'Element' =
+			first_char_code >= A_UPPER && first_char_code <= Z_UPPER ? 'Component' : 'Element';
 
 		// Skip whitespace after tag name (for future attribute support)
-		while (
-			this.#index < this.#template.length &&
-			this.#template.charCodeAt(this.#index) === SPACE
-		) {
-			this.#index++;
+		while (i < this.#template.length && this.#template.charCodeAt(i) === SPACE) {
+			i++;
 		}
 
 		// TODO: Parse attributes here
 
 		// Check for self-closing />
 		if (
-			this.#index + 1 < this.#template.length &&
-			this.#template.charCodeAt(this.#index) === SLASH &&
-			this.#template.charCodeAt(this.#index + 1) === RIGHT_ANGLE
+			i + 1 < this.#template.length &&
+			this.#template.charCodeAt(i) === SLASH &&
+			this.#template.charCodeAt(i + 1) === RIGHT_ANGLE
 		) {
-			this.#index += 2;
-
-			// Restore parent state before returning
-			this.#restore_accumulation_state(saved_state);
-
+			this.#index = i + 2;
 			return {
 				type: node_type,
 				name: tag_name,
@@ -828,41 +762,44 @@ export class MdzParser {
 			};
 		}
 
-		// Check for closing >
-		if (
-			this.#index >= this.#template.length ||
-			this.#template.charCodeAt(this.#index) !== RIGHT_ANGLE
-		) {
-			// Unclosed opening tag, treat as text - restore parent state
-			this.#restore_accumulation_state(saved_state);
-
+		// Must have closing >
+		if (i >= this.#template.length || this.#template.charCodeAt(i) !== RIGHT_ANGLE) {
 			this.#index = start + 1;
-			return {
-				type: 'Text',
-				content: '<',
-				start,
-				end: this.#index,
-			};
+			return this.#make_text_node('<', start);
 		}
 
-		// Consume >
-		this.#index++;
+		const content_start = i + 1; // past >
 
-		// Parse children until closing tag
+		// Bail early if closing tag is missing, past a paragraph break,
+		// or past the search boundary (e.g. heading line end)
 		const closing_tag = `</${tag_name}>`;
+		const search_limit = Math.min(this.#max_search_index, this.#template.length);
+		const close_tag_index = this.#template.indexOf(closing_tag, content_start);
+		if (close_tag_index === -1 || close_tag_index >= search_limit) {
+			this.#index = start + 1;
+			return this.#make_text_node('<', start);
+		}
+		const para_break = this.#template.indexOf('\n\n', content_start);
+		if (para_break !== -1 && para_break < close_tag_index) {
+			this.#index = start + 1;
+			return this.#make_text_node('<', start);
+		}
+
+		// Phase 2: Tag validated — save accumulation state and parse children.
+		const saved_state = this.#save_accumulation_state();
+		this.#accumulated_text = '';
+		this.#nodes.length = 0;
+		this.#index = content_start;
+
 		const children: Array<MdzNode> = [];
 
 		while (this.#index < this.#template.length) {
-			// Check for closing tag
 			if (this.#match(closing_tag)) {
-				// Flush any accumulated text from children
 				this.#flush_text();
 				children.push(...this.#nodes);
 				this.#nodes.length = 0;
 
 				this.#index += closing_tag.length;
-
-				// Restore parent state before returning
 				this.#restore_accumulation_state(saved_state);
 
 				return {
@@ -885,17 +822,10 @@ export class MdzParser {
 			}
 		}
 
-		// Unclosed tag - reached EOF without finding closing tag
-		// Treat the opening tag as text - restore parent state
+		// Defensive: pre-check guarantees closing tag exists, but handle EOF gracefully
 		this.#restore_accumulation_state(saved_state);
-
 		this.#index = start + 1;
-		return {
-			type: 'Text',
-			content: '<',
-			start,
-			end: this.#index,
-		};
+		return this.#make_text_node('<', start);
 	}
 
 	/**
@@ -1354,31 +1284,29 @@ export class MdzParser {
 		// Consume the space after hashes (already verified to exist)
 		this.#index++;
 
-		// Parse inline content until newline
+		// Find end-of-line to bound nested parsers (prevents tag scanner from scanning past heading)
+		let eol = this.#template.indexOf('\n', this.#index);
+		if (eol === -1) eol = this.#template.length;
+
+		const saved_max_search_index = this.#max_search_index;
+		this.#max_search_index = eol;
+
+		// Parse inline content until end of line
 		const content_nodes: Array<MdzNode> = [];
 
-		while (this.#index < this.#template.length) {
-			const char_code = this.#template.charCodeAt(this.#index);
-
-			if (char_code === NEWLINE) {
-				break;
-			}
-
+		while (this.#index < eol) {
 			const node = this.#parse_node();
 			if (node.type === 'Text') {
-				// Check if text node includes a newline (since #parse_text doesn't stop at single newlines)
-				// If so, trim it and move index back
-				const newline_index = node.content.indexOf('\n');
-				if (newline_index !== -1) {
-					const trimmed_content = node.content.slice(0, newline_index);
+				// Trim if #parse_text overshot past the newline
+				if (node.end > eol) {
+					const trimmed_content = node.content.slice(0, eol - node.start);
 					if (trimmed_content) {
 						this.#accumulate_text(trimmed_content, node.start);
 					}
-					this.#index = node.start + newline_index;
+					this.#index = eol;
 					break;
-				} else {
-					this.#accumulate_text(node.content, node.start);
 				}
+				this.#accumulate_text(node.content, node.start);
 			} else {
 				this.#flush_text();
 				content_nodes.push(...this.#nodes);
@@ -1386,6 +1314,8 @@ export class MdzParser {
 				content_nodes.push(node);
 			}
 		}
+
+		this.#max_search_index = saved_max_search_index;
 
 		this.#flush_text();
 		content_nodes.push(...this.#nodes);

@@ -39,6 +39,9 @@ tmp/
 # Workflow
 /worktree
 
+# Benchmarks
+src/benchmarks/baseline.json
+
 # Os
 .DS_Store
 Thumbs.db
