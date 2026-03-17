@@ -76,11 +76,11 @@ export interface SvelteFileAnalysis {
  * Returns raw analysis data matching `ModuleAnalysis` structure.
  * Consumer decides filtering policy (Svelte components are never nodocs).
  *
- * @param source_file The source file info (from Gro filer, file system, or other source)
- * @param module_path The module path (relative to source root)
- * @param checker TypeScript type checker
- * @param options Module source options for path extraction
- * @param ctx Analysis context for collecting diagnostics
+ * @param source_file - the source file info (from Gro filer, file system, or other source)
+ * @param module_path - the module path (relative to source root)
+ * @param checker - TypeScript type checker
+ * @param options - module source options for path extraction
+ * @param ctx - analysis context for collecting diagnostics
  * @returns Module analysis matching ModuleAnalysis structure
  */
 export const svelte_analyze_module = (
@@ -118,10 +118,10 @@ export const svelte_analyze_module = (
  *
  * Suitable for use in documentation generators, build tools, and analysis.
  *
- * @param source_file Source file info with path and content
- * @param module_path Module path relative to source root (e.g., 'Alert.svelte')
- * @param checker TypeScript type checker for type resolution
- * @param ctx Analysis context for collecting diagnostics
+ * @param source_file - source file info with path and content
+ * @param module_path - module path relative to source root (e.g., 'Alert.svelte')
+ * @param checker - TypeScript type checker for type resolution
+ * @param ctx - analysis context for collecting diagnostics
  * @returns Component declaration and optional module-level comment
  */
 export const svelte_analyze_file = (

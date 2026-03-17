@@ -113,11 +113,11 @@ export interface ModuleAnalysis {
  * only re-analyze changed files. The TypeScript program should include all files
  * for accurate type resolution, but only changed files need re-analysis.
  *
- * @param source_file The source file info with content and optional dependency data
- * @param program TypeScript program (used for type checking and source file lookup)
- * @param options Module source options for path extraction
- * @param ctx Analysis context for collecting diagnostics
- * @param log Optional logger for warnings
+ * @param source_file - the source file info with content and optional dependency data
+ * @param program - TypeScript program (used for type checking and source file lookup)
+ * @param options - module source options for path extraction
+ * @param ctx - analysis context for collecting diagnostics
+ * @param log - optional logger for warnings
  * @returns Module metadata and re-exports, or undefined if source file not found in program
  */
 export const library_analyze_module = (

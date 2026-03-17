@@ -534,13 +534,13 @@
 							{
 								"name": "diagnostic",
 								"type": "Diagnostic",
-								"description": "The diagnostic to format"
+								"description": "the diagnostic to format"
 							},
 							{
 								"name": "options",
 								"type": "FormatDiagnosticOptions | undefined",
 								"optional": true,
-								"description": "Formatting options"
+								"description": "formatting options"
 							}
 						]
 					}
@@ -1473,7 +1473,7 @@
 							{
 								"name": "params",
 								"type": "U | null | undefined",
-								"description": "Contextmenu parameters or nullish to disable"
+								"description": "contextmenu parameters or nullish to disable"
 							}
 						]
 					},
@@ -1571,7 +1571,7 @@
 							{
 								"name": "get_scoped",
 								"type": "() => boolean",
-								"description": "Getter function that returns the current scoped value"
+								"description": "getter function that returns the current scoped value"
 							}
 						]
 					}
@@ -3576,7 +3576,7 @@
 							{
 								"name": "get_params",
 								"type": "() => IntersectParamsOrCallback | null | undefined",
-								"description": "Function that returns callback, params object, or nullish to disable"
+								"description": "function that returns callback, params object, or nullish to disable"
 							}
 						]
 					},
@@ -3764,7 +3764,7 @@
 							{
 								"name": "source_file",
 								"type": "SourceFileInfo",
-								"description": "The source file info with content and optional dependency data"
+								"description": "the source file info with content and optional dependency data"
 							},
 							{
 								"name": "program",
@@ -3774,18 +3774,18 @@
 							{
 								"name": "options",
 								"type": "ModuleSourceOptions",
-								"description": "Module source options for path extraction"
+								"description": "module source options for path extraction"
 							},
 							{
 								"name": "ctx",
 								"type": "AnalysisContext",
-								"description": "Analysis context for collecting diagnostics"
+								"description": "analysis context for collecting diagnostics"
 							},
 							{
 								"name": "log",
 								"type": "Logger | undefined",
 								"optional": true,
-								"description": "Optional logger for warnings"
+								"description": "optional logger for warnings"
 							}
 						]
 					}
@@ -3849,18 +3849,18 @@
 							{
 								"name": "disknodes",
 								"type": "Iterable<Disknode>",
-								"description": "Iterator of Gro disknodes from filer"
+								"description": "iterator of Gro disknodes from filer"
 							},
 							{
 								"name": "options",
 								"type": "ModuleSourceOptions",
-								"description": "Module source options for filtering"
+								"description": "module source options for filtering"
 							},
 							{
 								"name": "log",
 								"type": "{ info: (...args: unknown[]) => void; warn: (...args: unknown[]) => void; } | undefined",
 								"optional": true,
-								"description": "Optional logger for status messages"
+								"description": "optional logger for status messages"
 							}
 						]
 					},
@@ -3876,7 +3876,7 @@
 								"name": "options",
 								"type": "LibraryGenOptions | undefined",
 								"optional": true,
-								"description": "Optional generation options"
+								"description": "optional generation options"
 							}
 						]
 					}
@@ -4033,7 +4033,7 @@
 							{
 								"name": "declaration_name",
 								"type": "string",
-								"description": "Name of the declaration to link to"
+								"description": "name of the declaration to link to"
 							}
 						]
 					},
@@ -4049,12 +4049,12 @@
 							{
 								"name": "homepage",
 								"type": "string",
-								"description": "Package homepage URL"
+								"description": "package homepage URL"
 							},
 							{
 								"name": "declaration_name",
 								"type": "string",
-								"description": "Name of the declaration to link to"
+								"description": "name of the declaration to link to"
 							}
 						]
 					},
@@ -4070,7 +4070,7 @@
 							{
 								"name": "module_path",
 								"type": "string",
-								"description": "Module path (e.g., 'helpers.ts')"
+								"description": "module path (e.g., 'helpers.ts')"
 							}
 						]
 					},
@@ -4086,13 +4086,13 @@
 							{
 								"name": "homepage_url",
 								"type": "string | null",
-								"description": "Package homepage URL, or null"
+								"description": "package homepage URL, or null"
 							},
 							{
 								"name": "logo_path",
 								"type": "string | undefined",
 								"optional": true,
-								"description": "Optional custom logo path (defaults to 'favicon.png')"
+								"description": "optional custom logo path (defaults to 'favicon.png')"
 							}
 						]
 					},
@@ -4111,12 +4111,12 @@
 							{
 								"name": "url",
 								"type": "string",
-								"description": "Full URL to convert"
+								"description": "full URL to convert"
 							},
 							{
 								"name": "origin",
 								"type": "string",
-								"description": "Origin to strip (defaults to current page origin)",
+								"description": "origin to strip (defaults to current page origin)",
 								"default_value": "page.url.origin"
 							}
 						]
@@ -4262,12 +4262,12 @@
 							{
 								"name": "source_json",
 								"type": "{ [x: string]: unknown; name: string; version: string; modules?: { [x: string]: unknown; path: string; declarations?: { [x: string]: unknown; name: string; kind: \"function\" | \"json\" | \"type\" | \"variable\" | \"class\" | \"constructor\" | \"component\" | \"css\"; ... 20 more ...; alias_of?: { ...; } | undefined; }[] | undefine...",
-								"description": "The source JSON with all modules (will be mutated)"
+								"description": "the source JSON with all modules (will be mutated)"
 							},
 							{
 								"name": "collected_re_exports",
 								"type": "CollectedReExport[]",
-								"description": "Array of re-exports collected during phase 1"
+								"description": "array of re-exports collected during phase 1"
 							}
 						]
 					},
@@ -4282,18 +4282,18 @@
 							{
 								"name": "files",
 								"type": "Iterable<SourceFileInfo>",
-								"description": "Iterable of source file info (from Gro filer, file system, or other source)"
+								"description": "iterable of source file info (from Gro filer, file system, or other source)"
 							},
 							{
 								"name": "options",
 								"type": "ModuleSourceOptions",
-								"description": "Module source options for filtering"
+								"description": "module source options for filtering"
 							},
 							{
 								"name": "log",
 								"type": "Logger | undefined",
 								"optional": true,
-								"description": "Optional logger for status messages"
+								"description": "optional logger for status messages"
 							}
 						]
 					}
@@ -5157,12 +5157,12 @@
 							{
 								"name": "reference",
 								"type": "string",
-								"description": "A relative path starting with `./` or `../`."
+								"description": "a relative path starting with `./` or `../`."
 							},
 							{
 								"name": "base",
 								"type": "string",
-								"description": "An absolute base path (e.g., `'/docs/mdz/'`). Empty string is treated as root."
+								"description": "an absolute base path (e.g., `'/docs/mdz/'`). Empty string is treated as root."
 							}
 						]
 					},
@@ -5638,23 +5638,23 @@
 							{
 								"name": "nodes",
 								"type": "MdzNode[]",
-								"description": "Parsed mdz nodes to render."
+								"description": "parsed mdz nodes to render."
 							},
 							{
 								"name": "components",
 								"type": "Record<string, string>",
-								"description": "Component name to import path mapping (e.g., `{Alert: '$lib/Alert.svelte'}`).\nIf content references a component not in this map, `has_unconfigured_tags` is set."
+								"description": "component name to import path mapping (e.g., `{Alert: '$lib/Alert.svelte'}`).\nIf content references a component not in this map, `has_unconfigured_tags` is set."
 							},
 							{
 								"name": "elements",
 								"type": "ReadonlySet<string>",
-								"description": "Allowed HTML element names (e.g., `new Set(['aside', 'details'])`).\nIf content references an element not in this set, `has_unconfigured_tags` is set."
+								"description": "allowed HTML element names (e.g., `new Set(['aside', 'details'])`).\nIf content references an element not in this set, `has_unconfigured_tags` is set."
 							},
 							{
 								"name": "base",
 								"type": "string | undefined",
 								"optional": true,
-								"description": "Base path for resolving relative links (e.g., `'/docs/mdz/'`).\nWhen provided, relative references (`./`, `../`) are resolved to absolute paths\nand passed through `resolve()`. Trailing slash recommended."
+								"description": "base path for resolving relative links (e.g., `'/docs/mdz/'`).\nWhen provided, relative references (`./`, `../`) are resolved to absolute paths\nand passed through `resolve()`. Trailing slash recommended."
 							}
 						]
 					}
@@ -6252,13 +6252,13 @@
 							{
 								"name": "project_root",
 								"type": "string",
-								"description": "Absolute path to project root (typically `process.cwd()`)"
+								"description": "absolute path to project root (typically `process.cwd()`)"
 							},
 							{
 								"name": "overrides",
 								"type": "Partial<ModuleSourcePartial> | undefined",
 								"optional": true,
-								"description": "Optional overrides for default options"
+								"description": "optional overrides for default options"
 							}
 						]
 					},
@@ -6322,12 +6322,12 @@
 							{
 								"name": "source_id",
 								"type": "string",
-								"description": "Absolute path to the source file"
+								"description": "absolute path to the source file"
 							},
 							{
 								"name": "options",
 								"type": "ModuleSourceOptions",
-								"description": "Module source options for path extraction"
+								"description": "module source options for path extraction"
 							}
 						]
 					},
@@ -6444,12 +6444,12 @@
 							{
 								"name": "path",
 								"type": "string",
-								"description": "Full absolute path to check"
+								"description": "full absolute path to check"
 							},
 							{
 								"name": "options",
 								"type": "ModuleSourceOptions",
-								"description": "Module source options for filtering"
+								"description": "module source options for filtering"
 							}
 						]
 					},
@@ -6464,12 +6464,12 @@
 							{
 								"name": "source_file",
 								"type": "SourceFileInfo",
-								"description": "The source file info to extract dependencies from"
+								"description": "the source file info to extract dependencies from"
 							},
 							{
 								"name": "options",
 								"type": "ModuleSourceOptions",
-								"description": "Module source options for filtering and path extraction"
+								"description": "module source options for filtering and path extraction"
 							}
 						]
 					}
@@ -6642,18 +6642,18 @@
 							{
 								"name": "repo_url",
 								"type": "string",
-								"description": "Repository URL (e.g., 'https://github.com/owner/repo')"
+								"description": "repository URL (e.g., 'https://github.com/owner/repo')"
 							},
 							{
 								"name": "file_path",
 								"type": "string",
-								"description": "Path to the file (leading './' is stripped)"
+								"description": "path to the file (leading './' is stripped)"
 							},
 							{
 								"name": "line",
 								"type": "number | undefined",
 								"optional": true,
-								"description": "Optional line number for deep linking"
+								"description": "optional line number for deep linking"
 							}
 						]
 					},
@@ -6672,12 +6672,12 @@
 							{
 								"name": "repo_url",
 								"type": "string",
-								"description": "Repository URL (e.g., 'https://github.com/owner/repo')"
+								"description": "repository URL (e.g., 'https://github.com/owner/repo')"
 							},
 							{
 								"name": "repo_name",
 								"type": "string",
-								"description": "Repository name to strip from the URL"
+								"description": "repository name to strip from the URL"
 							}
 						]
 					},
@@ -6697,7 +6697,7 @@
 							{
 								"name": "repo_url",
 								"type": "string",
-								"description": "Repository URL (e.g., 'https://github.com/owner/repo')"
+								"description": "repository URL (e.g., 'https://github.com/owner/repo')"
 							}
 						]
 					},
@@ -6716,7 +6716,7 @@
 							{
 								"name": "package_name",
 								"type": "string",
-								"description": "Package name (can be scoped like '@org/package')"
+								"description": "package name (can be scoped like '@org/package')"
 							}
 						]
 					},
@@ -6732,7 +6732,7 @@
 							{
 								"name": "package_json",
 								"type": "{ [x: string]: unknown; name: string; version: string; private?: boolean | undefined; description?: string | undefined; tagline?: string | undefined; glyph?: string | undefined; logo?: string | undefined; ... 23 more ...; exports?: string | ... 2 more ... | undefined; }",
-								"description": "The package.json object to check"
+								"description": "the package.json object to check"
 							}
 						]
 					},
@@ -6758,7 +6758,7 @@
 							{
 								"name": "name",
 								"type": "string",
-								"description": "Package name (can be scoped like '@org/package')"
+								"description": "package name (can be scoped like '@org/package')"
 							}
 						]
 					},
@@ -6779,7 +6779,7 @@
 							{
 								"name": "repository",
 								"type": "string | { [x: string]: unknown; type: string; url: string; directory?: string | undefined; } | undefined",
-								"description": "The repository field from package.json"
+								"description": "the repository field from package.json"
 							}
 						]
 					},
@@ -6798,12 +6798,12 @@
 							{
 								"name": "homepage_url",
 								"type": "string",
-								"description": "Package homepage URL"
+								"description": "package homepage URL"
 							},
 							{
 								"name": "filename",
 								"type": "string",
-								"description": "Filename in .well-known directory"
+								"description": "filename in .well-known directory"
 							}
 						]
 					}
@@ -7034,19 +7034,19 @@
 							{
 								"name": "key",
 								"type": "string",
-								"description": "The localStorage key"
+								"description": "the localStorage key"
 							},
 							{
 								"name": "is_json",
 								"type": "boolean",
-								"description": "Whether to parse the value as JSON",
+								"description": "whether to parse the value as JSON",
 								"default_value": "false"
 							},
 							{
 								"name": "parse_fn",
 								"type": "((value: unknown) => T | null) | undefined",
 								"optional": true,
-								"description": "Optional custom parsing function to transform the value"
+								"description": "optional custom parsing function to transform the value"
 							}
 						]
 					}
@@ -7153,12 +7153,12 @@
 							{
 								"name": "source_file",
 								"type": "SourceFileInfo",
-								"description": "The source file info (from Gro filer, file system, or other source)"
+								"description": "the source file info (from Gro filer, file system, or other source)"
 							},
 							{
 								"name": "module_path",
 								"type": "string",
-								"description": "The module path (relative to source root)"
+								"description": "the module path (relative to source root)"
 							},
 							{
 								"name": "checker",
@@ -7168,12 +7168,12 @@
 							{
 								"name": "options",
 								"type": "ModuleSourceOptions",
-								"description": "Module source options for path extraction"
+								"description": "module source options for path extraction"
 							},
 							{
 								"name": "ctx",
 								"type": "AnalysisContext",
-								"description": "Analysis context for collecting diagnostics"
+								"description": "analysis context for collecting diagnostics"
 							}
 						]
 					},
@@ -7189,12 +7189,12 @@
 							{
 								"name": "source_file",
 								"type": "SourceFileInfo",
-								"description": "Source file info with path and content"
+								"description": "source file info with path and content"
 							},
 							{
 								"name": "module_path",
 								"type": "string",
-								"description": "Module path relative to source root (e.g., 'Alert.svelte')"
+								"description": "module path relative to source root (e.g., 'Alert.svelte')"
 							},
 							{
 								"name": "checker",
@@ -7204,7 +7204,7 @@
 							{
 								"name": "ctx",
 								"type": "AnalysisContext",
-								"description": "Analysis context for collecting diagnostics"
+								"description": "analysis context for collecting diagnostics"
 							}
 						]
 					},
@@ -7341,7 +7341,7 @@
 							{
 								"name": "options",
 								"type": "SveltePreprocessMdzOptions",
-								"description": "Configuration for component/element resolution and file filtering.",
+								"description": "configuration for component/element resolution and file filtering",
 								"default_value": "{}"
 							}
 						]
@@ -8013,13 +8013,13 @@
 								"name": "options",
 								"type": "TsProgramOptions | undefined",
 								"optional": true,
-								"description": "Configuration options for program creation"
+								"description": "configuration options for program creation"
 							},
 							{
 								"name": "log",
 								"type": "Logger | undefined",
 								"optional": true,
-								"description": "Optional logger for info messages"
+								"description": "optional logger for info messages"
 							}
 						]
 					},
@@ -8035,7 +8035,7 @@
 							{
 								"name": "source_file_info",
 								"type": "SourceFileInfo",
-								"description": "The source file info (from Gro filer, file system, or other source)"
+								"description": "the source file info (from Gro filer, file system, or other source)"
 							},
 							{
 								"name": "ts_source_file",
@@ -8045,7 +8045,7 @@
 							{
 								"name": "module_path",
 								"type": "string",
-								"description": "The module path (relative to source root)"
+								"description": "the module path (relative to source root)"
 							},
 							{
 								"name": "checker",
@@ -8055,12 +8055,12 @@
 							{
 								"name": "options",
 								"type": "ModuleSourceOptions",
-								"description": "Module source options for path extraction"
+								"description": "module source options for path extraction"
 							},
 							{
 								"name": "ctx",
 								"type": "AnalysisContext",
-								"description": "Analysis context for collecting diagnostics"
+								"description": "analysis context for collecting diagnostics"
 							}
 						]
 					},
@@ -8076,22 +8076,22 @@
 							{
 								"name": "source_file",
 								"type": "SourceFile",
-								"description": "The TypeScript source file to analyze"
+								"description": "the TypeScript source file to analyze"
 							},
 							{
 								"name": "checker",
 								"type": "TypeChecker",
-								"description": "The TypeScript type checker"
+								"description": "the TypeScript type checker"
 							},
 							{
 								"name": "options",
 								"type": "ModuleSourceOptions",
-								"description": "Module source options for path extraction in re-exports"
+								"description": "module source options for path extraction in re-exports"
 							},
 							{
 								"name": "ctx",
 								"type": "AnalysisContext",
-								"description": "Analysis context for collecting diagnostics"
+								"description": "analysis context for collecting diagnostics"
 							}
 						]
 					},
@@ -8107,22 +8107,22 @@
 							{
 								"name": "symbol",
 								"type": "Symbol",
-								"description": "The TypeScript symbol to analyze"
+								"description": "the TypeScript symbol to analyze"
 							},
 							{
 								"name": "source_file",
 								"type": "SourceFile",
-								"description": "The source file containing the symbol"
+								"description": "the source file containing the symbol"
 							},
 							{
 								"name": "checker",
 								"type": "TypeChecker",
-								"description": "The TypeScript type checker"
+								"description": "the TypeScript type checker"
 							},
 							{
 								"name": "ctx",
 								"type": "AnalysisContext",
-								"description": "Optional analysis context for collecting diagnostics"
+								"description": "optional analysis context for collecting diagnostics"
 							}
 						]
 					},
@@ -8171,7 +8171,7 @@
 							{
 								"name": "sig",
 								"type": "Signature",
-								"description": "The TypeScript signature to extract parameters from"
+								"description": "the TypeScript signature to extract parameters from"
 							},
 							{
 								"name": "checker",
@@ -8181,7 +8181,7 @@
 							{
 								"name": "tsdoc_params",
 								"type": "Map<string, string> | undefined",
-								"description": "Map of parameter names to TSDoc descriptions (from tsdoc.params)"
+								"description": "map of parameter names to TSDoc descriptions (from tsdoc.params)"
 							}
 						]
 					},
@@ -8404,12 +8404,12 @@
 							{
 								"name": "node",
 								"type": "Node",
-								"description": "The TypeScript node to extract JSDoc from"
+								"description": "the TypeScript node to extract JSDoc from"
 							},
 							{
 								"name": "source_file",
 								"type": "SourceFile",
-								"description": "Source file (used for extracting full` @see` tag text)"
+								"description": "source file (used for extracting full ` @see` tag text)"
 							}
 						]
 					},
@@ -8445,7 +8445,7 @@
 							{
 								"name": "comment_text",
 								"type": "string",
-								"description": "The raw comment text including `/**` and `*\\/` markers"
+								"description": "the raw comment text including `/**` and `*\\/` markers"
 							}
 						]
 					}

@@ -18,9 +18,9 @@ export const save_to_storage = (key: string, value: any, is_json = false): void 
 
 /**
  * Utility function to load a value from `localStorage` with optional parsing
- * @param key The localStorage key
- * @param is_json Whether to parse the value as JSON
- * @param parse_fn Optional custom parsing function to transform the value
+ * @param key - the localStorage key
+ * @param is_json - whether to parse the value as JSON
+ * @param parse_fn - optional custom parsing function to transform the value
  * @returns The parsed value or null if not found or parsing fails
  */
 export const load_from_storage = <T>(

@@ -262,8 +262,8 @@ export const mdz_is_url = (s: string): boolean => URL_PATTERN.test(s);
  * (e.g., `'./a/../b'` → navigates up then down).
  * Clamps at root — excess `..` segments stop at `/` rather than escaping.
  *
- * @param reference A relative path starting with `./` or `../`.
- * @param base An absolute base path (e.g., `'/docs/mdz/'`). Empty string is treated as root.
+ * @param reference - a relative path starting with `./` or `../`.
+ * @param base - an absolute base path (e.g., `'/docs/mdz/'`). Empty string is treated as root.
  * @returns An absolute resolved path (e.g., `'/docs/mdz/grammar'`).
  */
 export const resolve_relative_path = (reference: string, base: string): string => {

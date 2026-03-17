@@ -89,9 +89,9 @@ export const source_file_from_disknode = (disknode: Disknode): SourceFileInfo =>
  * have malformed paths or missing content). The filtering uses `module_is_source` which
  * checks `source_paths` to only include files in configured source directories.
  *
- * @param disknodes Iterator of Gro disknodes from filer
- * @param options Module source options for filtering
- * @param log Optional logger for status messages
+ * @param disknodes - iterator of Gro disknodes from filer
+ * @param options - module source options for filtering
+ * @param log - optional logger for status messages
  */
 export const library_collect_source_files_from_disknodes = (
 	disknodes: Iterable<Disknode>,
@@ -146,7 +146,7 @@ export const library_collect_source_files_from_disknodes = (
  * export const gen = library_gen();
  * ```
  *
- * @param options Optional generation options
+ * @param options - optional generation options
  */
 export const library_gen = (options?: LibraryGenOptions): Gen => {
 	return {

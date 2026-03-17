@@ -17,7 +17,7 @@ import {DOCS_API_PATH, DOCS_PATH_DEFAULT} from './docs_helpers.svelte.js';
 /**
  * Build project-relative API documentation URL with hash anchor.
  *
- * @param declaration_name Name of the declaration to link to
+ * @param declaration_name - name of the declaration to link to
  * @returns URL path like '/docs/api#declaration_name'
  */
 export const url_api_declaration = (declaration_name: string): string =>
@@ -26,8 +26,8 @@ export const url_api_declaration = (declaration_name: string): string =>
 /**
  * Build full API documentation URL with domain and hash anchor.
  *
- * @param homepage Package homepage URL
- * @param declaration_name Name of the declaration to link to
+ * @param homepage - package homepage URL
+ * @param declaration_name - name of the declaration to link to
  * @returns Full URL like 'https://example.com/docs/api#declaration_name'
  */
 export const url_api_declaration_full = (homepage: string, declaration_name: string): string =>
@@ -36,7 +36,7 @@ export const url_api_declaration_full = (homepage: string, declaration_name: str
 /**
  * Build project-relative module documentation URL.
  *
- * @param module_path Module path (e.g., 'helpers.ts')
+ * @param module_path - module path (e.g., 'helpers.ts')
  * @returns URL path like '/docs/api/helpers.ts'
  */
 export const url_api_module = (module_path: string): string => `${DOCS_API_PATH}/${module_path}`;
@@ -44,8 +44,8 @@ export const url_api_module = (module_path: string): string => `${DOCS_API_PATH}
 /**
  * Build package logo URL with favicon.png fallback.
  *
- * @param homepage_url Package homepage URL, or null
- * @param logo_path Optional custom logo path (defaults to 'favicon.png')
+ * @param homepage_url - package homepage URL, or null
+ * @param logo_path - optional custom logo path (defaults to 'favicon.png')
  * @returns Full URL to the logo, or null if no homepage
  */
 export const url_package_logo = (
@@ -62,8 +62,8 @@ export const url_package_logo = (
  *
  * Uses SvelteKit's page state for the current origin by default.
  *
- * @param url Full URL to convert
- * @param origin Origin to strip (defaults to current page origin)
+ * @param url - full URL to convert
+ * @param origin - origin to strip (defaults to current page origin)
  * @returns Root-relative URL starting with '/'
  *
  * @example

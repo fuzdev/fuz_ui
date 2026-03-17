@@ -174,8 +174,8 @@ export const MODULE_SOURCE_PARTIAL: ModuleSourcePartial = {
 /**
  * Create complete source options from project root and optional overrides.
  *
- * @param project_root Absolute path to project root (typically `process.cwd()`)
- * @param overrides Optional overrides for default options
+ * @param project_root - absolute path to project root (typically `process.cwd()`)
+ * @param overrides - optional overrides for default options
  *
  * @example
  * ```ts
@@ -348,8 +348,8 @@ export const module_get_source_root = (options: ModuleSourceOptions): string => 
  *
  * Uses proper path semantics: strips `project_root/source_root/` prefix.
  *
- * @param source_id Absolute path to the source file
- * @param options Module source options for path extraction
+ * @param source_id - absolute path to the source file
+ * @param options - module source options for path extraction
  *
  * @example
  * ```ts
@@ -430,8 +430,8 @@ export const module_is_test = (path: string): boolean => path.endsWith('.test.ts
  * `project_root/source_path/`. No heuristics needed - nested directories
  * are correctly excluded by the prefix check.
  *
- * @param path Full absolute path to check
- * @param options Module source options for filtering
+ * @param path - full absolute path to check
+ * @param options - module source options for filtering
  * @returns True if the path is an analyzable source file
  *
  * @example
@@ -465,8 +465,8 @@ export const module_is_source = (path: string, options: ModuleSourceOptions): bo
  * Filters to only include source modules (excludes external packages, node_modules, tests).
  * Returns sorted arrays of module paths (relative to source_root) for deterministic output.
  *
- * @param source_file The source file info to extract dependencies from
- * @param options Module source options for filtering and path extraction
+ * @param source_file - the source file info to extract dependencies from
+ * @param options - module source options for filtering and path extraction
  */
 export const module_extract_dependencies = (
 	source_file: SourceFileInfo,

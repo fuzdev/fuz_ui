@@ -130,8 +130,8 @@ export interface CollectedReExport {
  * // - helpers.ts foo declaration gets: also_exported_from: ['index.ts']
  * // - helpers.ts bar declaration gets: also_exported_from: ['index.ts']
  *
- * @param source_json The source JSON with all modules (will be mutated)
- * @param collected_re_exports Array of re-exports collected during phase 1
+ * @param source_json - the source JSON with all modules (will be mutated)
+ * @param collected_re_exports - array of re-exports collected during phase 1
  * @mutates source_json - adds `also_exported_from` to declarations
  */
 export const library_merge_re_exports = (
@@ -180,9 +180,9 @@ export const library_merge_re_exports = (
  * File types are determined by `options.get_analyzer`. By default, `.ts`, `.js`, and `.svelte`
  * files are supported. Customize `get_analyzer` to support additional file types like `.svx`.
  *
- * @param files Iterable of source file info (from Gro filer, file system, or other source)
- * @param options Module source options for filtering
- * @param log Optional logger for status messages
+ * @param files - iterable of source file info (from Gro filer, file system, or other source)
+ * @param options - module source options for filtering
+ * @param log - optional logger for status messages
  */
 export const library_collect_source_files = (
 	files: Iterable<SourceFileInfo>,

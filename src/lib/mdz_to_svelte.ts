@@ -35,12 +35,12 @@ export interface MdzToSvelteResult {
  * Each node type produces output matching what `MdzNodeView.svelte` renders at runtime.
  * Collects required imports and flags unconfigured component/element references.
  *
- * @param nodes Parsed mdz nodes to render.
- * @param components Component name to import path mapping (e.g., `{Alert: '$lib/Alert.svelte'}`).
+ * @param nodes - parsed mdz nodes to render.
+ * @param components - component name to import path mapping (e.g., `{Alert: '$lib/Alert.svelte'}`).
  *   If content references a component not in this map, `has_unconfigured_tags` is set.
- * @param elements Allowed HTML element names (e.g., `new Set(['aside', 'details'])`).
+ * @param elements - allowed HTML element names (e.g., `new Set(['aside', 'details'])`).
  *   If content references an element not in this set, `has_unconfigured_tags` is set.
- * @param base Base path for resolving relative links (e.g., `'/docs/mdz/'`).
+ * @param base - base path for resolving relative links (e.g., `'/docs/mdz/'`).
  *   When provided, relative references (`./`, `../`) are resolved to absolute paths
  *   and passed through `resolve()`. Trailing slash recommended.
  */

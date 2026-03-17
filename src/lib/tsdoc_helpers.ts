@@ -83,8 +83,8 @@ export interface TsdocParsedComment {
  * - `@since` - version information
  * - `@mutates` - mutation documentation (non-standard)
  *
- * @param node The TypeScript node to extract JSDoc from
- * @param source_file Source file (used for extracting full` @see` tag text)
+ * @param node - the TypeScript node to extract JSDoc from
+ * @param source_file - source file (used for extracting full ` @see` tag text)
  */
 export const tsdoc_parse = (
 	node: ts.Node,
@@ -186,8 +186,8 @@ export const tsdoc_parse = (
  * Consolidates the common pattern of assigning TSDoc fields to declarations,
  * with conditional assignment for array fields (only if non-empty).
  *
- * @param declaration declaration object to update
- * @param tsdoc parsed TSDoc comment (if available)
+ * @param declaration - declaration object to update
+ * @param tsdoc - parsed TSDoc comment (if available)
  * @mutates declaration - adds doc_comment, deprecated_message, examples, see_also, throws, since fields
  */
 export const tsdoc_apply_to_declaration = (
@@ -219,7 +219,7 @@ export const tsdoc_apply_to_declaration = (
  *
  * Transforms `/** ... *\/` style comments into clean text.
  *
- * @param comment_text The raw comment text including `/**` and `*\/` markers
+ * @param comment_text - the raw comment text including `/**` and `*\/` markers
  * @returns Cleaned comment text, or undefined if empty after cleaning
  */
 export const tsdoc_clean_comment = (comment_text: string): string | undefined => {

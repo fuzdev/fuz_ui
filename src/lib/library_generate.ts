@@ -43,8 +43,8 @@ import {AnalysisContext, format_diagnostic} from './analysis_context.js';
 /**
  * Callback for handling duplicate declaration names.
  *
- * @param duplicates Map of declaration names to their occurrences across modules
- * @param log Logger for reporting
+ * @param duplicates - map of declaration names to their occurrences across modules
+ * @param log - logger for reporting
  */
 export type OnDuplicatesCallback = (
 	duplicates: Map<string, Array<DuplicateInfo>>,

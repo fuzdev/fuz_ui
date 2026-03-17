@@ -382,7 +382,7 @@
 	 * The critical fix is calling preventDefault() in the touchmove handler when tracking
 	 * a longpress with movement below threshold.
 	 *
-	 * @param el The Window or HTMLElement to attach touch listeners to
+	 * @param el - the Window or HTMLElement to attach touch listeners to
 	 * @returns Cleanup function to remove all event listeners
 	 */
 	const touch_event_attachment = (el: HTMLElement | Window) => {

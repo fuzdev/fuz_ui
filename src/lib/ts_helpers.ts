@@ -63,8 +63,8 @@ export interface ModuleExportsAnalysis {
 /**
  * Create TypeScript program for analysis.
  *
- * @param options Configuration options for program creation
- * @param log Optional logger for info messages
+ * @param options - configuration options for program creation
+ * @param log - optional logger for info messages
  * @returns The program and type checker
  * @throws Error if tsconfig.json is not found
  */
@@ -100,12 +100,12 @@ export const ts_create_program = (options?: TsProgramOptions, log?: Logger): TsP
  * This is a high-level function suitable for building documentation or library metadata.
  * For lower-level analysis, use `ts_analyze_module_exports` directly.
  *
- * @param source_file_info The source file info (from Gro filer, file system, or other source)
- * @param ts_source_file TypeScript source file from the program
- * @param module_path The module path (relative to source root)
- * @param checker TypeScript type checker
- * @param options Module source options for path extraction
- * @param ctx Analysis context for collecting diagnostics
+ * @param source_file_info - the source file info (from Gro filer, file system, or other source)
+ * @param ts_source_file - TypeScript source file from the program
+ * @param module_path - the module path (relative to source root)
+ * @param checker - TypeScript type checker
+ * @param options - module source options for path extraction
+ * @param ctx - analysis context for collecting diagnostics
  * @returns Module metadata and re-export information
  */
 export const ts_analyze_module = (
@@ -151,10 +151,10 @@ export const ts_analyze_module = (
  * suitable for building documentation, API explorers, or analysis tools.
  * For standard SvelteKit library layouts, use `module_create_source_options(process.cwd())`.
  *
- * @param source_file The TypeScript source file to analyze
- * @param checker The TypeScript type checker
- * @param options Module source options for path extraction in re-exports
- * @param ctx Analysis context for collecting diagnostics
+ * @param source_file - the TypeScript source file to analyze
+ * @param checker - the TypeScript type checker
+ * @param options - module source options for path extraction in re-exports
+ * @param ctx - analysis context for collecting diagnostics
  * @returns Module comment, declarations, re-exports, and star exports
  */
 export const ts_analyze_module_exports = (
@@ -275,10 +275,10 @@ export const ts_analyze_module_exports = (
  * type analysis to produce complete declaration metadata. Suitable for use
  * in documentation generators, IDE integrations, and other tooling.
  *
- * @param symbol The TypeScript symbol to analyze
- * @param source_file The source file containing the symbol
- * @param checker The TypeScript type checker
- * @param ctx Optional analysis context for collecting diagnostics
+ * @param symbol - the TypeScript symbol to analyze
+ * @param source_file - the source file containing the symbol
+ * @param checker - the TypeScript type checker
+ * @param ctx - optional analysis context for collecting diagnostics
  * @returns Complete declaration metadata including docs, types, and parameters, plus nodocs flag
  */
 export const ts_analyze_declaration = (
@@ -431,9 +431,9 @@ export const ts_infer_declaration_kind = (symbol: ts.Symbol, node: ts.Node): Dec
  * Shared helper for extracting parameter information from both standalone functions
  * and class methods/constructors.
  *
- * @param sig The TypeScript signature to extract parameters from
- * @param checker TypeScript type checker for type resolution
- * @param tsdoc_params Map of parameter names to TSDoc descriptions (from tsdoc.params)
+ * @param sig - the TypeScript signature to extract parameters from
+ * @param checker - TypeScript type checker for type resolution
+ * @param tsdoc_params - map of parameter names to TSDoc descriptions (from tsdoc.params)
  * @returns Array of parameter info objects
  */
 export const ts_extract_signature_parameters = (
