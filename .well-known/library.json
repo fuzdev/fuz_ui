@@ -5958,18 +5958,18 @@
 							{
 								"name": "components",
 								"type": "Record<string, string>",
-								"description": "Component name to import path mapping (e.g., `{Alert: '$lib/Alert.svelte'}`).\nIf content references a component not in this map, `has_unconfigured_tags` is set."
+								"description": "Component name to import path mapping (e.g., `{Alert: '$lib/Alert.svelte'}`)\nIf content references a component not in this map, `has_unconfigured_tags` is set."
 							},
 							{
 								"name": "elements",
 								"type": "ReadonlySet<string>",
-								"description": "Allowed HTML element names (e.g., `new Set(['aside', 'details'])`).\nIf content references an element not in this set, `has_unconfigured_tags` is set."
+								"description": "Allowed HTML element names (e.g., `new Set(['aside', 'details'])`)\nIf content references an element not in this set, `has_unconfigured_tags` is set."
 							},
 							{
 								"name": "base",
 								"type": "string | undefined",
 								"optional": true,
-								"description": "Base path for resolving relative links (e.g., `'/docs/mdz/'`).\nWhen provided, relative references (`./`, `../`) are resolved to absolute paths\nand passed through `resolve()`. Trailing slash recommended."
+								"description": "Base path for resolving relative links (e.g., `'/docs/mdz/'`)\nWhen provided, relative references (`./`, `../`) are resolved to absolute paths\nand passed through `resolve()`. Trailing slash recommended."
 							}
 						]
 					}
@@ -6804,7 +6804,7 @@
 						"source_line": 445,
 						"type_signature": "(path: string, options: ModuleSourceOptions): boolean",
 						"return_type": "boolean",
-						"return_description": "True if the path is an analyzable source file",
+						"return_description": "true if the path is an analyzable source file",
 						"parameters": [
 							{
 								"name": "path",
@@ -7549,7 +7549,7 @@
 						"source_line": 86,
 						"type_signature": "(source_file: SourceFileInfo, module_path: string, checker: TypeChecker, options: ModuleSourceOptions, ctx: AnalysisContext): ModuleAnalysis",
 						"return_type": "ModuleAnalysis",
-						"return_description": "module analysis matching ModuleAnalysis structure",
+						"return_description": "module analysis matching `ModuleAnalysis` structure",
 						"parameters": [
 							{
 								"name": "source_file",
