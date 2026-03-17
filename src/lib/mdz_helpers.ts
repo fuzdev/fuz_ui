@@ -239,7 +239,9 @@ export const mdz_text_content = (nodes: Array<MdzNode>): string =>
 		.join('');
 
 /**
- * Generates a slug id for a heading from its child nodes.
+ * Generates a lowercase slug id for a heading from its child nodes.
+ * Follows standard markdown conventions (GitHub, etc.) where heading IDs are lowercased.
+ * For case-preserving IDs (e.g. API declarations), see `docs_slugify` in `docs_helpers.svelte.ts`.
  */
 export const mdz_heading_id = (nodes: Array<MdzNode>): string =>
 	slugify(mdz_text_content(nodes), false);
