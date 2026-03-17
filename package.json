@@ -28,7 +28,8 @@
     "fixtures:update": "gro src/test/fixtures/update",
     "preview": "vite preview",
     "deploy": "gro deploy",
-    "benchmark_mdz": "gro run src/benchmarks/mdz.benchmark.ts"
+    "benchmark": "gro run src/benchmarks/mdz.benchmark.ts",
+    "benchmark:save": "gro run src/benchmarks/mdz.benchmark.ts --save"
   },
   "type": "module",
   "engines": {

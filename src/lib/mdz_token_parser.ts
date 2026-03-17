@@ -124,9 +124,10 @@ class MdzTokenParser {
 			if (node) children.push(node);
 		}
 
-		const end = children.length > 0 ? children[children.length - 1]!.end : start + level + 1;
+		const merged = this.#merge_adjacent_text(children);
+		const end = merged.length > 0 ? merged[merged.length - 1]!.end : start + level + 1;
 
-		return {type: 'Heading', level, children, start, end};
+		return {type: 'Heading', level, children: merged, start, end};
 	}
 
 	#parse_inline(): MdzNode | null {

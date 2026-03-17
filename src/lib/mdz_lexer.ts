@@ -276,14 +276,17 @@ export class MdzLexer {
 			end: this.#index, // end of "## " prefix
 		});
 
+		// Find end-of-line to bound nested tokenizers (prevents tag scanner from scanning past heading)
+		let eol = this.#text.indexOf('\n', this.#index);
+		if (eol === -1) eol = this.#text.length;
+
+		const saved_max = this.#max_search_index;
+		this.#max_search_index = eol;
+
 		// Tokenize inline content until newline or EOF
 		// tokenize_text may consume a newline as part of block-element lookahead,
 		// so we check emitted text tokens for embedded newlines and trim.
-		while (this.#index < this.#text.length) {
-			if (this.#text.charCodeAt(this.#index) === NEWLINE) {
-				break;
-			}
-
+		while (this.#index < eol) {
 			const token_count_before = this.#tokens.length;
 			this.#tokenize_inline();
 
@@ -306,6 +309,8 @@ export class MdzLexer {
 				}
 			}
 		}
+
+		this.#max_search_index = saved_max;
 
 		// Emit heading_end marker so the token parser knows where heading content stops
 		this.#tokens.push({type: 'heading_end', start: this.#index, end: this.#index});
@@ -798,11 +803,17 @@ export class MdzLexer {
 		}
 		this.#index++; // consume >
 
-		// Check for closing tag existence before committing
+		// Check for closing tag existence before committing —
+		// must exist within search boundary and before any paragraph break
 		const closing_tag = `</${tag_name}>`;
+		const search_limit = Math.min(this.#max_search_index, this.#text.length);
 		const closing_tag_pos = this.#text.indexOf(closing_tag, this.#index);
-		if (closing_tag_pos === -1) {
-			// No closing tag - revert
+		if (closing_tag_pos === -1 || closing_tag_pos >= search_limit) {
+			this.#index = start + 1;
+			this.#emit_text('<', start);
+			return;
+		}
+		if (this.#has_paragraph_break_between(this.#index, closing_tag_pos)) {
 			this.#index = start + 1;
 			this.#emit_text('<', start);
 			return;
