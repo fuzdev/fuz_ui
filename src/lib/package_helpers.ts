@@ -30,7 +30,7 @@ import type {PackageJson} from '@fuzdev/fuz_util/package_json.js';
  * @param repo_url - repository URL (e.g., 'https://github.com/owner/repo')
  * @param file_path - path to the file (leading './' is stripped)
  * @param line - optional line number for deep linking
- * @returns Full GitHub URL to the file on the main branch
+ * @returns full GitHub URL to the file on the main branch
  *
  * @example
  * ```ts
@@ -55,7 +55,7 @@ export const url_github_file = (repo_url: string, file_path: string, line?: numb
  *
  * @param repo_url - repository URL (e.g., 'https://github.com/owner/repo')
  * @param repo_name - repository name to strip from the URL
- * @returns Organization URL, or null if repo_url doesn't end with repo_name
+ * @returns organization URL, or null if repo_url doesn't end with repo_name
  *
  * @example
  * ```ts
@@ -71,7 +71,7 @@ export const url_github_org = (repo_url: string, repo_name: string): string | nu
  * Extract GitHub owner/org name from repository URL.
  *
  * @param repo_url - repository URL (e.g., 'https://github.com/owner/repo')
- * @returns Owner name, or null if not a valid GitHub URL
+ * @returns owner name, or null if not a valid GitHub URL
  *
  * @example
  * ```ts
@@ -96,7 +96,7 @@ export const repo_url_github_owner = (repo_url: string): string | null => {
  * Build npm package URL.
  *
  * @param package_name - package name (can be scoped like '@org/package')
- * @returns Full npm package page URL
+ * @returns full npm package page URL
  *
  * @example
  * ```ts
@@ -116,7 +116,7 @@ export const url_npm_package = (package_name: string): string =>
  * - Its version is not the initial '0.0.1'
  *
  * @param package_json - the package.json object to check
- * @returns True if the package appears to be published
+ * @returns `true` if the package appears to be published
  */
 export const package_is_published = (package_json: PackageJson): boolean => {
 	return !package_json.private && !!package_json.exports && package_json.version !== '0.0.1';
@@ -126,7 +126,7 @@ export const package_is_published = (package_json: PackageJson): boolean => {
  * Extract repository name without scope from package name.
  *
  * @param name - package name (can be scoped like '@org/package')
- * @returns Repository name without scope
+ * @returns repository name without scope
  * @throws Error if scoped package name is malformed
  *
  * @example
@@ -159,7 +159,7 @@ export const repo_name_parse = (name: string): string => {
  * Strips common prefixes ('git+') and suffixes ('.git', '/').
  *
  * @param repository - the repository field from package.json
- * @returns Clean repository URL, or null if not provided
+ * @returns clean repository URL, or null if not provided
  *
  * @example
  * ```ts
@@ -191,7 +191,7 @@ export const repo_url_parse = (repository: PackageJson['repository']): string | 
  *
  * @param homepage_url - package homepage URL
  * @param filename - filename in .well-known directory
- * @returns Full URL to the .well-known file
+ * @returns full URL to the .well-known file
  *
  * @example
  * ```ts

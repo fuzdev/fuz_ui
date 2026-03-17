@@ -495,7 +495,7 @@ export class MdzParser {
 	 *
 	 * @param delimiter - the delimiter character (`_` for italic, `~` for strikethrough)
 	 * @param node_type - the node type to create ('Italic' or 'Strikethrough')
-	 * @returns Formatted node or text node if validation fails
+	 * @returns formatted node or text node if validation fails
 	 */
 	#parse_single_delimiter_formatting(
 		delimiter: '_',
@@ -1108,7 +1108,7 @@ export class MdzParser {
 	 *
 	 * @param delimiter - the delimiter string to stop at (e.g., '**', '_', ']')
 	 * @param end_index - optional maximum index to parse up to (for greedy/bounded parsing)
-	 * @returns Array of parsed nodes (may be empty if delimiter found immediately)
+	 * @returns array of parsed nodes (may be empty if delimiter found immediately)
 	 */
 	#parse_nodes_until(delimiter: string, end_index?: number): Array<MdzNode> {
 		const nodes: Array<MdzNode> = [];

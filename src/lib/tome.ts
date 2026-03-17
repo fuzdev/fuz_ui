@@ -18,7 +18,7 @@ export const Tome = z.object({
 export type Tome = z.infer<typeof Tome>;
 
 /**
- * @param hash - URL fragment to append, with or without the `#`.
+ * @param hash - URL fragment to append, with or without the `#`
  */
 export const to_tome_pathname = (
 	item: Tome | string,

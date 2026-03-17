@@ -65,7 +65,7 @@ export interface ModuleExportsAnalysis {
  *
  * @param options - configuration options for program creation
  * @param log - optional logger for info messages
- * @returns The program and type checker
+ * @returns the program and type checker
  * @throws Error if tsconfig.json is not found
  */
 export const ts_create_program = (options?: TsProgramOptions, log?: Logger): TsProgram => {
@@ -106,7 +106,7 @@ export const ts_create_program = (options?: TsProgramOptions, log?: Logger): TsP
  * @param checker - TypeScript type checker
  * @param options - module source options for path extraction
  * @param ctx - analysis context for collecting diagnostics
- * @returns Module metadata and re-export information
+ * @returns module metadata and re-export information
  */
 export const ts_analyze_module = (
 	source_file_info: SourceFileInfo,
@@ -155,7 +155,7 @@ export const ts_analyze_module = (
  * @param checker - the TypeScript type checker
  * @param options - module source options for path extraction in re-exports
  * @param ctx - analysis context for collecting diagnostics
- * @returns Module comment, declarations, re-exports, and star exports
+ * @returns module comment, declarations, re-exports, and star exports
  */
 export const ts_analyze_module_exports = (
 	source_file: ts.SourceFile,
@@ -279,7 +279,7 @@ export const ts_analyze_module_exports = (
  * @param source_file - the source file containing the symbol
  * @param checker - the TypeScript type checker
  * @param ctx - optional analysis context for collecting diagnostics
- * @returns Complete declaration metadata including docs, types, and parameters, plus nodocs flag
+ * @returns complete declaration metadata including docs, types, and parameters, plus nodocs flag
  */
 export const ts_analyze_declaration = (
 	symbol: ts.Symbol,
@@ -434,7 +434,7 @@ export const ts_infer_declaration_kind = (symbol: ts.Symbol, node: ts.Node): Dec
  * @param sig - the TypeScript signature to extract parameters from
  * @param checker - TypeScript type checker for type resolution
  * @param tsdoc_params - map of parameter names to TSDoc descriptions (from tsdoc.params)
- * @returns Array of parameter info objects
+ * @returns array of parameter info objects
  */
 export const ts_extract_signature_parameters = (
 	sig: ts.Signature,

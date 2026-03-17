@@ -28,7 +28,7 @@ export const url_api_declaration = (declaration_name: string): string =>
  *
  * @param homepage - package homepage URL
  * @param declaration_name - name of the declaration to link to
- * @returns Full URL like 'https://example.com/docs/api#declaration_name'
+ * @returns full URL like 'https://example.com/docs/api#declaration_name'
  */
 export const url_api_declaration_full = (homepage: string, declaration_name: string): string =>
 	`${homepage}${DOCS_PATH_DEFAULT}/api#${encodeURIComponent(declaration_name)}`;
@@ -46,7 +46,7 @@ export const url_api_module = (module_path: string): string => `${DOCS_API_PATH}
  *
  * @param homepage_url - package homepage URL, or null
  * @param logo_path - optional custom logo path (defaults to 'favicon.png')
- * @returns Full URL to the logo, or null if no homepage
+ * @returns full URL to the logo, or null if no homepage
  */
 export const url_package_logo = (
 	homepage_url: string | null,
@@ -64,7 +64,7 @@ export const url_package_logo = (
  *
  * @param url - full URL to convert
  * @param origin - origin to strip (defaults to current page origin)
- * @returns Root-relative URL starting with '/'
+ * @returns root-relative URL starting with '/'
  *
  * @example
  * // Assuming page.url.origin is 'https://example.com'

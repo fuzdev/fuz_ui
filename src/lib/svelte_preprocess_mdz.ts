@@ -99,7 +99,7 @@ const PRECOMPILED_NAME = 'MdzPrecompiled';
  * Creates a Svelte preprocessor that compiles static `Mdz` content at build time.
  *
  * @param options - configuration for component/element resolution and file filtering
- * @returns A Svelte `PreprocessorGroup` for use in `svelte.config.js`.
+ * @returns a Svelte `PreprocessorGroup` for use in `svelte.config.js`
  */
 export const svelte_preprocess_mdz = (
 	options: SveltePreprocessMdzOptions = {},

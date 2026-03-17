@@ -118,7 +118,7 @@ export interface ModuleAnalysis {
  * @param options - module source options for path extraction
  * @param ctx - analysis context for collecting diagnostics
  * @param log - optional logger for warnings
- * @returns Module metadata and re-exports, or undefined if source file not found in program
+ * @returns module metadata and re-exports, or undefined if source file not found in program
  */
 export const library_analyze_module = (
 	source_file: SourceFileInfo,

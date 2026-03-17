@@ -81,7 +81,7 @@ export interface SvelteFileAnalysis {
  * @param checker - TypeScript type checker
  * @param options - module source options for path extraction
  * @param ctx - analysis context for collecting diagnostics
- * @returns Module analysis matching ModuleAnalysis structure
+ * @returns module analysis matching ModuleAnalysis structure
  */
 export const svelte_analyze_module = (
 	source_file: SourceFileInfo,
@@ -122,7 +122,7 @@ export const svelte_analyze_module = (
  * @param module_path - module path relative to source root (e.g., 'Alert.svelte')
  * @param checker - TypeScript type checker for type resolution
  * @param ctx - analysis context for collecting diagnostics
- * @returns Component declaration and optional module-level comment
+ * @returns component declaration and optional module-level comment
  */
 export const svelte_analyze_file = (
 	source_file: SourceFileInfo,
@@ -259,7 +259,7 @@ export const svelte_extract_script_content = (svelte_source: string): string | u
  * Requires `@module` tag to identify module comments. The tag line is stripped
  * from the output.
  *
- * @param script_content - the content of the `<script>` tag.
+ * @param script_content - the content of the `<script>` tag
  * @returns the cleaned module comment text, or undefined if none found
  */
 export const svelte_extract_module_comment = (script_content: string): string | undefined => {

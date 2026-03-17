@@ -220,7 +220,7 @@ export const tsdoc_apply_to_declaration = (
  * Transforms `/** ... *\/` style comments into clean text.
  *
  * @param comment_text - the raw comment text including `/**` and `*\/` markers
- * @returns Cleaned comment text, or undefined if empty after cleaning
+ * @returns cleaned comment text, or undefined if empty after cleaning
  */
 export const tsdoc_clean_comment = (comment_text: string): string | undefined => {
 	const text = comment_text

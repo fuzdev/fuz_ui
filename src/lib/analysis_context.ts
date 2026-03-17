@@ -227,7 +227,7 @@ export interface FormatDiagnosticOptions {
  *
  * @param diagnostic - the diagnostic to format
  * @param options - formatting options
- * @returns Formatted string like './file.ts:10:5: error: message'
+ * @returns formatted string like './file.ts:10:5: error: message'
  */
 export const format_diagnostic = (
 	diagnostic: Diagnostic,

@@ -383,7 +383,7 @@
 	 * a longpress with movement below threshold.
 	 *
 	 * @param el - the Window or HTMLElement to attach touch listeners to
-	 * @returns Cleanup function to remove all event listeners
+	 * @returns cleanup function to remove all event listeners
 	 */
 	const touch_event_attachment = (el: HTMLElement | Window) => {
 		// touchstart and touchcancel don't call preventDefault, so they can be passive for better performance
