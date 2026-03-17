@@ -8,7 +8,7 @@
  * @module
  */
 
-import {mdz_is_url} from './mdz.js';
+import {mdz_is_url} from './mdz_helpers.js';
 
 /** Format a reference as mdz: URLs pass through, identifiers get backticks. */
 const format_reference = (ref: string): string => (mdz_is_url(ref) ? ref : `\`${ref}\``);

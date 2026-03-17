@@ -63,6 +63,7 @@ import {
 	is_at_relative_path,
 	extract_single_tag,
 	mdz_heading_id,
+	mdz_is_url,
 } from './mdz_helpers.js';
 
 // TODO design incremental parsing or some system that preserves Svelte components across re-renders when possible
@@ -1520,41 +1521,3 @@ export class MdzParser {
 		throw Error('Code block not properly closed');
 	}
 }
-
-/**
- * Check if a string is a URL (`https://` or `http://`).
- * Requires at least one valid character after the protocol.
- * Rejects whitespace and characters that can't start a valid hostname.
- */
-const URL_PATTERN = /^https?:\/\/[^\s)\]}<>.,:/?#!]/;
-export const mdz_is_url = (s: string): boolean => URL_PATTERN.test(s);
-
-/**
- * Resolves a relative path (`./` or `../`) against a base path.
- * The base is treated as a directory regardless of trailing slash
- * (`'/docs/mdz'` and `'/docs/mdz/'` behave identically).
- * Handles embedded `.` and `..` segments within the reference
- * (e.g., `'./a/../b'` → navigates up then down).
- * Clamps at root — excess `..` segments stop at `/` rather than escaping.
- *
- * @param reference A relative path starting with `./` or `../`.
- * @param base An absolute base path (e.g., `'/docs/mdz/'`). Empty string is treated as root.
- * @returns An absolute resolved path (e.g., `'/docs/mdz/grammar'`).
- */
-export const resolve_relative_path = (reference: string, base: string): string => {
-	const segments = base.split('/');
-	// Remove trailing empty from split (e.g., '/docs/mdz/' → ['', 'docs', 'mdz', ''])
-	// but keep the root segment ([''] from '' base or ['', ''] from '/').
-	if (segments.length > 1 && segments.at(-1) === '') segments.pop();
-	const trailing = reference.endsWith('/');
-	for (const segment of reference.split('/')) {
-		if (segment === '.' || segment === '') continue;
-		if (segment === '..') {
-			if (segments.length > 1) segments.pop(); // clamp at root
-		} else {
-			segments.push(segment);
-		}
-	}
-	if (trailing) segments.push('');
-	return segments.join('/');
-};

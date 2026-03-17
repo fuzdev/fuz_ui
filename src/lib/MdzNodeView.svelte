@@ -2,7 +2,8 @@
 	import Code from '@fuzdev/fuz_code/Code.svelte';
 	import {resolve} from '$app/paths';
 
-	import {type MdzNode, resolve_relative_path} from './mdz.js';
+	import type {MdzNode} from './mdz.js';
+	import {resolve_relative_path} from './mdz_helpers.js';
 	import DocsLink from './DocsLink.svelte';
 	import MdzNodeView from './MdzNodeView.svelte';
 	import {

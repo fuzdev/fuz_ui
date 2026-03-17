@@ -7,7 +7,7 @@
  * @module
  */
 
-import {mdz_is_url} from './mdz.js';
+import {mdz_is_url} from './mdz_helpers.js';
 import {
 	is_letter,
 	is_tag_name_char,
