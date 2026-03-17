@@ -2,6 +2,7 @@
 	{
 		"type": "Heading",
 		"level": 2,
+		"id": "heading-with-bold-and-italic-and-code",
 		"children": [
 			{
 				"type": "Text",

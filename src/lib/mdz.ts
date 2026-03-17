@@ -62,6 +62,7 @@ import {
 	is_at_absolute_path,
 	is_at_relative_path,
 	extract_single_tag,
+	mdz_heading_id,
 } from './mdz_helpers.js';
 
 // TODO design incremental parsing or some system that preserves Svelte components across re-renders when possible
@@ -141,6 +142,7 @@ export interface MdzHrNode extends MdzBaseNode {
 export interface MdzHeadingNode extends MdzBaseNode {
 	type: 'Heading';
 	level: 1 | 2 | 3 | 4 | 5 | 6;
+	id: string; // slugified heading text for fragment links
 	children: Array<MdzNode>; // inline formatting allowed
 }
 
@@ -1326,6 +1328,7 @@ export class MdzParser {
 		return {
 			type: 'Heading',
 			level: level as 1 | 2 | 3 | 4 | 5 | 6,
+			id: mdz_heading_id(content_nodes),
 			children: content_nodes,
 			start,
 			end: this.#index,

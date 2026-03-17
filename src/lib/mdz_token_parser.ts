@@ -18,7 +18,7 @@ import type {
 	MdzElementNode,
 	MdzComponentNode,
 } from './mdz.js';
-import {extract_single_tag} from './mdz_helpers.js';
+import {extract_single_tag, mdz_heading_id} from './mdz_helpers.js';
 import {
 	MdzLexer,
 	type MdzToken,
@@ -127,7 +127,7 @@ class MdzTokenParser {
 		const merged = this.#merge_adjacent_text(children);
 		const end = merged.length > 0 ? merged[merged.length - 1]!.end : start + level + 1;
 
-		return {type: 'Heading', level, children: merged, start, end};
+		return {type: 'Heading', level, id: mdz_heading_id(merged), children: merged, start, end};
 	}
 
 	#parse_inline(): MdzNode | null {

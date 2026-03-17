@@ -80,7 +80,7 @@
 {:else if node.type === 'Hr'}
 	<hr />
 {:else if node.type === 'Heading'}
-	<svelte:element this={`h${node.level}`}>
+	<svelte:element this={`h${node.level}`} id={node.id}>
 		{@render render_children(node.children)}
 	</svelte:element>
 {:else if node.type === 'Codeblock'}

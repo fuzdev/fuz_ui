@@ -8,6 +8,7 @@
  */
 
 import type {MdzNode, MdzComponentNode, MdzElementNode} from './mdz.js';
+import {slugify} from '@fuzdev/fuz_util/path.js';
 
 // Character codes for performance
 export const BACKTICK = 96; // `
@@ -228,6 +229,20 @@ export const is_at_relative_path = (text: string, index: number): boolean => {
 	}
 	return false;
 };
+
+/**
+ * Extracts plain text content from an array of mdz nodes, recursing into children.
+ */
+export const mdz_text_content = (nodes: Array<MdzNode>): string =>
+	nodes
+		.map((n) => ('children' in n ? mdz_text_content(n.children) : 'content' in n ? n.content : ''))
+		.join('');
+
+/**
+ * Generates a slug id for a heading from its child nodes.
+ */
+export const mdz_heading_id = (nodes: Array<MdzNode>): string =>
+	slugify(mdz_text_content(nodes), false);
 
 export const extract_single_tag = (
 	nodes: Array<MdzNode>,

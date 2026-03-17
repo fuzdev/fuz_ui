@@ -2,6 +2,7 @@
 	{
 		"type": "Heading",
 		"level": 3,
+		"id": "why-object-literals-beat-pickgodtype",
 		"children": [
 			{
 				"type": "Text",

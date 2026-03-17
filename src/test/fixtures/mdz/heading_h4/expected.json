@@ -2,6 +2,7 @@
 	{
 		"type": "Heading",
 		"level": 4,
+		"id": "level-4-heading",
 		"children": [
 			{
 				"type": "Text",

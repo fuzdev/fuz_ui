@@ -15,6 +15,7 @@
 	{
 		"type": "Heading",
 		"level": 1,
+		"id": "heading",
 		"children": [
 			{
 				"type": "Text",
