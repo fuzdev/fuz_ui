@@ -1,1 +1,0 @@
-import{o as y,A as v,B as l,q as o,D as T,F as f,G as p,y as A,x as i,I as m,z as R}from"./CntUkxcs.js";function x(d,_,e){var s;o&&(s=R,T());var r=new l(d);y(()=>{var a=_()??null;if(o){var h=f(s),c=h===m,u=a!==null;if(c!==u){var t=p();A(t),r.anchor=t,i(!1),r.ensure(a,a&&(n=>e(n,a))),i(!0);return}}r.ensure(a,a&&(n=>e(n,a)))},v)}export{x as c};
