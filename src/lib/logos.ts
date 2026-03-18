@@ -100,6 +100,12 @@ export const logo_fuz_gitops = {
 	paths: logo_fuz.paths,
 } satisfies SvgData;
 
+export const logo_fuz_docs = {
+	label: 'a friendly cyan spider facing you',
+	fill: '#1ec3d2',
+	paths: logo_fuz.paths,
+} satisfies SvgData;
+
 export const logo_fuz_template = {
 	label: 'a friendly orange pixelated spider facing you',
 	fill: '#f4672f',
