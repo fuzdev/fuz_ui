@@ -1,5 +1,11 @@
 # @fuzdev/fuz_ui
 
+## 0.191.1
+
+### Patch Changes
+
+- fix `ProjectLinks` for fuz_docs ([743b134](https://github.com/fuzdev/fuz_ui/commit/743b134))
+
 ## 0.191.0
 
 ### Minor Changes
