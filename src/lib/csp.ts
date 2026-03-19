@@ -184,7 +184,7 @@ export type CspDirectiveValue<T extends CspDirective> = Defined<CspDirectives[T]
 export const csp_trust_levels = ['low', 'medium', 'high'] as const;
 
 /**
- * Numeric values for CSP trust levels, `csp_trust_levels`.
+ * Numeric values for CSP trust levels. See `csp_trust_levels`.
  * Lower is less trusted.
  * Includes `undefined` in the type for safety.
  */
@@ -265,7 +265,7 @@ export const COLOR_SCHEME_SCRIPT_HASH = 'sha256-QOxqn7EUzb3ydF9SALJoJGWSvywW9R0A
 /**
  * The base CSP directive defaults.
  * Prioritizes safety but loosens around media and styles, relying on defense-in-depth.
- * Customizable via `CreateCspDirectivesOptions.defaults`.
+ * Customizable via `CreateCspDirectivesOptions`.
  */
 export const csp_directive_value_defaults: Record<
 	CspDirective,
@@ -336,9 +336,9 @@ export const csp_directive_required_trust_defaults: Record<CspDirective, CspTrus
  * Fuz excludes deprecated directives, so those are intentionally omitted,
  * but any newer missing directives are bugs.
  *
- * Could be moved to `csp.ts` but is currently here to keep that module smaller.
+ * Could be co-located but is currently here to keep that module smaller.
  *
- * @see https://developer.mozilla.org/en-US/docs/Web/HTTP/Reference/Headers/Content-Security-Policy
+ * @see {@link https://developer.mozilla.org/en-US/docs/Web/HTTP/Reference/Headers/Content-Security-Policy}
  */
 export const csp_directive_specs: Array<CspDirectiveSpec> = [
 	{

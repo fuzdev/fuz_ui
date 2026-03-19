@@ -36,9 +36,9 @@
  * }
  * ```
  *
- * @see ts_helpers.ts for TypeScript-specific analysis
- * @see svelte_helpers.ts for Svelte component analysis
- * @see module_helpers.ts for path utilities and SourceFileInfo
+ * @see `ts_helpers.ts` for TypeScript-specific analysis
+ * @see `svelte_helpers.ts` for Svelte component analysis
+ * @see `module_helpers.ts` for path utilities and `SourceFileInfo`
  *
  * @module
  */
@@ -63,7 +63,7 @@ import type {AnalysisContext} from './analysis_context.js';
 export interface DeclarationAnalysis {
 	/** The analyzed declaration metadata. */
 	declaration: DeclarationJson;
-	/** Whether the declaration is marked @nodocs (should be excluded from documentation). */
+	/** Whether the declaration is marked `@nodocs` (should be excluded from documentation). */
 	nodocs: boolean;
 }
 

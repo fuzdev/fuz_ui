@@ -8,7 +8,7 @@
  *
  * Analysis functions follow a two-tier error model:
  *
- * **Accumulated (non-fatal)** - Collected in AnalysisContext, analysis continues:
+ * **Accumulated (non-fatal)** - Collected in `AnalysisContext`, analysis continues:
  * - Type resolution failures (complex generics, circular refs)
  * - Missing or unparseable JSDoc
  * - Individual member/prop extraction failures
@@ -44,6 +44,7 @@
  * ```
  *
  * @example
+ * ```ts
  * const ctx = new AnalysisContext();
  * // ... analysis functions add diagnostics via ctx.add(...)
  * if (ctx.has_errors()) {
@@ -51,6 +52,7 @@
  *     console.error(`${err.file}:${err.line}: ${err.message}`);
  *   }
  * }
+ * ```
  *
  * @module
  */
@@ -157,6 +159,7 @@ export type Diagnostic =
  * report collected diagnostics.
  *
  * @example
+ * ```ts
  * const ctx = new AnalysisContext();
  * ts_analyze_module_exports(source_file, checker, options, ctx);
  * if (ctx.has_errors()) {
@@ -165,12 +168,13 @@ export type Diagnostic =
  *     console.error(format_diagnostic(d));
  *   }
  * }
+ * ```
  */
 export class AnalysisContext {
 	readonly diagnostics: Array<Diagnostic> = [];
 
 	/**
-	 * Add a diagnostic to the collection.
+	 * Add a `Diagnostic` to the collection.
 	 */
 	add(diagnostic: Diagnostic): void {
 		this.diagnostics.push(diagnostic);
@@ -205,7 +209,7 @@ export class AnalysisContext {
 	}
 
 	/**
-	 * Get diagnostics of a specific kind.
+	 * Get diagnostics of a specific `DiagnosticKind`.
 	 */
 	by_kind<K extends DiagnosticKind>(kind: K): Array<Extract<Diagnostic, {kind: K}>> {
 		return this.diagnostics.filter((d) => d.kind === kind) as Array<Extract<Diagnostic, {kind: K}>>;

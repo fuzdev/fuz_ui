@@ -67,9 +67,11 @@ export const url_package_logo = (
  * @returns root-relative URL starting with '/'
  *
  * @example
+ * ```ts
  * // Assuming page.url.origin is 'https://example.com'
  * url_to_root_relative('https://example.com/docs/api')
  * // => '/docs/api'
+ * ```
  */
 export const url_to_root_relative = (url: string, origin: string = page.url.origin): string => {
 	const origin_with_slash = ensure_end(origin, '/');

@@ -12,9 +12,9 @@
  * - Dependency graphs
  * - Svelte component props
  *
- * For Gro integration, see `library_gen.ts` which wraps this with Gro's Gen interface.
+ * For Gro integration, see `library_gen.ts` which wraps this with Gro's `Gen` interface.
  *
- * @see @fuzdev/fuz_util/source_json.js for type definitions
+ * @see `@fuzdev/fuz_util/source_json.js` for type definitions
  * @see `library_analysis.ts` for the unified analysis entry point
  * @see `library_pipeline.ts` for pipeline helpers
  * @see `library_output.ts` for JSON/TS file generation

@@ -20,7 +20,7 @@ export type AnalyzerType = 'typescript' | 'svelte';
 /**
  * File information for source analysis.
  *
- * Can be constructed from Gro's Disknode or from plain file system access.
+ * Can be constructed from Gro's `Disknode` or from plain file system access.
  * This abstraction enables non-Gro usage while keeping Gro support via adapter.
  *
  * Note: `content` is required to keep analysis functions pure (no hidden I/O).
@@ -328,7 +328,7 @@ export const module_validate_source_options = (options: ModuleSourceOptions): vo
  *
  * Returns `source_root` if provided, otherwise returns `source_paths[0]` for single-path configs.
  *
- * @throws Error if source_root is required but not provided (multiple source_paths)
+ * @throws Error if `source_root` is required but not provided (multiple `source_paths`)
  */
 export const module_get_source_root = (options: ModuleSourceOptions): string => {
 	if (options.source_root !== undefined) {

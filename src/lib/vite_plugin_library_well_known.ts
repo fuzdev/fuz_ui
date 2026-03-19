@@ -6,7 +6,7 @@ import type {LibraryJson} from '@fuzdev/fuz_util/library_json.js';
 
 export interface VitePluginLibraryWellKnownOptions {
 	/**
-	 * Path to the library.json file (relative to vite.config.ts).
+	 * Path to the `library.json` file (relative to `vite.config.ts`).
 	 * @default './src/routes/library.json'
 	 */
 	library_path?: string;
@@ -27,7 +27,7 @@ const respond_json = (res: ServerResponse, body: string): void => {
 /**
  * Vite plugin that publishes `package.json` and `library.json` to `.well-known/`.
  *
- * Requires a generated library.json file (created by `library_gen` from `gro gen`).
+ * Requires a generated `library.json` file (created by `library_gen` from `gro gen`).
  * The plugin reads this JSON file and publishes its metadata to `.well-known/` for
  * both dev and production builds.
  *

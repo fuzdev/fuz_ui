@@ -6,15 +6,15 @@
  *
  * Pipeline stages:
  * 1. **Collection** - `library_collect_source_files` gathers and filters source files
- * 2. **Analysis** - `library_analyze_module` (in library_analysis.ts) extracts metadata
+ * 2. **Analysis** - `library_analyze_module` (in `library_analysis.ts`) extracts metadata
  * 3. **Validation** - `library_find_duplicates` checks flat namespace constraints
  * 4. **Transformation** - `library_merge_re_exports` resolves re-export relationships
  * 5. **Output** - `library_sort_modules` prepares deterministic output
  *
- * @see library_generate.ts for the main generation entry point
- * @see library_analysis.ts for module-level analysis
- * @see library_output.ts for output file generation (JSON/TS wrapper)
- * @see library_gen.ts for Gro-specific integration
+ * @see `library_generate.ts` for the main generation entry point
+ * @see `library_analysis.ts` for module-level analysis
+ * @see `library_output.ts` for output file generation (JSON/TS wrapper)
+ * @see `library_gen.ts` for Gro-specific integration
  *
  * @module
  */
@@ -48,6 +48,7 @@ export interface DuplicateInfo {
  * Callers can decide how to handle duplicates (throw, warn, ignore).
  *
  * @example
+ * ```ts
  * const duplicates = library_find_duplicates(source_json);
  * if (duplicates.size > 0) {
  *   for (const [name, occurrences] of duplicates) {
@@ -58,6 +59,7 @@ export interface DuplicateInfo {
  *   }
  *   throw new Error(`Found ${duplicates.size} duplicate declaration names`);
  * }
+ * ```
  */
 export const library_find_duplicates = (
 	source_json: SourceJson,
@@ -123,12 +125,14 @@ export interface CollectedReExport {
  * after all modules are analyzed.
  *
  * @example
+ * ```ts
  * // helpers.ts exports: foo, bar
  * // index.ts does: export {foo, bar} from './helpers.js'
  * //
  * // After processing:
  * // - helpers.ts foo declaration gets: also_exported_from: ['index.ts']
  * // - helpers.ts bar declaration gets: also_exported_from: ['index.ts']
+ * ```
  *
  * @param source_json - the source JSON with all modules (will be mutated)
  * @param collected_re_exports - array of re-exports collected during phase 1

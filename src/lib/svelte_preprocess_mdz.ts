@@ -59,20 +59,20 @@ export interface SveltePreprocessMdzOptions {
 	 * Value: import path (e.g., '$lib/Alert.svelte').
 	 *
 	 * If mdz content references a component not in this map,
-	 * that Mdz usage is skipped (left as runtime).
+	 * that `Mdz` usage is skipped (left as runtime).
 	 */
 	components?: Record<string, string>;
 
 	/**
 	 * Allowed HTML elements in mdz content.
 	 * If mdz content references an element not in this list,
-	 * that Mdz usage is skipped (left as runtime).
+	 * that `Mdz` usage is skipped (left as runtime).
 	 */
 	elements?: Array<string>;
 
 	/**
-	 * Import sources that resolve to the Mdz component.
-	 * Used to verify that `Mdz` in templates refers to fuz_ui's Mdz.svelte.
+	 * Import sources that resolve to the `Mdz` component.
+	 * Used to verify that `Mdz` in templates refers to fuz_ui's `Mdz.svelte`.
 	 *
 	 * @default ['@fuzdev/fuz_ui/Mdz.svelte']
 	 */
@@ -204,9 +204,9 @@ interface MdzTransformation {
 
 interface FindMdzUsagesResult {
 	transformations: Array<MdzTransformation>;
-	/** Total template usages per Mdz local name. */
+	/** Total template usages per `Mdz` local name. */
 	total_usages: Map<string, number>;
-	/** Successfully transformed usages per Mdz local name. */
+	/** Successfully transformed usages per `Mdz` local name. */
 	transformed_usages: Map<string, number>;
 }
 
@@ -487,7 +487,7 @@ const remove_dead_const_bindings = (
 };
 
 /**
- * Builds the replacement string for a transformed Mdz component.
+ * Builds the replacement string for a transformed `Mdz` component.
  *
  * Reconstructs the opening tag as `<MdzPrecompiled` with all attributes except `content`,
  * using source text slicing to preserve exact formatting and dynamic expressions.
@@ -515,24 +515,24 @@ const build_replacement = (
 	return `${opening}${children_markup}</${PRECOMPILED_NAME}>`;
 };
 
-/** Result of import removability analysis for a single Mdz name. */
+/** Result of import removability analysis for a single `Mdz` name. */
 interface ImportRemovalAction {
 	/** The import declaration node. */
 	node: PositionedImportDeclaration;
-	/** 'full' removes the entire declaration; 'partial' removes only the Mdz specifier. */
+	/** 'full' removes the entire declaration; 'partial' removes only the `Mdz` specifier. */
 	kind: 'full' | 'partial';
 	/** For partial removal: the specifier to remove. */
 	specifier_to_remove?: ImportDeclaration['specifiers'][number];
 }
 
 /**
- * Determines which Mdz import declarations can be safely removed or trimmed.
+ * Determines which `Mdz` import declarations can be safely removed or trimmed.
  *
  * An import is removable when:
  * 1. All template usages of that name were successfully transformed.
  * 2. The identifier is not referenced elsewhere in script or template expressions.
  *
- * For multi-specifier imports, only the Mdz specifier is removed (partial removal).
+ * For multi-specifier imports, only the `Mdz` specifier is removed (partial removal).
  * For single-specifier imports, the entire declaration is removed.
  */
 const find_removable_mdz_imports = (
@@ -587,13 +587,13 @@ const find_removable_mdz_imports = (
  * Manages import additions and removals.
  *
  * Adds the `MdzPrecompiled` import and other required imports (DocsLink, Code, resolve).
- * Removes Mdz import declarations that are no longer referenced.
+ * Removes `Mdz` import declarations that are no longer referenced.
  *
  * Handles both full removal (single-specifier imports) and partial removal
- * (multi-specifier imports where only the Mdz specifier is removed).
+ * (multi-specifier imports where only the `Mdz` specifier is removed).
  *
  * To avoid MagicString boundary conflicts when the insertion position falls inside
- * a removal range, one removable Mdz import is overwritten with the MdzPrecompiled
+ * a removal range, one removable `Mdz` import is overwritten with the `MdzPrecompiled`
  * import line instead of using separate remove + appendLeft.
  */
 const manage_imports = (

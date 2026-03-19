@@ -17,10 +17,10 @@ export const parse_library_url_prefix = (value: unknown): string => {
  * Rich runtime representation of a library.
  *
  * Wraps `LibraryJson` with computed properties and provides the root
- * of the API documentation hierarchy: Library → modules → declarations
+ * of the API documentation hierarchy: `Library` → `Module` → `Declaration`.
  *
- * @see module.svelte.ts for Module class
- * @see declaration.svelte.ts for Declaration class
+ * @see `module.svelte.ts` for `Module` class
+ * @see `declaration.svelte.ts` for `Declaration` class
  */
 export class Library {
 	readonly library_json: LibraryJson = $state.raw()!;
@@ -58,7 +58,7 @@ export class Library {
 	);
 
 	/**
-	 * All modules as rich Module instances.
+	 * All modules as rich `Module` instances.
 	 */
 	readonly modules = $derived(
 		this.source_json.modules

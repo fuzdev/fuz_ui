@@ -1,11 +1,11 @@
 /**
  * Library output generation.
  *
- * Generates the library.json and library.ts files from analyzed metadata.
+ * Generates the `library.json` and `library.ts` files from analyzed metadata.
  *
- * @see library_generate.ts for the main generation entry point
- * @see library_pipeline.ts for pipeline orchestration functions
- * @see library_gen.ts for Gro-specific integration
+ * @see `library_generate.ts` for the main generation entry point
+ * @see `library_pipeline.ts` for pipeline orchestration functions
+ * @see `library_gen.ts` for Gro-specific integration
  *
  * @module
  */
@@ -19,14 +19,14 @@ import {library_json_parse, type LibraryJson} from '@fuzdev/fuz_util/library_jso
  * Contains both the JSON data and the TypeScript wrapper file.
  */
 export interface LibraryOutputResult {
-	/** JSON content for library.json */
+	/** JSON content for `library.json`. */
 	json_content: string;
-	/** TypeScript wrapper content for library.ts */
+	/** TypeScript wrapper content for `library.ts`. */
 	ts_content: string;
 }
 
 /**
- * Generate the library.json and library.ts file contents.
+ * Generate the `library.json` and `library.ts` file contents.
  * Parses at generation time so runtime only needs the pre-computed result.
  *
  * Returns JSON + .ts wrapper because:

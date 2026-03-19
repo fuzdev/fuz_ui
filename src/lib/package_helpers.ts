@@ -11,7 +11,7 @@
  * - `url_well_known` - .well-known metadata file
  *
  * Parsers:
- * - `repo_url_parse` - extract repo URL from package.json repository field
+ * - `repo_url_parse` - extract repo URL from `package.json` repository field
  * - `repo_name_parse` - extract repo name from scoped package name
  * - `repo_url_github_owner` - extract GitHub owner from repo URL
  *
@@ -115,7 +115,7 @@ export const url_npm_package = (package_name: string): string =>
  * - It has exports defined
  * - Its version is not the initial '0.0.1'
  *
- * @param package_json - the package.json object to check
+ * @param package_json - the `package.json` object to check
  * @returns `true` if the package appears to be published
  */
 export const package_is_published = (package_json: PackageJson): boolean => {
@@ -153,12 +153,12 @@ export const repo_name_parse = (name: string): string => {
 };
 
 /**
- * Parse repository URL from package.json format.
+ * Parse repository URL from `package.json` format.
  *
  * Handles both string format and object format with `url` property.
  * Strips common prefixes ('git+') and suffixes ('.git', '/').
  *
- * @param repository - the repository field from package.json
+ * @param repository - the repository field from `package.json`
  * @returns clean repository URL, or null if not provided
  *
  * @example

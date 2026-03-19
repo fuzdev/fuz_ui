@@ -32,7 +32,7 @@ import type {DeclarationAnalysis, ReExportInfo, ModuleAnalysis} from './library_
 export interface TsProgramOptions {
 	/** Project root directory. @default './' */
 	root?: string;
-	/** Path to tsconfig.json (relative to root). @default 'tsconfig.json' */
+	/** Path to `tsconfig.json` (relative to root). @default 'tsconfig.json' */
 	tsconfig?: string;
 	/** Override compiler options. */
 	compiler_options?: ts.CompilerOptions;
@@ -54,7 +54,7 @@ export interface ModuleExportsAnalysis {
 	module_comment?: string;
 	/** All exported declarations with nodocs flags - consumer filters based on policy. */
 	declarations: Array<DeclarationAnalysis>;
-	/** Same-name re-exports (for building also_exported_from in post-processing). */
+	/** Same-name re-exports (for building `also_exported_from` in post-processing). */
 	re_exports: Array<ReExportInfo>;
 	/** Star exports (`export * from './module'`) - module paths that are fully re-exported. */
 	star_exports: Array<string>;
@@ -66,7 +66,7 @@ export interface ModuleExportsAnalysis {
  * @param options - configuration options for program creation
  * @param log - optional logger for info messages
  * @returns the program and type checker
- * @throws Error if tsconfig.json is not found
+ * @throws Error if `tsconfig.json` is not found
  */
 export const ts_create_program = (options?: TsProgramOptions, log?: Logger): TsProgram => {
 	const root = options?.root ?? './';
@@ -332,7 +332,7 @@ export const ts_analyze_declaration = (
  * Requires `@module` tag to identify module comments. The tag line is stripped
  * from the output. Supports optional module renaming: `@module custom-name`.
  *
- * @see https://typedoc.org/documents/Tags._module.html
+ * @see {@link https://typedoc.org/documents/Tags._module.html}
  */
 export const ts_extract_module_comment = (source_file: ts.SourceFile): string | undefined => {
 	const full_text = source_file.getFullText();

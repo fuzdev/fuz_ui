@@ -76,10 +76,10 @@ export interface ContextmenuStateOptions {
 }
 
 /**
- * Creates a `contextmenu` store.
+ * Creates a contextmenu store.
  * See usage with `ContextmenuRoot.svelte` and `Contextmenu.svelte`.
  *
- * @see https://developer.mozilla.org/en-US/docs/Web/API/Element/contextmenu_event
+ * @see {@link https://developer.mozilla.org/en-US/docs/Web/API/Element/contextmenu_event}
  */
 export class ContextmenuState {
 	layout: Dimensions; // TODO $state?
@@ -305,7 +305,7 @@ export class ContextmenuState {
 	}
 
 	/**
-	 * Used by `ContextmenuEntry` and custom entry components
+	 * Used by `ContextmenuEntry.svelte` and custom entry components.
 	 * @initializes
 	 */
 	add_entry(run: () => ContextmenuRun, disabled: () => boolean = () => false): EntryState {

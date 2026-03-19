@@ -7,9 +7,9 @@
  *
  * For build-tool agnostic usage, see `library_generate.ts`.
  *
- * @see library_generate.ts for the generic generation entry point
- * @see library_pipeline.ts for pipeline helpers
- * @see library_output.ts for output file generation
+ * @see `library_generate.ts` for the generic generation entry point
+ * @see `library_pipeline.ts` for pipeline helpers
+ * @see `library_output.ts` for output file generation
  *
  * @module
  */
@@ -46,6 +46,7 @@ export interface LibraryGenOptions {
 	 * Use `library_throw_on_duplicates` for strict flat namespace enforcement.
 	 *
 	 * @example
+	 * ```ts
 	 * // Throw on duplicates (strict flat namespace)
 	 * library_gen({ on_duplicates: library_throw_on_duplicates });
 	 *
@@ -57,12 +58,13 @@ export interface LibraryGenOptions {
 	 *     }
 	 *   }
 	 * });
+	 * ```
 	 */
 	on_duplicates?: OnDuplicatesCallback;
 }
 
 /**
- * Convert Gro's Disknode to the build-tool agnostic SourceFileInfo interface.
+ * Convert Gro's `Disknode` to the build-tool agnostic `SourceFileInfo` interface.
  *
  * Use this when you want to analyze files using Gro's filer directly.
  *
@@ -83,7 +85,7 @@ export const source_file_from_disknode = (disknode: Disknode): SourceFileInfo =>
 };
 
 /**
- * Collect source files from Gro disknodes, filtering BEFORE conversion to SourceFileInfo.
+ * Collect source files from Gro disknodes, filtering BEFORE conversion to `SourceFileInfo`.
  *
  * This avoids errors from files outside source directories (like test fixtures that may
  * have malformed paths or missing content). The filtering uses `module_is_source` which
@@ -129,12 +131,12 @@ export const library_collect_source_files_from_disknodes = (
 };
 
 /**
- * Creates a Gen object for generating library metadata with full TypeScript analysis.
+ * Creates a `Gen` object for generating library metadata with full TypeScript analysis.
  *
  * This is the Gro-specific entry point. It handles:
  * - Reading files from Gro's filer
- * - Loading package.json via Gro utilities
- * - Returning output in Gro's Gen format
+ * - Loading `package.json` via Gro utilities
+ * - Returning output in Gro's `Gen` format
  *
  * For build-tool agnostic usage, use `library_generate` directly.
  *

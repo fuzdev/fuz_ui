@@ -9,7 +9,7 @@ import {create_context} from './context_helpers.js';
  * Unlike `slugify` from `@fuzdev/fuz_util/path.js` which lowercases,
  * this keeps the original casing so API declarations like `AsyncStatus`
  * and `async_status` produce distinct fragment IDs.
- * Used by the Tome documentation system for heading and section anchors.
+ * Used by the `Tome` documentation system for heading and section anchors.
  * @param str - the string to convert to a fragment
  * @returns a URL-safe fragment identifier with case preserved
  */
