@@ -1,5 +1,11 @@
 # @fuzdev/fuz_ui
 
+## 0.191.2
+
+### Patch Changes
+
+- add `fuz_app` to `ProjectLinks` ([7fcb15c](https://github.com/fuzdev/fuz_ui/commit/7fcb15c))
+
 ## 0.191.1
 
 ### Patch Changes
