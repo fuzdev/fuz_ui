@@ -1,5 +1,11 @@
 # @fuzdev/fuz_ui
 
+## 0.191.4
+
+### Patch Changes
+
+- fix: add `.unstyled` to the `HueInput` label ([23970d1](https://github.com/fuzdev/fuz_ui/commit/23970d1))
+
 ## 0.191.3
 
 ### Patch Changes
