@@ -1,5 +1,11 @@
 # @fuzdev/fuz_ui
 
+## 0.191.3
+
+### Patch Changes
+
+- fix: fuz_docs glyph 📜 ([3e230fb](https://github.com/fuzdev/fuz_ui/commit/3e230fb))
+
 ## 0.191.2
 
 ### Patch Changes
