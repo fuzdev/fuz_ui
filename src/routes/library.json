@@ -4622,7 +4622,7 @@
 						"type_signature": "SvgData"
 					},
 					{
-						"name": "logo_fuz_ui",
+						"name": "logo_fuz_app",
 						"kind": "variable",
 						"source_line": 66,
 						"type_signature": "SvgData"
@@ -4634,57 +4634,63 @@
 						"type_signature": "SvgData"
 					},
 					{
-						"name": "logo_fuz_code",
+						"name": "logo_fuz_ui",
 						"kind": "variable",
 						"source_line": 79,
 						"type_signature": "SvgData"
 					},
 					{
-						"name": "logo_fuz_blog",
+						"name": "logo_fuz_code",
 						"kind": "variable",
 						"source_line": 85,
 						"type_signature": "SvgData"
 					},
 					{
-						"name": "logo_fuz_mastodon",
+						"name": "logo_fuz_blog",
 						"kind": "variable",
 						"source_line": 91,
 						"type_signature": "SvgData"
 					},
 					{
-						"name": "logo_fuz_gitops",
+						"name": "logo_fuz_mastodon",
 						"kind": "variable",
 						"source_line": 97,
 						"type_signature": "SvgData"
 					},
 					{
-						"name": "logo_fuz_docs",
+						"name": "logo_fuz_gitops",
 						"kind": "variable",
 						"source_line": 103,
 						"type_signature": "SvgData"
 					},
 					{
-						"name": "logo_fuz_template",
+						"name": "logo_fuz_docs",
 						"kind": "variable",
 						"source_line": 109,
 						"type_signature": "SvgData"
 					},
 					{
+						"name": "logo_fuz_template",
+						"kind": "variable",
+						"source_line": 115,
+						"type_signature": "SvgData"
+					},
+					{
 						"name": "logo_fuz_util",
 						"kind": "variable",
-						"source_line": 119,
+						"source_line": 125,
 						"type_signature": "SvgData"
 					},
 					{
 						"name": "logo_github",
 						"kind": "variable",
-						"source_line": 145,
+						"source_line": 151,
 						"type_signature": "SvgData"
 					},
 					{
 						"name": "logo_mdn",
 						"kind": "variable",
-						"source_line": 158,
+						"source_line": 164,
 						"type_signature": "SvgData"
 					}
 				],

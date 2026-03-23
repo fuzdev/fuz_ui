@@ -63,9 +63,9 @@ export const logo_fuz = {
 	],
 } satisfies SvgData;
 
-export const logo_fuz_ui = {
-	label: 'a friendly red spider facing you',
-	fill: '#d93636',
+export const logo_fuz_app = {
+	label: 'a friendly teal spider facing you',
+	fill: '#2e9e6f',
 	paths: logo_fuz.paths,
 } satisfies SvgData;
 
@@ -74,6 +74,12 @@ export const logo_fuz_css = {
 	fill: '#3db33d',
 	paths: logo_fuz.paths,
 	attrs: {style: 'transform: scaleX(-1) rotate(180deg)'},
+} satisfies SvgData;
+
+export const logo_fuz_ui = {
+	label: 'a friendly red spider facing you',
+	fill: '#d93636',
+	paths: logo_fuz.paths,
 } satisfies SvgData;
 
 export const logo_fuz_code = {
