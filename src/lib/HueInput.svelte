@@ -44,7 +44,7 @@
 
 <!-- TODO consider making this a text input or otherwise editable directly -->
 <div {...rest} class="hue_input {rest.class}" style:--hue={value}>
-	<label>
+	<label class="unstyled">
 		{#if children}<div class="title">{@render children()}</div>{/if}
 		<div class="preview">
 			hue
