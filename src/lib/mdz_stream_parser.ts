@@ -62,6 +62,8 @@ interface StackEntry {
 	delimiter: string;
 	/** Tag name for Element/Component entries. */
 	tag_name?: string;
+	/** Opcode count at open time — used to detect empty containers. */
+	opcode_count_at_open?: number;
 }
 
 interface CodeblockState {
@@ -114,6 +116,10 @@ export class MdzStreamParser {
 			// force-process remaining bytes (no more input coming)
 			this.#process_remaining();
 		}
+		// trim trailing newline from final paragraph content before flushing
+		if (this.#accumulated_text.endsWith('\n')) {
+			this.#accumulated_text = this.#accumulated_text.slice(0, -1);
+		}
 		this.#flush_text();
 		// revert any unclosed optimistic inline containers
 		this.#revert_all_optimistic();
@@ -157,6 +163,13 @@ export class MdzStreamParser {
 					this.#flush_text();
 					this.#close_heading();
 					this.#pos++;
+					// absorb consecutive newlines after heading
+					while (
+						this.#pos < this.#buffer.length &&
+						this.#buffer.charCodeAt(this.#pos) === NEWLINE
+					) {
+						this.#pos++;
+					}
 					this.#column = 0;
 					this.#prev_char = NEWLINE;
 					continue;
@@ -170,11 +183,7 @@ export class MdzStreamParser {
 					continue;
 				}
 				// single \n - check if next line starts a block element
-				if (
-					next_code === HASH ||
-					next_code === HYPHEN ||
-					next_code === BACKTICK
-				) {
+				if (next_code === HASH || next_code === HYPHEN || next_code === BACKTICK) {
 					// consume the \n as text (preserving whitespace), then process block at column 0
 					this.#accumulated_text += '\n';
 					this.#pos++;
@@ -241,23 +250,26 @@ export class MdzStreamParser {
 					this.#flush_text();
 					this.#close_heading();
 					this.#pos++;
+					// absorb consecutive newlines after heading
+					while (
+						this.#pos < this.#buffer.length &&
+						this.#buffer.charCodeAt(this.#pos) === NEWLINE
+					) {
+						this.#pos++;
+					}
 					this.#column = 0;
 					this.#prev_char = NEWLINE;
 					continue;
 				}
 				// trailing newline at EOF: check for paragraph break
-				if (this.#pos + 1 < this.#buffer.length && this.#buffer.charCodeAt(this.#pos + 1) === NEWLINE) {
+				if (
+					this.#pos + 1 < this.#buffer.length &&
+					this.#buffer.charCodeAt(this.#pos + 1) === NEWLINE
+				) {
 					this.#handle_paragraph_break();
 					continue;
 				}
-				// single trailing newline at EOF: skip it (paragraph trim)
-				if (this.#pos + 1 >= this.#buffer.length) {
-					this.#pos++;
-					this.#column = 0;
-					this.#prev_char = NEWLINE;
-					continue;
-				}
-				// mid-content newline: accumulate normally
+				// single newline: accumulate as text
 				this.#accumulated_text += '\n';
 				this.#pos++;
 				this.#column = 0;
@@ -274,6 +286,10 @@ export class MdzStreamParser {
 				} else if (char_code === HYPHEN) {
 					const r = this.#try_hr();
 					if (r === true) continue;
+					// false means "need more input" — at EOF, force-resolve
+					if (r === false) {
+						if (this.#try_hr_forced()) continue;
+					}
 				} else if (char_code === BACKTICK) {
 					const r = this.#try_codeblock_open();
 					if (r === true) continue;
@@ -297,7 +313,11 @@ export class MdzStreamParser {
 
 		// count hashes
 		let hash_count = 0;
-		while (i < this.#buffer.length && this.#buffer.charCodeAt(i) === HASH && hash_count <= MAX_HEADING_LEVEL) {
+		while (
+			i < this.#buffer.length &&
+			this.#buffer.charCodeAt(i) === HASH &&
+			hash_count <= MAX_HEADING_LEVEL
+		) {
 			hash_count++;
 			i++;
 		}
@@ -381,6 +401,40 @@ export class MdzStreamParser {
 	}
 
 	/**
+	 * Force-resolve HR at EOF. Called when `#try_hr()` returned false (needs more input)
+	 * but we're in `#process_remaining()` with no more input coming.
+	 */
+	#try_hr_forced(): boolean {
+		const start = this.#pos;
+		let i = start;
+
+		// must have 3 hyphens
+		if (i + HR_HYPHEN_COUNT > this.#buffer.length) return false;
+		for (let j = 0; j < HR_HYPHEN_COUNT; j++) {
+			if (this.#buffer.charCodeAt(i + j) !== HYPHEN) return false;
+		}
+		i += HR_HYPHEN_COUNT;
+
+		// after hyphens, only spaces allowed until end of buffer
+		while (i < this.#buffer.length) {
+			const c = this.#buffer.charCodeAt(i);
+			if (c === NEWLINE) break;
+			if (c !== SPACE) return false;
+			i++;
+		}
+
+		this.#flush_text();
+		this.#close_paragraph();
+
+		const id = this.#alloc_id();
+		this.#emit({type: 'void', id, node_type: 'Hr'});
+		this.#pos = this.#buffer.length;
+		this.#column = 0;
+		this.#prev_char = NEWLINE;
+		return true;
+	}
+
+	/**
 	 * Try to open a code block at column 0.
 	 * Returns true if consumed, false if needs more input, null if definitely not a codeblock.
 	 */
@@ -422,6 +476,11 @@ export class MdzStreamParser {
 		if (this.#buffer.charCodeAt(i) !== NEWLINE) return null;
 		i++; // consume newline
 
+		// look ahead for a valid closing fence in the buffer
+		const closing_result = this.#find_closing_fence(i, backtick_count);
+		if (closing_result === 'not_found') return false; // need more input (fence may come later)
+		if (closing_result === 'invalid') return null; // no valid closing fence exists — not a codeblock
+
 		this.#flush_text();
 		this.#close_paragraph();
 
@@ -432,6 +491,56 @@ export class MdzStreamParser {
 		this.#column = 0;
 		this.#prev_char = NEWLINE;
 		return true;
+	}
+
+	/**
+	 * Scan buffer from `start` for a valid closing fence with `backtick_count` backticks.
+	 * Returns 'found' if a valid closing fence exists, 'not_found' if buffer ends
+	 * before we can determine (might come in next chunk), 'invalid' if we can see
+	 * the full remaining content and there's no valid closing fence.
+	 */
+	#find_closing_fence(start: number, backtick_count: number): 'found' | 'not_found' | 'invalid' {
+		let i = start;
+		const content_start = start;
+		let at_col0 = true;
+
+		while (i < this.#buffer.length) {
+			if (at_col0 && this.#buffer.charCodeAt(i) === BACKTICK) {
+				// count backticks
+				let count = 0;
+				const fence_start = i;
+				while (i < this.#buffer.length && this.#buffer.charCodeAt(i) === BACKTICK) {
+					count++;
+					i++;
+				}
+				if (count === backtick_count) {
+					// skip trailing spaces
+					while (i < this.#buffer.length && this.#buffer.charCodeAt(i) === SPACE) {
+						i++;
+					}
+					// must be followed by newline or EOF
+					if (i >= this.#buffer.length || this.#buffer.charCodeAt(i) === NEWLINE) {
+						// check for empty content
+						const content = this.#buffer.slice(content_start, fence_start);
+						const final_content = content.endsWith('\n') ? content.slice(0, -1) : content;
+						if (final_content.length === 0) return 'invalid'; // empty codeblock
+						return 'found';
+					}
+				}
+				// not a valid fence — continue scanning
+				continue;
+			}
+
+			if (this.#buffer.charCodeAt(i) === NEWLINE) {
+				at_col0 = true;
+			} else {
+				at_col0 = false;
+			}
+			i++;
+		}
+
+		// reached end of buffer without finding closing fence
+		return 'not_found';
 	}
 
 	/**
@@ -468,7 +577,10 @@ export class MdzStreamParser {
 					this.#column = 0;
 					this.#prev_char = NEWLINE;
 					// skip newlines after codeblock
-					while (this.#pos < this.#buffer.length && this.#buffer.charCodeAt(this.#pos) === NEWLINE) {
+					while (
+						this.#pos < this.#buffer.length &&
+						this.#buffer.charCodeAt(this.#pos) === NEWLINE
+					) {
 						this.#pos++;
 					}
 					return true;
@@ -615,7 +727,11 @@ export class MdzStreamParser {
 		const char_code = this.#buffer.charCodeAt(this.#pos);
 
 		// check for closing delimiters first (if matching open exists)
-		if (char_code === ASTERISK && this.#pos + 1 < this.#buffer.length && this.#buffer.charCodeAt(this.#pos + 1) === ASTERISK) {
+		if (
+			char_code === ASTERISK &&
+			this.#pos + 1 < this.#buffer.length &&
+			this.#buffer.charCodeAt(this.#pos + 1) === ASTERISK
+		) {
 			if (this.#find_open('Bold') !== -1) {
 				return this.#close_bold();
 			}
@@ -711,7 +827,11 @@ export class MdzStreamParser {
 		const char_code = this.#buffer.charCodeAt(this.#pos);
 
 		// try closing delimiters
-		if (char_code === ASTERISK && this.#pos + 1 < this.#buffer.length && this.#buffer.charCodeAt(this.#pos + 1) === ASTERISK) {
+		if (
+			char_code === ASTERISK &&
+			this.#pos + 1 < this.#buffer.length &&
+			this.#buffer.charCodeAt(this.#pos + 1) === ASTERISK
+		) {
 			if (this.#find_open('Bold') !== -1) {
 				this.#close_bold();
 				return;
@@ -732,6 +852,22 @@ export class MdzStreamParser {
 			}
 		}
 
+		// auto-detected URLs (force mode — treat buffer end as URL end)
+		if (char_code === 104 /* h */) {
+			const result = this.#try_auto_url_forced();
+			if (result) return;
+		}
+
+		// auto-detected paths (force mode)
+		if (char_code === SLASH) {
+			const result = this.#try_auto_path_absolute_forced();
+			if (result) return;
+		}
+		if (char_code === PERIOD) {
+			const result = this.#try_auto_path_relative_forced();
+			if (result) return;
+		}
+
 		// everything else: consume as text
 		this.#consume_text_char();
 	}
@@ -750,7 +886,13 @@ export class MdzStreamParser {
 
 		const id = this.#alloc_id();
 		this.#emit({type: 'open', id, node_type: 'Bold'});
-		this.#stack.push({id, node_type: 'Bold', optimistic: true, delimiter: '**'});
+		this.#stack.push({
+			id,
+			node_type: 'Bold',
+			optimistic: true,
+			delimiter: '**',
+			opcode_count_at_open: this.#opcodes.length,
+		});
 		this.#active_text_id = null;
 		this.#pos += 2;
 		this.#column += 2;
@@ -765,7 +907,16 @@ export class MdzStreamParser {
 		// revert anything between the bold and the top of the stack
 		this.#revert_above(idx);
 		const entry = this.#stack.pop()!;
-		this.#emit({type: 'close', id: entry.id});
+		// check for empty container — revert to literal text instead of closing
+		if (
+			entry.opcode_count_at_open !== undefined &&
+			this.#opcodes.length === entry.opcode_count_at_open
+		) {
+			this.#emit({type: 'revert', id: entry.id, replacement_text: entry.delimiter});
+			this.#accumulated_text += '**';
+		} else {
+			this.#emit({type: 'close', id: entry.id});
+		}
 		this.#active_text_id = null;
 		this.#pos += 2;
 		this.#column += 2;
@@ -790,12 +941,29 @@ export class MdzStreamParser {
 		// need at least one char after _
 		if (this.#pos + 1 >= this.#buffer.length) return false;
 
+		// check if the first potential closer has a valid word boundary
+		// (matches existing parser's greedy first-match strategy)
+		if (!this.#first_closer_has_valid_boundary('_')) {
+			this.#ensure_paragraph();
+			this.#accumulated_text += '_';
+			this.#prev_char = UNDERSCORE;
+			this.#column++;
+			this.#pos++;
+			return true;
+		}
+
 		this.#flush_text();
 		this.#ensure_paragraph();
 
 		const id = this.#alloc_id();
 		this.#emit({type: 'open', id, node_type: 'Italic'});
-		this.#stack.push({id, node_type: 'Italic', optimistic: true, delimiter: '_'});
+		this.#stack.push({
+			id,
+			node_type: 'Italic',
+			optimistic: true,
+			delimiter: '_',
+			opcode_count_at_open: this.#opcodes.length,
+		});
 		this.#active_text_id = null;
 		this.#pos++;
 		this.#column++;
@@ -818,12 +986,28 @@ export class MdzStreamParser {
 
 		if (this.#pos + 1 >= this.#buffer.length) return false;
 
+		// check if the first potential closer has a valid word boundary
+		if (!this.#first_closer_has_valid_boundary('~')) {
+			this.#ensure_paragraph();
+			this.#accumulated_text += '~';
+			this.#prev_char = TILDE;
+			this.#column++;
+			this.#pos++;
+			return true;
+		}
+
 		this.#flush_text();
 		this.#ensure_paragraph();
 
 		const id = this.#alloc_id();
 		this.#emit({type: 'open', id, node_type: 'Strikethrough'});
-		this.#stack.push({id, node_type: 'Strikethrough', optimistic: true, delimiter: '~'});
+		this.#stack.push({
+			id,
+			node_type: 'Strikethrough',
+			optimistic: true,
+			delimiter: '~',
+			opcode_count_at_open: this.#opcodes.length,
+		});
 		this.#active_text_id = null;
 		this.#pos++;
 		this.#column++;
@@ -846,11 +1030,54 @@ export class MdzStreamParser {
 		this.#flush_text();
 		this.#revert_above(stack_idx);
 		const entry = this.#stack.pop()!;
-		this.#emit({type: 'close', id: entry.id});
+		// check for empty container — revert to literal text instead of closing
+		if (
+			entry.opcode_count_at_open !== undefined &&
+			this.#opcodes.length === entry.opcode_count_at_open
+		) {
+			this.#emit({type: 'revert', id: entry.id, replacement_text: entry.delimiter});
+			this.#accumulated_text += entry.delimiter;
+		} else {
+			this.#emit({type: 'close', id: entry.id});
+		}
 		this.#active_text_id = null;
 		this.#pos++;
 		this.#column++;
 		this.#prev_char = this.#buffer.charCodeAt(this.#pos - 1);
+		return true;
+	}
+
+	/**
+	 * Check if the first potential closing delimiter in the buffer has a valid word boundary.
+	 * Used to match the existing parser's greedy first-match strategy:
+	 * if the first closer fails, the whole formatting attempt is rejected.
+	 * Returns true if the first closer is valid, or if no closer is found in the buffer
+	 * (optimistic — it might come in a later chunk).
+	 */
+	#first_closer_has_valid_boundary(delimiter: string): boolean {
+		const char_code = delimiter.charCodeAt(0);
+		let i = this.#pos + 1; // past the opening delimiter
+		while (i < this.#buffer.length) {
+			const c = this.#buffer.charCodeAt(i);
+			if (
+				c === NEWLINE &&
+				i + 1 < this.#buffer.length &&
+				this.#buffer.charCodeAt(i + 1) === NEWLINE
+			) {
+				break; // paragraph break — stop searching
+			}
+			if (c === char_code) {
+				// found a potential closer — check word boundary after it
+				const after_pos = i + 1;
+				if (after_pos < this.#buffer.length) {
+					return !is_word_char(this.#buffer.charCodeAt(after_pos));
+				}
+				// at end of buffer — can't determine, be optimistic
+				return true;
+			}
+			i++;
+		}
+		// no closer found in buffer — be optimistic (might come in a later chunk)
 		return true;
 	}
 
@@ -860,8 +1087,11 @@ export class MdzStreamParser {
 		const start = this.#pos;
 		let i = start + 1; // past opening backtick
 
-		// scan for closing backtick (must be before newline)
-		while (i < this.#buffer.length) {
+		// compute search boundary: don't scan past open formatting delimiters
+		const search_limit = this.#code_search_limit(start + 1);
+
+		// scan for closing backtick (must be before newline and search boundary)
+		while (i < this.#buffer.length && i < search_limit) {
 			const c = this.#buffer.charCodeAt(i);
 			if (c === BACKTICK) {
 				// found close
@@ -897,8 +1127,39 @@ export class MdzStreamParser {
 			i++;
 		}
 
+		// hit search limit (open formatting delimiter boundary) — treat backtick as text
+		if (i < this.#buffer.length && i >= search_limit) {
+			this.#ensure_paragraph();
+			this.#accumulated_text += '`';
+			this.#pos = start + 1;
+			this.#column++;
+			this.#prev_char = BACKTICK;
+			return true;
+		}
+
 		// buffer ended without close or newline — need more input
 		return false;
+	}
+
+	/**
+	 * Compute search limit for inline code scanning.
+	 * Finds the closest closing delimiter for any open formatting on the stack.
+	 * This prevents backtick scanning from crossing bold/italic/etc boundaries.
+	 */
+	#code_search_limit(from: number): number {
+		let limit = this.#buffer.length;
+		for (let s = this.#stack.length - 1; s >= 0; s--) {
+			const entry = this.#stack[s]!;
+			if (entry.node_type === 'Paragraph' || entry.node_type === 'Heading') break;
+			// find the closing delimiter in the buffer
+			const delimiter = entry.delimiter;
+			if (!delimiter) continue;
+			const idx = this.#buffer.indexOf(delimiter, from);
+			if (idx !== -1 && idx < limit) {
+				limit = idx;
+			}
+		}
+		return limit;
 	}
 
 	// -- Links --
@@ -1047,7 +1308,11 @@ export class MdzStreamParser {
 		if (i >= this.#buffer.length) return false;
 
 		// check for self-closing />
-		if (this.#buffer.charCodeAt(i) === SLASH && i + 1 < this.#buffer.length && this.#buffer.charCodeAt(i + 1) === RIGHT_ANGLE) {
+		if (
+			this.#buffer.charCodeAt(i) === SLASH &&
+			i + 1 < this.#buffer.length &&
+			this.#buffer.charCodeAt(i + 1) === RIGHT_ANGLE
+		) {
 			const first_char = name.charCodeAt(0);
 			const is_component = first_char >= A_UPPER && first_char <= Z_UPPER;
 			const node_type: MdzContainerNodeType = is_component ? 'Component' : 'Element';
@@ -1111,7 +1376,10 @@ export class MdzStreamParser {
 		let found_idx = -1;
 		for (let j = this.#stack.length - 1; j >= 0; j--) {
 			const entry = this.#stack[j]!;
-			if ((entry.node_type === 'Element' || entry.node_type === 'Component') && entry.tag_name === name) {
+			if (
+				(entry.node_type === 'Element' || entry.node_type === 'Component') &&
+				entry.tag_name === name
+			) {
 				found_idx = j;
 				break;
 			}
@@ -1182,7 +1450,12 @@ export class MdzStreamParser {
 
 	#try_auto_path_absolute(): boolean | null {
 		// must be at word boundary (preceded by space/newline/start)
-		if (this.#prev_char !== -1 && this.#prev_char !== SPACE && this.#prev_char !== NEWLINE && this.#prev_char !== TAB) {
+		if (
+			this.#prev_char !== -1 &&
+			this.#prev_char !== SPACE &&
+			this.#prev_char !== NEWLINE &&
+			this.#prev_char !== TAB
+		) {
 			return null;
 		}
 
@@ -1195,7 +1468,12 @@ export class MdzStreamParser {
 	}
 
 	#try_auto_path_relative(): boolean | null {
-		if (this.#prev_char !== -1 && this.#prev_char !== SPACE && this.#prev_char !== NEWLINE && this.#prev_char !== TAB) {
+		if (
+			this.#prev_char !== -1 &&
+			this.#prev_char !== SPACE &&
+			this.#prev_char !== NEWLINE &&
+			this.#prev_char !== TAB
+		) {
 			return null;
 		}
 
@@ -1203,7 +1481,10 @@ export class MdzStreamParser {
 		const remaining = this.#buffer.length - this.#pos;
 		if (remaining < 3) return false; // need more input
 
-		if (this.#buffer.charCodeAt(this.#pos + 1) === PERIOD && this.#buffer.charCodeAt(this.#pos + 2) === SLASH) {
+		if (
+			this.#buffer.charCodeAt(this.#pos + 1) === PERIOD &&
+			this.#buffer.charCodeAt(this.#pos + 2) === SLASH
+		) {
 			// ../
 			if (remaining < 4) return false;
 			const after = this.#buffer.charCodeAt(this.#pos + 3);
@@ -1233,6 +1514,113 @@ export class MdzStreamParser {
 
 		let reference = this.#buffer.slice(this.#pos, i);
 		reference = trim_trailing_punctuation(reference);
+		const end_pos = this.#pos + reference.length;
+
+		this.#flush_text();
+		this.#ensure_paragraph();
+
+		const link_id = this.#alloc_id();
+		this.#emit({type: 'open', id: link_id, node_type: 'Link'});
+		const text_id = this.#alloc_id();
+		this.#emit({type: 'text', id: text_id, content: reference, text_type: 'Text'});
+		this.#emit({type: 'close', id: link_id, reference, link_type});
+
+		this.#active_text_id = null;
+		this.#column += end_pos - this.#pos;
+		this.#prev_char = reference.charCodeAt(reference.length - 1);
+		this.#pos = end_pos;
+		return true;
+	}
+
+	// -- Forced auto-link detection (at EOF) --
+
+	#try_auto_url_forced(): boolean {
+		let prefix_len = 0;
+		if (this.#buffer.startsWith('https://', this.#pos)) {
+			prefix_len = HTTPS_PREFIX_LENGTH;
+		} else if (this.#buffer.startsWith('http://', this.#pos)) {
+			prefix_len = HTTP_PREFIX_LENGTH;
+		}
+		if (prefix_len === 0) return false;
+
+		if (this.#pos + prefix_len >= this.#buffer.length) return false;
+		const after = this.#buffer.charCodeAt(this.#pos + prefix_len);
+		if (after === SPACE || after === NEWLINE) return false;
+
+		let i = this.#pos + prefix_len;
+		while (i < this.#buffer.length) {
+			const c = this.#buffer.charCodeAt(i);
+			if (c === SPACE || c === NEWLINE || !is_valid_path_char(c)) break;
+			i++;
+		}
+
+		let reference = this.#buffer.slice(this.#pos, i);
+		reference = trim_trailing_punctuation(reference);
+		if (reference.length <= prefix_len) return false;
+		return this.#emit_auto_link(reference, 'external');
+	}
+
+	#try_auto_path_absolute_forced(): boolean {
+		if (
+			this.#prev_char !== -1 &&
+			this.#prev_char !== SPACE &&
+			this.#prev_char !== NEWLINE &&
+			this.#prev_char !== TAB
+		) {
+			return false;
+		}
+		if (this.#pos + 1 >= this.#buffer.length) return false;
+		const next = this.#buffer.charCodeAt(this.#pos + 1);
+		if (next === SLASH || next === SPACE || next === NEWLINE || next === TAB) return false;
+		return this.#consume_auto_path_forced('internal');
+	}
+
+	#try_auto_path_relative_forced(): boolean {
+		if (
+			this.#prev_char !== -1 &&
+			this.#prev_char !== SPACE &&
+			this.#prev_char !== NEWLINE &&
+			this.#prev_char !== TAB
+		) {
+			return false;
+		}
+		const remaining = this.#buffer.length - this.#pos;
+		if (remaining < 3) return false;
+
+		if (
+			this.#buffer.charCodeAt(this.#pos + 1) === PERIOD &&
+			this.#buffer.charCodeAt(this.#pos + 2) === SLASH
+		) {
+			if (remaining < 4) return false;
+			const after = this.#buffer.charCodeAt(this.#pos + 3);
+			if (after === SPACE || after === NEWLINE || after === TAB || after === SLASH) return false;
+			return this.#consume_auto_path_forced('internal');
+		}
+
+		if (this.#buffer.charCodeAt(this.#pos + 1) === SLASH) {
+			const after = this.#buffer.charCodeAt(this.#pos + 2);
+			if (after === SPACE || after === NEWLINE || after === TAB || after === SLASH) return false;
+			return this.#consume_auto_path_forced('internal');
+		}
+
+		return false;
+	}
+
+	#consume_auto_path_forced(link_type: 'external' | 'internal'): boolean {
+		let i = this.#pos;
+		while (i < this.#buffer.length) {
+			const c = this.#buffer.charCodeAt(i);
+			if (c === SPACE || c === NEWLINE || !is_valid_path_char(c)) break;
+			i++;
+		}
+
+		let reference = this.#buffer.slice(this.#pos, i);
+		reference = trim_trailing_punctuation(reference);
+		if (reference.length === 0) return false;
+		return this.#emit_auto_link(reference, link_type);
+	}
+
+	#emit_auto_link(reference: string, link_type: 'external' | 'internal'): boolean {
 		const end_pos = this.#pos + reference.length;
 
 		this.#flush_text();
@@ -1291,8 +1679,10 @@ export class MdzStreamParser {
 			if (op.type === 'text' || op.type === 'append_text') {
 				if (op.content.endsWith('\n')) {
 					op.content = op.content.slice(0, -1);
-					if (op.content.length === 0 && op.type === 'append_text') {
+					if (op.content.length === 0) {
 						this.#opcodes.splice(i, 1);
+						// if we removed a text node, clear active_text_id
+						if (op.type === 'text') this.#active_text_id = null;
 					}
 				}
 				return;

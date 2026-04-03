@@ -124,7 +124,12 @@ export const mdz_opcodes_to_nodes = (opcodes: Array<MdzOpcode>): Array<MdzNode> 
 					const dest = target();
 					// insert replacement text
 					if (op.replacement_text) {
-						dest.push({type: 'Text', content: op.replacement_text, start: 0, end: 0} as MdzTextNode);
+						dest.push({
+							type: 'Text',
+							content: op.replacement_text,
+							start: 0,
+							end: 0,
+						} as MdzTextNode);
 					}
 					// re-parent children
 					for (const child of reverted_frame.children) {
@@ -174,15 +179,25 @@ const build_node = (frame: StackFrame): MdzNode | null => {
 		}
 
 		case 'Bold':
-			return {type: 'Bold', children: frame.children, start: 0, end: 0} as MdzBoldNode;
+			return {
+				type: 'Bold',
+				children: merge_adjacent_text(frame.children),
+				start: 0,
+				end: 0,
+			} as MdzBoldNode;
 
 		case 'Italic':
-			return {type: 'Italic', children: frame.children, start: 0, end: 0} as MdzItalicNode;
+			return {
+				type: 'Italic',
+				children: merge_adjacent_text(frame.children),
+				start: 0,
+				end: 0,
+			} as MdzItalicNode;
 
 		case 'Strikethrough':
 			return {
 				type: 'Strikethrough',
-				children: frame.children,
+				children: merge_adjacent_text(frame.children),
 				start: 0,
 				end: 0,
 			} as MdzStrikethroughNode;
@@ -191,7 +206,7 @@ const build_node = (frame: StackFrame): MdzNode | null => {
 			return {
 				type: 'Link',
 				reference: frame.reference ?? '',
-				children: frame.children,
+				children: merge_adjacent_text(frame.children),
 				link_type: frame.link_type ?? 'internal',
 				start: 0,
 				end: 0,
@@ -216,7 +231,7 @@ const build_node = (frame: StackFrame): MdzNode | null => {
 			return {
 				type: 'Element',
 				name: frame.name ?? '',
-				children: frame.children,
+				children: merge_adjacent_text(frame.children),
 				start: 0,
 				end: 0,
 			} as MdzElementNode;
@@ -225,7 +240,7 @@ const build_node = (frame: StackFrame): MdzNode | null => {
 			return {
 				type: 'Component',
 				name: frame.name ?? '',
-				children: frame.children,
+				children: merge_adjacent_text(frame.children),
 				start: 0,
 				end: 0,
 			} as MdzComponentNode;

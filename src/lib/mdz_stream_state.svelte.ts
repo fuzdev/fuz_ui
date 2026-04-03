@@ -137,9 +137,10 @@ export class MdzStreamState {
 				if (!node) break;
 
 				const parent_id = this.#parents.get(opcode.id);
-				const parent_children = parent_id !== null && parent_id !== undefined
-					? this.#nodes.get(parent_id)?.children
-					: this.root;
+				const parent_children =
+					parent_id !== null && parent_id !== undefined
+						? this.#nodes.get(parent_id)?.children
+						: this.root;
 
 				if (!parent_children) break;
 

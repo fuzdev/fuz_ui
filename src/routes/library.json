@@ -3103,7 +3103,7 @@
 					}
 				],
 				"dependencies": ["DeclarationLink.svelte", "ModuleLink.svelte", "library.svelte.ts"],
-				"dependents": ["MdzNodeView.svelte"]
+				"dependents": ["MdzNodeView.svelte", "MdzStreamNodeView.svelte"]
 			},
 			{
 				"path": "DocsList.svelte",
@@ -4765,7 +4765,12 @@
 					}
 				],
 				"dependencies": ["context_helpers.ts"],
-				"dependents": ["Mdz.svelte", "MdzNodeView.svelte"]
+				"dependents": [
+					"Mdz.svelte",
+					"MdzNodeView.svelte",
+					"MdzStream.svelte",
+					"MdzStreamNodeView.svelte"
+				]
 			},
 			{
 				"path": "mdz_helpers.ts",
@@ -5195,8 +5200,11 @@
 				"module_comment": "Shared constants and pure helper functions for mdz parsers.\n\nUsed by both the single-pass parser (`mdz.ts`) and the two-phase\nlexer+parser (`mdz_lexer.ts` + `mdz_token_parser.ts`).",
 				"dependents": [
 					"MdzNodeView.svelte",
+					"MdzStreamNodeView.svelte",
 					"mdz.ts",
 					"mdz_lexer.ts",
+					"mdz_opcodes_to_nodes.ts",
+					"mdz_stream_parser.ts",
 					"mdz_to_svelte.ts",
 					"mdz_token_parser.ts",
 					"tsdoc_mdz.ts"
@@ -5608,6 +5616,424 @@
 				"module_comment": "mdz lexer — tokenizes input into a flat `MdzToken[]` stream.\n\nPhase 1 of the two-phase lexer+parser alternative to the single-pass parser\nin `mdz.ts`. Phase 2 is in `mdz_token_parser.ts`.",
 				"dependencies": ["mdz_helpers.ts"],
 				"dependents": ["mdz_token_parser.ts"]
+			},
+			{
+				"path": "mdz_opcodes_to_nodes.ts",
+				"declarations": [
+					{
+						"name": "mdz_opcodes_to_nodes",
+						"kind": "function",
+						"doc_comment": "Convert an array of mdz opcodes to the `MdzNode[]` tree.\nProduces output identical to `mdz_parse()`.",
+						"source_line": 50,
+						"type_signature": "(opcodes: MdzOpcode[]): MdzNode[]",
+						"return_type": "MdzNode[]",
+						"parameters": [
+							{
+								"name": "opcodes",
+								"type": "MdzOpcode[]"
+							}
+						]
+					}
+				],
+				"module_comment": "Converts a stream of mdz opcodes to the `MdzNode[]` tree representation.\n\nStack-based replay: `open` pushes a frame, `close` pops and builds the node,\n`text`/`void` create leaf nodes, `append_text` extends the last text node,\n`revert` undoes an optimistic open and re-parents children.\n\nThe output is identical to `mdz_parse()` from `mdz.ts`, enabling\nvalidation of the streaming parser against the existing fixture suite.",
+				"dependencies": ["mdz_helpers.ts"]
+			},
+			{
+				"path": "mdz_opcodes.ts",
+				"declarations": [
+					{
+						"name": "MdzNodeId",
+						"kind": "type",
+						"doc_comment": "Unique monotonic identifier for each node created by the parser.\nIDs are never reused within a parser instance.",
+						"source_line": 19,
+						"type_signature": "number"
+					},
+					{
+						"name": "MdzContainerNodeType",
+						"kind": "type",
+						"doc_comment": "Node types that can be opened as containers.",
+						"source_line": 22,
+						"type_signature": "MdzContainerNodeType"
+					},
+					{
+						"name": "MdzVoidNodeType",
+						"kind": "type",
+						"doc_comment": "Node types for self-contained leaf elements.",
+						"source_line": 34,
+						"type_signature": "\"Hr\""
+					},
+					{
+						"name": "MdzTextNodeType",
+						"kind": "type",
+						"doc_comment": "Discriminant for leaf text nodes.",
+						"source_line": 37,
+						"type_signature": "MdzTextNodeType"
+					},
+					{
+						"name": "MdzOpcodeOpen",
+						"kind": "type",
+						"doc_comment": "Open a container node. The renderer starts a new element/wrapper.\nChildren are subsequent opcodes until the matching `close`.",
+						"source_line": 43,
+						"type_signature": "MdzOpcodeOpen",
+						"properties": [
+							{
+								"name": "type",
+								"kind": "variable",
+								"type_signature": "'open'"
+							},
+							{
+								"name": "id",
+								"kind": "variable",
+								"type_signature": "MdzNodeId"
+							},
+							{
+								"name": "node_type",
+								"kind": "variable",
+								"type_signature": "MdzContainerNodeType"
+							},
+							{
+								"name": "level",
+								"kind": "variable",
+								"type_signature": "1 | 2 | 3 | 4 | 5 | 6",
+								"doc_comment": "Heading level (1-6). Present when `node_type` is `'Heading'`."
+							},
+							{
+								"name": "name",
+								"kind": "variable",
+								"type_signature": "string",
+								"doc_comment": "Tag name. Present when `node_type` is `'Element'` or `'Component'`."
+							},
+							{
+								"name": "lang",
+								"kind": "variable",
+								"type_signature": "string | null",
+								"doc_comment": "Language hint. Present when `node_type` is `'Codeblock'`."
+							}
+						]
+					},
+					{
+						"name": "MdzOpcodeClose",
+						"kind": "type",
+						"doc_comment": "Close a previously opened container node.\nCarries deferred metadata that wasn't known at open time.",
+						"source_line": 59,
+						"type_signature": "MdzOpcodeClose",
+						"properties": [
+							{
+								"name": "type",
+								"kind": "variable",
+								"type_signature": "'close'"
+							},
+							{
+								"name": "id",
+								"kind": "variable",
+								"type_signature": "MdzNodeId"
+							},
+							{
+								"name": "reference",
+								"kind": "variable",
+								"type_signature": "string",
+								"doc_comment": "Link URL/path, resolved when `](url)` completes."
+							},
+							{
+								"name": "link_type",
+								"kind": "variable",
+								"type_signature": "'external' | 'internal'",
+								"doc_comment": "Link type, resolved alongside `reference`."
+							},
+							{
+								"name": "heading_id",
+								"kind": "variable",
+								"type_signature": "string",
+								"doc_comment": "Heading slug, computed from full heading content."
+							}
+						]
+					},
+					{
+						"name": "MdzOpcodeText",
+						"kind": "type",
+						"doc_comment": "Create a leaf text or code node.\nThe parent is implicit — the innermost open container on the renderer's stack.",
+						"source_line": 74,
+						"type_signature": "MdzOpcodeText",
+						"properties": [
+							{
+								"name": "type",
+								"kind": "variable",
+								"type_signature": "'text'"
+							},
+							{
+								"name": "id",
+								"kind": "variable",
+								"type_signature": "MdzNodeId"
+							},
+							{
+								"name": "content",
+								"kind": "variable",
+								"type_signature": "string"
+							},
+							{
+								"name": "text_type",
+								"kind": "variable",
+								"type_signature": "MdzTextNodeType"
+							}
+						]
+					},
+					{
+						"name": "MdzOpcodeAppendText",
+						"kind": "type",
+						"doc_comment": "Append content to an existing text node.\nStreaming optimization — avoids creating a new node per chunk\nduring plain text runs.",
+						"source_line": 86,
+						"type_signature": "MdzOpcodeAppendText",
+						"properties": [
+							{
+								"name": "type",
+								"kind": "variable",
+								"type_signature": "'append_text'"
+							},
+							{
+								"name": "id",
+								"kind": "variable",
+								"type_signature": "MdzNodeId"
+							},
+							{
+								"name": "content",
+								"kind": "variable",
+								"type_signature": "string"
+							}
+						]
+					},
+					{
+						"name": "MdzOpcodeVoid",
+						"kind": "type",
+						"doc_comment": "Create a self-contained leaf node (e.g., horizontal rule).\nInserted as a child of the innermost open container, or at root level.",
+						"source_line": 96,
+						"type_signature": "MdzOpcodeVoid",
+						"properties": [
+							{
+								"name": "type",
+								"kind": "variable",
+								"type_signature": "'void'"
+							},
+							{
+								"name": "id",
+								"kind": "variable",
+								"type_signature": "MdzNodeId"
+							},
+							{
+								"name": "node_type",
+								"kind": "variable",
+								"type_signature": "MdzVoidNodeType"
+							}
+						]
+					},
+					{
+						"name": "MdzOpcodeRevert",
+						"kind": "type",
+						"doc_comment": "Undo an optimistic open. Removes the container wrapper,\ninserts `replacement_text` as literal text at the container's position,\nand re-parents the container's children to the grandparent.",
+						"source_line": 107,
+						"type_signature": "MdzOpcodeRevert",
+						"properties": [
+							{
+								"name": "type",
+								"kind": "variable",
+								"type_signature": "'revert'"
+							},
+							{
+								"name": "id",
+								"kind": "variable",
+								"type_signature": "MdzNodeId"
+							},
+							{
+								"name": "replacement_text",
+								"kind": "variable",
+								"type_signature": "string",
+								"doc_comment": "The delimiter text to emit as literal content (e.g., `\"**\"`, `\"[\"`, `\"<Tag>\"`)."
+							}
+						]
+					},
+					{
+						"name": "MdzOpcode",
+						"kind": "type",
+						"doc_comment": "Discriminated union of all mdz opcodes.",
+						"source_line": 115,
+						"type_signature": "MdzOpcode"
+					}
+				],
+				"module_comment": "Opcode types for the mdz streaming parser.\n\nOpcodes are serializable rendering instructions emitted by `MdzStreamParser`.\nThey tell a renderer what to do next — open a container, append text, close it,\nor revert an optimistic assumption. Target-agnostic: works for HTML, Svelte, PDF, etc.\n\nThe parser makes optimistic assumptions about ambiguous syntax (e.g., `**` is probably bold)\nand emits `revert` opcodes to correct when wrong. This enables true streaming rendering\nwithout ever re-parsing."
+			},
+			{
+				"path": "mdz_stream_parser.ts",
+				"declarations": [
+					{
+						"name": "MdzStreamParser",
+						"kind": "class",
+						"doc_comment": "Streaming opcode parser for mdz content.\nFeed chunks via `feed()`, retrieve opcodes via `take_opcodes()`, call `finish()` at end.",
+						"source_line": 79,
+						"members": [
+							{
+								"name": "feed",
+								"kind": "function",
+								"doc_comment": "Feed a chunk of text to the parser.\nOpcodes are accumulated and retrieved via `take_opcodes()`.",
+								"type_signature": "(chunk: string): void",
+								"return_type": "void",
+								"parameters": [
+									{
+										"name": "chunk",
+										"type": "string"
+									}
+								]
+							},
+							{
+								"name": "finish",
+								"kind": "function",
+								"doc_comment": "Signal end of input. Resolves all pending state:\ncloses open blocks, reverts unclosed optimistic opens.",
+								"type_signature": "(): void",
+								"return_type": "void",
+								"parameters": []
+							},
+							{
+								"name": "take_opcodes",
+								"kind": "function",
+								"doc_comment": "Drain and return all accumulated opcodes.",
+								"type_signature": "(): MdzOpcode[]",
+								"return_type": "MdzOpcode[]",
+								"parameters": []
+							}
+						]
+					}
+				],
+				"module_comment": "Streaming opcode parser for mdz.\n\nFed chunks of text (e.g., from LLM output), emits opcodes as rendering\ninstructions. Makes optimistic assumptions about ambiguous syntax and\nemits `revert` opcodes to correct when wrong. Never re-parses.\n\nUsage:\n```ts\nconst parser = new MdzStreamParser();\nparser.feed('hello **bold');\nconst ops1 = parser.take_opcodes(); // open Paragraph, text \"hello \", open Bold, text \"bold\"\nparser.feed('** world');\nconst ops2 = parser.take_opcodes(); // close Bold, text \" world\"\nparser.finish();\nconst ops3 = parser.take_opcodes(); // close Paragraph\n```",
+				"dependencies": ["mdz_helpers.ts"]
+			},
+			{
+				"path": "mdz_stream_state.svelte.ts",
+				"declarations": [
+					{
+						"name": "MdzStreamNode",
+						"kind": "class",
+						"doc_comment": "A reactive node in the stream renderer tree.\nFields are `$state` so Svelte re-renders only what changes.",
+						"source_line": 17,
+						"members": [
+							{
+								"name": "id",
+								"kind": "variable",
+								"type_signature": "MdzNodeId"
+							},
+							{
+								"name": "type",
+								"kind": "variable",
+								"type_signature": "string"
+							},
+							{
+								"name": "content",
+								"kind": "variable",
+								"type_signature": "string"
+							},
+							{
+								"name": "children",
+								"kind": "variable",
+								"type_signature": "Array<MdzStreamNode>"
+							},
+							{
+								"name": "level",
+								"kind": "variable",
+								"type_signature": "number"
+							},
+							{
+								"name": "reference",
+								"kind": "variable",
+								"type_signature": "string"
+							},
+							{
+								"name": "link_type",
+								"kind": "variable",
+								"type_signature": "string"
+							},
+							{
+								"name": "name",
+								"kind": "variable",
+								"type_signature": "string"
+							},
+							{
+								"name": "lang",
+								"kind": "variable",
+								"type_signature": "string | null"
+							},
+							{
+								"name": "heading_id",
+								"kind": "variable",
+								"type_signature": "string"
+							},
+							{
+								"name": "text_type",
+								"kind": "variable",
+								"type_signature": "string"
+							},
+							{
+								"name": "constructor",
+								"kind": "constructor",
+								"type_signature": "(id: number, type: string): MdzStreamNode",
+								"parameters": [
+									{
+										"name": "id",
+										"type": "number"
+									},
+									{
+										"name": "type",
+										"type": "string"
+									}
+								]
+							}
+						]
+					},
+					{
+						"name": "MdzStreamState",
+						"kind": "class",
+						"doc_comment": "Reactive state manager for streaming mdz content.\nApply opcodes to incrementally build and update the render tree.",
+						"source_line": 41,
+						"members": [
+							{
+								"name": "root",
+								"kind": "variable",
+								"type_signature": "Array<MdzStreamNode>"
+							},
+							{
+								"name": "apply",
+								"kind": "function",
+								"doc_comment": "Apply a single opcode.",
+								"type_signature": "(opcode: MdzOpcode): void",
+								"return_type": "void",
+								"parameters": [
+									{
+										"name": "opcode",
+										"type": "MdzOpcode"
+									}
+								]
+							},
+							{
+								"name": "apply_batch",
+								"kind": "function",
+								"doc_comment": "Apply a batch of opcodes.",
+								"type_signature": "(opcodes: MdzOpcode[]): void",
+								"return_type": "void",
+								"parameters": [
+									{
+										"name": "opcodes",
+										"type": "MdzOpcode[]"
+									}
+								]
+							},
+							{
+								"name": "reset",
+								"kind": "function",
+								"doc_comment": "Reset the state (clear all nodes).",
+								"type_signature": "(): void",
+								"return_type": "void",
+								"parameters": []
+							}
+						]
+					}
+				],
+				"module_comment": "Reactive state for the mdz streaming renderer.\n\nMaintains a reactive tree of `MdzStreamNode` objects that Svelte 5 can\nefficiently update. Opcodes from `MdzStreamParser` are applied via\n`apply()` or `apply_batch()`, mutating the tree in place."
 			},
 			{
 				"path": "mdz_to_svelte.ts",
@@ -6115,6 +6541,61 @@
 					}
 				],
 				"module_comment": "Wrapper for precompiled mdz content. Used by `svelte_preprocess_mdz`.\nNot intended for direct use."
+			},
+			{
+				"path": "MdzStream.svelte",
+				"declarations": [
+					{
+						"name": "MdzStream",
+						"kind": "component",
+						"props": [
+							{
+								"name": "state",
+								"type": "MdzStreamState"
+							},
+							{
+								"name": "inline",
+								"type": "boolean",
+								"optional": true
+							},
+							{
+								"name": "nowrap",
+								"type": "boolean",
+								"optional": true
+							},
+							{
+								"name": "base",
+								"type": "string",
+								"optional": true
+							}
+						],
+						"source_line": 1
+					}
+				],
+				"dependencies": ["MdzStreamNodeView.svelte", "mdz_components.ts"]
+			},
+			{
+				"path": "MdzStreamNodeView.svelte",
+				"declarations": [
+					{
+						"name": "MdzStreamNodeView",
+						"kind": "component",
+						"props": [
+							{
+								"name": "node",
+								"type": "MdzStreamNode"
+							}
+						],
+						"source_line": 1
+					}
+				],
+				"dependencies": [
+					"DocsLink.svelte",
+					"MdzStreamNodeView.svelte",
+					"mdz_components.ts",
+					"mdz_helpers.ts"
+				],
+				"dependents": ["MdzStream.svelte", "MdzStreamNodeView.svelte"]
 			},
 			{
 				"path": "module_contextmenu.ts",

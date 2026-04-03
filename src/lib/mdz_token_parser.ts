@@ -228,7 +228,7 @@ class MdzTokenParser {
 				break;
 			}
 			const node = this.#parse_inline();
-			if (node) children.push(node);
+			if (node) this.#push_merging_text(children, node);
 		}
 
 		// Unclosed - treat as text
@@ -257,7 +257,7 @@ class MdzTokenParser {
 				break;
 			}
 			const node = this.#parse_inline();
-			if (node) children.push(node);
+			if (node) this.#push_merging_text(children, node);
 		}
 
 		return {type: 'Text', content: '_', start, end: start + 1};
@@ -285,7 +285,7 @@ class MdzTokenParser {
 				break;
 			}
 			const node = this.#parse_inline();
-			if (node) children.push(node);
+			if (node) this.#push_merging_text(children, node);
 		}
 
 		return {type: 'Text', content: '~', start, end: start + 1};
@@ -329,7 +329,7 @@ class MdzTokenParser {
 				break;
 			}
 			const node = this.#parse_inline();
-			if (node) children.push(node);
+			if (node) this.#push_merging_text(children, node);
 		}
 
 		return {type: 'Text', content: '[', start, end: start + 1};
@@ -364,7 +364,7 @@ class MdzTokenParser {
 				return {type: node_type, name: tag_name, children, start, end: t.end};
 			}
 			const node = this.#parse_inline();
-			if (node) children.push(node);
+			if (node) this.#push_merging_text(children, node);
 		}
 
 		// Unclosed tag
@@ -425,6 +425,19 @@ class MdzTokenParser {
 			start: merged[0]!.start,
 			end: merged[merged.length - 1]!.end,
 		};
+	}
+
+	/**
+	 * Push a node to a children array, merging adjacent Text nodes.
+	 */
+	#push_merging_text(children: Array<MdzNode>, node: MdzNode): void {
+		const prev = children[children.length - 1];
+		if (prev && prev.type === 'Text' && node.type === 'Text') {
+			prev.content += node.content;
+			prev.end = node.end;
+		} else {
+			children.push(node);
+		}
 	}
 
 	#merge_adjacent_text(nodes: Array<MdzNode>): Array<MdzNode> {

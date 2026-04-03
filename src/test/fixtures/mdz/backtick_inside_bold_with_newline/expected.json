@@ -7,20 +7,8 @@
 				"children": [
 					{
 						"type": "Text",
-						"content": "bold ",
+						"content": "bold `code\nstill",
 						"start": 2,
-						"end": 7
-					},
-					{
-						"type": "Text",
-						"content": "`",
-						"start": 7,
-						"end": 8
-					},
-					{
-						"type": "Text",
-						"content": "code\nstill",
-						"start": 8,
 						"end": 18
 					}
 				],
