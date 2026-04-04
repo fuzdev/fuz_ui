@@ -10,23 +10,6 @@ import {
 	type MdzFixture,
 } from './fixtures/mdz/mdz_test_helpers.js';
 
-/**
- * Strip position info from MdzNode trees for structural comparison.
- */
-const strip_positions = (nodes: Array<MdzNode>): Array<unknown> =>
-	nodes.map((node) => {
-		const stripped: Record<string, unknown> = {type: node.type};
-		if ('content' in node) stripped.content = node.content;
-		if ('children' in node) stripped.children = strip_positions(node.children);
-		if ('level' in node) stripped.level = node.level;
-		if ('id' in node) stripped.id = node.id;
-		if ('reference' in node) stripped.reference = node.reference;
-		if ('link_type' in node) stripped.link_type = node.link_type;
-		if ('lang' in node) stripped.lang = node.lang;
-		if ('name' in node) stripped.name = node.name;
-		return stripped;
-	});
-
 const stream_parse = (text: string): Array<MdzNode> => {
 	const parser = new MdzStreamParser();
 	parser.feed(text);
@@ -40,14 +23,15 @@ beforeAll(async () => {
 	fixtures = await load_fixtures();
 });
 
-// -- Parsers that produce positioned trees (compared with positions) --
+// -- All three parsers compared with full positions --
 
-const positioned_parsers = [
+const all_parsers = [
 	{name: 'single-pass', parse: mdz_parse},
 	{name: 'lexer-based', parse: mdz_parse_lexer},
+	{name: 'streaming', parse: stream_parse},
 ];
 
-for (const {name, parse} of positioned_parsers) {
+for (const {name, parse} of all_parsers) {
 	describe(`mdz parser (${name})`, () => {
 		test('all fixtures parse correctly', () => {
 			for (const fixture of fixtures) {
@@ -65,22 +49,12 @@ for (const {name, parse} of positioned_parsers) {
 	});
 }
 
-// -- Streaming parser (compared structurally, without positions) --
-
-describe('mdz parser (streaming)', () => {
-	test('all fixtures parse correctly (structural)', () => {
+describe('mdz parsers agree', () => {
+	test('all three parsers produce identical output on all fixtures', () => {
 		for (const fixture of fixtures) {
-			const result = strip_positions(stream_parse(fixture.input));
-			const expected = strip_positions(fixture.expected);
-			assert.deepEqual(result, expected, `Fixture "${fixture.name}" failed`);
-		}
-	});
-
-	test('all three parsers agree on all fixtures', () => {
-		for (const fixture of fixtures) {
-			const single_pass = strip_positions(mdz_parse(fixture.input));
-			const lexer = strip_positions(mdz_parse_lexer(fixture.input));
-			const streaming = strip_positions(stream_parse(fixture.input));
+			const single_pass = mdz_parse(fixture.input);
+			const lexer = mdz_parse_lexer(fixture.input);
+			const streaming = stream_parse(fixture.input);
 			assert.deepEqual(
 				lexer,
 				single_pass,

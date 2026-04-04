@@ -65,6 +65,8 @@ interface StackEntry {
 	tag_name: string | undefined;
 	/** Whether any child content has been emitted inside this container. */
 	has_children: boolean;
+	/** Global byte offset of the opening delimiter. */
+	start: number;
 }
 
 interface CodeblockState {
@@ -73,6 +75,8 @@ interface CodeblockState {
 	text_id: MdzNodeId | null;
 	/** The full opening fence line (e.g. "```ts\n"), used as `replacement_text` on revert. */
 	delimiter: string;
+	/** Global byte offset of the opening fence. */
+	start: number;
 }
 
 /**
@@ -89,7 +93,10 @@ export class MdzStreamParser {
 	#prev_char = -1;
 	#active_text_id: MdzNodeId | null = null;
 	#accumulated_text = '';
+	#accumulated_text_start = 0;
 	#codeblock: CodeblockState | null = null;
+	/** Global byte offset of the start of `#buffer`. */
+	#base_offset = 0;
 	/** Whether we're inside a heading (newline ends it). */
 	#in_heading = false;
 	/** Cached flag: whether a Paragraph is open on the stack. */
@@ -114,6 +121,7 @@ export class MdzStreamParser {
 		this.#flush_text();
 		// drain processed bytes from the buffer
 		if (this.#pos > 0) {
+			this.#base_offset += this.#pos;
 			this.#buffer = this.#buffer.slice(this.#pos);
 			this.#pos = 0;
 		}
@@ -200,7 +208,15 @@ export class MdzStreamParser {
 							});
 						} else {
 							const id = this.#alloc_id();
-							this.#emit({type: 'text', id, content: remaining, text_type: 'Text'});
+							const text_start = this.#offset();
+							this.#emit({
+								type: 'text',
+								id,
+								content: remaining,
+								text_type: 'Text',
+								start: text_start,
+								end: text_start + remaining.length,
+							});
 							this.#codeblock.text_id = id;
 						}
 					}
@@ -242,7 +258,7 @@ export class MdzStreamParser {
 					continue;
 				}
 				// single newline: accumulate as text
-				this.#accumulated_text += '\n';
+				this.#accumulate_text('\n', this.#offset());
 				this.#pos++;
 				this.#column = 0;
 				this.#prev_char = NEWLINE;
@@ -310,10 +326,12 @@ export class MdzStreamParser {
 		this.#close_paragraph();
 
 		const id = this.#alloc_id();
+		const heading_start = this.#offset(start);
 		this.#emit({
 			type: 'open',
 			id,
 			node_type: 'Heading',
+			start: heading_start,
 			level: hash_count as 1 | 2 | 3 | 4 | 5 | 6,
 		});
 		this.#stack.push({
@@ -323,6 +341,7 @@ export class MdzStreamParser {
 			delimiter: '',
 			tag_name: undefined,
 			has_children: false,
+			start: heading_start,
 		});
 		this.#in_heading = true;
 		this.#heading_text_parts = [''];
@@ -365,7 +384,13 @@ export class MdzStreamParser {
 		this.#close_paragraph();
 
 		const id = this.#alloc_id();
-		this.#emit({type: 'void', id, node_type: 'Hr'});
+		this.#emit({
+			type: 'void',
+			id,
+			node_type: 'Hr',
+			start: this.#offset(start),
+			end: this.#offset(i),
+		});
 		if (forced) {
 			this.#pos = this.#buffer.length;
 		} else {
@@ -449,8 +474,9 @@ export class MdzStreamParser {
 		this.#close_paragraph();
 
 		const id = this.#alloc_id();
-		this.#emit({type: 'open', id, node_type: 'Codeblock', lang});
-		this.#codeblock = {id, backtick_count, text_id: null, delimiter};
+		const cb_start = this.#offset(start);
+		this.#emit({type: 'open', id, node_type: 'Codeblock', start: cb_start, lang});
+		this.#codeblock = {id, backtick_count, text_id: null, delimiter, start: cb_start};
 		this.#pos = i;
 		this.#column = 0;
 		this.#prev_char = NEWLINE;
@@ -532,7 +558,15 @@ export class MdzStreamParser {
 							this.#emit({type: 'append_text', id: cb.text_id, content});
 						} else {
 							const id = this.#alloc_id();
-							this.#emit({type: 'text', id, content, text_type: 'Text'});
+							const text_start = this.#offset(start);
+							this.#emit({
+								type: 'text',
+								id,
+								content,
+								text_type: 'Text',
+								start: text_start,
+								end: text_start + content.length,
+							});
 							cb.text_id = id;
 						}
 					}
@@ -542,7 +576,8 @@ export class MdzStreamParser {
 						return this.#revert_empty_codeblock(cb);
 					}
 
-					this.#emit({type: 'close', id: cb.id});
+					// codeblock end = position of newline after closing fence (exclusive)
+					this.#emit({type: 'close', id: cb.id, end: this.#offset(fence_match - 1)});
 					this.#pos = fence_match;
 					this.#codeblock = null;
 					this.#column = 0;
@@ -581,7 +616,15 @@ export class MdzStreamParser {
 				this.#emit({type: 'append_text', id: cb.text_id, content});
 			} else {
 				const id = this.#alloc_id();
-				this.#emit({type: 'text', id, content, text_type: 'Text'});
+				const text_start = this.#offset(start);
+				this.#emit({
+					type: 'text',
+					id,
+					content,
+					text_type: 'Text',
+					start: text_start,
+					end: text_start + content.length,
+				});
 				cb.text_id = id;
 			}
 		}
@@ -638,7 +681,8 @@ export class MdzStreamParser {
 	#ensure_paragraph(): void {
 		if (this.#in_heading || this.#in_paragraph) return;
 		const id = this.#alloc_id();
-		this.#emit({type: 'open', id, node_type: 'Paragraph'});
+		const start = this.#offset();
+		this.#emit({type: 'open', id, node_type: 'Paragraph', start});
 		this.#stack.push({
 			id,
 			node_type: 'Paragraph',
@@ -646,6 +690,7 @@ export class MdzStreamParser {
 			delimiter: '',
 			tag_name: undefined,
 			has_children: false,
+			start,
 		});
 		this.#in_paragraph = true;
 	}
@@ -659,10 +704,15 @@ export class MdzStreamParser {
 				// revert everything above the paragraph
 				while (this.#stack.length - 1 > i) {
 					const entry = this.#stack.pop()!;
-					this.#emit({type: 'revert', id: entry.id, replacement_text: entry.delimiter});
+					this.#emit({
+						type: 'revert',
+						id: entry.id,
+						replacement_text: entry.delimiter,
+						start: entry.start,
+					});
 				}
 				const entry = this.#stack.pop()!;
-				this.#emit({type: 'close', id: entry.id});
+				this.#emit({type: 'close', id: entry.id, end: this.#offset()});
 				this.#active_text_id = null;
 				this.#in_paragraph = false;
 				return;
@@ -679,12 +729,13 @@ export class MdzStreamParser {
 		this.#heading_text_parts = [];
 		this.#in_heading = false;
 		const heading_id = mdz_heading_id_from_text(heading_text);
+		const end = this.#offset();
 		// find and close the heading
 		for (let i = this.#stack.length - 1; i >= 0; i--) {
 			if (this.#stack[i]!.node_type === 'Heading') {
 				const entry = this.#stack[i]!;
 				this.#stack.splice(i, 1);
-				this.#emit({type: 'close', id: entry.id, heading_id});
+				this.#emit({type: 'close', id: entry.id, end, heading_id});
 				this.#active_text_id = null;
 				return;
 			}
@@ -701,10 +752,11 @@ export class MdzStreamParser {
 			type: 'revert',
 			id: cb.id,
 			replacement_text: cb.delimiter,
+			start: cb.start,
 			wrap_node_type: 'Paragraph',
 			wrap_id,
 		});
-		this.#emit({type: 'close', id: wrap_id});
+		this.#emit({type: 'close', id: wrap_id, end: this.#offset()});
 		this.#codeblock = null;
 	}
 
@@ -719,6 +771,7 @@ export class MdzStreamParser {
 			type: 'revert',
 			id: cb.id,
 			replacement_text: cb.delimiter,
+			start: cb.start,
 			wrap_node_type: 'Paragraph',
 			wrap_id,
 		});
@@ -731,6 +784,7 @@ export class MdzStreamParser {
 			delimiter: '',
 			tag_name: undefined,
 			has_children: false,
+			start: cb.start,
 		});
 		this.#in_paragraph = true;
 		this.#active_text_id = null;
@@ -751,7 +805,10 @@ export class MdzStreamParser {
 		) {
 			fence_content_end++;
 		}
-		this.#accumulated_text += this.#buffer.slice(fence_start, fence_content_end);
+		this.#accumulate_text(
+			this.#buffer.slice(fence_start, fence_content_end),
+			this.#offset(fence_start),
+		);
 
 		// position past the closing fence content, leaving any trailing newline for normal processing
 		this.#pos = fence_content_end;
@@ -789,7 +846,7 @@ export class MdzStreamParser {
 			if (this.#pos + 1 >= this.#buffer.length) return false; // hold for next chunk
 			// single asterisk is text (next char is not *)
 			this.#ensure_paragraph();
-			this.#accumulated_text += '*';
+			this.#accumulate_text('*', this.#offset());
 			this.#prev_char = ASTERISK;
 			this.#column++;
 			this.#pos++;
@@ -827,7 +884,7 @@ export class MdzStreamParser {
 			}
 			// no open link — treat as text
 			this.#ensure_paragraph();
-			this.#accumulated_text += ']';
+			this.#accumulate_text(']', this.#offset());
 			this.#prev_char = RIGHT_BRACKET;
 			this.#column++;
 			this.#pos++;
@@ -884,7 +941,8 @@ export class MdzStreamParser {
 		this.#ensure_paragraph();
 
 		const id = this.#alloc_id();
-		this.#emit({type: 'open', id, node_type: 'Bold'});
+		const bold_start = this.#offset();
+		this.#emit({type: 'open', id, node_type: 'Bold', start: bold_start});
 		this.#stack.push({
 			id,
 			node_type: 'Bold',
@@ -892,6 +950,7 @@ export class MdzStreamParser {
 			delimiter: '**',
 			tag_name: undefined,
 			has_children: false,
+			start: bold_start,
 		});
 		this.#active_text_id = null;
 		this.#pos += 2;
@@ -909,10 +968,15 @@ export class MdzStreamParser {
 		const entry = this.#stack.pop()!;
 		// check for empty container — revert to literal text instead of closing
 		if (!entry.has_children) {
-			this.#emit({type: 'revert', id: entry.id, replacement_text: entry.delimiter});
-			this.#accumulated_text += '**';
+			this.#emit({
+				type: 'revert',
+				id: entry.id,
+				replacement_text: entry.delimiter,
+				start: entry.start,
+			});
+			this.#accumulate_text('**', this.#offset());
 		} else {
-			this.#emit({type: 'close', id: entry.id});
+			this.#emit({type: 'close', id: entry.id, end: this.#offset() + 2});
 		}
 		this.#active_text_id = null;
 		this.#pos += 2;
@@ -928,7 +992,7 @@ export class MdzStreamParser {
 		if (this.#prev_char !== -1 && is_word_char(this.#prev_char)) {
 			// not at word boundary — emit as text
 			this.#ensure_paragraph();
-			this.#accumulated_text += '_';
+			this.#accumulate_text('_', this.#offset());
 			this.#prev_char = UNDERSCORE;
 			this.#column++;
 			this.#pos++;
@@ -942,7 +1006,7 @@ export class MdzStreamParser {
 		// (matches existing parser's greedy first-match strategy)
 		if (!this.#first_closer_has_valid_boundary('_')) {
 			this.#ensure_paragraph();
-			this.#accumulated_text += '_';
+			this.#accumulate_text('_', this.#offset());
 			this.#prev_char = UNDERSCORE;
 			this.#column++;
 			this.#pos++;
@@ -953,7 +1017,8 @@ export class MdzStreamParser {
 		this.#ensure_paragraph();
 
 		const id = this.#alloc_id();
-		this.#emit({type: 'open', id, node_type: 'Italic'});
+		const italic_start = this.#offset();
+		this.#emit({type: 'open', id, node_type: 'Italic', start: italic_start});
 		this.#stack.push({
 			id,
 			node_type: 'Italic',
@@ -961,6 +1026,7 @@ export class MdzStreamParser {
 			delimiter: '_',
 			tag_name: undefined,
 			has_children: false,
+			start: italic_start,
 		});
 		this.#active_text_id = null;
 		this.#pos++;
@@ -975,7 +1041,7 @@ export class MdzStreamParser {
 		// check opening word boundary
 		if (this.#prev_char !== -1 && is_word_char(this.#prev_char)) {
 			this.#ensure_paragraph();
-			this.#accumulated_text += '~';
+			this.#accumulate_text('~', this.#offset());
 			this.#prev_char = TILDE;
 			this.#column++;
 			this.#pos++;
@@ -987,7 +1053,7 @@ export class MdzStreamParser {
 		// check if the first potential closer has a valid word boundary
 		if (!this.#first_closer_has_valid_boundary('~')) {
 			this.#ensure_paragraph();
-			this.#accumulated_text += '~';
+			this.#accumulate_text('~', this.#offset());
 			this.#prev_char = TILDE;
 			this.#column++;
 			this.#pos++;
@@ -998,7 +1064,8 @@ export class MdzStreamParser {
 		this.#ensure_paragraph();
 
 		const id = this.#alloc_id();
-		this.#emit({type: 'open', id, node_type: 'Strikethrough'});
+		const strike_start = this.#offset();
+		this.#emit({type: 'open', id, node_type: 'Strikethrough', start: strike_start});
 		this.#stack.push({
 			id,
 			node_type: 'Strikethrough',
@@ -1006,6 +1073,7 @@ export class MdzStreamParser {
 			delimiter: '~',
 			tag_name: undefined,
 			has_children: false,
+			start: strike_start,
 		});
 		this.#active_text_id = null;
 		this.#pos++;
@@ -1031,10 +1099,15 @@ export class MdzStreamParser {
 		const entry = this.#stack.pop()!;
 		// check for empty container — revert to literal text instead of closing
 		if (!entry.has_children) {
-			this.#emit({type: 'revert', id: entry.id, replacement_text: entry.delimiter});
-			this.#accumulated_text += entry.delimiter;
+			this.#emit({
+				type: 'revert',
+				id: entry.id,
+				replacement_text: entry.delimiter,
+				start: entry.start,
+			});
+			this.#accumulate_text(entry.delimiter, this.#offset());
 		} else {
-			this.#emit({type: 'close', id: entry.id});
+			this.#emit({type: 'close', id: entry.id, end: this.#offset() + 1});
 		}
 		this.#active_text_id = null;
 		this.#pos++;
@@ -1085,7 +1158,7 @@ export class MdzStreamParser {
 				if (content.length === 0) {
 					// empty code — treat as text
 					this.#ensure_paragraph();
-					this.#accumulated_text += '``';
+					this.#accumulate_text('``', this.#offset(start));
 					this.#pos = i + 1;
 					this.#column += 2;
 					this.#prev_char = BACKTICK;
@@ -1094,7 +1167,14 @@ export class MdzStreamParser {
 				this.#flush_text();
 				this.#ensure_paragraph();
 				const id = this.#alloc_id();
-				this.#emit({type: 'text', id, content, text_type: 'Code'});
+				this.#emit({
+					type: 'text',
+					id,
+					content,
+					text_type: 'Code',
+					start: this.#offset(start),
+					end: this.#offset(i + 1),
+				});
 				this.#active_text_id = null;
 				this.#pos = i + 1;
 				this.#column += i + 1 - start;
@@ -1104,7 +1184,7 @@ export class MdzStreamParser {
 			if (c === NEWLINE) {
 				// inline code can't span lines — treat opening backtick as text
 				this.#ensure_paragraph();
-				this.#accumulated_text += '`';
+				this.#accumulate_text('`', this.#offset(start));
 				this.#pos = start + 1;
 				this.#column++;
 				this.#prev_char = BACKTICK;
@@ -1116,7 +1196,7 @@ export class MdzStreamParser {
 		// hit search limit (open formatting delimiter boundary) — treat backtick as text
 		if (i < this.#buffer.length && i >= search_limit) {
 			this.#ensure_paragraph();
-			this.#accumulated_text += '`';
+			this.#accumulate_text('`', this.#offset(start));
 			this.#pos = start + 1;
 			this.#column++;
 			this.#prev_char = BACKTICK;
@@ -1155,7 +1235,8 @@ export class MdzStreamParser {
 		this.#ensure_paragraph();
 
 		const id = this.#alloc_id();
-		this.#emit({type: 'open', id, node_type: 'Link'});
+		const link_start = this.#offset();
+		this.#emit({type: 'open', id, node_type: 'Link', start: link_start});
 		this.#stack.push({
 			id,
 			node_type: 'Link',
@@ -1163,6 +1244,7 @@ export class MdzStreamParser {
 			delimiter: '[',
 			tag_name: undefined,
 			has_children: false,
+			start: link_start,
 		});
 		this.#active_text_id = null;
 		this.#pos++;
@@ -1187,10 +1269,10 @@ export class MdzStreamParser {
 			this.#flush_text();
 			this.#revert_above(link_stack_idx);
 			const entry = this.#stack.pop()!;
-			this.#emit({type: 'revert', id: entry.id, replacement_text: '['});
+			this.#emit({type: 'revert', id: entry.id, replacement_text: '[', start: entry.start});
 			this.#active_text_id = null;
 			// consume ] as text
-			this.#accumulated_text += ']';
+			this.#accumulate_text(']', this.#offset(bracket_pos));
 			this.#pos = bracket_pos + 1;
 			this.#column++;
 			this.#prev_char = RIGHT_BRACKET;
@@ -1209,9 +1291,9 @@ export class MdzStreamParser {
 					this.#flush_text();
 					this.#revert_above(link_stack_idx);
 					const entry = this.#stack.pop()!;
-					this.#emit({type: 'revert', id: entry.id, replacement_text: '['});
+					this.#emit({type: 'revert', id: entry.id, replacement_text: '[', start: entry.start});
 					this.#active_text_id = null;
-					this.#accumulated_text += ']';
+					this.#accumulate_text(']', this.#offset(bracket_pos));
 					this.#pos = bracket_pos + 1;
 					this.#column++;
 					this.#prev_char = RIGHT_BRACKET;
@@ -1229,9 +1311,9 @@ export class MdzStreamParser {
 					this.#flush_text();
 					this.#revert_above(link_stack_idx);
 					const entry = this.#stack.pop()!;
-					this.#emit({type: 'revert', id: entry.id, replacement_text: '['});
+					this.#emit({type: 'revert', id: entry.id, replacement_text: '[', start: entry.start});
 					this.#active_text_id = null;
-					this.#accumulated_text += ']';
+					this.#accumulate_text(']', this.#offset(bracket_pos));
 					this.#pos = bracket_pos + 1;
 					this.#column++;
 					this.#prev_char = RIGHT_BRACKET;
@@ -1243,7 +1325,7 @@ export class MdzStreamParser {
 				this.#revert_above(link_stack_idx);
 				const entry = this.#stack.pop()!;
 				const link_type = mdz_is_url(reference) ? 'external' : 'internal';
-				this.#emit({type: 'close', id: entry.id, reference, link_type});
+				this.#emit({type: 'close', id: entry.id, end: this.#offset(i + 1), reference, link_type});
 				this.#active_text_id = null;
 				this.#pos = i + 1;
 				this.#column += i + 1 - bracket_pos;
@@ -1264,9 +1346,9 @@ export class MdzStreamParser {
 		this.#flush_text();
 		this.#revert_above(link_stack_idx);
 		const entry = this.#stack.pop()!;
-		this.#emit({type: 'revert', id: entry.id, replacement_text: '['});
+		this.#emit({type: 'revert', id: entry.id, replacement_text: '[', start: entry.start});
 		this.#active_text_id = null;
-		this.#accumulated_text += ']';
+		this.#accumulate_text(']', this.#offset(bracket_pos));
 		this.#pos = bracket_pos + 1;
 		this.#column++;
 		this.#prev_char = RIGHT_BRACKET;
@@ -1313,8 +1395,9 @@ export class MdzStreamParser {
 			this.#flush_text();
 			this.#ensure_paragraph();
 			const id = this.#alloc_id();
-			this.#emit({type: 'open', id, node_type, name});
-			this.#emit({type: 'close', id});
+			const tag_start = this.#offset(start);
+			this.#emit({type: 'open', id, node_type, start: tag_start, name});
+			this.#emit({type: 'close', id, end: this.#offset(i + 2)});
 			this.#active_text_id = null;
 			this.#pos = i + 2;
 			this.#column += i + 2 - start;
@@ -1335,8 +1418,9 @@ export class MdzStreamParser {
 		this.#flush_text();
 		this.#ensure_paragraph();
 		const id = this.#alloc_id();
+		const tag_start = this.#offset(start);
 		const delimiter = this.#buffer.slice(start, i); // e.g., "<Alert>"
-		this.#emit({type: 'open', id, node_type, name});
+		this.#emit({type: 'open', id, node_type, start: tag_start, name});
 		this.#stack.push({
 			id,
 			node_type,
@@ -1344,6 +1428,7 @@ export class MdzStreamParser {
 			delimiter,
 			tag_name: name,
 			has_children: false,
+			start: tag_start,
 		});
 		this.#active_text_id = null;
 		this.#pos = i;
@@ -1391,7 +1476,7 @@ export class MdzStreamParser {
 		this.#flush_text();
 		this.#revert_above(found_idx);
 		const entry = this.#stack.pop()!;
-		this.#emit({type: 'close', id: entry.id});
+		this.#emit({type: 'close', id: entry.id, end: this.#offset(i)});
 		this.#active_text_id = null;
 		this.#column += i - this.#pos;
 		this.#pos = i;
@@ -1515,15 +1600,24 @@ export class MdzStreamParser {
 
 	#emit_auto_link(reference: string, link_type: 'external' | 'internal'): boolean {
 		const end_pos = this.#pos + reference.length;
+		const link_start = this.#offset();
+		const link_end = this.#offset(end_pos);
 
 		this.#flush_text();
 		this.#ensure_paragraph();
 
 		const link_id = this.#alloc_id();
-		this.#emit({type: 'open', id: link_id, node_type: 'Link'});
+		this.#emit({type: 'open', id: link_id, node_type: 'Link', start: link_start});
 		const text_id = this.#alloc_id();
-		this.#emit({type: 'text', id: text_id, content: reference, text_type: 'Text'});
-		this.#emit({type: 'close', id: link_id, reference, link_type});
+		this.#emit({
+			type: 'text',
+			id: text_id,
+			content: reference,
+			text_type: 'Text',
+			start: link_start,
+			end: link_end,
+		});
+		this.#emit({type: 'close', id: link_id, end: link_end, reference, link_type});
 
 		this.#active_text_id = null;
 		this.#column += end_pos - this.#pos;
@@ -1570,7 +1664,7 @@ export class MdzStreamParser {
 			}
 			this.#pos++;
 		}
-		this.#accumulated_text += this.#buffer.slice(start, this.#pos);
+		this.#accumulate_text(this.#buffer.slice(start, this.#pos), this.#offset(start));
 		this.#prev_char = this.#buffer.charCodeAt(this.#pos - 1);
 		this.#column += this.#pos - start;
 	}
@@ -1616,6 +1710,19 @@ export class MdzStreamParser {
 		return this.#next_id++;
 	}
 
+	/** Global byte offset for a local buffer position. */
+	#offset(pos: number = this.#pos): number {
+		return this.#base_offset + pos;
+	}
+
+	/** Accumulate text, tracking the start offset for the first character. */
+	#accumulate_text(text: string, start_offset: number): void {
+		if (this.#accumulated_text.length === 0) {
+			this.#accumulated_text_start = start_offset;
+		}
+		this.#accumulated_text += text;
+	}
+
 	/**
 	 * Trim a trailing newline from paragraph content.
 	 * Checks unflushed accumulated text first, then the last emitted text opcode.
@@ -1631,6 +1738,7 @@ export class MdzStreamParser {
 			if (op.type === 'text' || op.type === 'append_text') {
 				if (op.content.endsWith('\n')) {
 					op.content = op.content.slice(0, -1);
+					if (op.type === 'text') op.end--;
 					if (op.content.length === 0) {
 						this.#opcodes.splice(i, 1);
 						// if we removed a text node, clear active_text_id
@@ -1654,7 +1762,15 @@ export class MdzStreamParser {
 		} else {
 			this.#ensure_paragraph();
 			const id = this.#alloc_id();
-			this.#emit({type: 'text', id, content: this.#accumulated_text, text_type: 'Text'});
+			const start = this.#accumulated_text_start;
+			this.#emit({
+				type: 'text',
+				id,
+				content: this.#accumulated_text,
+				text_type: 'Text',
+				start,
+				end: start + this.#accumulated_text.length,
+			});
 			this.#active_text_id = id;
 		}
 		this.#accumulated_text = '';
@@ -1682,9 +1798,14 @@ export class MdzStreamParser {
 		while (this.#stack.length - 1 > target_idx) {
 			const entry = this.#stack.pop()!;
 			if (entry.optimistic) {
-				this.#emit({type: 'revert', id: entry.id, replacement_text: entry.delimiter});
+				this.#emit({
+					type: 'revert',
+					id: entry.id,
+					replacement_text: entry.delimiter,
+					start: entry.start,
+				});
 			} else {
-				this.#emit({type: 'close', id: entry.id});
+				this.#emit({type: 'close', id: entry.id, end: this.#offset()});
 			}
 		}
 		this.#active_text_id = null;
@@ -1699,9 +1820,9 @@ export class MdzStreamParser {
 			if (top.node_type === 'Paragraph' || top.node_type === 'Heading') break;
 			this.#stack.pop();
 			if (top.optimistic) {
-				this.#emit({type: 'revert', id: top.id, replacement_text: top.delimiter});
+				this.#emit({type: 'revert', id: top.id, replacement_text: top.delimiter, start: top.start});
 			} else {
-				this.#emit({type: 'close', id: top.id});
+				this.#emit({type: 'close', id: top.id, end: this.#offset()});
 			}
 		}
 		this.#active_text_id = null;

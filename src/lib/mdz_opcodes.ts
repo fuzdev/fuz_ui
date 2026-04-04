@@ -44,6 +44,8 @@ export interface MdzOpcodeOpen {
 	type: 'open';
 	id: MdzNodeId;
 	node_type: MdzContainerNodeType;
+	/** Byte offset in the full input where the opening delimiter begins. */
+	start: number;
 	/** Heading level (1-6). Present when `node_type` is `'Heading'`. */
 	level?: 1 | 2 | 3 | 4 | 5 | 6;
 	/** Tag name. Present when `node_type` is `'Element'` or `'Component'`. */
@@ -59,6 +61,8 @@ export interface MdzOpcodeOpen {
 export interface MdzOpcodeClose {
 	type: 'close';
 	id: MdzNodeId;
+	/** Byte offset in the full input immediately after the closing delimiter. */
+	end: number;
 	/** Link URL/path, resolved when `](url)` completes. */
 	reference?: string;
 	/** Link type, resolved alongside `reference`. */
@@ -76,6 +80,10 @@ export interface MdzOpcodeText {
 	id: MdzNodeId;
 	content: string;
 	text_type: MdzTextNodeType;
+	/** Byte offset where this node begins (for Code, the opening backtick). */
+	start: number;
+	/** Byte offset immediately after this node ends (for Code, after the closing backtick). */
+	end: number;
 }
 
 /**
@@ -97,6 +105,10 @@ export interface MdzOpcodeVoid {
 	type: 'void';
 	id: MdzNodeId;
 	node_type: MdzVoidNodeType;
+	/** Byte offset in the full input where this element begins. */
+	start: number;
+	/** Byte offset immediately after this element ends. */
+	end: number;
 }
 
 /**
@@ -116,6 +128,8 @@ export interface MdzOpcodeRevert {
 	id: MdzNodeId;
 	/** The delimiter text to emit as literal content (e.g., `"**"`, `"["`, `"<Tag>"`). */
 	replacement_text: string;
+	/** Byte offset of the original opening delimiter in the full input. */
+	start: number;
 	/** Wrap replacement text and re-parented children in a new container of this type. */
 	wrap_node_type?: MdzContainerNodeType;
 	/** ID for the wrapper node. Required when `wrap_node_type` is set. */

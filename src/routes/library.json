@@ -5637,7 +5637,7 @@
 						"name": "mdz_opcodes_to_nodes",
 						"kind": "function",
 						"doc_comment": "Convert an array of mdz opcodes to the `MdzNode[]` tree.\nProduces output identical to `mdz_parse()`.",
-						"source_line": 50,
+						"source_line": 52,
 						"type_signature": "(opcodes: MdzOpcode[]): MdzNode[]",
 						"return_type": "MdzNode[]",
 						"parameters": [
@@ -5705,6 +5705,12 @@
 								"type_signature": "MdzContainerNodeType"
 							},
 							{
+								"name": "start",
+								"kind": "variable",
+								"type_signature": "number",
+								"doc_comment": "Byte offset in the full input where the opening delimiter begins."
+							},
+							{
 								"name": "level",
 								"kind": "variable",
 								"type_signature": "1 | 2 | 3 | 4 | 5 | 6",
@@ -5728,7 +5734,7 @@
 						"name": "MdzOpcodeClose",
 						"kind": "type",
 						"doc_comment": "Close a previously opened container node.\nCarries deferred metadata that wasn't known at open time.",
-						"source_line": 59,
+						"source_line": 61,
 						"type_signature": "MdzOpcodeClose",
 						"properties": [
 							{
@@ -5740,6 +5746,12 @@
 								"name": "id",
 								"kind": "variable",
 								"type_signature": "MdzNodeId"
+							},
+							{
+								"name": "end",
+								"kind": "variable",
+								"type_signature": "number",
+								"doc_comment": "Byte offset in the full input immediately after the closing delimiter."
 							},
 							{
 								"name": "reference",
@@ -5765,7 +5777,7 @@
 						"name": "MdzOpcodeText",
 						"kind": "type",
 						"doc_comment": "Create a leaf text or code node.\nThe parent is implicit — the innermost open container on the renderer's stack.",
-						"source_line": 74,
+						"source_line": 78,
 						"type_signature": "MdzOpcodeText",
 						"properties": [
 							{
@@ -5787,6 +5799,18 @@
 								"name": "text_type",
 								"kind": "variable",
 								"type_signature": "MdzTextNodeType"
+							},
+							{
+								"name": "start",
+								"kind": "variable",
+								"type_signature": "number",
+								"doc_comment": "Byte offset where this node begins (for Code, the opening backtick)."
+							},
+							{
+								"name": "end",
+								"kind": "variable",
+								"type_signature": "number",
+								"doc_comment": "Byte offset immediately after this node ends (for Code, after the closing backtick)."
 							}
 						]
 					},
@@ -5794,7 +5818,7 @@
 						"name": "MdzOpcodeAppendText",
 						"kind": "type",
 						"doc_comment": "Append content to an existing text node.\nStreaming optimization — avoids creating a new node per chunk\nduring plain text runs.",
-						"source_line": 86,
+						"source_line": 94,
 						"type_signature": "MdzOpcodeAppendText",
 						"properties": [
 							{
@@ -5818,7 +5842,7 @@
 						"name": "MdzOpcodeVoid",
 						"kind": "type",
 						"doc_comment": "Create a self-contained leaf node (e.g., horizontal rule).\nInserted as a child of the innermost open container, or at root level.",
-						"source_line": 96,
+						"source_line": 104,
 						"type_signature": "MdzOpcodeVoid",
 						"properties": [
 							{
@@ -5835,6 +5859,18 @@
 								"name": "node_type",
 								"kind": "variable",
 								"type_signature": "MdzVoidNodeType"
+							},
+							{
+								"name": "start",
+								"kind": "variable",
+								"type_signature": "number",
+								"doc_comment": "Byte offset in the full input where this element begins."
+							},
+							{
+								"name": "end",
+								"kind": "variable",
+								"type_signature": "number",
+								"doc_comment": "Byte offset immediately after this element ends."
 							}
 						]
 					},
@@ -5842,7 +5878,7 @@
 						"name": "MdzOpcodeRevert",
 						"kind": "type",
 						"doc_comment": "Undo an optimistic open. Removes the container wrapper,\ninserts `replacement_text` as literal text at the container's position,\nand re-parents the container's children to the grandparent.\n\nWhen `wrap_node_type` and `wrap_id` are set, the replacement text and\nre-parented children are wrapped in a new container of the given type\ninstead of being placed directly at the grandparent level. The wrapper\nis pushed onto the consumer's stack (open for future content). This is\nused for block-level reverts (e.g., codeblock → paragraph) where the\ngrandparent is root and content needs a container.",
-						"source_line": 114,
+						"source_line": 126,
 						"type_signature": "MdzOpcodeRevert",
 						"properties": [
 							{
@@ -5862,6 +5898,12 @@
 								"doc_comment": "The delimiter text to emit as literal content (e.g., `\"**\"`, `\"[\"`, `\"<Tag>\"`)."
 							},
 							{
+								"name": "start",
+								"kind": "variable",
+								"type_signature": "number",
+								"doc_comment": "Byte offset of the original opening delimiter in the full input."
+							},
+							{
 								"name": "wrap_node_type",
 								"kind": "variable",
 								"type_signature": "MdzContainerNodeType",
@@ -5879,7 +5921,7 @@
 						"name": "MdzOpcode",
 						"kind": "type",
 						"doc_comment": "Discriminated union of all mdz opcodes.",
-						"source_line": 126,
+						"source_line": 140,
 						"type_signature": "MdzOpcode"
 					}
 				],
@@ -5892,7 +5934,7 @@
 						"name": "MdzStreamParser",
 						"kind": "class",
 						"doc_comment": "Streaming opcode parser for mdz content.\nFeed chunks via `feed()`, retrieve opcodes via `take_opcodes()`, call `finish()` at end.",
-						"source_line": 82,
+						"source_line": 86,
 						"members": [
 							{
 								"name": "feed",

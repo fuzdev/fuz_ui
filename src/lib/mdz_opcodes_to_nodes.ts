@@ -33,11 +33,13 @@ interface StackFrame {
 	id: MdzNodeId;
 	node_type: string;
 	children: Array<MdzNode>;
+	start: number;
 	// metadata from open opcode
 	level?: number;
 	name?: string;
 	lang?: string | null;
 	// metadata from close opcode (deferred)
+	end?: number;
 	reference?: string;
 	link_type?: 'external' | 'internal';
 	heading_id?: string;
@@ -64,6 +66,7 @@ export const mdz_opcodes_to_nodes = (opcodes: Array<MdzOpcode>): Array<MdzNode> 
 					id: op.id,
 					node_type: op.node_type,
 					children: [],
+					start: op.start,
 					level: op.level,
 					name: op.name,
 					lang: op.lang,
@@ -76,6 +79,7 @@ export const mdz_opcodes_to_nodes = (opcodes: Array<MdzOpcode>): Array<MdzNode> 
 				if (!frame) break;
 
 				// apply deferred metadata
+				frame.end = op.end;
 				if (op.reference !== undefined) frame.reference = op.reference;
 				if (op.link_type !== undefined) frame.link_type = op.link_type;
 				if (op.heading_id !== undefined) frame.heading_id = op.heading_id;
@@ -88,8 +92,8 @@ export const mdz_opcodes_to_nodes = (opcodes: Array<MdzOpcode>): Array<MdzNode> 
 			case 'text': {
 				const node: MdzTextNode | MdzCodeNode =
 					op.text_type === 'Code'
-						? ({type: 'Code', content: op.content, start: 0, end: 0} as MdzCodeNode)
-						: ({type: 'Text', content: op.content, start: 0, end: 0} as MdzTextNode);
+						? ({type: 'Code', content: op.content, start: op.start, end: op.end} as MdzCodeNode)
+						: ({type: 'Text', content: op.content, start: op.start, end: op.end} as MdzTextNode);
 				text_nodes[op.id] = node;
 				target().push(node);
 				break;
@@ -99,12 +103,13 @@ export const mdz_opcodes_to_nodes = (opcodes: Array<MdzOpcode>): Array<MdzNode> 
 				const existing = text_nodes[op.id];
 				if (existing) {
 					existing.content += op.content;
+					existing.end += op.content.length;
 				}
 				break;
 			}
 
 			case 'void': {
-				target().push({type: 'Hr', start: 0, end: 0} as MdzHrNode);
+				target().push({type: 'Hr', start: op.start, end: op.end} as MdzHrNode);
 				break;
 			}
 
@@ -132,13 +137,14 @@ export const mdz_opcodes_to_nodes = (opcodes: Array<MdzOpcode>): Array<MdzNode> 
 							id: op.wrap_id,
 							node_type: op.wrap_node_type,
 							children: [],
+							start: op.start,
 						};
 						if (op.replacement_text) {
 							push_merging_text(wrapper.children, {
 								type: 'Text',
 								content: op.replacement_text,
-								start: 0,
-								end: 0,
+								start: op.start,
+								end: op.start + op.replacement_text.length,
 							} as MdzTextNode);
 						}
 						for (const child of reverted_frame.children) {
@@ -149,14 +155,14 @@ export const mdz_opcodes_to_nodes = (opcodes: Array<MdzOpcode>): Array<MdzNode> 
 						const dest = target();
 						// Re-parent replacement text and children, coalescing adjacent
 						// Text nodes inline. This reduces deeply nested reverts from
-						// O(n²) array pushes to O(n) string concatenations �� each revert
+						// O(n²) array pushes to O(n) string concatenations — each revert
 						// merges into the parent's last text node instead of growing the array.
 						if (op.replacement_text) {
 							push_merging_text(dest, {
 								type: 'Text',
 								content: op.replacement_text,
-								start: 0,
-								end: 0,
+								start: op.start,
+								end: op.start + op.replacement_text.length,
 							} as MdzTextNode);
 						}
 						for (const child of reverted_frame.children) {
@@ -201,8 +207,8 @@ const build_node = (frame: StackFrame): MdzNode | null => {
 				level: frame.level ?? 1,
 				id,
 				children,
-				start: 0,
-				end: 0,
+				start: frame.start,
+				end: frame.end!,
 			} as MdzHeadingNode;
 		}
 
@@ -210,24 +216,24 @@ const build_node = (frame: StackFrame): MdzNode | null => {
 			return {
 				type: 'Bold',
 				children: merge_adjacent_text(frame.children),
-				start: 0,
-				end: 0,
+				start: frame.start,
+				end: frame.end!,
 			} as MdzBoldNode;
 
 		case 'Italic':
 			return {
 				type: 'Italic',
 				children: merge_adjacent_text(frame.children),
-				start: 0,
-				end: 0,
+				start: frame.start,
+				end: frame.end!,
 			} as MdzItalicNode;
 
 		case 'Strikethrough':
 			return {
 				type: 'Strikethrough',
 				children: merge_adjacent_text(frame.children),
-				start: 0,
-				end: 0,
+				start: frame.start,
+				end: frame.end!,
 			} as MdzStrikethroughNode;
 
 		case 'Link':
@@ -236,8 +242,8 @@ const build_node = (frame: StackFrame): MdzNode | null => {
 				reference: frame.reference ?? '',
 				children: merge_adjacent_text(frame.children),
 				link_type: frame.link_type ?? 'internal',
-				start: 0,
-				end: 0,
+				start: frame.start,
+				end: frame.end!,
 			} as MdzLinkNode;
 
 		case 'Codeblock': {
@@ -250,8 +256,8 @@ const build_node = (frame: StackFrame): MdzNode | null => {
 				type: 'Codeblock',
 				lang: frame.lang ?? null,
 				content,
-				start: 0,
-				end: 0,
+				start: frame.start,
+				end: frame.end!,
 			} as MdzCodeblockNode;
 		}
 
@@ -260,8 +266,8 @@ const build_node = (frame: StackFrame): MdzNode | null => {
 				type: 'Element',
 				name: frame.name ?? '',
 				children: merge_adjacent_text(frame.children),
-				start: 0,
-				end: 0,
+				start: frame.start,
+				end: frame.end!,
 			} as MdzElementNode;
 
 		case 'Component':
@@ -269,8 +275,8 @@ const build_node = (frame: StackFrame): MdzNode | null => {
 				type: 'Component',
 				name: frame.name ?? '',
 				children: merge_adjacent_text(frame.children),
-				start: 0,
-				end: 0,
+				start: frame.start,
+				end: frame.end!,
 			} as MdzComponentNode;
 
 		default:
@@ -326,7 +332,7 @@ const merge_adjacent_text = (nodes: Array<MdzNode>): Array<MdzNode> => {
 
 /**
  * Push a node to a children array, merging adjacent Text nodes in place.
- * Mutates the last element's `content` when both are Text, avoiding array growth.
+ * Mutates the last element's `content` and `end` when both are Text, avoiding array growth.
  *
  * Safe to mutate because the streaming parser resets `active_text_id` after every
  * revert, so no future `append_text` opcode will target a node that was merged here.
@@ -336,6 +342,7 @@ const push_merging_text = (dest: Array<MdzNode>, node: MdzNode): void => {
 		const last = dest[dest.length - 1];
 		if (last?.type === 'Text') {
 			last.content += node.content;
+			last.end = node.end;
 			return;
 		}
 	}
