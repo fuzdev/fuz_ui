@@ -145,10 +145,16 @@ export class MdzStreamState {
 				if (!parent_children) break;
 
 				// find the node in parent's children
-				const node_idx = parent_children.findIndex((n) => n.id === opcode.id);
+				let node_idx = -1;
+				for (let i = 0; i < parent_children.length; i++) {
+					if (parent_children[i]!.id === opcode.id) {
+						node_idx = i;
+						break;
+					}
+				}
 				if (node_idx === -1) break;
 
-				// create replacement text node
+				// collect replacement text + re-parented children
 				const replacement_nodes: Array<MdzStreamNode> = [];
 				if (opcode.replacement_text) {
 					const text_node = new MdzStreamNode(-1, 'Text');
@@ -156,17 +162,30 @@ export class MdzStreamState {
 					text_node.text_type = 'Text';
 					replacement_nodes.push(text_node);
 				}
-
-				// re-parent children
 				for (const child of node.children) {
-					this.#parents.set(child.id, parent_id ?? null);
 					replacement_nodes.push(child);
 				}
 
-				// replace the reverted node with text + re-parented children
-				parent_children.splice(node_idx, 1, ...replacement_nodes);
+				if (opcode.wrap_node_type != null && opcode.wrap_id != null) {
+					// block-level revert: wrap content in a new container and push onto stack
+					const wrapper = new MdzStreamNode(opcode.wrap_id, opcode.wrap_node_type);
+					for (const rn of replacement_nodes) {
+						wrapper.children.push(rn);
+						this.#parents.set(rn.id, opcode.wrap_id);
+					}
+					this.#nodes.set(opcode.wrap_id, wrapper);
+					this.#parents.set(opcode.wrap_id, parent_id ?? null);
+					parent_children.splice(node_idx, 1, wrapper);
+					this.#stack.push(opcode.wrap_id);
+				} else {
+					// inline revert: re-parent directly to grandparent
+					for (const child of node.children) {
+						this.#parents.set(child.id, parent_id ?? null);
+					}
+					parent_children.splice(node_idx, 1, ...replacement_nodes);
+				}
 
-				// remove from stack
+				// remove reverted node from stack
 				const stack_idx = this.#stack.lastIndexOf(opcode.id);
 				if (stack_idx !== -1) this.#stack.splice(stack_idx, 1);
 

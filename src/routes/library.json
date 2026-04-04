@@ -5841,8 +5841,8 @@
 					{
 						"name": "MdzOpcodeRevert",
 						"kind": "type",
-						"doc_comment": "Undo an optimistic open. Removes the container wrapper,\ninserts `replacement_text` as literal text at the container's position,\nand re-parents the container's children to the grandparent.",
-						"source_line": 107,
+						"doc_comment": "Undo an optimistic open. Removes the container wrapper,\ninserts `replacement_text` as literal text at the container's position,\nand re-parents the container's children to the grandparent.\n\nWhen `wrap_node_type` and `wrap_id` are set, the replacement text and\nre-parented children are wrapped in a new container of the given type\ninstead of being placed directly at the grandparent level. The wrapper\nis pushed onto the consumer's stack (open for future content). This is\nused for block-level reverts (e.g., codeblock → paragraph) where the\ngrandparent is root and content needs a container.",
+						"source_line": 114,
 						"type_signature": "MdzOpcodeRevert",
 						"properties": [
 							{
@@ -5860,6 +5860,18 @@
 								"kind": "variable",
 								"type_signature": "string",
 								"doc_comment": "The delimiter text to emit as literal content (e.g., `\"**\"`, `\"[\"`, `\"<Tag>\"`)."
+							},
+							{
+								"name": "wrap_node_type",
+								"kind": "variable",
+								"type_signature": "MdzContainerNodeType",
+								"doc_comment": "Wrap replacement text and re-parented children in a new container of this type."
+							},
+							{
+								"name": "wrap_id",
+								"kind": "variable",
+								"type_signature": "MdzNodeId",
+								"doc_comment": "ID for the wrapper node. Required when `wrap_node_type` is set."
 							}
 						]
 					},
@@ -5867,7 +5879,7 @@
 						"name": "MdzOpcode",
 						"kind": "type",
 						"doc_comment": "Discriminated union of all mdz opcodes.",
-						"source_line": 115,
+						"source_line": 126,
 						"type_signature": "MdzOpcode"
 					}
 				],
@@ -5880,7 +5892,7 @@
 						"name": "MdzStreamParser",
 						"kind": "class",
 						"doc_comment": "Streaming opcode parser for mdz content.\nFeed chunks via `feed()`, retrieve opcodes via `take_opcodes()`, call `finish()` at end.",
-						"source_line": 80,
+						"source_line": 82,
 						"members": [
 							{
 								"name": "feed",

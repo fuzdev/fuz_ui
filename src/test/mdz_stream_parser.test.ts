@@ -262,6 +262,94 @@ describe('MdzStreamParser opcodes', () => {
 		const full_text = children.map((c) => c.content).join('');
 		assert.equal(full_text, '**hello');
 	});
+
+	// -- Optimistic codeblock streaming --
+
+	test('codeblock open is emitted immediately on opening fence', () => {
+		const parser = new MdzStreamParser();
+		parser.feed('```ts\n');
+		const ops = parser.take_opcodes();
+		const cb_open = ops.find(
+			(o): o is MdzOpcodeOpen => o.type === 'open' && o.node_type === 'Codeblock',
+		);
+		assert.ok(cb_open, 'open(Codeblock) should be emitted before closing fence arrives');
+		assert.equal(cb_open.lang, 'ts');
+	});
+
+	test('codeblock content streams across chunks', () => {
+		const parser = new MdzStreamParser();
+		parser.feed('```js\n');
+		const ops1 = parser.take_opcodes();
+		const cb_open = ops1.find(
+			(o): o is MdzOpcodeOpen => o.type === 'open' && o.node_type === 'Codeblock',
+		);
+		assert.ok(cb_open);
+
+		parser.feed('const x = 1;\n');
+		const ops2 = parser.take_opcodes();
+		const has_content = ops2.some(
+			(o) => (o.type === 'text' || o.type === 'append_text') && o.content.includes('const x'),
+		);
+		assert.ok(has_content, 'content should stream before closing fence');
+
+		parser.feed('```\n');
+		const ops3 = parser.take_opcodes();
+		const cb_close = ops3.find(
+			(o): o is MdzOpcodeClose => o.type === 'close' && o.id === cb_open.id,
+		);
+		assert.ok(cb_close, 'close should arrive with closing fence chunk');
+	});
+
+	test('empty codeblock reverts to paragraph text', () => {
+		const result = strip_positions(stream_parse('```\n```\n'));
+		assert.equal(result.length, 1);
+		const para = result[0] as Record<string, unknown>;
+		assert.equal(para.type, 'Paragraph');
+		const children = para.children as Array<Record<string, unknown>>;
+		const text = children.map((c) => c.content).join('');
+		assert.equal(text, '```\n```');
+	});
+
+	test('unclosed codeblock at EOF reverts to paragraph text', () => {
+		const result = strip_positions(stream_parse('```ts\nconst x = 1;'));
+		assert.equal(result.length, 1);
+		const para = result[0] as Record<string, unknown>;
+		assert.equal(para.type, 'Paragraph');
+		const children = para.children as Array<Record<string, unknown>>;
+		const text = children.map((c) => c.content).join('');
+		assert.equal(text, '```ts\nconst x = 1;');
+	});
+
+	test('fence count mismatch across chunks reverts at EOF', () => {
+		const parser = new MdzStreamParser();
+		parser.feed('````\n');
+		const ops1 = parser.take_opcodes();
+		const cb_open = ops1.find(
+			(o): o is MdzOpcodeOpen => o.type === 'open' && o.node_type === 'Codeblock',
+		);
+		assert.ok(cb_open, 'should open with 4-backtick fence');
+
+		parser.feed('```\n'); // 3 backticks — doesn't match 4
+		const ops2 = parser.take_opcodes();
+		// should NOT close — fence count doesn't match
+		const has_close = ops2.some((o) => o.type === 'close' && o.id === cb_open.id);
+		assert.ok(!has_close, '3-backtick line should not close 4-backtick codeblock');
+
+		parser.finish();
+		const ops3 = parser.take_opcodes();
+		const has_revert = ops3.some((o) => o.type === 'revert' && o.id === cb_open.id);
+		assert.ok(has_revert, 'unclosed codeblock should revert at EOF');
+
+		// verify final tree
+		const all_ops = [...ops1, ...ops2, ...ops3];
+		const result = strip_positions(mdz_opcodes_to_nodes(all_ops));
+		assert.equal(result.length, 1);
+		const para = result[0] as Record<string, unknown>;
+		assert.equal(para.type, 'Paragraph');
+		const children = para.children as Array<Record<string, unknown>>;
+		const text = children.map((c) => c.content).join('');
+		assert.equal(text, '````\n```');
+	});
 });
 
 // -- Fixture-based tests --

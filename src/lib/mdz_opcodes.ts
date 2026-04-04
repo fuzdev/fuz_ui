@@ -103,12 +103,23 @@ export interface MdzOpcodeVoid {
  * Undo an optimistic open. Removes the container wrapper,
  * inserts `replacement_text` as literal text at the container's position,
  * and re-parents the container's children to the grandparent.
+ *
+ * When `wrap_node_type` and `wrap_id` are set, the replacement text and
+ * re-parented children are wrapped in a new container of the given type
+ * instead of being placed directly at the grandparent level. The wrapper
+ * is pushed onto the consumer's stack (open for future content). This is
+ * used for block-level reverts (e.g., codeblock → paragraph) where the
+ * grandparent is root and content needs a container.
  */
 export interface MdzOpcodeRevert {
 	type: 'revert';
 	id: MdzNodeId;
 	/** The delimiter text to emit as literal content (e.g., `"**"`, `"["`, `"<Tag>"`). */
 	replacement_text: string;
+	/** Wrap replacement text and re-parented children in a new container of this type. */
+	wrap_node_type?: MdzContainerNodeType;
+	/** ID for the wrapper node. Required when `wrap_node_type` is set. */
+	wrap_id?: MdzNodeId;
 }
 
 /** Discriminated union of all mdz opcodes. */

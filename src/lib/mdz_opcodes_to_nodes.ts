@@ -125,21 +125,43 @@ export const mdz_opcodes_to_nodes = (opcodes: Array<MdzOpcode>): Array<MdzNode> 
 				}
 
 				if (reverted_frame) {
-					const dest = target();
-					// Re-parent replacement text and children, coalescing adjacent
-					// Text nodes inline. This reduces deeply nested reverts from
-					// O(n²) array pushes to O(n) string concatenations — each revert
-					// merges into the parent's last text node instead of growing the array.
-					if (op.replacement_text) {
-						push_merging_text(dest, {
-							type: 'Text',
-							content: op.replacement_text,
-							start: 0,
-							end: 0,
-						} as MdzTextNode);
-					}
-					for (const child of reverted_frame.children) {
-						push_merging_text(dest, child);
+					if (op.wrap_node_type != null && op.wrap_id != null) {
+						// block-level revert: wrap content in a new container (e.g. Paragraph)
+						// and push it onto the stack so future opcodes flow into it.
+						const wrapper: StackFrame = {
+							id: op.wrap_id,
+							node_type: op.wrap_node_type,
+							children: [],
+						};
+						if (op.replacement_text) {
+							push_merging_text(wrapper.children, {
+								type: 'Text',
+								content: op.replacement_text,
+								start: 0,
+								end: 0,
+							} as MdzTextNode);
+						}
+						for (const child of reverted_frame.children) {
+							push_merging_text(wrapper.children, child);
+						}
+						stack.push(wrapper);
+					} else {
+						const dest = target();
+						// Re-parent replacement text and children, coalescing adjacent
+						// Text nodes inline. This reduces deeply nested reverts from
+						// O(n²) array pushes to O(n) string concatenations �� each revert
+						// merges into the parent's last text node instead of growing the array.
+						if (op.replacement_text) {
+							push_merging_text(dest, {
+								type: 'Text',
+								content: op.replacement_text,
+								start: 0,
+								end: 0,
+							} as MdzTextNode);
+						}
+						for (const child of reverted_frame.children) {
+							push_merging_text(dest, child);
+						}
 					}
 				}
 				break;
@@ -218,13 +240,12 @@ const build_node = (frame: StackFrame): MdzNode | null => {
 				end: 0,
 			} as MdzLinkNode;
 
-		case 'Codeblock':
+		case 'Codeblock': {
 			// code block content is in children as text
-			// eslint-disable-next-line no-case-declarations
-			const content = frame.children
-				.filter((c): c is MdzTextNode => c.type === 'Text')
-				.map((c) => c.content)
-				.join('');
+			let content = '';
+			for (const c of frame.children) {
+				if (c.type === 'Text') content += c.content;
+			}
 			return {
 				type: 'Codeblock',
 				lang: frame.lang ?? null,
@@ -232,6 +253,7 @@ const build_node = (frame: StackFrame): MdzNode | null => {
 				start: 0,
 				end: 0,
 			} as MdzCodeblockNode;
+		}
 
 		case 'Element':
 			return {

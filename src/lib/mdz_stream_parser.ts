@@ -71,6 +71,8 @@ interface CodeblockState {
 	id: MdzNodeId;
 	backtick_count: number;
 	text_id: MdzNodeId | null;
+	/** The full opening fence line (e.g. "```ts\n"), used as `replacement_text` on revert. */
+	delimiter: string;
 }
 
 /**
@@ -378,12 +380,11 @@ export class MdzStreamParser {
 	 * Try to open a code block at column 0.
 	 * Returns true if consumed, false if needs more input, null if definitely not a codeblock.
 	 *
-	 * **Streaming limitation**: This method scans the entire buffer for a closing fence
-	 * before opening the codeblock (to reject empty codeblocks and invalid fences).
-	 * Codeblock content is NOT streamed until the closing fence is buffered.
-	 * For LLM output with large codeblocks, this means the parser holds all content
-	 * until the full block arrives. A future optimization could open optimistically
-	 * and revert if the closing fence is missing, matching the inline formatting strategy.
+	 * Opens the codeblock optimistically when possible. When the current paragraph
+	 * has no prior content, opens immediately on `\`\`\`lang\n` without lookahead,
+	 * enabling streaming. When the paragraph has content (text before the fence on
+	 * a prior line), falls back to lookahead via `#find_closing_fence` to avoid
+	 * splitting the paragraph on revert.
 	 */
 	#try_codeblock_open(): boolean | null {
 		const start = this.#pos;
@@ -423,17 +424,26 @@ export class MdzStreamParser {
 		if (this.#buffer.charCodeAt(i) !== NEWLINE) return null;
 		i++; // consume newline
 
-		// look ahead for a valid closing fence in the buffer
-		const closing_result = this.#find_closing_fence(i, backtick_count);
-		if (closing_result === 'not_found') return false; // need more input (fence may come later)
-		if (closing_result === 'invalid') return null; // no valid closing fence exists — not a codeblock
+		// when the current paragraph has content, closing it would split text on
+		// revert — fall back to lookahead to avoid that
+		if (
+			this.#in_paragraph &&
+			(this.#accumulated_text.length > 0 || this.#active_text_id !== null)
+		) {
+			const closing_result = this.#find_closing_fence(i, backtick_count);
+			if (closing_result === 'not_found') return false;
+			if (closing_result === 'invalid') return null;
+		}
+
+		// build delimiter for potential revert (e.g. "```ts\n" or "```\n")
+		const delimiter = this.#buffer.slice(start, i);
 
 		this.#flush_text();
 		this.#close_paragraph();
 
 		const id = this.#alloc_id();
 		this.#emit({type: 'open', id, node_type: 'Codeblock', lang});
-		this.#codeblock = {id, backtick_count, text_id: null};
+		this.#codeblock = {id, backtick_count, text_id: null, delimiter};
 		this.#pos = i;
 		this.#column = 0;
 		this.#prev_char = NEWLINE;
@@ -442,9 +452,10 @@ export class MdzStreamParser {
 
 	/**
 	 * Scan buffer from `start` for a valid closing fence with `backtick_count` backticks.
-	 * Returns 'found' if a valid closing fence exists, 'not_found' if buffer ends
-	 * before we can determine (might come in next chunk), 'invalid' if we can see
-	 * the full remaining content and there's no valid closing fence.
+	 * Used as a fallback when the current paragraph has prior content (to avoid
+	 * splitting the paragraph on revert). Returns 'found' if a valid closing fence
+	 * exists, 'not_found' if the buffer ends before we can determine, 'invalid' if
+	 * we can see the full remaining content and there's no valid closing fence.
 	 */
 	#find_closing_fence(start: number, backtick_count: number): 'found' | 'not_found' | 'invalid' {
 		let i = start;
@@ -518,6 +529,12 @@ export class MdzStreamParser {
 							cb.text_id = id;
 						}
 					}
+
+					// empty codeblock: no content was ever emitted → invalid, revert
+					if (cb.text_id === null && content.length === 0) {
+						return this.#revert_empty_codeblock(cb);
+					}
+
 					this.#emit({type: 'close', id: cb.id});
 					this.#pos = fence_match;
 					this.#codeblock = null;
@@ -662,8 +679,65 @@ export class MdzStreamParser {
 
 	#close_codeblock_at_eof(): void {
 		if (!this.#codeblock) return;
-		this.#emit({type: 'close', id: this.#codeblock.id});
+		const cb = this.#codeblock;
+		// trim trailing newline from codeblock content (mirrors #close_paragraph behavior)
+		this.#trim_trailing_newline();
+		const wrap_id = this.#alloc_id();
+		this.#emit({
+			type: 'revert',
+			id: cb.id,
+			replacement_text: cb.delimiter,
+			wrap_node_type: 'Paragraph',
+			wrap_id,
+		});
+		this.#emit({type: 'close', id: wrap_id});
 		this.#codeblock = null;
+	}
+
+	/**
+	 * Revert an empty codeblock (closing fence found but no content was emitted).
+	 * Wraps the opening fence delimiter in a new paragraph and accumulates the
+	 * closing fence text for normal paragraph processing.
+	 */
+	#revert_empty_codeblock(cb: CodeblockState): boolean {
+		const wrap_id = this.#alloc_id();
+		this.#emit({
+			type: 'revert',
+			id: cb.id,
+			replacement_text: cb.delimiter,
+			wrap_node_type: 'Paragraph',
+			wrap_id,
+		});
+
+		// enter paragraph mode with the wrapper
+		this.#stack.push({id: wrap_id, node_type: 'Paragraph', optimistic: false, delimiter: ''});
+		this.#in_paragraph = true;
+		this.#active_text_id = null;
+		this.#codeblock = null;
+
+		// accumulate the closing fence text (backticks + spaces, without trailing newline)
+		const fence_start = this.#pos;
+		let fence_content_end = fence_start;
+		while (
+			fence_content_end < this.#buffer.length &&
+			this.#buffer.charCodeAt(fence_content_end) === BACKTICK
+		) {
+			fence_content_end++;
+		}
+		while (
+			fence_content_end < this.#buffer.length &&
+			this.#buffer.charCodeAt(fence_content_end) === SPACE
+		) {
+			fence_content_end++;
+		}
+		this.#accumulated_text += this.#buffer.slice(fence_start, fence_content_end);
+
+		// position past the closing fence content, leaving any trailing newline for normal processing
+		this.#pos = fence_content_end;
+		this.#column = fence_content_end - fence_start;
+		this.#prev_char =
+			fence_content_end > fence_start ? this.#buffer.charCodeAt(fence_content_end - 1) : NEWLINE;
+		return true;
 	}
 
 	// -- Inline processing --
