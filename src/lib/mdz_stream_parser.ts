@@ -90,6 +90,8 @@ export class MdzStreamParser {
 	#codeblock: CodeblockState | null = null;
 	/** Whether we're inside a heading (newline ends it). */
 	#in_heading = false;
+	/** Cached flag: whether a Paragraph is open on the stack. */
+	#in_paragraph = false;
 	/**
 	 * Stack of text segments for heading ID computation.
 	 * Each open container inside a heading pushes a new segment.
@@ -610,14 +612,11 @@ export class MdzStreamParser {
 	// -- Paragraph management --
 
 	#ensure_paragraph(): void {
-		if (this.#in_heading) return; // don't open paragraph inside heading
-		// check if we already have a paragraph or heading as the outermost block
-		for (const entry of this.#stack) {
-			if (entry.node_type === 'Paragraph') return; // already inside a paragraph
-		}
+		if (this.#in_heading || this.#in_paragraph) return;
 		const id = this.#alloc_id();
 		this.#emit({type: 'open', id, node_type: 'Paragraph'});
 		this.#stack.push({id, node_type: 'Paragraph', optimistic: false, delimiter: ''});
+		this.#in_paragraph = true;
 	}
 
 	#close_paragraph(): void {
@@ -634,6 +633,7 @@ export class MdzStreamParser {
 				const entry = this.#stack.pop()!;
 				this.#emit({type: 'close', id: entry.id});
 				this.#active_text_id = null;
+				this.#in_paragraph = false;
 				return;
 			}
 		}
@@ -772,7 +772,7 @@ export class MdzStreamParser {
 		}
 
 		// plain text
-		this.#consume_text_char();
+		this.#consume_text_run();
 		return true;
 	}
 
@@ -948,32 +948,22 @@ export class MdzStreamParser {
 	 * if the first closer fails, the whole formatting attempt is rejected.
 	 * Returns true if the first closer is valid, or if no closer is found in the buffer
 	 * (optimistic — it might come in a later chunk).
+	 *
+	 * Uses native `indexOf` instead of a manual char loop for faster scanning.
 	 */
 	#first_closer_has_valid_boundary(delimiter: string): boolean {
-		const char_code = delimiter.charCodeAt(0);
-		let i = this.#pos + 1; // past the opening delimiter
-		while (i < this.#buffer.length) {
-			const c = this.#buffer.charCodeAt(i);
-			if (
-				c === NEWLINE &&
-				i + 1 < this.#buffer.length &&
-				this.#buffer.charCodeAt(i + 1) === NEWLINE
-			) {
-				break; // paragraph break — stop searching
-			}
-			if (c === char_code) {
-				// found a potential closer — check word boundary after it
-				const after_pos = i + 1;
-				if (after_pos < this.#buffer.length) {
-					return !is_word_char(this.#buffer.charCodeAt(after_pos));
-				}
-				// at end of buffer — can't determine, be optimistic
-				return true;
-			}
-			i++;
+		const search_start = this.#pos + 1;
+		const delim_pos = this.#buffer.indexOf(delimiter, search_start);
+		if (delim_pos === -1) return true; // no closer — optimistic
+		// check for paragraph break before the delimiter
+		const para_pos = this.#buffer.indexOf('\n\n', search_start);
+		if (para_pos !== -1 && para_pos < delim_pos) return true; // paragraph break first — optimistic
+		// check word boundary after the closer
+		const after_pos = delim_pos + 1;
+		if (after_pos < this.#buffer.length) {
+			return !is_word_char(this.#buffer.charCodeAt(after_pos));
 		}
-		// no closer found in buffer — be optimistic (might come in a later chunk)
-		return true;
+		return true; // at end of buffer — optimistic
 	}
 
 	// -- Inline code --
@@ -1429,17 +1419,58 @@ export class MdzStreamParser {
 
 	// -- Text consumption --
 
-	#consume_text_char(): void {
+	/**
+	 * Consume a run of plain text characters. Scans ahead to the next
+	 * structurally interesting character and accumulates the whole run
+	 * as a single slice, avoiding per-character string concatenation
+	 * and dispatch overhead.
+	 */
+	#consume_text_run(): void {
 		this.#ensure_paragraph();
-		const c = this.#buffer[this.#pos]!;
-		this.#accumulated_text += c;
-		this.#prev_char = c.charCodeAt(0);
-		if (this.#prev_char === NEWLINE) {
-			this.#column = 0;
-		} else {
-			this.#column++;
-		}
+		const start = this.#pos;
 		this.#pos++;
+		while (this.#pos < this.#buffer.length) {
+			const c = this.#buffer.charCodeAt(this.#pos);
+			if (
+				c === BACKTICK ||
+				c === ASTERISK ||
+				c === UNDERSCORE ||
+				c === TILDE ||
+				c === LEFT_BRACKET ||
+				c === RIGHT_BRACKET ||
+				c === LEFT_ANGLE ||
+				c === NEWLINE
+			) {
+				break;
+			}
+			// URL/path chars: only break when they could actually start a URL or path.
+			// Mirrors the inline checks in #process_inline but avoids the full
+			// dispatch cycle for the common case (prose h/./slash that isn't a URL/path).
+			if (c === 104 /* h */) {
+				if (
+					this.#buffer.startsWith('https://', this.#pos) ||
+					this.#buffer.startsWith('http://', this.#pos)
+				) {
+					break;
+				}
+				this.#pos++;
+				continue;
+			}
+			if (c === SLASH || c === PERIOD) {
+				// Paths require a word boundary (space/newline/tab before the char).
+				// Break to let #process_inline handle streaming edge cases.
+				const prev = this.#buffer.charCodeAt(this.#pos - 1);
+				if (prev === SPACE || prev === NEWLINE || prev === TAB) {
+					break;
+				}
+				this.#pos++;
+				continue;
+			}
+			this.#pos++;
+		}
+		this.#accumulated_text += this.#buffer.slice(start, this.#pos);
+		this.#prev_char = this.#buffer.charCodeAt(this.#pos - 1);
+		this.#column += this.#pos - start;
 	}
 
 	// -- Helpers --

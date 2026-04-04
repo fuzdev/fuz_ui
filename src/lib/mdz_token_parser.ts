@@ -443,6 +443,16 @@ class MdzTokenParser {
 	#merge_adjacent_text(nodes: Array<MdzNode>): Array<MdzNode> {
 		if (nodes.length <= 1) return nodes;
 
+		// fast path: check if any merging is actually needed
+		let needs_merge = false;
+		for (let i = 1; i < nodes.length; i++) {
+			if (nodes[i - 1]!.type === 'Text' && nodes[i]!.type === 'Text') {
+				needs_merge = true;
+				break;
+			}
+		}
+		if (!needs_merge) return nodes;
+
 		const merged: Array<MdzNode> = [];
 		let pending_text: MdzTextNode | null = null;
 

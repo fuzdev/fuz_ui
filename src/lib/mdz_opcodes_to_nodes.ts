@@ -50,8 +50,8 @@ interface StackFrame {
 export const mdz_opcodes_to_nodes = (opcodes: Array<MdzOpcode>): Array<MdzNode> => {
 	const root: Array<MdzNode> = [];
 	const stack: Array<StackFrame> = [];
-	// map node IDs to their text content (for append_text)
-	const text_nodes = new Map<MdzNodeId, MdzTextNode | MdzCodeNode>();
+	// index node IDs to their text content (for append_text)
+	const text_nodes: Array<MdzTextNode | MdzCodeNode | undefined> = [];
 
 	const target = (): Array<MdzNode> => {
 		return stack.length > 0 ? stack[stack.length - 1]!.children : root;
@@ -90,13 +90,13 @@ export const mdz_opcodes_to_nodes = (opcodes: Array<MdzOpcode>): Array<MdzNode> 
 					op.text_type === 'Code'
 						? ({type: 'Code', content: op.content, start: 0, end: 0} as MdzCodeNode)
 						: ({type: 'Text', content: op.content, start: 0, end: 0} as MdzTextNode);
-				text_nodes.set(op.id, node);
+				text_nodes[op.id] = node;
 				target().push(node);
 				break;
 			}
 
 			case 'append_text': {
-				const existing = text_nodes.get(op.id);
+				const existing = text_nodes[op.id];
 				if (existing) {
 					existing.content += op.content;
 				}
@@ -250,9 +250,20 @@ const build_node = (frame: StackFrame): MdzNode | null => {
 
 /**
  * Merge adjacent Text nodes into single nodes.
+ * Fast path: returns the original array when no adjacent text pairs exist.
  */
 const merge_adjacent_text = (nodes: Array<MdzNode>): Array<MdzNode> => {
 	if (nodes.length <= 1) return nodes;
+
+	// fast path: check if any merging is actually needed
+	let needs_merge = false;
+	for (let i = 1; i < nodes.length; i++) {
+		if (nodes[i - 1]!.type === 'Text' && nodes[i]!.type === 'Text') {
+			needs_merge = true;
+			break;
+		}
+	}
+	if (!needs_merge) return nodes;
 
 	const merged: Array<MdzNode> = [];
 	let pending: MdzTextNode | null = null;
