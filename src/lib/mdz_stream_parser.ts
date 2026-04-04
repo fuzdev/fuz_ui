@@ -61,10 +61,10 @@ interface StackEntry {
 	optimistic: boolean;
 	/** The opening delimiter text, used as `replacement_text` on revert. */
 	delimiter: string;
-	/** Tag name for Element/Component entries. */
-	tag_name?: string;
+	/** Tag name for Element/Component entries, `undefined` for all others. */
+	tag_name: string | undefined;
 	/** Whether any child content has been emitted inside this container. */
-	has_children?: boolean;
+	has_children: boolean;
 }
 
 interface CodeblockState {
@@ -316,7 +316,14 @@ export class MdzStreamParser {
 			node_type: 'Heading',
 			level: hash_count as 1 | 2 | 3 | 4 | 5 | 6,
 		});
-		this.#stack.push({id, node_type: 'Heading', optimistic: false, delimiter: ''});
+		this.#stack.push({
+			id,
+			node_type: 'Heading',
+			optimistic: false,
+			delimiter: '',
+			tag_name: undefined,
+			has_children: false,
+		});
 		this.#in_heading = true;
 		this.#heading_text_parts = [''];
 		this.#pos = i;
@@ -632,7 +639,14 @@ export class MdzStreamParser {
 		if (this.#in_heading || this.#in_paragraph) return;
 		const id = this.#alloc_id();
 		this.#emit({type: 'open', id, node_type: 'Paragraph'});
-		this.#stack.push({id, node_type: 'Paragraph', optimistic: false, delimiter: ''});
+		this.#stack.push({
+			id,
+			node_type: 'Paragraph',
+			optimistic: false,
+			delimiter: '',
+			tag_name: undefined,
+			has_children: false,
+		});
 		this.#in_paragraph = true;
 	}
 
@@ -710,7 +724,14 @@ export class MdzStreamParser {
 		});
 
 		// enter paragraph mode with the wrapper
-		this.#stack.push({id: wrap_id, node_type: 'Paragraph', optimistic: false, delimiter: ''});
+		this.#stack.push({
+			id: wrap_id,
+			node_type: 'Paragraph',
+			optimistic: false,
+			delimiter: '',
+			tag_name: undefined,
+			has_children: false,
+		});
 		this.#in_paragraph = true;
 		this.#active_text_id = null;
 		this.#codeblock = null;
@@ -869,6 +890,8 @@ export class MdzStreamParser {
 			node_type: 'Bold',
 			optimistic: true,
 			delimiter: '**',
+			tag_name: undefined,
+			has_children: false,
 		});
 		this.#active_text_id = null;
 		this.#pos += 2;
@@ -936,6 +959,8 @@ export class MdzStreamParser {
 			node_type: 'Italic',
 			optimistic: true,
 			delimiter: '_',
+			tag_name: undefined,
+			has_children: false,
 		});
 		this.#active_text_id = null;
 		this.#pos++;
@@ -979,6 +1004,8 @@ export class MdzStreamParser {
 			node_type: 'Strikethrough',
 			optimistic: true,
 			delimiter: '~',
+			tag_name: undefined,
+			has_children: false,
 		});
 		this.#active_text_id = null;
 		this.#pos++;
@@ -1129,7 +1156,14 @@ export class MdzStreamParser {
 
 		const id = this.#alloc_id();
 		this.#emit({type: 'open', id, node_type: 'Link'});
-		this.#stack.push({id, node_type: 'Link', optimistic: true, delimiter: '['});
+		this.#stack.push({
+			id,
+			node_type: 'Link',
+			optimistic: true,
+			delimiter: '[',
+			tag_name: undefined,
+			has_children: false,
+		});
 		this.#active_text_id = null;
 		this.#pos++;
 		this.#column++;
@@ -1303,7 +1337,14 @@ export class MdzStreamParser {
 		const id = this.#alloc_id();
 		const delimiter = this.#buffer.slice(start, i); // e.g., "<Alert>"
 		this.#emit({type: 'open', id, node_type, name});
-		this.#stack.push({id, node_type, optimistic: true, delimiter, tag_name: name});
+		this.#stack.push({
+			id,
+			node_type,
+			optimistic: true,
+			delimiter,
+			tag_name: name,
+			has_children: false,
+		});
 		this.#active_text_id = null;
 		this.#pos = i;
 		this.#column += i - start;
