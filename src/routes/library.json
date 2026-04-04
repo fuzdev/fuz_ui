@@ -6002,7 +6002,7 @@
 						"name": "MdzStreamParser",
 						"kind": "class",
 						"doc_comment": "Streaming opcode parser for mdz content.\nFeed chunks via `feed()`, retrieve opcodes via `take_opcodes()`, call `finish()` at end.",
-						"source_line": 95,
+						"source_line": 98,
 						"members": [
 							{
 								"name": "feed",

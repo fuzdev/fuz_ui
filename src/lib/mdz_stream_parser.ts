@@ -1774,10 +1774,16 @@ export class MdzStreamParser {
 		const pos = pu.url_text.length;
 
 		// narrow viable prefixes
-		if (pu.viable_https && (pos >= HTTPS_PREFIX.length || char_code !== HTTPS_PREFIX.charCodeAt(pos))) {
+		if (
+			pu.viable_https &&
+			(pos >= HTTPS_PREFIX.length || char_code !== HTTPS_PREFIX.charCodeAt(pos))
+		) {
 			pu.viable_https = false;
 		}
-		if (pu.viable_http && (pos >= HTTP_PREFIX.length || char_code !== HTTP_PREFIX.charCodeAt(pos))) {
+		if (
+			pu.viable_http &&
+			(pos >= HTTP_PREFIX.length || char_code !== HTTP_PREFIX.charCodeAt(pos))
+		) {
 			pu.viable_http = false;
 		}
 

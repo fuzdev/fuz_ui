@@ -513,7 +513,9 @@ describe('MdzStreamParser opcodes', () => {
 
 	test('speculation cancels then URL detected on retry', () => {
 		const result = stream_parse('hhttps://example.com https://example.com');
-		const para = result[0]! as {children: Array<{type: string; content?: string; reference?: string}>};
+		const para = result[0]! as {
+			children: Array<{type: string; content?: string; reference?: string}>;
+		};
 		// first h starts speculation, second h fails it, so hhttps://example.com is text
 		// then space, then URL is detected
 		assert.equal(para.children[0]!.type, 'Text');
