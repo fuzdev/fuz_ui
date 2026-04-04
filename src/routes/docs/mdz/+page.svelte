@@ -94,6 +94,7 @@ const y = 1336;
 					line break?
 				</li>
 				<li>is the newline-preserving whitespace design ideal?</li>
+				<li>think through relative link rendering with <code>trailingSlash</code></li>
 			</ul>
 		</aside>
 	</section>
