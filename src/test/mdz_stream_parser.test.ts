@@ -406,6 +406,97 @@ describe('MdzStreamParser fixture comparison', () => {
 		return true;
 	};
 
+	// -- Trailing newline trimming across take_opcodes() boundaries --
+	// The \n hold mechanism (line 235 of mdz_stream_parser.ts) keeps a trailing \n
+	// in the buffer rather than flushing it to an opcode. These tests verify that
+	// paragraph content never has a spurious trailing \n regardless of chunk boundaries.
+
+	test('trailing newline trimmed: paragraph break split across chunks', () => {
+		// Pattern C from hardening doc: feed('hello\n'), take, feed('\nworld')
+		const parser = new MdzStreamParser();
+		parser.feed('hello\n');
+		const ops1 = parser.take_opcodes();
+		parser.feed('\nworld');
+		parser.finish();
+		const ops2 = parser.take_opcodes();
+		const all_ops = [...ops1, ...ops2];
+		const nodes = mdz_opcodes_to_nodes(all_ops);
+		const stripped = strip_positions(nodes);
+		// should be two paragraphs with clean content (no trailing \n)
+		assert.deepEqual(stripped, [
+			{type: 'Paragraph', children: [{type: 'Text', content: 'hello'}]},
+			{type: 'Paragraph', children: [{type: 'Text', content: 'world'}]},
+		]);
+	});
+
+	test('trailing newline trimmed: HR split across chunks', () => {
+		// Pattern K: feed('hello\n'), take, feed('---\n')
+		const parser = new MdzStreamParser();
+		parser.feed('hello\n');
+		const ops1 = parser.take_opcodes();
+		parser.feed('---\n');
+		parser.finish();
+		const ops2 = parser.take_opcodes();
+		const all_ops = [...ops1, ...ops2];
+		const nodes = mdz_opcodes_to_nodes(all_ops);
+		const stripped = strip_positions(nodes);
+		assert.deepEqual(stripped, [
+			{type: 'Paragraph', children: [{type: 'Text', content: 'hello'}]},
+			{type: 'Hr'},
+		]);
+	});
+
+	test('trailing newline trimmed: heading split across chunks', () => {
+		const parser = new MdzStreamParser();
+		parser.feed('hello\n');
+		const ops1 = parser.take_opcodes();
+		parser.feed('\n# heading');
+		parser.finish();
+		const ops2 = parser.take_opcodes();
+		const all_ops = [...ops1, ...ops2];
+		const nodes = mdz_opcodes_to_nodes(all_ops);
+		const stripped = strip_positions(nodes);
+		assert.deepEqual(stripped, [
+			{type: 'Paragraph', children: [{type: 'Text', content: 'hello'}]},
+			{type: 'Heading', level: 1, id: 'heading', children: [{type: 'Text', content: 'heading'}]},
+		]);
+	});
+
+	test('trailing newline trimmed: multi-line paragraph break split', () => {
+		// Pattern H: feed('hello\nb\n'), take, feed('\nworld')
+		const parser = new MdzStreamParser();
+		parser.feed('hello\nb\n');
+		const ops1 = parser.take_opcodes();
+		parser.feed('\nworld');
+		parser.finish();
+		const ops2 = parser.take_opcodes();
+		const all_ops = [...ops1, ...ops2];
+		const nodes = mdz_opcodes_to_nodes(all_ops);
+		const stripped = strip_positions(nodes);
+		assert.deepEqual(stripped, [
+			{type: 'Paragraph', children: [{type: 'Text', content: 'hello\nb'}]},
+			{type: 'Paragraph', children: [{type: 'Text', content: 'world'}]},
+		]);
+	});
+
+	test('trailing newline trimmed: three chunks with mid-stream drain', () => {
+		const parser = new MdzStreamParser();
+		parser.feed('aaa\n');
+		const ops1 = parser.take_opcodes();
+		parser.feed('bbb\n');
+		const ops2 = parser.take_opcodes();
+		parser.feed('\nccc');
+		parser.finish();
+		const ops3 = parser.take_opcodes();
+		const all_ops = [...ops1, ...ops2, ...ops3];
+		const nodes = mdz_opcodes_to_nodes(all_ops);
+		const stripped = strip_positions(nodes);
+		assert.deepEqual(stripped, [
+			{type: 'Paragraph', children: [{type: 'Text', content: 'aaa\nbbb'}]},
+			{type: 'Paragraph', children: [{type: 'Text', content: 'ccc'}]},
+		]);
+	});
+
 	test('char-by-char safe fixtures match one-shot', () => {
 		const safe_fixtures = fixtures.filter((f) => is_char_by_char_safe(f.input));
 		// sanity: we should have a meaningful number of safe fixtures
