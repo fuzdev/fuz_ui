@@ -109,12 +109,18 @@ export const mdz_opcodes_to_nodes = (opcodes: Array<MdzOpcode>): Array<MdzNode> 
 			}
 
 			case 'revert': {
-				// find and remove the reverted node's frame from the stack
+				// find and remove the reverted node's frame from the stack.
+				// fast path: reverts from #revert_all_optimistic always target the
+				// top of stack, so check that first to avoid splice + array alloc.
 				let reverted_frame: StackFrame | null = null;
-				for (let i = stack.length - 1; i >= 0; i--) {
-					if (stack[i]!.id === op.id) {
-						reverted_frame = stack.splice(i, 1)[0]!;
-						break;
+				if (stack.length > 0 && stack[stack.length - 1]!.id === op.id) {
+					reverted_frame = stack.pop()!;
+				} else {
+					for (let i = stack.length - 1; i >= 0; i--) {
+						if (stack[i]!.id === op.id) {
+							reverted_frame = stack.splice(i, 1)[0]!;
+							break;
+						}
 					}
 				}
 
@@ -129,9 +135,9 @@ export const mdz_opcodes_to_nodes = (opcodes: Array<MdzOpcode>): Array<MdzNode> 
 							end: 0,
 						} as MdzTextNode);
 					}
-					// re-parent children
-					for (const child of reverted_frame.children) {
-						dest.push(child);
+					// re-parent children via bulk push for V8 optimization
+					if (reverted_frame.children.length > 0) {
+						dest.push(...reverted_frame.children);
 					}
 				}
 				break;

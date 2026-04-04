@@ -1439,32 +1439,19 @@ export class MdzStreamParser {
 				c === LEFT_BRACKET ||
 				c === RIGHT_BRACKET ||
 				c === LEFT_ANGLE ||
-				c === NEWLINE
+				c === NEWLINE ||
+				// URL/path: only break when actually at a URL or path start.
+				// Most h/./slash in prose are not URLs/paths — continuing the scan
+				// avoids the full dispatch cycle through #process_loop → #process_inline.
+				(c === 104 /* h */ &&
+					(this.#buffer.startsWith('https://', this.#pos) ||
+						this.#buffer.startsWith('http://', this.#pos))) ||
+				((c === SLASH || c === PERIOD) &&
+					(this.#buffer.charCodeAt(this.#pos - 1) === SPACE ||
+						this.#buffer.charCodeAt(this.#pos - 1) === NEWLINE ||
+						this.#buffer.charCodeAt(this.#pos - 1) === TAB))
 			) {
 				break;
-			}
-			// URL/path chars: only break when they could actually start a URL or path.
-			// Mirrors the inline checks in #process_inline but avoids the full
-			// dispatch cycle for the common case (prose h/./slash that isn't a URL/path).
-			if (c === 104 /* h */) {
-				if (
-					this.#buffer.startsWith('https://', this.#pos) ||
-					this.#buffer.startsWith('http://', this.#pos)
-				) {
-					break;
-				}
-				this.#pos++;
-				continue;
-			}
-			if (c === SLASH || c === PERIOD) {
-				// Paths require a word boundary (space/newline/tab before the char).
-				// Break to let #process_inline handle streaming edge cases.
-				const prev = this.#buffer.charCodeAt(this.#pos - 1);
-				if (prev === SPACE || prev === NEWLINE || prev === TAB) {
-					break;
-				}
-				this.#pos++;
-				continue;
 			}
 			this.#pos++;
 		}
