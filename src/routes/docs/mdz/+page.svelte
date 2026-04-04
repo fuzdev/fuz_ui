@@ -34,7 +34,7 @@ Inline links to identifiers using backticks: \`mdz_parse\`, \`Mdz\`
 A paragraph with links: [fuz homepage](https://fuz.dev), ./introduction
 
 \`\`\`ts
-const x = 42;
+const y = 1336;
 \`\`\``;
 
 	let playground_content = $state(playground_initial);
