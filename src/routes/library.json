@@ -5885,7 +5885,7 @@
 							{
 								"name": "finish",
 								"kind": "function",
-								"doc_comment": "Signal end of input. Resolves all pending state:\ncloses open blocks, reverts unclosed optimistic opens.",
+								"doc_comment": "Signal end of input. Resolves all pending state:\ncloses open blocks, reverts unclosed optimistic opens.\n\nTrailing newline trimming uses three cooperating mechanisms:\n1. `#trim_trailing_newline()` in `#close_paragraph()` — trims from the last\n   emitted text/append_text opcode (handles mid-stream paragraph breaks)\n2. Pre-flush trim below — trims unflushed `#accumulated_text` before it becomes\n   an opcode (handles trailing `\\n` from `#process_remaining()`)\n3. The pre-flush trim runs before `#revert_all_optimistic()`, so the `\\n` is\n   removed before reverts are emitted. `#trim_trailing_newline()` in\n   `#close_paragraph()` handles any remaining cases after reverts.",
 								"type_signature": "(): void",
 								"return_type": "void",
 								"parameters": []

@@ -101,6 +101,97 @@ describe('MdzStreamParser opcodes', () => {
 		const hr = ops.find((o) => o.type === 'void' && o.node_type === 'Hr');
 		assert.ok(hr);
 	});
+
+	test('bold spanning paragraph break produces revert', () => {
+		const ops = collect_opcodes('**bold\n\ntext');
+		const bold_open = ops.find((o) => o.type === 'open' && o.node_type === 'Bold');
+		assert.ok(bold_open);
+		const revert = ops.find((o) => o.type === 'revert' && o.id === bold_open!.id);
+		assert.ok(revert);
+		if (revert?.type === 'revert') assert.equal(revert.replacement_text, '**');
+	});
+
+	test('link close carries reference and link_type', () => {
+		const ops = collect_opcodes('[click](https://example.com)');
+		const link_open = ops.find((o) => o.type === 'open' && o.node_type === 'Link');
+		assert.ok(link_open);
+		const link_close = ops.find((o) => o.type === 'close' && o.id === link_open!.id);
+		assert.ok(link_close);
+		if (link_close?.type === 'close') {
+			assert.equal(link_close.reference, 'https://example.com');
+			assert.equal(link_close.link_type, 'external');
+		}
+	});
+
+	test('codeblock content emits text opcodes', () => {
+		const ops = collect_opcodes('```js\nconst x = 1;\n```\n');
+		const cb_open = ops.find((o) => o.type === 'open' && o.node_type === 'Codeblock');
+		assert.ok(cb_open);
+		if (cb_open?.type === 'open') assert.equal(cb_open.lang, 'js');
+		const text_op = ops.find((o) => o.type === 'text' && o.content === 'const x = 1;');
+		assert.ok(text_op);
+		const cb_close = ops.find((o) => o.type === 'close' && o.id === cb_open!.id);
+		assert.ok(cb_close);
+	});
+
+	test('multi-chunk bold open/content/close', () => {
+		const parser = new MdzStreamParser();
+		parser.feed('**he');
+		const ops1 = parser.take_opcodes();
+		parser.feed('llo**');
+		const ops2 = parser.take_opcodes();
+		parser.finish();
+		parser.take_opcodes();
+
+		const bold_open = ops1.find((o) => o.type === 'open' && o.node_type === 'Bold');
+		assert.ok(bold_open, 'bold should open in first chunk');
+		const bold_close = ops2.find((o) => o.type === 'close' && o.id === bold_open!.id);
+		assert.ok(bold_close, 'bold should close in second chunk');
+	});
+
+	test('multi-chunk bold with take_opcodes between does not false-revert', () => {
+		const parser = new MdzStreamParser();
+		parser.feed('**a');
+		const ops1 = parser.take_opcodes();
+		// opcodes drained — opcode array is now empty
+		parser.feed('**');
+		const ops2 = parser.take_opcodes();
+		parser.finish();
+		parser.take_opcodes();
+
+		const bold_open = ops1.find((o) => o.type === 'open' && o.node_type === 'Bold');
+		assert.ok(bold_open);
+		// should close, not revert — the bold has content "a"
+		const bold_close = ops2.find((o) => o.type === 'close' && o.id === bold_open!.id);
+		assert.ok(bold_close, 'bold with content should close, not revert after take_opcodes');
+		const revert = ops2.find((o) => o.type === 'revert' && o.id === bold_open!.id);
+		assert.ok(!revert, 'bold with content should not be reverted');
+	});
+
+	test('tag open and close produce correct opcodes', () => {
+		const ops = collect_opcodes('<Alert>warning</Alert>');
+		const tag_open = ops.find((o) => o.type === 'open' && o.node_type === 'Component');
+		assert.ok(tag_open);
+		if (tag_open?.type === 'open') assert.equal(tag_open.name, 'Alert');
+		const tag_close = ops.find((o) => o.type === 'close' && o.id === tag_open!.id);
+		assert.ok(tag_close);
+	});
+
+	test('revert re-parents children to grandparent', () => {
+		// unclosed bold inside paragraph — children should end up in paragraph
+		const result = strip_positions(stream_parse('**hello'));
+		// should produce Paragraph with text "**hello" (reverted bold + re-parented text)
+		assert.equal(result.length, 1);
+		const para = result[0] as Record<string, unknown>;
+		assert.equal(para.type, 'Paragraph');
+		const children = para.children as Array<Record<string, unknown>>;
+		assert.ok(children.length >= 1);
+		// all content should be text
+		const all_text = children.every((c) => c.type === 'Text');
+		assert.ok(all_text);
+		const full_text = children.map((c) => c.content).join('');
+		assert.equal(full_text, '**hello');
+	});
 });
 
 // -- Fixture-based tests --
