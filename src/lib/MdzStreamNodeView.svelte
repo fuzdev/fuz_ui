@@ -48,7 +48,9 @@
 {:else if node.type === 'Text'}
 	{node.content}
 {:else if node.type === 'Code'}
-	<DocsLink reference={node.content} />
+	{@const content =
+		node.children.length > 0 ? node.children.map((c) => c.content).join('') : node.content}
+	<DocsLink reference={content} />
 {:else if node.type === 'Bold'}
 	<strong>{@render render_children(node.children)}</strong>
 {:else if node.type === 'Italic'}

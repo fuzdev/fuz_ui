@@ -8,6 +8,7 @@ import type {
 	MdzOpcodeAppendText,
 	MdzOpcodeVoid,
 	MdzOpcodeRevert,
+	MdzOpcodeWrap,
 } from '$lib/mdz_opcodes.js';
 
 // -- Helpers --
@@ -364,6 +365,96 @@ describe('MdzStreamState', () => {
 			assert.equal(para.children[0]!.type, 'Bold');
 			assert.equal(para.children[0]!.children[0]!.content, 'bold');
 			assert.equal(para.children[1]!.content, ' text');
+		});
+	});
+
+	describe('wrap opcode', () => {
+		const wrap = (
+			id: number,
+			target_id: number,
+			reference: string,
+			link_type: 'external' | 'internal' = 'external',
+			start = 0,
+			end = 0,
+		): MdzOpcodeWrap => ({
+			type: 'wrap',
+			id,
+			node_type: 'Link',
+			target_id,
+			reference,
+			link_type,
+			start,
+			end,
+		});
+
+		test('wrap converts text node to link', () => {
+			const state = new MdzStreamState();
+			state.apply(open_paragraph(1));
+			state.apply(text(2, 'https://example.com'));
+			state.apply(wrap(3, 2, 'https://example.com'));
+			state.apply(close(1));
+
+			const para = state.root[0]!;
+			assert.equal(para.children.length, 1);
+			const link = para.children[0]!;
+			assert.equal(link.type, 'Link');
+			assert.equal(link.reference, 'https://example.com');
+			assert.equal(link.link_type, 'external');
+			assert.equal(link.children.length, 1);
+			assert.equal(link.children[0]!.content, 'https://example.com');
+		});
+
+		test('wrap with trim_end splits text node', () => {
+			const state = new MdzStreamState();
+			state.apply(open_paragraph(1));
+			state.apply(text(2, 'https://example.com.'));
+			state.apply({
+				type: 'wrap',
+				id: 3,
+				node_type: 'Link',
+				target_id: 2,
+				reference: 'https://example.com',
+				link_type: 'external',
+				start: 0,
+				end: 19,
+				trim_end: 1,
+				trim_id: 4,
+			});
+			state.apply(close(1));
+
+			const para = state.root[0]!;
+			assert.equal(para.children.length, 2);
+			assert.equal(para.children[0]!.type, 'Link');
+			assert.equal(para.children[0]!.children[0]!.content, 'https://example.com');
+			assert.equal(para.children[1]!.type, 'Text');
+			assert.equal(para.children[1]!.content, '.');
+		});
+
+		test('wrap with preceding text preserves order', () => {
+			const state = new MdzStreamState();
+			state.apply(open_paragraph(1));
+			state.apply(text(2, 'see '));
+			state.apply(text(3, 'https://example.com'));
+			state.apply(wrap(4, 3, 'https://example.com'));
+			state.apply(close(1));
+
+			const para = state.root[0]!;
+			assert.equal(para.children.length, 2);
+			assert.equal(para.children[0]!.content, 'see ');
+			assert.equal(para.children[1]!.type, 'Link');
+		});
+
+		test('wrap for unknown target_id throws in DEV', () => {
+			const state = new MdzStreamState();
+			state.apply(open_paragraph(1));
+			assert.throws(() => state.apply(wrap(2, 99, 'url')), /wrap target_id 99 not in nodes/);
+		});
+
+		test('wrap with duplicate id throws in DEV', () => {
+			const state = new MdzStreamState();
+			state.apply(open_paragraph(1));
+			state.apply(text(2, 'url'));
+			assert.throws(() => state.apply(wrap(1, 2, 'url')), /wrap id 1 already exists in nodes/);
 		});
 	});
 });

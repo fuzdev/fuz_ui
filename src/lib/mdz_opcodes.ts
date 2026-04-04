@@ -28,7 +28,8 @@ export type MdzContainerNodeType =
 	| 'Heading'
 	| 'Element'
 	| 'Component'
-	| 'Codeblock';
+	| 'Codeblock'
+	| 'Code';
 
 /** Node types for self-contained leaf elements. */
 export type MdzVoidNodeType = 'Hr';
@@ -136,6 +137,37 @@ export interface MdzOpcodeRevert {
 	wrap_id?: MdzNodeId;
 }
 
+/**
+ * Retroactively wrap an existing text node in a container.
+ * Used for text-first auto-links: URL/path text streams as plain text,
+ * then gets wrapped in a Link when the URL boundary is found.
+ *
+ * When `trim_end` is set, trailing characters (punctuation) are trimmed
+ * from the target text node and placed in a new sibling Text node after
+ * the Link wrapper, identified by `trim_id`.
+ */
+export interface MdzOpcodeWrap {
+	type: 'wrap';
+	/** ID for the new Link container node. */
+	id: MdzNodeId;
+	/** Container type to wrap in (always `'Link'` for now). */
+	node_type: 'Link';
+	/** ID of the existing text node to wrap. */
+	target_id: MdzNodeId;
+	/** Resolved URL or path reference. */
+	reference: string;
+	/** Whether the link is external (URL) or internal (path). */
+	link_type: 'external' | 'internal';
+	/** Byte offset where the URL/path begins. */
+	start: number;
+	/** Byte offset immediately after the URL/path (before any trimmed punctuation). */
+	end: number;
+	/** Number of trailing chars to trim from target and place after the link. */
+	trim_end?: number;
+	/** ID for the trimmed-text sibling node. Required when `trim_end` > 0. */
+	trim_id?: MdzNodeId;
+}
+
 /** Discriminated union of all mdz opcodes. */
 export type MdzOpcode =
 	| MdzOpcodeOpen
@@ -143,4 +175,5 @@ export type MdzOpcode =
 	| MdzOpcodeText
 	| MdzOpcodeAppendText
 	| MdzOpcodeVoid
-	| MdzOpcodeRevert;
+	| MdzOpcodeRevert
+	| MdzOpcodeWrap;

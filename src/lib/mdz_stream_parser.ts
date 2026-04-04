@@ -63,6 +63,9 @@ import {
 	mdz_heading_id_from_text,
 } from './mdz_helpers.js';
 
+const HTTPS_PREFIX = 'https://';
+const HTTP_PREFIX = 'http://';
+
 interface StackEntry {
 	id: MdzNodeId;
 	node_type: MdzContainerNodeType;
@@ -108,8 +111,29 @@ export class MdzStreamParser {
 	#base_offset = 0;
 	/** Whether we're inside a heading (newline ends it). */
 	#in_heading = false;
+	/** Whether we're inside an optimistic inline Code container. */
+	#in_code = false;
 	/** Cached flag: whether a Paragraph is open on the stack. */
 	#in_paragraph = false;
+	/**
+	 * Pending auto-link URL/path state for text-first rendering.
+	 * When set, URL chars flow as visible text. On terminator, a `wrap` opcode
+	 * retroactively wraps the text node in a Link.
+	 *
+	 * For URLs, `confirmed` starts false during speculative prefix matching
+	 * (chars stream as text while we verify `https://` or `http://`).
+	 * For paths, `confirmed` starts true (prefix already validated by hold).
+	 */
+	#pending_url: {
+		url_text: string;
+		start: number;
+		link_type: 'external' | 'internal';
+		/** Whether the URL/path prefix has been fully confirmed. */
+		confirmed: boolean;
+		/** Prefix match tracking — only used when `!confirmed`. */
+		viable_https: boolean;
+		viable_http: boolean;
+	} | null = null;
 	/**
 	 * Stack of text segments for heading ID computation.
 	 * Each open container inside a heading pushes a new segment.
@@ -153,6 +177,11 @@ export class MdzStreamParser {
 		// process any remaining buffer
 		if (this.#buffer.length > 0) {
 			this.#process_remaining();
+		}
+		// finalize pending URL if any (text-first auto-links)
+		if (this.#pending_url !== null) {
+			this.#flush_text();
+			this.#complete_pending_url();
 		}
 		// pre-flush trim: remove trailing \n from accumulated text before it's emitted
 		if (this.#accumulated_text.endsWith('\n')) {
@@ -233,6 +262,18 @@ export class MdzStreamParser {
 					return;
 				}
 				if (!this.#process_codeblock()) return; // need more input
+				continue;
+			}
+
+			// optimistic inline code mode — raw scanning for close/revert
+			if (this.#in_code) {
+				this.#process_code_content();
+				continue;
+			}
+
+			// text-first URL/path scanning mode
+			if (this.#pending_url !== null) {
+				this.#process_url_content(forced);
 				continue;
 			}
 
@@ -713,6 +754,7 @@ export class MdzStreamParser {
 				// revert everything above the paragraph
 				while (this.#stack.length - 1 > i) {
 					const entry = this.#stack.pop()!;
+					if (entry.node_type === 'Code') this.#in_code = false;
 					this.#emit({
 						type: 'revert',
 						id: entry.id,
@@ -916,10 +958,15 @@ export class MdzStreamParser {
 			// not a valid tag — fall through to text
 		}
 
-		// auto-detected URLs
+		// auto-detected URLs (text-first speculative prefix matching)
 		if (char_code === 104 /* h */) {
-			const result = this.#try_auto_url(forced);
-			if (result !== null) return result;
+			if (forced) {
+				const result = this.#try_auto_url_forced();
+				if (result !== null) return result;
+			} else if (this.#prev_char === -1 || !is_word_char(this.#prev_char)) {
+				// word boundary — start speculative URL prefix matching
+				return this.#start_speculative_url();
+			}
 		}
 
 		// auto-detected paths
@@ -1212,8 +1259,37 @@ export class MdzStreamParser {
 			return true;
 		}
 
-		// buffer ended without close or newline — need more input
-		return false;
+		// buffer ended without close or newline.
+		// If formatting is on the stack, hold — the formatting delimiter might appear
+		// in the next chunk between the backtick and its closer, and going optimistic
+		// would make the code span consume the formatting closer as raw text.
+		if (this.#has_inline_formatting_on_stack()) {
+			return false; // hold for more input
+		}
+
+		// no formatting on stack — open Code optimistically.
+		// Content streams via text/append_text inside the container.
+		// Closes on matching backtick, reverts on newline.
+		this.#flush_text();
+		this.#ensure_paragraph();
+		const id = this.#alloc_id();
+		const code_start = this.#offset(start);
+		this.#emit({type: 'open', id, node_type: 'Code', start: code_start});
+		this.#stack.push({
+			id,
+			node_type: 'Code',
+			optimistic: true,
+			delimiter: '`',
+			tag_name: undefined,
+			has_children: false,
+			start: code_start,
+		});
+		this.#in_code = true;
+		this.#active_text_id = null;
+		this.#pos = start + 1; // past opening backtick
+		this.#column++;
+		this.#prev_char = BACKTICK;
+		return true;
 	}
 
 	/**
@@ -1235,6 +1311,71 @@ export class MdzStreamParser {
 			}
 		}
 		return limit;
+	}
+
+	/**
+	 * Check if any inline formatting container (Bold, Italic, Strikethrough, Link)
+	 * is on the stack above the current block boundary.
+	 * Used to decide whether backtick can go optimistic — when formatting is open,
+	 * the code span might cross the formatting boundary, so we hold instead.
+	 */
+	#has_inline_formatting_on_stack(): boolean {
+		for (let s = this.#stack.length - 1; s >= 0; s--) {
+			const entry = this.#stack[s]!;
+			if (entry.node_type === 'Paragraph' || entry.node_type === 'Heading') return false;
+			if (entry.delimiter) return true;
+		}
+		return false;
+	}
+
+	/**
+	 * Process content inside an optimistic inline Code container.
+	 * Scans raw text (no inline formatting) until closing backtick or newline.
+	 * Backtick closes (or reverts if empty). Newline reverts (code can't span lines).
+	 */
+	#process_code_content(): void {
+		const char_code = this.#buffer.charCodeAt(this.#pos);
+
+		if (char_code === BACKTICK) {
+			this.#flush_text();
+			const entry = this.#stack.pop()!;
+			if (!entry.has_children) {
+				// empty code `` — revert opener, accumulate closer as text
+				this.#emit({type: 'revert', id: entry.id, replacement_text: '`', start: entry.start});
+				this.#accumulate_text('`', this.#offset());
+			} else {
+				this.#emit({type: 'close', id: entry.id, end: this.#offset() + 1});
+			}
+			this.#in_code = false;
+			this.#active_text_id = null;
+			this.#pos++;
+			this.#column++;
+			this.#prev_char = BACKTICK;
+			return;
+		}
+
+		if (char_code === NEWLINE) {
+			// code spans can't cross lines — revert
+			this.#flush_text();
+			const entry = this.#stack.pop()!;
+			this.#emit({type: 'revert', id: entry.id, replacement_text: '`', start: entry.start});
+			this.#in_code = false;
+			this.#active_text_id = null;
+			// don't consume newline — outer loop handles it
+			return;
+		}
+
+		// scan raw text until backtick or newline (paragraph already ensured at code open)
+		const start = this.#pos;
+		this.#pos++;
+		while (this.#pos < this.#buffer.length) {
+			const c = this.#buffer.charCodeAt(this.#pos);
+			if (c === BACKTICK || c === NEWLINE) break;
+			this.#pos++;
+		}
+		this.#accumulate_text(this.#buffer.slice(start, this.#pos), this.#offset(start));
+		this.#prev_char = this.#buffer.charCodeAt(this.#pos - 1);
+		this.#column += this.#pos - start;
 	}
 
 	// -- Links --
@@ -1493,41 +1634,32 @@ export class MdzStreamParser {
 		return true;
 	}
 
-	// -- Auto URLs --
+	// -- Auto URLs (text-first) --
 
-	#try_auto_url(forced = false): boolean | null {
+	/**
+	 * Forced-mode URL detection: the full prefix must be in the buffer.
+	 * Used at EOF when speculative prefix matching isn't needed.
+	 */
+	#try_auto_url_forced(): boolean | null {
+		if (this.#prev_char !== -1 && is_word_char(this.#prev_char)) return null;
+
 		let prefix_len = 0;
 		if (this.#buffer.startsWith('https://', this.#pos)) {
 			prefix_len = HTTPS_PREFIX_LENGTH;
 		} else if (this.#buffer.startsWith('http://', this.#pos)) {
 			prefix_len = HTTP_PREFIX_LENGTH;
 		}
-		if (prefix_len === 0) return null; // not a URL
+		if (prefix_len === 0) return null;
 
 		// must have content after protocol
-		if (this.#pos + prefix_len >= this.#buffer.length) return false;
+		if (this.#pos + prefix_len >= this.#buffer.length) return null;
 		const after = this.#buffer.charCodeAt(this.#pos + prefix_len);
-		if (after === SPACE || after === NEWLINE) return null; // not a valid URL
+		if (after === SPACE || after === NEWLINE) return null;
 
-		// collect URL characters
-		let i = this.#pos + prefix_len;
-		while (i < this.#buffer.length) {
-			const c = this.#buffer.charCodeAt(i);
-			if (c === SPACE || c === NEWLINE || !is_valid_path_char(c)) break;
-			i++;
-		}
-
-		// if buffer ended mid-URL, need more input (unless forced)
-		if (i >= this.#buffer.length && !forced) return false;
-
-		let reference = this.#buffer.slice(this.#pos, i);
-		reference = trim_trailing_punctuation(reference);
-		if (reference.length <= prefix_len) return null; // just protocol, no content
-
-		return this.#emit_auto_link(reference, 'external');
+		return this.#scan_auto_link_forced('external');
 	}
 
-	// -- Auto paths --
+	// -- Auto paths (text-first) --
 
 	#try_auto_path_absolute(forced = false): boolean | null {
 		// must be at word boundary (preceded by space/newline/start)
@@ -1547,7 +1679,8 @@ export class MdzStreamParser {
 			return null; // not a valid path start
 		}
 
-		return this.#consume_auto_path('internal', forced);
+		if (forced) return this.#scan_auto_link_forced('internal');
+		return this.#start_pending_url('internal');
 	}
 
 	#try_auto_path_relative(forced = false): boolean | null {
@@ -1574,7 +1707,8 @@ export class MdzStreamParser {
 			if (after === SPACE || after === NEWLINE || after === TAB || after === SLASH) {
 				return null; // not a valid path
 			}
-			return this.#consume_auto_path('internal', forced);
+			if (forced) return this.#scan_auto_link_forced('internal');
+			return this.#start_pending_url('internal');
 		}
 
 		if (this.#buffer.charCodeAt(this.#pos + 1) === SLASH) {
@@ -1583,13 +1717,195 @@ export class MdzStreamParser {
 			if (after === SPACE || after === NEWLINE || after === TAB || after === SLASH) {
 				return null; // not a valid path
 			}
-			return this.#consume_auto_path('internal', forced);
+			if (forced) return this.#scan_auto_link_forced('internal');
+			return this.#start_pending_url('internal');
 		}
 
 		return null; // not ./ or ../
 	}
 
-	#consume_auto_path(link_type: 'external' | 'internal', forced = false): boolean | null {
+	/**
+	 * Start confirmed text-first mode for paths. Prefix already validated by hold.
+	 * Flushes prior text, resets active_text_id, sets #pending_url with confirmed=true.
+	 */
+	#start_pending_url(link_type: 'external' | 'internal'): boolean {
+		this.#flush_text();
+		this.#ensure_paragraph();
+		this.#active_text_id = null;
+		this.#pending_url = {
+			url_text: '',
+			start: this.#offset(),
+			link_type,
+			confirmed: true,
+			viable_https: false,
+			viable_http: false,
+		};
+		// don't advance pos — URL chars start at current position, handled by #process_url_content
+		return true;
+	}
+
+	/**
+	 * Start speculative text-first mode for URL prefixes.
+	 * Chars stream as visible text while we verify `https://` or `http://`.
+	 * Cancels if prefix doesn't match (text stays as plain text).
+	 */
+	#start_speculative_url(): boolean {
+		this.#flush_text();
+		this.#ensure_paragraph();
+		this.#active_text_id = null;
+		this.#pending_url = {
+			url_text: '',
+			start: this.#offset(),
+			link_type: 'external',
+			confirmed: false,
+			viable_https: true,
+			viable_http: true,
+		};
+		return true;
+	}
+
+	/**
+	 * Speculative URL prefix matching. Checks each char against viable prefixes,
+	 * streaming as text. Confirms on full match, cancels on mismatch.
+	 */
+	#process_url_prefix(): void {
+		const pu = this.#pending_url!;
+		const char_code = this.#buffer.charCodeAt(this.#pos);
+		const pos = pu.url_text.length;
+
+		// narrow viable prefixes
+		if (pu.viable_https && (pos >= HTTPS_PREFIX.length || char_code !== HTTPS_PREFIX.charCodeAt(pos))) {
+			pu.viable_https = false;
+		}
+		if (pu.viable_http && (pos >= HTTP_PREFIX.length || char_code !== HTTP_PREFIX.charCodeAt(pos))) {
+			pu.viable_http = false;
+		}
+
+		if (!pu.viable_https && !pu.viable_http) {
+			// no viable prefix — cancel speculation, don't consume char
+			this.#pending_url = null;
+			return;
+		}
+
+		// char matches — accumulate as text
+		this.#accumulate_text(this.#buffer[this.#pos]!, this.#offset());
+		pu.url_text += this.#buffer[this.#pos];
+		this.#pos++;
+		this.#column++;
+		this.#prev_char = char_code;
+
+		// check if a prefix is fully confirmed
+		if (
+			(pu.viable_https && pos + 1 === HTTPS_PREFIX.length) ||
+			(pu.viable_http && pos + 1 === HTTP_PREFIX.length)
+		) {
+			pu.confirmed = true;
+		}
+	}
+
+	/**
+	 * Process URL/path chars in text-first mode. Scans path chars,
+	 * accumulates as visible text. Terminates on space/newline/non-path-char
+	 * and emits a `wrap` opcode.
+	 */
+	#process_url_content(forced: boolean): void {
+		// speculative prefix matching phase
+		if (!this.#pending_url!.confirmed) {
+			this.#process_url_prefix();
+			return;
+		}
+
+		const char_code = this.#buffer.charCodeAt(this.#pos);
+
+		// URL terminator
+		if (char_code === SPACE || char_code === NEWLINE || !is_valid_path_char(char_code)) {
+			this.#flush_text();
+			this.#complete_pending_url();
+			// don't consume terminator — outer loop handles it
+			return;
+		}
+
+		// scan URL chars
+		const start = this.#pos;
+		this.#pos++;
+		while (this.#pos < this.#buffer.length) {
+			const c = this.#buffer.charCodeAt(this.#pos);
+			if (c === SPACE || c === NEWLINE || !is_valid_path_char(c)) break;
+			this.#pos++;
+		}
+		const text = this.#buffer.slice(start, this.#pos);
+		this.#accumulate_text(text, this.#offset(start));
+		this.#pending_url!.url_text += text;
+		this.#prev_char = this.#buffer.charCodeAt(this.#pos - 1);
+		this.#column += this.#pos - start;
+
+		// at EOF in forced mode, finalize the URL
+		if (this.#pos >= this.#buffer.length && forced) {
+			this.#flush_text();
+			this.#complete_pending_url();
+		}
+	}
+
+	/**
+	 * Complete a pending URL: compute reference with trimmed punctuation,
+	 * emit a `wrap` opcode to retroactively wrap the text node in a Link.
+	 */
+	#complete_pending_url(): void {
+		const pu = this.#pending_url!;
+		this.#pending_url = null;
+
+		const reference = trim_trailing_punctuation(pu.url_text);
+		if (reference.length === 0) return; // empty after trimming — text stays as plain text
+
+		// for external URLs, must have content after protocol prefix
+		if (pu.link_type === 'external') {
+			const is_https = reference.startsWith('https://');
+			const min_len = is_https ? HTTPS_PREFIX_LENGTH + 1 : HTTP_PREFIX_LENGTH + 1;
+			if (reference.length < min_len) return; // just protocol, no content
+		}
+
+		const text_id = this.#active_text_id;
+		if (text_id === null) return; // no text node to wrap (shouldn't happen)
+
+		const trim_end = pu.url_text.length - reference.length;
+		const wrap_id = this.#alloc_id();
+		const url_end = pu.start + reference.length;
+
+		if (trim_end > 0) {
+			const trim_id = this.#alloc_id();
+			this.#emit({
+				type: 'wrap',
+				id: wrap_id,
+				node_type: 'Link',
+				target_id: text_id,
+				reference,
+				link_type: pu.link_type,
+				start: pu.start,
+				end: url_end,
+				trim_end,
+				trim_id,
+			});
+			this.#active_text_id = trim_id;
+		} else {
+			this.#emit({
+				type: 'wrap',
+				id: wrap_id,
+				node_type: 'Link',
+				target_id: text_id,
+				reference,
+				link_type: pu.link_type,
+				start: pu.start,
+				end: url_end,
+			});
+			this.#active_text_id = null;
+		}
+	}
+
+	/**
+	 * Forced-mode auto-link: scan the full URL/path inline (no streaming needed
+	 * at EOF). Used when forced=true — the entire URL must be in the buffer.
+	 */
+	#scan_auto_link_forced(link_type: 'external' | 'internal'): boolean | null {
 		let i = this.#pos;
 		while (i < this.#buffer.length) {
 			const c = this.#buffer.charCodeAt(i);
@@ -1597,17 +1913,17 @@ export class MdzStreamParser {
 			i++;
 		}
 
-		// if buffer ended mid-path, need more input (unless forced)
-		if (i >= this.#buffer.length && !forced) return false;
-
 		let reference = this.#buffer.slice(this.#pos, i);
 		reference = trim_trailing_punctuation(reference);
-		if (reference.length === 0) return null; // empty path after trimming
+		if (reference.length === 0) return null;
 
-		return this.#emit_auto_link(reference, link_type);
-	}
+		// for external URLs, must have content after protocol prefix
+		if (link_type === 'external') {
+			const is_https = reference.startsWith('https://');
+			const min_len = is_https ? HTTPS_PREFIX_LENGTH + 1 : HTTP_PREFIX_LENGTH + 1;
+			if (reference.length < min_len) return null;
+		}
 
-	#emit_auto_link(reference: string, link_type: 'external' | 'internal'): boolean {
 		const end_pos = this.#pos + reference.length;
 		const link_start = this.#offset();
 		const link_end = this.#offset(end_pos);
@@ -1806,6 +2122,7 @@ export class MdzStreamParser {
 	#revert_above(target_idx: number): void {
 		while (this.#stack.length - 1 > target_idx) {
 			const entry = this.#stack.pop()!;
+			if (entry.node_type === 'Code') this.#in_code = false;
 			if (entry.optimistic) {
 				this.#emit({
 					type: 'revert',
@@ -1828,6 +2145,7 @@ export class MdzStreamParser {
 			const top = this.#stack[this.#stack.length - 1]!;
 			if (top.node_type === 'Paragraph' || top.node_type === 'Heading') break;
 			this.#stack.pop();
+			if (top.node_type === 'Code') this.#in_code = false;
 			if (top.optimistic) {
 				this.#emit({type: 'revert', id: top.id, replacement_text: top.delimiter, start: top.start});
 			} else {

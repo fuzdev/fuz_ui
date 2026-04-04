@@ -11,6 +11,7 @@ import type {
 	MdzOpcodeAppendText,
 	MdzOpcodeVoid,
 	MdzOpcodeRevert,
+	MdzOpcodeWrap,
 } from '$lib/mdz_opcodes.js';
 import {load_fixtures, type MdzFixture} from './fixtures/mdz/mdz_test_helpers.js';
 
@@ -244,6 +245,351 @@ describe('MdzStreamParser opcodes', () => {
 		const all_ops = [...ops1, ...ops2, ...ops3];
 		const result = mdz_opcodes_to_nodes(all_ops);
 		assert.deepEqual(result, mdz_parse('````\n```'));
+	});
+
+	// -- Optimistic inline code streaming --
+
+	test('inline code opens optimistically when closer not in buffer', () => {
+		const parser = new MdzStreamParser();
+		parser.feed('`co');
+		const ops = parser.take_opcodes();
+		const code_open = ops.find(
+			(o): o is MdzOpcodeOpen => o.type === 'open' && o.node_type === 'Code',
+		);
+		assert.ok(code_open, 'open(Code) should be emitted when buffer ends without closer');
+	});
+
+	test('optimistic code closes on matching backtick in next chunk', () => {
+		const parser = new MdzStreamParser();
+		parser.feed('`co');
+		const ops1 = parser.take_opcodes();
+		const code_open = ops1.find(
+			(o): o is MdzOpcodeOpen => o.type === 'open' && o.node_type === 'Code',
+		);
+		assert.ok(code_open);
+
+		parser.feed('de`');
+		parser.finish();
+		const ops2 = parser.take_opcodes();
+		const code_close = ops2.find(
+			(o): o is MdzOpcodeClose => o.type === 'close' && o.id === code_open.id,
+		);
+		assert.ok(code_close, 'close(Code) should arrive with closing backtick chunk');
+
+		// verify final tree matches single-pass
+		const all_ops = [...ops1, ...ops2];
+		const result = mdz_opcodes_to_nodes(all_ops);
+		assert.deepEqual(result, mdz_parse('`code`'));
+	});
+
+	test('optimistic code reverts on newline', () => {
+		const parser = new MdzStreamParser();
+		parser.feed('`unclosed');
+		const ops1 = parser.take_opcodes();
+		const code_open = ops1.find(
+			(o): o is MdzOpcodeOpen => o.type === 'open' && o.node_type === 'Code',
+		);
+		assert.ok(code_open);
+
+		parser.feed('\nmore');
+		parser.finish();
+		const ops2 = parser.take_opcodes();
+		const has_revert = ops2.some(
+			(o): o is MdzOpcodeRevert => o.type === 'revert' && o.id === code_open.id,
+		);
+		assert.ok(has_revert, 'code should revert on newline');
+
+		// verify final tree matches single-pass
+		const all_ops = [...ops1, ...ops2];
+		const result = mdz_opcodes_to_nodes(all_ops);
+		assert.deepEqual(result, mdz_parse('`unclosed\nmore'));
+	});
+
+	test('code inside formatting stays buffered (not optimistic)', () => {
+		const parser = new MdzStreamParser();
+		parser.feed('**bold `co');
+		const ops = parser.take_opcodes();
+		// should NOT have open(Code) — backtick inside Bold holds
+		const code_open = ops.find(
+			(o): o is MdzOpcodeOpen => o.type === 'open' && o.node_type === 'Code',
+		);
+		assert.ok(!code_open, 'backtick inside formatting should not open Code optimistically');
+	});
+
+	test('optimistic code content streams via text/append_text', () => {
+		const parser = new MdzStreamParser();
+		parser.feed('`hel');
+		const ops1 = parser.take_opcodes();
+		const code_open = ops1.find(
+			(o): o is MdzOpcodeOpen => o.type === 'open' && o.node_type === 'Code',
+		);
+		assert.ok(code_open, 'Code should open before content streams');
+		// text opcode should appear after the Code open
+		const code_open_idx = ops1.indexOf(code_open);
+		const text_idx = ops1.findIndex(
+			(o) => (o.type === 'text' || o.type === 'append_text') && o.content.includes('hel'),
+		);
+		assert.ok(text_idx > code_open_idx, 'code content text should follow open(Code)');
+
+		parser.feed('lo`');
+		parser.finish();
+		const ops2 = parser.take_opcodes();
+
+		const all_ops = [...ops1, ...ops2];
+		const result = mdz_opcodes_to_nodes(all_ops);
+		assert.deepEqual(result, mdz_parse('`hello`'));
+	});
+
+	test('optimistic code handles single-char chunks', () => {
+		const parser = new MdzStreamParser();
+		for (const c of '`hello`') {
+			parser.feed(c);
+		}
+		parser.finish();
+		const result = mdz_opcodes_to_nodes(parser.take_opcodes());
+		assert.deepEqual(result, mdz_parse('`hello`'));
+	});
+
+	test('optimistic code reverts at EOF (unclosed)', () => {
+		const result = stream_parse('`unclosed');
+		assert.deepEqual(result, mdz_parse('`unclosed'));
+	});
+
+	test('optimistic code reverts on paragraph break', () => {
+		const result = stream_parse('`unclosed\n\nmore');
+		assert.deepEqual(result, mdz_parse('`unclosed\n\nmore'));
+	});
+
+	test('backtick immediately followed by newline reverts', () => {
+		const parser = new MdzStreamParser();
+		parser.feed('a`');
+		const ops1 = parser.take_opcodes();
+		const code_open = ops1.find(
+			(o): o is MdzOpcodeOpen => o.type === 'open' && o.node_type === 'Code',
+		);
+		assert.ok(code_open);
+
+		parser.feed('\nb');
+		parser.finish();
+		const ops2 = parser.take_opcodes();
+		const has_revert = ops2.some(
+			(o): o is MdzOpcodeRevert => o.type === 'revert' && o.id === code_open.id,
+		);
+		assert.ok(has_revert, 'code should revert on immediate newline');
+
+		const all_ops = [...ops1, ...ops2];
+		const result = mdz_opcodes_to_nodes(all_ops);
+		assert.deepEqual(result, mdz_parse('a`\nb'));
+	});
+
+	test('empty optimistic code reverts to literal backticks', () => {
+		const parser = new MdzStreamParser();
+		parser.feed('a`');
+		const ops1 = parser.take_opcodes();
+		parser.feed('`b');
+		parser.finish();
+		const ops2 = parser.take_opcodes();
+
+		const all_ops = [...ops1, ...ops2];
+		const result = mdz_opcodes_to_nodes(all_ops);
+		assert.deepEqual(result, mdz_parse('a``b'));
+	});
+
+	// -- Text-first auto-link streaming (wrap opcode) --
+
+	test('URL streams as text then wrap converts to link', () => {
+		const parser = new MdzStreamParser();
+		parser.feed('see https://exam');
+		const ops1 = parser.take_opcodes();
+		// text should be visible (not buffered)
+		const has_text = ops1.some(
+			(o) => (o.type === 'text' || o.type === 'append_text') && o.content.includes('https://'),
+		);
+		assert.ok(has_text, 'URL text should stream before terminator');
+
+		parser.feed('ple.com rest');
+		parser.finish();
+		const ops2 = parser.take_opcodes();
+		const wrap_op = ops2.find((o): o is MdzOpcodeWrap => o.type === 'wrap');
+		assert.ok(wrap_op, 'wrap opcode should be emitted when URL terminates');
+		assert.equal(wrap_op.node_type, 'Link');
+		assert.equal(wrap_op.reference, 'https://example.com');
+		assert.equal(wrap_op.link_type, 'external');
+
+		// verify final tree matches single-pass
+		const all_ops = [...ops1, ...ops2];
+		const result = mdz_opcodes_to_nodes(all_ops);
+		assert.deepEqual(result, mdz_parse('see https://example.com rest'));
+	});
+
+	test('URL with trailing punctuation trims correctly', () => {
+		const result = stream_parse('visit https://example.com.');
+		assert.deepEqual(result, mdz_parse('visit https://example.com.'));
+	});
+
+	test('URL with multiple trailing punctuation chars', () => {
+		const result = stream_parse('see https://example.com...');
+		assert.deepEqual(result, mdz_parse('see https://example.com...'));
+	});
+
+	test('bare protocol with no content is not a link', () => {
+		const result = stream_parse('see https:// ok');
+		assert.deepEqual(result, mdz_parse('see https:// ok'));
+	});
+
+	test('URL with preceding text and trailing punctuation', () => {
+		const result = stream_parse('visit https://example.com, ok');
+		assert.deepEqual(result, mdz_parse('visit https://example.com, ok'));
+	});
+
+	test('http:// URL detected and wrapped', () => {
+		const result = stream_parse('see http://example.com ok');
+		assert.deepEqual(result, mdz_parse('see http://example.com ok'));
+	});
+
+	test('partial URL prefix streams as text then confirms', () => {
+		const parser = new MdzStreamParser();
+		parser.feed('see ');
+		parser.feed('htt');
+		const ops1 = parser.take_opcodes();
+		// 'htt' should stream as visible text (speculative prefix, not held)
+		const has_htt = ops1.some(
+			(o) => (o.type === 'text' || o.type === 'append_text') && o.content.includes('htt'),
+		);
+		assert.ok(has_htt, 'partial URL prefix should stream as text immediately');
+
+		parser.feed('ps://example.com ok');
+		parser.finish();
+		const ops2 = parser.take_opcodes();
+		const all_ops = [...ops1, ...ops2];
+		const result = mdz_opcodes_to_nodes(all_ops);
+		assert.deepEqual(result, mdz_parse('see https://example.com ok'));
+	});
+
+	test('non-URL h-word is not held beyond one char', () => {
+		const parser = new MdzStreamParser();
+		parser.feed('see ');
+		parser.feed('he');
+		const ops = parser.take_opcodes();
+		// 'he' doesn't match 'ht...' — should be consumed as text
+		const has_he = ops.some(
+			(o) => (o.type === 'text' || o.type === 'append_text') && o.content.includes('he'),
+		);
+		assert.ok(has_he, 'non-matching prefix should be consumed as text immediately');
+	});
+
+	test('URL after word char is not detected (no word boundary)', () => {
+		const result = stream_parse('xhttps://example.com');
+		// intentional divergence from mdz_parse: streaming parser requires word boundary
+		assert.equal(result.length, 1);
+		assert.equal(result[0]!.type, 'Paragraph');
+		const para = result[0]! as {children: Array<{type: string; content?: string}>};
+		assert.equal(para.children.length, 1);
+		assert.equal(para.children[0]!.type, 'Text');
+		assert.equal(para.children[0]!.content, 'xhttps://example.com');
+	});
+
+	test('URL after digit is not detected (no word boundary)', () => {
+		const result = stream_parse('1https://example.com');
+		const para = result[0]! as {children: Array<{type: string; content?: string}>};
+		assert.equal(para.children.length, 1);
+		assert.equal(para.children[0]!.type, 'Text');
+	});
+
+	test('URL after punctuation is detected (word boundary)', () => {
+		const result = stream_parse('(https://example.com)');
+		assert.deepEqual(result, mdz_parse('(https://example.com)'));
+	});
+
+	test('URL after quote is detected (word boundary)', () => {
+		const result = stream_parse('"https://example.com"');
+		assert.deepEqual(result, mdz_parse('"https://example.com"'));
+	});
+
+	test('URL with balanced parens in path preserves them', () => {
+		const result = stream_parse('see https://en.wikipedia.org/wiki/Foo_(bar) ok');
+		assert.deepEqual(result, mdz_parse('see https://en.wikipedia.org/wiki/Foo_(bar) ok'));
+	});
+
+	test('speculation cancels then URL detected on retry', () => {
+		const result = stream_parse('hhttps://example.com https://example.com');
+		const para = result[0]! as {children: Array<{type: string; content?: string; reference?: string}>};
+		// first h starts speculation, second h fails it, so hhttps://example.com is text
+		// then space, then URL is detected
+		assert.equal(para.children[0]!.type, 'Text');
+		assert.ok(para.children[0]!.content!.startsWith('hhttps://'));
+		const link = para.children.find((c) => c.type === 'Link');
+		assert.ok(link, 'second URL should be detected after failed speculation');
+		assert.equal(link!.reference, 'https://example.com');
+	});
+
+	test('path auto-link streams then wraps with internal link_type', () => {
+		const parser = new MdzStreamParser();
+		parser.feed('see /docs/');
+		const ops1 = parser.take_opcodes();
+		parser.feed('api rest');
+		parser.finish();
+		const ops2 = parser.take_opcodes();
+
+		const wrap_op = [...ops1, ...ops2].find((o): o is MdzOpcodeWrap => o.type === 'wrap');
+		assert.ok(wrap_op);
+		assert.equal(wrap_op.link_type, 'internal');
+		assert.equal(wrap_op.reference, '/docs/api');
+
+		const all_ops = [...ops1, ...ops2];
+		const result = mdz_opcodes_to_nodes(all_ops);
+		assert.deepEqual(result, mdz_parse('see /docs/api rest'));
+	});
+
+	test('relative path auto-link wraps correctly', () => {
+		const result = stream_parse('see ./README.md ok');
+		assert.deepEqual(result, mdz_parse('see ./README.md ok'));
+	});
+
+	test('URL at EOF wraps correctly', () => {
+		const result = stream_parse('see https://example.com');
+		assert.deepEqual(result, mdz_parse('see https://example.com'));
+	});
+
+	test('URL inside bold wraps correctly', () => {
+		const result = stream_parse('**see https://example.com end**');
+		assert.deepEqual(result, mdz_parse('**see https://example.com end**'));
+	});
+
+	test('URL streams correctly across multiple chunks', () => {
+		const parser = new MdzStreamParser();
+		parser.feed('see https://exa');
+		parser.feed('mple');
+		parser.feed('.com');
+		parser.feed(' rest');
+		parser.finish();
+		const result = mdz_opcodes_to_nodes(parser.take_opcodes());
+		assert.deepEqual(result, mdz_parse('see https://example.com rest'));
+	});
+
+	test('URL detected correctly with single-char feeds', () => {
+		const parser = new MdzStreamParser();
+		for (const c of 'see https://example.com rest') {
+			parser.feed(c);
+		}
+		parser.finish();
+		const result = mdz_opcodes_to_nodes(parser.take_opcodes());
+		assert.deepEqual(result, mdz_parse('see https://example.com rest'));
+	});
+
+	test('path detected correctly with single-char feeds', () => {
+		const parser = new MdzStreamParser();
+		for (const c of 'see /docs/api rest') {
+			parser.feed(c);
+		}
+		parser.finish();
+		const result = mdz_opcodes_to_nodes(parser.take_opcodes());
+		assert.deepEqual(result, mdz_parse('see /docs/api rest'));
+	});
+
+	test('consecutive URLs separated by space', () => {
+		const result = stream_parse('https://a.com https://b.com');
+		assert.deepEqual(result, mdz_parse('https://a.com https://b.com'));
 	});
 });
 

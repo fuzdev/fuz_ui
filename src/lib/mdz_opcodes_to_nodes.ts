@@ -54,8 +54,10 @@ interface StackFrame {
 export const mdz_opcodes_to_nodes = (opcodes: Array<MdzOpcode>): Array<MdzNode> => {
 	const root: Array<MdzNode> = [];
 	const stack: Array<StackFrame> = [];
-	// index node IDs to their text content (for append_text)
+	// index node IDs to their text content (for append_text and wrap)
 	const text_nodes: Array<MdzTextNode | MdzCodeNode | undefined> = [];
+	// track which children array contains each text node (for wrap)
+	const node_parents = new Map<number, Array<MdzNode>>();
 
 	const target = (): Array<MdzNode> => {
 		return stack.length > 0 ? stack[stack.length - 1]!.children : root;
@@ -100,7 +102,9 @@ export const mdz_opcodes_to_nodes = (opcodes: Array<MdzOpcode>): Array<MdzNode> 
 						? ({type: 'Code', content: op.content, start: op.start, end: op.end} as MdzCodeNode)
 						: ({type: 'Text', content: op.content, start: op.start, end: op.end} as MdzTextNode);
 				text_nodes[op.id] = node;
-				target().push(node);
+				const dest = target();
+				dest.push(node);
+				node_parents.set(op.id, dest);
 				break;
 			}
 
@@ -183,6 +187,51 @@ export const mdz_opcodes_to_nodes = (opcodes: Array<MdzOpcode>): Array<MdzNode> 
 				}
 				break;
 			}
+
+			case 'wrap': {
+				const text_node = text_nodes[op.target_id];
+				const parent_children = node_parents.get(op.target_id);
+				if (!text_node || !parent_children) break;
+
+				const idx = parent_children.indexOf(text_node as MdzNode);
+				if (idx === -1) break;
+
+				// handle trailing punctuation trim
+				let trimmed_node: MdzTextNode | null = null;
+				if (op.trim_end && op.trim_end > 0 && op.trim_id != null) {
+					const trimmed_content = text_node.content.slice(text_node.content.length - op.trim_end);
+					text_node.content = text_node.content.slice(0, text_node.content.length - op.trim_end);
+					text_node.end -= op.trim_end;
+					trimmed_node = {
+						type: 'Text',
+						content: trimmed_content,
+						start: text_node.end,
+						end: text_node.end + trimmed_content.length,
+					} as MdzTextNode;
+					text_nodes[op.trim_id] = trimmed_node;
+					node_parents.set(op.trim_id, parent_children);
+				}
+
+				// create Link wrapping the text node
+				const link: MdzLinkNode = {
+					type: 'Link',
+					reference: op.reference,
+					children: [text_node as MdzNode],
+					link_type: op.link_type,
+					start: op.start,
+					end: op.end,
+				};
+
+				// replace text node with [Link, trimmed?] in parent
+				if (trimmed_node) {
+					parent_children.splice(idx, 1, link as MdzNode, trimmed_node as MdzNode);
+				} else {
+					parent_children[idx] = link as MdzNode;
+				}
+
+				node_parents.delete(op.target_id);
+				break;
+			}
 		}
 	}
 
@@ -256,6 +305,20 @@ const build_node = (frame: StackFrame): MdzNode | null => {
 				start: frame.start,
 				end: frame.end!,
 			} as MdzLinkNode;
+
+		case 'Code': {
+			// optimistic inline code container — concatenate children text into leaf MdzCodeNode
+			let content = '';
+			for (const c of frame.children) {
+				if (c.type === 'Text') content += c.content;
+			}
+			return {
+				type: 'Code',
+				content,
+				start: frame.start,
+				end: frame.end!,
+			} as MdzCodeNode;
+		}
 
 		case 'Codeblock': {
 			// code block content is in children as text

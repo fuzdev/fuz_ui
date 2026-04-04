@@ -269,6 +269,70 @@ export class MdzStreamState {
 				this.#parents.delete(opcode.id);
 				break;
 			}
+
+			case 'wrap': {
+				if (DEV) {
+					if (!this.#nodes.has(opcode.target_id)) {
+						throw new Error(`MdzStreamState: wrap target_id ${opcode.target_id} not in nodes`);
+					}
+					if (this.#nodes.has(opcode.id)) {
+						throw new Error(`MdzStreamState: wrap id ${opcode.id} already exists in nodes`);
+					}
+				}
+				const target = this.#nodes.get(opcode.target_id);
+				if (!target) break;
+
+				const parent_id = this.#parents.get(opcode.target_id);
+				const parent_children =
+					parent_id !== null && parent_id !== undefined
+						? this.#nodes.get(parent_id)?.children
+						: this.root;
+
+				if (!parent_children) break;
+
+				// find target in parent's children
+				let target_idx = -1;
+				for (let i = 0; i < parent_children.length; i++) {
+					if (parent_children[i]!.id === opcode.target_id) {
+						target_idx = i;
+						break;
+					}
+				}
+				if (target_idx === -1) break;
+
+				// handle trailing punctuation trim
+				let trimmed_node: MdzStreamNode | null = null;
+				if (opcode.trim_end && opcode.trim_end > 0 && opcode.trim_id != null) {
+					const trimmed_content = target.content.slice(target.content.length - opcode.trim_end);
+					target.content = target.content.slice(0, target.content.length - opcode.trim_end);
+					trimmed_node = new MdzStreamNode(opcode.trim_id, 'Text');
+					trimmed_node.content = trimmed_content;
+					trimmed_node.text_type = 'Text';
+					this.#nodes.set(opcode.trim_id, trimmed_node);
+					this.#parents.set(opcode.trim_id, parent_id ?? null);
+				}
+
+				// create Link wrapper containing target
+				const link = new MdzStreamNode(opcode.id, opcode.node_type);
+				link.reference = opcode.reference;
+				link.link_type = opcode.link_type;
+				link.children.push(target);
+				this.#nodes.set(opcode.id, link);
+				this.#parents.set(opcode.id, parent_id ?? null);
+				this.#parents.set(opcode.target_id, opcode.id);
+
+				// replace target with [Link, trimmed?] in parent's children
+				if (trimmed_node) {
+					parent_children.splice(target_idx, 1, link, trimmed_node);
+				} else {
+					parent_children[target_idx] = link;
+				}
+
+				// cleanup: Link is complete (no close opcode coming).
+				// trim_id (if any) stays in maps — cleaned when parent closes.
+				this.#cleanup_node(opcode.id);
+				break;
+			}
 		}
 	}
 
