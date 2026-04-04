@@ -247,6 +247,13 @@ export const mdz_heading_id = (nodes: Array<MdzNode>): string =>
 	slugify(mdz_text_content(nodes), false);
 
 /**
+ * Generates a lowercase slug id for a heading from plain text content.
+ * Used by the streaming parser which tracks text content directly
+ * rather than building `MdzNode[]` trees.
+ */
+export const mdz_heading_id_from_text = (text: string): string => slugify(text, false);
+
+/**
  * Check if a string is a URL (`https://` or `http://`).
  * Requires at least one valid character after the protocol.
  * Rejects whitespace and characters that can't start a valid hostname.

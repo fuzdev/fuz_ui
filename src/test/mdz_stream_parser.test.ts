@@ -96,6 +96,28 @@ describe('MdzStreamParser opcodes', () => {
 		if (heading_open?.type === 'open') assert.equal(heading_open.level, 2);
 	});
 
+	test('heading close carries heading_id', () => {
+		const ops = collect_opcodes('## My Heading');
+		const heading_open = ops.find((o) => o.type === 'open' && o.node_type === 'Heading');
+		assert.ok(heading_open);
+		const heading_close = ops.find((o) => o.type === 'close' && o.id === heading_open!.id);
+		assert.ok(heading_close);
+		if (heading_close?.type === 'close') {
+			assert.equal(heading_close.heading_id, 'my-heading');
+		}
+	});
+
+	test('heading ID with inline formatting uses text content only', () => {
+		const ops = collect_opcodes('# **Bold** and _italic_');
+		const heading_open = ops.find((o) => o.type === 'open' && o.node_type === 'Heading');
+		assert.ok(heading_open);
+		const heading_close = ops.find((o) => o.type === 'close' && o.id === heading_open!.id);
+		assert.ok(heading_close);
+		if (heading_close?.type === 'close') {
+			assert.equal(heading_close.heading_id, 'bold-and-italic');
+		}
+	});
+
 	test('hr produces void node', () => {
 		const ops = collect_opcodes('---\n');
 		const hr = ops.find((o) => o.type === 'void' && o.node_type === 'Hr');
@@ -177,6 +199,25 @@ describe('MdzStreamParser opcodes', () => {
 		assert.ok(tag_close);
 	});
 
+	test('closing tag at EOF is handled (not literal text)', () => {
+		// </Tag> at exact buffer end should still close the tag, not become literal
+		// When a single tag is the only child, extract_single_tag unwraps it from the paragraph
+		const result = strip_positions(stream_parse('<Alert>content</Alert>'));
+		assert.equal(result.length, 1);
+		assert.equal((result[0] as Record<string, unknown>).type, 'Component');
+	});
+
+	test('closing tag at EOF via chunked feed', () => {
+		// feed </Alert> as the final chunk — exercises forced close tag handling
+		const parser = new MdzStreamParser();
+		parser.feed('<Alert>con');
+		parser.feed('tent</Alert>');
+		parser.finish();
+		const result = strip_positions(mdz_opcodes_to_nodes(parser.take_opcodes()));
+		assert.equal(result.length, 1);
+		assert.equal((result[0] as Record<string, unknown>).type, 'Component');
+	});
+
 	test('revert re-parents children to grandparent', () => {
 		// unclosed bold inside paragraph — children should end up in paragraph
 		const result = strip_positions(stream_parse('**hello'));
@@ -214,6 +255,54 @@ describe('MdzStreamParser fixture comparison', () => {
 	// NOTE: char-by-char streaming intentionally differs from one-shot for many fixtures.
 	// Features like codeblock fence lookahead, auto-URL detection, and word boundary
 	// checks require buffer context that isn't available in single-char feeds.
-	// Char-by-char is tested for basic cases in the opcode tests above.
 	// The one-shot fixture comparison (above) is the correctness gate.
+
+	/**
+	 * Checks if a fixture's input is safe for char-by-char feeding.
+	 * Excludes inputs that require buffer context for correct parsing:
+	 * - Codeblock fences (triple backticks need lookahead for closing fence)
+	 * - Auto-URLs (http:// https:// need multi-char prefix detection)
+	 * - Auto-paths (/, ./, ../ need word boundary + multi-char detection)
+	 * - Underscore/tilde delimiters (word boundary checks need prev_char context)
+	 */
+	const is_char_by_char_safe = (input: string): boolean => {
+		// codeblock fences
+		if (input.includes('```')) return false;
+		// auto-URLs
+		if (/https?:\/\//.test(input)) return false;
+		// auto absolute paths (/ at word boundary: after space, newline, or start)
+		if (/(^|[\s])\/[^\s/]/.test(input)) return false;
+		// auto relative paths
+		if (input.includes('./') || input.includes('../')) return false;
+		// underscore (italic delimiter with word boundary sensitivity)
+		if (input.includes('_')) return false;
+		// tilde (strikethrough delimiter with word boundary sensitivity)
+		if (input.includes('~')) return false;
+		// tags (need tag name in buffer to distinguish from literal <)
+		if (input.includes('<')) return false;
+		// headings (post-heading newline absorption needs consecutive \n in buffer)
+		if (/^#{1,6} /m.test(input)) return false;
+		// horizontal rules (need ---\n in buffer, post-HR newline absorption)
+		if (/^---/m.test(input)) return false;
+		// triple+ newlines (post-break absorption only handles newlines already buffered)
+		if (input.includes('\n\n\n')) return false;
+		return true;
+	};
+
+	test('char-by-char safe fixtures match one-shot', () => {
+		const safe_fixtures = fixtures.filter((f) => is_char_by_char_safe(f.input));
+		// sanity: we should have a meaningful number of safe fixtures
+		assert.ok(safe_fixtures.length > 30, `Expected >30 safe fixtures, got ${safe_fixtures.length}`);
+
+		for (const fixture of safe_fixtures) {
+			const parser = new MdzStreamParser();
+			for (const char of fixture.input) {
+				parser.feed(char);
+			}
+			parser.finish();
+			const char_result = strip_positions(mdz_opcodes_to_nodes(parser.take_opcodes()));
+			const expected = strip_positions(fixture.expected);
+			assert.deepEqual(char_result, expected, `Char-by-char: "${fixture.name}"`);
+		}
+	});
 });

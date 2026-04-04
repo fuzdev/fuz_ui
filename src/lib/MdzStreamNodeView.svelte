@@ -64,11 +64,15 @@
 			{@const resolved = resolve_relative_path(reference, mdz_base)}
 			<a href={resolve(resolved as any)}>{@render render_children(node.children)}</a>
 		{:else if skip_resolve || reference.startsWith('.')}
+			<!-- Fragment, query, and relative links without base skip resolve() -->
+			<!-- eslint-disable-next-line svelte/no-navigation-without-resolve -->
 			<a href={reference}>{@render render_children(node.children)}</a>
 		{:else}
 			<a href={resolve(reference as any)}>{@render render_children(node.children)}</a>
 		{/if}
 	{:else}
+		<!-- external link -->
+		<!-- eslint-disable-next-line svelte/no-navigation-without-resolve -->
 		<a href={reference} target="_blank" rel="noopener">{@render render_children(node.children)}</a>
 	{/if}
 {:else if node.type === 'Paragraph'}

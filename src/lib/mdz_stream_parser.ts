@@ -51,6 +51,7 @@ import {
 	is_valid_path_char,
 	trim_trailing_punctuation,
 	mdz_is_url,
+	mdz_heading_id_from_text,
 } from './mdz_helpers.js';
 
 interface StackEntry {
@@ -89,6 +90,14 @@ export class MdzStreamParser {
 	#codeblock: CodeblockState | null = null;
 	/** Whether we're inside a heading (newline ends it). */
 	#in_heading = false;
+	/**
+	 * Stack of text segments for heading ID computation.
+	 * Each open container inside a heading pushes a new segment.
+	 * On close: pop and append to parent (children's text is part of heading).
+	 * On revert: pop, prepend replacement_text, append to parent
+	 * (document order: delimiter text comes before children's text).
+	 */
+	#heading_text_parts: Array<string> = [];
 
 	/**
 	 * Feed a chunk of text to the parser.
@@ -254,11 +263,7 @@ export class MdzStreamParser {
 			}
 
 			// inline processing
-			if (forced) {
-				this.#process_inline_forced();
-			} else {
-				if (!this.#process_inline()) return; // need more input
-			}
+			if (!this.#process_inline(forced)) return; // need more input
 		}
 	}
 
@@ -309,6 +314,7 @@ export class MdzStreamParser {
 		});
 		this.#stack.push({id, node_type: 'Heading', optimistic: false, delimiter: ''});
 		this.#in_heading = true;
+		this.#heading_text_parts = [''];
 		this.#pos = i;
 		this.#column = i - start;
 		this.#prev_char = SPACE;
@@ -634,17 +640,20 @@ export class MdzStreamParser {
 	}
 
 	#close_heading(): void {
-		this.#in_heading = false;
-		// revert optimistic containers inside the heading
+		// revert optimistic containers inside the heading (before clearing #in_heading,
+		// so revert replacement text is captured in #heading_text_parts)
 		this.#revert_all_optimistic();
+		// compute heading ID from accumulated text before clearing heading state
+		const heading_text = this.#heading_text_parts.join('');
+		this.#heading_text_parts = [];
+		this.#in_heading = false;
+		const heading_id = mdz_heading_id_from_text(heading_text);
 		// find and close the heading
 		for (let i = this.#stack.length - 1; i >= 0; i--) {
 			if (this.#stack[i]!.node_type === 'Heading') {
 				const entry = this.#stack[i]!;
-				// collect text content for heading ID
-				// TODO: compute heading_id from emitted text opcodes
 				this.#stack.splice(i, 1);
-				this.#emit({type: 'close', id: entry.id});
+				this.#emit({type: 'close', id: entry.id, heading_id});
 				this.#active_text_id = null;
 				return;
 			}
@@ -661,8 +670,11 @@ export class MdzStreamParser {
 
 	/**
 	 * Process one inline element. Returns false if more input is needed.
+	 * When `forced` is true (EOF processing), skips opening constructs
+	 * (no new bold/italic/code/link/tag opens) but still handles all
+	 * closing constructs and auto-links. Never returns false in forced mode.
 	 */
-	#process_inline(): boolean {
+	#process_inline(forced = false): boolean {
 		const char_code = this.#buffer.charCodeAt(this.#pos);
 
 		// check for closing delimiters first (if matching open exists)
@@ -674,10 +686,10 @@ export class MdzStreamParser {
 			if (this.#find_open('Bold') !== -1) {
 				return this.#close_bold();
 			}
-			return this.#try_bold();
+			if (!forced) return this.#try_bold();
 		}
 
-		if (char_code === ASTERISK) {
+		if (char_code === ASTERISK && !forced) {
 			// could be start of ** — need next char to decide
 			if (this.#pos + 1 >= this.#buffer.length) return false; // hold for next chunk
 			// single asterisk is text (next char is not *)
@@ -694,7 +706,7 @@ export class MdzStreamParser {
 			if (open_idx !== -1 && this.#check_close_word_boundary()) {
 				return this.#close_single_delimiter(open_idx);
 			}
-			return this.#try_italic();
+			if (!forced) return this.#try_italic();
 		}
 
 		if (char_code === TILDE) {
@@ -702,18 +714,18 @@ export class MdzStreamParser {
 			if (open_idx !== -1 && this.#check_close_word_boundary()) {
 				return this.#close_single_delimiter(open_idx);
 			}
-			return this.#try_strikethrough();
+			if (!forced) return this.#try_strikethrough();
 		}
 
-		if (char_code === BACKTICK) {
+		if (char_code === BACKTICK && !forced) {
 			return this.#try_code();
 		}
 
-		if (char_code === LEFT_BRACKET) {
+		if (char_code === LEFT_BRACKET && !forced) {
 			return this.#try_link_open();
 		}
 
-		if (char_code === RIGHT_BRACKET) {
+		if (char_code === RIGHT_BRACKET && !forced) {
 			const link_idx = this.#find_open('Link');
 			if (link_idx !== -1) {
 				return this.#try_complete_link(link_idx);
@@ -728,87 +740,40 @@ export class MdzStreamParser {
 		}
 
 		if (char_code === LEFT_ANGLE) {
-			// check for closing tag first
+			// closing tags are handled even in forced mode
 			if (this.#pos + 1 < this.#buffer.length && this.#buffer.charCodeAt(this.#pos + 1) === SLASH) {
 				const result = this.#try_close_tag();
-				if (result !== null) return result;
+				if (result === true) return true;
+				// in forced mode, false (need more input) falls through to text
+				if (!forced && result === false) return false;
+				// null means not a close tag — fall through
 			}
-			const tag_result = this.#try_tag_open();
-			if (tag_result !== null) return tag_result;
+			if (!forced) {
+				const tag_result = this.#try_tag_open();
+				if (tag_result !== null) return tag_result;
+			}
 			// not a valid tag — fall through to text
 		}
 
 		// auto-detected URLs
 		if (char_code === 104 /* h */) {
-			const result = this.#try_auto_url();
+			const result = this.#try_auto_url(forced);
 			if (result !== null) return result;
 		}
 
 		// auto-detected paths
 		if (char_code === SLASH) {
-			const result = this.#try_auto_path_absolute();
+			const result = this.#try_auto_path_absolute(forced);
 			if (result !== null) return result;
 		}
 		if (char_code === PERIOD) {
-			const result = this.#try_auto_path_relative();
+			const result = this.#try_auto_path_relative(forced);
 			if (result !== null) return result;
 		}
 
 		// plain text
 		this.#consume_text_char();
 		return true;
-	}
-
-	/**
-	 * Like process_inline but doesn't return false (forced processing at EOF).
-	 */
-	#process_inline_forced(): void {
-		const char_code = this.#buffer.charCodeAt(this.#pos);
-
-		// try closing delimiters
-		if (
-			char_code === ASTERISK &&
-			this.#pos + 1 < this.#buffer.length &&
-			this.#buffer.charCodeAt(this.#pos + 1) === ASTERISK
-		) {
-			if (this.#find_open('Bold') !== -1) {
-				this.#close_bold();
-				return;
-			}
-		}
-		if (char_code === UNDERSCORE) {
-			const open_idx = this.#find_open('Italic');
-			if (open_idx !== -1 && this.#check_close_word_boundary()) {
-				this.#close_single_delimiter(open_idx);
-				return;
-			}
-		}
-		if (char_code === TILDE) {
-			const open_idx = this.#find_open('Strikethrough');
-			if (open_idx !== -1 && this.#check_close_word_boundary()) {
-				this.#close_single_delimiter(open_idx);
-				return;
-			}
-		}
-
-		// auto-detected URLs (force mode — treat buffer end as URL end)
-		if (char_code === 104 /* h */) {
-			const result = this.#try_auto_url(true);
-			if (result) return;
-		}
-
-		// auto-detected paths (force mode)
-		if (char_code === SLASH) {
-			const result = this.#try_auto_path_absolute(true);
-			if (result) return;
-		}
-		if (char_code === PERIOD) {
-			const result = this.#try_auto_path_relative(true);
-			if (result) return;
-		}
-
-		// everything else: consume as text
-		this.#consume_text_char();
 	}
 
 	// -- Bold --
@@ -1338,12 +1303,12 @@ export class MdzStreamParser {
 		} else if (this.#buffer.startsWith('http://', this.#pos)) {
 			prefix_len = HTTP_PREFIX_LENGTH;
 		}
-		if (prefix_len === 0) return forced ? false : null;
+		if (prefix_len === 0) return null; // not a URL
 
 		// must have content after protocol
 		if (this.#pos + prefix_len >= this.#buffer.length) return false;
 		const after = this.#buffer.charCodeAt(this.#pos + prefix_len);
-		if (after === SPACE || after === NEWLINE) return forced ? false : null;
+		if (after === SPACE || after === NEWLINE) return null; // not a valid URL
 
 		// collect URL characters
 		let i = this.#pos + prefix_len;
@@ -1358,7 +1323,7 @@ export class MdzStreamParser {
 
 		let reference = this.#buffer.slice(this.#pos, i);
 		reference = trim_trailing_punctuation(reference);
-		if (forced && reference.length <= prefix_len) return false;
+		if (reference.length <= prefix_len) return null; // just protocol, no content
 
 		return this.#emit_auto_link(reference, 'external');
 	}
@@ -1373,14 +1338,14 @@ export class MdzStreamParser {
 			this.#prev_char !== NEWLINE &&
 			this.#prev_char !== TAB
 		) {
-			return forced ? false : null;
+			return null; // not at word boundary
 		}
 
 		// reject // and /space
-		if (this.#pos + 1 >= this.#buffer.length) return false;
+		if (this.#pos + 1 >= this.#buffer.length) return forced ? null : false;
 		const next = this.#buffer.charCodeAt(this.#pos + 1);
 		if (next === SLASH || next === SPACE || next === NEWLINE || next === TAB) {
-			return forced ? false : null;
+			return null; // not a valid path start
 		}
 
 		return this.#consume_auto_path('internal', forced);
@@ -1393,22 +1358,22 @@ export class MdzStreamParser {
 			this.#prev_char !== NEWLINE &&
 			this.#prev_char !== TAB
 		) {
-			return forced ? false : null;
+			return null; // not at word boundary
 		}
 
 		// check for ./ or ../
 		const remaining = this.#buffer.length - this.#pos;
-		if (remaining < 3) return false; // need more input
+		if (remaining < 3) return forced ? null : false; // need more input
 
 		if (
 			this.#buffer.charCodeAt(this.#pos + 1) === PERIOD &&
 			this.#buffer.charCodeAt(this.#pos + 2) === SLASH
 		) {
 			// ../
-			if (remaining < 4) return false;
+			if (remaining < 4) return forced ? null : false;
 			const after = this.#buffer.charCodeAt(this.#pos + 3);
 			if (after === SPACE || after === NEWLINE || after === TAB || after === SLASH) {
-				return forced ? false : null;
+				return null; // not a valid path
 			}
 			return this.#consume_auto_path('internal', forced);
 		}
@@ -1417,12 +1382,12 @@ export class MdzStreamParser {
 			// ./
 			const after = this.#buffer.charCodeAt(this.#pos + 2);
 			if (after === SPACE || after === NEWLINE || after === TAB || after === SLASH) {
-				return forced ? false : null;
+				return null; // not a valid path
 			}
 			return this.#consume_auto_path('internal', forced);
 		}
 
-		return forced ? false : null;
+		return null; // not ./ or ../
 	}
 
 	#consume_auto_path(link_type: 'external' | 'internal', forced = false): boolean | null {
@@ -1438,7 +1403,7 @@ export class MdzStreamParser {
 
 		let reference = this.#buffer.slice(this.#pos, i);
 		reference = trim_trailing_punctuation(reference);
-		if (forced && reference.length === 0) return false;
+		if (reference.length === 0) return null; // empty path after trimming
 
 		return this.#emit_auto_link(reference, link_type);
 	}
@@ -1489,6 +1454,28 @@ export class MdzStreamParser {
 			// opening a child container counts as content for the parent
 			const parent = this.#stack[this.#stack.length - 1];
 			if (parent) parent.has_children = true;
+		}
+		// track text content for heading ID computation
+		if (this.#in_heading && this.#heading_text_parts.length > 0) {
+			if (op.type === 'text' || op.type === 'append_text') {
+				this.#heading_text_parts[this.#heading_text_parts.length - 1] += op.content;
+			} else if (op.type === 'open') {
+				// child container: push a new segment for its text content
+				this.#heading_text_parts.push('');
+			} else if (op.type === 'close') {
+				// normal close: pop child's text and merge into parent
+				if (this.#heading_text_parts.length > 1) {
+					const child_text = this.#heading_text_parts.pop()!;
+					this.#heading_text_parts[this.#heading_text_parts.length - 1] += child_text;
+				}
+			} else if (op.type === 'revert') {
+				// revert: pop child's text, prepend replacement (document order), merge into parent
+				if (this.#heading_text_parts.length > 1) {
+					const child_text = this.#heading_text_parts.pop()!;
+					this.#heading_text_parts[this.#heading_text_parts.length - 1] +=
+						(op.replacement_text || '') + child_text;
+				}
+			}
 		}
 	}
 
