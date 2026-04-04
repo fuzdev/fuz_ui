@@ -133,7 +133,7 @@ describe('MdzStreamParser opcodes', () => {
 
 	test('hr produces void node', () => {
 		const ops = collect_opcodes('---\n');
-		const hr = ops.find((o): o is MdzOpcodeVoid => o.type === 'void' && o.node_type === 'Hr');
+		const hr = ops.find((o): o is MdzOpcodeVoid => o.type === 'void');
 		assert.ok(hr);
 	});
 
@@ -166,12 +166,18 @@ describe('MdzStreamParser opcodes', () => {
 
 	test('codeblock content emits text opcodes', () => {
 		const ops = collect_opcodes('```js\nconst x = 1;\n```\n');
-		const cb_open = ops.find((o) => o.type === 'open' && o.node_type === 'Codeblock');
+		const cb_open = ops.find(
+			(o): o is MdzOpcodeOpen => o.type === 'open' && o.node_type === 'Codeblock',
+		);
 		assert.ok(cb_open);
-		if (cb_open.type === 'open') assert.equal(cb_open.lang, 'js');
-		const text_op = ops.find((o) => o.type === 'text' && o.content === 'const x = 1;');
+		assert.equal(cb_open.lang, 'js');
+		const text_op = ops.find(
+			(o): o is MdzOpcodeText => o.type === 'text' && o.content === 'const x = 1;',
+		);
 		assert.ok(text_op);
-		const cb_close = ops.find((o) => o.type === 'close' && o.id === cb_open.id);
+		const cb_close = ops.find(
+			(o): o is MdzOpcodeClose => o.type === 'close' && o.id === cb_open.id,
+		);
 		assert.ok(cb_close);
 	});
 
@@ -211,10 +217,14 @@ describe('MdzStreamParser opcodes', () => {
 
 	test('tag open and close produce correct opcodes', () => {
 		const ops = collect_opcodes('<Alert>warning</Alert>');
-		const tag_open = ops.find((o) => o.type === 'open' && o.node_type === 'Component');
+		const tag_open = ops.find(
+			(o): o is MdzOpcodeOpen => o.type === 'open' && o.node_type === 'Component',
+		);
 		assert.ok(tag_open);
-		if (tag_open.type === 'open') assert.equal(tag_open.name, 'Alert');
-		const tag_close = ops.find((o) => o.type === 'close' && o.id === tag_open.id);
+		assert.equal(tag_open.name, 'Alert');
+		const tag_close = ops.find(
+			(o): o is MdzOpcodeClose => o.type === 'close' && o.id === tag_open.id,
+		);
 		assert.ok(tag_close);
 	});
 
