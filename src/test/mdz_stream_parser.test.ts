@@ -620,15 +620,13 @@ describe('MdzStreamParser fixture comparison', () => {
 	 * Checks if a fixture's input is safe for char-by-char feeding.
 	 * Excludes inputs that require buffer context for correct parsing:
 	 * - Codeblock fences (triple backticks need lookahead for closing fence)
-	 * - Auto-URLs (http:// https:// need multi-char prefix detection)
 	 * - Auto-paths (/, ./, ../ need word boundary + multi-char detection)
 	 * - Underscore/tilde delimiters (word boundary checks need prev_char context)
+	 * Note: Auto-URLs work char-by-char via speculative prefix matching.
 	 */
 	const is_char_by_char_safe = (input: string): boolean => {
 		// codeblock fences
 		if (input.includes('```')) return false;
-		// auto-URLs
-		if (/https?:\/\//.test(input)) return false;
 		// auto absolute paths (/ at word boundary: after space, newline, or start)
 		if (/(^|[\s])\/[^\s/]/.test(input)) return false;
 		// auto relative paths
