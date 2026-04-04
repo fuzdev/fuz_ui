@@ -8,6 +8,8 @@
  * @module
  */
 
+import {DEV} from 'esm-env';
+
 import type {MdzNodeId, MdzOpcode} from './mdz_opcodes.js';
 
 /**
@@ -56,6 +58,11 @@ export class MdzStreamState {
 	apply(opcode: MdzOpcode): void {
 		switch (opcode.type) {
 			case 'open': {
+				if (DEV && this.#nodes.has(opcode.id)) {
+					throw new Error(
+						`MdzStreamState: duplicate open for id ${opcode.id} (node_type '${opcode.node_type}')`,
+					);
+				}
 				const node = new MdzStreamNode(opcode.id, opcode.node_type);
 				if (opcode.level !== undefined) node.level = opcode.level;
 				if (opcode.name !== undefined) node.name = opcode.name;
@@ -67,6 +74,11 @@ export class MdzStreamState {
 
 				if (parent_id !== null) {
 					const parent = this.#nodes.get(parent_id);
+					if (DEV && !parent) {
+						throw new Error(
+							`MdzStreamState: parent id ${parent_id} on stack but missing from nodes`,
+						);
+					}
 					if (parent) parent.children.push(node);
 				} else {
 					this.root.push(node);
@@ -77,6 +89,14 @@ export class MdzStreamState {
 			}
 
 			case 'close': {
+				if (DEV) {
+					if (!this.#nodes.has(opcode.id)) {
+						throw new Error(`MdzStreamState: close for unknown id ${opcode.id}`);
+					}
+					if (!this.#stack.includes(opcode.id)) {
+						throw new Error(`MdzStreamState: close for id ${opcode.id} which is not on the stack`);
+					}
+				}
 				const node = this.#nodes.get(opcode.id);
 				if (node) {
 					// apply deferred metadata
@@ -87,10 +107,18 @@ export class MdzStreamState {
 				// pop from stack
 				const idx = this.#stack.lastIndexOf(opcode.id);
 				if (idx !== -1) this.#stack.splice(idx, 1);
+				// cleanup: closed nodes have no further opcode interactions.
+				// children are retained in the render tree via children arrays.
+				this.#cleanup_node(opcode.id);
 				break;
 			}
 
 			case 'text': {
+				if (DEV && this.#nodes.has(opcode.id)) {
+					throw new Error(
+						`MdzStreamState: duplicate text for id ${opcode.id} (text_type '${opcode.text_type}')`,
+					);
+				}
 				const node = new MdzStreamNode(opcode.id, opcode.text_type);
 				node.content = opcode.content;
 				node.text_type = opcode.text_type;
@@ -101,6 +129,11 @@ export class MdzStreamState {
 
 				if (parent_id !== null) {
 					const parent = this.#nodes.get(parent_id);
+					if (DEV && !parent) {
+						throw new Error(
+							`MdzStreamState: parent id ${parent_id} on stack but missing from nodes`,
+						);
+					}
 					if (parent) parent.children.push(node);
 				} else {
 					this.root.push(node);
@@ -109,6 +142,9 @@ export class MdzStreamState {
 			}
 
 			case 'append_text': {
+				if (DEV && !this.#nodes.has(opcode.id)) {
+					throw new Error(`MdzStreamState: append_text for unknown id ${opcode.id}`);
+				}
 				const node = this.#nodes.get(opcode.id);
 				if (node) {
 					node.content += opcode.content;
@@ -117,6 +153,11 @@ export class MdzStreamState {
 			}
 
 			case 'void': {
+				if (DEV && this.#nodes.has(opcode.id)) {
+					throw new Error(
+						`MdzStreamState: duplicate void for id ${opcode.id} (node_type '${opcode.node_type}')`,
+					);
+				}
 				const node = new MdzStreamNode(opcode.id, opcode.node_type);
 				this.#nodes.set(opcode.id, node);
 
@@ -125,6 +166,11 @@ export class MdzStreamState {
 
 				if (parent_id !== null) {
 					const parent = this.#nodes.get(parent_id);
+					if (DEV && !parent) {
+						throw new Error(
+							`MdzStreamState: parent id ${parent_id} on stack but missing from nodes`,
+						);
+					}
 					if (parent) parent.children.push(node);
 				} else {
 					this.root.push(node);
@@ -133,6 +179,14 @@ export class MdzStreamState {
 			}
 
 			case 'revert': {
+				if (DEV) {
+					if (!this.#nodes.has(opcode.id)) {
+						throw new Error(`MdzStreamState: revert for unknown id ${opcode.id}`);
+					}
+					if (!this.#stack.includes(opcode.id)) {
+						throw new Error(`MdzStreamState: revert for id ${opcode.id} which is not on the stack`);
+					}
+				}
 				const node = this.#nodes.get(opcode.id);
 				if (!node) break;
 
@@ -142,7 +196,14 @@ export class MdzStreamState {
 						? this.#nodes.get(parent_id)?.children
 						: this.root;
 
-				if (!parent_children) break;
+				if (!parent_children) {
+					if (DEV) {
+						throw new Error(
+							`MdzStreamState: revert for id ${opcode.id} but parent has no children array`,
+						);
+					}
+					break;
+				}
 
 				// find the node in parent's children
 				let node_idx = -1;
@@ -152,12 +213,19 @@ export class MdzStreamState {
 						break;
 					}
 				}
-				if (node_idx === -1) break;
+				if (node_idx === -1) {
+					if (DEV) {
+						throw new Error(
+							`MdzStreamState: revert for id ${opcode.id} but node not found in parent's children`,
+						);
+					}
+					break;
+				}
 
-				// collect replacement text + re-parented children
+				// collect replacement content: literal delimiter text + re-parented children
 				const replacement_nodes: Array<MdzStreamNode> = [];
 				if (opcode.replacement_text) {
-					const text_node = new MdzStreamNode(-1, 'Text');
+					const text_node = new MdzStreamNode(opcode.id, 'Text');
 					text_node.content = opcode.replacement_text;
 					text_node.text_type = 'Text';
 					replacement_nodes.push(text_node);
@@ -167,11 +235,18 @@ export class MdzStreamState {
 				}
 
 				if (opcode.wrap_node_type != null && opcode.wrap_id != null) {
+					if (DEV && this.#nodes.has(opcode.wrap_id)) {
+						throw new Error(
+							`MdzStreamState: revert wrap_id ${opcode.wrap_id} already exists in nodes`,
+						);
+					}
 					// block-level revert: wrap content in a new container and push onto stack
 					const wrapper = new MdzStreamNode(opcode.wrap_id, opcode.wrap_node_type);
 					for (const rn of replacement_nodes) {
 						wrapper.children.push(rn);
-						this.#parents.set(rn.id, opcode.wrap_id);
+					}
+					for (const child of node.children) {
+						this.#parents.set(child.id, opcode.wrap_id);
 					}
 					this.#nodes.set(opcode.wrap_id, wrapper);
 					this.#parents.set(opcode.wrap_id, parent_id ?? null);
@@ -195,6 +270,18 @@ export class MdzStreamState {
 				break;
 			}
 		}
+	}
+
+	/** Remove a node and its descendants from the lookup maps. */
+	#cleanup_node(id: MdzNodeId): void {
+		const node = this.#nodes.get(id);
+		if (node) {
+			for (const child of node.children) {
+				this.#cleanup_node(child.id);
+			}
+		}
+		this.#nodes.delete(id);
+		this.#parents.delete(id);
 	}
 
 	/**

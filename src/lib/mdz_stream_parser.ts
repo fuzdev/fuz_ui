@@ -5,6 +5,13 @@
  * instructions. Makes optimistic assumptions about ambiguous syntax and
  * emits `revert` opcodes to correct when wrong. Never re-parses.
  *
+ * The design was independently arrived at but shares goals with
+ * {@link https://bsky.app/profile/pngwn.at/post/3mi527zntb22n @pngwn.at}'s
+ * Penguin-Flavoured Markdown (PFM): restrict the syntax so streaming is tractable,
+ * render optimistically and correct when wrong, emit serializable opcodes
+ * instead of trees to avoid re-parsing and diffing, and keep the opcodes
+ * target-agnostic so any renderer can consume them.
+ *
  * Usage:
  * ```ts
  * const parser = new MdzStreamParser();

@@ -11,6 +11,8 @@
  * @module
  */
 
+import {DEV} from 'esm-env';
+
 import type {
 	MdzNode,
 	MdzTextNode,
@@ -75,6 +77,9 @@ export const mdz_opcodes_to_nodes = (opcodes: Array<MdzOpcode>): Array<MdzNode> 
 			}
 
 			case 'close': {
+				if (DEV && stack.length === 0) {
+					throw new Error(`mdz_opcodes_to_nodes: close for id ${op.id} but stack is empty`);
+				}
 				const frame = stack.pop();
 				if (!frame) break;
 
@@ -100,6 +105,9 @@ export const mdz_opcodes_to_nodes = (opcodes: Array<MdzOpcode>): Array<MdzNode> 
 			}
 
 			case 'append_text': {
+				if (DEV && !text_nodes[op.id]) {
+					throw new Error(`mdz_opcodes_to_nodes: append_text for unknown id ${op.id}`);
+				}
 				const existing = text_nodes[op.id];
 				if (existing) {
 					existing.content += op.content;
@@ -129,6 +137,9 @@ export const mdz_opcodes_to_nodes = (opcodes: Array<MdzOpcode>): Array<MdzNode> 
 					}
 				}
 
+				if (DEV && !reverted_frame) {
+					throw new Error(`mdz_opcodes_to_nodes: revert for id ${op.id} but not found on stack`);
+				}
 				if (reverted_frame) {
 					if (op.wrap_node_type != null && op.wrap_id != null) {
 						// block-level revert: wrap content in a new container (e.g. Paragraph)
