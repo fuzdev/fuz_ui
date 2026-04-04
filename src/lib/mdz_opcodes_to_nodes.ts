@@ -126,18 +126,20 @@ export const mdz_opcodes_to_nodes = (opcodes: Array<MdzOpcode>): Array<MdzNode> 
 
 				if (reverted_frame) {
 					const dest = target();
-					// insert replacement text
+					// Re-parent replacement text and children, coalescing adjacent
+					// Text nodes inline. This reduces deeply nested reverts from
+					// O(n²) array pushes to O(n) string concatenations — each revert
+					// merges into the parent's last text node instead of growing the array.
 					if (op.replacement_text) {
-						dest.push({
+						push_merging_text(dest, {
 							type: 'Text',
 							content: op.replacement_text,
 							start: 0,
 							end: 0,
 						} as MdzTextNode);
 					}
-					// re-parent children via bulk push for V8 optimization
-					if (reverted_frame.children.length > 0) {
-						dest.push(...reverted_frame.children);
+					for (const child of reverted_frame.children) {
+						push_merging_text(dest, child);
 					}
 				}
 				break;
@@ -298,4 +300,22 @@ const merge_adjacent_text = (nodes: Array<MdzNode>): Array<MdzNode> => {
 	if (pending) merged.push(pending);
 
 	return merged;
+};
+
+/**
+ * Push a node to a children array, merging adjacent Text nodes in place.
+ * Mutates the last element's `content` when both are Text, avoiding array growth.
+ *
+ * Safe to mutate because the streaming parser resets `active_text_id` after every
+ * revert, so no future `append_text` opcode will target a node that was merged here.
+ */
+const push_merging_text = (dest: Array<MdzNode>, node: MdzNode): void => {
+	if (node.type === 'Text') {
+		const last = dest[dest.length - 1];
+		if (last?.type === 'Text') {
+			last.content += node.content;
+			return;
+		}
+	}
+	dest.push(node);
 };
