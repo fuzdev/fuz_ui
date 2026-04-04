@@ -21,11 +21,11 @@ export class MdzStreamNode {
 	children: Array<MdzStreamNode> = $state([]);
 	// metadata
 	level?: number;
-	reference?: string = $state(undefined);
-	link_type?: string = $state(undefined);
+	reference?: string = $state();
+	link_type?: string = $state();
 	name?: string;
 	lang?: string | null;
-	heading_id?: string = $state(undefined);
+	heading_id?: string = $state();
 	text_type?: string; // 'Text' | 'Code'
 
 	constructor(id: MdzNodeId, type: string) {

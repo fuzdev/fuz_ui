@@ -432,7 +432,7 @@ class MdzTokenParser {
 	 */
 	#push_merging_text(children: Array<MdzNode>, node: MdzNode): void {
 		const prev = children[children.length - 1];
-		if (prev && prev.type === 'Text' && node.type === 'Text') {
+		if (prev?.type === 'Text' && node.type === 'Text') {
 			prev.content += node.content;
 			prev.end = node.end;
 		} else {

@@ -104,9 +104,7 @@ export const mdz_opcodes_to_nodes = (opcodes: Array<MdzOpcode>): Array<MdzNode> 
 			}
 
 			case 'void': {
-				if (op.node_type === 'Hr') {
-					target().push({type: 'Hr', start: 0, end: 0} as MdzHrNode);
-				}
+				target().push({type: 'Hr', start: 0, end: 0} as MdzHrNode);
 				break;
 			}
 

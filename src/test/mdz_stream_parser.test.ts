@@ -3,7 +3,15 @@ import {test, assert, describe, beforeAll} from 'vitest';
 import {MdzStreamParser} from '$lib/mdz_stream_parser.js';
 import {mdz_opcodes_to_nodes} from '$lib/mdz_opcodes_to_nodes.js';
 import type {MdzNode} from '$lib/mdz.js';
-import type {MdzOpcode} from '$lib/mdz_opcodes.js';
+import type {
+	MdzOpcode,
+	MdzOpcodeOpen,
+	MdzOpcodeClose,
+	MdzOpcodeText,
+	MdzOpcodeAppendText,
+	MdzOpcodeVoid,
+	MdzOpcodeRevert,
+} from '$lib/mdz_opcodes.js';
 import {load_fixtures, type MdzFixture} from './fixtures/mdz/mdz_test_helpers.js';
 
 /**
@@ -36,7 +44,7 @@ const strip_positions = (nodes: Array<MdzNode>): Array<unknown> =>
 		if ('content' in node) stripped.content = node.content;
 		if ('children' in node) stripped.children = strip_positions(node.children);
 		if ('level' in node) stripped.level = node.level;
-		if ('id' in node && node.type === 'Heading') stripped.id = node.id;
+		if ('id' in node) stripped.id = node.id;
 		if ('reference' in node) stripped.reference = node.reference;
 		if ('link_type' in node) stripped.link_type = node.link_type;
 		if ('lang' in node) stripped.lang = node.lang;
@@ -50,14 +58,13 @@ describe('MdzStreamParser opcodes', () => {
 	test('plain text produces paragraph with text', () => {
 		const ops = collect_opcodes('hello');
 		assert.ok(ops.length >= 3);
-		assert.equal(ops[0]!.type, 'open');
-		if (ops[0]!.type === 'open') assert.equal(ops[0]!.node_type, 'Paragraph');
-		const text_op = ops.find((o) => o.type === 'text');
+		const open_op = ops.find((o): o is MdzOpcodeOpen => o.type === 'open');
+		assert.ok(open_op);
+		assert.equal(open_op.node_type, 'Paragraph');
+		const text_op = ops.find((o): o is MdzOpcodeText => o.type === 'text');
 		assert.ok(text_op);
-		if (text_op?.type === 'text') {
-			assert.equal(text_op.content, 'hello');
-			assert.equal(text_op.text_type, 'Text');
-		}
+		assert.equal(text_op.content, 'hello');
+		assert.equal(text_op.text_type, 'Text');
 	});
 
 	test('bold produces open/close pair', () => {
@@ -80,79 +87,91 @@ describe('MdzStreamParser opcodes', () => {
 		parser.finish();
 		parser.take_opcodes();
 
-		const text_op = ops1.find((o) => o.type === 'text');
+		const text_op = ops1.find((o): o is MdzOpcodeText => o.type === 'text');
 		assert.ok(text_op);
-		if (text_op?.type === 'text') assert.equal(text_op.content, 'hel');
+		assert.equal(text_op.content, 'hel');
 
-		const append_op = ops2.find((o) => o.type === 'append_text');
+		const append_op = ops2.find((o): o is MdzOpcodeAppendText => o.type === 'append_text');
 		assert.ok(append_op);
-		if (append_op?.type === 'append_text') assert.equal(append_op.content, 'lo');
+		assert.equal(append_op.content, 'lo');
 	});
 
 	test('heading produces heading node', () => {
 		const ops = collect_opcodes('## Title');
-		const heading_open = ops.find((o) => o.type === 'open' && o.node_type === 'Heading');
+		const heading_open = ops.find(
+			(o): o is MdzOpcodeOpen => o.type === 'open' && o.node_type === 'Heading',
+		);
 		assert.ok(heading_open);
-		if (heading_open?.type === 'open') assert.equal(heading_open.level, 2);
+		assert.equal(heading_open.level, 2);
 	});
 
 	test('heading close carries heading_id', () => {
 		const ops = collect_opcodes('## My Heading');
-		const heading_open = ops.find((o) => o.type === 'open' && o.node_type === 'Heading');
+		const heading_open = ops.find(
+			(o): o is MdzOpcodeOpen => o.type === 'open' && o.node_type === 'Heading',
+		);
 		assert.ok(heading_open);
-		const heading_close = ops.find((o) => o.type === 'close' && o.id === heading_open!.id);
+		const heading_close = ops.find(
+			(o): o is MdzOpcodeClose => o.type === 'close' && o.id === heading_open.id,
+		);
 		assert.ok(heading_close);
-		if (heading_close?.type === 'close') {
-			assert.equal(heading_close.heading_id, 'my-heading');
-		}
+		assert.equal(heading_close.heading_id, 'my-heading');
 	});
 
 	test('heading ID with inline formatting uses text content only', () => {
 		const ops = collect_opcodes('# **Bold** and _italic_');
-		const heading_open = ops.find((o) => o.type === 'open' && o.node_type === 'Heading');
+		const heading_open = ops.find(
+			(o): o is MdzOpcodeOpen => o.type === 'open' && o.node_type === 'Heading',
+		);
 		assert.ok(heading_open);
-		const heading_close = ops.find((o) => o.type === 'close' && o.id === heading_open!.id);
+		const heading_close = ops.find(
+			(o): o is MdzOpcodeClose => o.type === 'close' && o.id === heading_open.id,
+		);
 		assert.ok(heading_close);
-		if (heading_close?.type === 'close') {
-			assert.equal(heading_close.heading_id, 'bold-and-italic');
-		}
+		assert.equal(heading_close.heading_id, 'bold-and-italic');
 	});
 
 	test('hr produces void node', () => {
 		const ops = collect_opcodes('---\n');
-		const hr = ops.find((o) => o.type === 'void' && o.node_type === 'Hr');
+		const hr = ops.find((o): o is MdzOpcodeVoid => o.type === 'void' && o.node_type === 'Hr');
 		assert.ok(hr);
 	});
 
 	test('bold spanning paragraph break produces revert', () => {
 		const ops = collect_opcodes('**bold\n\ntext');
-		const bold_open = ops.find((o) => o.type === 'open' && o.node_type === 'Bold');
+		const bold_open = ops.find(
+			(o): o is MdzOpcodeOpen => o.type === 'open' && o.node_type === 'Bold',
+		);
 		assert.ok(bold_open);
-		const revert = ops.find((o) => o.type === 'revert' && o.id === bold_open!.id);
+		const revert = ops.find(
+			(o): o is MdzOpcodeRevert => o.type === 'revert' && o.id === bold_open.id,
+		);
 		assert.ok(revert);
-		if (revert?.type === 'revert') assert.equal(revert.replacement_text, '**');
+		assert.equal(revert.replacement_text, '**');
 	});
 
 	test('link close carries reference and link_type', () => {
 		const ops = collect_opcodes('[click](https://example.com)');
-		const link_open = ops.find((o) => o.type === 'open' && o.node_type === 'Link');
+		const link_open = ops.find(
+			(o): o is MdzOpcodeOpen => o.type === 'open' && o.node_type === 'Link',
+		);
 		assert.ok(link_open);
-		const link_close = ops.find((o) => o.type === 'close' && o.id === link_open!.id);
+		const link_close = ops.find(
+			(o): o is MdzOpcodeClose => o.type === 'close' && o.id === link_open.id,
+		);
 		assert.ok(link_close);
-		if (link_close?.type === 'close') {
-			assert.equal(link_close.reference, 'https://example.com');
-			assert.equal(link_close.link_type, 'external');
-		}
+		assert.equal(link_close.reference, 'https://example.com');
+		assert.equal(link_close.link_type, 'external');
 	});
 
 	test('codeblock content emits text opcodes', () => {
 		const ops = collect_opcodes('```js\nconst x = 1;\n```\n');
 		const cb_open = ops.find((o) => o.type === 'open' && o.node_type === 'Codeblock');
 		assert.ok(cb_open);
-		if (cb_open?.type === 'open') assert.equal(cb_open.lang, 'js');
+		if (cb_open.type === 'open') assert.equal(cb_open.lang, 'js');
 		const text_op = ops.find((o) => o.type === 'text' && o.content === 'const x = 1;');
 		assert.ok(text_op);
-		const cb_close = ops.find((o) => o.type === 'close' && o.id === cb_open!.id);
+		const cb_close = ops.find((o) => o.type === 'close' && o.id === cb_open.id);
 		assert.ok(cb_close);
 	});
 
@@ -167,7 +186,7 @@ describe('MdzStreamParser opcodes', () => {
 
 		const bold_open = ops1.find((o) => o.type === 'open' && o.node_type === 'Bold');
 		assert.ok(bold_open, 'bold should open in first chunk');
-		const bold_close = ops2.find((o) => o.type === 'close' && o.id === bold_open!.id);
+		const bold_close = ops2.find((o) => o.type === 'close' && o.id === bold_open.id);
 		assert.ok(bold_close, 'bold should close in second chunk');
 	});
 
@@ -184,9 +203,9 @@ describe('MdzStreamParser opcodes', () => {
 		const bold_open = ops1.find((o) => o.type === 'open' && o.node_type === 'Bold');
 		assert.ok(bold_open);
 		// should close, not revert — the bold has content "a"
-		const bold_close = ops2.find((o) => o.type === 'close' && o.id === bold_open!.id);
+		const bold_close = ops2.find((o) => o.type === 'close' && o.id === bold_open.id);
 		assert.ok(bold_close, 'bold with content should close, not revert after take_opcodes');
-		const revert = ops2.find((o) => o.type === 'revert' && o.id === bold_open!.id);
+		const revert = ops2.find((o) => o.type === 'revert' && o.id === bold_open.id);
 		assert.ok(!revert, 'bold with content should not be reverted');
 	});
 
@@ -194,8 +213,8 @@ describe('MdzStreamParser opcodes', () => {
 		const ops = collect_opcodes('<Alert>warning</Alert>');
 		const tag_open = ops.find((o) => o.type === 'open' && o.node_type === 'Component');
 		assert.ok(tag_open);
-		if (tag_open?.type === 'open') assert.equal(tag_open.name, 'Alert');
-		const tag_close = ops.find((o) => o.type === 'close' && o.id === tag_open!.id);
+		if (tag_open.type === 'open') assert.equal(tag_open.name, 'Alert');
+		const tag_close = ops.find((o) => o.type === 'close' && o.id === tag_open.id);
 		assert.ok(tag_close);
 	});
 

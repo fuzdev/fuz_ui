@@ -19,7 +19,7 @@ const strip_positions = (nodes: Array<MdzNode>): Array<unknown> =>
 		if ('content' in node) stripped.content = node.content;
 		if ('children' in node) stripped.children = strip_positions(node.children);
 		if ('level' in node) stripped.level = node.level;
-		if ('id' in node && node.type === 'Heading') stripped.id = node.id;
+		if ('id' in node) stripped.id = node.id;
 		if ('reference' in node) stripped.reference = node.reference;
 		if ('link_type' in node) stripped.link_type = node.link_type;
 		if ('lang' in node) stripped.lang = node.lang;

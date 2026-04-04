@@ -1132,7 +1132,7 @@ export class MdzParser {
 			const node = this.#parse_node();
 			// merge adjacent Text nodes (e.g., text + failed delimiter + text)
 			const prev = nodes[nodes.length - 1];
-			if (prev && prev.type === 'Text' && node.type === 'Text') {
+			if (prev?.type === 'Text' && node.type === 'Text') {
 				prev.content += node.content;
 				prev.end = node.end;
 			} else {

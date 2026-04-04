@@ -331,7 +331,7 @@ export class MdzStreamParser {
 		let i = start;
 
 		// must have exactly 3 hyphens
-		if (i + HR_HYPHEN_COUNT > this.#buffer.length) return forced ? false : false;
+		if (i + HR_HYPHEN_COUNT > this.#buffer.length) return false;
 		for (let j = 0; j < HR_HYPHEN_COUNT; j++) {
 			if (this.#buffer.charCodeAt(i + j) !== HYPHEN) return forced ? false : null;
 		}
