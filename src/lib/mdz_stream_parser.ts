@@ -9,8 +9,10 @@
  * {@link https://bsky.app/profile/pngwn.at/post/3mi527zntb22n @pngwn.at}'s
  * Penguin-Flavoured Markdown (PFM): restrict the syntax so streaming is tractable,
  * render optimistically and correct when wrong, emit serializable opcodes
- * instead of trees to avoid re-parsing and diffing, and keep the opcodes
- * target-agnostic so any renderer can consume them.
+ * to avoid re-parsing, and keep the opcodes target-agnostic so any renderer
+ * can consume them. mdz diverges in one respect: the Svelte consumer
+ * (`MdzStreamState`) does build a reactive tree from opcodes — the platform
+ * dictates this — but mutations are fine-grained via `$state`, not diffed.
  *
  * Usage:
  * ```ts

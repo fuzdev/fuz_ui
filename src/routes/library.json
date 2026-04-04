@@ -5637,7 +5637,7 @@
 						"name": "mdz_opcodes_to_nodes",
 						"kind": "function",
 						"doc_comment": "Convert an array of mdz opcodes to the `MdzNode[]` tree.\nProduces output identical to `mdz_parse()`.",
-						"source_line": 52,
+						"source_line": 54,
 						"type_signature": "(opcodes: MdzOpcode[]): MdzNode[]",
 						"return_type": "MdzNode[]",
 						"parameters": [
@@ -5934,7 +5934,7 @@
 						"name": "MdzStreamParser",
 						"kind": "class",
 						"doc_comment": "Streaming opcode parser for mdz content.\nFeed chunks via `feed()`, retrieve opcodes via `take_opcodes()`, call `finish()` at end.",
-						"source_line": 86,
+						"source_line": 95,
 						"members": [
 							{
 								"name": "feed",
@@ -5968,7 +5968,7 @@
 						]
 					}
 				],
-				"module_comment": "Streaming opcode parser for mdz.\n\nFed chunks of text (e.g., from LLM output), emits opcodes as rendering\ninstructions. Makes optimistic assumptions about ambiguous syntax and\nemits `revert` opcodes to correct when wrong. Never re-parses.\n\nUsage:\n```ts\nconst parser = new MdzStreamParser();\nparser.feed('hello **bold');\nconst ops1 = parser.take_opcodes(); // open Paragraph, text \"hello \", open Bold, text \"bold\"\nparser.feed('** world');\nconst ops2 = parser.take_opcodes(); // close Bold, text \" world\"\nparser.finish();\nconst ops3 = parser.take_opcodes(); // close Paragraph\n```",
+				"module_comment": "Streaming opcode parser for mdz.\n\nFed chunks of text (e.g., from LLM output), emits opcodes as rendering\ninstructions. Makes optimistic assumptions about ambiguous syntax and\nemits `revert` opcodes to correct when wrong. Never re-parses.\n\nThe design was independently arrived at but shares goals with\n{@link https://bsky.app/profile/pngwn.at/post/3mi527zntb22n @pngwn.at}'s\nPenguin-Flavoured Markdown (PFM): restrict the syntax so streaming is tractable,\nrender optimistically and correct when wrong, emit serializable opcodes\nto avoid re-parsing, and keep the opcodes target-agnostic so any renderer\ncan consume them. mdz diverges in one respect: the Svelte consumer\n(`MdzStreamState`) does build a reactive tree from opcodes — the platform\ndictates this — but mutations are fine-grained via `$state`, not diffed.\n\nUsage:\n```ts\nconst parser = new MdzStreamParser();\nparser.feed('hello **bold');\nconst ops1 = parser.take_opcodes(); // open Paragraph, text \"hello \", open Bold, text \"bold\"\nparser.feed('** world');\nconst ops2 = parser.take_opcodes(); // close Bold, text \" world\"\nparser.finish();\nconst ops3 = parser.take_opcodes(); // close Paragraph\n```",
 				"dependencies": ["mdz_helpers.ts"]
 			},
 			{
@@ -5978,7 +5978,7 @@
 						"name": "MdzStreamNode",
 						"kind": "class",
 						"doc_comment": "A reactive node in the stream renderer tree.\nFields are `$state` so Svelte re-renders only what changes.",
-						"source_line": 17,
+						"source_line": 19,
 						"members": [
 							{
 								"name": "id",
@@ -6056,7 +6056,7 @@
 						"name": "MdzStreamState",
 						"kind": "class",
 						"doc_comment": "Reactive state manager for streaming mdz content.\nApply opcodes to incrementally build and update the render tree.",
-						"source_line": 41,
+						"source_line": 43,
 						"members": [
 							{
 								"name": "root",
