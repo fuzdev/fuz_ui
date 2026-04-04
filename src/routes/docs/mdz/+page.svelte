@@ -25,6 +25,20 @@
 		]),
 	);
 
+	const playground_initial = `**Bold** and _italic_ and ~strikethrough~ text.
+
+Inline links to identifiers using backticks: \`mdz_parse\`, \`Mdz\`
+
+#### A heading
+
+A paragraph with links: [fuz homepage](https://fuz.dev), ./introduction
+
+\`\`\`ts
+const x = 42;
+\`\`\``;
+
+	let playground_content = $state(playground_initial);
+
 	const basic_example = '**Bold** and _italic_ and ~strikethrough~ text.';
 	const nesting_example = '**~_All_ three~ combi**_ned_';
 	const whitespace_example = ' see \n  how       \n   whitespace    \nis preserved ';
@@ -74,10 +88,12 @@
 		<aside>
 			<p>Possible changes?</p>
 			<ul>
+				<li>rethink any of the choices -- still feels experimental</li>
 				<li>
 					allow ending lines with <code class="white-space:pre"> \</code> to opt out of rendering the
 					line break?
 				</li>
+				<li>is the newline-preserving whitespace design ideal?</li>
 			</ul>
 		</aside>
 	</section>
@@ -89,6 +105,15 @@
 	</TomeSection>
 
 	<TomeSection>
+		<TomeSectionHeader text="Playground" />
+		<textarea bind:value={playground_content}></textarea>
+		<div class="panel shade_05 mb_lg p_md">
+			<Mdz content={playground_content} />
+		</div>
+		<Code content={`<Mdz content="${nesting_example}" />`} />
+	</TomeSection>
+
+	<TomeSection>
 		<TomeSectionHeader text="Basic formatting" />
 		<p>Supports <strong>bold</strong>, <em>italic</em>, and strikethrough:</p>
 		<Code content={`<Mdz content="${basic_example}" />`} />
@@ -96,54 +121,6 @@
 		<p>All inline formatting can nest:</p>
 		<Code content={`<Mdz content="${nesting_example}" />`} />
 		<Mdz content={nesting_example} class="mb_xl5" />
-	</TomeSection>
-
-	<TomeSection>
-		<TomeSectionHeader text="Preserves whitespace" />
-		<p>
-			mdz preserves and renders all whitespace exactly as written, minimizing surprise for
-			nontechnical users:
-		</p>
-		<Code content={`<Mdz content="${whitespace_example}" />`} />
-		<div class="mb_lg" bind:this={whitespace_example_el}>
-			<Mdz content={whitespace_example} />
-		</div>
-		<button
-			type="button"
-			onclick={() => {
-				const selection = window.getSelection();
-				const range = document.createRange();
-				range.selectNodeContents(whitespace_example_el);
-				selection?.removeAllRanges();
-				selection?.addRange(range);
-			}}
-		>
-			select text to reveal whitespace
-		</button>
-	</TomeSection>
-
-	<TomeSection>
-		<TomeSectionHeader text="Line breaks and paragraphs" />
-		<p>Single newlines create line breaks:</p>
-		<Code content={linebreak_example} />
-		<Mdz content={linebreak_example} class="mb_xl5" />
-		<p>Double newlines create paragraph breaks:</p>
-		<Code content={paragraph_example} />
-		<Mdz content={paragraph_example} class="mb_xl5" />
-		<p>Triple newlines create paragraphs with a blank line between:</p>
-		<Code content={triple_linebreak_example} />
-		<Mdz content={triple_linebreak_example} class="mb_xl5" />
-	</TomeSection>
-
-	<TomeSection>
-		<TomeSectionHeader text="Horizontal rules" />
-		<p>
-			Use exactly three hyphens (<code>---</code>) at the start of a line to create a horizontal
-			rule. No blank lines are required around it. mdz has no setext headings, so
-			<code>---</code> after a paragraph is always an HR:
-		</p>
-		<Code content={hr_example} />
-		<Mdz content={hr_example} class="mb_xl5" />
 	</TomeSection>
 
 	<TomeSection>
@@ -177,6 +154,76 @@
 		</p>
 		<Code content={link_relative_example} />
 		<Mdz content={link_relative_example} base="/docs/mdz/" class="mb_xl5" />
+	</TomeSection>
+
+	<TomeSection>
+		<TomeSectionHeader text="Line breaks and paragraphs" />
+		<p>Single newlines create line breaks:</p>
+		<Code content={linebreak_example} />
+		<Mdz content={linebreak_example} class="mb_xl5" />
+		<p>Double newlines create paragraph breaks:</p>
+		<Code content={paragraph_example} />
+		<Mdz content={paragraph_example} class="mb_xl5" />
+		<p>Triple newlines create paragraphs with a blank line between:</p>
+		<Code content={triple_linebreak_example} />
+		<Mdz content={triple_linebreak_example} class="mb_xl5" />
+	</TomeSection>
+
+	<TomeSection>
+		<TomeSectionHeader text="Headings" />
+		<p>Use 1-6 hashes followed by a space:</p>
+		<Code content={heading_example} />
+		<Mdz content={heading_example} class="mb_xl5" />
+		<p>
+			Must start at column 0 and have a space after hashes. No blank lines are required around
+			headings. Headings can include inline formatting.
+		</p>
+	</TomeSection>
+
+	<TomeSection>
+		<TomeSectionHeader text="Code blocks" />
+		<p>Use three or more backticks with optional language hint:</p>
+		<Code content={code_block_example} />
+		<Mdz content={code_block_example} class="mb_xl5" />
+		<p>
+			Must start at column 0 and closing fence must match opening length. No blank lines are
+			required around code blocks.
+		</p>
+	</TomeSection>
+
+	<TomeSection>
+		<TomeSectionHeader text="Horizontal rules" />
+		<p>
+			Use exactly three hyphens (<code>---</code>) at the start of a line to create a horizontal
+			rule. No blank lines are required around it. mdz has no setext headings, so
+			<code>---</code> after a paragraph is always an HR:
+		</p>
+		<Code content={hr_example} />
+		<Mdz content={hr_example} class="mb_xl5" />
+	</TomeSection>
+
+	<TomeSection>
+		<TomeSectionHeader text="Preserves whitespace" />
+		<p>
+			mdz preserves and renders all whitespace exactly as written, minimizing surprise for
+			nontechnical users:
+		</p>
+		<Code content={`<Mdz content="${whitespace_example}" />`} />
+		<div class="mb_lg" bind:this={whitespace_example_el}>
+			<Mdz content={whitespace_example} />
+		</div>
+		<button
+			type="button"
+			onclick={() => {
+				const selection = window.getSelection();
+				const range = document.createRange();
+				range.selectNodeContents(whitespace_example_el);
+				selection?.removeAllRanges();
+				selection?.addRange(range);
+			}}
+		>
+			select text to reveal whitespace
+		</button>
 	</TomeSection>
 
 	<TomeSection>
@@ -252,28 +299,6 @@ const nodes = mdz_parse(content);`}
 		/>
 		<p>
 			For example you may want <code>white-space:pre</code> to avoid wrapping in some circumstances.
-		</p>
-	</TomeSection>
-
-	<TomeSection>
-		<TomeSectionHeader text="Headings" />
-		<p>Use 1-6 hashes followed by a space:</p>
-		<Code content={heading_example} />
-		<Mdz content={heading_example} class="mb_xl5" />
-		<p>
-			Must start at column 0 and have a space after hashes. No blank lines are required around
-			headings. Headings can include inline formatting.
-		</p>
-	</TomeSection>
-
-	<TomeSection>
-		<TomeSectionHeader text="Code blocks" />
-		<p>Use three or more backticks with optional language hint:</p>
-		<Code content={code_block_example} />
-		<Mdz content={code_block_example} class="mb_xl5" />
-		<p>
-			Must start at column 0 and closing fence must match opening length. No blank lines are
-			required around code blocks.
 		</p>
 	</TomeSection>
 
