@@ -1,6 +1,6 @@
 import {test, assert, describe} from 'vitest';
-import type {DuplicateInfo} from '@fuzdev/svelte-docinfo/pipeline.js';
-import {throwOnDuplicates} from '@fuzdev/svelte-docinfo/analyze.js';
+import type {DuplicateInfo} from 'svelte-docinfo/pipeline.js';
+import {throwOnDuplicates} from 'svelte-docinfo/analyze.js';
 
 import {
 	source_file_from_disknode,

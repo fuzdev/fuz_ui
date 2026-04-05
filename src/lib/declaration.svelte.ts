@@ -1,8 +1,4 @@
-import {
-	type DeclarationJson,
-	generateImport,
-	getDisplayName,
-} from '@fuzdev/svelte-docinfo/types.js';
+import {type DeclarationJson, generateImport, getDisplayName} from 'svelte-docinfo/types.js';
 
 import type {Module} from './module.svelte.js';
 import {url_github_file} from './package_helpers.js';

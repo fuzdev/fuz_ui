@@ -90,7 +90,7 @@
 			"@fuzdev/fuz_css": "^0.54.0",
 			"@fuzdev/fuz_util": "^0.52.1",
 			"@fuzdev/gro": "^0.196.0",
-			"@fuzdev/svelte-docinfo": "file:../private_svelte-docinfo",
+			"svelte-docinfo": "file:../private_svelte-docinfo",
 			"@jridgewell/trace-mapping": "^0.3.31",
 			"@ryanatkn/eslint-config": "^0.9.0",
 			"@sveltejs/adapter-static": "^3.0.10",
@@ -8051,7 +8051,7 @@
 						"also_exported_from": []
 					}
 				],
-				"module_comment": "Gro-specific library metadata generation.\n\nThis module provides Gro integration for library generation. It uses svelte-docinfo's\npure analysis (`analyze`) and wraps the results with fuz_ui's opinionated\nLibraryJson format (GitHub/npm metadata).\n\nFor build-tool agnostic usage, see `@fuzdev/svelte-docinfo`.\n\n@see @fuzdev/svelte-docinfo/analyze.js for the generic analysis entry point\n@see @fuzdev/svelte-docinfo/pipeline.js for pipeline helpers\n@see library_output.js for output file generation",
+				"module_comment": "Gro-specific library metadata generation.\n\nThis module provides Gro integration for library generation. It uses svelte-docinfo's\npure analysis (`analyze`) and wraps the results with fuz_ui's opinionated\nLibraryJson format (GitHub/npm metadata).\n\nFor build-tool agnostic usage, see `svelte-docinfo`.\n\n@see svelte-docinfo/analyze.js for the generic analysis entry point\n@see svelte-docinfo/pipeline.js for pipeline helpers\n@see library_output.js for output file generation",
 				"dependencies": ["library_output.ts"],
 				"dependents": [],
 				"star_exports": []

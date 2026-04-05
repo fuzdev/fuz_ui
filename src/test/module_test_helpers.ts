@@ -11,7 +11,7 @@ import {
 	createSourceOptions,
 	type ModuleSourceOptions,
 	type ModuleSourcePartial,
-} from '@fuzdev/svelte-docinfo/source.js';
+} from 'svelte-docinfo/source.js';
 
 /** Default project root for tests. */
 export const TEST_PROJECT_ROOT = '/home/user/project';

@@ -26,7 +26,7 @@ dev server.
 - SvelteKit - application framework
 - fuz_css (@fuzdev/fuz_css) - CSS framework and design system foundation
 - fuz_util (@fuzdev/fuz_util) - utility library
-- svelte-docinfo (@fuzdev/svelte-docinfo) - TypeScript/Svelte static analysis
+- svelte-docinfo (svelte-docinfo) - TypeScript/Svelte static analysis
 - Gro (@fuzdev/gro) - build system and CLI
 
 ## Scope
@@ -73,7 +73,7 @@ represents a component or helper with `name`, `category`, `component`, and
 `related` fields. Central registry: `src/routes/docs/tomes.ts`
 
 **svelte-docinfo** - TypeScript/Svelte static analysis is provided by the
-`@fuzdev/svelte-docinfo` package. fuz_ui imports analysis functions (`analyze`,
+`svelte-docinfo` package. fuz_ui imports analysis functions (`analyze`,
 `throwOnDuplicates` from `analyze.js`), source utilities (`isTypescript`,
 `isSvelte` from `source.js`), and types (`ModuleJson`, `DeclarationJson`,
 `generateImport`, `getDisplayName` from `types.js`).
@@ -151,15 +151,15 @@ represents a component or helper with `name`, `category`, `component`, and
   wraps with `SourceJson` metadata, outputs Gro `Gen` format
 - `library.svelte.ts` - `Library` class wrapping library data
 - `declaration.svelte.ts` - `Declaration` class for code declarations (uses
-  `generateImport`, `getDisplayName` from `@fuzdev/svelte-docinfo/types.js`)
+  `generateImport`, `getDisplayName` from `svelte-docinfo/types.js`)
 - `module.svelte.ts` - `Module` class for source files (uses `ModuleJson` from
-  `@fuzdev/svelte-docinfo/types.js`)
+  `svelte-docinfo/types.js`)
 - `LibraryDetail.svelte` - library overview component (uses `isTypescript`,
-  `isSvelte`, `isCss`, `isJson` from `@fuzdev/svelte-docinfo/source.js`)
+  `isSvelte`, `isCss`, `isJson` from `svelte-docinfo/source.js`)
 - `library_helpers.ts` - docs URL helpers
 - `vite_plugin_library_well_known.ts` - RFC 8615 `.well-known/` metadata publishing
 
-Analysis is provided by `@fuzdev/svelte-docinfo`. See its CLAUDE.md for the
+Analysis is provided by `svelte-docinfo`. See its CLAUDE.md for the
 full API. Key imports used by fuz_ui:
 
 - `analyze.js` - `analyze()`, `throwOnDuplicates`, `OnDuplicatesCallback`
@@ -284,7 +284,7 @@ API docs.
 
 **API documentation** - auto-generated from TypeScript/Svelte source with full
 TSDoc support. Two-phase architecture: TSDoc extraction at build time
-(via `@fuzdev/svelte-docinfo`), mdz rendering at runtime (`mdz.ts`). Setup
+(via `svelte-docinfo`), mdz rendering at runtime (`mdz.ts`). Setup
 requires `library.gen.ts` and API routes. See `src/routes/docs/api/` for
 example routes.
 

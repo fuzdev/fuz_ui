@@ -5,10 +5,10 @@
  * pure analysis (`analyze`) and wraps the results with fuz_ui's opinionated
  * LibraryJson format (GitHub/npm metadata).
  *
- * For build-tool agnostic usage, see `@fuzdev/svelte-docinfo`.
+ * For build-tool agnostic usage, see `svelte-docinfo`.
  *
- * @see @fuzdev/svelte-docinfo/analyze.js for the generic analysis entry point
- * @see @fuzdev/svelte-docinfo/pipeline.js for pipeline helpers
+ * @see svelte-docinfo/analyze.js for the generic analysis entry point
+ * @see svelte-docinfo/pipeline.js for pipeline helpers
  * @see library_output.js for output file generation
  *
  * @module
@@ -25,8 +25,8 @@ import {
 	validateSourceOptions,
 	isSource,
 	getSourceRoot,
-} from '@fuzdev/svelte-docinfo/source.js';
-import {analyze, type OnDuplicatesCallback} from '@fuzdev/svelte-docinfo/analyze.js';
+} from 'svelte-docinfo/source.js';
+import {analyze, type OnDuplicatesCallback} from 'svelte-docinfo/analyze.js';
 import type {SourceJson} from '@fuzdev/fuz_util/source_json.js';
 
 import {library_generate_output} from './library_output.js';
