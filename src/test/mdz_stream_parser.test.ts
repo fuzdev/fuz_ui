@@ -93,6 +93,7 @@ describe('MdzStreamParser opcodes', () => {
 
 	test('horizontal rule produces void opcode', () => {
 		const ops = collect_opcodes('---\n');
+		// eslint-disable-next-line @typescript-eslint/no-unnecessary-condition
 		const hr = ops.find((o): o is MdzOpcodeVoid => o.type === 'void' && o.node_type === 'Hr');
 		assert.ok(hr);
 	});
@@ -522,7 +523,7 @@ describe('MdzStreamParser opcodes', () => {
 		assert.ok(para.children[0]!.content!.startsWith('hhttps://'));
 		const link = para.children.find((c) => c.type === 'Link');
 		assert.ok(link, 'second URL should be detected after failed speculation');
-		assert.equal(link!.reference, 'https://example.com');
+		assert.equal(link.reference, 'https://example.com');
 	});
 
 	test('path auto-link streams then wraps with internal link_type', () => {
