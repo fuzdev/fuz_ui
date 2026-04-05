@@ -29,13 +29,13 @@
 {/if}
 
 <!-- type signature -->
-{#if declaration.typeSignature}
-	<Code lang="ts" content={declaration.typeSignature} />
+{#if declaration.type_signature}
+	<Code lang="ts" content={declaration.type_signature} />
 {/if}
 
 <!-- documentation -->
 {#if declaration.has_documentation}
-	<Mdz content={declaration.docComment!} />
+	<Mdz content={declaration.doc_comment!} />
 {/if}
 
 <!-- parameters -->
@@ -108,12 +108,12 @@
 {/if}
 
 <!-- returns -->
-{#if declaration.returnType}
+{#if declaration.return_type}
 	<section>
 		<h4>returns</h4>
-		<Code lang="ts" content={declaration.returnType} />
-		{#if declaration.returnDescription}
-			<Mdz content={declaration.returnDescription} />
+		<Code lang="ts" content={declaration.return_type} />
+		{#if declaration.return_description}
+			<Mdz content={declaration.return_description} />
 		{/if}
 	</section>
 {/if}
@@ -131,10 +131,10 @@
 						<TypeLink type={generic.constraint} />
 					</div>
 				{/if}
-				{#if generic.default_type}
+				{#if generic.defaultType}
 					<div class="row gap_md">
 						<strong>default</strong>
-						<TypeLink type={generic.default_type} />
+						<TypeLink type={generic.defaultType} />
 					</div>
 				{/if}
 			</section>
@@ -143,24 +143,28 @@
 {/if}
 
 <!-- Extends/Implements -->
-{#if declaration.extends?.length || declaration.implements?.length}
+{#if declaration.extends_type || declaration.implements_types?.length}
 	<section>
 		<h4>inheritance</h4>
-		{#if declaration.extends?.length}
+		{#if declaration.extends_type}
 			<div>
 				<strong>extends:</strong>
-				<ul>
-					{#each declaration.extends as ext (ext)}
-						<li><TypeLink type={ext} /></li>
-					{/each}
-				</ul>
+				{#if Array.isArray(declaration.extends_type)}
+					<ul>
+						{#each declaration.extends_type as ext (ext)}
+							<li><TypeLink type={ext} /></li>
+						{/each}
+					</ul>
+				{:else}
+					<TypeLink type={declaration.extends_type} />
+				{/if}
 			</div>
 		{/if}
-		{#if declaration.implements?.length}
+		{#if declaration.implements_types?.length}
 			<div>
 				<strong>implements:</strong>
 				<ul>
-					{#each declaration.implements as impl (impl)}
+					{#each declaration.implements_types as impl (impl)}
 						<li><TypeLink type={impl} /></li>
 					{/each}
 				</ul>
@@ -246,7 +250,7 @@
 					</div>
 				{/if}
 				<!-- parameters for methods and constructors -->
-				{#if member.parameters?.length}
+				{#if (member.kind === 'function' || member.kind === 'constructor') && member.parameters?.length}
 					<section>
 						{#each member.parameters as param (param)}
 							<section>
@@ -278,7 +282,7 @@
 					</section>
 				{/if}
 				<!-- return type for methods -->
-				{#if member.returnType}
+				{#if member.kind === 'function' && member.returnType}
 					<div class="row gap_md">
 						<strong>returns</strong>
 						<TypeLink type={member.returnType} />
@@ -302,33 +306,6 @@
 								</li>
 							{/each}
 						</ul>
-					</div>
-				{/if}
-			</section>
-		{/each}
-	</section>
-{/if}
-
-<!-- properties (for types/interfaces) -->
-{#if declaration.properties?.length}
-	<section>
-		{#each declaration.properties as prop (prop)}
-			<section>
-				<h4><code>{prop.name}</code></h4>
-				{#if prop.docComment}
-					<Mdz content={prop.docComment} />
-				{/if}
-				{#if prop.typeSignature}
-					<div class="row gap_md mt_lg">
-						<strong>type</strong>
-						<TypeLink type={prop.typeSignature} />
-					</div>
-				{/if}
-				{#if prop.modifiers?.length}
-					<div class="row gap_md mt_lg">
-						{#each prop.modifiers as modifier (modifier)}
-							<span class="chip">{modifier}</span>
-						{/each}
 					</div>
 				{/if}
 			</section>

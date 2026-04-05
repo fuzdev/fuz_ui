@@ -11,6 +11,7 @@
 import type {PackageJson} from '@fuzdev/fuz_util/package_json.js';
 import type {SourceJson} from '@fuzdev/fuz_util/source_json.js';
 import {library_json_parse, type LibraryJson} from '@fuzdev/fuz_util/library_json.js';
+import {compactReplacer} from 'svelte-docinfo';
 
 /**
  * Result of generating library output files.
@@ -37,8 +38,12 @@ export const library_generate_output = (
 	package_json: PackageJson,
 	source_json: SourceJson,
 ): LibraryOutputResult => {
+	// Compact source_json (strips Zod default values like empty arrays and false booleans)
+	// Only applied to source_json, not the outer library_json package metadata
+	const compacted_source_json = JSON.parse(JSON.stringify(source_json, compactReplacer));
+
 	// Parse at generation time, not runtime
-	const library_json: LibraryJson = library_json_parse(package_json, source_json);
+	const library_json: LibraryJson = library_json_parse(package_json, compacted_source_json);
 
 	const json_content = JSON.stringify(library_json, null, '\t') + '\n';
 

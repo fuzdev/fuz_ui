@@ -1,4 +1,4 @@
-import type {ModuleJson} from '@fuzdev/fuz_util/source_json.js';
+import type {ModuleJson} from 'svelte-docinfo';
 
 import {Declaration} from './declaration.svelte.js';
 import type {Library} from './library.svelte.js';
@@ -21,7 +21,7 @@ export class Module {
 	 */
 	path_import = $derived('./' + this.path);
 
-	module_comment = $derived(this.module_json.module_comment);
+	module_comment = $derived(this.module_json.moduleComment);
 
 	/**
 	 * Array of Declaration instances. Filters out default exports.
@@ -52,7 +52,7 @@ export class Module {
 		!!(this.module_json.declarations && this.module_json.declarations.length > 0),
 	);
 
-	has_module_comment: boolean = $derived(!!this.module_json.module_comment);
+	has_module_comment: boolean = $derived(!!this.module_comment);
 
 	/**
 	 * Modules this imports (paths relative to src/lib).

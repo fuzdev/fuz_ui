@@ -8,7 +8,7 @@
  * For build-tool agnostic usage, see `svelte-docinfo`.
  *
  * @see svelte-docinfo/analyze.js for the generic analysis entry point
- * @see svelte-docinfo/pipeline.js for pipeline helpers
+ * @see svelte-docinfo/postprocess.js for post-processing helpers
  * @see library_output.js for output file generation
  *
  * @module
@@ -18,15 +18,14 @@ import type {Gen} from '@fuzdev/gro';
 import {package_json_load} from '@fuzdev/gro/package_json.js';
 import type {Disknode} from '@fuzdev/gro/disknode.js';
 import {
-	type SourceFileInfo,
-	type ModuleSourceOptions,
-	type ModuleSourcePartial,
+	analyze,
 	createSourceOptions,
-	validateSourceOptions,
-	isSource,
-	getSourceRoot,
-} from 'svelte-docinfo/source.js';
-import {analyze, type OnDuplicatesCallback} from 'svelte-docinfo/analyze.js';
+	type ModuleSourceOptions,
+	type OnDuplicatesCallback,
+	type SourceFileInfo,
+	type SourceOptionsDefaults,
+} from 'svelte-docinfo';
+import {validateSourceOptions, isSource, getSourceRoot} from 'svelte-docinfo/source-config.js';
 import type {SourceJson} from '@fuzdev/fuz_util/source_json.js';
 
 import {library_generate_output} from './library_output.js';
@@ -40,7 +39,7 @@ export interface LibraryGenOptions {
 	 * merged with defaults. The `project_root` is automatically set to
 	 * `process.cwd()` if not provided.
 	 */
-	source?: ModuleSourceOptions | Partial<ModuleSourcePartial>;
+	source?: ModuleSourceOptions | Partial<SourceOptionsDefaults>;
 	/**
 	 * Callback invoked when duplicate declaration names are found.
 	 *
@@ -160,7 +159,7 @@ export const library_gen = (options?: LibraryGenOptions): Gen => {
 
 			// Build source options with project_root from cwd
 			const source_options: ModuleSourceOptions =
-				options?.source && 'project_root' in options.source
+				options?.source && 'projectRoot' in options.source
 					? options.source
 					: createSourceOptions(process.cwd(), options?.source);
 
@@ -179,9 +178,9 @@ export const library_gen = (options?: LibraryGenOptions): Gen => {
 
 			// Get pure analysis from svelte-docinfo (no package metadata)
 			const {modules} = analyze({
-				source_files,
-				source_options,
-				on_duplicates: options?.on_duplicates,
+				sourceFiles: source_files,
+				sourceOptions: source_options,
+				onDuplicates: options?.on_duplicates,
 				log: log as any, // Type cast needed due to workspace dependency duplication
 			});
 
@@ -193,7 +192,7 @@ export const library_gen = (options?: LibraryGenOptions): Gen => {
 					typeof package_json.repository === 'string'
 						? package_json.repository
 						: package_json.repository?.url,
-				modules,
+				modules: modules as any, // TODO: remove cast when fuz_util SourceJson uses svelte-docinfo types
 			};
 
 			// Generate output files with fuz_ui's LibraryJson wrapper

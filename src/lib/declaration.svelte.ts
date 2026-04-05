@@ -1,7 +1,19 @@
-import {type DeclarationJson, generateImport, getDisplayName} from 'svelte-docinfo/types.js';
+import {
+	type DeclarationJson,
+	type MemberJson,
+	type ParameterInfo,
+	type ComponentPropInfo,
+	generateImport,
+	getDisplayName,
+} from 'svelte-docinfo';
 
 import type {Module} from './module.svelte.js';
 import {url_github_file} from './package_helpers.js';
+
+// Helper to access kind-specific fields on the discriminated union.
+// At runtime the field is present or undefined; TypeScript needs the cast.
+const field = <T>(decl: DeclarationJson, key: string): T | undefined =>
+	(decl as Record<string, unknown>)[key] as T | undefined;
 
 /* eslint-disable @typescript-eslint/no-deprecated */
 
@@ -26,11 +38,11 @@ export class Declaration {
 	 * GitHub source URL with line number.
 	 */
 	url_github = $derived(
-		this.library.repo_url && this.declaration_json.source_line
+		this.library.repo_url && this.declaration_json.sourceLine
 			? url_github_file(
 					this.library.repo_url,
 					`src/lib/${this.module_path}`,
-					this.declaration_json.source_line,
+					this.declaration_json.sourceLine,
 				)
 			: undefined,
 	);
@@ -63,28 +75,23 @@ export class Declaration {
 
 	type_signature = $derived(this.declaration_json.typeSignature);
 	doc_comment = $derived(this.declaration_json.docComment);
-	deprecated_message = $derived(this.declaration_json.deprecated_message);
-	parameters = $derived(this.declaration_json.parameters);
-	props = $derived(this.declaration_json.props);
-	return_type = $derived(this.declaration_json.return_type);
-	return_description = $derived(this.declaration_json.return_description);
-	generic_params = $derived(this.declaration_json.generic_params);
-	extends = $derived(this.declaration_json.extends);
-	implements = $derived(this.declaration_json.implements);
+	deprecated_message = $derived(this.declaration_json.deprecatedMessage);
+	parameters = $derived(field<Array<ParameterInfo>>(this.declaration_json, 'parameters'));
+	props = $derived(field<Array<ComponentPropInfo>>(this.declaration_json, 'props'));
+	return_type = $derived(field<string>(this.declaration_json, 'returnType'));
+	return_description = $derived(field<string>(this.declaration_json, 'returnDescription'));
+	generic_params = $derived(this.declaration_json.genericParams);
+	extends_type = $derived(field<string | Array<string>>(this.declaration_json, 'extends'));
+	implements_types = $derived(field<Array<string>>(this.declaration_json, 'implements'));
 	throws = $derived(this.declaration_json.throws);
 	since = $derived(this.declaration_json.since);
 	examples = $derived(this.declaration_json.examples);
-	see_also = $derived(this.declaration_json.see_also);
-	members: Array<DeclarationJson> | undefined = $derived(
-		this.declaration_json.members as Array<DeclarationJson> | undefined,
-	);
-	properties: Array<DeclarationJson> | undefined = $derived(
-		this.declaration_json.properties as Array<DeclarationJson> | undefined,
-	);
+	see_also = $derived(this.declaration_json.seeAlso);
+	members = $derived(field<Array<MemberJson>>(this.declaration_json, 'members'));
 
 	has_examples = $derived(!!(this.examples && this.examples.length > 0));
 	is_deprecated = $derived(!!this.deprecated_message);
-	has_documentation = $derived(!!this.docComment);
+	has_documentation = $derived(!!this.doc_comment);
 	has_parameters = $derived(!!(this.parameters && this.parameters.length > 0));
 	has_props = $derived(!!(this.props && this.props.length > 0));
 	has_generics = $derived(!!(this.generic_params && this.generic_params.length > 0));
