@@ -76,10 +76,10 @@ export interface ContextmenuStateOptions {
 }
 
 /**
- * Creates a `contextmenu` store.
+ * Creates a contextmenu store.
  * See usage with `ContextmenuRoot.svelte` and `Contextmenu.svelte`.
  *
- * @see https://developer.mozilla.org/en-US/docs/Web/API/Element/contextmenu_event
+ * @see {@link https://developer.mozilla.org/en-US/docs/Web/API/Element/contextmenu_event}
  */
 export class ContextmenuState {
 	layout: Dimensions; // TODO $state?
@@ -305,7 +305,7 @@ export class ContextmenuState {
 	}
 
 	/**
-	 * Used by `ContextmenuEntry` and custom entry components
+	 * Used by `ContextmenuEntry.svelte` and custom entry components.
 	 * @initializes
 	 */
 	add_entry(run: () => ContextmenuRun, disabled: () => boolean = () => false): EntryState {
@@ -344,7 +344,7 @@ let cache_key_counter = 0;
 
 /**
  * Creates an attachment that sets up contextmenu behavior on an element.
- * @param params Contextmenu parameters or nullish to disable
+ * @param params - contextmenu parameters or nullish to disable
  */
 export const contextmenu_attachment =
 	<T extends ContextmenuParams, U extends T | Array<T>>(
@@ -380,11 +380,11 @@ export interface ContextmenuOpenOptions {
 /**
  * Opens the contextmenu, if appropriate,
  * querying the menu items from the DOM starting at the event target.
- * @param target the leaf element from which to open the contextmenu
- * @param x the page X coordinate at which to open the contextmenu, typically the mouse `pageX`
- * @param y the page Y coordinate at which to open the contextmenu, typically the mouse `pageY`
- * @param contextmenu the contextmenu store
- * @param options optional configuration for filtering entries and haptic feedback
+ * @param target - the leaf element from which to open the contextmenu
+ * @param x - the page X coordinate at which to open the contextmenu, typically the mouse `pageX`
+ * @param y - the page Y coordinate at which to open the contextmenu, typically the mouse `pageY`
+ * @param contextmenu - the contextmenu store
+ * @param options - optional configuration for filtering entries and haptic feedback
  * @returns a boolean indicating if the menu was opened or not
  */
 export const contextmenu_open = (
@@ -487,7 +487,7 @@ const non_scoped_roots: Set<symbol> = new Set();
  * Registers a contextmenu root and warns if multiple non-scoped roots are detected.
  * Only active in development mode. Automatically handles cleanup on unmount.
  *
- * @param get_scoped Getter function that returns the current scoped value
+ * @param get_scoped - getter function that returns the current scoped value
  */
 export const contextmenu_check_global_root = (get_scoped: () => boolean): void => {
 	$effect(() => {

@@ -2,6 +2,7 @@
 	{
 		"type": "Heading",
 		"level": 2,
+		"id": "generics-like-arraystring-in-headings",
 		"children": [
 			{
 				"type": "Text",

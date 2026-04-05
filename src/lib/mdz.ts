@@ -62,6 +62,8 @@ import {
 	is_at_absolute_path,
 	is_at_relative_path,
 	extract_single_tag,
+	mdz_heading_id,
+	mdz_is_url,
 } from './mdz_helpers.js';
 
 // TODO design incremental parsing or some system that preserves Svelte components across re-renders when possible
@@ -141,6 +143,7 @@ export interface MdzHrNode extends MdzBaseNode {
 export interface MdzHeadingNode extends MdzBaseNode {
 	type: 'Heading';
 	level: 1 | 2 | 3 | 4 | 5 | 6;
+	id: string; // slugified heading text for fragment links
 	children: Array<MdzNode>; // inline formatting allowed
 }
 
@@ -490,9 +493,9 @@ export class MdzParser {
 	 * - Empty content (e.g., `__` or `~~`)
 	 * - Paragraph break interrupts before closing delimiter
 	 *
-	 * @param delimiter - The delimiter character (`_` for italic, `~` for strikethrough)
-	 * @param node_type - The node type to create ('Italic' or 'Strikethrough')
-	 * @returns Formatted node or text node if validation fails
+	 * @param delimiter - the delimiter character (`_` for italic, `~` for strikethrough)
+	 * @param node_type - the node type to create ('Italic' or 'Strikethrough')
+	 * @returns formatted node or text node if validation fails
 	 */
 	#parse_single_delimiter_formatting(
 		delimiter: '_',
@@ -860,7 +863,7 @@ export class MdzParser {
 	/**
 	 * Restore previously saved text accumulation state.
 	 * Used to restore parent state when exiting nested structure parsing.
-	 * @param state - State object returned from `#save_accumulation_state()`
+	 * @param state - state object returned from `#save_accumulation_state()`
 	 */
 	#restore_accumulation_state(state: {
 		accumulated_text: string;
@@ -878,9 +881,9 @@ export class MdzParser {
 	 * Word boundary = not surrounded by word characters (A-Z, a-z, 0-9).
 	 * Used to prevent intraword emphasis for underscores and tildes.
 	 *
-	 * @param index - Position to check
-	 * @param check_before - Whether to check the character before this position
-	 * @param check_after - Whether to check the character after this position
+	 * @param index - position to check
+	 * @param check_before - whether to check the character before this position
+	 * @param check_after - whether to check the character after this position
 	 */
 	#is_at_word_boundary(index: number, check_before: boolean, check_after: boolean): boolean {
 		if (check_before && index > 0) {
@@ -1103,9 +1106,9 @@ export class MdzParser {
 	 * - Paragraph break (double newline) is encountered (allows block elements to interrupt inline formatting)
 	 * - `end_index` boundary is reached
 	 *
-	 * @param delimiter - The delimiter string to stop at (e.g., '**', '_', ']')
-	 * @param end_index - Optional maximum index to parse up to (for greedy/bounded parsing)
-	 * @returns Array of parsed nodes (may be empty if delimiter found immediately)
+	 * @param delimiter - the delimiter string to stop at (e.g., '**', '_', ']')
+	 * @param end_index - optional maximum index to parse up to (for greedy/bounded parsing)
+	 * @returns array of parsed nodes (may be empty if delimiter found immediately)
 	 */
 	#parse_nodes_until(delimiter: string, end_index?: number): Array<MdzNode> {
 		const nodes: Array<MdzNode> = [];
@@ -1326,6 +1329,7 @@ export class MdzParser {
 		return {
 			type: 'Heading',
 			level: level as 1 | 2 | 3 | 4 | 5 | 6,
+			id: mdz_heading_id(content_nodes),
 			children: content_nodes,
 			start,
 			end: this.#index,
@@ -1517,41 +1521,3 @@ export class MdzParser {
 		throw Error('Code block not properly closed');
 	}
 }
-
-/**
- * Check if a string is a URL (`https://` or `http://`).
- * Requires at least one valid character after the protocol.
- * Rejects whitespace and characters that can't start a valid hostname.
- */
-const URL_PATTERN = /^https?:\/\/[^\s)\]}<>.,:/?#!]/;
-export const mdz_is_url = (s: string): boolean => URL_PATTERN.test(s);
-
-/**
- * Resolves a relative path (`./` or `../`) against a base path.
- * The base is treated as a directory regardless of trailing slash
- * (`'/docs/mdz'` and `'/docs/mdz/'` behave identically).
- * Handles embedded `.` and `..` segments within the reference
- * (e.g., `'./a/../b'` → navigates up then down).
- * Clamps at root — excess `..` segments stop at `/` rather than escaping.
- *
- * @param reference A relative path starting with `./` or `../`.
- * @param base An absolute base path (e.g., `'/docs/mdz/'`). Empty string is treated as root.
- * @returns An absolute resolved path (e.g., `'/docs/mdz/grammar'`).
- */
-export const resolve_relative_path = (reference: string, base: string): string => {
-	const segments = base.split('/');
-	// Remove trailing empty from split (e.g., '/docs/mdz/' → ['', 'docs', 'mdz', ''])
-	// but keep the root segment ([''] from '' base or ['', ''] from '/').
-	if (segments.length > 1 && segments.at(-1) === '') segments.pop();
-	const trailing = reference.endsWith('/');
-	for (const segment of reference.split('/')) {
-		if (segment === '.' || segment === '') continue;
-		if (segment === '..') {
-			if (segments.length > 1) segments.pop(); // clamp at root
-		} else {
-			segments.push(segment);
-		}
-	}
-	if (trailing) segments.push('');
-	return segments.join('/');
-};

@@ -30,7 +30,7 @@ export class Module {
 	module_comment = $derived(this.module_json.moduleComment);
 
 	/**
-	 * Array of Declaration instances. Filters out default exports.
+	 * Array of `Declaration` instances. Filters out default exports.
 	 */
 	declarations = $derived(
 		this.module_json.declarations

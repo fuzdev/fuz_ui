@@ -21,14 +21,14 @@ import {compactReplacer} from 'svelte-docinfo';
  * Contains both the JSON data and the TypeScript wrapper file.
  */
 export interface LibraryOutputResult {
-	/** JSON content for library.json */
+	/** JSON content for `library.json`. */
 	json_content: string;
-	/** TypeScript wrapper content for library.ts */
+	/** TypeScript wrapper content for `library.ts`. */
 	ts_content: string;
 }
 
 /**
- * Generate the library.json and library.ts file contents.
+ * Generate the `library.json` and `library.ts` file contents.
  * Parses at generation time so runtime only needs the pre-computed result.
  *
  * Returns JSON + .ts wrapper because:

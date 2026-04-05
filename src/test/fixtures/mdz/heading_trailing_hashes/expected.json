@@ -2,6 +2,7 @@
 	{
 		"type": "Heading",
 		"level": 1,
+		"id": "heading-with-trailing-hashes",
 		"children": [
 			{
 				"type": "Text",

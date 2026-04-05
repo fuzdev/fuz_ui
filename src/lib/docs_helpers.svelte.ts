@@ -5,11 +5,13 @@ import {ensure_end, ensure_start} from '@fuzdev/fuz_util/string.js';
 import {create_context} from './context_helpers.js';
 
 /**
- * Convert a string to a URL-safe fragment identifier, preserving case for API declarations.
- * Only transforms spaces and special characters, keeping valid identifier characters intact.
- * Used for hash anchors in documentation.
- * @param str - The string to convert to a fragment
- * @returns A URL-safe fragment identifier
+ * Convert a string to a URL-safe fragment identifier, preserving case.
+ * Unlike `slugify` from `@fuzdev/fuz_util/path.js` which lowercases,
+ * this keeps the original casing so API declarations like `AsyncStatus`
+ * and `async_status` produce distinct fragment IDs.
+ * Used by the `Tome` documentation system for heading and section anchors.
+ * @param str - the string to convert to a fragment
+ * @returns a URL-safe fragment identifier with case preserved
  */
 export const docs_slugify = (str: string): string => {
 	return (

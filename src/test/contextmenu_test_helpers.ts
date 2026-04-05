@@ -22,9 +22,9 @@ export const create_test_contextmenu = (): ContextmenuState => {
  * Mount a contextmenu root component with a contextmenu instance.
  * Provides default empty children snippet and merges additional props.
  *
- * @param Component The contextmenu root component to mount (ContextmenuRoot or Safari variant)
- * @param contextmenu Optional contextmenu instance (uses default if not provided)
- * @param props Additional props to pass to the component
+ * @param Component - the contextmenu root component to mount (ContextmenuRoot or Safari variant)
+ * @param contextmenu - optional contextmenu instance (uses default if not provided)
+ * @param props - additional props to pass to the component
  */
 export const mount_contextmenu_root = <TProps extends Record<string, any>>(
 	Component: Component<TProps>,
@@ -47,8 +47,8 @@ export const mount_contextmenu_root = <TProps extends Record<string, any>>(
  * Setup contextmenu attachment on an element with test params.
  * This registers the element so it responds to contextmenu events.
  *
- * @param element The HTML or SVG element to setup
- * @param params Array of contextmenu params (entries, snippets, etc.)
+ * @param element - the HTML or SVG element to setup
+ * @param params - array of contextmenu params (entries, snippets, etc.)
  * @returns Cleanup function to call when done
  */
 export const setup_contextmenu_attachment = async (

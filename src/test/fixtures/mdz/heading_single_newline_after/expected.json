@@ -2,6 +2,7 @@
 	{
 		"type": "Heading",
 		"level": 1,
+		"id": "heading-without-blank-line-after",
 		"children": [
 			{
 				"type": "Text",

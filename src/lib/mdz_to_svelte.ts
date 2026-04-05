@@ -12,7 +12,8 @@ import {UnreachableError} from '@fuzdev/fuz_util/error.js';
 import {escape_svelte_text} from '@fuzdev/fuz_util/svelte_preprocess_helpers.js';
 import {escape_js_string} from '@fuzdev/fuz_util/string.js';
 
-import {type MdzNode, resolve_relative_path} from './mdz.js';
+import type {MdzNode} from './mdz.js';
+import {resolve_relative_path} from './mdz_helpers.js';
 
 /**
  * Result of converting `MdzNode` arrays to Svelte markup.
@@ -34,12 +35,12 @@ export interface MdzToSvelteResult {
  * Each node type produces output matching what `MdzNodeView.svelte` renders at runtime.
  * Collects required imports and flags unconfigured component/element references.
  *
- * @param nodes Parsed mdz nodes to render.
- * @param components Component name to import path mapping (e.g., `{Alert: '$lib/Alert.svelte'}`).
+ * @param nodes - parsed mdz nodes to render
+ * @param components - Component name to import path mapping (e.g., `{Alert: '$lib/Alert.svelte'}`)
  *   If content references a component not in this map, `has_unconfigured_tags` is set.
- * @param elements Allowed HTML element names (e.g., `new Set(['aside', 'details'])`).
+ * @param elements - Allowed HTML element names (e.g., `new Set(['aside', 'details'])`)
  *   If content references an element not in this set, `has_unconfigured_tags` is set.
- * @param base Base path for resolving relative links (e.g., `'/docs/mdz/'`).
+ * @param base - Base path for resolving relative links (e.g., `'/docs/mdz/'`)
  *   When provided, relative references (`./`, `../`) are resolved to absolute paths
  *   and passed through `resolve()`. Trailing slash recommended.
  */

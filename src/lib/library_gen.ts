@@ -47,6 +47,7 @@ export interface LibraryGenOptions {
 	 * Use `throwOnDuplicates` for strict flat namespace enforcement.
 	 *
 	 * @example
+	 * ```ts
 	 * // Throw on duplicates (strict flat namespace)
 	 * library_gen({ on_duplicates: throwOnDuplicates });
 	 *
@@ -58,12 +59,13 @@ export interface LibraryGenOptions {
 	 *     }
 	 *   }
 	 * });
+	 * ```
 	 */
 	on_duplicates?: OnDuplicatesCallback;
 }
 
 /**
- * Convert Gro's Disknode to the build-tool agnostic SourceFileInfo interface.
+ * Convert Gro's `Disknode` to the build-tool agnostic `SourceFileInfo` interface.
  *
  * Use this when you want to analyze files using Gro's filer directly.
  *
@@ -84,15 +86,15 @@ export const source_file_from_disknode = (disknode: Disknode): SourceFileInfo =>
 };
 
 /**
- * Collect source files from Gro disknodes, filtering BEFORE conversion to SourceFileInfo.
+ * Collect source files from Gro disknodes, filtering BEFORE conversion to `SourceFileInfo`.
  *
  * This avoids errors from files outside source directories (like test fixtures that may
  * have malformed paths or missing content). The filtering uses `isSource` which
  * checks `source_paths` to only include files in configured source directories.
  *
- * @param disknodes Iterator of Gro disknodes from filer
- * @param options Module source options for filtering
- * @param log Optional logger for status messages
+ * @param disknodes - iterator of Gro disknodes from filer
+ * @param options - module source options for filtering
+ * @param log - optional logger for status messages
  */
 export const library_collect_source_files_from_disknodes = (
 	disknodes: Iterable<Disknode>,
@@ -130,7 +132,7 @@ export const library_collect_source_files_from_disknodes = (
 };
 
 /**
- * Creates a Gen object for generating library metadata with full TypeScript analysis.
+ * Creates a `Gen` object for generating library metadata with full TypeScript analysis.
  *
  * This is the Gro-specific entry point. It handles:
  * - Reading files from Gro's filer
@@ -149,7 +151,7 @@ export const library_collect_source_files_from_disknodes = (
  * export const gen = library_gen();
  * ```
  *
- * @param options Optional generation options
+ * @param options - optional generation options
  */
 export const library_gen = (options?: LibraryGenOptions): Gen => {
 	return {

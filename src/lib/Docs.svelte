@@ -72,7 +72,7 @@
 			<DocsTertiaryNav {tomes} {tomes_by_name} />
 		{/if}
 		<section class="box">
-			<DocsFooter {library}>
+			<DocsFooter {library} root_url="https://www.fuz.dev/">
 				<div class="mb_xl5">
 					<Breadcrumb>
 						{#if breadcrumb_children}

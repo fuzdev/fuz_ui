@@ -1,5 +1,40 @@
 # @fuzdev/fuz_ui
 
+## 0.191.4
+
+### Patch Changes
+
+- fix: add `.unstyled` to the `HueInput` label ([23970d1](https://github.com/fuzdev/fuz_ui/commit/23970d1))
+
+## 0.191.3
+
+### Patch Changes
+
+- fix: fuz_docs glyph 📜 ([3e230fb](https://github.com/fuzdev/fuz_ui/commit/3e230fb))
+
+## 0.191.2
+
+### Patch Changes
+
+- add `fuz_app` to `ProjectLinks` ([7fcb15c](https://github.com/fuzdev/fuz_ui/commit/7fcb15c))
+
+## 0.191.1
+
+### Patch Changes
+
+- fix `ProjectLinks` for fuz_docs ([743b134](https://github.com/fuzdev/fuz_ui/commit/743b134))
+
+## 0.191.0
+
+### Minor Changes
+
+- feat: add ids to mdz headers ([#120](https://github.com/fuzdev/fuz_ui/pull/120))
+- chore: extract some helpers from `mdz.ts` to `mdz_helpers.ts` ([#120](https://github.com/fuzdev/fuz_ui/pull/120))
+
+### Patch Changes
+
+- chore: optimize mdz parsing ([#119](https://github.com/fuzdev/fuz_ui/pull/119))
+
 ## 0.190.0
 
 ### Minor Changes

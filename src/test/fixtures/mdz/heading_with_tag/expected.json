@@ -2,6 +2,7 @@
 	{
 		"type": "Heading",
 		"level": 2,
+		"id": "heading-with-tag-inside",
 		"children": [
 			{
 				"type": "Text",
