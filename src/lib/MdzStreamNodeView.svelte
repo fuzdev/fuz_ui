@@ -48,6 +48,8 @@
 {:else if node.type === 'Text'}
 	{node.content}
 {:else if node.type === 'Code'}
+	<!-- Code nodes have two shapes: direct text (from immediate backtick scan) stores content
+	     on the node itself, while optimistic Code containers (streaming) accumulate text children. -->
 	{@const content =
 		node.children.length > 0 ? node.children.map((c) => c.content).join('') : node.content}
 	<DocsLink reference={content} />

@@ -5016,10 +5016,16 @@
 						"type_signature": "7"
 					},
 					{
+						"name": "H_LOWER",
+						"kind": "variable",
+						"source_line": 57,
+						"type_signature": "104"
+					},
+					{
 						"name": "is_letter",
 						"kind": "function",
 						"doc_comment": "Check if character code is a letter (A-Z, a-z).",
-						"source_line": 61,
+						"source_line": 62,
 						"type_signature": "(char_code: number): boolean",
 						"return_type": "boolean",
 						"parameters": [
@@ -5033,7 +5039,7 @@
 						"name": "is_tag_name_char",
 						"kind": "function",
 						"doc_comment": "Check if character code is valid for tag name (letter, number, hyphen, underscore).",
-						"source_line": 67,
+						"source_line": 68,
 						"type_signature": "(char_code: number): boolean",
 						"return_type": "boolean",
 						"parameters": [
@@ -5047,7 +5053,7 @@
 						"name": "is_word_char",
 						"kind": "function",
 						"doc_comment": "Check if character is part of a word for word boundary detection.\nUsed to prevent intraword emphasis with `_` and `~` delimiters.\n\nOnly alphanumeric characters (A-Z, a-z, 0-9) are word characters.\nFormatting delimiters (`*`, `_`, `~`) fall outside all three ranges,\nso they're naturally excluded without explicit checks.\n\nThis prevents false positives with snake_case identifiers while allowing\nadjacent formatting like `**bold**_italic_`.",
-						"source_line": 84,
+						"source_line": 85,
 						"type_signature": "(char_code: number): boolean",
 						"return_type": "boolean",
 						"parameters": [
@@ -5060,7 +5066,7 @@
 					{
 						"name": "is_valid_path_char",
 						"kind": "function",
-						"source_line": 134,
+						"source_line": 135,
 						"type_signature": "(char_code: number): boolean",
 						"return_type": "boolean",
 						"parameters": [
@@ -5074,7 +5080,7 @@
 						"name": "trim_trailing_punctuation",
 						"kind": "function",
 						"doc_comment": "Trim trailing punctuation from URL/path per RFC 3986 and GFM rules.\n- Trims simple trailing: .,;:!?]\n- Balanced logic for () only (valid in path components)\n- Invalid chars like [] {} are already stopped by whitelist, but ] trimmed as fallback\n\nOptimized to avoid O(n²) string slicing - tracks end index and slices once at the end.",
-						"source_line": 145,
+						"source_line": 146,
 						"type_signature": "(url: string): string",
 						"return_type": "string",
 						"parameters": [
@@ -5088,7 +5094,7 @@
 						"name": "is_at_absolute_path",
 						"kind": "function",
 						"doc_comment": "Check if position in text is the start of an absolute path (starts with `/`).\nMust be preceded by whitespace or be at the start of the string.\nRejects `//` (comments/protocol-relative) and slash followed by whitespace.",
-						"source_line": 204,
+						"source_line": 205,
 						"type_signature": "(text: string, index: number): boolean",
 						"return_type": "boolean",
 						"parameters": [
@@ -5106,7 +5112,7 @@
 						"name": "is_at_relative_path",
 						"kind": "function",
 						"doc_comment": "Check if position in text is the start of a relative path (`./` or `../`).\nMust be preceded by whitespace or be at the start of the string.\nRejects prefix followed by whitespace, slash, or end of string.",
-						"source_line": 220,
+						"source_line": 221,
 						"type_signature": "(text: string, index: number): boolean",
 						"return_type": "boolean",
 						"parameters": [
@@ -5124,7 +5130,7 @@
 						"name": "mdz_text_content",
 						"kind": "function",
 						"doc_comment": "Extracts plain text content from an array of mdz nodes, recursing into children.",
-						"source_line": 247,
+						"source_line": 248,
 						"type_signature": "(nodes: MdzNode[]): string",
 						"return_type": "string",
 						"parameters": [
@@ -5138,7 +5144,7 @@
 						"name": "mdz_heading_id",
 						"kind": "function",
 						"doc_comment": "Generates a lowercase slug id for a heading from its child nodes.\nFollows standard markdown conventions (GitHub, etc.) where heading IDs are lowercased.\nFor case-preserving IDs (e.g. API declarations), see `docs_slugify` in `docs_helpers.svelte.ts`.",
-						"source_line": 257,
+						"source_line": 258,
 						"type_signature": "(nodes: MdzNode[]): string",
 						"return_type": "string",
 						"parameters": [
@@ -5152,7 +5158,7 @@
 						"name": "mdz_heading_id_from_text",
 						"kind": "function",
 						"doc_comment": "Generates a lowercase slug id for a heading from plain text content.\nUsed by the streaming parser which tracks text content directly\nrather than building `MdzNode[]` trees.",
-						"source_line": 265,
+						"source_line": 266,
 						"type_signature": "(text: string): string",
 						"return_type": "string",
 						"parameters": [
@@ -5165,7 +5171,7 @@
 					{
 						"name": "mdz_is_url",
 						"kind": "function",
-						"source_line": 273,
+						"source_line": 274,
 						"type_signature": "(s: string): boolean",
 						"return_type": "boolean",
 						"parameters": [
@@ -5179,7 +5185,7 @@
 						"name": "resolve_relative_path",
 						"kind": "function",
 						"doc_comment": "Resolves a relative path (`./` or `../`) against a base path.\nThe base is treated as a directory regardless of trailing slash\n(`'/docs/mdz'` and `'/docs/mdz/'` behave identically).\nHandles embedded `.` and `..` segments within the reference\n(e.g., `'./a/../b'` → navigates up then down).\nClamps at root — excess `..` segments stop at `/` rather than escaping.",
-						"source_line": 287,
+						"source_line": 288,
 						"type_signature": "(reference: string, base: string): string",
 						"return_type": "string",
 						"return_description": "an absolute resolved path (e.g., `'/docs/mdz/grammar'`)",
@@ -5199,7 +5205,7 @@
 					{
 						"name": "extract_single_tag",
 						"kind": "function",
-						"source_line": 305,
+						"source_line": 306,
 						"type_signature": "(nodes: MdzNode[]): MdzElementNode | MdzComponentNode | null",
 						"return_type": "MdzElementNode | MdzComponentNode | null",
 						"parameters": [
@@ -6002,7 +6008,7 @@
 						"name": "MdzStreamParser",
 						"kind": "class",
 						"doc_comment": "Streaming opcode parser for mdz content.\nFeed chunks via `feed()`, retrieve opcodes via `take_opcodes()`, call `finish()` at end.",
-						"source_line": 98,
+						"source_line": 99,
 						"members": [
 							{
 								"name": "feed",

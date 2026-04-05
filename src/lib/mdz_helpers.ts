@@ -54,6 +54,7 @@ export const MIN_CODEBLOCK_BACKTICKS = 3; // Code blocks require minimum 3 backt
 export const MAX_HEADING_LEVEL = 6; // Headings support levels 1-6
 export const HTTPS_PREFIX_LENGTH = 8; // Length of "https://"
 export const HTTP_PREFIX_LENGTH = 7; // Length of "http://"
+export const H_LOWER = 104; // h
 
 /**
  * Check if character code is a letter (A-Z, a-z).

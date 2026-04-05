@@ -53,6 +53,7 @@ import {
 	MAX_HEADING_LEVEL,
 	HTTPS_PREFIX_LENGTH,
 	HTTP_PREFIX_LENGTH,
+	H_LOWER,
 	PERIOD,
 	is_letter,
 	is_tag_name_char,
@@ -959,7 +960,7 @@ export class MdzStreamParser {
 		}
 
 		// auto-detected URLs (text-first speculative prefix matching)
-		if (char_code === 104 /* h */) {
+		if (char_code === H_LOWER) {
 			if (forced) {
 				const result = this.#try_auto_url_forced();
 				if (result !== null) return result;
@@ -1983,7 +1984,7 @@ export class MdzStreamParser {
 				// URL/path: only break when actually at a URL or path start.
 				// Most h/./slash in prose are not URLs/paths — continuing the scan
 				// avoids the full dispatch cycle through #process_loop → #process_inline.
-				(c === 104 /* h */ &&
+				(c === H_LOWER &&
 					(this.#buffer.startsWith('https://', this.#pos) ||
 						this.#buffer.startsWith('http://', this.#pos))) ||
 				((c === SLASH || c === PERIOD) &&
@@ -2057,6 +2058,12 @@ export class MdzStreamParser {
 	/**
 	 * Trim a trailing newline from paragraph content.
 	 * Checks unflushed accumulated text first, then the last emitted text opcode.
+	 *
+	 * IMPORTANT: This mutates already-emitted opcodes in `#opcodes`. Safe because
+	 * callers (`#close_paragraph`, `#close_codeblock_at_eof`, `finish`) always run
+	 * before the next `take_opcodes()`. If `take_opcodes()` were ever called
+	 * mid-`finish()`, consumers could see stale data.
+	 * TODO: consider making this mutation-free (e.g. emit a trim opcode instead).
 	 */
 	#trim_trailing_newline(): void {
 		if (this.#accumulated_text.endsWith('\n')) {

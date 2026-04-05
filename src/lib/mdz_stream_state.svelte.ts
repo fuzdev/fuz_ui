@@ -336,16 +336,20 @@ export class MdzStreamState {
 		}
 	}
 
-	/** Remove a node and its descendants from the lookup maps. */
+	/** Remove a node and its descendants from the lookup maps. Iterative to avoid stack overflow on deep trees. */
 	#cleanup_node(id: MdzNodeId): void {
-		const node = this.#nodes.get(id);
-		if (node) {
-			for (const child of node.children) {
-				this.#cleanup_node(child.id);
+		const queue: Array<MdzNodeId> = [id];
+		while (queue.length > 0) {
+			const current_id = queue.pop()!;
+			const node = this.#nodes.get(current_id);
+			if (node) {
+				for (const child of node.children) {
+					queue.push(child.id);
+				}
 			}
+			this.#nodes.delete(current_id);
+			this.#parents.delete(current_id);
 		}
-		this.#nodes.delete(id);
-		this.#parents.delete(id);
 	}
 
 	/**
