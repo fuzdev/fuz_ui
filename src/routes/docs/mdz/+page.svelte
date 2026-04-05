@@ -304,6 +304,33 @@ const nodes = mdz_parse(content);`}
 	</TomeSection>
 
 	<TomeSection>
+		<TomeSectionHeader text="Streaming" />
+		<p>
+			For streaming content (e.g. LLM output), use <DeclarationLink name="MdzStreamParser" /> with
+			<DeclarationLink name="MdzStreamState" /> and <DeclarationLink name="MdzStream" />. The parser
+			emits opcodes as rendering instructions — never re-parsing — and the state applies them as
+			fine-grained Svelte mutations:
+		</p>
+		<Code
+			lang="ts"
+			content={`import {MdzStreamParser} from '@fuzdev/fuz_ui/mdz_stream_parser.js';
+import {MdzStreamState} from '@fuzdev/fuz_ui/mdz_stream_state.svelte.js';
+
+const parser = new MdzStreamParser();
+const state = new MdzStreamState();
+
+// feed chunks as they arrive
+parser.feed(chunk);
+state.apply_batch(parser.take_opcodes());
+
+// when done
+parser.finish();
+state.apply_batch(parser.take_opcodes());`}
+		/>
+		<Code content={`<MdzStream {state} />`} />
+	</TomeSection>
+
+	<TomeSection>
 		<TomeSectionHeader text="Compatibility with other markdowns" />
 		<p>mdz supports fewer syntax variants than CommonMark/GFM:</p>
 		<ul>

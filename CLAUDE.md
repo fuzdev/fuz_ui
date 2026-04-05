@@ -119,6 +119,7 @@ Helper file prefixes: `ts_*` (TypeScript API), `tsdoc_*` (JSDoc parsing),
 
 - `PackageDetail`, `PackageSummary` - package info display
 - `Mdz` - renders mdz (minimal markdown dialect) content
+- `MdzStream`, `MdzStreamNodeView` - streaming mdz renderer (opcode-driven)
 - `ApiIndex`, `ApiModule`, `ApiDeclarationList` - API documentation
 
 ### Utilities
@@ -134,6 +135,10 @@ Helper file prefixes: `ts_*` (TypeScript API), `tsdoc_*` (JSDoc parsing),
 - `theme_state.svelte.ts` - theme and color scheme management (ThemeState class)
 - `context_helpers.ts` - Svelte context utilities (`create_context()`)
 - `mdz.ts` - minimal markdown dialect parser and renderer
+- `mdz_stream_parser.ts` - streaming opcode parser (`MdzStreamParser`)
+- `mdz_opcodes.ts` - opcode type definitions for streaming parser
+- `mdz_opcodes_to_nodes.ts` - opcode-to-MdzNode tree bridge
+- `mdz_stream_state.svelte.ts` - reactive Svelte 5 state (`MdzStreamState`)
 
 ### Component helpers
 
