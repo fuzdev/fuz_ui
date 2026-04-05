@@ -88,7 +88,9 @@
 		{@render render_children(node.children)}
 	</svelte:element>
 {:else if node.type === 'Codeblock'}
-	<Code lang={node.lang} content={node.content} />
+	{@const content =
+		node.children.length > 0 ? node.children.map((c) => c.content).join('') : node.content}
+	<Code lang={node.lang} {content} />
 {/if}
 
 {#snippet render_children(nodes: Array<MdzStreamNode>)}

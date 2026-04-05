@@ -946,6 +946,10 @@ body {
 	--min_height: var(--input_height_sm); /* TODO this increases paragraph line spacing */
 }
 
+:where(small) {
+	font-size: var(--font_size_sm);
+}
+
 :where(img, picture, canvas, svg, video) {
 	display: block;
 	max-width: 100%; /* shrink to fit */
@@ -1440,6 +1444,9 @@ a.chip {
 .mb_xl9 {
 	margin-bottom: var(--space_xl9);
 }
+.ml_auto {
+	margin-left: auto;
+}
 .ml_sm {
 	margin-left: var(--space_sm);
 }
@@ -1457,6 +1464,9 @@ a.chip {
 }
 .gap_xs2 {
 	gap: var(--space_xs2);
+}
+.gap_xs {
+	gap: var(--space_xs);
 }
 .gap_md {
 	gap: var(--space_md);

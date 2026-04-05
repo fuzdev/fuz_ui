@@ -248,6 +248,66 @@ describe('MdzStreamParser opcodes', () => {
 		assert.deepEqual(result, mdz_parse('````\n```'));
 	});
 
+	test('codeblock closing fence detected with char-by-char feeding', () => {
+		const input = '```\ncode\n```\n';
+		const parser = new MdzStreamParser();
+		for (const char of input) {
+			parser.feed(char);
+		}
+		parser.finish();
+		const result = mdz_opcodes_to_nodes(parser.take_opcodes());
+		assert.deepEqual(result, mdz_parse(input));
+	});
+
+	test('codeblock with lang detected char-by-char', () => {
+		const input = '```ts\nconst x = 1;\n```\n';
+		const parser = new MdzStreamParser();
+		for (const char of input) {
+			parser.feed(char);
+		}
+		parser.finish();
+		const result = mdz_opcodes_to_nodes(parser.take_opcodes());
+		assert.deepEqual(result, mdz_parse(input));
+	});
+
+	test('codeblock followed by content char-by-char', () => {
+		const input = '```\nblock\n```\n\n`inline`';
+		const parser = new MdzStreamParser();
+		for (const char of input) {
+			parser.feed(char);
+		}
+		parser.finish();
+		const result = mdz_opcodes_to_nodes(parser.take_opcodes());
+		assert.deepEqual(result, mdz_parse(input));
+	});
+
+	test('codeblock fence hold does not emit backticks as content', () => {
+		const parser = new MdzStreamParser();
+		parser.feed('```ts\n');
+		parser.take_opcodes(); // open Codeblock
+		parser.feed('x');
+		const ops1 = parser.take_opcodes();
+		// feed closing fence char-by-char
+		parser.feed('\n');
+		parser.feed('`');
+		parser.feed('`');
+		parser.feed('`');
+		parser.feed('\n');
+		const ops2 = parser.take_opcodes();
+		// should have a close, not append_text with backticks
+		const all_ops = [...ops1, ...ops2];
+		const has_close = all_ops.some((o) => o.type === 'close');
+		assert.ok(has_close, 'codeblock should be closed');
+		const backtick_content = all_ops.filter(
+			(o) => (o.type === 'text' || o.type === 'append_text') && o.content.includes('`'),
+		);
+		assert.equal(
+			backtick_content.length,
+			0,
+			'closing fence backticks should not appear as content',
+		);
+	});
+
 	// -- Optimistic inline code streaming --
 
 	test('inline code opens optimistically when closer not in buffer', () => {
@@ -613,21 +673,21 @@ describe('MdzStreamParser fixture comparison', () => {
 	});
 
 	// NOTE: char-by-char streaming intentionally differs from one-shot for many fixtures.
-	// Features like codeblock fence lookahead, auto-URL detection, and word boundary
-	// checks require buffer context that isn't available in single-char feeds.
+	// Features like auto-URL detection and word boundary checks require buffer context
+	// that isn't available in single-char feeds.
 	// The one-shot fixture comparison (above) is the correctness gate.
 
 	/**
 	 * Checks if a fixture's input is safe for char-by-char feeding.
 	 * Excludes inputs that require buffer context for correct parsing:
-	 * - Codeblock fences (triple backticks need lookahead for closing fence)
 	 * - Auto-paths (/, ./, ../ need word boundary + multi-char detection)
 	 * - Underscore/tilde delimiters (word boundary checks need prev_char context)
+	 * - Tags (need tag name in buffer to distinguish from literal <)
+	 * - Headings/HR (post-block newline absorption needs consecutive \n in buffer)
 	 * Note: Auto-URLs work char-by-char via speculative prefix matching.
+	 * Note: Codeblock fences work char-by-char via the hold mechanism in #match_codeblock_close.
 	 */
 	const is_char_by_char_safe = (input: string): boolean => {
-		// codeblock fences
-		if (input.includes('```')) return false;
 		// auto absolute paths (/ at word boundary: after space, newline, or start)
 		if (/(^|[\s])\/[^\s/]/.test(input)) return false;
 		// auto relative paths

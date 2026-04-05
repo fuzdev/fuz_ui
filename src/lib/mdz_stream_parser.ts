@@ -143,6 +143,13 @@ export class MdzStreamParser {
 	 * (document order: delimiter text comes before children's text).
 	 */
 	#heading_text_parts: Array<string> = [];
+	/**
+	 * When true, skip leading newlines at the start of the next processing pass.
+	 * Set after block element closes (codeblock, heading, HR) when trailing
+	 * newlines couldn't be absorbed within the same buffer — needed for
+	 * char-by-char streaming where post-block newlines arrive in later chunks.
+	 */
+	#skip_leading_newlines = false;
 
 	/**
 	 * Feed a chunk of text to the parser.
@@ -232,6 +239,13 @@ export class MdzStreamParser {
 	 * as content end and never waits for more input.
 	 */
 	#process_loop(forced: boolean): void {
+		// absorb leading newlines left over from a block element close in a prior chunk
+		if (this.#skip_leading_newlines) {
+			while (this.#pos < this.#buffer.length && this.#buffer.charCodeAt(this.#pos) === NEWLINE) {
+				this.#pos++;
+			}
+			this.#skip_leading_newlines = false;
+		}
 		while (this.#pos < this.#buffer.length) {
 			// codeblock mode
 			if (this.#codeblock) {
@@ -293,6 +307,9 @@ export class MdzStreamParser {
 						this.#buffer.charCodeAt(this.#pos) === NEWLINE
 					) {
 						this.#pos++;
+					}
+					if (this.#pos >= this.#buffer.length) {
+						this.#skip_leading_newlines = true;
 					}
 					this.#column = 0;
 					this.#prev_char = NEWLINE;
@@ -453,6 +470,9 @@ export class MdzStreamParser {
 			while (this.#pos < this.#buffer.length && this.#buffer.charCodeAt(this.#pos) === NEWLINE) {
 				this.#pos++;
 			}
+			if (this.#pos >= this.#buffer.length) {
+				this.#skip_leading_newlines = true;
+			}
 		}
 		this.#column = 0;
 		this.#prev_char = NEWLINE;
@@ -597,6 +617,10 @@ export class MdzStreamParser {
 			// check for closing fence at column 0
 			if (this.#column === 0) {
 				const fence_match = this.#match_codeblock_close(cb.backtick_count);
+				if (fence_match === -2) {
+					// need more input — hold from this position (don't consume potential fence chars)
+					break;
+				}
 				if (fence_match !== -1) {
 					// emit content up to the closing fence (excluding trailing newline before fence)
 					let content_end = this.#pos;
@@ -640,6 +664,10 @@ export class MdzStreamParser {
 					) {
 						this.#pos++;
 					}
+					// if buffer ended before absorbing all trailing newlines, continue in next chunk
+					if (this.#pos >= this.#buffer.length) {
+						this.#skip_leading_newlines = true;
+					}
 					return true;
 				}
 			}
@@ -654,12 +682,14 @@ export class MdzStreamParser {
 			this.#pos++;
 		}
 
-		// buffer exhausted — emit content so far, hold trailing \n for potential fence
+		// buffer exhausted or broke for potential fence — emit content so far, hold trailing data.
+		// Hold trailing \n (could be before a closing fence in next chunk), and also hold
+		// \n + backticks when we broke mid-fence-check (the \n precedes the backticks and
+		// would be stripped by fence close, so must not be emitted as content yet).
 		let emit_end = this.#pos;
-		// hold trailing newline (could be before a closing fence in next chunk)
 		if (emit_end > start && this.#buffer.charCodeAt(emit_end - 1) === NEWLINE) {
 			emit_end--;
-			this.#pos = emit_end; // leave \n in buffer
+			this.#pos = emit_end; // leave \n (+ any held backticks after it) in buffer
 		}
 		const content = this.#buffer.slice(start, emit_end);
 		if (content.length > 0) {
@@ -684,7 +714,8 @@ export class MdzStreamParser {
 
 	/**
 	 * Check if the buffer at current position has a codeblock closing fence.
-	 * Returns the position after the fence (including trailing newline), or -1.
+	 * Returns the position after the fence (including trailing newline) on success,
+	 * `-1` when definitely not a fence, or `-2` when more input is needed to decide.
 	 */
 	#match_codeblock_close(backtick_count: number): number {
 		let i = this.#pos;
@@ -695,7 +726,11 @@ export class MdzStreamParser {
 			count++;
 			i++;
 		}
-		if (count !== backtick_count) return -1;
+		if (count !== backtick_count) {
+			// buffer ended mid-backtick-sequence — could still become a fence
+			if (i >= this.#buffer.length && count < backtick_count) return -2;
+			return -1;
+		}
 
 		// trailing spaces allowed
 		while (i < this.#buffer.length && this.#buffer.charCodeAt(i) === SPACE) {
@@ -707,9 +742,8 @@ export class MdzStreamParser {
 			return i + 1;
 		}
 		if (i >= this.#buffer.length) {
-			// could be EOF or more input coming — for streaming, treat as needing more input
-			// unless buffer has the exact fence. We'll rely on finish() to handle EOF.
-			return -1;
+			// exact backtick count but buffer ended (could be spaces or newline coming)
+			return -2;
 		}
 		return -1;
 	}

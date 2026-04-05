@@ -7,6 +7,9 @@
 	import TomeSection from '$lib/TomeSection.svelte';
 	import TomeSectionHeader from '$lib/TomeSectionHeader.svelte';
 	import Mdz from '$lib/Mdz.svelte';
+	import MdzStream from '$lib/MdzStream.svelte';
+	import {MdzStreamParser} from '$lib/mdz_stream_parser.js';
+	import {MdzStreamState} from '$lib/mdz_stream_state.svelte.js';
 	import DeclarationLink from '$lib/DeclarationLink.svelte';
 	import TomeLink from '$lib/TomeLink.svelte';
 	import {mdz_components_context, mdz_elements_context} from '$lib/mdz_components.js';
@@ -61,6 +64,69 @@ const y = 1336;
 		'<Alert>This is an `Alert` with _italicized <code>code</code>_ inside.</Alert>';
 
 	let whitespace_example_el: HTMLDivElement;
+
+	// streaming demo
+	const stream_initial = `Streaming renders **bold text** as bold **immediately**, same with _italic_ and ~strikethrough~.
+
+#### A heading
+
+A paragraph with a link: https://fuz.dev, which linkifies once fully onscreen (lazily, not optimistically).
+
+\`\`\`ts
+const y = 1336;
+\`\`\`
+
+---
+
+stream done~`;
+
+	let stream_content = $state(stream_initial);
+	let stream_parser = $state(new MdzStreamParser());
+	let stream_state = $state(new MdzStreamState());
+	let stream_pos = $state(0);
+	let stream_running = $state(false);
+	let stream_finished = $state(false);
+	let stream_interval_ms = $state(100);
+	let stream_timer: ReturnType<typeof setInterval> | undefined;
+
+	const stream_step = (): void => {
+		if (stream_pos >= stream_content.length) {
+			stream_parser.finish();
+			stream_state.apply_batch(stream_parser.take_opcodes());
+			stream_running = false;
+			stream_finished = true;
+			if (stream_timer !== undefined) {
+				clearInterval(stream_timer);
+				stream_timer = undefined;
+			}
+			return;
+		}
+		stream_parser.feed(stream_content[stream_pos]!);
+		stream_state.apply_batch(stream_parser.take_opcodes());
+		stream_pos++;
+	};
+
+	const stream_start = (): void => {
+		if (stream_finished) stream_reset();
+		stream_running = true;
+		stream_timer = setInterval(stream_step, stream_interval_ms);
+	};
+
+	const stream_pause = (): void => {
+		stream_running = false;
+		if (stream_timer !== undefined) {
+			clearInterval(stream_timer);
+			stream_timer = undefined;
+		}
+	};
+
+	const stream_reset = (): void => {
+		stream_pause();
+		stream_parser = new MdzStreamParser();
+		stream_state = new MdzStreamState();
+		stream_pos = 0;
+		stream_finished = false;
+	};
 </script>
 
 <TomeContent {tome}>
@@ -68,9 +134,9 @@ const y = 1336;
 		<p>
 			mdz is a small markdown dialect that supports Svelte components, auto-detected URLs prefixed
 			with <code>https://</code>, <code>/</code>, <code>./</code>, and <code>../</code>, and Fuz
-			integration like linkified identifiers and modules in <code>`backticks`</code>. The goal is to
-			securely integrate markdown with the environment's capabilities, while being simple and
-			friendly to nontechnical users.
+			integration like linkifying <code>`backtick-wrapped`</code> declarations and modules. The goal is
+			to securely integrate markdown with the environment's capabilities, while being simple and friendly
+			to nontechnical users.
 		</p>
 		<p>
 			mdz prioritizes predictability with one canonical pattern per feature, preferring false
@@ -308,9 +374,39 @@ const nodes = mdz_parse(content);`}
 		<p>
 			For streaming content (e.g. LLM output), use <DeclarationLink name="MdzStreamParser" /> with
 			<DeclarationLink name="MdzStreamState" /> and <DeclarationLink name="MdzStream" />. The parser
-			emits opcodes as rendering instructions — never re-parsing — and the state applies them as
-			fine-grained Svelte mutations:
+			emits opcodes as rendering instructions - never re-parsing - and the state applies them as
+			fine-grained Svelte mutations. This is an implementation of the design described by
+			<a href="https://pngwn.at/">pngwn</a> in
+			<a href="https://bsky.app/profile/pngwn.at/post/3mi527zntb22n">this bluesky post</a>.
 		</p>
+		<p>Try it -- each character is fed one at a time to show how constructs build incrementally:</p>
+		<textarea bind:value={stream_content} onchange={stream_reset}></textarea>
+		<div class="row gap_md mb_md">
+			<button type="button" onclick={() => (stream_running ? stream_pause() : stream_start())}>
+				{stream_running ? 'pause' : stream_finished ? 'restart' : 'stream'}
+			</button>
+			<button type="button" onclick={stream_reset} disabled={stream_pos === 0}>reset</button>
+			<label class="row gap_xs">
+				<input
+					type="range"
+					min="10"
+					max="200"
+					step="10"
+					bind:value={stream_interval_ms}
+					onchange={() => {
+						if (stream_running) {
+							stream_pause();
+							stream_start();
+						}
+					}}
+				/>
+				{stream_interval_ms}ms
+			</label>
+			<small class="ml_auto">{stream_pos}/{stream_content.length}</small>
+		</div>
+		<div class="panel shade_05 mb_lg p_md">
+			<MdzStream state={stream_state} />
+		</div>
 		<Code
 			lang="ts"
 			content={`import {MdzStreamParser} from '@fuzdev/fuz_ui/mdz_stream_parser.js';
