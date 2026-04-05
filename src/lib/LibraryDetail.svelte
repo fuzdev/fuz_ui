@@ -1,3 +1,12 @@
+<!--
+@component
+
+Renders library metadata (name, description, links, license) and a module index
+with file-type coloring. Uses svelte-docinfo's file type predicates for module classification.
+
+@see `library.svelte.ts` for the `Library` wrapper class
+@see {@link https://github.com/ryanatkn/svelte-docinfo svelte-docinfo} for the analysis library
+-->
 <script lang="ts">
 	import {page} from '$app/state';
 	import {format_url} from '@fuzdev/fuz_util/url.js';

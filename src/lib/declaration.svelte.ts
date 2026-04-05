@@ -1,4 +1,4 @@
-import type {DeclarationJson, MemberJson, ParameterInfo, ComponentPropInfo} from 'svelte-docinfo/types.js';
+import type {DeclarationJson, MemberJson, ParameterInfo, ComponentPropInfo, OverloadInfo} from 'svelte-docinfo/types.js';
 import {generateImport, getDisplayName} from 'svelte-docinfo/declaration-helpers.js';
 
 import type {Module} from './module.svelte.js';
@@ -13,6 +13,14 @@ const field = <T>(decl: DeclarationJson, key: string): T | undefined =>
 
 /**
  * Rich runtime representation of an exported declaration.
+ *
+ * Wraps svelte-docinfo's `DeclarationJson` discriminated union (on `kind`)
+ * with Svelte 5 reactive derivations and computed URLs.
+ * Kind-specific fields are accessed via the `field()` helper since
+ * not all fields exist on all variants.
+ *
+ * @see {@link https://github.com/ryanatkn/svelte-docinfo svelte-docinfo} for the analysis library
+ * @see `DeclarationDetail.svelte` for the rendering component
  */
 export class Declaration {
 	readonly module: Module = $state.raw()!;
@@ -81,7 +89,38 @@ export class Declaration {
 	since = $derived(this.declaration_json.since);
 	examples = $derived(this.declaration_json.examples);
 	see_also = $derived(this.declaration_json.seeAlso);
+	/**
+	 * Nested members for classes, interfaces, types, and enums.
+	 */
 	members = $derived(field<Array<MemberJson>>(this.declaration_json, 'members'));
+
+	/**
+	 * Intersection types whose properties are external (filtered out of props/members).
+	 * Present on `component` and `type` kinds.
+	 */
+	intersects = $derived(field<Array<string>>(this.declaration_json, 'intersects'));
+
+	/**
+	 * Whether a component accepts children via props or template usage.
+	 * Present on `component` kind only.
+	 */
+	accepts_children = $derived(field<boolean>(this.declaration_json, 'acceptsChildren'));
+
+	/**
+	 * Function overload signatures when multiple public overloads exist.
+	 * Present on `function` and `snippet` kinds, and on function/constructor members.
+	 */
+	overloads = $derived(field<Array<OverloadInfo>>(this.declaration_json, 'overloads'));
+
+	/**
+	 * Re-export alias info when this declaration is a renamed re-export.
+	 */
+	alias_of = $derived(this.declaration_json.aliasOf);
+
+	/**
+	 * Mutation documentation from `@mutates` tags, mapping parameter names to descriptions.
+	 */
+	mutates = $derived(this.declaration_json.mutates);
 
 	has_examples = $derived(!!(this.examples && this.examples.length > 0));
 	is_deprecated = $derived(!!this.deprecated_message);

@@ -1,3 +1,14 @@
+<!--
+@component
+
+Renders the full detail view for an exported declaration.
+Handles all svelte-docinfo declaration kinds (function, class, interface,
+type, variable, enum, component, snippet) and their kind-specific fields
+including parameters, props, members, overloads, intersects, and more.
+
+@see `declaration.svelte.ts` for the `Declaration` wrapper class
+@see {@link https://github.com/ryanatkn/svelte-docinfo svelte-docinfo} for the analysis library
+-->
 <script lang="ts">
 	import Code from '@fuzdev/fuz_code/Code.svelte';
 
@@ -19,10 +30,26 @@
 	{/if}
 </p>
 
+<!-- chips -->
+<div class="row gap_md">
+	<!-- eslint-disable-next-line @typescript-eslint/no-deprecated -->
+	{#if declaration.is_deprecated}
+		<span class="chip">⚠️ deprecated</span>
+	{/if}
+	{#if declaration.accepts_children}
+		<span class="chip">accepts children</span>
+	{/if}
+	{#if declaration.alias_of}
+		<span class="chip"
+			>alias of {declaration.alias_of.name}{#if declaration.alias_of.module}
+				in {declaration.alias_of.module}{/if}</span
+		>
+	{/if}
+</div>
+
 <!-- eslint-disable-next-line @typescript-eslint/no-deprecated -->
-{#if declaration.is_deprecated}
+{#if declaration.deprecated_message}
 	<p>
-		<strong>⚠️ deprecated:</strong>
 		<!-- eslint-disable-next-line @typescript-eslint/no-deprecated -->
 		{declaration.deprecated_message}
 	</p>
@@ -102,8 +129,67 @@
 						{/if}
 					</div>
 				{/if}
+				{#if prop.parameters?.length}
+					<section>
+						<h5>snippet parameters</h5>
+						{#each prop.parameters as param (param)}
+							<div class="row gap_md">
+								<code
+									>{param.name}{#if param.optional}?{/if}</code
+								>
+								<TypeLink type={param.type} />
+							</div>
+						{/each}
+					</section>
+				{/if}
 			</section>
 		{/each}
+	</section>
+{/if}
+
+<!-- overloads -->
+{#if declaration.overloads?.length}
+	<section>
+		<h4>overloads</h4>
+		{#each declaration.overloads as overload, i (i)}
+			<section>
+				<Code lang="ts" content={overload.typeSignature} />
+				{#if overload.docComment}
+					<Mdz content={overload.docComment} />
+				{/if}
+				{#if overload.parameters?.length}
+					{#each overload.parameters as param (param)}
+						<div class="row gap_md">
+							<code
+								>{param.name}{#if param.optional}?{/if}</code
+							>
+							<TypeLink type={param.type} />
+						</div>
+					{/each}
+				{/if}
+				{#if overload.returnType}
+					<div class="row gap_md">
+						<strong>returns</strong>
+						<TypeLink type={overload.returnType} />
+					</div>
+					{#if overload.returnDescription}
+						<Mdz content={overload.returnDescription} />
+					{/if}
+				{/if}
+			</section>
+		{/each}
+	</section>
+{/if}
+
+<!-- intersects (component/type intersection types) -->
+{#if declaration.intersects?.length}
+	<section>
+		<h4>intersects</h4>
+		<ul>
+			{#each declaration.intersects as type (type)}
+				<li><TypeLink {type} /></li>
+			{/each}
+		</ul>
 	</section>
 {/if}
 
@@ -191,6 +277,18 @@
 	</section>
 {/if}
 
+<!-- mutates -->
+{#if declaration.mutates && Object.keys(declaration.mutates).length}
+	<section>
+		<h4>mutates</h4>
+		<ul>
+			{#each Object.entries(declaration.mutates) as [param, description] (param)}
+				<li><code>{param}</code> — {description}</li>
+			{/each}
+		</ul>
+	</section>
+{/if}
+
 <!-- since -->
 {#if declaration.since}
 	<section>
@@ -223,7 +321,7 @@
 	</section>
 {/if}
 
-<!-- members (for classes) -->
+<!-- members (classes, interfaces, types, enums) -->
 {#if declaration.members?.length}
 	<section>
 		{#each declaration.members as member (member)}

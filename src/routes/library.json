@@ -4413,8 +4413,12 @@
 					{
 						"name": "Declaration",
 						"kind": "class",
-						"docComment": "Rich runtime representation of an exported declaration.",
-						"sourceLine": 17,
+						"docComment": "Rich runtime representation of an exported declaration.\n\nWraps svelte-docinfo's `DeclarationJson` discriminated union (on `kind`)\nwith Svelte 5 reactive derivations and computed URLs.\nKind-specific fields are accessed via the `field()` helper since\nnot all fields exist on all variants.",
+						"sourceLine": 25,
+						"seeAlso": [
+							"{@link https://github.com/ryanatkn/svelte-docinfo svelte-docinfo} for the analysis library",
+							"`DeclarationDetail.svelte` for the rendering component"
+						],
 						"members": [
 							{
 								"name": "module",
@@ -4528,7 +4532,33 @@
 							},
 							{
 								"name": "members",
-								"kind": "variable"
+								"kind": "variable",
+								"docComment": "Nested members for classes, interfaces, types, and enums."
+							},
+							{
+								"name": "intersects",
+								"kind": "variable",
+								"docComment": "Intersection types whose properties are external (filtered out of props/members).\nPresent on `component` and `type` kinds."
+							},
+							{
+								"name": "accepts_children",
+								"kind": "variable",
+								"docComment": "Whether a component accepts children via props or template usage.\nPresent on `component` kind only."
+							},
+							{
+								"name": "overloads",
+								"kind": "variable",
+								"docComment": "Function overload signatures when multiple public overloads exist.\nPresent on `function` and `snippet` kinds, and on function/constructor members."
+							},
+							{
+								"name": "alias_of",
+								"kind": "variable",
+								"docComment": "Re-export alias info when this declaration is a renamed re-export."
+							},
+							{
+								"name": "mutates",
+								"kind": "variable",
+								"docComment": "Mutation documentation from `@mutates` tags, mapping parameter names to descriptions."
 							},
 							{
 								"name": "has_examples",
@@ -4581,7 +4611,12 @@
 					{
 						"name": "DeclarationDetail",
 						"kind": "component",
-						"sourceLine": 1,
+						"docComment": "Renders the full detail view for an exported declaration.\nHandles all svelte-docinfo declaration kinds (function, class, interface,\ntype, variable, enum, component, snippet) and their kind-specific fields\nincluding parameters, props, members, overloads, intersects, and more.",
+						"sourceLine": 12,
+						"seeAlso": [
+							"`declaration.svelte.ts` for the `Declaration` wrapper class",
+							"{@link https://github.com/ryanatkn/svelte-docinfo svelte-docinfo} for the analysis library"
+						],
 						"props": [
 							{
 								"name": "declaration",
@@ -6095,7 +6130,7 @@
 						"kind": "interface",
 						"docComment": "Result of generating library output files.\nContains both the JSON data and the TypeScript wrapper file.",
 						"typeSignature": "LibraryOutputResult",
-						"sourceLine": 20,
+						"sourceLine": 23,
 						"members": [
 							{
 								"name": "json_content",
@@ -6116,7 +6151,7 @@
 						"kind": "function",
 						"docComment": "Generate the library.json and library.ts file contents.\nParses at generation time so runtime only needs the pre-computed result.\n\nReturns JSON + .ts wrapper because:\n- JSON is natively importable by Node.js and Vite without TypeScript loaders\n- Works in CI environments that don't have TS compilation\n- The .ts wrapper validates with zod and exports with proper types\n  (JSON imports get widened types like `string` instead of literal unions)",
 						"typeSignature": "(package_json: { [x: string]: unknown; name: string; version: string; private?: boolean | undefined; description?: string | undefined; tagline?: string | undefined; glyph?: string | undefined; logo?: string | undefined; ... 23 more ...; exports?: string | ... 2 more ... | undefined; }, source_json: { ...; }): LibraryOutputResult",
-						"sourceLine": 37,
+						"sourceLine": 40,
 						"parameters": [
 							{
 								"name": "package_json",
@@ -6130,7 +6165,7 @@
 						"returnType": "LibraryOutputResult"
 					}
 				],
-				"moduleComment": "Library output generation.\n\nGenerates the library.json and library.ts files from analyzed metadata.\n\n@see library_gen.ts for the main generation entry point",
+				"moduleComment": "Library output generation.\n\nGenerates the library.json and library.ts files from analyzed metadata.\nUses svelte-docinfo's `compactReplacer` to strip Zod default values\n(empty arrays, false booleans) for compact JSON output.\n\n@see `library_gen.ts` for the main generation entry point\n@see {@link https://github.com/ryanatkn/svelte-docinfo svelte-docinfo} for the analysis library",
 				"dependents": ["library_gen.ts"]
 			},
 			{
@@ -6337,7 +6372,12 @@
 					{
 						"name": "LibraryDetail",
 						"kind": "component",
-						"sourceLine": 1,
+						"docComment": "Renders library metadata (name, description, links, license) and a module index\nwith file-type coloring. Uses svelte-docinfo's file type predicates for module classification.",
+						"sourceLine": 10,
+						"seeAlso": [
+							"`library.svelte.ts` for the `Library` wrapper class",
+							"{@link https://github.com/ryanatkn/svelte-docinfo svelte-docinfo} for the analysis library"
+						],
 						"props": [
 							{
 								"name": "library",
@@ -12545,8 +12585,12 @@
 					{
 						"name": "Module",
 						"kind": "class",
-						"docComment": "Rich runtime representation of a module with computed properties.",
-						"sourceLine": 10,
+						"docComment": "Rich runtime representation of a module with computed properties.\n\nWraps svelte-docinfo's `ModuleJson` with reactive derivations,\nURL generation, and `Declaration` instances.",
+						"sourceLine": 16,
+						"seeAlso": [
+							"{@link https://github.com/ryanatkn/svelte-docinfo svelte-docinfo} for the analysis library",
+							"`declaration.svelte.ts` for the `Declaration` wrapper class"
+						],
 						"members": [
 							{
 								"name": "library",

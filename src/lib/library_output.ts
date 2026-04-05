@@ -2,8 +2,11 @@
  * Library output generation.
  *
  * Generates the library.json and library.ts files from analyzed metadata.
+ * Uses svelte-docinfo's `compactReplacer` to strip Zod default values
+ * (empty arrays, false booleans) for compact JSON output.
  *
- * @see library_gen.ts for the main generation entry point
+ * @see `library_gen.ts` for the main generation entry point
+ * @see {@link https://github.com/ryanatkn/svelte-docinfo svelte-docinfo} for the analysis library
  *
  * @module
  */

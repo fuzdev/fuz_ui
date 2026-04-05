@@ -6,6 +6,12 @@ import {url_github_file} from './package_helpers.js';
 
 /**
  * Rich runtime representation of a module with computed properties.
+ *
+ * Wraps svelte-docinfo's `ModuleJson` with reactive derivations,
+ * URL generation, and `Declaration` instances.
+ *
+ * @see {@link https://github.com/ryanatkn/svelte-docinfo svelte-docinfo} for the analysis library
+ * @see `declaration.svelte.ts` for the `Declaration` wrapper class
  */
 export class Module {
 	readonly library: Library = $state.raw()!;
