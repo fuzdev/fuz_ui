@@ -1,4 +1,4 @@
-import type {ModuleJson} from 'svelte-docinfo';
+import type {ModuleJson} from 'svelte-docinfo/types.js';
 
 import {Declaration} from './declaration.svelte.js';
 import type {Library} from './library.svelte.js';

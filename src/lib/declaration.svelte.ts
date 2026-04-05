@@ -1,11 +1,5 @@
-import {
-	type DeclarationJson,
-	type MemberJson,
-	type ParameterInfo,
-	type ComponentPropInfo,
-	generateImport,
-	getDisplayName,
-} from 'svelte-docinfo';
+import type {DeclarationJson, MemberJson, ParameterInfo, ComponentPropInfo} from 'svelte-docinfo/types.js';
+import {generateImport, getDisplayName} from 'svelte-docinfo/declaration-helpers.js';
 
 import type {Module} from './module.svelte.js';
 import {url_github_file} from './package_helpers.js';

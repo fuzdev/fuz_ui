@@ -4414,7 +4414,7 @@
 						"name": "Declaration",
 						"kind": "class",
 						"docComment": "Rich runtime representation of an exported declaration.",
-						"sourceLine": 23,
+						"sourceLine": 17,
 						"members": [
 							{
 								"name": "module",
