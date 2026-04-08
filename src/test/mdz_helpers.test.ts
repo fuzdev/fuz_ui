@@ -31,6 +31,8 @@ import {
 	LEFT_PAREN,
 } from '$lib/mdz_helpers.js';
 
+/* eslint-disable no-script-url */
+
 // helper to create nodes with dummy positions
 const text = (content: string): MdzNode => ({type: 'Text', content, start: 0, end: 0});
 const bold = (children: Array<MdzNode>): MdzNode => ({type: 'Bold', children, start: 0, end: 0});
