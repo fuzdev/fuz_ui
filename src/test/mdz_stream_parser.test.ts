@@ -13,17 +13,7 @@ import type {
 	MdzOpcodeRevert,
 	MdzOpcodeWrap,
 } from '$lib/mdz_opcodes.js';
-import {load_fixtures, type MdzFixture} from './fixtures/mdz/mdz_test_helpers.js';
-
-/**
- * Parse text through the streaming parser and convert to MdzNode[] tree.
- */
-const stream_parse = (text: string): Array<MdzNode> => {
-	const parser = new MdzStreamParser();
-	parser.feed(text);
-	parser.finish();
-	return mdz_opcodes_to_nodes(parser.take_opcodes());
-};
+import {stream_parse, load_fixtures, type MdzFixture} from './fixtures/mdz/mdz_test_helpers.js';
 
 /**
  * Collect all opcodes from feeding text to the streaming parser.

@@ -176,7 +176,7 @@ stream done~`;
 			<div class="panel shade_05 mb_lg p_md">
 				<Mdz content={playground_content} />
 			</div>
-			<Code content={`<Mdz content="${nesting_example}" />`} />
+			<Code content={`<Mdz content="${playground_content}" />`} />
 		</TomeSection>
 
 		<TomeSection>
@@ -219,7 +219,7 @@ stream done~`;
 				<code>base</code>, they use raw hrefs (the browser resolves them against the current URL):
 			</p>
 			<Code content={link_relative_example} />
-			<Mdz content={link_relative_example} class="mb_xl5" />
+			<Mdz content={link_relative_example} base="/docs/mdz/" class="mb_xl5" />
 		</TomeSection>
 
 		<TomeSection>

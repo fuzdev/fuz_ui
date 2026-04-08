@@ -4765,7 +4765,13 @@
 					}
 				],
 				"dependencies": ["context_helpers.ts"],
-				"dependents": ["MdzNodeView.svelte", "MdzRoot.svelte", "MdzStreamNodeView.svelte"]
+				"dependents": [
+					"Mdz.svelte",
+					"MdzNodeView.svelte",
+					"MdzRoot.svelte",
+					"MdzStream.svelte",
+					"MdzStreamNodeView.svelte"
+				]
 			},
 			{
 				"path": "mdz_helpers.ts",
@@ -6278,12 +6284,17 @@
 								"name": "nowrap",
 								"type": "boolean",
 								"optional": true
+							},
+							{
+								"name": "base",
+								"type": "string",
+								"optional": true
 							}
 						],
 						"source_line": 1
 					}
 				],
-				"dependencies": ["MdzNodeView.svelte", "mdz.ts"],
+				"dependencies": ["MdzNodeView.svelte", "mdz.ts", "mdz_components.ts"],
 				"dependents": ["ApiModule.svelte", "DeclarationDetail.svelte"]
 			},
 			{
@@ -6725,12 +6736,17 @@
 								"name": "nowrap",
 								"type": "boolean",
 								"optional": true
+							},
+							{
+								"name": "base",
+								"type": "string",
+								"optional": true
 							}
 						],
 						"source_line": 1
 					}
 				],
-				"dependencies": ["MdzStreamNodeView.svelte"]
+				"dependencies": ["MdzStreamNodeView.svelte", "mdz_components.ts"]
 			},
 			{
 				"path": "MdzStreamNodeView.svelte",

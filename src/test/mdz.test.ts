@@ -1,21 +1,13 @@
 import {test, assert, describe, beforeAll} from 'vitest';
 
-import {mdz_parse, type MdzNode} from '$lib/mdz.js';
+import {mdz_parse} from '$lib/mdz.js';
 import {mdz_parse_lexer} from '$lib/mdz_token_parser.js';
-import {MdzStreamParser} from '$lib/mdz_stream_parser.js';
-import {mdz_opcodes_to_nodes} from '$lib/mdz_opcodes_to_nodes.js';
 import {
+	stream_parse,
 	load_fixtures,
 	validate_positions,
 	type MdzFixture,
 } from './fixtures/mdz/mdz_test_helpers.js';
-
-const stream_parse = (text: string): Array<MdzNode> => {
-	const parser = new MdzStreamParser();
-	parser.feed(text);
-	parser.finish();
-	return mdz_opcodes_to_nodes(parser.take_opcodes());
-};
 
 let fixtures: Array<MdzFixture> = [];
 
