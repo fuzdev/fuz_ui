@@ -5183,10 +5183,23 @@
 						]
 					},
 					{
+						"name": "mdz_is_safe_reference",
+						"kind": "function",
+						"source_line": 282,
+						"type_signature": "(reference: string): boolean",
+						"return_type": "boolean",
+						"parameters": [
+							{
+								"name": "reference",
+								"type": "string"
+							}
+						]
+					},
+					{
 						"name": "resolve_relative_path",
 						"kind": "function",
 						"doc_comment": "Resolves a relative path (`./` or `../`) against a base path.\nThe base is treated as a directory regardless of trailing slash\n(`'/docs/mdz'` and `'/docs/mdz/'` behave identically).\nHandles embedded `.` and `..` segments within the reference\n(e.g., `'./a/../b'` → navigates up then down).\nClamps at root — excess `..` segments stop at `/` rather than escaping.",
-						"source_line": 288,
+						"source_line": 297,
 						"type_signature": "(reference: string, base: string): string",
 						"return_type": "string",
 						"return_description": "an absolute resolved path (e.g., `'/docs/mdz/grammar'`)",
@@ -5206,7 +5219,7 @@
 					{
 						"name": "extract_single_tag",
 						"kind": "function",
-						"source_line": 306,
+						"source_line": 315,
 						"type_signature": "(nodes: MdzNode[]): MdzElementNode | MdzComponentNode | null",
 						"return_type": "MdzElementNode | MdzComponentNode | null",
 						"parameters": [
@@ -5993,10 +6006,17 @@
 						]
 					},
 					{
+						"name": "MdzNodeType",
+						"kind": "type",
+						"doc_comment": "All node types that can appear in the mdz tree.",
+						"source_line": 172,
+						"type_signature": "MdzNodeType"
+					},
+					{
 						"name": "MdzOpcode",
 						"kind": "type",
 						"doc_comment": "Discriminated union of all mdz opcodes.",
-						"source_line": 172,
+						"source_line": 175,
 						"type_signature": "MdzOpcode"
 					}
 				],
@@ -6063,7 +6083,7 @@
 							{
 								"name": "type",
 								"kind": "variable",
-								"type_signature": "string"
+								"type_signature": "MdzNodeType"
 							},
 							{
 								"name": "content",
@@ -6108,12 +6128,12 @@
 							{
 								"name": "text_type",
 								"kind": "variable",
-								"type_signature": "string"
+								"type_signature": "MdzTextNodeType"
 							},
 							{
 								"name": "constructor",
 								"kind": "constructor",
-								"type_signature": "(id: number, type: string): MdzStreamNode",
+								"type_signature": "(id: number, type: MdzNodeType): MdzStreamNode",
 								"parameters": [
 									{
 										"name": "id",
@@ -6121,7 +6141,7 @@
 									},
 									{
 										"name": "type",
-										"type": "string"
+										"type": "MdzNodeType"
 									}
 								]
 							}
