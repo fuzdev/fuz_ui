@@ -112,7 +112,7 @@
 			"magic-string": "^0.30.21",
 			"prettier": "^3.7.4",
 			"prettier-plugin-svelte": "^3.5.1",
-			"svelte": "^5.55.0",
+			"svelte": "^5.55.2",
 			"svelte-check": "^4.4.5",
 			"svelte2tsx": "^0.7.52",
 			"tslib": "^2.8.1",
@@ -4745,16 +4745,16 @@
 					{
 						"name": "mdz_components_context",
 						"kind": "variable",
-						"doc_comment": "Context for providing custom mdz components.\nMust be set by the application using mdz.",
+						"doc_comment": "Context for providing custom mdz components via a getter function.\nSet to a getter (e.g., `() => components`) so changes are reflected reactively.",
 						"source_line": 27,
-						"type_signature": "{ get: (error_message?: string | undefined) => MdzComponents; get_maybe: () => MdzComponents | undefined; set: (value: MdzComponents) => MdzComponents; }"
+						"type_signature": "{ get: (error_message?: string | undefined) => () => MdzComponents | undefined; get_maybe: () => (() => MdzComponents | undefined) | undefined; set: (value: () => MdzComponents | undefined) => () => MdzComponents | undefined; }"
 					},
 					{
 						"name": "mdz_elements_context",
 						"kind": "variable",
-						"doc_comment": "Context for providing allowed HTML elements.\nMust be set by the application using mdz.\nBy default, no HTML elements are allowed.",
+						"doc_comment": "Context for providing allowed HTML elements via a getter function.\nSet to a getter (e.g., `() => elements`) so changes are reflected reactively.\nBy default, no HTML elements are allowed.",
 						"source_line": 34,
-						"type_signature": "{ get: (error_message?: string | undefined) => MdzElements; get_maybe: () => MdzElements | undefined; set: (value: MdzElements) => MdzElements; }"
+						"type_signature": "{ get: (error_message?: string | undefined) => () => MdzElements | undefined; get_maybe: () => (() => MdzElements | undefined) | undefined; set: (value: () => MdzElements | undefined) => () => MdzElements | undefined; }"
 					},
 					{
 						"name": "mdz_base_context",
@@ -4765,12 +4765,7 @@
 					}
 				],
 				"dependencies": ["context_helpers.ts"],
-				"dependents": [
-					"Mdz.svelte",
-					"MdzNodeView.svelte",
-					"MdzStream.svelte",
-					"MdzStreamNodeView.svelte"
-				]
+				"dependents": ["MdzNodeView.svelte", "MdzRoot.svelte", "MdzStreamNodeView.svelte"]
 			},
 			{
 				"path": "mdz_helpers.ts",
@@ -6007,8 +6002,8 @@
 					{
 						"name": "MdzStreamParser",
 						"kind": "class",
-						"doc_comment": "Streaming opcode parser for mdz content.\nFeed chunks via `feed()`, retrieve opcodes via `take_opcodes()`, call `finish()` at end.",
-						"source_line": 99,
+						"doc_comment": "Streaming opcode parser for mdz content.\nFeed chunks via `feed()`, retrieve opcodes via `take_opcodes()`, call `finish()` at end.\n\nThe opcode sequence is not deterministic across chunk boundaries — the same input\nfed in different chunk sizes may produce different `text`/`append_text` splits and\ndifferent optimistic/revert sequences. The final tree (via `mdz_opcodes_to_nodes`)\nis always identical regardless of chunking.",
+						"source_line": 104,
 						"members": [
 							{
 								"name": "feed",
@@ -6034,7 +6029,7 @@
 							{
 								"name": "take_opcodes",
 								"kind": "function",
-								"doc_comment": "Drain and return all accumulated opcodes.",
+								"doc_comment": "Drain and return all accumulated opcodes.\nDestructive — empties the internal queue. The returned array is owned by the caller.",
 								"type_signature": "(): MdzOpcode[]",
 								"return_type": "MdzOpcode[]",
 								"parameters": []
@@ -6283,17 +6278,12 @@
 								"name": "nowrap",
 								"type": "boolean",
 								"optional": true
-							},
-							{
-								"name": "base",
-								"type": "string",
-								"optional": true
 							}
 						],
 						"source_line": 1
 					}
 				],
-				"dependencies": ["MdzNodeView.svelte", "mdz.ts", "mdz_components.ts"],
+				"dependencies": ["MdzNodeView.svelte", "mdz.ts"],
 				"dependents": ["ApiModule.svelte", "DeclarationDetail.svelte"]
 			},
 			{
@@ -6684,6 +6674,38 @@
 				"module_comment": "Wrapper for precompiled mdz content. Used by `svelte_preprocess_mdz`.\nNot intended for direct use."
 			},
 			{
+				"path": "MdzRoot.svelte",
+				"declarations": [
+					{
+						"name": "MdzRoot",
+						"kind": "component",
+						"props": [
+							{
+								"name": "base",
+								"type": "string",
+								"optional": true
+							},
+							{
+								"name": "components",
+								"type": "MdzComponents",
+								"optional": true
+							},
+							{
+								"name": "elements",
+								"type": "MdzElements",
+								"optional": true
+							},
+							{
+								"name": "children",
+								"type": "Snippet"
+							}
+						],
+						"source_line": 1
+					}
+				],
+				"dependencies": ["mdz_components.ts"]
+			},
+			{
 				"path": "MdzStream.svelte",
 				"declarations": [
 					{
@@ -6703,17 +6725,12 @@
 								"name": "nowrap",
 								"type": "boolean",
 								"optional": true
-							},
-							{
-								"name": "base",
-								"type": "string",
-								"optional": true
 							}
 						],
 						"source_line": 1
 					}
 				],
-				"dependencies": ["MdzStreamNodeView.svelte", "mdz_components.ts"]
+				"dependencies": ["MdzStreamNodeView.svelte"]
 			},
 			{
 				"path": "MdzStreamNodeView.svelte",

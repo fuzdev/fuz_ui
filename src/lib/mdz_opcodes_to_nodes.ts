@@ -55,7 +55,7 @@ export const mdz_opcodes_to_nodes = (opcodes: Array<MdzOpcode>): Array<MdzNode> 
 	const root: Array<MdzNode> = [];
 	const stack: Array<StackFrame> = [];
 	// index node IDs to their text content (for append_text and wrap)
-	const text_nodes: Array<MdzTextNode | MdzCodeNode | undefined> = [];
+	const text_nodes = new Map<MdzNodeId, MdzTextNode | MdzCodeNode>();
 	// track which children array contains each text node (for wrap)
 	const node_parents = new Map<number, Array<MdzNode>>();
 
@@ -101,7 +101,7 @@ export const mdz_opcodes_to_nodes = (opcodes: Array<MdzOpcode>): Array<MdzNode> 
 					op.text_type === 'Code'
 						? ({type: 'Code', content: op.content, start: op.start, end: op.end} as MdzCodeNode)
 						: ({type: 'Text', content: op.content, start: op.start, end: op.end} as MdzTextNode);
-				text_nodes[op.id] = node;
+				text_nodes.set(op.id, node);
 				const dest = target();
 				dest.push(node);
 				node_parents.set(op.id, dest);
@@ -109,10 +109,10 @@ export const mdz_opcodes_to_nodes = (opcodes: Array<MdzOpcode>): Array<MdzNode> 
 			}
 
 			case 'append_text': {
-				if (DEV && !text_nodes[op.id]) {
+				if (DEV && !text_nodes.has(op.id)) {
 					throw new Error(`mdz_opcodes_to_nodes: append_text for unknown id ${op.id}`);
 				}
-				const existing = text_nodes[op.id];
+				const existing = text_nodes.get(op.id);
 				if (existing) {
 					existing.content += op.content;
 					existing.end += op.content.length;
@@ -189,7 +189,7 @@ export const mdz_opcodes_to_nodes = (opcodes: Array<MdzOpcode>): Array<MdzNode> 
 			}
 
 			case 'wrap': {
-				const text_node = text_nodes[op.target_id];
+				const text_node = text_nodes.get(op.target_id);
 				const parent_children = node_parents.get(op.target_id);
 				if (!text_node || !parent_children) break;
 
@@ -208,7 +208,7 @@ export const mdz_opcodes_to_nodes = (opcodes: Array<MdzOpcode>): Array<MdzNode> 
 						start: text_node.end,
 						end: text_node.end + trimmed_content.length,
 					} as MdzTextNode;
-					text_nodes[op.trim_id] = trimmed_node;
+					text_nodes.set(op.trim_id, trimmed_node);
 					node_parents.set(op.trim_id, parent_children);
 				}
 

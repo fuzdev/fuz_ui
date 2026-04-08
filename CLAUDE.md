@@ -120,6 +120,7 @@ Helper file prefixes: `ts_*` (TypeScript API), `tsdoc_*` (JSDoc parsing),
 - `PackageDetail`, `PackageSummary` - package info display
 - `Mdz` - renders mdz (minimal markdown dialect) content
 - `MdzStream`, `MdzStreamNodeView` - streaming mdz renderer (opcode-driven)
+- `MdzRoot` - context provider for mdz (base, components, elements)
 - `ApiIndex`, `ApiModule`, `ApiDeclarationList` - API documentation
 
 ### Utilities
@@ -265,8 +266,12 @@ All contexts use the standardized pattern via `context_helpers.ts`:
 - `tomes_context` - available documentation (Map<string, Tome>)
 - `tome_context` - current documentation page (Tome)
 - `docs_links_context` - documentation navigation (DocsLinks class)
-- `mdz_components_context` - custom mdz components
-- `mdz_base_context` - base path for relative link resolution
+- `mdz_components_context` - custom mdz components (getter)
+- `mdz_elements_context` - allowed HTML elements (getter)
+- `mdz_base_context` - base path for relative link resolution (getter)
+
+All three use getter pattern (`() => value | undefined`). Set via `MdzRoot` component
+or directly with `context.set(() => value)`.
 
 **Contextmenu:**
 

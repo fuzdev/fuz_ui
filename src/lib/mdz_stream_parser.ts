@@ -95,6 +95,11 @@ interface CodeblockState {
 /**
  * Streaming opcode parser for mdz content.
  * Feed chunks via `feed()`, retrieve opcodes via `take_opcodes()`, call `finish()` at end.
+ *
+ * The opcode sequence is not deterministic across chunk boundaries — the same input
+ * fed in different chunk sizes may produce different `text`/`append_text` splits and
+ * different optimistic/revert sequences. The final tree (via `mdz_opcodes_to_nodes`)
+ * is always identical regardless of chunking.
  */
 export class MdzStreamParser {
 	#buffer = '';
@@ -212,6 +217,7 @@ export class MdzStreamParser {
 
 	/**
 	 * Drain and return all accumulated opcodes.
+	 * Destructive — empties the internal queue. The returned array is owned by the caller.
 	 */
 	take_opcodes(): Array<MdzOpcode> {
 		const ops = this.#opcodes;
