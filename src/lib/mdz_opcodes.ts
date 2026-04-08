@@ -168,6 +168,9 @@ export interface MdzOpcodeWrap {
 	trim_id?: MdzNodeId;
 }
 
+/** All node types that can appear in the mdz tree. */
+export type MdzNodeType = MdzContainerNodeType | MdzVoidNodeType | MdzTextNodeType;
+
 /** Discriminated union of all mdz opcodes. */
 export type MdzOpcode =
 	| MdzOpcodeOpen

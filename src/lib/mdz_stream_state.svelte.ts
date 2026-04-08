@@ -10,7 +10,7 @@
 
 import {DEV} from 'esm-env';
 
-import type {MdzNodeId, MdzOpcode} from './mdz_opcodes.js';
+import type {MdzNodeId, MdzNodeType, MdzOpcode, MdzTextNodeType} from './mdz_opcodes.js';
 
 /**
  * A reactive node in the stream renderer tree.
@@ -18,7 +18,7 @@ import type {MdzNodeId, MdzOpcode} from './mdz_opcodes.js';
  */
 export class MdzStreamNode {
 	id: MdzNodeId;
-	type: string;
+	type: MdzNodeType;
 	content: string = $state('');
 	children: Array<MdzStreamNode> = $state([]);
 	// metadata
@@ -28,9 +28,9 @@ export class MdzStreamNode {
 	name?: string;
 	lang?: string | null;
 	heading_id?: string = $state();
-	text_type?: string; // 'Text' | 'Code'
+	text_type?: MdzTextNodeType;
 
-	constructor(id: MdzNodeId, type: string) {
+	constructor(id: MdzNodeId, type: MdzNodeType) {
 		this.id = id;
 		this.type = type;
 	}

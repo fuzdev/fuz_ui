@@ -1,5 +1,8 @@
-import {test, assert, describe, beforeAll} from 'vitest';
+import {test, assert, describe, beforeAll, afterAll} from 'vitest';
 import ts from 'typescript';
+import fs from 'node:fs';
+import os from 'node:os';
+import path from 'node:path';
 import type {DeclarationJson} from '@fuzdev/fuz_util/source_json.js';
 
 import {
@@ -580,45 +583,51 @@ export {util_b as renamed_util} from './utils.js';
 });
 
 describe('ts_create_program with TsProgramOptions', () => {
-	test('creates program with default options', () => {
-		// Uses current directory and default tsconfig.json
-		const {program, checker} = ts_create_program();
+	let temp_dir: string;
+
+	beforeAll(() => {
+		temp_dir = fs.mkdtempSync(path.join(os.tmpdir(), 'ts-create-program-test-'));
+		fs.writeFileSync(
+			path.join(temp_dir, 'tsconfig.json'),
+			JSON.stringify({
+				compilerOptions: {strict: true, target: 'ES2022', module: 'ES2022'},
+				include: ['*.ts'],
+			}),
+		);
+		fs.writeFileSync(path.join(temp_dir, 'index.ts'), 'export const value = 42;\n');
+	});
+
+	afterAll(() => {
+		fs.rmSync(temp_dir, {recursive: true});
+	});
+
+	test('creates program with valid root', () => {
+		const {program, checker} = ts_create_program({root: temp_dir});
 
 		assert.ok(program);
 		assert.ok(checker);
 		assert.ok(program.getSourceFiles().length > 0);
 	});
 
-	test('creates program with explicit root', () => {
-		// Explicit root pointing to project directory
-		const {program} = ts_create_program({root: './'});
-
-		assert.ok(program);
-		assert.ok(program.getSourceFiles().length > 0);
-	});
-
 	test('creates program with custom compiler options', () => {
-		// Override strict mode
 		const {program} = ts_create_program({
+			root: temp_dir,
 			compiler_options: {
 				strict: false,
 			},
 		});
 
 		assert.ok(program);
-		// Verify program was created (compiler options are merged)
 		assert.ok(program.getSourceFiles().length > 0);
 	});
 
 	test('throws when tsconfig not found', () => {
-		// Non-existent directory
 		assert.throws(() => ts_create_program({root: '/non/existent/path'}), /No tsconfig\.json found/);
 	});
 
 	test('throws with custom tsconfig name when not found', () => {
-		// Try to use a non-existent custom tsconfig name
 		assert.throws(
-			() => ts_create_program({tsconfig: 'nonexistent.config.json'}),
+			() => ts_create_program({root: temp_dir, tsconfig: 'nonexistent.config.json'}),
 			/No nonexistent\.config\.json found/,
 		);
 	});

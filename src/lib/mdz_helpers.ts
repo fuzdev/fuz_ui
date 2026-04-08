@@ -274,6 +274,15 @@ const URL_PATTERN = /^https?:\/\/[^\s)\]}<>.,:/?#!]/;
 export const mdz_is_url = (s: string): boolean => URL_PATTERN.test(s);
 
 /**
+ * Check if a link reference is safe to use as an `href` attribute.
+ * References without a colon are always safe (paths, fragments, queries).
+ * References with a colon must use `http(s)://` — rejects `javascript:`, `data:`, etc.
+ */
+const SAFE_PROTOCOL_PATTERN = /^https?:\/\//i;
+export const mdz_is_safe_reference = (reference: string): boolean =>
+	!reference.includes(':') || SAFE_PROTOCOL_PATTERN.test(reference);
+
+/**
  * Resolves a relative path (`./` or `../`) against a base path.
  * The base is treated as a directory regardless of trailing slash
  * (`'/docs/mdz'` and `'/docs/mdz/'` behave identically).

@@ -364,7 +364,8 @@ const nodes = mdz_parse(content);`}
 		<TomeSection>
 			<TomeSectionHeader text="Streaming" />
 			<p>
-				For streaming content (like LLM output), use <DeclarationLink name="MdzStreamParser" /> with
+				Use <code>Mdz</code> when you have complete content upfront.
+				For content that arrives incrementally (e.g. from an LLM), use <DeclarationLink name="MdzStreamParser" /> with
 				<DeclarationLink name="MdzStreamState" /> and <DeclarationLink name="MdzStream" />. The
 				parser emits opcodes as rendering instructions - never re-parsing - and the state applies
 				them as fine-grained Svelte mutations. This is an implementation of the design described by

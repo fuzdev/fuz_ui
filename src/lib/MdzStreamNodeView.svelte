@@ -2,7 +2,7 @@
 	import Code from '@fuzdev/fuz_code/Code.svelte';
 	import {resolve} from '$app/paths';
 
-	import {resolve_relative_path} from './mdz_helpers.js';
+	import {resolve_relative_path, mdz_is_safe_reference} from './mdz_helpers.js';
 	import DocsLink from './DocsLink.svelte';
 	import MdzStreamNodeView from './MdzStreamNodeView.svelte';
 	import {
@@ -61,7 +61,9 @@
 	<s>{@render render_children(node.children)}</s>
 {:else if node.type === 'Link'}
 	{@const reference = node.reference ?? ''}
-	{#if node.link_type === 'internal'}
+	{#if !mdz_is_safe_reference(reference)}
+		{@render render_children(node.children)}
+	{:else if node.link_type === 'internal'}
 		{@const skip_resolve = reference.startsWith('#') || reference.startsWith('?')}
 		{@const mdz_base = get_mdz_base?.()}
 		{#if reference.startsWith('.') && mdz_base}
