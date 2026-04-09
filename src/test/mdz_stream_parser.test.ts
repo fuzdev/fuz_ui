@@ -446,6 +446,73 @@ describe('MdzStreamParser opcodes', () => {
 		assert.deepEqual(result, mdz_parse('a``b'));
 	});
 
+	// -- Non-optimistic italic streaming --
+
+	test('italic does not open when closer not in buffer', () => {
+		const parser = new MdzStreamParser();
+		parser.feed('_ital');
+		const ops = parser.take_opcodes();
+		const italic_open = ops.find(
+			(o): o is MdzOpcodeOpen => o.type === 'open' && o.node_type === 'Italic',
+		);
+		assert.ok(!italic_open, 'italic should NOT open optimistically when closer not in buffer');
+		// _ should be emitted as text
+		const text = ops.find(
+			(o): o is MdzOpcodeText => o.type === 'text' && o.content.startsWith('_'),
+		);
+		assert.ok(text, '_ should be emitted as literal text');
+	});
+
+	test('italic opens when closer is in same feed', () => {
+		const parser = new MdzStreamParser();
+		parser.feed('_italic_ rest');
+		parser.finish();
+		const result = mdz_opcodes_to_nodes(parser.take_opcodes());
+		assert.deepEqual(result, mdz_parse('_italic_ rest'));
+	});
+
+	test('unclosed italic does not block bold parsing', () => {
+		const result = stream_parse('_text **bold**');
+		assert.deepEqual(result, mdz_parse('_text **bold**'));
+	});
+
+	test('italic at EOF is text', () => {
+		const parser = new MdzStreamParser();
+		parser.feed('word_');
+		parser.finish();
+		const result = mdz_opcodes_to_nodes(parser.take_opcodes());
+		assert.deepEqual(result, mdz_parse('word_'));
+	});
+
+	test('lone underscore at EOF is text', () => {
+		const parser = new MdzStreamParser();
+		parser.feed('_');
+		parser.finish();
+		const result = mdz_opcodes_to_nodes(parser.take_opcodes());
+		assert.deepEqual(result, mdz_parse('_'));
+	});
+
+	test('italic closer arriving in later chunk is not retroactive', () => {
+		const parser = new MdzStreamParser();
+		parser.feed('hello _world');
+		const ops1 = parser.take_opcodes();
+		// no italic should be open
+		const italic_open = ops1.find(
+			(o): o is MdzOpcodeOpen => o.type === 'open' && o.node_type === 'Italic',
+		);
+		assert.ok(!italic_open, '_ should not open italic when closer not in buffer');
+
+		parser.feed('_ end');
+		parser.finish();
+		const ops2 = parser.take_opcodes();
+		const all_ops = [...ops1, ...ops2];
+		const result = mdz_opcodes_to_nodes(all_ops);
+		// _ was already emitted as text in first chunk, so no retroactive italic
+		const para = result[0]! as {children: Array<{type: string; content?: string}>};
+		const has_italic = para.children.some((c) => c.type === 'Italic');
+		assert.ok(!has_italic, 'italic should not be created retroactively across chunks');
+	});
+
 	// -- Text-first auto-link streaming (wrap opcode) --
 
 	test('URL streams as text then wrap converts to link', () => {
@@ -682,7 +749,7 @@ describe('MdzStreamParser fixture comparison', () => {
 		if (/(^|[\s])\/[^\s/]/.test(input)) return false;
 		// auto relative paths
 		if (input.includes('./') || input.includes('../')) return false;
-		// underscore (italic delimiter with word boundary sensitivity)
+		// underscore (non-optimistic italic: needs closer visible in buffer)
 		if (input.includes('_')) return false;
 		// tilde (strikethrough delimiter with word boundary sensitivity)
 		if (input.includes('~')) return false;

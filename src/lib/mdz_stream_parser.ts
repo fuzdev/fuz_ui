@@ -914,9 +914,10 @@ export class MdzStreamParser {
 
 	/**
 	 * Process one inline element. Returns false if more input is needed.
-	 * When `forced` is true (EOF processing), skips opening constructs
-	 * (no new bold/italic/code/link/tag opens) but still handles all
-	 * closing constructs and auto-links. Never returns false in forced mode.
+	 * When `forced` is true (EOF processing), skips optimistic opening constructs
+	 * (no new bold/code/link/tag opens) but still handles italic (non-optimistic,
+	 * safe to try), all closing constructs, and auto-links.
+	 * Never returns false in forced mode.
 	 */
 	#process_inline(forced = false): boolean {
 		const char_code = this.#buffer.charCodeAt(this.#pos);
@@ -950,7 +951,9 @@ export class MdzStreamParser {
 			if (open_idx !== -1 && this.#check_close_word_boundary()) {
 				return this.#close_single_delimiter(open_idx);
 			}
-			if (!forced) return this.#try_italic();
+			// Italic is non-optimistic — only opens when closer is confirmed in
+			// the buffer, so it's safe (and necessary) to try in forced mode too.
+			return this.#try_italic(forced);
 		}
 
 		if (char_code === TILDE) {
@@ -1084,7 +1087,7 @@ export class MdzStreamParser {
 
 	// -- Italic --
 
-	#try_italic(): boolean {
+	#try_italic(forced = false): boolean {
 		// check opening word boundary
 		if (this.#prev_char !== -1 && is_word_char(this.#prev_char)) {
 			// not at word boundary — emit as text
@@ -1097,11 +1100,27 @@ export class MdzStreamParser {
 		}
 
 		// need at least one char after _
-		if (this.#pos + 1 >= this.#buffer.length) return false;
+		if (this.#pos + 1 >= this.#buffer.length) {
+			if (forced) {
+				// at EOF with only _ left — treat as text
+				this.#ensure_paragraph();
+				this.#accumulate_text('_', this.#offset());
+				this.#prev_char = UNDERSCORE;
+				this.#column++;
+				this.#pos++;
+				return true;
+			}
+			return false;
+		}
 
-		// check if the first potential closer has a valid word boundary
-		// (matches existing parser's greedy first-match strategy)
-		if (!this.#first_closer_has_valid_boundary('_')) {
+		// Italic is non-optimistic: require confirmed closer in the buffer.
+		// This avoids flashing italic on common _ usage (snake_case, identifiers).
+		// When the closer isn't visible yet ('pending'), we treat _ as text rather
+		// than holding — holding would block all subsequent content from being parsed
+		// in normal mode. This means italic can't span chunk boundaries, but the
+		// one-shot path (the correctness gate) is always correct.
+		const closer = this.#scan_closer_boundary('_');
+		if (closer !== 'confirmed') {
 			this.#ensure_paragraph();
 			this.#accumulate_text('_', this.#offset());
 			this.#prev_char = UNDERSCORE;
@@ -1147,8 +1166,8 @@ export class MdzStreamParser {
 
 		if (this.#pos + 1 >= this.#buffer.length) return false;
 
-		// check if the first potential closer has a valid word boundary
-		if (!this.#first_closer_has_valid_boundary('~')) {
+		// strikethrough is optimistic: 'pending' proceeds, only 'rejected' aborts
+		if (this.#scan_closer_boundary('~') === 'rejected') {
 			this.#ensure_paragraph();
 			this.#accumulate_text('~', this.#offset());
 			this.#prev_char = TILDE;
@@ -1214,27 +1233,32 @@ export class MdzStreamParser {
 	}
 
 	/**
-	 * Check if the first potential closing delimiter in the buffer has a valid word boundary.
-	 * Used to match the existing parser's greedy first-match strategy:
-	 * if the first closer fails, the whole formatting attempt is rejected.
-	 * Returns true if the first closer is valid, or if no closer is found in the buffer
-	 * (optimistic — it might come in a later chunk).
+	 * Scan for the first potential closing delimiter and check its word boundary.
+	 * Returns a tri-state:
+	 * - `'confirmed'`: closer found in buffer with valid word boundary
+	 * - `'rejected'`: closer found but with invalid word boundary (greedy first-match fails)
+	 * - `'pending'`: no closer in buffer yet, or can't determine boundary
+	 *
+	 * Optimistic constructs (strikethrough) treat `'pending'` as proceed.
+	 * Non-optimistic constructs (italic) treat `'pending'` as text.
 	 *
 	 * Uses native `indexOf` instead of a manual char loop for faster scanning.
 	 */
-	#first_closer_has_valid_boundary(delimiter: string): boolean {
+	#scan_closer_boundary(delimiter: string): 'confirmed' | 'rejected' | 'pending' {
 		const search_start = this.#pos + 1;
 		const delim_pos = this.#buffer.indexOf(delimiter, search_start);
-		if (delim_pos === -1) return true; // no closer — optimistic
+		if (delim_pos === -1) return 'pending'; // no closer in buffer
 		// check for paragraph break before the delimiter
 		const para_pos = this.#buffer.indexOf('\n\n', search_start);
-		if (para_pos !== -1 && para_pos < delim_pos) return true; // paragraph break first — optimistic
+		if (para_pos !== -1 && para_pos < delim_pos) return 'pending'; // paragraph break first
 		// check word boundary after the closer
 		const after_pos = delim_pos + 1;
 		if (after_pos < this.#buffer.length) {
-			return !is_word_char(this.#buffer.charCodeAt(after_pos));
+			return is_word_char(this.#buffer.charCodeAt(after_pos)) ? 'rejected' : 'confirmed';
 		}
-		return true; // at end of buffer — optimistic
+		// closer at end of buffer — treat as confirmed, consistent with
+		// #check_close_word_boundary which also assumes boundary at buffer end
+		return 'confirmed';
 	}
 
 	// -- Inline code --
