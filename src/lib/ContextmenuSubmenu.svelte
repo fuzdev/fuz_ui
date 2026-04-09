@@ -25,13 +25,13 @@
 
 	const {selected} = $derived(submenu);
 
-	let el: HTMLElement | undefined = $state();
+	let el: HTMLElement | undefined = $state.raw();
 
 	const parent_dimensions = contextmenu_dimensions_context.get();
 	const dimensions = contextmenu_dimensions_context.set();
 
-	let translate_x = $state(0);
-	let translate_y = $state(0);
+	let translate_x = $state.raw(0);
+	let translate_y = $state.raw(0);
 	$effect(() => {
 		if (el) update_position(el, layout, parent_dimensions);
 	});

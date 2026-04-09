@@ -39,7 +39,7 @@
 	// Provide own section ID to direct children (header) via context
 	section_id_context.set(section_id);
 
-	let get_fragment: (() => string) | undefined = $state();
+	let get_fragment: (() => string) | undefined = $state.raw();
 
 	register_section_header_context.set((gf) => {
 		if (DEV && get_fragment !== undefined) {

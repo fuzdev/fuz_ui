@@ -30,8 +30,8 @@
 	} = $props();
 
 	// These are for visual feedback
-	let copied = $state(false);
-	let failed = $state(false);
+	let copied = $state.raw(false);
+	let failed = $state.raw(false);
 	let copy_timeout: NodeJS.Timeout | undefined;
 
 	const copy = async (e: MouseEvent) => {

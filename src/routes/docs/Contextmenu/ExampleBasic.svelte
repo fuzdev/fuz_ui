@@ -11,9 +11,9 @@
 	const ContextmenuRootComponent = $derived(selected.component);
 	const root_component_name = $derived(selected.name);
 
-	let greeted = $state(false);
-	let greeted_icon_snippet = $state(false);
-	let greeted_icon_string = $state(false);
+	let greeted = $state.raw(false);
+	let greeted_icon_snippet = $state.raw(false);
+	let greeted_icon_string = $state.raw(false);
 </script>
 
 <ContextmenuRootComponent scoped>

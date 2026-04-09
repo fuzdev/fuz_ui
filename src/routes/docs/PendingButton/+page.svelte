@@ -8,8 +8,8 @@
 	const LIBRARY_ITEM_NAME = 'PendingButton';
 	const tome = get_tome_by_name(LIBRARY_ITEM_NAME);
 
-	let pending_1 = $state(false);
-	let pending_2 = $state(true);
+	let pending_1 = $state.raw(false);
+	let pending_2 = $state.raw(true);
 </script>
 
 <!-- eslint-disable svelte/no-useless-mustaches -->
