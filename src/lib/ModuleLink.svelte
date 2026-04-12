@@ -33,7 +33,7 @@
 	<!-- eslint-disable svelte/no-navigation-without-resolve -->
 	<a
 		{...rest}
-		class="module_link {class_prop} {color_class}"
+		class="module-link {class_prop} {color_class}"
 		href={module.url_api + (hash ? ensure_start(hash, '#') : '')}
 		{@attach contextmenu_attachment(contextmenu_entries)}
 	>

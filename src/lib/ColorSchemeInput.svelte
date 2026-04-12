@@ -17,12 +17,12 @@
 
 <!-- TODO maybe support menubar aria
 https://developer.mozilla.org/en-US/docs/Web/Accessibility/ARIA/Roles/menubar_role -->
-<menu {...rest} class="color_scheme_control unstyled {rest.class}">
+<menu {...rest} class="color-scheme-control unstyled {rest.class}">
 	{#each color_schemes as color_scheme (color_scheme)}
 		{@const selected = color_scheme === value.color_scheme}
 		<button
 			type="button"
-			class="color_scheme color_a"
+			class="color-scheme color_a"
 			role="menuitemradio"
 			title={selected
 				? `${color_scheme} color scheme is selected`
@@ -40,7 +40,7 @@ https://developer.mozilla.org/en-US/docs/Web/Accessibility/ARIA/Roles/menubar_ro
 </menu>
 
 <style>
-	.color_scheme_control {
+	.color-scheme-control {
 		display: flex;
 		flex-direction: row;
 		justify-content: center;
@@ -51,14 +51,14 @@ https://developer.mozilla.org/en-US/docs/Web/Accessibility/ARIA/Roles/menubar_ro
 		justify-content: center;
 		padding: 0 var(--space_lg);
 	}
-	.color_scheme {
+	.color-scheme {
 		border-radius: 0;
 	}
-	.color_scheme:first-child {
+	.color-scheme:first-child {
 		border-top-left-radius: var(--border_radius, var(--border_radius_md));
 		border-bottom-left-radius: var(--border_radius, var(--border_radius_md));
 	}
-	.color_scheme:last-child {
+	.color-scheme:last-child {
 		border-top-right-radius: var(--border_radius, var(--border_radius_md));
 		border-bottom-right-radius: var(--border_radius, var(--border_radius_md));
 	}

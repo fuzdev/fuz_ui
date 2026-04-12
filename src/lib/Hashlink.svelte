@@ -7,7 +7,7 @@
 <a {...rest} class="hashlink {rest.class}" href="#{fragment}" aria-label="hashlink"
 	>{#if children}{@render children()}{:else}#{/if}</a
 >
-<span class="hashlink_scroll_target" id={fragment} aria-hidden="true"></span>
+<span class="hashlink-scroll-target" id={fragment} aria-hidden="true"></span>
 
 <style>
 	/* TODO @many how can this be done generically so it's composable? currently using `:global` at usage site - ideally we'd continue to use :hover instead of JS */
@@ -21,7 +21,7 @@
 		transition: opacity var(--duration_2);
 	}
 
-	.hashlink_scroll_target {
+	.hashlink-scroll-target {
 		position: absolute;
 		top: calc(var(--font_size, var(--font_size_md)) * -4);
 		left: 0;

@@ -60,7 +60,7 @@
 </script>
 
 <header>
-	<svelte:element this={final_tag} {...rest} class:tome_section_header={true}>
+	<svelte:element this={final_tag} {...rest} class:tome-section-header={true}>
 		<div class="flex:1">
 			{#if children}
 				{@render children()}
@@ -73,14 +73,14 @@
 </header>
 
 <style>
-	.tome_section_header {
+	.tome-section-header {
 		position: relative;
 		display: flex;
 		align-items: center;
 		justify-content: space-between;
 	}
 	/* TODO @many how can this be done composably? currently using `:global` at usage site - ideally we'd continue to use :hover instead of JS */
-	.tome_section_header:hover :global(.hashlink) {
+	.tome-section-header:hover :global(.hashlink) {
 		opacity: 1;
 	}
 </style>

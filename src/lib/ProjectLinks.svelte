@@ -55,8 +55,8 @@
 	<a class="thumbnail row shade_00 px_md py_xs border_radius_sm mb_lg" href={project_item.url}
 		><Svg shrink={false} data={project_item.logo} size="var(--icon_size_lg)" />
 		<div class="pl_lg width_atmost_sm">
-			<div class="thumbnail_name {project_item.color_class}">{project_item.name}</div>
-			<div class="thumbnail_description font_size_md text_70 font-weight:500">
+			<div class="thumbnail-name {project_item.color_class}">{project_item.name}</div>
+			<div class="thumbnail-description font_size_md text_70 font-weight:500">
 				{project_item.description}
 				{project_item.glyph}
 			</div>
@@ -83,10 +83,10 @@
 
 		/* show the underline only on the name, not the description */
 		text-decoration: none;
-		.thumbnail_name {
+		.thumbnail-name {
 			text-decoration: underline;
 		}
-		.thumbnail_description {
+		.thumbnail-description {
 			text-decoration: none;
 		}
 	}

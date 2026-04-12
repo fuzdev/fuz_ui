@@ -14,31 +14,31 @@
 	} = $props();
 </script>
 
-<div {...rest} class="docs_list {rest.class}" class:expand_width class:margin>
+<div {...rest} class="docs-list {rest.class}" class:expand-width={expand_width} class:margin>
 	{@render children()}
 </div>
 
 <style>
-	.docs_list {
+	.docs-list {
 		width: var(--docs_menu_width);
 		min-width: var(--docs_menu_width);
 	}
-	.docs_list.expand_width {
+	.docs-list.expand-width {
 		width: 100%;
 		max-width: var(--distance_md);
 	}
-	.docs_list.margin {
+	.docs-list.margin {
 		margin: var(--space_xl6) 0;
 	}
 
 	/* TODO should be fixed upstream in fuz_css */
-	.docs_list :global(a.highlighted) {
+	.docs-list :global(a.highlighted) {
 		background-color: var(--fg_10);
 	}
-	.docs_list :global(a:hover) {
+	.docs-list :global(a:hover) {
 		background-color: var(--fg_10);
 	}
-	.docs_list :global(a:is(:active, .selected)) {
+	.docs-list :global(a:is(:active, .selected)) {
 		background-color: var(--fg_20);
 	}
 </style>

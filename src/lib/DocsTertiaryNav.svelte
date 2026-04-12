@@ -49,12 +49,12 @@
 </script>
 
 <!-- TODO probably add a `nav` wrapper? around which? -->
-<aside {...rest} class="docs_tertiary_nav unstyled {rest.class}">
+<aside {...rest} class="docs-tertiary-nav unstyled {rest.class}">
 	{#if should_show_page_links}
 		<DocsPageLinks {sidebar} expand_width />
 	{/if}
 	{#if tomes_related_to_selected.length}
-		<section class="related_section">
+		<section class="related-section">
 			<h4 class="mb_sm">related tomes</h4>
 			<ul class="unstyled">
 				{#each tomes_related_to_selected as tome (tome.name)}
@@ -64,7 +64,7 @@
 		</section>
 	{/if}
 	{#if modules_related_to_selected.length}
-		<section class="related_section">
+		<section class="related-section">
 			<h4 class="mb_sm">related modules</h4>
 			<ul class="unstyled">
 				{#each modules_related_to_selected as module (module.path)}
@@ -74,7 +74,7 @@
 		</section>
 	{/if}
 	{#if declarations_related_to_selected.length}
-		<section class="related_section">
+		<section class="related-section">
 			<h4 class="mb_sm">related declarations</h4>
 			<ul class="unstyled">
 				{#each declarations_related_to_selected as declaration (declaration.name)}
@@ -86,7 +86,7 @@
 </aside>
 
 <style>
-	.docs_tertiary_nav {
+	.docs-tertiary-nav {
 		/* TODO @many lots of duplicate code between `DocsSecondaryNav` and `DocsTertiaryNav` */
 		position: fixed;
 		right: 0;
@@ -104,7 +104,7 @@
 
 	/* sync this breakpoint with `/docs/+layout` */
 	@media (max-width: 1000px) {
-		.docs_tertiary_nav {
+		.docs-tertiary-nav {
 			position: static;
 			background-color: initial;
 			overflow: initial;
