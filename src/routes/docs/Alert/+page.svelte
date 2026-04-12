@@ -10,7 +10,7 @@
 	const LIBRARY_ITEM_NAME = 'Alert';
 	const tome = get_tome_by_name(LIBRARY_ITEM_NAME);
 
-	let clicks = $state(0);
+	let clicks = $state.raw(0);
 
 	// TODO add examples for colored buttons - visually they're broken because they look like selected buttons
 </script>

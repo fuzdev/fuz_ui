@@ -36,7 +36,7 @@
 
 	const docs_menu_width = '180px';
 
-	let show_secondary_nav_dialog = $state(false);
+	let show_secondary_nav_dialog = $state.raw(false);
 	const toggle_secondary_nav_dialog = (show?: boolean): void => {
 		show_secondary_nav_dialog = show ?? !show_secondary_nav_dialog;
 	};

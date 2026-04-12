@@ -32,7 +32,7 @@
 		update_hue(parsed);
 	};
 
-	let el: HTMLInputElement | undefined = $state();
+	let el: HTMLInputElement | undefined = $state.raw();
 
 	const set_hue_from_minimap = (e: MouseEvent & {currentTarget: EventTarget & HTMLElement}) => {
 		const rect = e.currentTarget.getBoundingClientRect();

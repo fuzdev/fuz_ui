@@ -29,8 +29,8 @@
 	const ben = 'Ben';
 
 	const INITIAL_POSITION: CatPosition = 'home';
-	let alyssa_position: CatPosition = $state(INITIAL_POSITION);
-	let ben_position: CatPosition = $state(INITIAL_POSITION);
+	let alyssa_position: CatPosition = $state.raw(INITIAL_POSITION);
+	let ben_position: CatPosition = $state.raw(INITIAL_POSITION);
 
 	const alyssa_icon = $derived(alyssa_position === ben_position ? '😺' : '😾');
 	const ben_icon = $derived(alyssa_position === ben_position ? '😸' : '😿');
@@ -38,7 +38,7 @@
 	const alyssa_cat = $derived({name: alyssa, icon: alyssa_icon, position: alyssa_position});
 	const ben_cat = $derived({name: ben, icon: ben_icon, position: ben_position});
 
-	let swapped = $state(false);
+	let swapped = $state.raw(false);
 
 	// TODO this is weird but `animate:` needs an `each`?
 	const locate_cats = (
@@ -74,7 +74,7 @@
 		ben_position = INITIAL_POSITION;
 	};
 
-	let show_about_dialog = $state(false);
+	let show_about_dialog = $state.raw(false);
 	const toggle_about_dialog = () => {
 		show_about_dialog = !show_about_dialog;
 	};

@@ -23,7 +23,7 @@
 	const get_contextmenu = contextmenu_context.get();
 	const contextmenu = $derived(get_contextmenu());
 
-	let anchor_el: HTMLAnchorElement | undefined = $state();
+	let anchor_el: HTMLAnchorElement | undefined = $state.raw();
 
 	// Register with state management for keyboard navigation
 	// When activated via keyboard, programmatically click the anchor to trigger navigation

@@ -58,7 +58,7 @@
 	const ROOT_SELECTOR = 'body'; // TODO make configurable
 	const CONTAINER_ID = 'fuz_dialog';
 
-	let container_el: HTMLElement | undefined = $state();
+	let container_el: HTMLElement | undefined = $state.raw();
 	$effect(() => {
 		update_container_el(container);
 	});
@@ -83,8 +83,8 @@
 		}
 	};
 
-	let dialog_el: HTMLElement | undefined = $state();
-	let content_el: HTMLElement | undefined = $state();
+	let dialog_el: HTMLElement | undefined = $state.raw();
+	let content_el: HTMLElement | undefined = $state.raw();
 
 	const close = (e?: Event) => {
 		if (e) swallow(e);
@@ -106,7 +106,7 @@
 
 	// The dialog isn't "ready" until the teleport moves it.
 	// Rendering the the dialog's children only once it's ready fixes things like `autofocus`.
-	let ready = $state(false);
+	let ready = $state.raw(false);
 </script>
 
 <svelte:window onkeydown={active ? on_window_keydown : undefined} />

@@ -13,8 +13,8 @@ export interface ThemeStateJson {
 export type ThemeStateOptions = Partial<ThemeStateJson>;
 
 export class ThemeState {
-	theme: Theme = $state()!;
-	color_scheme: ColorScheme = $state()!;
+	theme: Theme = $state.raw()!;
+	color_scheme: ColorScheme = $state.raw()!;
 
 	constructor(options?: ThemeStateOptions) {
 		const theme = options?.theme ?? default_themes[0]!;

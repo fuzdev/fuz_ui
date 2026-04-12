@@ -113,7 +113,7 @@
 
 	if (DEV) contextmenu_check_global_root(() => scoped); // TODO @many is this import tree-shaken?
 
-	let el: HTMLElement | undefined = $state();
+	let el: HTMLElement | undefined = $state.raw();
 
 	const {layout} = $derived(contextmenu);
 
@@ -128,11 +128,11 @@
 
 	// State for tap-then-longpress bypass detection.
 	// These values are `undefined` when unused, and `null` after being reset.
-	let touch_x: number | undefined | null = $state();
-	let touch_y: number | undefined | null = $state();
-	let first_tap_time: number | undefined | null = $state();
-	let longpress_bypass: boolean | undefined = $state();
-	let tap_tracking_timeout: NodeJS.Timeout | undefined | null = $state();
+	let touch_x: number | undefined | null = $state.raw();
+	let touch_y: number | undefined | null = $state.raw();
+	let first_tap_time: number | undefined | null = $state.raw();
+	let longpress_bypass: boolean | undefined = $state.raw();
+	let tap_tracking_timeout: NodeJS.Timeout | undefined | null = $state.raw();
 
 	const on_window_contextmenu = (e: MouseEvent) => {
 		// Handle the tap-then-longpress bypass gesture

@@ -20,7 +20,7 @@
 		children: Snippet;
 	} = $props();
 
-	let el: HTMLButtonElement | undefined = $state();
+	let el: HTMLButtonElement | undefined = $state.raw();
 
 	export const focus = (options?: FocusOptions): void => el?.focus(options);
 

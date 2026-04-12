@@ -31,9 +31,9 @@ export class EntryState {
 	readonly run: () => ContextmenuRun;
 	readonly disabled: () => boolean;
 
-	selected: boolean = $state(false);
-	pending: boolean = $state(false);
-	error_message: string | null = $state(null);
+	selected: boolean = $state.raw(false);
+	pending: boolean = $state.raw(false);
+	error_message: string | null = $state.raw(null);
 	promise: Promise<ContextmenuActivateResult> | null = $state.raw(null);
 
 	constructor(
@@ -52,7 +52,7 @@ export class SubmenuState {
 	readonly menu: SubmenuState | RootMenuState;
 	readonly depth: number;
 
-	selected: boolean = $state(false);
+	selected: boolean = $state.raw(false);
 	items: ReadonlyArray<ItemState> = $state.raw([]);
 
 	constructor(menu: SubmenuState | RootMenuState, depth: number) {
@@ -90,11 +90,11 @@ export class ContextmenuState {
 	readonly has_custom_layout: boolean;
 
 	// State for external consumers.
-	opened: boolean = $state(false);
-	x: number = $state(0);
-	y: number = $state(0);
+	opened: boolean = $state.raw(false);
+	x: number = $state.raw(0);
+	y: number = $state.raw(0);
 	params: ReadonlyArray<ContextmenuParams> = $state.raw([]);
-	error: string | undefined = $state();
+	error: string | undefined = $state.raw();
 
 	// These arrays use immutable updates (reassignment, not mutation).
 	// If you need reactivity, use `$contextmenu` in a reactive statement to react to all changes, and

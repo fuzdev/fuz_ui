@@ -18,7 +18,7 @@
 
 	const contextmenu = new ContextmenuState();
 
-	let selected_color: 'f' | 'g' | 'j' | undefined = $state();
+	let selected_color: 'f' | 'g' | 'j' | undefined = $state.raw();
 
 	const selected_color_class = $derived(selected_color ? `color_${selected_color}_5` : undefined);
 	const selected_hue_class = $derived(selected_color ? `color_${selected_color}` : undefined);
