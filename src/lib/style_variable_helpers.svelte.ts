@@ -4,7 +4,7 @@ import {create_context} from './context_helpers.js';
 
 // TODO maybe change this to a generic wrapper class for any value?
 export class SelectedStyleVariable {
-	value: StyleVariable | null = $state()!;
+	value: StyleVariable | null = $state.raw()!;
 
 	constructor(initial: StyleVariable | null = null) {
 		this.value = initial;

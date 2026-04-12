@@ -25,7 +25,7 @@
 	const theme_state = $derived(get_theme_state());
 
 	// let show_create_theme_dialog = false;
-	let editing_theme: null | Theme = $state(null);
+	let editing_theme: null | Theme = $state.raw(null);
 </script>
 
 <!-- eslint-disable svelte/no-useless-mustaches -->

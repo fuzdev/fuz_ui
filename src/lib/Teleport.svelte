@@ -16,7 +16,7 @@
 		children: Snippet;
 	} = $props();
 
-	let el: HTMLElement | undefined | null = $state();
+	let el: HTMLElement | undefined | null = $state.raw();
 
 	$effect(() => {
 		if (el && to) {
@@ -24,7 +24,7 @@
 		}
 	});
 
-	let moved = $state(false);
+	let moved = $state.raw(false);
 
 	const move = (el: HTMLElement, to: HTMLElement): void => {
 		moved = true;

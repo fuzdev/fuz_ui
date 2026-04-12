@@ -1,6 +1,6 @@
 <script lang="ts">
 	import Mdz from '@fuzdev/fuz_ui/Mdz.svelte';
-	let show = $state(true);
+	let show = $state.raw(true);
 </script>
 
 {#if show}

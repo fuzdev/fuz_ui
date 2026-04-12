@@ -20,14 +20,14 @@
 	const items = $derived(Array.from({length: get_initial_count()}, (_, i) => i));
 
 	// configurable demo state
-	let threshold = $state(0);
-	let count = $state(3);
-	let rootMargin = $state('0px');
+	let threshold = $state.raw(0);
+	let count = $state.raw(3);
+	let rootMargin = $state.raw('0px');
 
 	// reset keys for forcing remounts
-	let count_1_key = $state(0);
-	let count_2_key = $state(0);
-	let configurable_key = $state(0);
+	let count_1_key = $state.raw(0);
+	let count_2_key = $state.raw(0);
+	let configurable_key = $state.raw(0);
 </script>
 
 <TomeContent {tome}>

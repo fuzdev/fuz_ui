@@ -24,7 +24,7 @@ export interface ApiSearchState {
  * Creates unified search state for the API index page (modules and declarations).
  */
 export const create_api_search = (library: Library): ApiSearchState => {
-	let query = $state('');
+	let query = $state.raw('');
 
 	// Module filtering
 	const all_modules = $derived(library.modules_sorted);
@@ -77,7 +77,7 @@ export const create_api_search = (library: Library): ApiSearchState => {
 export const create_module_declaration_search = (
 	declarations: Array<Declaration>,
 ): DeclarationSearchState => {
-	let query = $state('');
+	let query = $state.raw('');
 
 	const all = $derived(declarations);
 

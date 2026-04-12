@@ -14,9 +14,9 @@
 
 	// TODO maybe pass `contextmenu` to the children snippet
 
-	let toggled = $state(false);
+	let toggled = $state.raw(false);
 
-	let text_el: HTMLElement | undefined = $state();
+	let text_el: HTMLElement | undefined = $state.raw();
 
 	const select_text = () => {
 		const selection = window.getSelection();
@@ -27,7 +27,7 @@
 		selection.addRange(range);
 	};
 
-	let value = $state('');
+	let value = $state.raw('');
 
 	// TODO very hacky
 	const text1 = `If a contextmenu is triggered on selected text, it includes a 'copy text' entry.  Try selecting text and then opening the contextmenu on it.`;

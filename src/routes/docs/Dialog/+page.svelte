@@ -21,16 +21,16 @@
 
 	const tome = get_tome_by_name(LIBRARY_ITEM_NAME);
 
-	let opened = $state(false);
-	let dialog_overflowing_opened = $state(false);
-	let dialog_layout_page_opened = $state(false);
-	let dialog_nested_1_opened = $state(false);
-	let dialog_nested_2_opened = $state(false);
-	let dialog_nested_3_opened = $state(false);
+	let opened = $state.raw(false);
+	let dialog_overflowing_opened = $state.raw(false);
+	let dialog_layout_page_opened = $state.raw(false);
+	let dialog_nested_1_opened = $state.raw(false);
+	let dialog_nested_2_opened = $state.raw(false);
+	let dialog_nested_3_opened = $state.raw(false);
 
-	let selected_layout: DialogLayout = $state('page');
+	let selected_layout: DialogLayout = $state.raw('page');
 
-	let items: Array<object> = $state([]);
+	let items: Array<object> = $state.raw([]);
 	const remove_item = (item: object) => {
 		items = items.filter((i) => i !== item);
 	};
@@ -41,7 +41,7 @@
 		items = [];
 	};
 
-	let dialogs: Array<DialogParams> = $state([]);
+	let dialogs: Array<DialogParams> = $state.raw([]);
 	const add_dialogs = (count: number) => {
 		const to_text = (index: number) => '!'.repeat(count * 3 - index * 3);
 		dialogs = Array.from({length: count}, (_, i) =>

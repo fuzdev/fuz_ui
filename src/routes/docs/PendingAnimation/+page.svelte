@@ -10,11 +10,11 @@
 	const LIBRARY_ITEM_NAME = 'PendingAnimation';
 	const tome = get_tome_by_name(LIBRARY_ITEM_NAME);
 
-	let turtle_slot = $state('🐢');
-	let turtle_slot_2a = $state('🐸');
-	let turtle_slot_2b = $state('⏳');
-	let running = $state(true);
-	let inline = $state(true);
+	let turtle_slot = $state.raw('🐢');
+	let turtle_slot_2a = $state.raw('🐸');
+	let turtle_slot_2b = $state.raw('⏳');
+	let running = $state.raw(true);
+	let inline = $state.raw(true);
 
 	// Formats boolean html attrs for display, using shorthand when true
 	const to_boolean_attr = (name: 'running' | 'inline', value: boolean): string => {

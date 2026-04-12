@@ -15,12 +15,12 @@
 
 	const contextmenu = new ContextmenuState();
 
-	let link_entry_disabled = $state(false);
-	let text_entry_disabled = $state(false);
-	let custom_entry_included = $state(true);
+	let link_entry_disabled = $state.raw(false);
+	let text_entry_disabled = $state.raw(false);
+	let custom_entry_included = $state.raw(true);
 
-	let toggled = $state(false);
-	let text_el: HTMLElement | undefined = $state();
+	let toggled = $state.raw(false);
+	let text_el: HTMLElement | undefined = $state.raw();
 
 	const select_text = () => {
 		const selection = window.getSelection();

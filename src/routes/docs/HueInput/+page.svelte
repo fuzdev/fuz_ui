@@ -10,7 +10,7 @@
 	const LIBRARY_ITEM_NAME = 'HueInput';
 	const tome = get_tome_by_name(LIBRARY_ITEM_NAME);
 
-	let value: number = $state(180);
+	let value: number = $state.raw(180);
 </script>
 
 <!-- eslint-disable svelte/no-useless-mustaches -->
