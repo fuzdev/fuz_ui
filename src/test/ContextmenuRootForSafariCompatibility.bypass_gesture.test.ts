@@ -872,7 +872,7 @@ describe('ContextmenuRootForSafariCompatibility - Tap-Then-Longpress Bypass Gest
 			await tick();
 
 			// Component should be stable
-			assert.ok(!contextmenu.opened);
+			assert.strictEqual(contextmenu.opened, false);
 		});
 
 		test('handles alternating tap and touchcancel', async () => {
@@ -917,7 +917,7 @@ describe('ContextmenuRootForSafariCompatibility - Tap-Then-Longpress Bypass Gest
 			vi.advanceTimersByTime(1000);
 			await tick();
 
-			assert.ok(!contextmenu.opened);
+			assert.strictEqual(contextmenu.opened, false);
 		});
 
 		test('handles mixed touch and mouse input', async () => {

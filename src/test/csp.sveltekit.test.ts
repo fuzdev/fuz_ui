@@ -205,15 +205,6 @@ describe('SvelteKit CSP modes', () => {
 		assert.deepEqual(csp['report-to'], ['csp-endpoint']);
 	});
 
-	test('report-only mode via SvelteKit config', () => {
-		// This would be configured in svelte.config.js as mode: 'report-only'
-		// The directives themselves are the same
-		const csp = create_csp_directives();
-
-		// Directives are identical, mode is set separately in SvelteKit config
-		assert.ok(csp['script-src']);
-	});
-
 	test('enabling reporting endpoint', () => {
 		const csp = create_csp_directives({
 			value_defaults: {

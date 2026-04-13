@@ -145,7 +145,7 @@ describe('ContextmenuState - Structure', () => {
 				current = current.menu;
 				depth++;
 			}
-			assert.ok(depth < 10, 'Should reach null parent without cycling');
+			assert.strictEqual(depth, 3, 'Should traverse root → submenu1 → submenu2 (3 hops to null)');
 		});
 	});
 
