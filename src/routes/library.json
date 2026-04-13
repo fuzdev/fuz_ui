@@ -3730,7 +3730,7 @@
 						"type_signature": "SvgData"
 					},
 					{
-						"name": "icon_create_folder",
+						"name": "icon_create_directory",
 						"kind": "variable",
 						"source_line": 335,
 						"type_signature": "SvgData"
