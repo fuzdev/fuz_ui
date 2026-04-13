@@ -10,7 +10,7 @@ export const icon_unknown = {
 	label: 'unknown, double question mark',
 	paths: [
 		{
-			d: 'M12 34C10 6 46 2 46 26C46 36 38 38 34 46L34 56 22 56 22 46C22 36 16 36 12 34zM21 70a7 7 0 1 0 14 0 7 7 0 0 0-14 0zM56 34C54 6 90 2 90 26C90 36 82 38 78 46L78 56 66 56 66 46C66 36 60 36 56 34zM65 70a7 7 0 1 0 14 0 7 7 0 0 0-14 0z',
+			d: 'M5 34a20 20 0 0 1 20-22 20 20 0 0 1 20 22c0 10-7 14-9 20l0 6-14 0 0-6c0-8 7-12 7-20a5 5 0 0 0-5-7 5 5 0 0 0-5 7zm15 36a8 8 0 1 0 16 0 8 8 0 0 0-16 0zM55 34a20 20 0 0 1 20-22 20 20 0 0 1 20 22c0 10-7 14-9 20l0 6-14 0 0-6c0-8 7-12 7-20a5 5 0 0 0-5-7 5 5 0 0 0-5 7zm15 36a8 8 0 1 0 16 0 8 8 0 0 0-16 0z',
 		},
 	],
 } satisfies SvgData;
@@ -19,7 +19,7 @@ export const icon_important = {
 	label: 'important, question and exclamation',
 	paths: [
 		{
-			d: 'M12 34C10 6 46 2 46 26C46 36 38 38 34 46L34 56 22 56 22 46C22 36 16 36 12 34zM21 70a7 7 0 1 0 14 0 7 7 0 0 0-14 0zM63 8L79 8 76 56 66 56zM65 70a7 7 0 1 0 14 0 7 7 0 0 0-14 0z',
+			d: 'M5 34a20 20 0 0 1 20-22 20 20 0 0 1 20 22c0 10-7 14-9 20l0 6-14 0 0-6c0-8 7-12 7-20a5 5 0 0 0-5-7 5 5 0 0 0-5 7zm15 36a8 8 0 1 0 16 0 8 8 0 0 0-16 0zM63 8L79 8 76 56 66 56zM65 70a8 8 0 1 0 16 0 8 8 0 0 0-16 0z',
 		},
 	],
 } satisfies SvgData;
@@ -28,7 +28,7 @@ export const icon_info = {
 	label: 'info circle',
 	paths: [
 		{
-			d: 'M50 5a45 45 0 1 0 0 90 45 45 0 0 0 0-90zm0 10a35 35 0 1 1 0 70 35 35 0 0 1 0-70zm-5 15h10v10h-10zm0 15h10v25h-10z',
+			d: 'M50 5a45 45 0 1 0 0 90 45 45 0 0 0 0-90zm0 10a35 35 0 1 1 0 70 35 35 0 0 1 0-70zM47 30h6a2 2 0 0 1 2 2v6a2 2 0 0 1-2 2h-6a2 2 0 0 1-2-2v-6a2 2 0 0 1 2-2zM47 55h6a2 2 0 0 1 2 2v21a2 2 0 0 1-2 2h-6a2 2 0 0 1-2-2v-21a2 2 0 0 1 2-2z',
 		},
 	],
 } satisfies SvgData;
@@ -37,23 +37,23 @@ export const icon_info = {
 
 export const icon_add = {
 	label: 'add, plus',
-	paths: [{d: 'M45 15v30h-30v10h30v30h10v-30h30v-10h-30v-30z'}],
+	paths: [{d: 'M45 15L55 15 58 42 85 45 85 55 58 58 55 85 45 85 42 58 15 55 15 45 42 42z'}],
 } satisfies SvgData;
 
 export const icon_remove = {
 	label: 'remove, x mark',
 	paths: [
 		{
-			d: 'M26.5 19.4l-7.1 7.1L42.9 50 19.4 73.5l7.1 7.1L50 57.1l23.5 23.5 7.1-7.1L57.1 50l23.5-23.5-7.1-7.1L50 42.9z',
+			d: 'M26.5 19.4L19.4 26.5 40 50 19.4 73.5 26.5 80.6 50 60 73.5 80.6 80.6 73.5 60 50 80.6 26.5 73.5 19.4 50 40z',
 		},
 	],
 } satisfies SvgData;
 
 export const icon_delete = {
-	label: 'delete, x in square',
+	label: 'delete, x in concave frame',
 	paths: [
 		{
-			d: 'M10 10h80v80h-80zm10 10v60h60v-60zm8 15l7-7 15 15 15-15 7 7-15 15 15 15-7 7-15-15-15 15-7-7 15-15z',
+			d: 'M5 5Q50 18 95 5Q82 50 95 95Q50 82 5 95Q18 50 5 5zM18 18Q28 50 18 82Q50 72 82 82Q72 50 82 18Q50 28 18 18zM28 35l7-7 15 15 15-15 7 7-15 15 15 15-7 7-15-15-15 15-7-7 15-15z',
 		},
 	],
 } satisfies SvgData;
@@ -115,7 +115,7 @@ export const icon_reset = {
 
 export const icon_refresh = {
 	label: 'refresh, circular arrow',
-	paths: [{d: 'M70 15A40 40 0 1 1 30 15L36 26A28 28 0 1 0 64 26z'}, {d: 'M86 21L70 15 64 26z'}],
+	paths: [{d: 'M30 15A40 40 0 1 1 70 15zM36 26A28 28 0 1 0 64 26zM88 20L70 15 64 26z'}],
 } satisfies SvgData;
 
 export const icon_connect = {
@@ -131,14 +131,14 @@ export const icon_disconnect = {
 	label: 'disconnect, broken link',
 	paths: [
 		{
-			d: 'M30 40a15 15 0 0 0-15 15 15 15 0 0 0 15 15h10v10h-10a25 25 0 0 1-25-25 25 25 0 0 1 25-25h10v10zm30-10h10a25 25 0 0 1 25 25 25 25 0 0 1-25 25h-10v-10h10a15 15 0 0 0 15-15 15 15 0 0 0-15-15h-10zM44 42l-4-8h8l4 8zM56 58l4 8h-8l-4-8z',
+			d: 'M30 40a15 15 0 0 0-15 15 15 15 0 0 0 15 15h10v10h-10a25 25 0 0 1-25-25 25 25 0 0 1 25-25h10v10zm30-10h10a25 25 0 0 1 25 25 25 25 0 0 1-25 25h-10v-10h10a15 15 0 0 0 15-15 15 15 0 0 0-15-15h-10zM46 48l-4-8h8l4 8zM54 62l4 8h-8l-4-8z',
 		},
 	],
 } satisfies SvgData;
 
 export const icon_retry = {
 	label: 'retry, counterclockwise arrow',
-	paths: [{d: 'M30 15A40 40 0 1 0 70 15L64 26A28 28 0 1 1 36 26z'}, {d: 'M14 21L30 15 36 26z'}],
+	paths: [{d: 'M70 15A40 40 0 1 0 30 15zM64 26A28 28 0 1 1 36 26zM12 20L30 15 36 26z'}],
 } satisfies SvgData;
 
 export const icon_placeholder = {
@@ -167,19 +167,19 @@ export const icon_pause = {
 
 export const icon_checkmark = {
 	label: 'checkmark',
-	paths: [{d: 'M15 52l10-10 17 17 33-33 10 10-43 43z'}],
+	paths: [{d: 'M14 55L24 42 42 60Q60 40 78 24L82 22 88 36Q62 52 42 82z'}],
 } satisfies SvgData;
 
 export const icon_checkmark_heavy = {
 	label: 'heavy checkmark',
-	paths: [{d: 'M10 50l14-14 18 18 34-34 14 14-48 48z'}],
+	paths: [{d: 'M10 54L22 36 42 56Q60 34 78 18L84 15 92 34Q64 52 42 84z'}],
 } satisfies SvgData;
 
 export const icon_xmark = {
 	label: 'x mark',
 	paths: [
 		{
-			d: 'M26 19l-7 7 24 24-24 24 7 7 24-24 24 24 7-7-24-24 24-24-7-7-24 24z',
+			d: 'M27 17L25 20 22 28Q33 39 43 50Q33 61 17 72L14 76 26 83Q37 70 50 57Q63 70 74 83L77 81 81 74Q70 63 57 50Q70 37 83 23L74 17 50 43z',
 		},
 	],
 } satisfies SvgData;
@@ -188,7 +188,7 @@ export const icon_xmark_heavy = {
 	label: 'heavy x mark',
 	paths: [
 		{
-			d: 'M24 14l-10 10 26 26-26 26 10 10 26-26 26 26 10-10-26-26 26-26-10-10-26 26z',
+			d: 'M25 12L22 15 17 24Q30 37 40 50Q30 63 12 76L10 80 24 88Q37 74 50 60Q63 74 76 88L79 86 86 76Q73 63 60 50Q73 37 88 21L76 12 50 40z',
 		},
 	],
 } satisfies SvgData;
@@ -427,7 +427,7 @@ export const icon_capability = {
 	label: 'capability, wrench',
 	paths: [
 		{
-			d: 'M72 8a28 28 0 0 0-25 40l-30 30a8 8 0 0 0 0 11l4 4a8 8 0 0 0 11 0l30-30a28 28 0 0 0 38-29l-14 14-12-4-4-12 14-14a28 28 0 0 0-12-10z',
+			d: 'M72 8a28 28 0 0 0-25 40l-30 30a8 8 0 0 0 0 11l4 4a8 8 0 0 0 11 0l30-30a28 28 0 0 0 38-29l-12 14-12-6-6-12 14-12a28 28 0 0 0-12-10z',
 		},
 	],
 } satisfies SvgData;
@@ -554,16 +554,19 @@ export const icon_session = {
 // --- Action Types ---
 
 export const icon_action_type_local_call = {
-	label: 'local call, right arrow',
-	paths: [{d: 'M15 40h40v-15l30 25-30 25v-15h-40z'}],
+	label: 'local call, arrow to target',
+	paths: [
+		{d: 'M10 45h25v-15l20 20-20 20v-15h-25z'},
+		{d: 'M72 50a13 13 0 1 1 0-1zM78 50a7 7 0 1 0 0-1z'},
+	],
 } satisfies SvgData;
 
 export const icon_action_type_remote_notification = {
-	label: 'remote notification, arrow down to line',
+	label: 'remote notification, arrow with signal',
 	paths: [
-		{
-			d: 'M45 10h10v30h15l-20 30-20-30h15zM15 82h70v8h-70z',
-		},
+		{d: 'M10 45h25v-15l20 20-20 20v-15h-25z'},
+		{d: 'M70 33a19 19 0 0 1 0 34 16 16 0 0 0 0-34z'},
+		{d: 'M78 27a27 27 0 0 1 0 46 24 24 0 0 0 0-46z'},
 	],
 } satisfies SvgData;
 
