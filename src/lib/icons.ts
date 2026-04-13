@@ -53,7 +53,7 @@ export const icon_delete = {
 	label: 'delete, x in concave frame',
 	paths: [
 		{
-			d: 'M5 5Q50 18 95 5Q82 50 95 95Q50 82 5 95Q18 50 5 5zM18 18Q28 50 18 82Q50 72 82 82Q72 50 82 18Q50 28 18 18zM28 35l7-7 15 15 15-15 7 7-15 15 15 15-7 7-15-15-15 15-7-7 15-15z',
+			d: 'M5 5Q50 18 95 5Q82 50 95 95Q50 82 5 95Q18 50 5 5zM18 18Q28 50 18 82Q50 72 82 82Q72 50 82 18Q50 28 18 18zM29 34l5-5 16 13 16-13 5 5-13 16 13 16-5 5-16-13-16 13-5-5 13-16-13-16z',
 		},
 	],
 } satisfies SvgData;
@@ -62,7 +62,7 @@ export const icon_clear = {
 	label: 'clear, backspace',
 	paths: [
 		{
-			d: 'M35 15l-25 35 25 35h55v-70zm8 22l7-7 13 13 13-13 7 7-13 13 13 13-7 7-13-13-13 13-7-7 13-13z',
+			d: 'M35 15l-25 35 25 35h55v-70zm9 21l5-5 14 11 14-11 5 5-11 14 11 14-5 5-14-11-14 11-5-5 11-14-11-14z',
 		},
 	],
 } satisfies SvgData;
@@ -211,29 +211,29 @@ export const icon_error = {
 
 export const icon_chevron_up = {
 	label: 'chevron up',
-	paths: [{d: 'M50 33l35 28-5 7-30-24-30 24-5-7z'}],
+	paths: [{d: 'M50 33l35 28-5 7-30-20-30 20-5-7z'}],
 } satisfies SvgData;
 
 export const icon_chevron_right = {
 	label: 'chevron right',
-	paths: [{d: 'M67 50l-28 35-7-5 24-30-24-30 7-5z'}],
+	paths: [{d: 'M67 50l-28 35-7-5 20-30-20-30 7-5z'}],
 } satisfies SvgData;
 
 export const icon_chevron_down = {
 	label: 'chevron down',
-	paths: [{d: 'M50 67l-35-28 5-7 30 24 30-24 5 7z'}],
+	paths: [{d: 'M50 67l-35-28 5-7 30 20 30-20 5 7z'}],
 } satisfies SvgData;
 
 export const icon_chevron_left = {
 	label: 'chevron left',
-	paths: [{d: 'M33 50l28-35 7 5-24 30 24 30-7 5z'}],
+	paths: [{d: 'M33 50l28-35 7 5-20 30 20 30-7 5z'}],
 } satisfies SvgData;
 
 export const icon_double_chevron_left = {
 	label: 'double chevron left',
 	paths: [
 		{
-			d: 'M15 50l18-28 6 5-13 23 13 23-6 5zm30 0l18-28 6 5-13 23 13 23-6 5z',
+			d: 'M15 50l18-28 5 4-12 24 12 24-5 4zm30 0l18-28 5 4-12 24 12 24-5 4z',
 		},
 	],
 } satisfies SvgData;
@@ -242,7 +242,7 @@ export const icon_double_chevron_right = {
 	label: 'double chevron right',
 	paths: [
 		{
-			d: 'M85 50l-18-28-6 5 13 23-13 23 6 5zm-30 0l-18-28-6 5 13 23-13 23 6 5z',
+			d: 'M85 50l-18-28-5 4 12 24-12 24 5 4zm-30 0l-18-28-5 4 12 24-12 24 5 4z',
 		},
 	],
 } satisfies SvgData;
@@ -327,7 +327,7 @@ export const icon_create_file = {
 	label: 'create file, document with plus',
 	paths: [
 		{
-			d: 'M20 5h40l25 25v60a5 5 0 0 1-5 5h-60a5 5 0 0 1-5-5v-80a5 5 0 0 1 5-5zm5 10v70h50v-50h-20v-20zm15 30h8v10h10v8h-10v10h-8v-10h-10v-8h10z',
+			d: 'M20 5h40l25 25v60a5 5 0 0 1-5 5h-60a5 5 0 0 1-5-5v-80a5 5 0 0 1 5-5zm5 10v70h50v-50h-20v-20zm15 30h8l1 9 9 1v8l-9 1-1 9h-8l-1-9-9-1v-8l9-1z',
 		},
 	],
 } satisfies SvgData;
@@ -336,14 +336,14 @@ export const icon_create_directory = {
 	label: 'create directory, folder with plus',
 	paths: [
 		{
-			d: 'M10 15h30l10 10h40a5 5 0 0 1 5 5v50a5 5 0 0 1-5 5h-80a5 5 0 0 1-5-5v-60a5 5 0 0 1 5-5zm5 10v50h70v-40h-40l-10-10zm25 15h10v10h10v10h-10v10h-10v-10h-10v-10h10z',
+			d: 'M10 15h30l10 10h40a5 5 0 0 1 5 5v50a5 5 0 0 1-5 5h-80a5 5 0 0 1-5-5v-60a5 5 0 0 1 5-5zm5 10v50h70v-40h-40l-10-10zm26 15h8l1 10 10 1v8l-10 1-1 10h-8l-1-10-10-1v-8l10-1z',
 		},
 	],
 } satisfies SvgData;
 
 export const icon_prompt = {
 	label: 'prompt, chevron with cursor',
-	paths: [{d: 'M10 25l30 25-30 25-8-10 18-15-18-15zm35 40h40v10h-40z'}],
+	paths: [{d: 'M8 23l32 27-32 27-3-10 17-17-17-17zm37 42h40v10h-40z'}],
 } satisfies SvgData;
 
 export const icon_part = {
@@ -375,14 +375,14 @@ export const icon_model = {
 
 export const icon_action = {
 	label: 'action, lightning bolt',
-	paths: [{d: 'M55 5l-30 45h20l-5 45 35-50h-20z'}],
+	paths: [{d: 'M56 3L25 47h18l-6 50 37-52h-18z'}],
 } satisfies SvgData;
 
 export const icon_view = {
 	label: 'view, eye',
 	paths: [
 		{
-			d: 'M50 20c-25 0-42 30-42 30s17 30 42 30 42-30 42-30-17-30-42-30zm0 10a20 20 0 1 1 0 40 20 20 0 0 1 0-40zm0 8a12 12 0 1 0 0 24 12 12 0 0 0 0-24z',
+			d: 'M50 20c-25 0-42 30-42 30s17 30 42 30 42-30 42-30-17-30-42-30zm0 10a20 20 0 1 1 0 40 20 20 0 0 1 0-40zm0 12a8 8 0 1 0 0 16 8 8 0 0 0 0-16z',
 		},
 	],
 } satisfies SvgData;
@@ -427,7 +427,7 @@ export const icon_capability = {
 	label: 'capability, wrench',
 	paths: [
 		{
-			d: 'M72 8a28 28 0 0 0-25 40l-30 30a8 8 0 0 0 0 11l4 4a8 8 0 0 0 11 0l30-30a28 28 0 0 0 38-32q-14 10-22-1q-11-8-1-22a28 28 0 0 0-5 0z',
+			d: 'M72 8a28 28 0 0 0-25 40l-30 30a8 8 0 0 0 0 11l4 4a8 8 0 0 0 11 0l30-30a28 28 0 0 0 38-32q-4 6-10 8q-5 2-10 0q-5-2-8-8l0-13q2-6 5-10a28 28 0 0 0-5 0z',
 		},
 	],
 } satisfies SvgData;
@@ -436,7 +436,7 @@ export const icon_settings = {
 	label: 'settings, gear',
 	paths: [
 		{
-			d: 'M43 9h14l2 12a35 35 0 0 1 10 6l11-5 7 12-9 8a35 35 0 0 1 0 12l9 8-7 12-11-5a35 35 0 0 1-10 6l-2 12h-14l-2-12a35 35 0 0 1-10-6l-11 5-7-12 9-8a35 35 0 0 1 0-12l-9-8 7-12 11 5a35 35 0 0 1 10-6zM50 35a15 15 0 1 0 0 30 15 15 0 0 0 0-30z',
+			d: 'M43 9h14l2 12a35 35 0 0 1 10 6l11-5 7 12-9 8a35 35 0 0 1 0 12l9 8-7 12-11-5a35 35 0 0 1-10 6l-2 12h-14l-2-12a35 35 0 0 1-10-6l-11 5-7-12 9-8a35 35 0 0 1 0-12l-9-8 7-12 11 5a35 35 0 0 1 10-6zM50 34a15 15 0 1 0 0 30 15 15 0 0 0 0-30z',
 		},
 	],
 } satisfies SvgData;
@@ -574,7 +574,7 @@ export const icon_action_type_request_response = {
 	label: 'request response, bidirectional arrows',
 	paths: [
 		{
-			d: 'M5 20h25v-10l20 15-20 15v-10h-25zM95 70h-25v-10l-20 15 20 15v-10h25z',
+			d: 'M10 30h25v-15l20 20-20 20v-15h-25zM90 60h-25v-15l-20 20 20 20v-15h25z',
 		},
 	],
 } satisfies SvgData;
