@@ -10,7 +10,7 @@ export const icon_unknown = {
 	label: 'unknown, double question mark',
 	paths: [
 		{
-			d: 'M11 25a17 17 0 0 1 17-17 17 17 0 0 1 17 17c0 12-10 16-10 26h-14c0-14 10-14 10-26a3 3 0 0 0-3-3 3 3 0 0 0-3 3zm10 40h14v14h-14zm34-40a17 17 0 0 1 17-17 17 17 0 0 1 17 17c0 12-10 16-10 26h-14c0-14 10-14 10-26a3 3 0 0 0-3-3 3 3 0 0 0-3 3zm10 40h14v14h-14z',
+			d: 'M12 34C10 6 46 2 46 26C46 36 38 38 34 46L34 56 22 56 22 46C22 36 16 36 12 34zM21 70a7 7 0 1 0 14 0 7 7 0 0 0-14 0zM56 34C54 6 90 2 90 26C90 36 82 38 78 46L78 56 66 56 66 46C66 36 60 36 56 34zM65 70a7 7 0 1 0 14 0 7 7 0 0 0-14 0z',
 		},
 	],
 } satisfies SvgData;
@@ -19,7 +19,7 @@ export const icon_important = {
 	label: 'important, question and exclamation',
 	paths: [
 		{
-			d: 'M11 25a17 17 0 0 1 17-17 17 17 0 0 1 17 17c0 12-10 16-10 26h-14c0-14 10-14 10-26a3 3 0 0 0-3-3 3 3 0 0 0-3 3zm10 40h14v14h-14zm44-57h14v46h-14zm0 57h14v14h-14z',
+			d: 'M12 34C10 6 46 2 46 26C46 36 38 38 34 46L34 56 22 56 22 46C22 36 16 36 12 34zM21 70a7 7 0 1 0 14 0 7 7 0 0 0-14 0zM63 8L79 8 76 56 66 56zM65 70a7 7 0 1 0 14 0 7 7 0 0 0-14 0z',
 		},
 	],
 } satisfies SvgData;
@@ -92,10 +92,7 @@ export const icon_drag = {
 
 export const icon_copy = {
 	label: 'copy, overlapping squares',
-	paths: [
-		{d: 'M10 30h45v45h-45zm7 7v31h31v-31z'},
-		{d: 'M30 10h45v45h-45zm7 7v31h31v-31z'},
-	],
+	paths: [{d: 'M10 30h45v45h-45zm7 7v31h31v-31z'}, {d: 'M30 10h45v45h-45zm7 7v31h31v-31z'}],
 } satisfies SvgData;
 
 export const icon_paste = {
@@ -118,10 +115,7 @@ export const icon_reset = {
 
 export const icon_refresh = {
 	label: 'refresh, circular arrow',
-	paths: [
-		{d: 'M70 15A40 40 0 1 1 30 15L36 26A28 28 0 1 0 64 26z'},
-		{d: 'M86 21L70 15 64 26z'},
-	],
+	paths: [{d: 'M70 15A40 40 0 1 1 30 15L36 26A28 28 0 1 0 64 26z'}, {d: 'M86 21L70 15 64 26z'}],
 } satisfies SvgData;
 
 export const icon_connect = {
@@ -144,10 +138,7 @@ export const icon_disconnect = {
 
 export const icon_retry = {
 	label: 'retry, counterclockwise arrow',
-	paths: [
-		{d: 'M30 15A40 40 0 1 0 70 15L64 26A28 28 0 1 1 36 26z'},
-		{d: 'M14 21L30 15 36 26z'},
-	],
+	paths: [{d: 'M30 15A40 40 0 1 0 70 15L64 26A28 28 0 1 1 36 26z'}, {d: 'M14 21L30 15 36 26z'}],
 } satisfies SvgData;
 
 export const icon_placeholder = {
@@ -213,7 +204,7 @@ export const icon_error = {
 	label: 'error, double exclamation',
 	paths: [
 		{
-			d: 'M21 8h14v46h-14zm0 57h14v14h-14zm44-57h14v46h-14zm0 57h14v14h-14z',
+			d: 'M20 8L36 8 33 56 23 56zM21 70a7 7 0 1 0 14 0 7 7 0 0 0-14 0zM64 8L80 8 77 56 67 56zM65 70a7 7 0 1 0 14 0 7 7 0 0 0-14 0z',
 		},
 	],
 } satisfies SvgData;
