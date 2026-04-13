@@ -2757,7 +2757,7 @@
 						"name": "DOCS_PATH",
 						"kind": "variable",
 						"source_line": 31,
-						"type_signature": "\"/docs\" | \"/\" | \"/about\" | \"/docs/Alert\" | \"/docs/Breadcrumb\" | \"/docs/Breadcrumb/a\" | \"/docs/Breadcrumb/a/b\" | \"/docs/Breadcrumb/a/b/c\" | \"/docs/Breadcrumb/a/b/c/d\" | \"/docs/Card\" | ... 63 more ... | `/${string}${`/docs/api/${string}` & {}}`"
+						"type_signature": "\"/docs\" | \"/\" | \"/about\" | \"/docs/Alert\" | \"/docs/Breadcrumb\" | \"/docs/Breadcrumb/a\" | \"/docs/Breadcrumb/a/b\" | \"/docs/Breadcrumb/a/b/c\" | \"/docs/Breadcrumb/a/b/c/d\" | \"/docs/Card\" | ... 65 more ... | `/${string}${`/docs/api/${string}` & {}}`"
 					},
 					{
 						"name": "DOCS_API_PATH",
@@ -3471,6 +3471,449 @@
 							}
 						],
 						"source_line": 1
+					}
+				]
+			},
+			{
+				"path": "icons.ts",
+				"declarations": [
+					{
+						"name": "icon_unknown",
+						"kind": "variable",
+						"source_line": 9,
+						"type_signature": "SvgData"
+					},
+					{
+						"name": "icon_important",
+						"kind": "variable",
+						"source_line": 18,
+						"type_signature": "SvgData"
+					},
+					{
+						"name": "icon_info",
+						"kind": "variable",
+						"source_line": 27,
+						"type_signature": "SvgData"
+					},
+					{
+						"name": "icon_add",
+						"kind": "variable",
+						"source_line": 38,
+						"type_signature": "SvgData"
+					},
+					{
+						"name": "icon_remove",
+						"kind": "variable",
+						"source_line": 43,
+						"type_signature": "SvgData"
+					},
+					{
+						"name": "icon_delete",
+						"kind": "variable",
+						"source_line": 52,
+						"type_signature": "SvgData"
+					},
+					{
+						"name": "icon_clear",
+						"kind": "variable",
+						"source_line": 61,
+						"type_signature": "SvgData"
+					},
+					{
+						"name": "icon_restore",
+						"kind": "variable",
+						"source_line": 70,
+						"type_signature": "SvgData"
+					},
+					{
+						"name": "icon_cancel",
+						"kind": "variable",
+						"source_line": 79,
+						"type_signature": "SvgData"
+					},
+					{
+						"name": "icon_drag",
+						"kind": "variable",
+						"source_line": 88,
+						"type_signature": "SvgData"
+					},
+					{
+						"name": "icon_copy",
+						"kind": "variable",
+						"source_line": 93,
+						"type_signature": "SvgData"
+					},
+					{
+						"name": "icon_paste",
+						"kind": "variable",
+						"source_line": 102,
+						"type_signature": "SvgData"
+					},
+					{
+						"name": "icon_reset",
+						"kind": "variable",
+						"source_line": 111,
+						"type_signature": "SvgData"
+					},
+					{
+						"name": "icon_refresh",
+						"kind": "variable",
+						"source_line": 120,
+						"type_signature": "SvgData"
+					},
+					{
+						"name": "icon_connect",
+						"kind": "variable",
+						"source_line": 129,
+						"type_signature": "SvgData"
+					},
+					{
+						"name": "icon_disconnect",
+						"kind": "variable",
+						"source_line": 138,
+						"type_signature": "SvgData"
+					},
+					{
+						"name": "icon_retry",
+						"kind": "variable",
+						"source_line": 147,
+						"type_signature": "SvgData"
+					},
+					{
+						"name": "icon_placeholder",
+						"kind": "variable",
+						"source_line": 156,
+						"type_signature": "SvgData"
+					},
+					{
+						"name": "icon_send",
+						"kind": "variable",
+						"source_line": 161,
+						"type_signature": "SvgData"
+					},
+					{
+						"name": "icon_play",
+						"kind": "variable",
+						"source_line": 168,
+						"type_signature": "SvgData"
+					},
+					{
+						"name": "icon_pause",
+						"kind": "variable",
+						"source_line": 173,
+						"type_signature": "SvgData"
+					},
+					{
+						"name": "icon_checkmark",
+						"kind": "variable",
+						"source_line": 180,
+						"type_signature": "SvgData"
+					},
+					{
+						"name": "icon_xmark",
+						"kind": "variable",
+						"source_line": 185,
+						"type_signature": "SvgData"
+					},
+					{
+						"name": "icon_xmark_heavy",
+						"kind": "variable",
+						"source_line": 194,
+						"type_signature": "SvgData"
+					},
+					{
+						"name": "icon_download",
+						"kind": "variable",
+						"source_line": 205,
+						"type_signature": "SvgData"
+					},
+					{
+						"name": "icon_error",
+						"kind": "variable",
+						"source_line": 210,
+						"type_signature": "SvgData"
+					},
+					{
+						"name": "icon_chevron_up",
+						"kind": "variable",
+						"source_line": 219,
+						"type_signature": "SvgData"
+					},
+					{
+						"name": "icon_chevron_right",
+						"kind": "variable",
+						"source_line": 224,
+						"type_signature": "SvgData"
+					},
+					{
+						"name": "icon_chevron_down",
+						"kind": "variable",
+						"source_line": 229,
+						"type_signature": "SvgData"
+					},
+					{
+						"name": "icon_chevron_left",
+						"kind": "variable",
+						"source_line": 234,
+						"type_signature": "SvgData"
+					},
+					{
+						"name": "icon_double_chevron_left",
+						"kind": "variable",
+						"source_line": 239,
+						"type_signature": "SvgData"
+					},
+					{
+						"name": "icon_double_chevron_right",
+						"kind": "variable",
+						"source_line": 248,
+						"type_signature": "SvgData"
+					},
+					{
+						"name": "icon_edit",
+						"kind": "variable",
+						"source_line": 259,
+						"type_signature": "SvgData"
+					},
+					{
+						"name": "icon_sort",
+						"kind": "variable",
+						"source_line": 268,
+						"type_signature": "SvgData"
+					},
+					{
+						"name": "icon_chat",
+						"kind": "variable",
+						"source_line": 279,
+						"type_signature": "SvgData"
+					},
+					{
+						"name": "icon_thread",
+						"kind": "variable",
+						"source_line": 288,
+						"type_signature": "SvgData"
+					},
+					{
+						"name": "icon_turn",
+						"kind": "variable",
+						"source_line": 297,
+						"type_signature": "SvgData"
+					},
+					{
+						"name": "icon_file",
+						"kind": "variable",
+						"source_line": 306,
+						"type_signature": "SvgData"
+					},
+					{
+						"name": "icon_list",
+						"kind": "variable",
+						"source_line": 315,
+						"type_signature": "SvgData"
+					},
+					{
+						"name": "icon_directory",
+						"kind": "variable",
+						"source_line": 324,
+						"type_signature": "SvgData"
+					},
+					{
+						"name": "icon_create_file",
+						"kind": "variable",
+						"source_line": 333,
+						"type_signature": "SvgData"
+					},
+					{
+						"name": "icon_create_folder",
+						"kind": "variable",
+						"source_line": 342,
+						"type_signature": "SvgData"
+					},
+					{
+						"name": "icon_prompt",
+						"kind": "variable",
+						"source_line": 351,
+						"type_signature": "SvgData"
+					},
+					{
+						"name": "icon_part",
+						"kind": "variable",
+						"source_line": 356,
+						"type_signature": "SvgData"
+					},
+					{
+						"name": "icon_provider",
+						"kind": "variable",
+						"source_line": 365,
+						"type_signature": "SvgData"
+					},
+					{
+						"name": "icon_model",
+						"kind": "variable",
+						"source_line": 374,
+						"type_signature": "SvgData"
+					},
+					{
+						"name": "icon_action",
+						"kind": "variable",
+						"source_line": 383,
+						"type_signature": "SvgData"
+					},
+					{
+						"name": "icon_view",
+						"kind": "variable",
+						"source_line": 388,
+						"type_signature": "SvgData"
+					},
+					{
+						"name": "icon_preview",
+						"kind": "variable",
+						"source_line": 397,
+						"type_signature": "SvgData"
+					},
+					{
+						"name": "icon_log",
+						"kind": "variable",
+						"source_line": 406,
+						"type_signature": "SvgData"
+					},
+					{
+						"name": "icon_tab",
+						"kind": "variable",
+						"source_line": 415,
+						"type_signature": "SvgData"
+					},
+					{
+						"name": "icon_project",
+						"kind": "variable",
+						"source_line": 424,
+						"type_signature": "SvgData"
+					},
+					{
+						"name": "icon_capability",
+						"kind": "variable",
+						"source_line": 433,
+						"type_signature": "SvgData"
+					},
+					{
+						"name": "icon_settings",
+						"kind": "variable",
+						"source_line": 442,
+						"type_signature": "SvgData"
+					},
+					{
+						"name": "icon_domain",
+						"kind": "variable",
+						"source_line": 451,
+						"type_signature": "SvgData"
+					},
+					{
+						"name": "icon_page",
+						"kind": "variable",
+						"source_line": 460,
+						"type_signature": "SvgData"
+					},
+					{
+						"name": "icon_space",
+						"kind": "variable",
+						"source_line": 471,
+						"type_signature": "SvgData"
+					},
+					{
+						"name": "icon_desk",
+						"kind": "variable",
+						"source_line": 480,
+						"type_signature": "SvgData"
+					},
+					{
+						"name": "icon_pin",
+						"kind": "variable",
+						"source_line": 489,
+						"type_signature": "SvgData"
+					},
+					{
+						"name": "icon_terminal",
+						"kind": "variable",
+						"source_line": 500,
+						"type_signature": "SvgData"
+					},
+					{
+						"name": "icon_workspace",
+						"kind": "variable",
+						"source_line": 509,
+						"type_signature": "SvgData"
+					},
+					{
+						"name": "icon_idea",
+						"kind": "variable",
+						"source_line": 518,
+						"type_signature": "SvgData"
+					},
+					{
+						"name": "icon_ping",
+						"kind": "variable",
+						"source_line": 529,
+						"type_signature": "SvgData"
+					},
+					{
+						"name": "icon_heartbeat",
+						"kind": "variable",
+						"source_line": 538,
+						"type_signature": "SvgData"
+					},
+					{
+						"name": "icon_response",
+						"kind": "variable",
+						"source_line": 547,
+						"type_signature": "SvgData"
+					},
+					{
+						"name": "icon_session",
+						"kind": "variable",
+						"source_line": 552,
+						"type_signature": "SvgData"
+					},
+					{
+						"name": "icon_action_type_local_call",
+						"kind": "variable",
+						"source_line": 563,
+						"type_signature": "SvgData"
+					},
+					{
+						"name": "icon_action_type_remote_notification",
+						"kind": "variable",
+						"source_line": 568,
+						"type_signature": "SvgData"
+					},
+					{
+						"name": "icon_action_type_request_response",
+						"kind": "variable",
+						"source_line": 577,
+						"type_signature": "SvgData"
+					},
+					{
+						"name": "icon_external_link",
+						"kind": "variable",
+						"source_line": 588,
+						"type_signature": "SvgData"
+					},
+					{
+						"name": "icon_arrow_right",
+						"kind": "variable",
+						"source_line": 597,
+						"type_signature": "SvgData"
+					},
+					{
+						"name": "icon_arrow_left",
+						"kind": "variable",
+						"source_line": 602,
+						"type_signature": "SvgData"
+					},
+					{
+						"name": "icon_backend",
+						"kind": "variable",
+						"source_line": 609,
+						"type_signature": "SvgData"
 					}
 				]
 			},
