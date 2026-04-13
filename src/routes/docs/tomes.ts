@@ -17,6 +17,7 @@ import Breadcrumb from '$routes/docs/Breadcrumb/+page.svelte';
 import Card from '$routes/docs/Card/+page.svelte';
 import Svg from '$routes/docs/Svg/+page.svelte';
 import csp from '$routes/docs/csp/+page.svelte';
+import icons from '$routes/docs/icons/+page.svelte';
 import logos from '$routes/docs/logos/+page.svelte';
 import theming from '$routes/docs/theming/+page.svelte';
 import api from '$routes/docs/api/+page.svelte';
@@ -86,6 +87,14 @@ export const tomes: Array<Tome> = [
 		Component: intersect,
 		related_tomes: [],
 		related_modules: ['intersect.svelte.ts'],
+		related_declarations: [],
+	},
+	{
+		name: 'icons',
+		category: 'helpers',
+		Component: icons,
+		related_tomes: ['logos', 'Svg'],
+		related_modules: ['icons.ts'],
 		related_declarations: [],
 	},
 	{

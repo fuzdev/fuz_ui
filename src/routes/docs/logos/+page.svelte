@@ -38,57 +38,73 @@
 			class="display:flex flex-wrap:wrap justify-content:center gap_lg text-align:center unstyled"
 		>
 			<li>
-				<a href="https://www.fuz.dev/"><Svg data={logo_fuz} size="var(--icon_size_xl3)" /></a>
+				<a class="box" href="https://www.fuz.dev/"
+					><Svg data={logo_fuz} size="var(--icon_size_xl3)" /></a
+				>
 				<Code content={`<Svg data={logo_fuz} />`} />
 			</li>
 			<li>
-				<a href="https://ui.fuz.dev/"><Svg data={logo_fuz_ui} size="var(--icon_size_xl3)" /></a>
+				<a class="box" href="https://ui.fuz.dev/"
+					><Svg data={logo_fuz_ui} size="var(--icon_size_xl3)" /></a
+				>
 				<Code content={`<Svg data={logo_fuz_ui} />`} />
 			</li>
 			<li>
-				<a href="https://css.fuz.dev/"><Svg data={logo_fuz_css} size="var(--icon_size_xl3)" /></a>
+				<a class="box" href="https://css.fuz.dev/"
+					><Svg data={logo_fuz_css} size="var(--icon_size_xl3)" /></a
+				>
 				<Code content={`<Svg data={logo_fuz_css} />`} />
 			</li>
 			<li>
-				<a href="https://template.fuz.dev/"
+				<a class="box" href="https://template.fuz.dev/"
 					><Svg data={logo_fuz_template} size="var(--icon_size_xl3)" /></a
 				>
 				<Code content={`<Svg data={logo_fuz_template} />`} />
 			</li>
 			<li>
-				<a href="https://code.fuz.dev/"><Svg data={logo_fuz_code} size="var(--icon_size_xl3)" /></a>
+				<a class="box" href="https://code.fuz.dev/"
+					><Svg data={logo_fuz_code} size="var(--icon_size_xl3)" /></a
+				>
 				<Code content={`<Svg data={logo_fuz_code} />`} />
 			</li>
 			<li>
-				<a href="https://blog.fuz.dev/"><Svg data={logo_fuz_blog} size="var(--icon_size_xl3)" /></a>
+				<a class="box" href="https://blog.fuz.dev/"
+					><Svg data={logo_fuz_blog} size="var(--icon_size_xl3)" /></a
+				>
 				<Code content={`<Svg data={logo_fuz_blog} />`} />
 			</li>
 			<li>
-				<a href="https://mastodon.fuz.dev/"
+				<a class="box" href="https://mastodon.fuz.dev/"
 					><Svg data={logo_fuz_mastodon} size="var(--icon_size_xl3)" /></a
 				>
 				<Code content={`<Svg data={logo_fuz_mastodon} />`} />
 			</li>
 			<li>
-				<a href="https://gitops.fuz.dev/"
+				<a class="box" href="https://gitops.fuz.dev/"
 					><Svg data={logo_fuz_gitops} size="var(--icon_size_xl3)" /></a
 				>
 				<Code content={`<Svg data={logo_fuz_gitops} />`} />
 			</li>
 			<li>
-				<a href="https://util.fuz.dev/"><Svg data={logo_fuz_util} size="var(--icon_size_xl3)" /></a>
+				<a class="box" href="https://util.fuz.dev/"
+					><Svg data={logo_fuz_util} size="var(--icon_size_xl3)" /></a
+				>
 				<Code content={`<Svg data={logo_fuz_util} />`} />
 			</li>
 			<li>
-				<a href="https://gro.ryanatkn.com/"><Svg data={logo_gro} size="var(--icon_size_xl3)" /></a>
+				<a class="box" href="https://gro.ryanatkn.com/"
+					><Svg data={logo_gro} size="var(--icon_size_xl3)" /></a
+				>
 				<Code content={`<Svg data={logo_gro} />`} />
 			</li>
 			<li>
-				<a href="https://github.com/"><Svg data={logo_github} size="var(--icon_size_xl3)" /></a>
+				<a class="box" href="https://github.com/"
+					><Svg data={logo_github} size="var(--icon_size_xl3)" /></a
+				>
 				<Code content={`<Svg data={logo_github} />`} />
 			</li>
 			<li>
-				<a href="https://developer.mozilla.org/"
+				<a class="box" href="https://developer.mozilla.org/"
 					><Svg data={logo_mdn} size="var(--icon_size_xl3)" /></a
 				>
 				<Code content={`<Svg data={logo_mdn} />`} />
@@ -102,8 +118,11 @@
 		margin-bottom: var(--space_xl7);
 	}
 
+	li :global(svg) {
+		background-color: var(--shade_05);
+	}
+
 	a {
-		display: block;
 		--text_color: var(--text_90);
 		margin-bottom: var(--space_lg);
 	}
