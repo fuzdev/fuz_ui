@@ -2,6 +2,8 @@ import type {StyleVariable} from '@fuzdev/fuz_css/variable.js';
 
 import {create_context} from './context_helpers.js';
 
+export const selected_variable_context = create_context(() => new SelectedStyleVariable(null));
+
 // TODO maybe change this to a generic wrapper class for any value?
 export class SelectedStyleVariable {
 	value: StyleVariable | null = $state.raw()!;
@@ -10,5 +12,3 @@ export class SelectedStyleVariable {
 		this.value = initial;
 	}
 }
-
-export const selected_variable_context = create_context(() => new SelectedStyleVariable(null));
