@@ -17,6 +17,8 @@ import {format_file} from '@fuzdev/gro/format_file.js';
 
 import {mdz_parse} from '../lib/mdz.js';
 import {mdz_parse_lexer} from '../lib/mdz_token_parser.js';
+import {MdzStreamParser} from '../lib/mdz_stream_parser.js';
+import {mdz_opcodes_to_nodes} from '../lib/mdz_opcodes_to_nodes.js';
 
 /* eslint-disable no-console */
 
@@ -153,9 +155,27 @@ Functions with Array<string>, Promise<void>, and Map<string, number> in prose.
 	},
 ];
 
+/** Parse via streaming parser (one-shot feed) + tree bridge. */
+const mdz_parse_stream = (content: string): unknown => {
+	const parser = new MdzStreamParser();
+	parser.feed(content);
+	parser.finish();
+	return mdz_opcodes_to_nodes(parser.take_opcodes());
+};
+
+/** Streaming parser opcode generation only (no tree bridge). */
+const mdz_parse_opcodes_only = (content: string): unknown => {
+	const parser = new MdzStreamParser();
+	parser.feed(content);
+	parser.finish();
+	return parser.take_opcodes();
+};
+
 const parsers = [
 	{name: 'single-pass', parse: mdz_parse},
 	{name: 'lexer-based', parse: mdz_parse_lexer},
+	{name: 'streaming', parse: mdz_parse_stream},
+	{name: 'opcodes-only', parse: mdz_parse_opcodes_only},
 ];
 
 // -- Benchmark --

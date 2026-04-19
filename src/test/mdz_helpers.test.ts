@@ -12,6 +12,7 @@ import {
 	mdz_text_content,
 	mdz_heading_id,
 	mdz_is_url,
+	mdz_is_safe_reference,
 	resolve_relative_path,
 	extract_single_tag,
 	ASTERISK,
@@ -29,6 +30,8 @@ import {
 	RIGHT_BRACKET,
 	LEFT_PAREN,
 } from '$lib/mdz_helpers.js';
+
+/* eslint-disable no-script-url */
 
 // helper to create nodes with dummy positions
 const text = (content: string): MdzNode => ({type: 'Text', content, start: 0, end: 0});
@@ -497,6 +500,54 @@ describe('mdz_is_url', () => {
 		assert.equal(mdz_is_url('example.com'), false);
 		assert.equal(mdz_is_url('/path'), false);
 		assert.equal(mdz_is_url('ftp://example.com'), false);
+	});
+});
+
+describe('mdz_is_safe_reference', () => {
+	test('allows empty string', () => {
+		assert.equal(mdz_is_safe_reference(''), true);
+	});
+
+	test('allows paths without colons', () => {
+		assert.equal(mdz_is_safe_reference('/path'), true);
+		assert.equal(mdz_is_safe_reference('/path/to/page'), true);
+		assert.equal(mdz_is_safe_reference('./relative'), true);
+		assert.equal(mdz_is_safe_reference('../parent'), true);
+		assert.equal(mdz_is_safe_reference('#hash'), true);
+		assert.equal(mdz_is_safe_reference('?query=1'), true);
+		assert.equal(mdz_is_safe_reference('docs/page'), true);
+		assert.equal(mdz_is_safe_reference('foo'), true);
+	});
+
+	test('allows http and https URLs', () => {
+		assert.equal(mdz_is_safe_reference('https://example.com'), true);
+		assert.equal(mdz_is_safe_reference('http://example.com'), true);
+		assert.equal(mdz_is_safe_reference('HTTPS://EXAMPLE.COM'), true);
+		assert.equal(mdz_is_safe_reference('Http://Example.Com'), true);
+		assert.equal(mdz_is_safe_reference('https://example.com/path?q=1#h'), true);
+	});
+
+	test('rejects javascript protocol', () => {
+		assert.equal(mdz_is_safe_reference('javascript:alert(1)'), false);
+		assert.equal(mdz_is_safe_reference('JavaScript:alert(1)'), false);
+		assert.equal(mdz_is_safe_reference('JAVASCRIPT:ALERT(1)'), false);
+	});
+
+	test('rejects data protocol', () => {
+		assert.equal(mdz_is_safe_reference('data:text/html,<script>alert(1)</script>'), false);
+		assert.equal(mdz_is_safe_reference('Data:text/html,test'), false);
+	});
+
+	test('rejects vbscript protocol', () => {
+		assert.equal(mdz_is_safe_reference('vbscript:msgbox'), false);
+		assert.equal(mdz_is_safe_reference('VBScript:MsgBox'), false);
+	});
+
+	test('rejects other protocols with colons', () => {
+		assert.equal(mdz_is_safe_reference('ftp://example.com'), false);
+		assert.equal(mdz_is_safe_reference('file:///etc/passwd'), false);
+		assert.equal(mdz_is_safe_reference('blob:http://example.com/uuid'), false);
+		assert.equal(mdz_is_safe_reference('mailto:user@example.com'), false);
 	});
 });
 

@@ -23,19 +23,31 @@ mdz auto-links four path patterns:
 All auto-linked paths must be preceded by whitespace or start of string.
 Trailing punctuation (`.,:;!?]`) is trimmed per GFM conventions.
 
-## Base path resolution
+## Context and MdzRoot
 
-The `base` prop on `Mdz` (and `mdz_base_context` context) controls how
-relative paths (`./`, `../`) are resolved. When `base` is set (e.g.,
-`'/docs/mdz/'`), relative paths are resolved to absolute paths using
-`resolve_relative_path()` from `$lib/mdz.js` and then passed through
-SvelteKit's `resolve()`. Without `base`, relative paths use raw hrefs
-(browser resolves them against the current URL).
+`MdzRoot` is the context provider for mdz rendering. It sets `mdz_base_context`,
+`mdz_components_context`, and `mdz_elements_context` via getter functions.
+All three contexts use the getter pattern (`() => value | undefined`) and
+support nesting with ancestor fallback.
+
+```svelte
+<MdzRoot base="/docs/mdz/" components={mdz_components} elements={mdz_elements}>
+  <Mdz content={...} />
+</MdzRoot>
+```
+
+When `base` is set, relative paths (`./`, `../`) are resolved to absolute
+paths using `resolve_relative_path()` and SvelteKit's `resolve()`.
+Without `base`, relative paths use raw hrefs (browser resolves them).
+
+`Mdz` and `MdzStream` are pure renderers — they read contexts but don't
+set them.
 
 ## Preprocessor
 
 Static `<Mdz content="...">` usages are compiled at build time by
 `svelte_preprocess_mdz` into `MdzPrecompiled` with pre-rendered children,
-eliminating runtime parsing. When a static `base` prop is present, relative
-paths are resolved at build time and the `base` prop is excluded from the
-precompiled output. Without `base`, relative paths use raw hrefs.
+eliminating runtime parsing. The preprocessor recognizes a `base` attribute
+on `<Mdz>` for build-time relative path resolution (this is a
+preprocessor-only attribute, not a runtime prop). Without `base`, relative
+paths use raw hrefs.

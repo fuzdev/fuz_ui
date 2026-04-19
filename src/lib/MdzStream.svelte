@@ -1,18 +1,18 @@
 <script lang="ts">
 	import type {SvelteHTMLElements} from 'svelte/elements';
 
-	import {mdz_parse} from './mdz.js';
-	import MdzNodeView from './MdzNodeView.svelte';
+	import MdzStreamNodeView from './MdzStreamNodeView.svelte';
 	import {mdz_base_context} from './mdz_components.js';
+	import type {MdzStreamState} from './mdz_stream_state.svelte.js';
 
 	const {
-		content,
+		state,
 		inline = false,
 		nowrap = false,
 		base,
 		...rest
 	}: (SvelteHTMLElements['div'] | SvelteHTMLElements['span']) & {
-		content: string;
+		state: MdzStreamState;
 		inline?: boolean;
 		nowrap?: boolean;
 		base?: string;
@@ -20,8 +20,6 @@
 
 	const get_ancestor_base = mdz_base_context.get_maybe();
 	mdz_base_context.set(() => base ?? get_ancestor_base?.());
-
-	const nodes = $derived(mdz_parse(content));
 </script>
 
 <svelte:element
@@ -29,7 +27,7 @@
 	{...rest}
 	style:white-space={nowrap ? 'pre' : 'pre-wrap'}
 >
-	{#each nodes as node (node)}
-		<MdzNodeView {node} />
+	{#each state.root as node (node.id)}
+		<MdzStreamNodeView {node} />
 	{/each}
 </svelte:element>

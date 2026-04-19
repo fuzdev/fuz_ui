@@ -54,6 +54,7 @@ export const MIN_CODEBLOCK_BACKTICKS = 3; // Code blocks require minimum 3 backt
 export const MAX_HEADING_LEVEL = 6; // Headings support levels 1-6
 export const HTTPS_PREFIX_LENGTH = 8; // Length of "https://"
 export const HTTP_PREFIX_LENGTH = 7; // Length of "http://"
+export const H_LOWER = 104; // h
 
 /**
  * Check if character code is a letter (A-Z, a-z).
@@ -74,24 +75,21 @@ export const is_tag_name_char = (char_code: number): boolean =>
  * Check if character is part of a word for word boundary detection.
  * Used to prevent intraword emphasis with `_` and `~` delimiters.
  *
- * Formatting delimiters (`*`, `_`, `~`) are NOT word characters - they're transparent.
- * Only alphanumeric characters (A-Z, a-z, 0-9) are considered word characters.
+ * Only alphanumeric characters (A-Z, a-z, 0-9) are word characters.
+ * Formatting delimiters (`*`, `_`, `~`) fall outside all three ranges,
+ * so they're naturally excluded without explicit checks.
  *
  * This prevents false positives with snake_case identifiers while allowing
  * adjacent formatting like `**bold**_italic_`.
  */
-export const is_word_char = (char_code: number): boolean => {
-	if (char_code === ASTERISK || char_code === UNDERSCORE || char_code === TILDE) return false;
-	return (
-		(char_code >= A_UPPER && char_code <= Z_UPPER) ||
-		(char_code >= A_LOWER && char_code <= Z_LOWER) ||
-		(char_code >= ZERO && char_code <= NINE)
-	);
-};
+export const is_word_char = (char_code: number): boolean =>
+	(char_code >= A_UPPER && char_code <= Z_UPPER) ||
+	(char_code >= A_LOWER && char_code <= Z_LOWER) ||
+	(char_code >= ZERO && char_code <= NINE);
 
 /**
- * Check if character code is valid in URI path per RFC 3986.
- * Validates against the `pchar` production plus path/query/fragment separators.
+ * Lookup table for valid URI path characters per RFC 3986.
+ * Replaces a 16-comparison chain with a single array access.
  *
  * Valid characters:
  * - unreserved: A-Z a-z 0-9 - . _ ~
@@ -100,31 +98,42 @@ export const is_word_char = (char_code: number): boolean => {
  * - separators: / ? #
  * - percent-encoding: %
  */
+const PATH_CHAR_TABLE: Uint8Array = (() => {
+	const t = new Uint8Array(128);
+	for (let i = A_UPPER; i <= Z_UPPER; i++) t[i] = 1;
+	for (let i = A_LOWER; i <= Z_LOWER; i++) t[i] = 1;
+	for (let i = ZERO; i <= NINE; i++) t[i] = 1;
+	// unreserved: - . _ ~
+	t[HYPHEN] = 1;
+	t[PERIOD] = 1;
+	t[UNDERSCORE] = 1;
+	t[TILDE] = 1;
+	// sub-delims: ! $ & ' ( ) * + , ; =
+	t[EXCLAMATION] = 1;
+	t[DOLLAR] = 1;
+	t[AMPERSAND] = 1;
+	t[APOSTROPHE] = 1;
+	t[LEFT_PAREN] = 1;
+	t[RIGHT_PAREN] = 1;
+	t[ASTERISK] = 1;
+	t[PLUS] = 1;
+	t[COMMA] = 1;
+	t[SEMICOLON] = 1;
+	t[EQUALS] = 1;
+	// path allowed: : @
+	t[COLON] = 1;
+	t[AT] = 1;
+	// separators: / ? #
+	t[SLASH] = 1;
+	t[QUESTION] = 1;
+	t[HASH] = 1;
+	// percent-encoding: %
+	t[PERCENT] = 1;
+	return t;
+})();
+
 export const is_valid_path_char = (char_code: number): boolean =>
-	(char_code >= A_UPPER && char_code <= Z_UPPER) ||
-	(char_code >= A_LOWER && char_code <= Z_LOWER) ||
-	(char_code >= ZERO && char_code <= NINE) ||
-	char_code === HYPHEN ||
-	char_code === PERIOD ||
-	char_code === UNDERSCORE ||
-	char_code === TILDE ||
-	char_code === EXCLAMATION ||
-	char_code === DOLLAR ||
-	char_code === AMPERSAND ||
-	char_code === APOSTROPHE ||
-	char_code === LEFT_PAREN ||
-	char_code === RIGHT_PAREN ||
-	char_code === ASTERISK ||
-	char_code === PLUS ||
-	char_code === COMMA ||
-	char_code === SEMICOLON ||
-	char_code === EQUALS ||
-	char_code === COLON ||
-	char_code === AT ||
-	char_code === SLASH ||
-	char_code === QUESTION ||
-	char_code === HASH ||
-	char_code === PERCENT;
+	char_code < 128 && PATH_CHAR_TABLE[char_code] === 1;
 
 /**
  * Trim trailing punctuation from URL/path per RFC 3986 and GFM rules.
@@ -156,23 +165,26 @@ export const trim_trailing_punctuation = (url: string): string => {
 	}
 
 	// Handle balanced parentheses ONLY (parens are valid in URI path components)
-	// Count parentheses in the trimmed portion
-	let open_count = 0;
-	let close_count = 0;
-	for (let i = 0; i < end; i++) {
-		const char = url.charCodeAt(i);
-		if (char === LEFT_PAREN) open_count++;
-		if (char === RIGHT_PAREN) close_count++;
-	}
+	// Only count parens when the trimmed URL ends with ')' — otherwise the
+	// trailing-paren loop below can't trim anything.
+	if (end > 0 && url.charCodeAt(end - 1) === RIGHT_PAREN) {
+		let open_count = 0;
+		let close_count = 0;
+		for (let i = 0; i < end; i++) {
+			const char = url.charCodeAt(i);
+			if (char === LEFT_PAREN) open_count++;
+			if (char === RIGHT_PAREN) close_count++;
+		}
 
-	// Trim unmatched trailing closing parens
-	while (end > 0 && close_count > open_count) {
-		const last_char = url.charCodeAt(end - 1);
-		if (last_char === RIGHT_PAREN) {
-			end--;
-			close_count--;
-		} else {
-			break;
+		// Trim unmatched trailing closing parens
+		while (end > 0 && close_count > open_count) {
+			const last_char = url.charCodeAt(end - 1);
+			if (last_char === RIGHT_PAREN) {
+				end--;
+				close_count--;
+			} else {
+				break;
+			}
 		}
 	}
 
@@ -247,12 +259,28 @@ export const mdz_heading_id = (nodes: Array<MdzNode>): string =>
 	slugify(mdz_text_content(nodes), false);
 
 /**
+ * Generates a lowercase slug id for a heading from plain text content.
+ * Used by the streaming parser which tracks text content directly
+ * rather than building `MdzNode[]` trees.
+ */
+export const mdz_heading_id_from_text = (text: string): string => slugify(text, false);
+
+/**
  * Check if a string is a URL (`https://` or `http://`).
  * Requires at least one valid character after the protocol.
  * Rejects whitespace and characters that can't start a valid hostname.
  */
 const URL_PATTERN = /^https?:\/\/[^\s)\]}<>.,:/?#!]/;
 export const mdz_is_url = (s: string): boolean => URL_PATTERN.test(s);
+
+/**
+ * Check if a link reference is safe to use as an `href` attribute.
+ * References without a colon are always safe (paths, fragments, queries).
+ * References with a colon must use `http(s)://` — rejects `javascript:`, `data:`, etc.
+ */
+const SAFE_PROTOCOL_PATTERN = /^https?:\/\//i;
+export const mdz_is_safe_reference = (reference: string): boolean =>
+	!reference.includes(':') || SAFE_PROTOCOL_PATTERN.test(reference);
 
 /**
  * Resolves a relative path (`./` or `../`) against a base path.

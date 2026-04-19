@@ -402,16 +402,10 @@ mdz supports opt-in HTML elements for semantic markup. Elements are distinguishe
 
 Elements must be registered via context:
 
-```typescript
-import {mdz_elements_context} from '@fuzdev/fuz_ui/mdz_components.js';
-
-mdz_elements_context.set(
-	new Map([
-		['aside', true],
-		['code', true],
-		['marquee', true],
-	]),
-);
+```svelte
+<MdzRoot elements={new Map([['aside', true], ['code', true], ['marquee', true]])}>
+	<Mdz content="<aside>text</aside>" />
+</MdzRoot>
 ```
 
 Unregistered elements render as `<element-name />` placeholders for security.
@@ -452,17 +446,10 @@ mdz supports Svelte components distinguished by uppercase first letter.
 
 **Registration required:**
 
-```typescript
-import {mdz_components_context} from '@fuzdev/fuz_ui/mdz_components.js';
-import Alert from '@fuzdev/fuz_ui/Alert.svelte';
-import Card from '@fuzdev/fuz_ui/Card.svelte';
-
-mdz_components_context.set(
-	new Map([
-		['Alert', Alert],
-		['Card', Card],
-	]),
-);
+```svelte
+<MdzRoot components={new Map([['Alert', Alert], ['Card', Card]])}>
+	<Mdz content="<Alert>warning</Alert>" />
+</MdzRoot>
 ```
 
 Unregistered components render as `<ComponentName />` placeholders.

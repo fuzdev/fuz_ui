@@ -21,17 +21,17 @@ export type MdzComponents = Map<string, Component<any, any>>; // TODO support pa
 export type MdzElements = Map<string, boolean>;
 
 /**
- * Context for providing custom mdz components.
- * Must be set by the application using mdz.
+ * Context for providing custom mdz components via a getter function.
+ * Set to a getter (e.g., `() => components`) so changes are reflected reactively.
  */
-export const mdz_components_context = create_context<MdzComponents>();
+export const mdz_components_context = create_context<() => MdzComponents | undefined>();
 
 /**
- * Context for providing allowed HTML elements.
- * Must be set by the application using mdz.
+ * Context for providing allowed HTML elements via a getter function.
+ * Set to a getter (e.g., `() => elements`) so changes are reflected reactively.
  * By default, no HTML elements are allowed.
  */
-export const mdz_elements_context = create_context<MdzElements>();
+export const mdz_elements_context = create_context<() => MdzElements | undefined>();
 
 /**
  * Context for providing a base path getter for resolving relative links in mdz content.

@@ -2,6 +2,7 @@
 	import MdnLink from '$lib/MdnLink.svelte';
 	import TomeSectionHeader from '$lib/TomeSectionHeader.svelte';
 	import TomeSection from '$lib/TomeSection.svelte';
+	import DeclarationLink from '$lib/DeclarationLink.svelte';
 	import RootComponentSelector from '$routes/docs/Contextmenu/RootComponentSelector.svelte';
 </script>
 
@@ -13,8 +14,9 @@
 		<a href="https://bugs.webkit.org/show_bug.cgi?id=213953">WebKit bug #213953</a>.
 	</p>
 	<p>
-		Use <code>ContextmenuRoot</code> by default for better performance and haptic feedback. Use
-		<code>ContextmenuRootForSafariCompatibility</code> only if you need iOS Safari support.
+		Use <DeclarationLink name="ContextmenuRoot" /> by default for better performance and haptic feedback.
+		Use
+		<DeclarationLink name="ContextmenuRootForSafariCompatibility" /> only if you need iOS Safari support.
 	</p>
 	<h4>ContextmenuRoot</h4>
 	<ul>
