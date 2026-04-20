@@ -36,12 +36,14 @@ describe('directive spec fallback relationships', () => {
 				for (const fallback_name of spec.fallback) {
 					const fallback_spec = csp_directive_spec_by_name.get(fallback_name);
 					assert.ok(fallback_spec);
-					if (fallback_spec.fallback_of) {
-						assert.ok(
-							fallback_spec.fallback_of.includes(spec.name),
-							`${fallback_name} should list ${spec.name} in fallback_of (bidirectional relationship)`,
-						);
-					}
+					assert.ok(
+						fallback_spec.fallback_of,
+						`${fallback_name} should have fallback_of (needed for bidirectional relationship with ${spec.name})`,
+					);
+					assert.ok(
+						fallback_spec.fallback_of.includes(spec.name),
+						`${fallback_name} should list ${spec.name} in fallback_of (bidirectional relationship)`,
+					);
 				}
 			}
 		}
@@ -54,12 +56,14 @@ describe('directive spec fallback relationships', () => {
 				for (const fallback_of_name of spec.fallback_of) {
 					const child_spec = csp_directive_spec_by_name.get(fallback_of_name);
 					assert.ok(child_spec);
-					if (child_spec.fallback) {
-						assert.ok(
-							child_spec.fallback.includes(spec.name),
-							`${fallback_of_name} should list ${spec.name} in fallback (reverse relationship)`,
-						);
-					}
+					assert.ok(
+						child_spec.fallback,
+						`${fallback_of_name} should have fallback (needed for bidirectional relationship with ${spec.name})`,
+					);
+					assert.ok(
+						child_spec.fallback.includes(spec.name),
+						`${fallback_of_name} should list ${spec.name} in fallback (reverse relationship)`,
+					);
 				}
 			}
 		}
@@ -243,32 +247,28 @@ describe('directives without fallback', () => {
 
 describe('no circular fallback chains', () => {
 	test('no directive can reach itself through fallback chain', () => {
-		// Check that following the fallback chain never leads back to the starting directive
+		// BFS through all fallback branches — convergent paths are fine, only cycles are bugs
 		for (const spec of csp_directive_specs) {
 			if (!spec.fallback) continue;
 
 			const visited: Set<CspDirective> = new Set();
-			let current: typeof spec | undefined = spec;
 			visited.add(spec.name);
+			const queue: Array<CspDirective> = [...spec.fallback];
 
-			// Follow the fallback chain
-			while (current.fallback) {
-				// eslint-disable-next-line no-unreachable-loop
-				for (const fallback_name of current.fallback) {
-					assert.ok(
-						!visited.has(fallback_name),
-						`Circular fallback detected: ${spec.name} → ... → ${fallback_name} → ${spec.name}`,
-					);
-
-					visited.add(fallback_name);
-					current = csp_directive_spec_by_name.get(fallback_name);
-
-					// Only follow the first fallback in chain for this test
-					break;
+			while (queue.length > 0) {
+				const fallback_name = queue.shift()!;
+				if (fallback_name === spec.name) {
+					assert.fail(`Circular fallback detected: ${spec.name} → ... → ${spec.name}`);
 				}
 
-				// Break if we've reached a directive with no fallback
-				if (!current?.fallback) break;
+				// Skip already-visited nodes (convergent paths, not cycles)
+				if (visited.has(fallback_name)) continue;
+
+				visited.add(fallback_name);
+				const fallback_spec = csp_directive_spec_by_name.get(fallback_name);
+				if (fallback_spec?.fallback) {
+					queue.push(...fallback_spec.fallback);
+				}
 			}
 		}
 	});

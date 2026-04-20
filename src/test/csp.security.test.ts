@@ -18,10 +18,10 @@ describe('default security posture', () => {
 		assert.deepEqual(csp['script-src'], ['self', COLOR_SCHEME_SCRIPT_HASH]);
 
 		// No unsafe-inline
-		assert.ok(!csp['script-src']!.includes('unsafe-inline' as any));
+		assert.notInclude(csp['script-src']! as Array<any>, 'unsafe-inline');
 
 		// No unsafe-eval
-		assert.ok(!csp['script-src']!.includes('unsafe-eval' as any));
+		assert.notInclude(csp['script-src']! as Array<any>, 'unsafe-eval');
 	});
 
 	test('inline script attributes are blocked by default', () => {

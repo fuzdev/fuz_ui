@@ -152,7 +152,7 @@
 							<div class="cats">
 								{#each home_cats as { name, icon, position } (name)}
 									<div
-										class="cat_wrapper"
+										class="cat-wrapper"
 										in:receive={{key: name}}
 										out:send={{key: name}}
 										animate:flip
@@ -177,7 +177,7 @@
 							<div class="cats">
 								{#each adventure_cats as { name, icon, position } (name)}
 									<div
-										class="cat_wrapper"
+										class="cat-wrapper"
 										in:receive={{key: name}}
 										out:send={{key: name}}
 										animate:flip
@@ -246,7 +246,7 @@
 		flex-direction: column;
 		justify-content: center;
 	}
-	.cat_wrapper {
+	.cat-wrapper {
 		display: flex;
 		flex-direction: column;
 		width: 130px;

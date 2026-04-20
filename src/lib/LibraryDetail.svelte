@@ -49,7 +49,7 @@ with file-type coloring. Uses svelte-docinfo's file type predicates for module c
 
 <!-- eslint-disable svelte/no-navigation-without-resolve -->
 
-<div class="library_detail">
+<div class="library-detail">
 	<!-- TODO maybe continue this snippet pattern, or maybe simplify? -->
 	<div class="info">
 		<div class="display:flex flex:1">
@@ -59,7 +59,7 @@ with file-type coloring. Uses svelte-docinfo's file type predicates for module c
 					{#if repo_name}
 						{@render repo_name(library.repo_name)}
 					{:else}
-						<div class="repo_name">
+						<div class="repo-name">
 							{library.repo_name}{#if package_json.glyph}&nbsp;{package_json.glyph}{/if}
 						</div>
 					{/if}
@@ -83,7 +83,7 @@ with file-type coloring. Uses svelte-docinfo's file type predicates for module c
 					{#if npm_url}
 						{@render npm_url(library.npm_url)}
 					{:else}
-						<blockquote class="npm_url">npm i -D {package_json.name}</blockquote>
+						<blockquote class="npm-url">npm i -D {package_json.name}</blockquote>
 					{/if}
 				{/if}
 				<!-- TODO accessible HTML -->
@@ -179,7 +179,7 @@ with file-type coloring. Uses svelte-docinfo's file type predicates for module c
 						class:css={isCss(module.path)}
 						class:json={isJson(module.path)}
 					>
-						<div class="module_content">
+						<div class="module-content">
 							<span class="font_size_xl">
 								<ModuleLink module_path={module.path}>
 									{module.path}
@@ -208,7 +208,7 @@ with file-type coloring. Uses svelte-docinfo's file type predicates for module c
 <!-- TODO better rendering, also show author, etc -->
 
 <style>
-	.library_detail {
+	.library-detail {
 		display: flex;
 		flex-direction: column;
 		align-items: flex-start;
@@ -236,12 +236,12 @@ with file-type coloring. Uses svelte-docinfo's file type predicates for module c
 		width: 100%;
 		margin-bottom: var(--space_lg);
 	}
-	.repo_name {
+	.repo-name {
 		font-family: var(--font_family_serif);
 		font-size: var(--font_size_xl2);
 		font-weight: 400;
 	}
-	.npm_url {
+	.npm-url {
 		font-family: var(--font_family_mono);
 		text-align: center;
 		margin-bottom: var(--space_lg);
@@ -273,7 +273,7 @@ with file-type coloring. Uses svelte-docinfo's file type predicates for module c
 		margin-bottom: var(--space_xs);
 		--link_color: var(--text_70);
 	}
-	.module_content {
+	.module-content {
 		background-color: var(--shade_10);
 		border-radius: var(--border_radius_sm);
 		padding: var(--space_xs);

@@ -20,7 +20,7 @@
 	type="button"
 	title="paste from clipboard"
 	{...rest}
-	class="paste_from_clipboard {rest.class}"
+	class="paste-from-clipboard {rest.class}"
 	onclick={async () => {
 		try {
 			const text = await navigator.clipboard.readText();

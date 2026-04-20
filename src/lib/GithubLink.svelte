@@ -75,7 +75,7 @@
 
 <!-- TODO -next-line doesnt work? -->
 <!-- eslint-disable svelte/no-navigation-without-resolve -->
-<a {...rest} {href} class="github_link white-space:nowrap {rest.class}" rel="noopener"
+<a {...rest} {href} class="github-link white-space:nowrap {rest.class}" rel="noopener"
 	><Svg data={logo_github} inline size="var(--icon_size_xs)" class="mx_xs3 vertical-align:middle" />
 	{#if typeof final_children === 'string'}
 		<span class="font_family_mono">{final_children}</span>

@@ -30,7 +30,7 @@
 </script>
 
 <section
-	class="tome_content width_atmost_md mb_xl9"
+	class="tome-content width_atmost_md mb_xl9"
 	{@attach intersect(() =>
 		at_root
 			? ({intersecting}) => {

@@ -58,18 +58,21 @@ describe('basic defaults', () => {
 		const csp = create_csp_directives();
 
 		// The color scheme script hash should be in script-src and script-src-elem by default
-		assert.ok(
-			csp['script-src']!.includes(COLOR_SCHEME_SCRIPT_HASH),
+		assert.include(
+			csp['script-src']! as Array<any>,
+			COLOR_SCHEME_SCRIPT_HASH,
 			'script-src should include COLOR_SCHEME_SCRIPT_HASH',
 		);
-		assert.ok(
-			csp['script-src-elem']!.includes(COLOR_SCHEME_SCRIPT_HASH),
+		assert.include(
+			csp['script-src-elem']! as Array<any>,
+			COLOR_SCHEME_SCRIPT_HASH,
 			'script-src-elem should include COLOR_SCHEME_SCRIPT_HASH',
 		);
 
 		// Should not be in other directives
-		assert.ok(
-			!csp['script-src-attr']!.includes(COLOR_SCHEME_SCRIPT_HASH),
+		assert.notInclude(
+			csp['script-src-attr']! as Array<any>,
+			COLOR_SCHEME_SCRIPT_HASH,
 			'script-src-attr should not include COLOR_SCHEME_SCRIPT_HASH',
 		);
 	});

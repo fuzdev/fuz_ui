@@ -74,7 +74,7 @@
   content
 </div>`}
 		/>
-		<ul class="demo_list">
+		<ul class="demo-list">
 			{#each items as item (item)}
 				<li
 					{@attach intersect(() => ({
@@ -102,7 +102,7 @@
   content
 </div>`}
 		/>
-		<ul class="demo_list">
+		<ul class="demo-list">
 			{#each items as item (item)}
 				<li
 					{@attach intersect(() => ({
@@ -131,7 +131,7 @@
   content
 </div>`}
 		/>
-		<ul class="demo_list">
+		<ul class="demo-list">
 			{#each items as item (item)}
 				<li
 					{@attach intersect(() => ({
@@ -165,7 +165,7 @@
 </div>`}
 		/>
 		{#key count_1_key}
-			<ul class="demo_list">
+			<ul class="demo-list">
 				{#each items as item (item)}
 					<li
 						{@attach intersect(() => ({
@@ -197,7 +197,7 @@
 </div>`}
 		/>
 		{#key count_2_key}
-			<ul class="demo_list">
+			<ul class="demo-list">
 				{#each items as item (item)}
 					<li
 						{@attach intersect(() => ({
@@ -226,14 +226,14 @@
 		<div class="controls">
 			<label>
 				<code>count</code>
-				<div class="control_inputs">
+				<div class="control-inputs">
 					<input type="number" min={-1} max={3} step={1} bind:value={count} />
 					<input type="range" min={-1} max={3} step={1} bind:value={count} />
 				</div>
 			</label>
 			<label>
 				<code>options.threshold</code>
-				<div class="control_inputs">
+				<div class="control-inputs">
 					<input type="number" step={0.1} min={0} max={1} bind:value={threshold} />
 					<input type="range" step={0.1} min={0} max={1} bind:value={threshold} />
 				</div>
@@ -250,7 +250,7 @@
 			</label>
 		</div>
 		{#key configurable_key}
-			<ul class="demo_list">
+			<ul class="demo-list">
 				{#each items as item (item)}
 					<li
 						{@attach intersect(() => ({
@@ -283,32 +283,32 @@
 		flex-direction: column;
 		gap: var(--space_xs);
 	}
-	.control_inputs {
+	.control-inputs {
 		display: flex;
 		align-items: center;
 		gap: var(--space_md);
 	}
-	.control_inputs input {
+	.control-inputs input {
 		width: var(--input_width_min);
 		min-width: var(--input_width_min);
 	}
-	.demo_list {
+	.demo-list {
 		max-height: 250px;
 		overflow-y: auto;
-		border: var(--border_1);
-		border-radius: var(--radius_xs);
+		border: var(--border_width_1) var(--border_style) var(--border_color);
+		border-radius: var(--border_radius_xs);
 	}
-	.demo_list li {
+	.demo-list li {
 		padding: var(--space_lg);
 		background-color: hsl(var(--hue_g) 50% 80% / 0.3);
 		font-weight: 700;
 		transition: background-color var(--duration_2);
-		border-bottom: var(--border_1);
+		border-bottom: var(--border_width_1) var(--border_style) var(--border_color);
 	}
-	.demo_list li:last-child {
+	.demo-list li:last-child {
 		border-bottom: none;
 	}
-	.demo_list li:global(.intersecting) {
+	.demo-list li:global(.intersecting) {
 		color: var(--color_f_50);
 		background-color: hsl(var(--hue_f) 50% 80% / 0.15);
 	}

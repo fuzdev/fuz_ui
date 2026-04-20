@@ -52,14 +52,14 @@
 
 <div class="docs" style:--docs_menu_width={docs_menu_width}>
 	<DocsPrimaryNav {library} {breadcrumb_children}>
-		<div class="nav_dialog_toggle">
+		<div class="nav-dialog-toggle">
 			<button class="plain" type="button" onclick={() => toggle_secondary_nav_dialog()}>menu</button
 			>
 		</div>
 	</DocsPrimaryNav>
 	<!-- TODO @many dialog navs -->
 	{#if !innerWidth.current || innerWidth.current > SECONDARY_NAV_BREAKPOINT}
-		<div class="secondary_nav_wrapper">
+		<div class="secondary-nav-wrapper">
 			<DocsSecondaryNav {tomes} />
 		</div>
 	{/if}
@@ -133,14 +133,14 @@
 		overflow: hidden; /* TODO maybe heavy handed */
 	}
 
-	.secondary_nav_wrapper {
+	.secondary-nav-wrapper {
 		display: contents;
 	}
 
-	.nav_dialog_toggle {
+	.nav-dialog-toggle {
 		display: none;
 	}
-	.nav_dialog_toggle button {
+	.nav-dialog-toggle button {
 		padding-left: var(--space_xl3);
 		padding-right: var(--space_xl3);
 		border-radius: 0;
@@ -155,7 +155,7 @@
 			margin-right: 0;
 		}
 
-		.nav_dialog_toggle {
+		.nav-dialog-toggle {
 			display: contents;
 		}
 	}
@@ -168,7 +168,7 @@
 			margin-left: 0;
 		}
 
-		.secondary_nav_wrapper {
+		.secondary-nav-wrapper {
 			display: none;
 		}
 	}

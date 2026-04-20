@@ -1102,7 +1102,7 @@ describe('ContextmenuRootForSafariCompatibility - Touch Event Handling', () => {
 	});
 
 	describe('CSS class management for iOS selection blocking', () => {
-		test('adds contextmenu_pending class to body on touchstart', async () => {
+		test('adds contextmenu-pending class to body on touchstart', async () => {
 			mounted = mount_contextmenu_root(ContextmenuRootForSafariCompatibility);
 
 			const {container} = mounted;
@@ -1121,9 +1121,9 @@ describe('ContextmenuRootForSafariCompatibility - Touch Event Handling', () => {
 
 			// Class should be added immediately
 			assert.strictEqual(
-				document.body.classList.contains('contextmenu_pending'),
+				document.body.classList.contains('contextmenu-pending'),
 				true,
-				'contextmenu_pending class should be added',
+				'contextmenu-pending class should be added',
 			);
 		});
 
@@ -1144,7 +1144,7 @@ describe('ContextmenuRootForSafariCompatibility - Touch Event Handling', () => {
 			set_event_target(touchstart, target);
 			window.dispatchEvent(touchstart);
 
-			assert.strictEqual(document.body.classList.contains('contextmenu_pending'), true);
+			assert.strictEqual(document.body.classList.contains('contextmenu-pending'), true);
 
 			// Wait for longpress to complete
 			vi.advanceTimersByTime(CONTEXTMENU_DEFAULT_LONGPRESS_DURATION);
@@ -1152,7 +1152,7 @@ describe('ContextmenuRootForSafariCompatibility - Touch Event Handling', () => {
 
 			// Class should be removed when menu opens
 			assert.strictEqual(
-				document.body.classList.contains('contextmenu_pending'),
+				document.body.classList.contains('contextmenu-pending'),
 				false,
 				'class should be removed when menu opens',
 			);
@@ -1175,7 +1175,7 @@ describe('ContextmenuRootForSafariCompatibility - Touch Event Handling', () => {
 			set_event_target(touchstart, target);
 			window.dispatchEvent(touchstart);
 
-			assert.strictEqual(document.body.classList.contains('contextmenu_pending'), true);
+			assert.strictEqual(document.body.classList.contains('contextmenu-pending'), true);
 
 			// Move beyond tolerance (user is scrolling)
 			const touchmove = create_touch_event('touchmove', [
@@ -1186,7 +1186,7 @@ describe('ContextmenuRootForSafariCompatibility - Touch Event Handling', () => {
 
 			// Class should be removed (longpress canceled due to scrolling)
 			assert.strictEqual(
-				document.body.classList.contains('contextmenu_pending'),
+				document.body.classList.contains('contextmenu-pending'),
 				false,
 				'class should be removed when user scrolls',
 			);
@@ -1209,7 +1209,7 @@ describe('ContextmenuRootForSafariCompatibility - Touch Event Handling', () => {
 			set_event_target(touchstart, target);
 			window.dispatchEvent(touchstart);
 
-			assert.strictEqual(document.body.classList.contains('contextmenu_pending'), true);
+			assert.strictEqual(document.body.classList.contains('contextmenu-pending'), true);
 
 			// End touch before longpress completes
 			vi.advanceTimersByTime(200); // Part way through
@@ -1219,7 +1219,7 @@ describe('ContextmenuRootForSafariCompatibility - Touch Event Handling', () => {
 
 			// Class should be removed
 			assert.strictEqual(
-				document.body.classList.contains('contextmenu_pending'),
+				document.body.classList.contains('contextmenu-pending'),
 				false,
 				'class should be removed on touchend',
 			);
@@ -1242,7 +1242,7 @@ describe('ContextmenuRootForSafariCompatibility - Touch Event Handling', () => {
 			set_event_target(touchstart, target);
 			window.dispatchEvent(touchstart);
 
-			assert.strictEqual(document.body.classList.contains('contextmenu_pending'), true);
+			assert.strictEqual(document.body.classList.contains('contextmenu-pending'), true);
 
 			// Cancel touch
 			const touchcancel = create_touch_event('touchcancel', []);
@@ -1251,7 +1251,7 @@ describe('ContextmenuRootForSafariCompatibility - Touch Event Handling', () => {
 
 			// Class should be removed
 			assert.strictEqual(
-				document.body.classList.contains('contextmenu_pending'),
+				document.body.classList.contains('contextmenu-pending'),
 				false,
 				'class should be removed on touchcancel',
 			);
@@ -1274,7 +1274,7 @@ describe('ContextmenuRootForSafariCompatibility - Touch Event Handling', () => {
 
 			// Class should NOT be added (invalid target)
 			assert.strictEqual(
-				document.body.classList.contains('contextmenu_pending'),
+				document.body.classList.contains('contextmenu-pending'),
 				false,
 				'class should not be added for editable elements',
 			);
@@ -1302,7 +1302,7 @@ describe('ContextmenuRootForSafariCompatibility - Touch Event Handling', () => {
 
 			// Class should NOT be added (multi-touch gesture)
 			assert.strictEqual(
-				document.body.classList.contains('contextmenu_pending'),
+				document.body.classList.contains('contextmenu-pending'),
 				false,
 				'class should not be added for multi-touch gestures',
 			);
@@ -1326,7 +1326,7 @@ describe('ContextmenuRootForSafariCompatibility - Touch Event Handling', () => {
 			window.dispatchEvent(touchstart1);
 
 			// Class should be added for first tap
-			assert.strictEqual(document.body.classList.contains('contextmenu_pending'), true);
+			assert.strictEqual(document.body.classList.contains('contextmenu-pending'), true);
 
 			// Short tap duration
 			vi.advanceTimersByTime(100);
@@ -1336,7 +1336,7 @@ describe('ContextmenuRootForSafariCompatibility - Touch Event Handling', () => {
 			window.dispatchEvent(touchend1);
 
 			// Class should be removed after touchend
-			assert.strictEqual(document.body.classList.contains('contextmenu_pending'), false);
+			assert.strictEqual(document.body.classList.contains('contextmenu-pending'), false);
 
 			// Second tap quickly (within bypass window) - this triggers bypass
 			vi.advanceTimersByTime(100); // Total 200ms from first tap
@@ -1347,7 +1347,7 @@ describe('ContextmenuRootForSafariCompatibility - Touch Event Handling', () => {
 
 			// Class should NOT be added (bypass detected, early return)
 			assert.strictEqual(
-				document.body.classList.contains('contextmenu_pending'),
+				document.body.classList.contains('contextmenu-pending'),
 				false,
 				'class should not be added during bypass gesture',
 			);

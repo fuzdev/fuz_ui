@@ -216,13 +216,12 @@ describe('ContextmenuState - Immutability', () => {
 				results.push(item.selected);
 			}
 
-			// All items should have been processed
+			// All items should have been processed and selected
 			assert.strictEqual(results.length, 5);
-			assert.ok(results.every((r) => r));
+			assert.deepEqual(results, [true, true, true, true, true]);
 
 			// Original snapshot should be unchanged
 			assert.strictEqual(items_snapshot.length, 5);
-			assert.strictEqual(items_snapshot, items_snapshot); // reference equality check
 		});
 
 		test('rapid state changes maintain reference integrity', () => {

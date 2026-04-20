@@ -113,10 +113,7 @@ export function create_csp_directives(options: CreateCspDirectivesOptions = {}):
 	// Apply trusted sources to directives
 	if (trusted_sources?.length) {
 		for (const [key, value] of Object.entries(directives)) {
-			const directive = parse_csp_directive(key);
-			if (directive === null) {
-				throw new Error(`Invalid directive in options.directives: ${key}`);
-			}
+			const directive = key as CspDirective; // keys are from csp_directive_specs, always valid
 
 			// Skip if directive is ['none'] or not an array
 			if (is_none_directive(value) || !Array.isArray(value)) {

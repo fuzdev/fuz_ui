@@ -26,7 +26,7 @@
 	const {path, path_is_selected} = $derived(to_docs_path_info(path_slug, page.url.pathname));
 </script>
 
-<svelte:element this={path_is_selected ? 'h1' : 'h2'} {...props} class="tome_header">
+<svelte:element this={path_is_selected ? 'h1' : 'h2'} {...props} class="tome-header">
 	{#if path_is_selected}
 		{@render content(tome.name)}
 	{:else}
@@ -41,7 +41,7 @@
 {/snippet}
 
 <style>
-	.tome_header {
+	.tome-header {
 		position: relative;
 		display: flex;
 		align-items: center;
@@ -49,7 +49,7 @@
 		margin-top: var(--space_xl4);
 	}
 	/* TODO @many how can this be done composably? currently using `:global` at usage site - ideally we'd continue to use :hover instead of JS */
-	.tome_header:hover :global(.hashlink) {
+	.tome-header:hover :global(.hashlink) {
 		opacity: 1;
 	}
 </style>

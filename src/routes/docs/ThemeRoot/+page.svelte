@@ -261,7 +261,7 @@ theme_state.color_scheme; // '${theme_state.color_scheme}'`}
 <!-- {#if show_create_theme_dialog}
 	<Dialog onclose={() => (show_create_theme_dialog = false)} let:close>
 		<div class="pane p_md width_atmost_md mx_auto">
-			<div class="theme_editor_wrapper panel">
+			<div class="theme-editor-wrapper panel">
 				<ThemeForm
 					oncreate={(theme) => {
 						themes = themes.concat(theme);
@@ -275,7 +275,7 @@ theme_state.color_scheme; // '${theme_state.color_scheme}'`}
 {#if editing_theme}
 	<Dialog onclose={() => (editing_theme = null)}>
 		<div class="pane p_md width_atmost_md mx_auto">
-			<div class="theme_editor_wrapper panel">
+			<div class="theme-editor-wrapper panel">
 				<ThemeForm
 					theme={editing_theme}
 					onsave={(theme) => {
@@ -289,7 +289,7 @@ theme_state.color_scheme; // '${theme_state.color_scheme}'`}
 {/if}
 
 <style>
-	.theme_editor_wrapper {
+	.theme-editor-wrapper {
 		width: var(--distance_md);
 		padding: var(--space_lg);
 	}

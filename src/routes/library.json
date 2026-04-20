@@ -93,11 +93,11 @@
 			"@changesets/changelog-git": "^0.2.1",
 			"@fuzdev/blake3_wasm": "^0.1.0",
 			"@fuzdev/fuz_code": "^0.45.1",
-			"@fuzdev/fuz_css": "^0.58.0",
-			"@fuzdev/fuz_util": "^0.55.0",
-			"@fuzdev/gro": "^0.197.2",
+			"@fuzdev/fuz_css": "^0.59.0",
+			"@fuzdev/fuz_util": "^0.57.0",
+			"@fuzdev/gro": "^0.198.0",
 			"@jridgewell/trace-mapping": "^0.3.31",
-			"@ryanatkn/eslint-config": "^0.10.1",
+			"@ryanatkn/eslint-config": "^0.11.0",
 			"@sveltejs/acorn-typescript": "^1.0.9",
 			"@sveltejs/adapter-static": "^3.0.10",
 			"@sveltejs/kit": "^2.55.0",
@@ -1203,9 +1203,21 @@
 					{
 						"name": "contextmenu_attachment",
 						"kind": "function",
+<<<<<<< HEAD
 						"docComment": "Creates an attachment that sets up contextmenu behavior on an element.",
 						"typeSignature": "<T extends ContextmenuParams, U extends T | Array<T>>(params: U | null | undefined): Attachment<HTMLElement | SVGElement>",
 						"sourceLine": 349,
+||||||| 6a307d4d
+						"doc_comment": "Creates an attachment that sets up contextmenu behavior on an element.",
+						"source_line": 349,
+						"type_signature": "<T extends ContextmenuParams, U extends T | Array<T>>(params: U | null | undefined): Attachment<HTMLElement | SVGElement>",
+						"return_type": "Attachment<HTMLElement | SVGElement>",
+=======
+						"doc_comment": "Creates an attachment that sets up contextmenu behavior on an element.",
+						"source_line": 350,
+						"type_signature": "<T extends ContextmenuParams, U extends T | Array<T>>(params: U | null | undefined): Attachment<HTMLElement | SVGElement>",
+						"return_type": "Attachment<HTMLElement | SVGElement>",
+>>>>>>> main
 						"parameters": [
 							{
 								"name": "params",
@@ -1217,10 +1229,22 @@
 					},
 					{
 						"name": "ContextmenuOpenOptions",
+<<<<<<< HEAD
 						"kind": "interface",
 						"typeSignature": "ContextmenuOpenOptions",
 						"sourceLine": 373,
 						"members": [
+||||||| 6a307d4d
+						"kind": "type",
+						"source_line": 373,
+						"type_signature": "ContextmenuOpenOptions",
+						"properties": [
+=======
+						"kind": "type",
+						"source_line": 374,
+						"type_signature": "ContextmenuOpenOptions",
+						"properties": [
+>>>>>>> main
 							{
 								"name": "link_enabled",
 								"kind": "variable",
@@ -1246,9 +1270,23 @@
 					{
 						"name": "contextmenu_open",
 						"kind": "function",
+<<<<<<< HEAD
 						"docComment": "Opens the contextmenu, if appropriate,\nquerying the menu items from the DOM starting at the event target.",
 						"typeSignature": "(target: HTMLElement | SVGElement, x: number, y: number, contextmenu: ContextmenuState, options?: ContextmenuOpenOptions | undefined): boolean",
 						"sourceLine": 390,
+||||||| 6a307d4d
+						"doc_comment": "Opens the contextmenu, if appropriate,\nquerying the menu items from the DOM starting at the event target.",
+						"source_line": 390,
+						"type_signature": "(target: HTMLElement | SVGElement, x: number, y: number, contextmenu: ContextmenuState, options?: ContextmenuOpenOptions | undefined): boolean",
+						"return_type": "boolean",
+						"return_description": "a boolean indicating if the menu was opened or not",
+=======
+						"doc_comment": "Opens the contextmenu, if appropriate,\nquerying the menu items from the DOM starting at the event target.",
+						"source_line": 391,
+						"type_signature": "(target: HTMLElement | SVGElement, x: number, y: number, contextmenu: ContextmenuState, options?: ContextmenuOpenOptions | undefined): boolean",
+						"return_type": "boolean",
+						"return_description": "a boolean indicating if the menu was opened or not",
+>>>>>>> main
 						"parameters": [
 							{
 								"name": "target",
@@ -1283,27 +1321,63 @@
 					{
 						"name": "contextmenu_context",
 						"kind": "variable",
+<<<<<<< HEAD
 						"typeSignature": "{ get: (error_message?: string | undefined) => () => ContextmenuState; get_maybe: () => (() => ContextmenuState) | undefined; set: (value: () => ContextmenuState) => () => ContextmenuState; }",
 						"sourceLine": 477
+||||||| 6a307d4d
+						"source_line": 477,
+						"type_signature": "{ get: (error_message?: string | undefined) => () => ContextmenuState; get_maybe: () => (() => ContextmenuState) | undefined; set: (value: () => ContextmenuState) => () => ContextmenuState; }"
+=======
+						"source_line": 478,
+						"type_signature": "{ get: (error_message?: string | undefined) => () => ContextmenuState; get_maybe: () => (() => ContextmenuState) | undefined; set: (value: () => ContextmenuState) => () => ContextmenuState; }"
+>>>>>>> main
 					},
 					{
 						"name": "contextmenu_submenu_context",
 						"kind": "variable",
+<<<<<<< HEAD
 						"typeSignature": "{ get: (error_message?: string | undefined) => SubmenuState; get_maybe: () => SubmenuState | undefined; set: (value: SubmenuState) => SubmenuState; }",
 						"sourceLine": 479
+||||||| 6a307d4d
+						"source_line": 479,
+						"type_signature": "{ get: (error_message?: string | undefined) => SubmenuState; get_maybe: () => SubmenuState | undefined; set: (value: SubmenuState) => SubmenuState; }"
+=======
+						"source_line": 480,
+						"type_signature": "{ get: (error_message?: string | undefined) => SubmenuState; get_maybe: () => SubmenuState | undefined; set: (value: SubmenuState) => SubmenuState; }"
+>>>>>>> main
 					},
 					{
 						"name": "contextmenu_dimensions_context",
 						"kind": "variable",
+<<<<<<< HEAD
 						"typeSignature": "{ get: () => Dimensions; set: (value?: Dimensions | undefined) => Dimensions; }",
 						"sourceLine": 481
+||||||| 6a307d4d
+						"source_line": 481,
+						"type_signature": "{ get: () => Dimensions; set: (value?: Dimensions | undefined) => Dimensions; }"
+=======
+						"source_line": 482,
+						"type_signature": "{ get: () => Dimensions; set: (value?: Dimensions | undefined) => Dimensions; }"
+>>>>>>> main
 					},
 					{
 						"name": "contextmenu_check_global_root",
 						"kind": "function",
+<<<<<<< HEAD
 						"docComment": "Registers a contextmenu root and warns if multiple non-scoped roots are detected.\nOnly active in development mode. Automatically handles cleanup on unmount.",
 						"typeSignature": "(get_scoped: () => boolean): void",
 						"sourceLine": 492,
+||||||| 6a307d4d
+						"doc_comment": "Registers a contextmenu root and warns if multiple non-scoped roots are detected.\nOnly active in development mode. Automatically handles cleanup on unmount.",
+						"source_line": 492,
+						"type_signature": "(get_scoped: () => boolean): void",
+						"return_type": "void",
+=======
+						"doc_comment": "Registers a contextmenu root and warns if multiple non-scoped roots are detected.\nOnly active in development mode. Automatically handles cleanup on unmount.",
+						"source_line": 493,
+						"type_signature": "(get_scoped: () => boolean): void",
+						"return_type": "void",
+>>>>>>> main
 						"parameters": [
 							{
 								"name": "get_scoped",
@@ -4145,14 +4219,32 @@
 					{
 						"name": "CspDirective",
 						"kind": "type",
+<<<<<<< HEAD
 						"typeSignature": "keyof CspDirectives",
 						"sourceLine": 175
+||||||| 6a307d4d
+						"source_line": 175,
+						"type_signature": "keyof CspDirectives"
+=======
+						"source_line": 172,
+						"type_signature": "keyof CspDirectives"
+>>>>>>> main
 					},
 					{
 						"name": "parse_csp_directive",
 						"kind": "function",
+<<<<<<< HEAD
 						"typeSignature": "(directive: unknown): keyof CspDirectives | null",
 						"sourceLine": 177,
+||||||| 6a307d4d
+						"source_line": 177,
+						"type_signature": "(directive: unknown): keyof CspDirectives | null",
+						"return_type": "keyof CspDirectives | null",
+=======
+						"source_line": 174,
+						"type_signature": "(directive: unknown): keyof CspDirectives | null",
+						"return_type": "keyof CspDirectives | null",
+>>>>>>> main
 						"parameters": [
 							{
 								"name": "directive",
@@ -4164,9 +4256,19 @@
 					{
 						"name": "CspDirectiveValue",
 						"kind": "type",
+<<<<<<< HEAD
 						"typeSignature": "CspDirectiveValue<T>",
 						"sourceLine": 182,
 						"genericParams": [
+||||||| 6a307d4d
+						"source_line": 182,
+						"type_signature": "CspDirectiveValue<T>",
+						"generic_params": [
+=======
+						"source_line": 179,
+						"type_signature": "CspDirectiveValue<T>",
+						"generic_params": [
+>>>>>>> main
 							{
 								"name": "T",
 								"constraint": "CspDirective"
@@ -4176,29 +4278,69 @@
 					{
 						"name": "csp_trust_levels",
 						"kind": "variable",
+<<<<<<< HEAD
 						"typeSignature": "readonly [\"low\", \"medium\", \"high\"]",
 						"sourceLine": 184
+||||||| 6a307d4d
+						"source_line": 184,
+						"type_signature": "readonly [\"low\", \"medium\", \"high\"]"
+=======
+						"source_line": 181,
+						"type_signature": "readonly [\"low\", \"medium\", \"high\"]"
+>>>>>>> main
 					},
 					{
 						"name": "csp_trust_level_value",
 						"kind": "variable",
+<<<<<<< HEAD
 						"docComment": "Numeric values for CSP trust levels. See `csp_trust_levels`.\nLower is less trusted.\nIncludes `undefined` in the type for safety.",
 						"typeSignature": "Record<\"low\" | \"medium\" | \"high\", number | undefined>",
 						"sourceLine": 191
+||||||| 6a307d4d
+						"doc_comment": "Numeric values for CSP trust levels. See `csp_trust_levels`.\nLower is less trusted.\nIncludes `undefined` in the type for safety.",
+						"source_line": 191,
+						"type_signature": "Record<\"low\" | \"medium\" | \"high\", number | undefined>"
+=======
+						"doc_comment": "Numeric values for CSP trust levels. See `csp_trust_levels`.\nLower is less trusted.\nIncludes `undefined` in the type for safety.",
+						"source_line": 188,
+						"type_signature": "Record<\"low\" | \"medium\" | \"high\", number | undefined>"
+>>>>>>> main
 					},
 					{
 						"name": "CspTrustLevel",
 						"kind": "type",
+<<<<<<< HEAD
 						"docComment": "Trust levels for CSP sources.\n\nWith the base defaults, trust levels roughly correspond to:\n\n- `low` – Passive resources only (no script execution, no styling or UI control).\n\t\tExamples: `img-src`, `font-src`.\n- `medium` – Content that may affect layout, styling, or embed external browsing contexts,\n   but cannot directly run code in the page's JS execution environment or\n\t\tperform other high-risk actions. Examples: `style-src`, `frame-src`, `frame-ancestors`.\n- `high` – Sources that can execute code in the page's context or open powerful network\n   channels. Examples: `script-src`, `connect-src`, `child-src`.\n- `null` – No trust. This is used for directives that don't support sources.",
 						"typeSignature": "\"low\" | \"medium\" | \"high\"",
 						"sourceLine": 212
+||||||| 6a307d4d
+						"doc_comment": "Trust levels for CSP sources.\n\nWith the base defaults, trust levels roughly correspond to:\n\n- `low` – Passive resources only (no script execution, no styling or UI control).\n\t\tExamples: `img-src`, `font-src`.\n- `medium` – Content that may affect layout, styling, or embed external browsing contexts,\n   but cannot directly run code in the page's JS execution environment or\n\t\tperform other high-risk actions. Examples: `style-src`, `frame-src`, `frame-ancestors`.\n- `high` – Sources that can execute code in the page's context or open powerful network\n   channels. Examples: `script-src`, `connect-src`, `child-src`.\n- `null` – No trust. This is used for directives that don't support sources.",
+						"source_line": 212,
+						"type_signature": "\"low\" | \"medium\" | \"high\""
+=======
+						"doc_comment": "Trust levels for CSP sources.\n\nWith the base defaults, trust levels roughly correspond to:\n\n- `low` – Passive resources only (no script execution, no styling or UI control).\n\t\tExamples: `img-src`, `font-src`.\n- `medium` – Content that may affect layout, styling, or embed external browsing contexts,\n   but cannot directly run code in the page's JS execution environment or\n\t\tperform other high-risk actions. Examples: `style-src`, `frame-src`, `frame-ancestors`.\n- `high` – Sources that can execute code in the page's context or open powerful network\n   channels. Examples: `script-src`, `connect-src`, `child-src`.\n- `null` – No trust. This is used for directives that don't support sources.",
+						"source_line": 209,
+						"type_signature": "\"low\" | \"medium\" | \"high\""
+>>>>>>> main
 					},
 					{
 						"name": "parse_csp_trust_level",
 						"kind": "function",
+<<<<<<< HEAD
 						"docComment": "Validates and extracts a CSP trust level from an unknown value.",
 						"typeSignature": "(trust: unknown): \"low\" | \"medium\" | \"high\" | null",
 						"sourceLine": 217,
+||||||| 6a307d4d
+						"doc_comment": "Validates and extracts a CSP trust level from an unknown value.",
+						"source_line": 217,
+						"type_signature": "(trust: unknown): \"low\" | \"medium\" | \"high\" | null",
+						"return_type": "\"low\" | \"medium\" | \"high\" | null",
+=======
+						"doc_comment": "Validates and extracts a CSP trust level from an unknown value.",
+						"source_line": 214,
+						"type_signature": "(trust: unknown): \"low\" | \"medium\" | \"high\" | null",
+						"return_type": "\"low\" | \"medium\" | \"high\" | null",
+>>>>>>> main
 						"parameters": [
 							{
 								"name": "trust",
@@ -4209,10 +4351,22 @@
 					},
 					{
 						"name": "CspSourceSpec",
+<<<<<<< HEAD
 						"kind": "interface",
 						"typeSignature": "CspSourceSpec",
 						"sourceLine": 220,
 						"members": [
+||||||| 6a307d4d
+						"kind": "type",
+						"source_line": 220,
+						"type_signature": "CspSourceSpec",
+						"properties": [
+=======
+						"kind": "type",
+						"source_line": 217,
+						"type_signature": "CspSourceSpec",
+						"properties": [
+>>>>>>> main
 							{
 								"name": "source",
 								"kind": "variable",
@@ -4232,10 +4386,22 @@
 					},
 					{
 						"name": "CspDirectiveSpec",
+<<<<<<< HEAD
 						"kind": "interface",
 						"typeSignature": "CspDirectiveSpec",
 						"sourceLine": 226,
 						"members": [
+||||||| 6a307d4d
+						"kind": "type",
+						"source_line": 226,
+						"type_signature": "CspDirectiveSpec",
+						"properties": [
+=======
+						"kind": "type",
+						"source_line": 223,
+						"type_signature": "CspDirectiveSpec",
+						"properties": [
+>>>>>>> main
 							{
 								"name": "name",
 								"kind": "variable",
@@ -4256,9 +4422,21 @@
 					{
 						"name": "is_csp_trusted",
 						"kind": "function",
+<<<<<<< HEAD
 						"docComment": "Determines if a granted trust level is sufficient to satisfy a required trust level.\n\nTrust levels have the following hierarchy:\n- 'high' sources can be used in high, medium, and low trust directives (highest privilege)\n- 'medium' sources can be used in medium and low trust directives\n- 'low' sources can only be used in low trust directives (lowest privilege)",
 						"typeSignature": "(required_trust: \"low\" | \"medium\" | \"high\" | null | undefined, granted_trust: \"low\" | \"medium\" | \"high\" | null | undefined): boolean",
 						"sourceLine": 240,
+||||||| 6a307d4d
+						"doc_comment": "Determines if a granted trust level is sufficient to satisfy a required trust level.\n\nTrust levels have the following hierarchy:\n- 'high' sources can be used in high, medium, and low trust directives (highest privilege)\n- 'medium' sources can be used in medium and low trust directives\n- 'low' sources can only be used in low trust directives (lowest privilege)",
+						"source_line": 240,
+						"type_signature": "(required_trust: \"low\" | \"medium\" | \"high\" | null | undefined, granted_trust: \"low\" | \"medium\" | \"high\" | null | undefined): boolean",
+						"return_type": "boolean",
+=======
+						"doc_comment": "Determines if a granted trust level is sufficient to satisfy a required trust level.\n\nTrust levels have the following hierarchy:\n- 'high' sources can be used in high, medium, and low trust directives (highest privilege)\n- 'medium' sources can be used in medium and low trust directives\n- 'low' sources can only be used in low trust directives (lowest privilege)",
+						"source_line": 237,
+						"type_signature": "(required_trust: \"low\" | \"medium\" | \"high\" | null | undefined, granted_trust: \"low\" | \"medium\" | \"high\" | null | undefined): boolean",
+						"return_type": "boolean",
+>>>>>>> main
 						"parameters": [
 							{
 								"name": "required_trust",
@@ -4274,22 +4452,50 @@
 					{
 						"name": "COLOR_SCHEME_SCRIPT_HASH",
 						"kind": "variable",
+<<<<<<< HEAD
 						"typeSignature": "\"sha256-QOxqn7EUzb3ydF9SALJoJGWSvywW9R0AfTDSenB83Z8=\"",
 						"sourceLine": 263
+||||||| 6a307d4d
+						"source_line": 263,
+						"type_signature": "\"sha256-QOxqn7EUzb3ydF9SALJoJGWSvywW9R0AfTDSenB83Z8=\""
+=======
+						"source_line": 260,
+						"type_signature": "\"sha256-QOxqn7EUzb3ydF9SALJoJGWSvywW9R0AfTDSenB83Z8=\""
+>>>>>>> main
 					},
 					{
 						"name": "csp_directive_value_defaults",
 						"kind": "variable",
+<<<<<<< HEAD
 						"docComment": "The base CSP directive defaults.\nPrioritizes safety but loosens around media and styles, relying on defense-in-depth.\nCustomizable via `CreateCspDirectivesOptions`.",
 						"typeSignature": "Record<keyof CspDirectives, boolean | string[] | (CspSource | CspActionSource)[] | CspSources | CspFrameSource[] | \"script\"[] | (\"allow-downloads-without-user-activation\" | ... 11 more ... | \"allow-top-navigation-by-user-activation\")[] | null>",
 						"sourceLine": 270
+||||||| 6a307d4d
+						"doc_comment": "The base CSP directive defaults.\nPrioritizes safety but loosens around media and styles, relying on defense-in-depth.\nCustomizable via `CreateCspDirectivesOptions`.",
+						"source_line": 270,
+						"type_signature": "Record<keyof CspDirectives, boolean | (CspSource | CspActionSource)[] | CspSources | CspFrameSource[] | string[] | \"script\"[] | (\"allow-downloads-without-user-activation\" | ... 11 more ... | \"allow-top-navigation-by-user-activation\")[] | null>"
+=======
+						"doc_comment": "The base CSP directive defaults.\nPrioritizes safety but loosens around media and styles, relying on defense-in-depth.\nCustomizable via `CreateCspDirectivesOptions`.",
+						"source_line": 267,
+						"type_signature": "Record<keyof CspDirectives, boolean | (CspSource | CspActionSource)[] | CspSources | CspFrameSource[] | string[] | \"script\"[] | (\"allow-downloads-without-user-activation\" | ... 11 more ... | \"allow-top-navigation-by-user-activation\")[] | null>"
+>>>>>>> main
 					},
 					{
 						"name": "csp_directive_required_trust_defaults",
 						"kind": "variable",
+<<<<<<< HEAD
 						"docComment": "Sources that meet this trust requirement are included for it by default.\nIf null, no trusted sources are added to the directive automatically.\nDirectives that don't support sources or default to `['none']` are null.\n\nFeedback is welcome, please see the issues - https://github.com/fuzdev/fuz_ui/issues",
 						"typeSignature": "Record<keyof CspDirectives, \"low\" | \"medium\" | \"high\" | null>",
 						"sourceLine": 307
+||||||| 6a307d4d
+						"doc_comment": "Sources that meet this trust requirement are included for it by default.\nIf null, no trusted sources are added to the directive automatically.\nDirectives that don't support sources or default to `['none']` are null.\n\nFeedback is welcome, please see the issues - https://github.com/fuzdev/fuz_ui/issues",
+						"source_line": 307,
+						"type_signature": "Record<keyof CspDirectives, \"low\" | \"medium\" | \"high\" | null>"
+=======
+						"doc_comment": "Sources that meet this trust requirement are included for it by default.\nIf null, no trusted sources are added to the directive automatically.\nDirectives that don't support sources or default to `['none']` are null.\n\nFeedback is welcome, please see the issues - https://github.com/fuzdev/fuz_ui/issues",
+						"source_line": 304,
+						"type_signature": "Record<keyof CspDirectives, \"low\" | \"medium\" | \"high\" | null>"
+>>>>>>> main
 					},
 					{
 						"name": "csp_directive_specs",
@@ -4299,86 +4505,204 @@
 						"sourceLine": 343,
 						"seeAlso": [
 							"{@link https://developer.mozilla.org/en-US/docs/Web/HTTP/Reference/Headers/Content-Security-Policy}"
+<<<<<<< HEAD
 						]
+||||||| 6a307d4d
+						],
+						"source_line": 343,
+						"type_signature": "CspDirectiveSpec[]"
+=======
+						],
+						"source_line": 340,
+						"type_signature": "CspDirectiveSpec[]"
+>>>>>>> main
 					},
 					{
 						"name": "csp_directive_spec_by_name",
 						"kind": "variable",
+<<<<<<< HEAD
 						"typeSignature": "Map<keyof CspDirectives, CspDirectiveSpec>",
 						"sourceLine": 481
+||||||| 6a307d4d
+						"source_line": 481,
+						"type_signature": "Map<keyof CspDirectives, CspDirectiveSpec>"
+=======
+						"source_line": 478,
+						"type_signature": "Map<keyof CspDirectives, CspDirectiveSpec>"
+>>>>>>> main
 					},
 					{
 						"name": "CspActionSource",
 						"kind": "type",
+<<<<<<< HEAD
 						"typeSignature": "CspActionSource",
 						"sourceLine": 513
+||||||| 6a307d4d
+						"source_line": 513,
+						"type_signature": "CspActionSource"
+=======
+						"source_line": 510,
+						"type_signature": "CspActionSource"
+>>>>>>> main
 					},
 					{
 						"name": "CspBaseSource",
 						"kind": "type",
+<<<<<<< HEAD
 						"typeSignature": "CspBaseSource",
 						"sourceLine": 514
+||||||| 6a307d4d
+						"source_line": 514,
+						"type_signature": "CspBaseSource"
+=======
+						"source_line": 511,
+						"type_signature": "CspBaseSource"
+>>>>>>> main
 					},
 					{
 						"name": "CspCryptoSource",
 						"kind": "type",
+<<<<<<< HEAD
 						"typeSignature": "`nonce-${string}` | `sha256-${string}` | `sha384-${string}` | `sha512-${string}`",
 						"sourceLine": 521
+||||||| 6a307d4d
+						"source_line": 521,
+						"type_signature": "`nonce-${string}` | `sha256-${string}` | `sha384-${string}` | `sha512-${string}`"
+=======
+						"source_line": 518,
+						"type_signature": "`nonce-${string}` | `sha256-${string}` | `sha384-${string}` | `sha512-${string}`"
+>>>>>>> main
 					},
 					{
 						"name": "CspFrameSource",
 						"kind": "type",
+<<<<<<< HEAD
 						"typeSignature": "CspFrameSource",
 						"sourceLine": 522
+||||||| 6a307d4d
+						"source_line": 522,
+						"type_signature": "CspFrameSource"
+=======
+						"source_line": 519,
+						"type_signature": "CspFrameSource"
+>>>>>>> main
 					},
 					{
 						"name": "CspHostNameScheme",
 						"kind": "type",
+<<<<<<< HEAD
 						"typeSignature": "CspHostNameScheme",
 						"sourceLine": 523
+||||||| 6a307d4d
+						"source_line": 523,
+						"type_signature": "CspHostNameScheme"
+=======
+						"source_line": 520,
+						"type_signature": "CspHostNameScheme"
+>>>>>>> main
 					},
 					{
 						"name": "CspHostSource",
 						"kind": "type",
+<<<<<<< HEAD
 						"typeSignature": "`${string}.${string}` | \"localhost\" | `${string}.${string}:${number}` | `${string}.${string}:*` | `localhost:${number}` | \"localhost:*\" | `${string}://${string}.${string}` | `${string}://${string}.${string}:${number}` | `${string}://${string}.${string}:*` | `${string}://localhost` | `${string}://localhost:${number}`...",
 						"sourceLine": 524
+||||||| 6a307d4d
+						"source_line": 524,
+						"type_signature": "`${string}.${string}` | \"localhost\" | `${string}.${string}:${number}` | `${string}.${string}:*` | `localhost:${number}` | \"localhost:*\" | `${string}://${string}.${string}` | `${string}://${string}.${string}:${number}` | `${string}://${string}.${string}:*` | `${string}://localhost` | `${string}://localhost:${number}`..."
+=======
+						"source_line": 521,
+						"type_signature": "`${string}.${string}` | \"localhost\" | `${string}.${string}:${number}` | `${string}.${string}:*` | `localhost:${number}` | \"localhost:*\" | `${string}://${string}.${string}` | `${string}://${string}.${string}:${number}` | `${string}://${string}.${string}:*` | `${string}://localhost` | `${string}://localhost:${number}`..."
+>>>>>>> main
 					},
 					{
 						"name": "CspHostProtocolSchemes",
 						"kind": "type",
+<<<<<<< HEAD
 						"typeSignature": "CspHostProtocolSchemes",
 						"sourceLine": 525
+||||||| 6a307d4d
+						"source_line": 525,
+						"type_signature": "CspHostProtocolSchemes"
+=======
+						"source_line": 522,
+						"type_signature": "CspHostProtocolSchemes"
+>>>>>>> main
 					},
 					{
 						"name": "CspPortScheme",
 						"kind": "type",
+<<<<<<< HEAD
 						"typeSignature": "CspPortScheme",
 						"sourceLine": 526
+||||||| 6a307d4d
+						"source_line": 526,
+						"type_signature": "CspPortScheme"
+=======
+						"source_line": 523,
+						"type_signature": "CspPortScheme"
+>>>>>>> main
 					},
 					{
 						"name": "CspSchemeSource",
 						"kind": "type",
+<<<<<<< HEAD
 						"typeSignature": "CspSchemeSource",
 						"sourceLine": 527
+||||||| 6a307d4d
+						"source_line": 527,
+						"type_signature": "CspSchemeSource"
+=======
+						"source_line": 524,
+						"type_signature": "CspSchemeSource"
+>>>>>>> main
 					},
 					{
 						"name": "CspSource",
 						"kind": "type",
+<<<<<<< HEAD
 						"typeSignature": "CspSource",
 						"sourceLine": 534
+||||||| 6a307d4d
+						"source_line": 534,
+						"type_signature": "CspSource"
+=======
+						"source_line": 531,
+						"type_signature": "CspSource"
+>>>>>>> main
 					},
 					{
 						"name": "CspSources",
 						"kind": "type",
+<<<<<<< HEAD
 						"typeSignature": "CspSources",
 						"sourceLine": 535
+||||||| 6a307d4d
+						"source_line": 535,
+						"type_signature": "CspSources"
+=======
+						"source_line": 532,
+						"type_signature": "CspSources"
+>>>>>>> main
 					},
 					{
 						"name": "CspDirectives",
+<<<<<<< HEAD
 						"kind": "interface",
 						"typeSignature": "CspDirectives",
 						"sourceLine": 537,
 						"members": [
+||||||| 6a307d4d
+						"kind": "type",
+						"source_line": 537,
+						"type_signature": "CspDirectives",
+						"properties": [
+=======
+						"kind": "type",
+						"source_line": 534,
+						"type_signature": "CspDirectives",
+						"properties": [
+>>>>>>> main
 							{
 								"name": "sandbox",
 								"kind": "variable",
@@ -6149,13 +6473,25 @@
 					{
 						"name": "library_generate_output",
 						"kind": "function",
+<<<<<<< HEAD
 						"docComment": "Generate the `library.json` and `library.ts` file contents.\nParses at generation time so runtime only needs the pre-computed result.\n\nReturns JSON + .ts wrapper because:\n- JSON is natively importable by Node.js and Vite without TypeScript loaders\n- Works in CI environments that don't have TS compilation\n- The .ts wrapper validates with zod and exports with proper types\n  (JSON imports get widened types like `string` instead of literal unions)",
 						"typeSignature": "(package_json: { [x: string]: unknown; name: string; version: string; private?: boolean | undefined; description?: string | undefined; tagline?: string | undefined; glyph?: string | undefined; logo?: string | undefined; ... 23 more ...; exports?: string | ... 2 more ... | undefined; }, source_json: { ...; }): LibraryOutputResult",
 						"sourceLine": 40,
+||||||| 6a307d4d
+						"doc_comment": "Generate the `library.json` and `library.ts` file contents.\nParses at generation time so runtime only needs the pre-computed result.\n\nReturns JSON + .ts wrapper because:\n- JSON is natively importable by Node.js and Vite without TypeScript loaders\n- Works in CI environments that don't have TS compilation\n- The .ts wrapper validates with zod and exports with proper types\n  (JSON imports get widened types like `string` instead of literal unions)",
+						"source_line": 38,
+						"type_signature": "(package_json: { [x: string]: unknown; name: string; version: string; private?: boolean | undefined; description?: string | undefined; tagline?: string | undefined; glyph?: string | undefined; logo?: string | undefined; ... 23 more ...; exports?: string | ... 2 more ... | undefined; }, source_json: { ...; }): LibraryOutputResult",
+						"return_type": "LibraryOutputResult",
+=======
+						"doc_comment": "Generate the `library.json` and `library.ts` file contents.\nParses at generation time so runtime only needs the pre-computed result.\n\nReturns JSON + .ts wrapper because:\n- JSON is natively importable by Node.js and Vite without TypeScript loaders\n- Works in CI environments that don't have TS compilation\n- The .ts wrapper validates with zod and exports with proper types\n  (JSON imports get widened types like `string` instead of literal unions)",
+						"source_line": 38,
+						"type_signature": "(package_json: { [x: string]: unknown; name: string; version?: string | undefined; private?: boolean | undefined; description?: string | undefined; tagline?: string | undefined; glyph?: string | undefined; ... 24 more ...; exports?: string | ... 2 more ... | undefined; }, source_json: { ...; }): LibraryOutputResult",
+						"return_type": "LibraryOutputResult",
+>>>>>>> main
 						"parameters": [
 							{
 								"name": "package_json",
-								"type": "{ [x: string]: unknown; name: string; version: string; private?: boolean | undefined; description?: string | undefined; tagline?: string | undefined; glyph?: string | undefined; logo?: string | undefined; ... 23 more ...; exports?: string | ... 2 more ... | undefined; }"
+								"type": "{ [x: string]: unknown; name: string; version?: string | undefined; private?: boolean | undefined; description?: string | undefined; tagline?: string | undefined; glyph?: string | undefined; logo?: string | undefined; ... 23 more ...; exports?: string | ... 2 more ... | undefined; }"
 							},
 							{
 								"name": "source_json",
@@ -12874,13 +13210,27 @@
 					{
 						"name": "package_is_published",
 						"kind": "function",
+<<<<<<< HEAD
 						"docComment": "Check if a package is published to npm.\n\nA package is considered published if:\n- It's not marked as private\n- It has exports defined\n- Its version is not the initial '0.0.1'",
 						"typeSignature": "(package_json: { [x: string]: unknown; name: string; version: string; private?: boolean | undefined; description?: string | undefined; tagline?: string | undefined; glyph?: string | undefined; logo?: string | undefined; ... 23 more ...; exports?: string | ... 2 more ... | undefined; }): boolean",
 						"sourceLine": 121,
+||||||| 6a307d4d
+						"doc_comment": "Check if a package is published to npm.\n\nA package is considered published if:\n- It's not marked as private\n- It has exports defined\n- Its version is not the initial '0.0.1'",
+						"source_line": 121,
+						"type_signature": "(package_json: { [x: string]: unknown; name: string; version: string; private?: boolean | undefined; description?: string | undefined; tagline?: string | undefined; glyph?: string | undefined; logo?: string | undefined; ... 23 more ...; exports?: string | ... 2 more ... | undefined; }): boolean",
+						"return_type": "boolean",
+						"return_description": "`true` if the package appears to be published",
+=======
+						"doc_comment": "Check if a package is published to npm.\n\nA package is considered published if:\n- It's not marked as private\n- It has exports defined\n- Its version is not the initial '0.0.1'",
+						"source_line": 121,
+						"type_signature": "(package_json: { [x: string]: unknown; name: string; version?: string | undefined; private?: boolean | undefined; description?: string | undefined; tagline?: string | undefined; glyph?: string | undefined; ... 24 more ...; exports?: string | ... 2 more ... | undefined; }): boolean",
+						"return_type": "boolean",
+						"return_description": "`true` if the package appears to be published",
+>>>>>>> main
 						"parameters": [
 							{
 								"name": "package_json",
-								"type": "{ [x: string]: unknown; name: string; version: string; private?: boolean | undefined; description?: string | undefined; tagline?: string | undefined; glyph?: string | undefined; logo?: string | undefined; ... 23 more ...; exports?: string | ... 2 more ... | undefined; }",
+								"type": "{ [x: string]: unknown; name: string; version?: string | undefined; private?: boolean | undefined; description?: string | undefined; tagline?: string | undefined; glyph?: string | undefined; logo?: string | undefined; ... 23 more ...; exports?: string | ... 2 more ... | undefined; }",
 								"description": "the `package.json` object to check"
 							}
 						],

@@ -56,12 +56,12 @@ export const create_shared_rendering_tests = (
 
 			const {container} = mounted;
 
-			const layout = container.querySelector('.contextmenu_layout');
+			const layout = container.querySelector('.contextmenu-layout');
 			assert.ok(layout);
 			assert.strictEqual(layout.getAttribute('aria-hidden'), 'true');
 		});
 
-		test('contextmenu_layout not rendered with custom layout', () => {
+		test('contextmenu-layout not rendered with custom layout', () => {
 			const custom_layout = {width: 800, height: 600};
 			const cm = new ContextmenuState({layout: custom_layout});
 
@@ -69,7 +69,7 @@ export const create_shared_rendering_tests = (
 
 			const {container} = mounted;
 
-			const layout = container.querySelector('.contextmenu_layout');
+			const layout = container.querySelector('.contextmenu-layout');
 			assert.strictEqual(layout, null);
 		});
 	});

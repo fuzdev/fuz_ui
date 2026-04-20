@@ -31,7 +31,7 @@
 	bind:this={el}
 	type="button"
 	{...rest}
-	class="pending_button {rest.class}"
+	class="pending-button {rest.class}"
 	disabled={disabled_prop ?? pending}
 	title={title_prop}
 	class:pending

@@ -61,8 +61,10 @@ export const assert_source_in_directive = (
 	message?: string,
 ): void => {
 	const directive_value = csp[directive];
-	assert.ok(
-		Array.isArray(directive_value) && (directive_value as Array<any>).includes(source),
+	assert.isArray(directive_value, message || `${directive} should be an array`);
+	assert.include(
+		directive_value as Array<any>,
+		source,
 		message || `${source} should be in ${directive}`,
 	);
 };
@@ -77,10 +79,13 @@ export const assert_source_not_in_directive = (
 	message?: string,
 ): void => {
 	const directive_value = csp[directive];
-	assert.ok(
-		!Array.isArray(directive_value) || !(directive_value as Array<any>).includes(source),
-		message || `${source} should not be in ${directive}`,
-	);
+	if (Array.isArray(directive_value)) {
+		assert.notInclude(
+			directive_value as Array<any>,
+			source,
+			message || `${source} should not be in ${directive}`,
+		);
+	}
 };
 
 /**
@@ -91,7 +96,7 @@ export const assert_directive_exists = (
 	directive: CspDirective,
 	message?: string,
 ): void => {
-	assert.ok(directive in csp, message || `${directive} should exist in CSP`);
+	assert.property(csp, directive, message || `${directive} should exist in CSP`);
 };
 
 /**
@@ -102,7 +107,7 @@ export const assert_directive_not_exists = (
 	directive: CspDirective,
 	message?: string,
 ): void => {
-	assert.ok(!(directive in csp), message || `${directive} should not exist in CSP`);
+	assert.notProperty(csp, directive, message || `${directive} should not exist in CSP`);
 };
 
 /**

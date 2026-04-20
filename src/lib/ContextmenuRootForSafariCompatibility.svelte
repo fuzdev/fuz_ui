@@ -159,19 +159,19 @@
 	let block_next_click = $state.raw(false);
 
 	/**
-	 * Adds contextmenu_pending class to body during longpress tracking.
+	 * Adds contextmenu-pending class to body during longpress tracking.
 	 * This applies aggressive user-select/touch-callout blocking via CSS
 	 * to give iOS the earliest possible signal to not show selection UI.
 	 */
 	const add_contextmenu_pending_class = (): void => {
-		document.body.classList.add('contextmenu_pending');
+		document.body.classList.add('contextmenu-pending');
 	};
 
 	/**
-	 * Removes contextmenu_pending class from body when tracking ends.
+	 * Removes contextmenu-pending class from body when tracking ends.
 	 */
 	const remove_contextmenu_pending_class = (): void => {
-		document.body.classList.remove('contextmenu_pending');
+		document.body.classList.remove('contextmenu-pending');
 	};
 
 	/**
@@ -206,7 +206,7 @@
 	 * Resets all state - both longpress and tap tracking.
 	 */
 	const reset_all = (): void => {
-		reset_longpress_timeout(); // Also removes contextmenu_pending class
+		reset_longpress_timeout(); // Also removes contextmenu-pending class
 		reset_tap_tracking();
 	};
 
@@ -419,7 +419,7 @@
 
 {#if scoped}
 	<div
-		class="contextmenu_root"
+		class="contextmenu-root"
 		role="region"
 		oncontextmenu={on_window_contextmenu}
 		{@attach touch_event_attachment}
@@ -432,7 +432,7 @@
 
 {#if !contextmenu.has_custom_layout}
 	<div
-		class="contextmenu_layout"
+		class="contextmenu-layout"
 		bind:clientWidth={layout.width}
 		bind:clientHeight={layout.height}
 		aria-hidden="true"
@@ -487,7 +487,7 @@
 {/snippet}
 
 <style>
-	:global(body.contextmenu_pending) {
+	:global(body.contextmenu-pending) {
 		/* Applied during active longpress tracking.
 		   Aggressive blocking to give iOS earliest possible signal to not show selection UI.
 		   Combined with preventDefault() in touchmove for defense in depth. */
@@ -496,7 +496,7 @@
 		-webkit-touch-callout: none !important;
 	}
 
-	.contextmenu_root {
+	.contextmenu-root {
 		display: contents;
 	}
 	.contextmenu {
@@ -525,7 +525,7 @@
 	}
 
 	/* TODO better way to do this? */
-	.contextmenu_layout {
+	.contextmenu-layout {
 		z-index: -200;
 		position: fixed;
 		inset: 0;
