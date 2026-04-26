@@ -1,12 +1,11 @@
 import {test, assert, describe} from 'vitest';
+import {throwOnDuplicates, type DuplicateDeclaration} from 'svelte-docinfo';
 
 import {
 	source_file_from_disknode,
 	library_collect_source_files_from_disknodes,
 } from '$lib/library_gen.js';
-import type {DuplicateInfo} from '$lib/library_pipeline.js';
 import {TEST_PROJECT_ROOT, create_test_source_options} from './module_test_helpers.js';
-import {library_throw_on_duplicates} from '$lib/library_generate.js';
 
 /**
  * Create a mock Disknode for testing.
@@ -182,127 +181,117 @@ const create_mock_log = () => {
 };
 
 /**
- * Create a DuplicateInfo for testing.
+ * Create a DuplicateDeclaration for testing.
  */
-const create_duplicate_info = (
+const create_duplicate_declaration = (
 	name: string,
 	module: string,
 	kind: string = 'function',
-	source_line?: number,
-): DuplicateInfo => ({
+	sourceLine?: number,
+): DuplicateDeclaration => ({
 	declaration: {
 		name,
 		kind: kind as any,
-		signature: `${kind} ${name}`,
-		source_line,
-	},
+		typeSignature: `${kind} ${name}`,
+		sourceLine,
+	} as any,
 	module,
 });
 
-describe('library_throw_on_duplicates', () => {
+describe('throwOnDuplicates', () => {
 	test('does nothing when duplicates map is empty', () => {
 		const log = create_mock_log();
-		const duplicates: Map<string, Array<DuplicateInfo>> = new Map();
+		const duplicates: Map<string, Array<DuplicateDeclaration>> = new Map();
 
 		// Should not throw
-		library_throw_on_duplicates(duplicates, log);
+		throwOnDuplicates(duplicates, log);
 
 		assert.strictEqual(log.errors.length, 0);
 	});
 
 	test('throws when duplicates exist', () => {
 		const log = create_mock_log();
-		const duplicates: Map<string, Array<DuplicateInfo>> = new Map([
+		const duplicates: Map<string, Array<DuplicateDeclaration>> = new Map([
 			[
 				'helper',
 				[
-					create_duplicate_info('helper', 'utils.ts', 'function', 10),
-					create_duplicate_info('helper', 'helpers.ts', 'function', 20),
+					create_duplicate_declaration('helper', 'utils.ts', 'function', 10),
+					create_duplicate_declaration('helper', 'helpers.ts', 'function', 20),
 				],
 			],
 		]);
 
-		assert.throws(
-			() => library_throw_on_duplicates(duplicates, log),
-			/1 duplicate declaration name/,
-		);
+		assert.throws(() => throwOnDuplicates(duplicates, log), /1 duplicate declaration name/);
 	});
 
 	test('error message pluralizes correctly for multiple duplicates', () => {
 		const log = create_mock_log();
-		const duplicates: Map<string, Array<DuplicateInfo>> = new Map([
-			['foo', [create_duplicate_info('foo', 'a.ts'), create_duplicate_info('foo', 'b.ts')]],
-			['bar', [create_duplicate_info('bar', 'c.ts'), create_duplicate_info('bar', 'd.ts')]],
+		const duplicates: Map<string, Array<DuplicateDeclaration>> = new Map([
+			['foo', [create_duplicate_declaration('foo', 'a.ts'), create_duplicate_declaration('foo', 'b.ts')]],
+			['bar', [create_duplicate_declaration('bar', 'c.ts'), create_duplicate_declaration('bar', 'd.ts')]],
 		]);
 
-		assert.throws(
-			() => library_throw_on_duplicates(duplicates, log),
-			/2 duplicate declaration names/,
-		);
+		assert.throws(() => throwOnDuplicates(duplicates, log), /2 duplicate declaration names/);
 	});
 
-	test('logs each duplicate with locations', () => {
+	test('error message includes duplicate details with locations', () => {
 		const log = create_mock_log();
-		const duplicates: Map<string, Array<DuplicateInfo>> = new Map([
+		const duplicates: Map<string, Array<DuplicateDeclaration>> = new Map([
 			[
 				'Config',
 				[
-					create_duplicate_info('Config', 'config.ts', 'type', 5),
-					create_duplicate_info('Config', 'settings.ts', 'interface', 15),
+					create_duplicate_declaration('Config', 'config.ts', 'type', 5),
+					create_duplicate_declaration('Config', 'settings.ts', 'interface', 15),
 				],
 			],
 		]);
 
 		try {
-			library_throw_on_duplicates(duplicates, log);
-		} catch (_error) {
-			// expected
+			throwOnDuplicates(duplicates, log);
+			assert.fail('should have thrown');
+		} catch (e) {
+			const message = (e as Error).message;
+			// Error message includes all details
+			assert.include(message, 'Config');
+			assert.include(message, 'config.ts:5');
+			assert.include(message, 'settings.ts:15');
+			assert.include(message, 'type');
+			assert.include(message, 'interface');
 		}
-
-		// Should have logged the header and details
-		assert.ok(log.errors.length >= 3, 'should log header and at least 2 locations');
-
-		// Check that module paths and line numbers appear in logs
-		const all_logged = log.errors.map((args) => args.join(' ')).join('\n');
-		assert.include(all_logged, 'Config');
-		assert.include(all_logged, 'config.ts:5');
-		assert.include(all_logged, 'settings.ts:15');
-		assert.include(all_logged, 'type');
-		assert.include(all_logged, 'interface');
 	});
 
-	test('handles declarations without source_line', () => {
+	test('handles declarations without sourceLine', () => {
 		const log = create_mock_log();
-		const duplicates: Map<string, Array<DuplicateInfo>> = new Map([
+		const duplicates: Map<string, Array<DuplicateDeclaration>> = new Map([
 			[
 				'helper',
 				[
-					create_duplicate_info('helper', 'a.ts', 'function', undefined),
-					create_duplicate_info('helper', 'b.ts', 'function', 10),
+					create_duplicate_declaration('helper', 'a.ts', 'function', undefined),
+					create_duplicate_declaration('helper', 'b.ts', 'function', 10),
 				],
 			],
 		]);
 
 		try {
-			library_throw_on_duplicates(duplicates, log);
-		} catch (_error) {
-			// expected
+			throwOnDuplicates(duplicates, log);
+			assert.fail('should have thrown');
+		} catch (e) {
+			const message = (e as Error).message;
+			// a.ts should appear without line number, b.ts:10 with
+			assert.include(message, 'a.ts');
+			assert.include(message, 'b.ts:10');
+			assert.include(message, 'function');
 		}
-
-		const all_logged = log.errors.map((args) => args.join(' ')).join('\n');
-		// a.ts should appear without line number, b.ts:10 with
-		assert.include(all_logged, 'a.ts (function)');
-		assert.include(all_logged, 'b.ts:10 (function)');
 	});
 
 	test('error message includes resolution guidance', () => {
 		const log = create_mock_log();
-		const duplicates: Map<string, Array<DuplicateInfo>> = new Map([
-			['x', [create_duplicate_info('x', 'a.ts'), create_duplicate_info('x', 'b.ts')]],
+		const duplicates: Map<string, Array<DuplicateDeclaration>> = new Map([
+			['x', [create_duplicate_declaration('x', 'a.ts'), create_duplicate_declaration('x', 'b.ts')]],
 		]);
 
 		try {
-			library_throw_on_duplicates(duplicates, log);
+			throwOnDuplicates(duplicates, log);
 			assert.fail('should have thrown');
 		} catch (e) {
 			const message = (e as Error).message;

@@ -1,3 +1,14 @@
+<!--
+@component
+
+Renders the full detail view for an exported declaration.
+Handles all svelte-docinfo declaration kinds (function, class, interface,
+type, variable, enum, component, snippet) and their kind-specific fields
+including parameters, props, members, overloads, intersects, and more.
+
+@see `declaration.svelte.ts` for the `Declaration` wrapper class
+@see {@link https://github.com/ryanatkn/svelte-docinfo svelte-docinfo} for the analysis library
+-->
 <script lang="ts">
 	import Code from '@fuzdev/fuz_code/Code.svelte';
 
@@ -19,10 +30,26 @@
 	{/if}
 </p>
 
+<!-- chips -->
+<div class="row gap_md">
+	<!-- eslint-disable-next-line @typescript-eslint/no-deprecated -->
+	{#if declaration.is_deprecated}
+		<span class="chip">⚠️ deprecated</span>
+	{/if}
+	{#if declaration.accepts_children}
+		<span class="chip">accepts children</span>
+	{/if}
+	{#if declaration.alias_of}
+		<span class="chip"
+			>alias of {declaration.alias_of.name}{#if declaration.alias_of.module}
+				in {declaration.alias_of.module}{/if}</span
+		>
+	{/if}
+</div>
+
 <!-- eslint-disable-next-line @typescript-eslint/no-deprecated -->
-{#if declaration.is_deprecated}
+{#if declaration.deprecated_message}
 	<p>
-		<strong>⚠️ deprecated:</strong>
 		<!-- eslint-disable-next-line @typescript-eslint/no-deprecated -->
 		{declaration.deprecated_message}
 	</p>
@@ -55,14 +82,14 @@
 					<strong>type</strong>
 					<TypeLink type={param.type} />
 				</div>
-				{#if param.optional || param.default_value}
+				{#if param.optional || param.defaultValue}
 					<div class="row gap_md">
 						{#if param.optional}
 							<span class="chip">optional</span>
 						{/if}
-						{#if param.default_value}
+						{#if param.defaultValue}
 							<strong>default</strong>
-							<Code lang="ts" content={param.default_value} />
+							<Code lang="ts" content={param.defaultValue} />
 						{/if}
 					</div>
 				{/if}
@@ -88,7 +115,7 @@
 					<strong>type</strong>
 					<TypeLink type={prop.type} />
 				</div>
-				{#if prop.optional || prop.bindable || prop.default_value}
+				{#if prop.optional || prop.bindable || prop.defaultValue}
 					<div class="row gap_md">
 						{#if prop.optional}
 							<span class="chip">optional</span>
@@ -96,14 +123,73 @@
 						{#if prop.bindable}
 							<span class="chip">bindable</span>
 						{/if}
-						{#if prop.default_value}
+						{#if prop.defaultValue}
 							<strong>default</strong>
-							<Code lang="ts" content={prop.default_value} />
+							<Code lang="ts" content={prop.defaultValue} />
 						{/if}
 					</div>
 				{/if}
+				{#if prop.parameters?.length}
+					<section>
+						<h5>snippet parameters</h5>
+						{#each prop.parameters as param (param)}
+							<div class="row gap_md">
+								<code
+									>{param.name}{#if param.optional}?{/if}</code
+								>
+								<TypeLink type={param.type} />
+							</div>
+						{/each}
+					</section>
+				{/if}
 			</section>
 		{/each}
+	</section>
+{/if}
+
+<!-- overloads -->
+{#if declaration.overloads?.length}
+	<section>
+		<h4>overloads</h4>
+		{#each declaration.overloads as overload, i (i)}
+			<section>
+				<Code lang="ts" content={overload.typeSignature} />
+				{#if overload.docComment}
+					<Mdz content={overload.docComment} />
+				{/if}
+				{#if overload.parameters?.length}
+					{#each overload.parameters as param (param)}
+						<div class="row gap_md">
+							<code
+								>{param.name}{#if param.optional}?{/if}</code
+							>
+							<TypeLink type={param.type} />
+						</div>
+					{/each}
+				{/if}
+				{#if overload.returnType}
+					<div class="row gap_md">
+						<strong>returns</strong>
+						<TypeLink type={overload.returnType} />
+					</div>
+					{#if overload.returnDescription}
+						<Mdz content={overload.returnDescription} />
+					{/if}
+				{/if}
+			</section>
+		{/each}
+	</section>
+{/if}
+
+<!-- intersects (component/type intersection types) -->
+{#if declaration.intersects?.length}
+	<section>
+		<h4>intersects</h4>
+		<ul>
+			{#each declaration.intersects as type (type)}
+				<li><TypeLink {type} /></li>
+			{/each}
+		</ul>
 	</section>
 {/if}
 
@@ -131,10 +217,10 @@
 						<TypeLink type={generic.constraint} />
 					</div>
 				{/if}
-				{#if generic.default_type}
+				{#if generic.defaultType}
 					<div class="row gap_md">
 						<strong>default</strong>
-						<TypeLink type={generic.default_type} />
+						<TypeLink type={generic.defaultType} />
 					</div>
 				{/if}
 			</section>
@@ -143,24 +229,28 @@
 {/if}
 
 <!-- Extends/Implements -->
-{#if declaration.extends?.length || declaration.implements?.length}
+{#if declaration.extends_type || declaration.implements_types?.length}
 	<section>
 		<h4>inheritance</h4>
-		{#if declaration.extends?.length}
+		{#if declaration.extends_type}
 			<div>
 				<strong>extends:</strong>
-				<ul>
-					{#each declaration.extends as ext (ext)}
-						<li><TypeLink type={ext} /></li>
-					{/each}
-				</ul>
+				{#if Array.isArray(declaration.extends_type)}
+					<ul>
+						{#each declaration.extends_type as ext (ext)}
+							<li><TypeLink type={ext} /></li>
+						{/each}
+					</ul>
+				{:else}
+					<TypeLink type={declaration.extends_type} />
+				{/if}
 			</div>
 		{/if}
-		{#if declaration.implements?.length}
+		{#if declaration.implements_types?.length}
 			<div>
 				<strong>implements:</strong>
 				<ul>
-					{#each declaration.implements as impl (impl)}
+					{#each declaration.implements_types as impl (impl)}
 						<li><TypeLink type={impl} /></li>
 					{/each}
 				</ul>
@@ -182,6 +272,18 @@
 						{thrown.description}
 					{/if}
 				</li>
+			{/each}
+		</ul>
+	</section>
+{/if}
+
+<!-- mutates -->
+{#if declaration.mutates && Object.keys(declaration.mutates).length}
+	<section>
+		<h4>mutates</h4>
+		<ul>
+			{#each Object.entries(declaration.mutates) as [param, description] (param)}
+				<li><code>{param}</code> — {description}</li>
 			{/each}
 		</ul>
 	</section>
@@ -219,22 +321,22 @@
 	</section>
 {/if}
 
-<!-- members (for classes) -->
+<!-- members (classes, interfaces, types, enums) -->
 {#if declaration.members?.length}
 	<section>
 		{#each declaration.members as member (member)}
 			<section>
 				<h4><code>{member.name}</code></h4>
-				{#if member.doc_comment}
-					<Mdz content={member.doc_comment} />
+				{#if member.docComment}
+					<Mdz content={member.docComment} />
 				{/if}
-				{#if member.type_signature}
+				{#if member.typeSignature}
 					<p class="row gap_md">
 						<strong>type</strong>
 						<TypeLink
 							type={member.kind === 'constructor'
-								? `new ${member.type_signature}`
-								: member.type_signature}
+								? `new ${member.typeSignature}`
+								: member.typeSignature}
 						/>
 					</p>
 				{/if}
@@ -246,7 +348,7 @@
 					</div>
 				{/if}
 				<!-- parameters for methods and constructors -->
-				{#if member.parameters?.length}
+				{#if (member.kind === 'function' || member.kind === 'constructor') && member.parameters?.length}
 					<section>
 						{#each member.parameters as param (param)}
 							<section>
@@ -262,14 +364,14 @@
 									<strong>type</strong>
 									<TypeLink type={param.type} />
 								</div>
-								{#if param.optional || param.default_value}
+								{#if param.optional || param.defaultValue}
 									<div class="row gap_md">
 										{#if param.optional}
 											<span class="chip">optional</span>
 										{/if}
-										{#if param.default_value}
+										{#if param.defaultValue}
 											<strong>default</strong>
-											<Code lang="ts" content={param.default_value} />
+											<Code lang="ts" content={param.defaultValue} />
 										{/if}
 									</div>
 								{/if}
@@ -278,13 +380,13 @@
 					</section>
 				{/if}
 				<!-- return type for methods -->
-				{#if member.return_type}
+				{#if member.kind === 'function' && member.returnType}
 					<div class="row gap_md">
 						<strong>returns</strong>
-						<TypeLink type={member.return_type} />
+						<TypeLink type={member.returnType} />
 					</div>
-					{#if member.return_description}
-						<Mdz content={member.return_description} />
+					{#if member.returnDescription}
+						<Mdz content={member.returnDescription} />
 					{/if}
 				{/if}
 				<!-- throws for methods and constructors -->
@@ -302,33 +404,6 @@
 								</li>
 							{/each}
 						</ul>
-					</div>
-				{/if}
-			</section>
-		{/each}
-	</section>
-{/if}
-
-<!-- properties (for types/interfaces) -->
-{#if declaration.properties?.length}
-	<section>
-		{#each declaration.properties as prop (prop)}
-			<section>
-				<h4><code>{prop.name}</code></h4>
-				{#if prop.doc_comment}
-					<Mdz content={prop.doc_comment} />
-				{/if}
-				{#if prop.type_signature}
-					<div class="row gap_md mt_lg">
-						<strong>type</strong>
-						<TypeLink type={prop.type_signature} />
-					</div>
-				{/if}
-				{#if prop.modifiers?.length}
-					<div class="row gap_md mt_lg">
-						{#each prop.modifiers as modifier (modifier)}
-							<span class="chip">{modifier}</span>
-						{/each}
 					</div>
 				{/if}
 			</section>

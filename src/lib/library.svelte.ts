@@ -62,7 +62,7 @@ export class Library {
 	 */
 	readonly modules = $derived(
 		this.source_json.modules
-			? this.source_json.modules.map((module_json) => new Module(this, module_json))
+			? this.source_json.modules.map((module_json) => new Module(this, module_json as any)) // TODO: remove cast when fuz_util SourceJson uses svelte-docinfo types
 			: [],
 	);
 

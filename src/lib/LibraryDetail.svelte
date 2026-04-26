@@ -1,3 +1,12 @@
+<!--
+@component
+
+Renders library metadata (name, description, links, license) and a module index
+with file-type coloring. Uses svelte-docinfo's file type predicates for module classification.
+
+@see `library.svelte.ts` for the `Library` wrapper class
+@see {@link https://github.com/ryanatkn/svelte-docinfo svelte-docinfo} for the analysis library
+-->
 <script lang="ts">
 	import {page} from '$app/state';
 	import {format_url} from '@fuzdev/fuz_util/url.js';
@@ -8,12 +17,7 @@
 	import DeclarationLink from './DeclarationLink.svelte';
 	import ModuleLink from './ModuleLink.svelte';
 	import {url_github_file, repo_url_parse, url_well_known} from './package_helpers.js';
-	import {
-		module_is_typescript,
-		module_is_svelte,
-		module_is_css,
-		module_is_json,
-	} from './module_helpers.js';
+	import {isTypescript, isSvelte, isCss, isJson} from 'svelte-docinfo/source.js';
 
 	const {
 		library,
@@ -170,10 +174,10 @@
 					<!-- TODO improve rendering and enrich data - start with the type (not just extension - mime?) -->
 					<li
 						class="module"
-						class:ts={module_is_typescript(module.path)}
-						class:svelte={module_is_svelte(module.path)}
-						class:css={module_is_css(module.path)}
-						class:json={module_is_json(module.path)}
+						class:ts={isTypescript(module.path)}
+						class:svelte={isSvelte(module.path)}
+						class:css={isCss(module.path)}
+						class:json={isJson(module.path)}
 					>
 						<div class="module-content">
 							<span class="font_size_xl">

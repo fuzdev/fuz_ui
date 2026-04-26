@@ -1,4 +1,4 @@
-import type {ModuleJson} from '@fuzdev/fuz_util/source_json.js';
+import type {ModuleJson} from 'svelte-docinfo/types.js';
 
 import {Declaration} from './declaration.svelte.js';
 import type {Library} from './library.svelte.js';
@@ -6,13 +6,27 @@ import {url_github_file} from './package_helpers.js';
 
 /**
  * Rich runtime representation of a module with computed properties.
+ *
+ * Wraps svelte-docinfo's `ModuleJson` with reactive derivations,
+ * URL generation, and `Declaration` instances.
+ *
+ * @see {@link https://github.com/ryanatkn/svelte-docinfo svelte-docinfo} for the analysis library
+ * @see `declaration.svelte.ts` for the `Declaration` wrapper class
  */
 export class Module {
 	readonly library: Library = $state.raw()!;
 	readonly module_json: ModuleJson = $state.raw()!;
 
 	/**
-	 * Canonical module path (e.g., 'Alert.ts', 'helpers/foo.ts').
+	 * Canonical module path — `src/lib/`-relative, with source extension
+	 * (`.ts`, `.svelte`, etc.). Examples: `'Alert.ts'`, `'helpers/foo.ts'`,
+	 * `'actions/composables.ts'`.
+	 *
+	 * This is the key `Library.module_by_path` indexes, so it's also the
+	 * exact string TSDoc backtick references must use to auto-link to a
+	 * module via `DocsLink.svelte` (e.g., `` `actions/composables.ts` ``).
+	 * A leading `./` or a `.js` runtime extension will not match. Top-level
+	 * files match by bare filename; nested files require the full sub-path.
 	 */
 	path = $derived(this.module_json.path);
 
@@ -21,7 +35,7 @@ export class Module {
 	 */
 	path_import = $derived('./' + this.path);
 
-	module_comment = $derived(this.module_json.module_comment);
+	module_comment = $derived(this.module_json.moduleComment);
 
 	/**
 	 * Array of `Declaration` instances. Filters out default exports.
@@ -52,7 +66,7 @@ export class Module {
 		!!(this.module_json.declarations && this.module_json.declarations.length > 0),
 	);
 
-	has_module_comment: boolean = $derived(!!this.module_json.module_comment);
+	has_module_comment: boolean = $derived(!!this.module_comment);
 
 	/**
 	 * Modules this imports (paths relative to src/lib).
