@@ -18,7 +18,15 @@ export class Module {
 	readonly module_json: ModuleJson = $state.raw()!;
 
 	/**
-	 * Canonical module path (e.g., 'Alert.ts', 'helpers/foo.ts').
+	 * Canonical module path — `src/lib/`-relative, with source extension
+	 * (`.ts`, `.svelte`, etc.). Examples: `'Alert.ts'`, `'helpers/foo.ts'`,
+	 * `'actions/composables.ts'`.
+	 *
+	 * This is the key `Library.module_by_path` indexes, so it's also the
+	 * exact string TSDoc backtick references must use to auto-link to a
+	 * module via `DocsLink.svelte` (e.g., `` `actions/composables.ts` ``).
+	 * A leading `./` or a `.js` runtime extension will not match. Top-level
+	 * files match by bare filename; nested files require the full sub-path.
 	 */
 	path = $derived(this.module_json.path);
 
