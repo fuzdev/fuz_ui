@@ -10,8 +10,8 @@ import {
 
 const {TRUSTED, TRUSTED_2} = TEST_SOURCES;
 
-describe('directives option — replace per directive', () => {
-	test('replaces the value, ignoring base and extend', () => {
+describe('overrides option — replace per directive', () => {
+	test('replaces the value, ignoring replace_defaults and extend', () => {
 		const csp = create_csp_directives({
 			extend: [{'script-src': [TRUSTED as any]}],
 			overrides: {
@@ -24,7 +24,7 @@ describe('directives option — replace per directive', () => {
 			csp,
 			'script-src',
 			TRUSTED,
-			'extend output is replaced by directives override',
+			'extend output is replaced by overrides',
 		);
 	});
 
@@ -79,7 +79,7 @@ describe('directives option — replace per directive', () => {
 	});
 });
 
-describe('directives option — null removes', () => {
+describe('overrides option — null removes', () => {
 	test('null removes the directive from output', () => {
 		const csp = create_csp_directives({
 			overrides: {
@@ -114,7 +114,7 @@ describe('directives option — null removes', () => {
 	});
 });
 
-describe('directives option — validation', () => {
+describe('overrides option — validation', () => {
 	test('throws on unknown directive key', () => {
 		assert.throws(
 			() =>
@@ -126,8 +126,8 @@ describe('directives option — validation', () => {
 	});
 });
 
-describe('precedence: base → extend → directives', () => {
-	test('full pipeline: base sets, extend appends, directives replaces', () => {
+describe('precedence: replace_defaults → extend → overrides', () => {
+	test('full pipeline: replace_defaults sets, extend appends, overrides replaces', () => {
 		const csp = create_csp_directives({
 			replace_defaults: {'connect-src': ['self']},
 			extend: [{'connect-src': [TRUSTED as any]}],
@@ -139,8 +139,8 @@ describe('precedence: base → extend → directives', () => {
 		assert.deepEqual(csp['connect-src'], ['self', TRUSTED_2]);
 	});
 
-	test('directives runs after extend even when extend would throw on `none`', () => {
-		// `directives` cannot rescue an `extend` on a `'none'` directive — extend runs first.
+	test('overrides runs after extend even when extend would throw on `none`', () => {
+		// `overrides` cannot rescue an `extend` on a `'none'` directive — extend runs first.
 		assert.throws(
 			() =>
 				create_csp_directives({
@@ -151,7 +151,7 @@ describe('precedence: base → extend → directives', () => {
 		);
 	});
 
-	test('directives can independently override a `none` base', () => {
+	test('overrides can independently replace a `none` default', () => {
 		const csp = create_csp_directives({
 			overrides: {'object-src': ['self', TRUSTED as any]},
 		});

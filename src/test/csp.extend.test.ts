@@ -58,7 +58,7 @@ describe('extend basic behavior', () => {
 		);
 	});
 
-	test('extending a directive not in base creates it', () => {
+	test('extending a directive not in replace_defaults creates it', () => {
 		const csp = create_csp_directives({
 			replace_defaults: {},
 			extend: [{'img-src': [TRUSTED as any]}],
@@ -162,7 +162,7 @@ describe('extend deduplication', () => {
 });
 
 describe('extend on `none` directives', () => {
-	test('throws when extending a directive whose base is [`none`]', () => {
+	test('throws when extending a directive whose current value is [`none`]', () => {
 		assert.throws(
 			() =>
 				create_csp_directives({
@@ -172,30 +172,31 @@ describe('extend on `none` directives', () => {
 		);
 	});
 
-	test('error message points to base/directives as the override path', () => {
+	test('error message points to replace_defaults/overrides as the opt-in path', () => {
 		assert.throws(
 			() =>
 				create_csp_directives({
 					extend: [{'default-src': [TRUSTED as any]}],
 				}),
-			/base.*default-src.*directives/s,
+			/replace_defaults.*default-src.*overrides/s,
 		);
 	});
 
-	test('throws even when directives would later replace `none` — extend runs first', () => {
-		// The extend stage sees the base ['none']; this throws even though
-		// directives would later replace it. Override via base instead.
+	test('error message explains that overrides cannot rescue extend', () => {
+		// The pipeline order means an `overrides` entry runs *after* extend, so it cannot
+		// pre-empt the ['none'] check. The error message must explain this so users don't
+		// keep trying to use `overrides` to fix it.
 		assert.throws(
 			() =>
 				create_csp_directives({
 					extend: [{'object-src': [TRUSTED as any]}],
 					overrides: {'object-src': null},
 				}),
-			/Cannot extend directive 'object-src'/,
+			/pipeline runs.*extend.*overrides.*cannot rescue/s,
 		);
 	});
 
-	test('overriding via `base` first then extending works', () => {
+	test('opting in via `replace_defaults` first then extending works', () => {
 		const csp = create_csp_directives({
 			replace_defaults: {
 				'object-src': ['self'],
@@ -239,8 +240,8 @@ describe('extend validation', () => {
 	});
 });
 
-describe('extend with custom base', () => {
-	test('extend works against a wholesale-replaced base', () => {
+describe('extend with custom replace_defaults', () => {
+	test('extend works against a wholesale-replaced replace_defaults', () => {
 		const csp = create_csp_directives({
 			replace_defaults: {'connect-src': ['self']},
 			extend: [{'connect-src': [TRUSTED as any]}],
@@ -250,7 +251,7 @@ describe('extend with custom base', () => {
 		assert_directive_not_exists(csp, 'script-src', 'no library default leaked through');
 	});
 
-	test('extend on a blank base produces only the extended values', () => {
+	test('extend on a blank replace_defaults produces only the extended values', () => {
 		const csp = create_csp_directives({
 			replace_defaults: null,
 			extend: [{'img-src': [TRUSTED as any]}],

@@ -10,7 +10,7 @@ import {
 const {GOOGLE_FONTS, GOOGLE_FONTS_STATIC, CLOUDFLARE_CDN, ANALYTICS, STRIPE} = TEST_SOURCES;
 
 describe('full pipeline integration', () => {
-	test('base + extend + directives compose correctly', () => {
+	test('replace_defaults + extend + overrides compose correctly', () => {
 		const csp = create_csp_directives({
 			replace_defaults: {
 				'default-src': ['none'],
@@ -34,7 +34,7 @@ describe('full pipeline integration', () => {
 		assert_source_in_directive(csp, 'script-src', ANALYTICS);
 		assert_source_in_directive(csp, 'script-src', COLOR_SCHEME_SCRIPT_HASH);
 
-		// directives override replaces extend output for connect-src
+		// overrides replaces extend output for connect-src
 		assert.deepEqual(csp['connect-src'], ['self', ANALYTICS]);
 
 		// img-src untouched
@@ -275,7 +275,7 @@ describe('maximum complexity scenario', () => {
 		assert_source_in_directive(csp, 'script-src', nonce);
 		assert_source_in_directive(csp, 'script-src', custom_hash);
 
-		// connect-src: directives override wins over extend
+		// connect-src: overrides wins over extend
 		assert.deepEqual(csp['connect-src'], ['self', ANALYTICS]);
 
 		// style-src: base + extend

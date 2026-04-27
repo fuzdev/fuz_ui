@@ -5,8 +5,8 @@ import {TEST_SOURCES, assert_directive_not_exists} from './csp_test_helpers.js';
 
 const {TRUSTED_2, TRUSTED_3, TRUSTED} = TEST_SOURCES;
 
-describe('base option — wholesale replace semantics', () => {
-	test('omitted base uses library defaults', () => {
+describe('replace_defaults option — wholesale replace semantics', () => {
+	test('omitted replace_defaults uses library defaults', () => {
 		const csp = create_csp_directives();
 
 		assert.deepEqual(csp['script-src'], ['self', 'wasm-unsafe-eval', COLOR_SCHEME_SCRIPT_HASH]);
@@ -14,7 +14,7 @@ describe('base option — wholesale replace semantics', () => {
 		assert.deepEqual(csp['default-src'], ['none']);
 	});
 
-	test('provided base replaces library defaults wholesale — no inheritance', () => {
+	test('provided replace_defaults replaces library defaults wholesale — no inheritance', () => {
 		const csp = create_csp_directives({
 			replace_defaults: {
 				'script-src': ['self', TRUSTED_2 as any],
@@ -66,7 +66,7 @@ describe('base option — wholesale replace semantics', () => {
 		assert.strictEqual(csp['upgrade-insecure-requests'], false);
 	});
 
-	test('multiple directives in base', () => {
+	test('multiple directives in replace_defaults', () => {
 		const csp = create_csp_directives({
 			replace_defaults: {
 				'script-src': ['self', TRUSTED_2 as any],
@@ -90,8 +90,8 @@ describe('base option — wholesale replace semantics', () => {
 	});
 });
 
-describe('base interaction with extend', () => {
-	test('extend appends to base values', () => {
+describe('replace_defaults interaction with extend', () => {
+	test('extend appends to replace_defaults values', () => {
 		const csp = create_csp_directives({
 			replace_defaults: {'connect-src': ['self']},
 			extend: [{'connect-src': [TRUSTED as any]}],
@@ -100,7 +100,7 @@ describe('base interaction with extend', () => {
 		assert.deepEqual(csp['connect-src'], ['self', TRUSTED]);
 	});
 
-	test('extend on a directive not present in custom base creates it', () => {
+	test('extend on a directive not present in custom replace_defaults creates it', () => {
 		const csp = create_csp_directives({
 			replace_defaults: {'script-src': ['self']},
 			extend: [{'img-src': [TRUSTED as any]}],
@@ -110,7 +110,7 @@ describe('base interaction with extend', () => {
 		assert.deepEqual(csp['img-src'], [TRUSTED]);
 	});
 
-	test('blank base + extend produces only extended directives', () => {
+	test('blank replace_defaults + extend produces only extended directives', () => {
 		const csp = create_csp_directives({
 			replace_defaults: null,
 			extend: [{'img-src': [TRUSTED as any]}],
@@ -120,7 +120,7 @@ describe('base interaction with extend', () => {
 	});
 });
 
-describe('base immutability', () => {
+describe('replace_defaults immutability', () => {
 	test('mutating the input does not change the output', () => {
 		const original = ['self', 'https://fuz.dev' as any];
 		const csp = create_csp_directives({
@@ -157,7 +157,7 @@ describe('minimal configurations', () => {
 		assert.deepEqual(csp, {});
 	});
 
-	test('blank base with explicit directives via overrides', () => {
+	test('blank replace_defaults with explicit directives via overrides', () => {
 		const csp = create_csp_directives({
 			replace_defaults: null,
 			overrides: {'script-src': ['self']},
@@ -166,7 +166,7 @@ describe('minimal configurations', () => {
 		assert.deepEqual(csp, {'script-src': ['self']});
 	});
 
-	test('blank base with single extend layer', () => {
+	test('blank replace_defaults with single extend layer', () => {
 		const csp = create_csp_directives({
 			replace_defaults: null,
 			extend: [{'script-src': ['self']}],

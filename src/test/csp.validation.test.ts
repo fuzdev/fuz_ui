@@ -52,13 +52,13 @@ describe('parse_csp_directive', () => {
 });
 
 describe('error handling', () => {
-	test('throws on invalid directive in base', () => {
+	test('throws on invalid directive in replace_defaults', () => {
 		assert.throws(
 			() =>
 				create_csp_directives({
 					replace_defaults: {'invalid-directive': ['self']} as any,
 				}),
-			/Invalid directive in options.base/,
+			/Invalid directive in options.replace_defaults/,
 		);
 	});
 
@@ -72,13 +72,13 @@ describe('error handling', () => {
 		);
 	});
 
-	test('throws on invalid directive in directives option', () => {
+	test('throws on invalid directive in overrides', () => {
 		assert.throws(
 			() =>
 				create_csp_directives({
 					overrides: {'invalid-directive': ['self']} as any,
 				}),
-			/Invalid directive in options.directives/,
+			/Invalid directive in options.overrides/,
 		);
 	});
 
@@ -94,7 +94,7 @@ describe('error handling', () => {
 				'error message should include the invalid directive name',
 			);
 			assert.ok(
-				error.message.includes('options.directives'),
+				error.message.includes('options.overrides'),
 				'error message should locate the source of the bad input',
 			);
 		}
@@ -150,7 +150,7 @@ describe('immutability', () => {
 		assert.ok(!csp['connect-src']!.includes('https://modified.com' as any));
 	});
 
-	test('modifying directives override array does not affect output', () => {
+	test('modifying overrides array does not affect output', () => {
 		const value = ['self', 'https://fuz.dev' as any];
 
 		const csp = create_csp_directives({

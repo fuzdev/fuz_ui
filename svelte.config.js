@@ -23,7 +23,8 @@ try {
 //
 // TODO swap to `create_csp_directives({extend: [csp_directives_of_fuzdev]})` once
 // self-import-from-dist is reliable. Until then, any change to `csp_directive_value_defaults`
-// in `src/lib/csp.ts` must be mirrored here by hand.
+// in `src/lib/csp.ts` must be mirrored here by hand. The output below is the result of:
+//   create_csp_directives({extend: [csp_directives_of_fuzdev]})
 const csp_img_extensions = /** @type {const} */ (['https://*.fuz.dev/', 'https://*.zzz.software/']);
 
 /** @type {import('@sveltejs/kit').Config} */

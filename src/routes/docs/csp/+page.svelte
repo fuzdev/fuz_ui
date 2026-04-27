@@ -63,30 +63,30 @@ const csp_composed = create_csp_directives({
   ],
 });
 
-// Replace a directive wholesale via the final-pass \`directives\` override:
+// Replace a directive wholesale via the final-pass \`overrides\`:
 const csp_replaced = create_csp_directives({
   extend: [{'connect-src': ['https://api.my.domain/']}],
-  directives: {
+  overrides: {
     // Wins over extend; \`null\` removes a directive entirely.
     'frame-src': ['none'],
     'report-to': null,
   },
 });
 
-// Start from your own base instead of the library defaults:
-const csp_custom_base = create_csp_directives({
-  base: {
+// Start from your own defaults instead of the library defaults:
+const csp_custom_defaults = create_csp_directives({
+  replace_defaults: {
     'default-src': ['none'],
     'script-src': ['self'],
     'connect-src': ['self', 'https://api.my.domain/'],
   },
-  // \`extend\` and \`directives\` still layer on top.
+  // \`extend\` and \`overrides\` still layer on top.
 });
 
 // Start blank — fully declarative, no library defaults at all:
 const csp_blank = create_csp_directives({
-  base: null,
-  directives: {
+  replace_defaults: null,
+  overrides: {
     'script-src': ['self'],
     'img-src': ['self', 'data:'],
   },
@@ -99,19 +99,24 @@ const csp_blank = create_csp_directives({
 		<p>Three stages run in order. Each is independent — use the one that matches your intent.</p>
 		<ol>
 			<li>
-				<strong><DeclarationLink name="CreateCspDirectivesOptions" /> <code>base</code></strong> —
-				the starting state. Omitted, it's <DeclarationLink name="csp_directive_value_defaults" />.
-				Provided, it <em>replaces the library defaults wholesale</em> — exactly the directives you
-				list, nothing inherited. <code>null</code> or <code>{'{}'}</code> starts blank.
+				<strong
+					><DeclarationLink name="CreateCspDirectivesOptions" />
+					<code>replace_defaults</code></strong
+				>
+				— the starting state. Omitted, it's
+				<DeclarationLink name="csp_directive_value_defaults" />. Provided, it
+				<em>replaces the library defaults wholesale</em> — exactly the directives you list, nothing
+				inherited. <code>null</code> or <code>{'{}'}</code> starts blank.
 			</li>
 			<li>
 				<strong><code>extend</code></strong> — sources to append per directive, layered left to
-				right. Each entry is a <code>Partial&lt;CspDirectives&gt;</code>; values append (and
-				deduplicate) to the result of <code>base</code> and prior entries. Compose multiple shared maps
-				in one array.
+				right. Values append (and deduplicate) to the result of <code>replace_defaults</code> and
+				prior entries. Boolean directives (e.g. <code>upgrade-insecure-requests</code>) are excluded
+				by the type — only array-typed directives can be extended. Compose multiple shared maps in
+				one array.
 			</li>
 			<li>
-				<strong><code>directives</code></strong> — final-pass per-directive replace or remove.
+				<strong><code>overrides</code></strong> — final-pass per-directive replace or remove.
 				Highest precedence. Pass <code>null</code> to drop a directive from the output entirely.
 			</li>
 		</ol>
@@ -153,25 +158,30 @@ create_csp_directives({
 });`}
 		/>
 		<p>
-			Default-deny directives (those whose base value is <code>['none']</code> — including
+			Default-deny directives (those whose default value is <code>['none']</code> — including
 			<code>default-src</code>, <code>object-src</code>, <code>base-uri</code>,
 			<code>script-src-attr</code>, and <code>child-src</code>) cannot be extended. Attempting to
-			<code>extend</code> them throws — opting into a default-deny directive must go through
-			<code>base</code> or <code>directives</code> so the override is visible at the call site.
+			<code>extend</code> them throws — opting in must go through <code>replace_defaults</code> or
+			<code>overrides</code> so the opt-in is visible at the call site. Note that
+			<code>overrides</code> cannot rescue an <code>extend</code> for a default-deny directive in
+			the same call: extend runs first and throws before <code>overrides</code> would replace the
+			value. Move the sources into <code>overrides</code> directly, or opt in via
+			<code>replace_defaults</code> and then extend.
 		</p>
 	</TomeSection>
 
 	<TomeSection>
-		<TomeSectionHeader text="Replacing values via directives" />
+		<TomeSectionHeader text="Replacing values via overrides" />
 		<p>
-			The final-pass <code>directives</code> option replaces a directive's value or removes it
-			entirely. Highest precedence — overrides <code>base</code> and <code>extend</code>.
+			The final-pass <code>overrides</code> option replaces a directive's value or removes it
+			entirely. Highest precedence — wins over <code>replace_defaults</code> and
+			<code>extend</code>.
 		</p>
 		<Code
 			lang="ts"
 			content={`create_csp_directives({
   extend: [{'connect-src': ['https://api.example.com/']}],
-  directives: {
+  overrides: {
     // Wholesale replace — drops the connect-src extend output above.
     'connect-src': ['self'],
 
@@ -189,18 +199,19 @@ create_csp_directives({
 	</TomeSection>
 
 	<TomeSection>
-		<TomeSectionHeader text="Custom base" />
+		<TomeSectionHeader text="Custom defaults via replace_defaults" />
 		<p>
-			<code>base</code> sets the starting state. The default is the library's curated
+			<code>replace_defaults</code> sets the starting state. The default is the library's curated
 			<DeclarationLink name="csp_directive_value_defaults" />. To use your own foundation, pass a
-			complete map; only the directives you list will appear in the output before
-			<code>extend</code> and <code>directives</code> run.
+			complete map. <strong>Anything you don't list is absent from the starting state</strong> —
+			including security defaults like <code>default-src: ['none']</code>. Use <code>extend</code>
+			and <code>overrides</code> for per-directive tweaks while keeping the library defaults.
 		</p>
 		<Code
 			lang="ts"
 			content={`// Fully declarative — no library defaults at all.
 const csp = create_csp_directives({
-  base: {
+  replace_defaults: {
     'default-src': ['none'],
     'script-src': ['self'],
     'connect-src': ['self'],
@@ -213,11 +224,13 @@ const csp = create_csp_directives({
 // });
 
 // Same shape as a hand-written directives map — still gets input and output validation.
-create_csp_directives({base: null, directives: {/* ... */}});`}
+create_csp_directives({replace_defaults: null, overrides: {/* ... */}});`}
 		/>
 		<p>
-			Use <code>directives</code> for tweaks (replace one directive while keeping the library
-			defaults), and <code>base</code> for full ownership of the starting state.
+			Use <code>overrides</code> for tweaks (replace one directive while keeping the library
+			defaults), and <code>replace_defaults</code> for full ownership of the starting state.
+			<code>null</code> values inside <code>replace_defaults</code> throw — omit the key instead, or
+			use <code>overrides</code> to remove.
 		</p>
 	</TomeSection>
 
@@ -229,12 +242,16 @@ create_csp_directives({base: null, directives: {/* ... */}});`}
 		</p>
 		<ul>
 			<li>
-				Unknown directive keys in any of <code>base</code>, <code>extend</code>, or
-				<code>directives</code> throw with the offending name.
+				Unknown directive keys in any of <code>replace_defaults</code>, <code>extend</code>, or
+				<code>overrides</code> throw with the offending name.
 			</li>
 			<li>
 				Extending a directive whose current value is <code>['none']</code> throws — opt in via
-				<code>base</code> or <code>directives</code> instead.
+				<code>replace_defaults</code> or <code>overrides</code> instead.
+			</li>
+			<li>
+				<code>null</code> values inside <code>replace_defaults</code> throw — omit the key instead,
+				or use <code>overrides</code> to remove.
 			</li>
 			<li>
 				The output is validated to ensure <code>'none'</code> never appears alongside other tokens (an

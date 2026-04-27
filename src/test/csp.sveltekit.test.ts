@@ -141,7 +141,7 @@ describe('SvelteKit adapter configurations', () => {
 		assert.ok(csp['script-src']!.includes('va.vercel-scripts.com' as any));
 	});
 
-	test('adapter-static: tighter connect-src via directives override', () => {
+	test('adapter-static: tighter connect-src via overrides', () => {
 		const csp = create_csp_directives({
 			overrides: {
 				'connect-src': ['self'],
@@ -163,7 +163,7 @@ describe('SvelteKit reporting endpoint', () => {
 		assert.deepEqual(csp['report-to'], ['csp-endpoint']);
 	});
 
-	test('report-to via directives override', () => {
+	test('report-to via overrides', () => {
 		const csp = create_csp_directives({
 			overrides: {
 				'report-to': ['csp-violations'],
@@ -292,7 +292,7 @@ describe('SvelteKit upgrade-insecure-requests', () => {
 		assert.strictEqual(csp['upgrade-insecure-requests'], true);
 	});
 
-	test('can disable via directives override', () => {
+	test('can disable via overrides', () => {
 		const csp = create_csp_directives({
 			overrides: {'upgrade-insecure-requests': false},
 		});

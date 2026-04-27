@@ -28,7 +28,7 @@ describe('basic defaults', () => {
 		// Verify defaults match specs
 		for (const spec of csp_directive_specs) {
 			const default_value = csp_directive_value_defaults[spec.name];
-			if (default_value !== null) {
+			if (default_value != null) {
 				assert.deepEqual(
 					csp[spec.name],
 					default_value,

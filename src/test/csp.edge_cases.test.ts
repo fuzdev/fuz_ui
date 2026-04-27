@@ -54,7 +54,7 @@ describe('unusual option combinations', () => {
 		assert.deepEqual(csp, {});
 	});
 
-	test('empty base with no extend or directives', () => {
+	test('empty replace_defaults with no extend or overrides', () => {
 		const csp = create_csp_directives({
 			replace_defaults: {},
 		});
@@ -62,7 +62,7 @@ describe('unusual option combinations', () => {
 		assert.deepEqual(csp, {});
 	});
 
-	test('mixing null base with full pipeline', () => {
+	test('mixing null replace_defaults with full pipeline', () => {
 		const csp = create_csp_directives({
 			replace_defaults: null,
 			extend: [{'script-src': ['self', TRUSTED as any]}],
@@ -125,7 +125,7 @@ describe('memory and reference safety', () => {
 });
 
 describe('boolean directive edge cases', () => {
-	test('boolean directive set to false via base', () => {
+	test('boolean directive set to false via replace_defaults', () => {
 		const csp = create_csp_directives({
 			replace_defaults: {
 				'upgrade-insecure-requests': false,
@@ -135,7 +135,7 @@ describe('boolean directive edge cases', () => {
 		assert.strictEqual(csp['upgrade-insecure-requests'], false);
 	});
 
-	test('boolean directive set to false via directives override', () => {
+	test('boolean directive set to false via overrides', () => {
 		const csp = create_csp_directives({
 			overrides: {
 				'upgrade-insecure-requests': false,
@@ -145,7 +145,7 @@ describe('boolean directive edge cases', () => {
 		assert.strictEqual(csp['upgrade-insecure-requests'], false);
 	});
 
-	test('boolean directive removed via directives null', () => {
+	test('boolean directive removed via overrides null', () => {
 		const csp = create_csp_directives({
 			overrides: {
 				'upgrade-insecure-requests': null,
@@ -210,7 +210,7 @@ describe('concurrent calls', () => {
 });
 
 describe('output validation: `none` alone', () => {
-	test('throws when directives override produces `none` alongside other tokens', () => {
+	test('throws when overrides produces `none` alongside other tokens', () => {
 		assert.throws(
 			() =>
 				create_csp_directives({
@@ -222,7 +222,7 @@ describe('output validation: `none` alone', () => {
 		);
 	});
 
-	test('throws when base contains `none` alongside other tokens', () => {
+	test('throws when replace_defaults contains `none` alongside other tokens', () => {
 		assert.throws(
 			() =>
 				create_csp_directives({

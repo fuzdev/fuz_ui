@@ -90,12 +90,14 @@ export const create_csp_directives = (options: CreateCspDirectivesOptions = {}):
 		if (directive === null) {
 			throw new Error(`Invalid directive in options.replace_defaults: ${key}`);
 		}
+		// eslint-disable-next-line @typescript-eslint/no-unnecessary-condition
 		if (value === null) {
 			throw new Error(
 				`Invalid value 'null' for directive '${directive}' in options.replace_defaults. ` +
 					`Omit the key instead, or use \`overrides: { '${directive}': null }\` to remove.`,
 			);
 		}
+		// eslint-disable-next-line @typescript-eslint/no-unnecessary-condition
 		if (value === undefined) continue;
 		assign(directive, Array.isArray(value) ? [...value] : value);
 	}
@@ -144,6 +146,7 @@ export const create_csp_directives = (options: CreateCspDirectivesOptions = {}):
 			}
 			if (value === null) {
 				delete directives[directive]; // eslint-disable-line @typescript-eslint/no-dynamic-delete
+				// eslint-disable-next-line @typescript-eslint/no-unnecessary-condition
 			} else if (value !== undefined) {
 				assign(directive, Array.isArray(value) ? [...value] : value);
 			}
