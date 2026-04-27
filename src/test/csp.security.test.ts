@@ -205,7 +205,7 @@ describe('preventing common misconfigurations', () => {
 
 	test('extending a `none` directive throws — visible signal in source', () => {
 		// The structural design is the guardrail: opting into a default-deny directive
-		// requires explicit `base` or `directives` override, not silent extension.
+		// requires explicit `replace_defaults` or `overrides`, not silent extension.
 		assert.throws(
 			() =>
 				create_csp_directives({
@@ -216,7 +216,7 @@ describe('preventing common misconfigurations', () => {
 	});
 
 	test('output never produces `none` alongside other tokens', () => {
-		// Even raw `directives` overrides are validated — invalid CSP is rejected at build time.
+		// Even `overrides` are validated — invalid CSP is rejected at build time.
 		assert.throws(
 			() =>
 				create_csp_directives({
@@ -226,6 +226,16 @@ describe('preventing common misconfigurations', () => {
 				}),
 			/'none' alongside other tokens/,
 		);
+	});
+
+	test('output never produces empty arrays — silently widens policy', () => {
+		// Empty arrays drop the directive in some parsers, which can fall back to default-src
+		// and effectively widen the policy. Catch via stage 4 across all input paths.
+		assert.throws(
+			() => create_csp_directives({replace_defaults: {'img-src': []}}),
+			/has an empty array/,
+		);
+		assert.throws(() => create_csp_directives({overrides: {'img-src': []}}), /has an empty array/);
 	});
 });
 

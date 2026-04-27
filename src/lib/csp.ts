@@ -11,10 +11,10 @@ export type CspDirectiveSourcesMap = {
 };
 
 /**
- * Options for {@link create_csp_directives}.
+ * Options for `create_csp_directives`.
  *
  * The pipeline runs in three stages:
- * 1. `replace_defaults` sets the starting state (defaults to {@link csp_directive_value_defaults}).
+ * 1. `replace_defaults` sets the starting state (defaults to `csp_directive_value_defaults`).
  * 2. `extend` appends sources per directive, layered left to right.
  * 3. `overrides` replaces or removes per-directive values as a final pass.
  */
@@ -22,7 +22,7 @@ export interface CreateCspDirectivesOptions {
 	/**
 	 * Starting values per directive — *wholesale replaces* the library defaults.
 	 *
-	 * - Omitted: uses {@link csp_directive_value_defaults} (the curated library defaults).
+	 * - Omitted: uses `csp_directive_value_defaults` (the curated library defaults).
 	 * - Provided: exactly the directives you list, nothing else inherited.
 	 *   Anything not listed is **absent** from the starting state — including security defaults
 	 *   like `default-src: 'none'`. To tweak a single directive while keeping the rest, use
@@ -59,14 +59,16 @@ export interface CreateCspDirectivesOptions {
  * Builds a CSP directives map for use with SvelteKit's `kit.csp.directives` option.
  *
  * Restrictive by default; opt into specific permissions via `extend` (append) or
- * `overrides` (replace). Designed to read as an audit log: every source in the
- * output is named at exactly one site in the source code.
+ * `overrides` (replace). Designed to read as an audit log: every user-added source
+ * is named at exactly one site in the source code. Library defaults are inherited
+ * unless you opt out via `replace_defaults`.
  *
  * Validation:
  * - Unknown directive keys throw.
  * - Extending a `['none']` directive throws (use `replace_defaults`/`overrides` to opt in).
  * - `null` values inside `replace_defaults` throw (omit the key instead).
- * - Output is validated to ensure `'none'` never appears alongside other tokens.
+ * - Output is validated to ensure `'none'` never appears alongside other tokens,
+ *   and that no directive ends up with an empty array (use `['none']` to forbid all).
  *
  * Things like rendering to a string are out of scope and left to SvelteKit.
  */
@@ -77,19 +79,17 @@ export const create_csp_directives = (options: CreateCspDirectivesOptions = {}):
 
 	// `Object.entries` widens to `[string, unknown]` and TS can't re-narrow per-key, so
 	// writes via the validated `directive` need a single trusted-bridge cast — kept inside
-	// this helper so the call sites stay free of type assertions.
+	// this helper so the call sites stay free of type assertions. Clones arrays so callers
+	// don't have to worry about user-supplied arrays leaking into the output.
 	const assign = (directive: CspDirective, value: unknown): void => {
-		(directives as Record<CspDirective, unknown>)[directive] = value;
+		(directives as Record<CspDirective, unknown>)[directive] = Array.isArray(value)
+			? [...value]
+			: value;
 	};
 
 	// Stage 1: starting state from `replace_defaults`.
 	// `null` (or `{}`) starts blank — every directive must come from `extend`/`overrides`.
-	const starting = replace_defaults ?? {};
-	for (const [key, value] of Object.entries(starting)) {
-		const directive = parse_csp_directive(key);
-		if (directive === null) {
-			throw new Error(`Invalid directive in options.replace_defaults: ${key}`);
-		}
+	for_each_directive(replace_defaults ?? {}, 'replace_defaults', (directive, value) => {
 		// eslint-disable-next-line @typescript-eslint/no-unnecessary-condition
 		if (value === null) {
 			throw new Error(
@@ -98,24 +98,20 @@ export const create_csp_directives = (options: CreateCspDirectivesOptions = {}):
 			);
 		}
 		// eslint-disable-next-line @typescript-eslint/no-unnecessary-condition
-		if (value === undefined) continue;
-		assign(directive, Array.isArray(value) ? [...value] : value);
-	}
+		if (value === undefined) return;
+		assign(directive, value);
+	});
 
 	// Stage 2: append sources per layer in `extend`.
 	if (extend?.length) {
 		for (const layer of extend) {
-			for (const [key, value] of Object.entries(layer)) {
-				const directive = parse_csp_directive(key);
-				if (directive === null) {
-					throw new Error(`Invalid directive in options.extend: ${key}`);
-				}
+			for_each_directive(layer, 'extend', (directive, value) => {
 				if (!Array.isArray(value)) {
 					throw new Error(
 						`Cannot extend directive '${directive}': value must be an array of sources.`,
 					);
 				}
-				if (!value.length) continue;
+				if (!value.length) return;
 				const current = directives[directive];
 				if (is_none(current)) {
 					throw new Error(
@@ -133,29 +129,32 @@ export const create_csp_directives = (options: CreateCspDirectivesOptions = {}):
 				} else {
 					throw new Error(`Cannot extend directive '${directive}': it has a non-array value.`);
 				}
-			}
+			});
 		}
 	}
 
 	// Stage 3: final-pass `overrides` — replace value or remove key.
 	if (overrides) {
-		for (const [key, value] of Object.entries(overrides)) {
-			const directive = parse_csp_directive(key);
-			if (directive === null) {
-				throw new Error(`Invalid directive in options.overrides: ${key}`);
-			}
+		for_each_directive(overrides, 'overrides', (directive, value) => {
 			if (value === null) {
 				delete directives[directive]; // eslint-disable-line @typescript-eslint/no-dynamic-delete
 				// eslint-disable-next-line @typescript-eslint/no-unnecessary-condition
 			} else if (value !== undefined) {
-				assign(directive, Array.isArray(value) ? [...value] : value);
+				assign(directive, value);
 			}
-		}
+		});
 	}
 
-	// Stage 4: output validation — `'none'` must appear alone in CSP.
+	// Stage 4: output validation — empty arrays and mixed `'none'` are invalid CSP.
 	for (const [key, value] of Object.entries(directives)) {
-		if (Array.isArray(value) && value.length > 1 && (value as Array<unknown>).includes('none')) {
+		if (!Array.isArray(value)) continue;
+		if (value.length === 0) {
+			throw new Error(
+				`Directive '${key}' has an empty array. ` +
+					`Use ['none'] to forbid all sources, or omit the directive entirely.`,
+			);
+		}
+		if (value.length > 1 && (value as Array<unknown>).includes('none')) {
 			throw new Error(
 				`Directive '${key}' has 'none' alongside other tokens (${value.join(', ')}). ` +
 					`'none' must appear alone in CSP.`,
@@ -178,6 +177,25 @@ export type CspDirectiveValue<T extends CspDirective> = Defined<CspDirectives[T]
 const is_none = (value: unknown): boolean =>
 	Array.isArray(value) && value.length === 1 && value[0] === 'none';
 
+/**
+ * Iterate over a per-directive options map, validating that every key is a known directive.
+ * Throws if any key fails to parse as a `CspDirective`, mentioning `source_label` so the
+ * error pinpoints which option (`replace_defaults`, `extend`, or `overrides`) was bad.
+ */
+const for_each_directive = <V>(
+	source: Record<string, V>,
+	source_label: 'replace_defaults' | 'extend' | 'overrides',
+	fn: (directive: CspDirective, value: V) => void,
+): void => {
+	for (const [key, value] of Object.entries(source)) {
+		const directive = parse_csp_directive(key);
+		if (directive === null) {
+			throw new Error(`Invalid directive in options.${source_label}: ${key}`);
+		}
+		fn(directive, value);
+	}
+};
+
 export const COLOR_SCHEME_SCRIPT_HASH = 'sha256-QOxqn7EUzb3ydF9SALJoJGWSvywW9R0AfTDSenB83Z8=';
 
 /**
@@ -188,7 +206,7 @@ export const COLOR_SCHEME_SCRIPT_HASH = 'sha256-QOxqn7EUzb3ydF9SALJoJGWSvywW9R0A
  * Directives not listed here (`report-to`, `require-trusted-types-for`, `trusted-types`,
  * `sandbox`) are intentionally absent by default — opt in via `replace_defaults` or `overrides`.
  *
- * Customizable via {@link CreateCspDirectivesOptions.replace_defaults}.
+ * Customizable via `CreateCspDirectivesOptions.replace_defaults`.
  */
 export const csp_directive_value_defaults: Partial<{
 	[K in CspDirective]: CspDirectiveValue<K>;

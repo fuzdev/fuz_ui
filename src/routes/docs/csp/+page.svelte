@@ -28,9 +28,10 @@
 			and CSP data.
 		</p>
 		<p>
-			The API is designed to read as an audit log: every source in the output is named at exactly
-			one site in the source code. There's no implicit promotion of sources across directives — if
-			you want a domain on <code>script-src</code>, you write <code>script-src</code>.
+			The API is designed to read as an audit log: every user-added source is named at exactly one
+			site in the source code. There's no implicit promotion of sources across directives — if you
+			want a domain on <code>script-src</code>, you write <code>script-src</code>. Library defaults
+			are inherited unless you opt out via <code>replace_defaults</code>.
 		</p>
 		<p>Example usage:</p>
 		<Code
@@ -256,6 +257,11 @@ create_csp_directives({replace_defaults: null, overrides: {/* ... */}});`}
 			<li>
 				The output is validated to ensure <code>'none'</code> never appears alongside other tokens (an
 				invalid CSP that browsers reject).
+			</li>
+			<li>
+				The output is validated to ensure no directive ends up with an empty array — use
+				<code>['none']</code> to forbid all sources, or omit the directive entirely. Empty arrays
+				can be silently dropped or fall back to <code>default-src</code>, widening the policy.
 			</li>
 		</ul>
 	</TomeSection>

@@ -54,17 +54,6 @@ export const assert_source_not_in_directive = (
 };
 
 /**
- * Asserts that a directive exists in the CSP.
- */
-export const assert_directive_exists = (
-	csp: CspDirectives,
-	directive: CspDirective,
-	message?: string,
-): void => {
-	assert.property(csp, directive, message || `${directive} should exist in CSP`);
-};
-
-/**
  * Asserts that a directive does not exist in the CSP.
  */
 export const assert_directive_not_exists = (
@@ -73,16 +62,4 @@ export const assert_directive_not_exists = (
 	message?: string,
 ): void => {
 	assert.notProperty(csp, directive, message || `${directive} should not exist in CSP`);
-};
-
-/**
- * Asserts that a directive has a specific value.
- */
-export const assert_directive_equals = (
-	csp: CspDirectives,
-	directive: CspDirective,
-	expected: any,
-	message?: string,
-): void => {
-	assert.deepEqual(csp[directive], expected, message || `${directive} should equal expected value`);
 };
