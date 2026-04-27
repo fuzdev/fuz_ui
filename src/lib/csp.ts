@@ -116,10 +116,10 @@ export const create_csp_directives = (options: CreateCspDirectivesOptions = {}):
 				if (is_none(current)) {
 					throw new Error(
 						`Cannot extend directive '${directive}' while its current value is ['none']. ` +
-							`The pipeline runs base → extend → overrides, so an \`overrides\` entry for ` +
-							`'${directive}' cannot rescue this — extend sees the ['none'] base first. ` +
-							`Opt in via \`replace_defaults: { '${directive}': [...] }\` or move the sources ` +
-							`into \`overrides: { '${directive}': [...] }\`.`,
+							`The pipeline runs replace_defaults → extend → overrides, so an \`overrides\` ` +
+							`entry for '${directive}' cannot rescue this — extend sees the ['none'] starting ` +
+							`value first. Opt in via \`replace_defaults: { '${directive}': [...] }\` or move ` +
+							`the sources into \`overrides: { '${directive}': [...] }\`.`,
 					);
 				}
 				if (current === undefined) {

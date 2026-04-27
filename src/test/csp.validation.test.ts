@@ -126,7 +126,7 @@ describe('immutability', () => {
 		);
 	});
 
-	test('modifying base input array does not affect output', () => {
+	test('modifying replace_defaults input array does not affect output', () => {
 		const value = ['self', 'https://fuz.dev' as any];
 
 		const csp = create_csp_directives({

@@ -16,7 +16,7 @@ describe('extend basic behavior', () => {
 			extend: [{'img-src': [TRUSTED as any]}],
 		});
 
-		assert_source_in_directive(csp, 'img-src', 'self', 'base sources preserved');
+		assert_source_in_directive(csp, 'img-src', 'self', 'starting sources preserved');
 		assert_source_in_directive(csp, 'img-src', TRUSTED, 'extended source added');
 	});
 
@@ -87,7 +87,7 @@ describe('extend layering', () => {
 		assert.ok(i_trusted2 < i_trusted_a, 'second layer before third');
 	});
 
-	test('base values come before extended sources', () => {
+	test('starting values come before extended sources', () => {
 		const csp = create_csp_directives({
 			extend: [{'img-src': [TRUSTED as any]}],
 		});
@@ -96,7 +96,7 @@ describe('extend layering', () => {
 		const self_index = img_src.indexOf('self');
 		const trusted_index = img_src.indexOf(TRUSTED as any);
 
-		assert.ok(self_index < trusted_index, 'base sources before extended');
+		assert.ok(self_index < trusted_index, 'starting sources before extended');
 	});
 
 	test('layers from different directives are independent', () => {
@@ -134,13 +134,13 @@ describe('extend deduplication', () => {
 		assert.strictEqual(occurrences, 1, 'duplicates collapse across layers');
 	});
 
-	test('source already present in base is deduplicated when re-added', () => {
+	test('source already present in starting state is deduplicated when re-added', () => {
 		const csp = create_csp_directives({
 			extend: [{'img-src': ['self']}],
 		});
 
 		const occurrences = csp['img-src']!.filter((v) => v === 'self').length;
-		assert.strictEqual(occurrences, 1, 'base source deduplicates against extend');
+		assert.strictEqual(occurrences, 1, 'starting source deduplicates against extend');
 	});
 
 	test('insertion order preserved across deduplication', () => {

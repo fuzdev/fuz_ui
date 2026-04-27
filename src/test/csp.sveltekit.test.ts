@@ -153,7 +153,7 @@ describe('SvelteKit adapter configurations', () => {
 });
 
 describe('SvelteKit reporting endpoint', () => {
-	test('report-to via base', () => {
+	test('report-to via replace_defaults', () => {
 		const csp = create_csp_directives({
 			replace_defaults: {
 				'report-to': ['csp-endpoint'],

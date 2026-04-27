@@ -13,7 +13,7 @@ describe('extreme array sizes', () => {
 			extend: [{'img-src': many_sources}],
 		});
 
-		// 4 base sources + 1000 extended
+		// 4 starting sources + 1000 extended
 		assert.strictEqual(csp['img-src']!.length, 1004);
 		assert.ok(csp['img-src']!.includes('source0.com' as any));
 		assert.ok(csp['img-src']!.includes('source999.com' as any));

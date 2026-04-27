@@ -239,7 +239,7 @@ describe('maximum complexity scenario', () => {
 		const custom_hash = 'sha256-customscript' as any;
 
 		const csp = create_csp_directives({
-			// Custom base — wholesale replace
+			// Custom replace_defaults — wholesale replace
 			replace_defaults: {
 				'default-src': ['none'],
 				'script-src': ['self', COLOR_SCHEME_SCRIPT_HASH],
@@ -267,7 +267,7 @@ describe('maximum complexity scenario', () => {
 			},
 		});
 
-		// script-src: base + extend
+		// script-src: replace_defaults + extend
 		assert_source_in_directive(csp, 'script-src', 'self');
 		assert_source_in_directive(csp, 'script-src', COLOR_SCHEME_SCRIPT_HASH);
 		assert_source_in_directive(csp, 'script-src', ANALYTICS);
@@ -278,20 +278,20 @@ describe('maximum complexity scenario', () => {
 		// connect-src: overrides wins over extend
 		assert.deepEqual(csp['connect-src'], ['self', ANALYTICS]);
 
-		// style-src: base + extend
+		// style-src: replace_defaults + extend
 		assert_source_in_directive(csp, 'style-src', GOOGLE_FONTS);
 		assert_source_in_directive(csp, 'style-src', CLOUDFLARE_CDN);
 		assert_source_in_directive(csp, 'style-src', 'unsafe-inline' as any);
 
-		// img-src: base + extend
+		// img-src: replace_defaults + extend
 		assert_source_in_directive(csp, 'img-src', 'self');
 		assert_source_in_directive(csp, 'img-src', 'data:' as any);
 		assert_source_in_directive(csp, 'img-src', 'https://*.fuz.dev/');
 
-		// font-src: base + extend
+		// font-src: replace_defaults + extend
 		assert_source_in_directive(csp, 'font-src', GOOGLE_FONTS);
 
-		// default-src: base preserved
+		// default-src: replace_defaults preserved
 		assert.deepEqual(csp['default-src'], ['none']);
 	});
 });
