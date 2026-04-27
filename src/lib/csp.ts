@@ -157,7 +157,13 @@ export const create_csp_directives = (options: CreateCspDirectivesOptions = {}):
 
 	// Stage 4: output validation — empty arrays and mixed `'none'` are invalid CSP.
 	for (const [key, value] of Object.entries(directives)) {
-		if (!Array.isArray(value)) continue;
+		if (typeof value === 'boolean') continue;
+		if (!Array.isArray(value)) {
+			throw new Error(
+				`Directive '${key}' has an invalid value: expected an array of sources or a boolean, ` +
+					`got ${value === null ? 'null' : typeof value}.`,
+			);
+		}
 		if (value.length === 0) {
 			throw new Error(
 				`Directive '${key}' has an empty array. ` +

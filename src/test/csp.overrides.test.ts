@@ -107,6 +107,35 @@ describe('overrides option — null removes', () => {
 	});
 });
 
+describe('overrides option — undefined values', () => {
+	test('undefined value in overrides is a no-op', () => {
+		// Distinct from `null` (removes) — `undefined` is treated as omission, leaving the
+		// pipeline result from earlier stages untouched.
+		const csp = create_csp_directives({
+			replace_defaults: {'script-src': ['self']},
+			overrides: {
+				'script-src': undefined as any,
+			},
+		});
+
+		assert.deepEqual(csp, {'script-src': ['self']});
+	});
+});
+
+describe('overrides interaction with extend output', () => {
+	test('overrides ["none"] replaces an extend-built array (full pipeline)', () => {
+		// replace_defaults seeds, extend appends, overrides replaces wholesale with ['none'].
+		// The intermediate ['self', TRUSTED] never reaches the output.
+		const csp = create_csp_directives({
+			replace_defaults: {'img-src': ['self']},
+			extend: [{'img-src': [TRUSTED as any]}],
+			overrides: {'img-src': ['none']},
+		});
+
+		assert.deepEqual(csp, {'img-src': ['none']});
+	});
+});
+
 describe('overrides option — validation', () => {
 	test('throws on unknown directive key', () => {
 		assert.throws(

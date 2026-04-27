@@ -1,6 +1,6 @@
 import {test, assert, describe} from 'vitest';
 
-import {create_csp_directives, parse_csp_directive, csp_directive_specs} from '$lib/csp.js';
+import {create_csp_directives, csp_directive_specs} from '$lib/csp.js';
 import {TEST_SOURCES} from './csp_test_helpers.js';
 
 const {TRUSTED} = TEST_SOURCES;
@@ -54,15 +54,7 @@ describe('unusual option combinations', () => {
 		assert.deepEqual(csp, {});
 	});
 
-	test('empty replace_defaults with no extend or overrides', () => {
-		const csp = create_csp_directives({
-			replace_defaults: {},
-		});
-
-		assert.deepEqual(csp, {});
-	});
-
-	test('mixing null replace_defaults with full pipeline', () => {
+	test('blank replace_defaults exercises full pipeline (extend + overrides)', () => {
 		const csp = create_csp_directives({
 			replace_defaults: {},
 			extend: [{'script-src': ['self', TRUSTED as any]}],
@@ -75,28 +67,6 @@ describe('unusual option combinations', () => {
 			'script-src': ['self', TRUSTED],
 			'connect-src': ['self'],
 		});
-	});
-});
-
-describe('parse_csp_directive edge cases', () => {
-	test('handles all invalid types', () => {
-		assert.strictEqual(parse_csp_directive(undefined), null);
-		assert.strictEqual(parse_csp_directive(null), null);
-		assert.strictEqual(parse_csp_directive(123), null);
-		assert.strictEqual(parse_csp_directive(true), null);
-		assert.strictEqual(parse_csp_directive({}), null);
-		assert.strictEqual(parse_csp_directive([]), null);
-		assert.strictEqual(
-			parse_csp_directive(() => {}),
-			null,
-		);
-	});
-
-	test('handles strings that look like directives', () => {
-		assert.strictEqual(parse_csp_directive('script'), null);
-		assert.strictEqual(parse_csp_directive('src'), null);
-		assert.strictEqual(parse_csp_directive('script-source'), null);
-		assert.strictEqual(parse_csp_directive('SCRIPT-SRC'), null); // wrong case
 	});
 });
 
@@ -113,39 +83,12 @@ describe('memory and reference safety', () => {
 		assert.ok(!csp1['script-src']!.includes('modified.com' as any));
 		assert.ok(csp2['script-src']!.includes('modified.com' as any));
 	});
-
-	test('modifying returned directives does not affect the system', () => {
-		const csp1 = create_csp_directives();
-
-		csp1['script-src']!.push('hacked.com' as any);
-
-		const csp2 = create_csp_directives();
-		assert.ok(!csp2['script-src']!.includes('hacked.com' as any));
-	});
 });
 
 describe('boolean directive edge cases', () => {
-	test('boolean directive set to false via replace_defaults', () => {
-		const csp = create_csp_directives({
-			replace_defaults: {
-				'upgrade-insecure-requests': false,
-			},
-		});
-
-		assert.strictEqual(csp['upgrade-insecure-requests'], false);
-	});
-
-	test('boolean directive set to false via overrides', () => {
-		const csp = create_csp_directives({
-			overrides: {
-				'upgrade-insecure-requests': false,
-			},
-		});
-
-		assert.strictEqual(csp['upgrade-insecure-requests'], false);
-	});
-
 	test('boolean directive removed via overrides null', () => {
+		// false-via-replace_defaults is covered in csp.base.test.ts; false-via-overrides is
+		// covered in csp.overrides.test.ts. The null-removal of a boolean is only here.
 		const csp = create_csp_directives({
 			overrides: {
 				'upgrade-insecure-requests': null,
@@ -153,16 +96,6 @@ describe('boolean directive edge cases', () => {
 		});
 
 		assert.ok(!('upgrade-insecure-requests' in csp));
-	});
-
-	test('extending a boolean directive throws', () => {
-		assert.throws(
-			() =>
-				create_csp_directives({
-					extend: [{'upgrade-insecure-requests': true} as any],
-				}),
-			/Cannot extend directive 'upgrade-insecure-requests'/,
-		);
 	});
 });
 
@@ -206,41 +139,5 @@ describe('concurrent calls', () => {
 				}
 			}
 		});
-	});
-});
-
-describe('output validation: `none` alone', () => {
-	test('throws when overrides produces `none` alongside other tokens', () => {
-		assert.throws(
-			() =>
-				create_csp_directives({
-					overrides: {
-						'script-src': ['none', 'self', TRUSTED as any] as any,
-					},
-				}),
-			/'none' alongside other tokens/,
-		);
-	});
-
-	test('throws when replace_defaults contains `none` alongside other tokens', () => {
-		assert.throws(
-			() =>
-				create_csp_directives({
-					replace_defaults: {
-						'script-src': ['none', 'self'] as any,
-					},
-				}),
-			/'none' alongside other tokens/,
-		);
-	});
-
-	test('directive set to bare `none` is valid', () => {
-		const csp = create_csp_directives({
-			overrides: {
-				'script-src': ['none'],
-			},
-		});
-
-		assert.deepEqual(csp['script-src'], ['none']);
 	});
 });

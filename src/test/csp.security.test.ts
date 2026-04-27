@@ -1,97 +1,45 @@
 import {test, assert, describe} from 'vitest';
 
 import {create_csp_directives, COLOR_SCHEME_SCRIPT_HASH} from '$lib/csp.js';
-import {TEST_SOURCES} from './csp_test_helpers.js';
 
-const {TRUSTED} = TEST_SOURCES;
-
-describe('default security posture', () => {
-	test('default-src is set to none (deny by default)', () => {
+describe('default security posture — properties (decoupled from exact defaults)', () => {
+	// These are property tests — what *must* be true for security regardless of exact default
+	// values. Exact defaults are pinned in csp.base.test.ts's snapshot; do not duplicate here.
+	test('script-src does not include unsafe-inline by default', () => {
 		const csp = create_csp_directives();
-		assert.deepEqual(csp['default-src'], ['none']);
-	});
-
-	test('script execution is restricted by default', () => {
-		const csp = create_csp_directives();
-
-		// script-src allows self, the color scheme hash, and 'wasm-unsafe-eval' (WASM compile only).
-		assert.deepEqual(csp['script-src'], ['self', 'wasm-unsafe-eval', COLOR_SCHEME_SCRIPT_HASH]);
-
-		// No unsafe-inline
 		assert.notInclude(csp['script-src']! as Array<any>, 'unsafe-inline');
+	});
 
-		// No unsafe-eval (the narrow 'wasm-unsafe-eval' is allowed; broad 'unsafe-eval' is not)
+	test('script-src does not include unsafe-eval by default (wasm-unsafe-eval is allowed)', () => {
+		const csp = create_csp_directives();
 		assert.notInclude(csp['script-src']! as Array<any>, 'unsafe-eval');
+		assert.include(csp['script-src']! as Array<any>, 'wasm-unsafe-eval');
 	});
 
-	test('inline script attributes are blocked by default', () => {
+	test('worker-src does not include unsafe-eval by default (wasm-unsafe-eval is allowed)', () => {
 		const csp = create_csp_directives();
-		assert.deepEqual(csp['script-src-attr'], ['none']);
-	});
-
-	test('object/embed are blocked by default', () => {
-		const csp = create_csp_directives();
-		assert.deepEqual(csp['object-src'], ['none']);
-	});
-
-	test('base URI is locked down', () => {
-		const csp = create_csp_directives();
-		assert.deepEqual(csp['base-uri'], ['none']);
-	});
-
-	test('child-src is restricted', () => {
-		const csp = create_csp_directives();
-		assert.deepEqual(csp['child-src'], ['none']);
-	});
-
-	test('insecure requests are upgraded by default', () => {
-		const csp = create_csp_directives();
-		assert.strictEqual(csp['upgrade-insecure-requests'], true);
+		assert.notInclude(csp['worker-src']! as Array<any>, 'unsafe-eval');
+		assert.include(csp['worker-src']! as Array<any>, 'wasm-unsafe-eval');
 	});
 });
 
-describe('XSS protection through defaults', () => {
-	test('inline scripts are not allowed by default', () => {
-		const csp = create_csp_directives();
-
-		assert.deepEqual(csp['script-src-attr'], ['none']);
-		assert.ok(!csp['script-src']!.includes('unsafe-inline' as any));
-	});
-
-	test('eval is not allowed by default, but WASM compile is', () => {
-		const csp = create_csp_directives();
-
-		// 'unsafe-eval' is not allowed on either script-src or worker-src.
-		assert.ok(!csp['script-src']!.includes('unsafe-eval' as any));
-		assert.ok(!csp['worker-src']!.includes('unsafe-eval' as any));
-
-		// 'wasm-unsafe-eval' (WebAssembly.compile/instantiate only) IS allowed by default —
-		// required by `@fuzdev/fuz_util/hash_blake3` and any other WASM module.
-		assert.ok(csp['script-src']!.includes('wasm-unsafe-eval' as any));
-		assert.ok(csp['worker-src']!.includes('wasm-unsafe-eval' as any));
-	});
-
-	test('external scripts require explicit allowlist', () => {
+describe('XSS protection — script source allowlist properties', () => {
+	test('script-src by default contains only self, wasm-unsafe-eval, and sha256 hashes', () => {
+		// Property: no external host or scheme source by default.
 		const csp = create_csp_directives();
 
 		assert.ok(csp['script-src']!.includes('self'));
-		assert.strictEqual(
-			csp['script-src']!.filter(
-				(v) => v !== 'self' && v !== 'wasm-unsafe-eval' && !v.startsWith('sha256-'),
-			).length,
-			0,
-			'no external domains by default',
+		const non_baseline = csp['script-src']!.filter(
+			(v) => v !== 'self' && v !== 'wasm-unsafe-eval' && !v.startsWith('sha256-'),
 		);
+		assert.strictEqual(non_baseline.length, 0, 'no external domains by default');
 	});
 
-	test('script origins land on script-src only when explicitly extended there', () => {
+	test('audit-log: a source extended onto script-src lands only there', () => {
+		// The library's central claim: "every user-added source is named at exactly one site."
 		const untrusted = 'untrusted-cdn.com';
 
-		// Default: not allowed.
-		const csp = create_csp_directives();
-		assert.ok(!csp['script-src']!.includes(untrusted as any));
-
-		// Adding to img-src does NOT also grant script-src — sources land only where named.
+		// Adding to img-src does NOT grant script-src — sources land only where named.
 		const csp_img = create_csp_directives({
 			extend: [{'img-src': [untrusted as any]}],
 		});
@@ -103,6 +51,35 @@ describe('XSS protection through defaults', () => {
 			extend: [{'script-src': [untrusted as any]}],
 		});
 		assert.ok(csp_script['script-src']!.includes(untrusted as any));
+	});
+
+	test('audit-log: a unique source extended into one directive appears in no other', () => {
+		// Central library claim, parameterized: extending source X onto directive D leaves X
+		// absent from every other directive in the output.
+		const targets: Array<
+			'img-src' | 'script-src' | 'connect-src' | 'font-src' | 'style-src' | 'frame-src'
+		> = ['img-src', 'script-src', 'connect-src', 'font-src', 'style-src', 'frame-src'];
+
+		for (const target of targets) {
+			const unique_source = `unique-${target}.example.com`;
+
+			const csp = create_csp_directives({
+				extend: [{[target]: [unique_source as any]}],
+			});
+
+			assert.ok(
+				csp[target]!.includes(unique_source as any),
+				`${unique_source} should appear in ${target}`,
+			);
+
+			for (const [directive, value] of Object.entries(csp)) {
+				if (directive === target || !Array.isArray(value)) continue;
+				assert.ok(
+					!value.includes(unique_source as any),
+					`${unique_source} leaked into ${directive} but was only added to ${target}`,
+				);
+			}
+		}
 	});
 });
 
@@ -192,51 +169,6 @@ describe('preventing common misconfigurations', () => {
 			}
 		}
 	});
-
-	test('none directive prevents all sources', () => {
-		const csp = create_csp_directives();
-
-		assert.deepEqual(csp['default-src'], ['none']);
-		assert.deepEqual(csp['object-src'], ['none']);
-		assert.deepEqual(csp['base-uri'], ['none']);
-		assert.deepEqual(csp['child-src'], ['none']);
-		assert.deepEqual(csp['script-src-attr'], ['none']);
-	});
-
-	test('extending a `none` directive throws — visible signal in source', () => {
-		// The structural design is the guardrail: opting into a default-deny directive
-		// requires explicit `replace_defaults` or `overrides`, not silent extension.
-		assert.throws(
-			() =>
-				create_csp_directives({
-					extend: [{'object-src': [TRUSTED as any]}],
-				}),
-			/Cannot extend directive 'object-src'/,
-		);
-	});
-
-	test('output never produces `none` alongside other tokens', () => {
-		// Even `overrides` are validated — invalid CSP is rejected at build time.
-		assert.throws(
-			() =>
-				create_csp_directives({
-					overrides: {
-						'script-src': ['none', 'self', TRUSTED as any] as any,
-					},
-				}),
-			/'none' alongside other tokens/,
-		);
-	});
-
-	test('output never produces empty arrays — silently widens policy', () => {
-		// Empty arrays drop the directive in some parsers, which can fall back to default-src
-		// and effectively widen the policy. Catch via stage 4 across all input paths.
-		assert.throws(
-			() => create_csp_directives({replace_defaults: {'img-src': []}}),
-			/has an empty array/,
-		);
-		assert.throws(() => create_csp_directives({overrides: {'img-src': []}}), /has an empty array/);
-	});
 });
 
 describe('secure defaults for data URIs and special schemes', () => {
@@ -260,11 +192,6 @@ describe('secure defaults for data URIs and special schemes', () => {
 });
 
 describe('form action restrictions', () => {
-	test('form actions restricted to self by default', () => {
-		const csp = create_csp_directives();
-		assert.deepEqual(csp['form-action'], ['self']);
-	});
-
 	test('form actions must be explicitly extended for external endpoints', () => {
 		const external_endpoint = 'template.fuz.dev';
 
@@ -279,16 +206,6 @@ describe('form action restrictions', () => {
 });
 
 describe('frame restrictions', () => {
-	test('frames restricted to self by default', () => {
-		const csp = create_csp_directives();
-		assert.deepEqual(csp['frame-src'], ['self']);
-	});
-
-	test('frame-ancestors restricted to self', () => {
-		const csp = create_csp_directives();
-		assert.deepEqual(csp['frame-ancestors'], ['self']);
-	});
-
 	test('frame sources must be explicitly extended', () => {
 		const embedded_content = 'widgets.fuz.dev';
 

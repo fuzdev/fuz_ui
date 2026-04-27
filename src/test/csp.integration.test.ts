@@ -234,12 +234,14 @@ describe('common pitfalls and gotchas', () => {
 });
 
 describe('maximum complexity scenario', () => {
-	test('all options at once', () => {
+	test('all options at once — whole-CSP deepEqual catches leakage', () => {
+		// Whole-CSP deepEqual instead of per-source includes: with explicit replace_defaults the
+		// output is fully predictable, so this form catches both "missing source" and
+		// "source leaked into a directive it wasn't named in" — partial includes don't.
 		const nonce = 'nonce-runtime123' as any;
 		const custom_hash = 'sha256-customscript' as any;
 
 		const csp = create_csp_directives({
-			// Custom replace_defaults — wholesale replace
 			replace_defaults: {
 				'default-src': ['none'],
 				'script-src': ['self', COLOR_SCHEME_SCRIPT_HASH],
@@ -249,11 +251,8 @@ describe('maximum complexity scenario', () => {
 				'font-src': ['self'],
 				'frame-ancestors': ['self'],
 			},
-			// Layer trusted sources — explicit per directive
 			extend: [
-				// Shared lib
 				{'img-src': ['https://*.fuz.dev/' as any]},
-				// App-specific
 				{
 					'script-src': [ANALYTICS as any, CLOUDFLARE_CDN as any, nonce, custom_hash],
 					'connect-src': [ANALYTICS as any],
@@ -261,37 +260,42 @@ describe('maximum complexity scenario', () => {
 					'font-src': [GOOGLE_FONTS as any],
 				},
 			],
-			// Final pass — replace connect-src wholesale
 			overrides: {
 				'connect-src': ['self', ANALYTICS as any],
 			},
 		});
 
-		// script-src: replace_defaults + extend
-		assert_source_in_directive(csp, 'script-src', 'self');
-		assert_source_in_directive(csp, 'script-src', COLOR_SCHEME_SCRIPT_HASH);
-		assert_source_in_directive(csp, 'script-src', ANALYTICS);
-		assert_source_in_directive(csp, 'script-src', CLOUDFLARE_CDN);
-		assert_source_in_directive(csp, 'script-src', nonce);
-		assert_source_in_directive(csp, 'script-src', custom_hash);
+		assert.deepEqual(csp, {
+			'default-src': ['none'],
+			'script-src': [
+				'self',
+				COLOR_SCHEME_SCRIPT_HASH,
+				ANALYTICS,
+				CLOUDFLARE_CDN,
+				nonce,
+				custom_hash,
+			],
+			'style-src': ['self', 'unsafe-inline', GOOGLE_FONTS, CLOUDFLARE_CDN],
+			'img-src': ['self', 'data:', 'https://*.fuz.dev/'],
+			'connect-src': ['self', ANALYTICS],
+			'font-src': ['self', GOOGLE_FONTS],
+			'frame-ancestors': ['self'],
+		});
+	});
 
-		// connect-src: overrides wins over extend
-		assert.deepEqual(csp['connect-src'], ['self', ANALYTICS]);
+	test('full-pipeline idempotence — same options produce deepEqual results', () => {
+		const options = {
+			replace_defaults: {'img-src': ['self', 'data:']} as any,
+			extend: [
+				{'img-src': ['https://*.fuz.dev/' as any]},
+				{'connect-src': [ANALYTICS as any], 'script-src': [CLOUDFLARE_CDN as any]},
+			],
+			overrides: {'frame-ancestors': ['self', 'https://parent.example.com' as any]},
+		};
 
-		// style-src: replace_defaults + extend
-		assert_source_in_directive(csp, 'style-src', GOOGLE_FONTS);
-		assert_source_in_directive(csp, 'style-src', CLOUDFLARE_CDN);
-		assert_source_in_directive(csp, 'style-src', 'unsafe-inline' as any);
+		const csp1 = create_csp_directives(options);
+		const csp2 = create_csp_directives(options);
 
-		// img-src: replace_defaults + extend
-		assert_source_in_directive(csp, 'img-src', 'self');
-		assert_source_in_directive(csp, 'img-src', 'data:' as any);
-		assert_source_in_directive(csp, 'img-src', 'https://*.fuz.dev/');
-
-		// font-src: replace_defaults + extend
-		assert_source_in_directive(csp, 'font-src', GOOGLE_FONTS);
-
-		// default-src: replace_defaults preserved
-		assert.deepEqual(csp['default-src'], ['none']);
+		assert.deepEqual(csp1, csp2);
 	});
 });

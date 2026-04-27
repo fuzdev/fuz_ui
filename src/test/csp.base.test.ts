@@ -35,6 +35,10 @@ describe('default output snapshot', () => {
 			'upgrade-insecure-requests': true,
 		});
 	});
+
+	test('empty options object is equivalent to no options', () => {
+		assert.deepEqual(create_csp_directives({}), create_csp_directives());
+	});
 });
 
 describe('replace_defaults option — wholesale replace semantics', () => {
@@ -80,6 +84,18 @@ describe('replace_defaults option — wholesale replace semantics', () => {
 				}),
 			/Invalid value 'null' for directive 'img-src' in options.replace_defaults/,
 		);
+	});
+
+	test('undefined values in replace_defaults are skipped', () => {
+		// Distinct from `null`, which throws. `undefined` mirrors omitting the key.
+		const csp = create_csp_directives({
+			replace_defaults: {
+				'script-src': ['self', TRUSTED_2 as any],
+				'img-src': undefined as any,
+			},
+		});
+
+		assert.deepEqual(csp, {'script-src': ['self', TRUSTED_2]});
 	});
 
 	test('boolean values pass through', () => {

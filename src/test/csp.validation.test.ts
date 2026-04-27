@@ -161,8 +161,96 @@ describe('immutability', () => {
 
 		assert.ok(!csp['script-src']!.includes('https://modified.com' as any));
 	});
+});
 
-	test('boolean directives pass through correctly', () => {
+describe('stage-4 output validation', () => {
+	test('overrides setting empty array throws', () => {
+		// Empty arrays drop the directive in some parsers, which can fall back to default-src
+		// and effectively widen the policy. Catch via stage 4 across all input paths.
+		assert.throws(() => create_csp_directives({overrides: {'img-src': []}}), /has an empty array/);
+	});
+
+	test('replace_defaults with empty array throws', () => {
+		assert.throws(
+			() => create_csp_directives({replace_defaults: {'img-src': []}}),
+			/has an empty array/,
+		);
+	});
+
+	test('overrides producing `none` alongside other tokens throws', () => {
+		assert.throws(
+			() =>
+				create_csp_directives({
+					overrides: {
+						'script-src': ['none', 'self', TRUSTED as any] as any,
+					},
+				}),
+			/'none' alongside other tokens/,
+		);
+	});
+
+	test('replace_defaults producing `none` alongside other tokens throws', () => {
+		assert.throws(
+			() =>
+				create_csp_directives({
+					replace_defaults: {
+						'script-src': ['none', 'self'],
+					},
+				}),
+			/'none' alongside other tokens/,
+		);
+	});
+
+	test('extend producing `none` alongside other tokens throws', () => {
+		// Stage 2 only blocks extending a directive whose *current* value is exactly ['none'];
+		// if the user pre-seeds with non-`none` and then extends with `'none'`, stage 4 catches
+		// the resulting `['self', 'none']`.
+		assert.throws(
+			() =>
+				create_csp_directives({
+					replace_defaults: {'img-src': ['self']},
+					extend: [{'img-src': ['none']}],
+				}),
+			/'none' alongside other tokens/,
+		);
+	});
+
+	test('non-array, non-boolean value via replace_defaults throws', () => {
+		// Stage 2 (extend) already threw on non-array, but stages 1 and 3 forwarded the value
+		// to stage 4, where the array-only validation skipped it. Stage 4 now catches
+		// `as any` escapes uniformly across all three stages.
+		assert.throws(
+			() =>
+				create_csp_directives({
+					replace_defaults: {'img-src': 'self' as any},
+				}),
+			/Directive 'img-src' has an invalid value: expected an array of sources or a boolean, got string/,
+		);
+	});
+
+	test('non-array, non-boolean value via overrides throws', () => {
+		assert.throws(
+			() =>
+				create_csp_directives({
+					overrides: {'img-src': 'self' as any},
+				}),
+			/Directive 'img-src' has an invalid value: expected an array of sources or a boolean, got string/,
+		);
+	});
+
+	test('non-array, non-boolean value (number) via replace_defaults throws', () => {
+		assert.throws(
+			() =>
+				create_csp_directives({
+					replace_defaults: {'img-src': 42 as any},
+				}),
+			/expected an array of sources or a boolean, got number/,
+		);
+	});
+});
+
+describe('boolean directive pass-through', () => {
+	test('overrides preserves boolean true', () => {
 		const csp = create_csp_directives({
 			overrides: {'upgrade-insecure-requests': true},
 		});
@@ -170,7 +258,9 @@ describe('immutability', () => {
 	});
 });
 
-describe('directive specs validation', () => {
+describe('directive specs structure', () => {
+	// Fallback-relationship checks live in csp.fallback.test.ts; these tests cover only the
+	// shape of the spec data and the lookup map — concerns that don't fit fallback semantics.
 	test('all specs have valid structure', () => {
 		for (const spec of csp_directive_specs) {
 			assert.ok(spec.name, `spec should have a name`);
@@ -188,54 +278,12 @@ describe('directive specs validation', () => {
 		}
 	});
 
-	test('fallback references are valid', () => {
-		for (const spec of csp_directive_specs) {
-			if (spec.fallback) {
-				for (const fallback_name of spec.fallback) {
-					assert.ok(
-						csp_directive_spec_by_name.has(fallback_name),
-						`${spec.name} references valid fallback ${fallback_name}`,
-					);
-				}
-			}
-		}
-	});
-
-	test('fallback_of references are valid', () => {
-		for (const spec of csp_directive_specs) {
-			if (spec.fallback_of) {
-				for (const fallback_of_name of spec.fallback_of) {
-					assert.ok(
-						csp_directive_spec_by_name.has(fallback_of_name),
-						`${spec.name} references valid fallback_of ${fallback_of_name}`,
-					);
-				}
-			}
-		}
-	});
-
 	test('csp_directive_spec_by_name Map is correctly populated', () => {
 		assert.strictEqual(csp_directive_spec_by_name.size, csp_directive_specs.length);
 
 		for (const spec of csp_directive_specs) {
 			assert.ok(csp_directive_spec_by_name.has(spec.name));
 			assert.strictEqual(csp_directive_spec_by_name.get(spec.name), spec);
-		}
-	});
-
-	test('fallback chains are consistent', () => {
-		for (const spec of csp_directive_specs) {
-			if (spec.fallback) {
-				for (const fallback_name of spec.fallback) {
-					const fallback_spec = csp_directive_spec_by_name.get(fallback_name);
-					if (fallback_spec?.fallback_of) {
-						assert.ok(
-							fallback_spec.fallback_of.includes(spec.name),
-							`${fallback_name} should list ${spec.name} in fallback_of`,
-						);
-					}
-				}
-			}
 		}
 	});
 
