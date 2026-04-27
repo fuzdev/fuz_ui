@@ -2164,15 +2164,15 @@
 					{
 						"name": "csp_directive_value_defaults",
 						"kind": "variable",
-						"doc_comment": "The base CSP directive defaults.\nPrioritizes safety but loosens around media and styles, relying on defense-in-depth.\nCustomizable via `CreateCspDirectivesOptions`.",
-						"source_line": 267,
+						"doc_comment": "The base CSP directive defaults.\nPrioritizes safety but loosens around media and styles, relying on defense-in-depth.\nWASM compile is allowed (`'wasm-unsafe-eval'` on `script-src` and `worker-src`); `eval` is not.\nCustomizable via `CreateCspDirectivesOptions`.",
+						"source_line": 268,
 						"type_signature": "Record<keyof CspDirectives, boolean | (CspSource | CspActionSource)[] | CspSources | CspFrameSource[] | string[] | \"script\"[] | (\"allow-downloads-without-user-activation\" | ... 11 more ... | \"allow-top-navigation-by-user-activation\")[] | null>"
 					},
 					{
 						"name": "csp_directive_required_trust_defaults",
 						"kind": "variable",
 						"doc_comment": "Sources that meet this trust requirement are included for it by default.\nIf null, no trusted sources are added to the directive automatically.\nDirectives that don't support sources or default to `['none']` are null.\n\nFeedback is welcome, please see the issues - https://github.com/fuzdev/fuz_ui/issues",
-						"source_line": 304,
+						"source_line": 309,
 						"type_signature": "Record<keyof CspDirectives, \"low\" | \"medium\" | \"high\" | null>"
 					},
 					{
@@ -2182,85 +2182,85 @@
 						"see_also": [
 							"{@link https://developer.mozilla.org/en-US/docs/Web/HTTP/Reference/Headers/Content-Security-Policy}"
 						],
-						"source_line": 340,
+						"source_line": 345,
 						"type_signature": "CspDirectiveSpec[]"
 					},
 					{
 						"name": "csp_directive_spec_by_name",
 						"kind": "variable",
-						"source_line": 478,
+						"source_line": 483,
 						"type_signature": "Map<keyof CspDirectives, CspDirectiveSpec>"
 					},
 					{
 						"name": "CspActionSource",
 						"kind": "type",
-						"source_line": 510,
+						"source_line": 515,
 						"type_signature": "CspActionSource"
 					},
 					{
 						"name": "CspBaseSource",
 						"kind": "type",
-						"source_line": 511,
+						"source_line": 516,
 						"type_signature": "CspBaseSource"
 					},
 					{
 						"name": "CspCryptoSource",
 						"kind": "type",
-						"source_line": 518,
+						"source_line": 523,
 						"type_signature": "`nonce-${string}` | `sha256-${string}` | `sha384-${string}` | `sha512-${string}`"
 					},
 					{
 						"name": "CspFrameSource",
 						"kind": "type",
-						"source_line": 519,
+						"source_line": 524,
 						"type_signature": "CspFrameSource"
 					},
 					{
 						"name": "CspHostNameScheme",
 						"kind": "type",
-						"source_line": 520,
+						"source_line": 525,
 						"type_signature": "CspHostNameScheme"
 					},
 					{
 						"name": "CspHostSource",
 						"kind": "type",
-						"source_line": 521,
+						"source_line": 526,
 						"type_signature": "`${string}.${string}` | \"localhost\" | `${string}.${string}:${number}` | `${string}.${string}:*` | `localhost:${number}` | \"localhost:*\" | `${string}://${string}.${string}` | `${string}://${string}.${string}:${number}` | `${string}://${string}.${string}:*` | `${string}://localhost` | `${string}://localhost:${number}`..."
 					},
 					{
 						"name": "CspHostProtocolSchemes",
 						"kind": "type",
-						"source_line": 522,
+						"source_line": 527,
 						"type_signature": "CspHostProtocolSchemes"
 					},
 					{
 						"name": "CspPortScheme",
 						"kind": "type",
-						"source_line": 523,
+						"source_line": 528,
 						"type_signature": "CspPortScheme"
 					},
 					{
 						"name": "CspSchemeSource",
 						"kind": "type",
-						"source_line": 524,
+						"source_line": 529,
 						"type_signature": "CspSchemeSource"
 					},
 					{
 						"name": "CspSource",
 						"kind": "type",
-						"source_line": 531,
+						"source_line": 536,
 						"type_signature": "CspSource"
 					},
 					{
 						"name": "CspSources",
 						"kind": "type",
-						"source_line": 532,
+						"source_line": 537,
 						"type_signature": "CspSources"
 					},
 					{
 						"name": "CspDirectives",
 						"kind": "type",
-						"source_line": 534,
+						"source_line": 539,
 						"type_signature": "CspDirectives",
 						"properties": [
 							{

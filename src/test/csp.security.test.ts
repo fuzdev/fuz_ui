@@ -14,13 +14,13 @@ describe('default security posture', () => {
 	test('script execution is restricted by default', () => {
 		const csp = create_csp_directives();
 
-		// script-src should only allow self and the color scheme hash
-		assert.deepEqual(csp['script-src'], ['self', COLOR_SCHEME_SCRIPT_HASH]);
+		// script-src allows self, the color scheme hash, and 'wasm-unsafe-eval' (WASM compile only).
+		assert.deepEqual(csp['script-src'], ['self', 'wasm-unsafe-eval', COLOR_SCHEME_SCRIPT_HASH]);
 
 		// No unsafe-inline
 		assert.notInclude(csp['script-src']! as Array<any>, 'unsafe-inline');
 
-		// No unsafe-eval
+		// No unsafe-eval (the narrow 'wasm-unsafe-eval' is allowed; broad 'unsafe-eval' is not)
 		assert.notInclude(csp['script-src']! as Array<any>, 'unsafe-eval');
 	});
 
@@ -74,21 +74,30 @@ describe('XSS protection through defaults', () => {
 		assert.ok(!csp['script-src']!.includes('unsafe-inline' as any));
 	});
 
-	test('eval is not allowed by default', () => {
+	test('eval is not allowed by default, but WASM compile is', () => {
 		const csp = create_csp_directives();
 
-		// No unsafe-eval
+		// 'unsafe-eval' (which re-enables `eval` and `new Function`) is not allowed
+		// on either script-src or worker-src.
 		assert.ok(!csp['script-src']!.includes('unsafe-eval' as any));
-		assert.ok(!csp['script-src']!.includes('wasm-unsafe-eval' as any));
+		assert.ok(!csp['worker-src']!.includes('unsafe-eval' as any));
+
+		// The narrower 'wasm-unsafe-eval' (permits WebAssembly.compile/instantiate only)
+		// IS allowed by default — required by `@fuzdev/fuz_util/hash_blake3` and any
+		// other WASM module loaded in the page or a worker.
+		assert.ok(csp['script-src']!.includes('wasm-unsafe-eval' as any));
+		assert.ok(csp['worker-src']!.includes('wasm-unsafe-eval' as any));
 	});
 
 	test('external scripts require explicit allowlist', () => {
 		const csp = create_csp_directives();
 
-		// Only self is allowed by default (plus color scheme hash)
+		// Only self is allowed by default (plus color scheme hash and the wasm-unsafe-eval keyword).
 		assert.ok(csp['script-src']!.includes('self'));
 		assert.strictEqual(
-			csp['script-src']!.filter((v) => v !== 'self' && !v.startsWith('sha256-')).length,
+			csp['script-src']!.filter(
+				(v) => v !== 'self' && v !== 'wasm-unsafe-eval' && !v.startsWith('sha256-'),
+			).length,
 			0,
 			'no external domains by default',
 		);

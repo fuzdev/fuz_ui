@@ -262,6 +262,7 @@ export const COLOR_SCHEME_SCRIPT_HASH = 'sha256-QOxqn7EUzb3ydF9SALJoJGWSvywW9R0A
 /**
  * The base CSP directive defaults.
  * Prioritizes safety but loosens around media and styles, relying on defense-in-depth.
+ * WASM compile is allowed (`'wasm-unsafe-eval'` on `script-src` and `worker-src`); `eval` is not.
  * Customizable via `CreateCspDirectivesOptions`.
  */
 export const csp_directive_value_defaults: Record<
@@ -269,8 +270,11 @@ export const csp_directive_value_defaults: Record<
 	CspDirectiveValue<CspDirective> | null
 > = {
 	'default-src': ['none'],
-	'script-src': ['self', COLOR_SCHEME_SCRIPT_HASH], // Eval is opt-in, scripting is locked down except for self and the color scheme loader script
-	'script-src-elem': ['self', COLOR_SCHEME_SCRIPT_HASH], // Block script elements except for self and the color scheme loader
+	// `'wasm-unsafe-eval'` permits WASM compile/instantiate only — `eval` and `new Function`
+	// remain blocked. Needed for `@fuzdev/fuz_util/hash_blake3` and any other WASM in the page.
+	// Pre-2022 browsers ignore the keyword and block WASM; if you need them, override with `'unsafe-eval'`.
+	'script-src': ['self', 'wasm-unsafe-eval', COLOR_SCHEME_SCRIPT_HASH],
+	'script-src-elem': ['self', COLOR_SCHEME_SCRIPT_HASH], // Block script elements except for self and the color scheme loader (WASM compile is gated by script-src, not script-src-elem)
 	'script-src-attr': ['none'], // Block scripts in HTML attributes
 	'style-src': ['self', 'unsafe-inline'], // Main style directive (uses unsafe-inline but network connections are disallowed by other directives)
 	'style-src-elem': ['self', 'unsafe-inline'], // Style elements (standalone stylesheets)
@@ -284,7 +288,8 @@ export const csp_directive_value_defaults: Record<
 	'frame-src': ['self'], // Frames/iframes
 	'frame-ancestors': ['self'], // Control what can embed this page
 	'form-action': ['self'], // Form submission targets
-	'worker-src': ['self', 'blob:'], // Web workers
+	// `'wasm-unsafe-eval'` mirrors the script-src allowance so WASM compiled inside a Web Worker also works.
+	'worker-src': ['self', 'blob:', 'wasm-unsafe-eval'], // Web workers
 	'object-src': ['none'], // Block plugins (Flash, Java, etc.)
 	'base-uri': ['none'], // Prevent base tag hijacking
 	'upgrade-insecure-requests': true, // Upgrade http to https

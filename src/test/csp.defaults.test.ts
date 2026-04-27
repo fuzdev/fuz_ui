@@ -29,7 +29,7 @@ describe('value_defaults option tests', () => {
 		assert.deepEqual(csp['connect-src'], ['self', DEFAULT_OVERRIDE]);
 
 		// Other directives should use original defaults
-		assert.deepEqual(csp['script-src'], ['self', COLOR_SCHEME_SCRIPT_HASH]);
+		assert.deepEqual(csp['script-src'], ['self', 'wasm-unsafe-eval', COLOR_SCHEME_SCRIPT_HASH]);
 	});
 
 	test('value_defaults: partial override (some directives)', () => {
@@ -44,7 +44,7 @@ describe('value_defaults option tests', () => {
 
 		// Other directives should use original defaults
 		assert.deepEqual(csp['connect-src'], ['self']);
-		assert.deepEqual(csp['script-src'], ['self', COLOR_SCHEME_SCRIPT_HASH]);
+		assert.deepEqual(csp['script-src'], ['self', 'wasm-unsafe-eval', COLOR_SCHEME_SCRIPT_HASH]);
 	});
 
 	test('value_defaults: works with trusted sources', () => {

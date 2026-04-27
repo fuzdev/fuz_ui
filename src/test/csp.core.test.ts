@@ -43,7 +43,7 @@ describe('basic defaults', () => {
 
 		// Check specific critical defaults
 		assert.deepEqual(csp['default-src'], ['none']);
-		assert.deepEqual(csp['script-src'], ['self', COLOR_SCHEME_SCRIPT_HASH]);
+		assert.deepEqual(csp['script-src'], ['self', 'wasm-unsafe-eval', COLOR_SCHEME_SCRIPT_HASH]);
 		assert.deepEqual(csp['script-src-elem'], ['self', COLOR_SCHEME_SCRIPT_HASH]);
 		assert.deepEqual(csp['script-src-attr'], ['none']);
 		assert.deepEqual(csp['style-src'], ['self', 'unsafe-inline']);
