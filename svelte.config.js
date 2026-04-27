@@ -16,9 +16,15 @@ try {
 	];
 } catch {}
 
-// TODO see `csp_trusted_sources_of_fuzdev`, it shouldn't be in fuz
-/** @type {any[]} */
-const csp_trusted_sources_of_fuz = ['https://*.fuz.dev/', 'https://*.zzz.software/'];
+// fuz_ui's own CSP — kept as a hand-rolled directive map (not via
+// `create_csp_directives`) because importing self from dist is fragile during
+// builds. Mirrors the library defaults plus img-src extensions for fuz.dev /
+// zzz.software (matching `csp_directives_of_fuzdev`).
+//
+// TODO swap to `create_csp_directives({extend: [csp_directives_of_fuzdev]})` once
+// self-import-from-dist is reliable. Until then, any change to `csp_directive_value_defaults`
+// in `src/lib/csp.ts` must be mirrored here by hand.
+const csp_img_extensions = /** @type {const} */ (['https://*.fuz.dev/', 'https://*.zzz.software/']);
 
 /** @type {import('@sveltejs/kit').Config} */
 export default {
@@ -32,28 +38,26 @@ export default {
 		csp: {
 			directives: {
 				'default-src': ['none'],
-				'script-src': ['self', 'sha256-QOxqn7EUzb3ydF9SALJoJGWSvywW9R0AfTDSenB83Z8='],
+				'script-src': [
+					'self',
+					'wasm-unsafe-eval',
+					'sha256-QOxqn7EUzb3ydF9SALJoJGWSvywW9R0AfTDSenB83Z8=',
+				],
 				'script-src-elem': ['self', 'sha256-QOxqn7EUzb3ydF9SALJoJGWSvywW9R0AfTDSenB83Z8='],
 				'script-src-attr': ['none'],
 				'style-src': ['self', 'unsafe-inline'],
 				'style-src-elem': ['self', 'unsafe-inline'],
 				'style-src-attr': ['unsafe-inline'],
-				'img-src': ['self', 'data:', 'blob:', 'filesystem:', ...csp_trusted_sources_of_fuz],
-				'media-src': [
-					'self',
-					'blob:',
-					'mediastream:',
-					'filesystem:',
-					...csp_trusted_sources_of_fuz,
-				],
-				'font-src': ['self', 'data:', ...csp_trusted_sources_of_fuz],
+				'img-src': ['self', 'data:', 'blob:', 'filesystem:', ...csp_img_extensions],
+				'media-src': ['self', 'data:', 'blob:', 'mediastream:', 'filesystem:'],
+				'font-src': ['self', 'data:'],
 				'manifest-src': ['self'],
 				'child-src': ['none'],
 				'connect-src': ['self'],
 				'frame-src': ['self'],
 				'frame-ancestors': ['self'],
 				'form-action': ['self'],
-				'worker-src': ['self', 'blob:'],
+				'worker-src': ['self', 'blob:', 'wasm-unsafe-eval'],
 				'object-src': ['none'],
 				'base-uri': ['none'],
 				'upgrade-insecure-requests': true,

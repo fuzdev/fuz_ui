@@ -1,11 +1,11 @@
-import type {CspSourceSpec} from './csp.ts';
+import type {CspDirectives} from './csp.ts';
 
 /**
- * Trusted sources owned by fuz.dev.
+ * Per-directive sources owned by fuz.dev.
+ *
+ * Pass into `create_csp_directives({extend: [csp_directives_of_fuzdev]})`.
+ * Scoped narrowly to actually-served resources — widen on demand, not by default.
  */
-export const csp_trusted_sources_of_fuzdev: Array<CspSourceSpec> = [
-	{source: 'https://*.fuz.dev/', trust: 'low'},
-	{source: 'https://*.zzz.software/', trust: 'low'},
-	// if needed
-	// {source: 'https://fuzdev.github.io/', trust: 'low'},
-];
+export const csp_directives_of_fuzdev: Partial<CspDirectives> = {
+	'img-src': ['https://*.fuz.dev/', 'https://*.zzz.software/'],
+};

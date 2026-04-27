@@ -1,55 +1,20 @@
 import {assert} from 'vitest';
-import type {CspTrustLevel, CspSourceSpec, CspDirectives, CspDirective} from '$lib/csp.js';
+import type {CspDirectives, CspDirective} from '$lib/csp.js';
 
-// Test domain constants
+/**
+ * Test domain constants used across CSP test files.
+ */
 export const TEST_SOURCES = {
 	TRUSTED: 'trusted.domain',
 	TRUSTED_A: 'a.trusted.domain',
 	TRUSTED_2: 'trusted2.domain',
-	STATIC_OVERRIDE: 'static-override.domain',
-	FUNCTION_ADDED: 'function-added.domain',
-	COMPLETE_OVERRIDE: 'complete-override.domain',
-	DEFAULT_OVERRIDE: 'default-override.domain',
-	SECONDARY_DEFAULT: 'secondary-default.domain',
-	// Real-world sources
+	TRUSTED_3: 'trusted3.domain',
 	GOOGLE_FONTS: 'fonts.googleapis.com',
 	GOOGLE_FONTS_STATIC: 'fonts.gstatic.com',
 	CLOUDFLARE_CDN: 'cdnjs.cloudflare.com',
 	ANALYTICS: 'analytics.fuz.dev',
 	STRIPE: 'js.stripe.com',
 } as const;
-
-/**
- * Creates a test source spec with a trust level.
- */
-export const create_test_source = (source: string, trust: CspTrustLevel): CspSourceSpec => ({
-	source: source as any,
-	trust,
-});
-
-/**
- * Creates a test source spec with explicit directives.
- */
-export const create_test_source_with_directives = (
-	source: string,
-	directives: Array<CspDirective>,
-): CspSourceSpec => ({
-	source: source as any,
-	directives,
-});
-
-/**
- * Creates a test source spec with both trust and directives.
- */
-export const create_test_source_with_both = (
-	source: string,
-	trust: CspTrustLevel,
-	directives: Array<CspDirective>,
-): CspSourceSpec => ({
-	source: source as any,
-	trust,
-	directives,
-});
 
 /**
  * Asserts that a source is included in a directive.
