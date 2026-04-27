@@ -46,7 +46,7 @@ describe('extreme array sizes', () => {
 describe('unusual option combinations', () => {
 	test('all options empty produces an empty result', () => {
 		const csp = create_csp_directives({
-			replace_defaults: null,
+			replace_defaults: {},
 			extend: [],
 			overrides: {},
 		});
@@ -64,7 +64,7 @@ describe('unusual option combinations', () => {
 
 	test('mixing null replace_defaults with full pipeline', () => {
 		const csp = create_csp_directives({
-			replace_defaults: null,
+			replace_defaults: {},
 			extend: [{'script-src': ['self', TRUSTED as any]}],
 			overrides: {
 				'connect-src': ['self'],

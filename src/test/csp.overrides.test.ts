@@ -1,12 +1,7 @@
 import {test, assert, describe} from 'vitest';
 
 import {create_csp_directives} from '$lib/csp.js';
-import {
-	TEST_SOURCES,
-	assert_source_in_directive,
-	assert_source_not_in_directive,
-	assert_directive_not_exists,
-} from './csp_test_helpers.js';
+import {TEST_SOURCES, assert_directive_not_exists} from './csp_test_helpers.js';
 
 const {TRUSTED, TRUSTED_2} = TEST_SOURCES;
 
@@ -19,17 +14,13 @@ describe('overrides option — replace per directive', () => {
 			},
 		});
 
+		// `TRUSTED` from extend is dropped — overrides replaces wholesale.
 		assert.deepEqual(csp['script-src'], ['self', TRUSTED_2]);
-		assert_source_not_in_directive(
-			csp,
-			'script-src',
-			TRUSTED,
-			'extend output is replaced by overrides',
-		);
 	});
 
 	test('only the named directive is affected', () => {
 		const csp = create_csp_directives({
+			replace_defaults: {'script-src': ['self'], 'connect-src': ['self']},
 			extend: [
 				{
 					'script-src': [TRUSTED as any],
@@ -41,8 +32,10 @@ describe('overrides option — replace per directive', () => {
 			},
 		});
 
-		assert.deepEqual(csp['script-src'], ['self', TRUSTED_2]);
-		assert_source_in_directive(csp, 'connect-src', TRUSTED);
+		assert.deepEqual(csp, {
+			'script-src': ['self', TRUSTED_2],
+			'connect-src': ['self', TRUSTED],
+		});
 	});
 
 	test('multiple directives in one overrides object', () => {
@@ -136,7 +129,7 @@ describe('precedence: replace_defaults → extend → overrides', () => {
 			},
 		});
 
-		assert.deepEqual(csp['connect-src'], ['self', TRUSTED_2]);
+		assert.deepEqual(csp, {'connect-src': ['self', TRUSTED_2]});
 	});
 
 	test('overrides runs after extend even when extend would throw on `none`', () => {

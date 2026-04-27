@@ -86,7 +86,7 @@ const csp_custom_defaults = create_csp_directives({
 
 // Start blank — fully declarative, no library defaults at all:
 const csp_blank = create_csp_directives({
-  replace_defaults: null,
+  replace_defaults: {},
   overrides: {
     'script-src': ['self'],
     'img-src': ['self', 'data:'],
@@ -107,7 +107,8 @@ const csp_blank = create_csp_directives({
 				— the starting state. Omitted, it's
 				<DeclarationLink name="csp_directive_value_defaults" />. Provided, it
 				<em>replaces the library defaults wholesale</em> — exactly the directives you list, nothing
-				inherited. <code>null</code> or <code>{'{}'}</code> starts blank.
+				inherited. <code>{'{}'}</code> starts blank; <code>null</code> throws (avoid the null/undefined
+				footgun where a conditional silently disables defaults).
 			</li>
 			<li>
 				<strong><code>extend</code></strong> — sources to append per directive, layered left to
@@ -225,13 +226,13 @@ const csp = create_csp_directives({
 // });
 
 // Same shape as a hand-written directives map — still gets input and output validation.
-create_csp_directives({replace_defaults: null, overrides: {/* ... */}});`}
+create_csp_directives({replace_defaults: {}, overrides: {/* ... */}});`}
 		/>
 		<p>
 			Use <code>overrides</code> for tweaks (replace one directive while keeping the library
 			defaults), and <code>replace_defaults</code> for full ownership of the starting state.
-			<code>null</code> values inside <code>replace_defaults</code> throw — omit the key instead, or
-			use <code>overrides</code> to remove.
+			<code>null</code> is rejected (top-level or per-key) — omit the option for library defaults,
+			pass <code>{'{}'}</code> to start blank, or use <code>overrides</code> to remove a specific directive.
 		</p>
 	</TomeSection>
 
@@ -251,8 +252,9 @@ create_csp_directives({replace_defaults: null, overrides: {/* ... */}});`}
 				<code>replace_defaults</code> or <code>overrides</code> instead.
 			</li>
 			<li>
-				<code>null</code> values inside <code>replace_defaults</code> throw — omit the key instead,
-				or use <code>overrides</code> to remove.
+				<code>null</code> for <code>replace_defaults</code> (top-level or per-key) throws — omit the
+				option for library defaults, pass <code>{'{}'}</code> to start blank, or use
+				<code>overrides</code> to remove a specific directive.
 			</li>
 			<li>
 				The output is validated to ensure <code>'none'</code> never appears alongside other tokens (an

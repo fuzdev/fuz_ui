@@ -27,11 +27,12 @@ export interface CreateCspDirectivesOptions {
 	 *   Anything not listed is **absent** from the starting state — including security defaults
 	 *   like `default-src: 'none'`. To tweak a single directive while keeping the rest, use
 	 *   `extend` (to append) or `overrides` (to replace per-key) instead.
-	 * - `null` or `{}`: starts blank with no directives.
+	 * - `{}`: starts blank with no directives.
 	 *
-	 * `null` values per-key are not allowed — omit the key instead, or use `overrides` to remove.
+	 * `null` is not accepted (top-level or per-key) — omit the option to use library defaults,
+	 * pass `{}` to start blank, or use `overrides` to remove a specific directive.
 	 */
-	replace_defaults?: Partial<typeof csp_directive_value_defaults> | null;
+	replace_defaults?: Partial<typeof csp_directive_value_defaults>;
 
 	/**
 	 * Sources to append per directive, layered left to right.
@@ -66,7 +67,8 @@ export interface CreateCspDirectivesOptions {
  * Validation:
  * - Unknown directive keys throw.
  * - Extending a `['none']` directive throws (use `replace_defaults`/`overrides` to opt in).
- * - `null` values inside `replace_defaults` throw (omit the key instead).
+ * - `null` for `replace_defaults` (top-level or per-key) throws — omit the option for library
+ *   defaults, pass `{}` to start blank, or use `overrides` to remove a specific directive.
  * - Output is validated to ensure `'none'` never appears alongside other tokens,
  *   and that no directive ends up with an empty array (use `['none']` to forbid all).
  *
@@ -74,6 +76,14 @@ export interface CreateCspDirectivesOptions {
  */
 export const create_csp_directives = (options: CreateCspDirectivesOptions = {}): CspDirectives => {
 	const {replace_defaults = csp_directive_value_defaults, extend, overrides} = options;
+
+	// eslint-disable-next-line @typescript-eslint/no-unnecessary-condition
+	if (replace_defaults === null) {
+		throw new Error(
+			`Invalid value 'null' for options.replace_defaults. ` +
+				`Omit the option to use library defaults, or pass {} to start with no directives.`,
+		);
+	}
 
 	const directives: CspDirectives = {};
 
@@ -88,8 +98,8 @@ export const create_csp_directives = (options: CreateCspDirectivesOptions = {}):
 	};
 
 	// Stage 1: starting state from `replace_defaults`.
-	// `null` (or `{}`) starts blank — every directive must come from `extend`/`overrides`.
-	for_each_directive(replace_defaults ?? {}, 'replace_defaults', (directive, value) => {
+	// `{}` starts blank — every directive must come from `extend`/`overrides`.
+	for_each_directive(replace_defaults, 'replace_defaults', (directive, value) => {
 		// eslint-disable-next-line @typescript-eslint/no-unnecessary-condition
 		if (value === null) {
 			throw new Error(

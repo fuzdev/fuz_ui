@@ -1,37 +1,42 @@
 import {test, assert, describe} from 'vitest';
 
 import {create_csp_directives} from '$lib/csp.js';
-import {
-	TEST_SOURCES,
-	assert_source_in_directive,
-	assert_source_not_in_directive,
-	assert_directive_not_exists,
-} from './csp_test_helpers.js';
+import {TEST_SOURCES} from './csp_test_helpers.js';
 
 const {TRUSTED, TRUSTED_A, TRUSTED_2} = TEST_SOURCES;
 
 describe('extend basic behavior', () => {
 	test('appends a source to an existing directive', () => {
 		const csp = create_csp_directives({
+			replace_defaults: {'img-src': ['self']},
 			extend: [{'img-src': [TRUSTED as any]}],
 		});
 
-		assert_source_in_directive(csp, 'img-src', 'self', 'starting sources preserved');
-		assert_source_in_directive(csp, 'img-src', TRUSTED, 'extended source added');
+		assert.deepEqual(csp, {'img-src': ['self', TRUSTED]});
 	});
 
 	test('only the named directive is affected', () => {
 		const csp = create_csp_directives({
+			replace_defaults: {
+				'img-src': ['self'],
+				'script-src': ['self'],
+				'connect-src': ['self'],
+				'style-src': ['self'],
+			},
 			extend: [{'img-src': [TRUSTED as any]}],
 		});
 
-		assert_source_not_in_directive(csp, 'script-src', TRUSTED);
-		assert_source_not_in_directive(csp, 'connect-src', TRUSTED);
-		assert_source_not_in_directive(csp, 'style-src', TRUSTED);
+		assert.deepEqual(csp, {
+			'img-src': ['self', TRUSTED],
+			'script-src': ['self'],
+			'connect-src': ['self'],
+			'style-src': ['self'],
+		});
 	});
 
 	test('multiple directives in one layer', () => {
 		const csp = create_csp_directives({
+			replace_defaults: {'img-src': ['self'], 'connect-src': ['self']},
 			extend: [
 				{
 					'img-src': [TRUSTED as any],
@@ -40,10 +45,10 @@ describe('extend basic behavior', () => {
 			],
 		});
 
-		assert_source_in_directive(csp, 'img-src', TRUSTED);
-		assert_source_in_directive(csp, 'connect-src', TRUSTED_2);
-		assert_source_not_in_directive(csp, 'img-src', TRUSTED_2);
-		assert_source_not_in_directive(csp, 'connect-src', TRUSTED);
+		assert.deepEqual(csp, {
+			'img-src': ['self', TRUSTED],
+			'connect-src': ['self', TRUSTED_2],
+		});
 	});
 
 	test('empty array is a no-op', () => {
@@ -64,13 +69,14 @@ describe('extend basic behavior', () => {
 			extend: [{'img-src': [TRUSTED as any]}],
 		});
 
-		assert.deepEqual(csp['img-src'], [TRUSTED]);
+		assert.deepEqual(csp, {'img-src': [TRUSTED]});
 	});
 });
 
 describe('extend layering', () => {
 	test('layers compose left-to-right', () => {
 		const csp = create_csp_directives({
+			replace_defaults: {},
 			extend: [
 				{'img-src': [TRUSTED as any]},
 				{'img-src': [TRUSTED_2 as any]},
@@ -78,29 +84,12 @@ describe('extend layering', () => {
 			],
 		});
 
-		const img_src = csp['img-src']!;
-		const i_trusted = img_src.indexOf(TRUSTED as any);
-		const i_trusted2 = img_src.indexOf(TRUSTED_2 as any);
-		const i_trusted_a = img_src.indexOf(TRUSTED_A as any);
-
-		assert.ok(i_trusted < i_trusted2, 'first layer before second');
-		assert.ok(i_trusted2 < i_trusted_a, 'second layer before third');
-	});
-
-	test('starting values come before extended sources', () => {
-		const csp = create_csp_directives({
-			extend: [{'img-src': [TRUSTED as any]}],
-		});
-
-		const img_src = csp['img-src']!;
-		const self_index = img_src.indexOf('self');
-		const trusted_index = img_src.indexOf(TRUSTED as any);
-
-		assert.ok(self_index < trusted_index, 'starting sources before extended');
+		assert.deepEqual(csp, {'img-src': [TRUSTED, TRUSTED_2, TRUSTED_A]});
 	});
 
 	test('layers from different directives are independent', () => {
 		const csp = create_csp_directives({
+			replace_defaults: {'img-src': ['self'], 'connect-src': ['self']},
 			extend: [
 				{'img-src': [TRUSTED as any]},
 				{'connect-src': [TRUSTED_2 as any]},
@@ -108,56 +97,51 @@ describe('extend layering', () => {
 			],
 		});
 
-		assert_source_in_directive(csp, 'img-src', TRUSTED);
-		assert_source_in_directive(csp, 'img-src', TRUSTED_A);
-		assert_source_not_in_directive(csp, 'img-src', TRUSTED_2);
-		assert_source_in_directive(csp, 'connect-src', TRUSTED_2);
+		assert.deepEqual(csp, {
+			'img-src': ['self', TRUSTED, TRUSTED_A],
+			'connect-src': ['self', TRUSTED_2],
+		});
 	});
 });
 
 describe('extend deduplication', () => {
 	test('duplicate within a single layer is collapsed', () => {
 		const csp = create_csp_directives({
+			replace_defaults: {},
 			extend: [{'img-src': [TRUSTED, TRUSTED] as any}],
 		});
 
-		const occurrences = csp['img-src']!.filter((v) => v === TRUSTED).length;
-		assert.strictEqual(occurrences, 1, 'duplicates collapse within a layer');
+		assert.deepEqual(csp, {'img-src': [TRUSTED]});
 	});
 
 	test('duplicate across layers is collapsed', () => {
 		const csp = create_csp_directives({
+			replace_defaults: {},
 			extend: [{'img-src': [TRUSTED as any]}, {'img-src': [TRUSTED as any]}],
 		});
 
-		const occurrences = csp['img-src']!.filter((v) => v === TRUSTED).length;
-		assert.strictEqual(occurrences, 1, 'duplicates collapse across layers');
+		assert.deepEqual(csp, {'img-src': [TRUSTED]});
 	});
 
 	test('source already present in starting state is deduplicated when re-added', () => {
 		const csp = create_csp_directives({
+			replace_defaults: {'img-src': ['self']},
 			extend: [{'img-src': ['self']}],
 		});
 
-		const occurrences = csp['img-src']!.filter((v) => v === 'self').length;
-		assert.strictEqual(occurrences, 1, 'starting source deduplicates against extend');
+		assert.deepEqual(csp, {'img-src': ['self']});
 	});
 
 	test('insertion order preserved across deduplication', () => {
 		const csp = create_csp_directives({
+			replace_defaults: {},
 			extend: [
 				{'img-src': [TRUSTED as any, TRUSTED_2 as any]},
 				{'img-src': [TRUSTED as any, TRUSTED_A as any]},
 			],
 		});
 
-		const img_src = csp['img-src']!;
-		const i_trusted = img_src.indexOf(TRUSTED as any);
-		const i_trusted2 = img_src.indexOf(TRUSTED_2 as any);
-		const i_trusted_a = img_src.indexOf(TRUSTED_A as any);
-
-		assert.ok(i_trusted < i_trusted2, 'first occurrence wins');
-		assert.ok(i_trusted2 < i_trusted_a, 'later additions follow');
+		assert.deepEqual(csp, {'img-src': [TRUSTED, TRUSTED_2, TRUSTED_A]});
 	});
 });
 
@@ -204,8 +188,7 @@ describe('extend on `none` directives', () => {
 			extend: [{'object-src': [TRUSTED as any]}],
 		});
 
-		assert_source_in_directive(csp, 'object-src', 'self');
-		assert_source_in_directive(csp, 'object-src', TRUSTED);
+		assert.deepEqual(csp, {'object-src': ['self', TRUSTED]});
 	});
 
 	test('empty extend on a `none` directive does not throw', () => {
@@ -247,13 +230,13 @@ describe('extend with custom replace_defaults', () => {
 			extend: [{'connect-src': [TRUSTED as any]}],
 		});
 
-		assert.deepEqual(csp['connect-src'], ['self', TRUSTED]);
-		assert_directive_not_exists(csp, 'script-src', 'no library default leaked through');
+		// Whole-CSP deepEqual covers both the connect-src value and that no library defaults leaked.
+		assert.deepEqual(csp, {'connect-src': ['self', TRUSTED]});
 	});
 
 	test('extend on a blank replace_defaults produces only the extended values', () => {
 		const csp = create_csp_directives({
-			replace_defaults: null,
+			replace_defaults: {},
 			extend: [{'img-src': [TRUSTED as any]}],
 		});
 
