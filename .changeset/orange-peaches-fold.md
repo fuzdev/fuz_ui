@@ -2,4 +2,4 @@
 '@fuzdev/fuz_ui': minor
 ---
 
-feat: improve csp
+feat: improve csp API
