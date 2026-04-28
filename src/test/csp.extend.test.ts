@@ -225,6 +225,16 @@ describe('extend validation', () => {
 		);
 	});
 
+	test('non-array error message names the offending type', () => {
+		assert.throws(
+			() =>
+				create_csp_directives({
+					extend: [{'img-src': 'self' as any} as any],
+				}),
+			/Cannot extend directive 'img-src': value must be an array of sources, got string/,
+		);
+	});
+
 	test('throws when extending an array onto a directive set to a boolean by replace_defaults', () => {
 		// `replace_defaults` seeds a boolean, then extend tries to add an array. The extend
 		// value passes the array check at stage 2, but `current` is non-array, so the
@@ -236,6 +246,93 @@ describe('extend validation', () => {
 					extend: [{'upgrade-insecure-requests': [A] as any} as any],
 				}),
 			/Cannot extend directive 'upgrade-insecure-requests': it has a non-array value/,
+		);
+	});
+});
+
+describe('extend per-key undefined and null', () => {
+	test('per-key undefined is treated as omitted (no-op)', () => {
+		// Supports the conditional pattern `{'connect-src': cond ? [API] : undefined}` —
+		// matches the no-op semantics of `replace_defaults` and `overrides`.
+		const csp = create_csp_directives({
+			replace_defaults: {'img-src': ['self']},
+			extend: [{'img-src': undefined as any}],
+		});
+
+		assert.deepEqual(csp, {'img-src': ['self']});
+	});
+
+	test('per-key undefined alongside other keys leaves the other keys intact', () => {
+		const csp = create_csp_directives({
+			replace_defaults: {'img-src': ['self'], 'connect-src': ['self']},
+			extend: [{'img-src': [A], 'connect-src': undefined as any}],
+		});
+
+		assert.deepEqual(csp, {
+			'img-src': ['self', A],
+			'connect-src': ['self'],
+		});
+	});
+
+	test('per-key null throws with a pointer to overrides', () => {
+		// Distinct from `undefined` (no-op) — `null` in extend is almost always a typo for
+		// "remove this directive", which lives on `overrides`.
+		assert.throws(
+			() =>
+				create_csp_directives({
+					extend: [{'img-src': null as any}],
+				}),
+			/Cannot extend directive 'img-src' with null.*overrides.*'img-src': null/s,
+		);
+	});
+
+	test('per-key null does not leak the generic "must be an array" error', () => {
+		try {
+			create_csp_directives({
+				extend: [{'connect-src': null as any}],
+			});
+		} catch (error: any) {
+			assert.notInclude(
+				error.message,
+				'value must be an array of sources',
+				'null gets its own error path, not the generic non-array message',
+			);
+			return;
+		}
+		assert.fail('should have thrown');
+	});
+});
+
+describe('extend layer entry validation', () => {
+	// `Object.entries(undefined)` throws a cryptic native TypeError; the library guards
+	// the boundary so callers see a friendly error pointing at `options.extend`.
+	test('undefined layer entry throws a friendly error', () => {
+		assert.throws(
+			() =>
+				create_csp_directives({
+					extend: [undefined as any],
+				}),
+			/Invalid entry in options.extend: expected an object, got undefined/,
+		);
+	});
+
+	test('null layer entry throws a friendly error', () => {
+		assert.throws(
+			() =>
+				create_csp_directives({
+					extend: [null as any],
+				}),
+			/Invalid entry in options.extend: expected an object, got null/,
+		);
+	});
+
+	test('primitive layer entry throws a friendly error', () => {
+		assert.throws(
+			() =>
+				create_csp_directives({
+					extend: ['oops' as any],
+				}),
+			/Invalid entry in options.extend: expected an object, got string/,
 		);
 	});
 });

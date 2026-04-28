@@ -1985,27 +1985,27 @@
 								"name": "replace_defaults",
 								"kind": "variable",
 								"type_signature": "Partial<typeof csp_directive_value_defaults>",
-								"doc_comment": "Starting values per directive — *wholesale replaces* the library defaults.\n\n- Omitted: uses `csp_directive_value_defaults` (the curated library defaults).\n- Provided: exactly the directives you list, nothing else inherited.\n  Anything not listed is **absent** from the starting state — including security defaults\n  like `default-src: 'none'`. To tweak a single directive while keeping the rest, use\n  `extend` (to append) or `overrides` (to replace per-key) instead.\n- `{}`: starts blank with no directives.\n\n`null` is not accepted (top-level or per-key) — omit the option to use library defaults,\npass `{}` to start blank, or use `overrides` to remove a specific directive."
+								"doc_comment": "Starting values per directive — *wholesale replaces* the library defaults.\n\n- Omitted: uses `csp_directive_value_defaults` (the curated library defaults).\n- Provided: exactly the directives you list, nothing else inherited.\n  Anything not listed is **absent** from the starting state — including security defaults\n  like `default-src: 'none'`. To tweak a single directive while keeping the rest, use\n  `extend` (to append) or `overrides` (to replace per-key) instead.\n- `{}`: starts blank with no directives.\n\n`null` is not accepted (top-level or per-key) — omit the option to use library defaults,\npass `{}` to start blank, or use `overrides` to remove a specific directive.\n\nPer-key `undefined` is treated as omitted (no-op)."
 							},
 							{
 								"name": "extend",
 								"kind": "variable",
 								"type_signature": "ReadonlyArray<CspDirectiveSourcesMap>",
-								"doc_comment": "Sources to append per directive, layered left to right.\nEach entry is a partial map; values append to the result of `replace_defaults` and prior entries.\nValues are deduplicated within and across layers.\n\nOnly array-typed directives can be extended (boolean directives like `upgrade-insecure-requests`\nare excluded by the type). Throws if any entry attempts to extend a directive whose current\nvalue is `['none']` — use `replace_defaults` or `overrides` to opt into default-deny directives."
+								"doc_comment": "Sources to append per directive, layered left to right.\nEach entry is a partial map; values append to the result of `replace_defaults` and prior entries.\nValues are deduplicated within and across layers.\n\nOnly array-typed directives can be extended (boolean directives like `upgrade-insecure-requests`\nare excluded by the type). Throws if any entry attempts to extend a directive whose current\nvalue is `['none']` — use `replace_defaults` or `overrides` to opt into default-deny directives.\n\nPer-key `undefined` is treated as omitted (no-op) — supports conditional patterns like\n`{'connect-src': is_prod ? [API_URL] : undefined}`. Per-key `null` throws — `extend` only\nappends; use `overrides: { 'X': null }` to remove a directive."
 							},
 							{
 								"name": "overrides",
 								"kind": "variable",
 								"type_signature": "{\n\t\t[K in CspDirective]?: CspDirectiveValue<K> | null;\n\t}",
-								"doc_comment": "Final-pass per-directive overrides. Replaces the directive value or removes it entirely.\nPass `null` to remove a directive from the output.\n\nHighest precedence — wins over `replace_defaults` and `extend`."
+								"doc_comment": "Final-pass per-directive overrides. Replaces the directive value or removes it entirely.\nPass `null` to remove a directive from the output.\n\nHighest precedence — wins over `replace_defaults` and `extend`.\n\nPer-key `undefined` is treated as omitted (no-op) — distinct from `null`, which removes."
 							}
 						]
 					},
 					{
 						"name": "create_csp_directives",
 						"kind": "function",
-						"doc_comment": "Builds a CSP directives map for use with SvelteKit's `kit.csp.directives` option.\n\nRestrictive by default; opt into specific permissions via `extend` (append) or\n`overrides` (replace). Designed to read as an audit log: every user-added source\nis named at exactly one site in the source code. Library defaults are inherited\nunless you opt out via `replace_defaults`.\n\nValidation:\n- Unknown directive keys throw.\n- Extending a `['none']` directive throws (use `replace_defaults`/`overrides` to opt in).\n- `null` for `replace_defaults` (top-level or per-key) throws — omit the option for library\n  defaults, pass `{}` to start blank, or use `overrides` to remove a specific directive.\n- Output is validated to ensure `'none'` never appears alongside other tokens,\n  and that no directive ends up with an empty array (use `['none']` to forbid all).\n\nThings like rendering to a string are out of scope and left to SvelteKit.",
-						"source_line": 77,
+						"doc_comment": "Builds a CSP directives map for use with SvelteKit's `kit.csp.directives` option.\n\nRestrictive by default; opt into specific permissions via `extend` (append) or\n`overrides` (replace). Designed to read as an audit log: every user-added source\nis named at exactly one site in the source code. Library defaults are inherited\nunless you opt out via `replace_defaults`.\n\nValidation:\n- Unknown directive keys throw.\n- Extending a `['none']` directive throws (use `replace_defaults`/`overrides` to opt in).\n- `null` for `replace_defaults` (top-level or per-key) throws — omit the option for library\n  defaults, pass `{}` to start blank, or use `overrides` to remove a specific directive.\n- `null` per-key in `extend` throws (use `overrides` for removal).\n- `undefined` per-key is treated as omitted in all three stages.\n- Non-object entries in `extend` (`null`, `undefined`, primitives) throw with a friendly error.\n- Output is validated to ensure `'none'` never appears alongside other tokens,\n  that no directive ends up with an empty array (use `['none']` to forbid all),\n  and that every source array contains only strings.\n\nThings like rendering to a string are out of scope and left to SvelteKit.",
+						"source_line": 89,
 						"type_signature": "(options?: CreateCspDirectivesOptions): CspDirectives",
 						"return_type": "CspDirectives",
 						"parameters": [
@@ -2019,13 +2019,13 @@
 					{
 						"name": "CspDirective",
 						"kind": "type",
-						"source_line": 184,
+						"source_line": 219,
 						"type_signature": "keyof CspDirectives"
 					},
 					{
 						"name": "parse_csp_directive",
 						"kind": "function",
-						"source_line": 186,
+						"source_line": 221,
 						"type_signature": "(directive: unknown): keyof CspDirectives | null",
 						"return_type": "keyof CspDirectives | null",
 						"parameters": [
@@ -2038,7 +2038,7 @@
 					{
 						"name": "CspDirectiveValue",
 						"kind": "type",
-						"source_line": 191,
+						"source_line": 226,
 						"type_signature": "CspDirectiveValue<T>",
 						"generic_params": [
 							{
@@ -2050,20 +2050,20 @@
 					{
 						"name": "COLOR_SCHEME_SCRIPT_HASH",
 						"kind": "variable",
-						"source_line": 215,
+						"source_line": 259,
 						"type_signature": "\"sha256-QOxqn7EUzb3ydF9SALJoJGWSvywW9R0AfTDSenB83Z8=\""
 					},
 					{
 						"name": "csp_directive_value_defaults",
 						"kind": "variable",
 						"doc_comment": "The library CSP directive defaults — directives enabled out of the box.\nPrioritizes safety but loosens around media and styles, relying on defense-in-depth.\nWASM compile is allowed (`'wasm-unsafe-eval'` on `script-src` and `worker-src`); `eval` is not.\n\nDirectives not listed here (`report-to`, `require-trusted-types-for`, `trusted-types`,\n`sandbox`) are intentionally absent by default — opt in via `replace_defaults` or `overrides`.\n\nCustomizable via `CreateCspDirectivesOptions.replace_defaults`.",
-						"source_line": 227,
+						"source_line": 271,
 						"type_signature": "Partial<{ \"default-src\": (CspSource | CspActionSource)[]; \"script-src\": (CspSource | CspActionSource)[]; \"script-src-elem\": CspSources; ... 20 more ...; sandbox: (\"allow-downloads-without-user-activation\" | ... 11 more ... | \"allow-top-navigation-by-user-activation\")[]; }>"
 					},
 					{
 						"name": "CspDirectiveSpec",
 						"kind": "type",
-						"source_line": 256,
+						"source_line": 300,
 						"type_signature": "CspDirectiveSpec",
 						"properties": [
 							{
@@ -2090,85 +2090,85 @@
 						"see_also": [
 							"{@link https://developer.mozilla.org/en-US/docs/Web/HTTP/Reference/Headers/Content-Security-Policy}"
 						],
-						"source_line": 269,
+						"source_line": 313,
 						"type_signature": "CspDirectiveSpec[]"
 					},
 					{
 						"name": "csp_directive_spec_by_name",
 						"kind": "variable",
-						"source_line": 407,
+						"source_line": 451,
 						"type_signature": "Map<keyof CspDirectives, CspDirectiveSpec>"
 					},
 					{
 						"name": "CspActionSource",
 						"kind": "type",
-						"source_line": 439,
+						"source_line": 483,
 						"type_signature": "CspActionSource"
 					},
 					{
 						"name": "CspBaseSource",
 						"kind": "type",
-						"source_line": 440,
+						"source_line": 484,
 						"type_signature": "CspBaseSource"
 					},
 					{
 						"name": "CspCryptoSource",
 						"kind": "type",
-						"source_line": 447,
+						"source_line": 491,
 						"type_signature": "`nonce-${string}` | `sha256-${string}` | `sha384-${string}` | `sha512-${string}`"
 					},
 					{
 						"name": "CspFrameSource",
 						"kind": "type",
-						"source_line": 448,
+						"source_line": 492,
 						"type_signature": "CspFrameSource"
 					},
 					{
 						"name": "CspHostNameScheme",
 						"kind": "type",
-						"source_line": 449,
+						"source_line": 493,
 						"type_signature": "CspHostNameScheme"
 					},
 					{
 						"name": "CspHostSource",
 						"kind": "type",
-						"source_line": 450,
+						"source_line": 494,
 						"type_signature": "`${string}.${string}` | \"localhost\" | `${string}.${string}:${number}` | `${string}.${string}:*` | `localhost:${number}` | \"localhost:*\" | `${string}://${string}.${string}` | `${string}://${string}.${string}:${number}` | `${string}://${string}.${string}:*` | `${string}://localhost` | `${string}://localhost:${number}`..."
 					},
 					{
 						"name": "CspHostProtocolSchemes",
 						"kind": "type",
-						"source_line": 451,
+						"source_line": 495,
 						"type_signature": "CspHostProtocolSchemes"
 					},
 					{
 						"name": "CspPortScheme",
 						"kind": "type",
-						"source_line": 452,
+						"source_line": 496,
 						"type_signature": "CspPortScheme"
 					},
 					{
 						"name": "CspSchemeSource",
 						"kind": "type",
-						"source_line": 453,
+						"source_line": 497,
 						"type_signature": "CspSchemeSource"
 					},
 					{
 						"name": "CspSource",
 						"kind": "type",
-						"source_line": 460,
+						"source_line": 504,
 						"type_signature": "CspSource"
 					},
 					{
 						"name": "CspSources",
 						"kind": "type",
-						"source_line": 461,
+						"source_line": 505,
 						"type_signature": "CspSources"
 					},
 					{
 						"name": "CspDirectives",
 						"kind": "type",
-						"source_line": 463,
+						"source_line": 507,
 						"type_signature": "CspDirectives",
 						"properties": [
 							{

@@ -257,6 +257,21 @@ create_csp_directives({replace_defaults: {}, overrides: {/* ... */}});`}
 				<code>overrides</code> to remove a specific directive.
 			</li>
 			<li>
+				<code>null</code> per-key in <code>extend</code> throws with a pointer to
+				<code>overrides</code> — <code>extend</code> only appends, so removal lives on
+				<code>overrides</code>.
+			</li>
+			<li>
+				<code>undefined</code> per-key in any of the three stages is treated as omitted (no-op).
+				This lets conditional patterns like
+				<code>{"{'connect-src': is_prod ? [API_URL] : undefined}"}</code> work naturally.
+			</li>
+			<li>
+				Non-object entries in <code>extend</code> (e.g. <code>extend: [undefined]</code>) throw a
+				library error pointing at the option, instead of a cryptic native
+				<code>TypeError</code>.
+			</li>
+			<li>
 				The output is validated to ensure <code>'none'</code> never appears alongside other tokens (an
 				invalid CSP that browsers reject).
 			</li>
@@ -264,6 +279,11 @@ create_csp_directives({replace_defaults: {}, overrides: {/* ... */}});`}
 				The output is validated to ensure no directive ends up with an empty array — use
 				<code>['none']</code> to forbid all sources, or omit the directive entirely. Empty arrays
 				can be silently dropped or fall back to <code>default-src</code>, widening the policy.
+			</li>
+			<li>
+				Source arrays are validated to contain only strings — non-string elements (slipped through
+				via <code>as any</code>) would render as <code>undefined</code> or
+				<code>[object Object]</code> in the emitted header.
 			</li>
 		</ul>
 	</TomeSection>

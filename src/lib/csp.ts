@@ -31,6 +31,8 @@ export interface CreateCspDirectivesOptions {
 	 *
 	 * `null` is not accepted (top-level or per-key) — omit the option to use library defaults,
 	 * pass `{}` to start blank, or use `overrides` to remove a specific directive.
+	 *
+	 * Per-key `undefined` is treated as omitted (no-op).
 	 */
 	replace_defaults?: Partial<typeof csp_directive_value_defaults>;
 
@@ -42,6 +44,10 @@ export interface CreateCspDirectivesOptions {
 	 * Only array-typed directives can be extended (boolean directives like `upgrade-insecure-requests`
 	 * are excluded by the type). Throws if any entry attempts to extend a directive whose current
 	 * value is `['none']` — use `replace_defaults` or `overrides` to opt into default-deny directives.
+	 *
+	 * Per-key `undefined` is treated as omitted (no-op) — supports conditional patterns like
+	 * `{'connect-src': is_prod ? [API_URL] : undefined}`. Per-key `null` throws — `extend` only
+	 * appends; use `overrides: { 'X': null }` to remove a directive.
 	 */
 	extend?: ReadonlyArray<CspDirectiveSourcesMap>;
 
@@ -50,6 +56,8 @@ export interface CreateCspDirectivesOptions {
 	 * Pass `null` to remove a directive from the output.
 	 *
 	 * Highest precedence — wins over `replace_defaults` and `extend`.
+	 *
+	 * Per-key `undefined` is treated as omitted (no-op) — distinct from `null`, which removes.
 	 */
 	overrides?: {
 		[K in CspDirective]?: CspDirectiveValue<K> | null;
@@ -69,8 +77,12 @@ export interface CreateCspDirectivesOptions {
  * - Extending a `['none']` directive throws (use `replace_defaults`/`overrides` to opt in).
  * - `null` for `replace_defaults` (top-level or per-key) throws — omit the option for library
  *   defaults, pass `{}` to start blank, or use `overrides` to remove a specific directive.
+ * - `null` per-key in `extend` throws (use `overrides` for removal).
+ * - `undefined` per-key is treated as omitted in all three stages.
+ * - Non-object entries in `extend` (`null`, `undefined`, primitives) throw with a friendly error.
  * - Output is validated to ensure `'none'` never appears alongside other tokens,
- *   and that no directive ends up with an empty array (use `['none']` to forbid all).
+ *   that no directive ends up with an empty array (use `['none']` to forbid all),
+ *   and that every source array contains only strings.
  *
  * Things like rendering to a string are out of scope and left to SvelteKit.
  */
@@ -116,9 +128,21 @@ export const create_csp_directives = (options: CreateCspDirectivesOptions = {}):
 	if (extend?.length) {
 		for (const layer of extend) {
 			for_each_directive(layer, 'extend', (directive, value) => {
+				// `undefined` is treated as omitted, matching `replace_defaults`/`overrides`.
+				// Lets callers write `{'connect-src': cond ? [API] : undefined}` naturally.
+				if (value === undefined) return;
+				// `null` is meaningful enough to deserve its own error — users reaching for null
+				// in extend almost always want removal, which lives on `overrides`.
+				if (value === null) {
+					throw new Error(
+						`Cannot extend directive '${directive}' with null. ` +
+							`extend can only append sources — to remove a directive from the output, ` +
+							`use \`overrides: { '${directive}': null }\`.`,
+					);
+				}
 				if (!Array.isArray(value)) {
 					throw new Error(
-						`Cannot extend directive '${directive}': value must be an array of sources.`,
+						`Cannot extend directive '${directive}': value must be an array of sources, got ${typeof value}.`,
 					);
 				}
 				if (!value.length) return;
@@ -170,6 +194,17 @@ export const create_csp_directives = (options: CreateCspDirectivesOptions = {}):
 					`Use ['none'] to forbid all sources, or omit the directive entirely.`,
 			);
 		}
+		// Element-level type check — the `CspSource` template-string type gates this at the
+		// type layer, but `as any` callers can slip non-strings through. A non-string source
+		// would render as `undefined` / `[object Object]` in the emitted CSP header.
+		for (let i = 0; i < value.length; i++) {
+			const v = (value as Array<unknown>)[i];
+			if (typeof v !== 'string') {
+				throw new Error(
+					`Directive '${key}' has a non-string source at index ${i}: got ${v === null ? 'null' : typeof v}.`,
+				);
+			}
+		}
 		if (value.length > 1 && (value as Array<unknown>).includes('none')) {
 			throw new Error(
 				`Directive '${key}' has 'none' alongside other tokens (${value.join(', ')}). ` +
@@ -197,12 +232,21 @@ const is_none = (value: unknown): boolean =>
  * Iterate over a per-directive options map, validating that every key is a known directive.
  * Throws if any key fails to parse as a `CspDirective`, mentioning `source_label` so the
  * error pinpoints which option (`replace_defaults`, `extend`, or `overrides`) was bad.
+ *
+ * Also guards against non-object `source` values (e.g. `extend: [undefined]`, `extend: ['oops']`)
+ * so callers get a friendly library error instead of a cryptic native `TypeError` from
+ * `Object.entries`.
  */
 const for_each_directive = <V>(
 	source: Record<string, V>,
 	source_label: 'replace_defaults' | 'extend' | 'overrides',
 	fn: (directive: CspDirective, value: V) => void,
 ): void => {
+	// eslint-disable-next-line @typescript-eslint/no-unnecessary-condition
+	if (source === null || typeof source !== 'object') {
+		const got = source === null ? 'null' : typeof source; // eslint-disable-line @typescript-eslint/no-unnecessary-condition
+		throw new Error(`Invalid entry in options.${source_label}: expected an object, got ${got}.`);
+	}
 	for (const [key, value] of Object.entries(source)) {
 		const directive = parse_csp_directive(key);
 		if (directive === null) {

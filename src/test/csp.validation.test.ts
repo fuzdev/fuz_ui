@@ -254,6 +254,40 @@ describe('stage-4 output validation', () => {
 			/expected an array of sources or a boolean, got number/,
 		);
 	});
+
+	test('non-string source element via overrides throws', () => {
+		// The `CspSource` template-string type gates this at the type layer, but `as any`
+		// callers can slip non-strings through. A non-string source would render as
+		// `undefined` / `[object Object]` in the emitted CSP header.
+		assert.throws(
+			() =>
+				create_csp_directives({
+					overrides: {'img-src': ['self', undefined as any, 'data:']},
+				}),
+			/Directive 'img-src' has a non-string source at index 1: got undefined/,
+		);
+	});
+
+	test('non-string source element (null) via replace_defaults throws', () => {
+		assert.throws(
+			() =>
+				create_csp_directives({
+					replace_defaults: {'img-src': ['self', null as any]},
+				}),
+			/Directive 'img-src' has a non-string source at index 1: got null/,
+		);
+	});
+
+	test('non-string source element via extend (after dedup) throws', () => {
+		assert.throws(
+			() =>
+				create_csp_directives({
+					replace_defaults: {'img-src': ['self']},
+					extend: [{'img-src': [42 as any]}],
+				}),
+			/Directive 'img-src' has a non-string source at index \d+: got number/,
+		);
+	});
 });
 
 describe('boolean directive pass-through', () => {
