@@ -1958,8 +1958,8 @@
 					{
 						"name": "csp_directives_of_fuzdev",
 						"kind": "variable",
-						"doc_comment": "Per-directive sources owned by fuz.dev.\n\nPass into `create_csp_directives({extend: [csp_directives_of_fuzdev]})`.\nScoped narrowly to actually-served resources — widen on demand, not by default.",
-						"source_line": 9,
+						"doc_comment": "Per-directive sources that allow full interop between fuzdev/sister sites\n(`*.fuz.dev`, `*.zzz.software`) — loading assets and APIs from each other,\nand iframing in both directions.\n\nPass into `create_csp_directives({extend: [csp_directives_of_fuzdev]})`.\nIntended for sites within the ecosystem; external apps usually want a\nnarrower, hand-written allow-list.\n\nDeliberately scoped — `script-src`, `style-src`, `worker-src`, etc. are not\ngranted, even between sister sites. Add at the call site if a specific page\nneeds them.",
+						"source_line": 16,
 						"type_signature": "Partial<CspDirectives>"
 					}
 				]
