@@ -2,7 +2,11 @@ import {test, assert, describe} from 'vitest';
 import type {KitConfig} from '@sveltejs/kit';
 import type {Defined} from '@fuzdev/fuz_util/types.js';
 
-import {create_csp_directives, type CspDirectives, COLOR_SCHEME_SCRIPT_HASH} from '$lib/csp.js';
+import {create_csp_directives, type CspDirectives} from '$lib/csp.js';
+import {src} from './csp_test_helpers.js';
+
+// SvelteKit-specific tests only — real-world scenarios (Stripe, analytics, Google Fonts,
+// CDN, hash/nonce) and conditional patterns are covered in csp.integration.test.ts.
 
 describe('SvelteKit type compatibility', () => {
 	test('CspDirectives is assignable to SvelteKit CSP directives type', () => {
@@ -12,7 +16,7 @@ describe('SvelteKit type compatibility', () => {
 		const kit_csp: KitCspDirectives = csp;
 
 		assert.ok(kit_csp);
-		assert.ok('script-src' in kit_csp);
+		assert.property(kit_csp, 'script-src');
 	});
 
 	test('individual directive types match SvelteKit expectations', () => {
@@ -35,124 +39,8 @@ describe('SvelteKit type compatibility', () => {
 	});
 });
 
-describe('SvelteKit config patterns', () => {
-	test('typical dev config: HMR needs unsafe-eval via extend', () => {
-		const csp = create_csp_directives({
-			extend: [{'script-src': ['unsafe-eval' as any]}],
-		});
-
-		assert.ok(csp['script-src']!.includes('unsafe-eval' as any));
-		assert.ok(csp['script-src']!.includes('self'));
-	});
-
-	test('typical production config: strict defaults', () => {
-		const csp = create_csp_directives();
-
-		assert.ok(!csp['script-src']!.includes('unsafe-eval' as any));
-		assert.ok(!csp['script-src']!.includes('unsafe-inline' as any));
-		assert.ok(csp['script-src']!.includes('self'));
-	});
-
-	test('CDN assets — explicit per-directive', () => {
-		const cdn = 'blog.fuz.dev';
-
-		const csp = create_csp_directives({
-			extend: [
-				{
-					'script-src': [cdn as any],
-					'style-src': [cdn as any],
-				},
-			],
-		});
-
-		assert.ok(csp['script-src']!.includes(cdn as any));
-		assert.ok(csp['style-src']!.includes(cdn as any));
-
-		// Does NOT auto-leak into other directives
-		assert.ok(!csp['img-src']!.includes(cdn as any));
-		assert.ok(!csp['font-src']!.includes(cdn as any));
-	});
-
-	test('Google Fonts — style + font directives only', () => {
-		const csp = create_csp_directives({
-			extend: [
-				{
-					'style-src': ['fonts.googleapis.com' as any],
-					'font-src': ['fonts.gstatic.com' as any],
-				},
-			],
-		});
-
-		assert.ok(csp['style-src']!.includes('fonts.googleapis.com' as any));
-		assert.ok(csp['font-src']!.includes('fonts.gstatic.com' as any));
-	});
-
-	test('analytics — script + connect directives only', () => {
-		const analytics = 'analytics.fuz.dev';
-
-		const csp = create_csp_directives({
-			extend: [
-				{
-					'script-src': [analytics as any],
-					'connect-src': [analytics as any],
-				},
-			],
-		});
-
-		assert.ok(csp['script-src']!.includes(analytics as any));
-		assert.ok(csp['connect-src']!.includes(analytics as any));
-	});
-});
-
-describe('SvelteKit SSR considerations', () => {
-	test('inline styles for SSR with unsafe-inline', () => {
-		const csp = create_csp_directives();
-
-		assert.ok(csp['style-src']!.includes('unsafe-inline' as any));
-	});
-
-	test('script hashes for inline scripts', () => {
-		const csp = create_csp_directives();
-
-		assert.ok(csp['script-src']!.includes(COLOR_SCHEME_SCRIPT_HASH));
-	});
-
-	test('self for SSR-generated scripts', () => {
-		const csp = create_csp_directives();
-		assert.ok(csp['script-src']!.includes('self'));
-	});
-
-	test('data URIs for SSR-generated images', () => {
-		const csp = create_csp_directives();
-		assert.ok(csp['img-src']!.includes('data:' as any));
-	});
-});
-
-describe('SvelteKit adapter configurations', () => {
-	test('adapter-vercel: Vercel Analytics', () => {
-		const csp = create_csp_directives({
-			extend: [
-				{
-					'script-src': ['va.vercel-scripts.com' as any],
-				},
-			],
-		});
-
-		assert.ok(csp['script-src']!.includes('va.vercel-scripts.com' as any));
-	});
-
-	test('adapter-static: tighter connect-src via overrides', () => {
-		const csp = create_csp_directives({
-			overrides: {
-				'connect-src': ['self'],
-			},
-		});
-
-		assert.deepEqual(csp['connect-src'], ['self']);
-	});
-});
-
 describe('SvelteKit reporting endpoint', () => {
+	// CSP reporting goes through SvelteKit's report-to handling, distinct from source allowlists.
 	test('report-to via replace_defaults', () => {
 		const csp = create_csp_directives({
 			replace_defaults: {
@@ -174,119 +62,25 @@ describe('SvelteKit reporting endpoint', () => {
 	});
 });
 
-describe('SvelteKit form handling', () => {
-	test('form-action defaults to self', () => {
-		const csp = create_csp_directives();
-		assert.deepEqual(csp['form-action'], ['self']);
-	});
-
-	test('form-action extended for external API', () => {
-		const api_endpoint = 'template.fuz.dev';
-
-		const csp = create_csp_directives({
-			extend: [{'form-action': [api_endpoint as any]}],
-		});
-
-		assert.ok(csp['form-action']!.includes(api_endpoint as any));
-	});
-});
-
-describe('SvelteKit WebSocket support', () => {
-	test('connect-src includes self for WebSocket', () => {
-		const csp = create_csp_directives();
-		assert.ok(csp['connect-src']!.includes('self'));
-	});
-
-	test('connect-src extended for external WebSocket server', () => {
-		const ws_server = 'wss://ws.fuz.dev';
-
-		const csp = create_csp_directives({
-			extend: [{'connect-src': [ws_server as any]}],
-		});
-
-		assert.ok(csp['connect-src']!.includes(ws_server as any));
-	});
-});
-
-describe('SvelteKit iframe embedding', () => {
-	test('frame-ancestors restricts embedding by default', () => {
-		const csp = create_csp_directives();
-		assert.deepEqual(csp['frame-ancestors'], ['self']);
-	});
-
-	test('frame-ancestors extended for widget use case', () => {
-		const parent_site = 'parent.fuz.dev';
-
-		const csp = create_csp_directives({
-			extend: [{'frame-ancestors': [parent_site as any]}],
-		});
-
-		assert.ok(csp['frame-ancestors']!.includes(parent_site as any));
-	});
-});
-
-describe('SvelteKit conditional configuration', () => {
-	test('conditional extend layer — production omits dev-only sources', () => {
-		// Pattern: build the extend array based on env, e.g. `is_dev ? [...] : []`.
+describe('conditional configuration', () => {
+	// The dev/prod split via extend is a recommended SvelteKit pattern: build the extend
+	// array based on env (`is_dev ? [{'script-src': ['unsafe-eval']}] : []`).
+	test('production omits dev-only sources', () => {
 		const prod_csp = create_csp_directives({extend: []});
-		assert.ok(!prod_csp['script-src']!.includes('unsafe-eval' as any));
+		assert.notInclude(prod_csp['script-src']! as Array<any>, 'unsafe-eval');
+	});
 
+	test('development extends with unsafe-eval for HMR', () => {
 		const dev_csp = create_csp_directives({
-			extend: [{'script-src': ['unsafe-eval' as any]}],
+			extend: [{'script-src': ['unsafe-eval']}],
 		});
-		assert.ok(dev_csp['script-src']!.includes('unsafe-eval' as any));
-	});
-
-	test('conditional analytics in production', () => {
-		const analytics = 'analytics.fuz.dev';
-
-		const prod_csp = create_csp_directives({
-			extend: [{'script-src': [analytics as any]}],
-		});
-		assert.ok(prod_csp['script-src']!.includes(analytics as any));
-
-		const non_prod_csp = create_csp_directives({extend: []});
-		assert.ok(!non_prod_csp['script-src']!.includes(analytics as any));
+		assert.include(dev_csp['script-src']!, 'unsafe-eval');
+		assert.include(dev_csp['script-src']!, 'self');
 	});
 });
 
-describe('SvelteKit worker support', () => {
-	test('worker-src defaults', () => {
-		const csp = create_csp_directives();
-
-		assert.ok(csp['worker-src']!.includes('self'));
-		assert.ok(csp['worker-src']!.includes('blob:' as any));
-	});
-
-	test('worker-src extended with external worker script', () => {
-		const worker_cdn = 'workers.cdn.com';
-
-		const csp = create_csp_directives({
-			extend: [{'worker-src': [worker_cdn as any]}],
-		});
-
-		assert.ok(csp['worker-src']!.includes(worker_cdn as any));
-	});
-});
-
-describe('SvelteKit manifest support', () => {
-	test('manifest-src for PWA manifest', () => {
-		const csp = create_csp_directives();
-		assert.deepEqual(csp['manifest-src'], ['self']);
-	});
-
-	test('manifest-src extended with CDN', () => {
-		const cdn = 'blog.fuz.dev';
-
-		const csp = create_csp_directives({
-			extend: [{'manifest-src': [cdn as any]}],
-		});
-
-		assert.ok(csp['manifest-src']!.includes(cdn as any));
-	});
-});
-
-describe('SvelteKit upgrade-insecure-requests', () => {
+describe('upgrade-insecure-requests', () => {
+	// Boolean-valued directive — exercises the non-array directive path that SvelteKit consumes.
 	test('enabled by default', () => {
 		const csp = create_csp_directives();
 		assert.strictEqual(csp['upgrade-insecure-requests'], true);
@@ -298,5 +92,23 @@ describe('SvelteKit upgrade-insecure-requests', () => {
 		});
 
 		assert.strictEqual(csp['upgrade-insecure-requests'], false);
+	});
+});
+
+describe('frame-ancestors for iframe embedding', () => {
+	// frame-ancestors has no fallback to default-src and isn't well-tested elsewhere.
+	test('restricts embedding to self by default', () => {
+		const csp = create_csp_directives();
+		assert.deepEqual(csp['frame-ancestors'], ['self']);
+	});
+
+	test('extended for widget use case', () => {
+		const parent_site = src('parent.fuz.dev');
+
+		const csp = create_csp_directives({
+			extend: [{'frame-ancestors': [parent_site]}],
+		});
+
+		assert.include(csp['frame-ancestors']!, parent_site);
 	});
 });

@@ -6,9 +6,9 @@ import {
 	csp_directive_specs,
 	csp_directive_spec_by_name,
 } from '$lib/csp.js';
-import {TEST_SOURCES} from './csp_test_helpers.js';
+import {src, srcs} from './csp_test_helpers.js';
 
-const {TRUSTED} = TEST_SOURCES;
+const A = src('a.fuz.dev');
 
 describe('parse_csp_directive', () => {
 	test('accepts valid directive names', () => {
@@ -87,29 +87,25 @@ describe('error handling', () => {
 			create_csp_directives({
 				overrides: {'my-bad-directive': ['self']} as any,
 			});
-			assert.fail('should have thrown');
 		} catch (error: any) {
-			assert.ok(
-				error.message.includes('my-bad-directive'),
-				'error message should include the invalid directive name',
-			);
-			assert.ok(
-				error.message.includes('options.overrides'),
-				'error message should locate the source of the bad input',
-			);
+			assert.include(error.message, 'my-bad-directive');
+			assert.include(error.message, 'options.overrides');
+			return;
 		}
+		assert.fail('should have thrown');
 	});
 
 	test('error message identifies extend as the source', () => {
 		try {
 			create_csp_directives({
-				extend: [{'my-bad-directive': [TRUSTED] as any} as any],
+				extend: [{'my-bad-directive': [A] as any} as any],
 			});
-			assert.fail('should have thrown');
 		} catch (error: any) {
-			assert.ok(error.message.includes('my-bad-directive'));
-			assert.ok(error.message.includes('options.extend'));
+			assert.include(error.message, 'my-bad-directive');
+			assert.include(error.message, 'options.extend');
+			return;
 		}
+		assert.fail('should have thrown');
 	});
 });
 
@@ -118,48 +114,49 @@ describe('immutability', () => {
 		const csp1 = create_csp_directives();
 		const csp2 = create_csp_directives();
 
-		csp1['script-src']!.push('https://modified.com' as any);
+		csp1['script-src']!.push(src('https://modified.fuz.dev'));
 
-		assert.ok(
-			!csp2['script-src']!.includes('https://modified.com' as any),
+		assert.notInclude(
+			csp2['script-src']! as Array<any>,
+			src('https://modified.fuz.dev'),
 			'arrays are independent between calls',
 		);
 	});
 
 	test('modifying replace_defaults input array does not affect output', () => {
-		const value = ['self', 'https://fuz.dev' as any];
+		const value = srcs('self', 'https://fuz.dev');
 
 		const csp = create_csp_directives({
 			replace_defaults: {'script-src': value},
 		});
 
-		value.push('https://modified.com' as any);
+		value.push(src('https://modified.fuz.dev'));
 
-		assert.ok(!csp['script-src']!.includes('https://modified.com' as any));
+		assert.notInclude(csp['script-src']! as Array<any>, src('https://modified.fuz.dev'));
 	});
 
 	test('modifying extend layer array does not affect output', () => {
-		const value = ['https://fuz.dev' as any];
+		const value = [src('https://fuz.dev')];
 
 		const csp = create_csp_directives({
 			extend: [{'connect-src': value}],
 		});
 
-		value.push('https://modified.com' as any);
+		value.push(src('https://modified.fuz.dev'));
 
-		assert.ok(!csp['connect-src']!.includes('https://modified.com' as any));
+		assert.notInclude(csp['connect-src']! as Array<any>, src('https://modified.fuz.dev'));
 	});
 
 	test('modifying overrides array does not affect output', () => {
-		const value = ['self', 'https://fuz.dev' as any];
+		const value = srcs('self', 'https://fuz.dev');
 
 		const csp = create_csp_directives({
 			overrides: {'script-src': value},
 		});
 
-		value.push('https://modified.com' as any);
+		value.push(src('https://modified.fuz.dev'));
 
-		assert.ok(!csp['script-src']!.includes('https://modified.com' as any));
+		assert.notInclude(csp['script-src']! as Array<any>, src('https://modified.fuz.dev'));
 	});
 });
 
@@ -182,7 +179,7 @@ describe('stage-4 output validation', () => {
 			() =>
 				create_csp_directives({
 					overrides: {
-						'script-src': ['none', 'self', TRUSTED as any] as any,
+						'script-src': ['none', 'self', A] as any,
 					},
 				}),
 			/'none' alongside other tokens/,
@@ -243,6 +240,16 @@ describe('stage-4 output validation', () => {
 			() =>
 				create_csp_directives({
 					replace_defaults: {'img-src': 42 as any},
+				}),
+			/expected an array of sources or a boolean, got number/,
+		);
+	});
+
+	test('non-array, non-boolean value (number) via overrides throws', () => {
+		assert.throws(
+			() =>
+				create_csp_directives({
+					overrides: {'img-src': 42 as any},
 				}),
 			/expected an array of sources or a boolean, got number/,
 		);

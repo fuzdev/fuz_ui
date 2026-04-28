@@ -1,13 +1,13 @@
 import {test, assert, describe} from 'vitest';
 
 import {create_csp_directives, csp_directive_specs} from '$lib/csp.js';
-import {TEST_SOURCES} from './csp_test_helpers.js';
+import {src} from './csp_test_helpers.js';
 
-const {TRUSTED} = TEST_SOURCES;
+const A = src('a.fuz.dev');
 
 describe('extreme array sizes', () => {
 	test('handles very large source arrays in extend', () => {
-		const many_sources = Array.from({length: 1000}, (_, i) => `source${i}.com` as any);
+		const many_sources = Array.from({length: 1000}, (_, i) => src(`source${i}.fuz.dev`));
 
 		const csp = create_csp_directives({
 			extend: [{'img-src': many_sources}],
@@ -15,31 +15,31 @@ describe('extreme array sizes', () => {
 
 		// 4 starting sources + 1000 extended
 		assert.strictEqual(csp['img-src']!.length, 1004);
-		assert.ok(csp['img-src']!.includes('source0.com' as any));
-		assert.ok(csp['img-src']!.includes('source999.com' as any));
+		assert.include(csp['img-src']!, src('source0.fuz.dev'));
+		assert.include(csp['img-src']!, src('source999.fuz.dev'));
 	});
 
 	test('handles many extend layers', () => {
 		const many_layers = Array.from({length: 100}, (_, i) => ({
-			'img-src': [`trusted${i}.com` as any],
+			'img-src': [src(`trusted${i}.fuz.dev`)],
 		}));
 
 		const csp = create_csp_directives({
 			extend: many_layers,
 		});
 
-		assert.ok(csp['img-src']!.includes('trusted0.com' as any));
-		assert.ok(csp['img-src']!.includes('trusted99.com' as any));
+		assert.include(csp['img-src']!, src('trusted0.fuz.dev'));
+		assert.include(csp['img-src']!, src('trusted99.fuz.dev'));
 	});
 
 	test('handles very long source URLs', () => {
-		const long_url = ('https://' + 'a'.repeat(1000) + '.com') as any;
+		const long_url = src('https://' + 'a'.repeat(1000) + '.fuz.dev');
 
 		const csp = create_csp_directives({
 			extend: [{'img-src': [long_url]}],
 		});
 
-		assert.ok(csp['img-src']!.includes(long_url));
+		assert.include(csp['img-src']!, long_url);
 	});
 });
 
@@ -57,14 +57,14 @@ describe('unusual option combinations', () => {
 	test('blank replace_defaults exercises full pipeline (extend + overrides)', () => {
 		const csp = create_csp_directives({
 			replace_defaults: {},
-			extend: [{'script-src': ['self', TRUSTED as any]}],
+			extend: [{'script-src': ['self', A]}],
 			overrides: {
 				'connect-src': ['self'],
 			},
 		});
 
 		assert.deepEqual(csp, {
-			'script-src': ['self', TRUSTED],
+			'script-src': ['self', A],
 			'connect-src': ['self'],
 		});
 	});
@@ -72,16 +72,16 @@ describe('unusual option combinations', () => {
 
 describe('memory and reference safety', () => {
 	test('modifying input options does not affect future calls', () => {
-		const layer: any = {'script-src': ['self', 'first.com']};
+		const layer: any = {'script-src': ['self', src('first.fuz.dev')]};
 
 		const csp1 = create_csp_directives({extend: [layer]});
 
-		layer['script-src'].push('modified.com');
+		layer['script-src'].push(src('modified.fuz.dev'));
 
 		const csp2 = create_csp_directives({extend: [layer]});
 
-		assert.ok(!csp1['script-src']!.includes('modified.com' as any));
-		assert.ok(csp2['script-src']!.includes('modified.com' as any));
+		assert.notInclude(csp1['script-src']! as Array<any>, src('modified.fuz.dev'));
+		assert.include(csp2['script-src']!, src('modified.fuz.dev'));
 	});
 });
 
@@ -95,7 +95,7 @@ describe('boolean directive edge cases', () => {
 			},
 		});
 
-		assert.ok(!('upgrade-insecure-requests' in csp));
+		assert.notProperty(csp, 'upgrade-insecure-requests');
 	});
 });
 
@@ -123,18 +123,18 @@ describe('concurrent calls', () => {
 		const promises = Array.from({length: 10}, (_, i) =>
 			Promise.resolve(
 				create_csp_directives({
-					extend: [{'img-src': [`source${i}.com` as any]}],
+					extend: [{'img-src': [src(`source${i}.fuz.dev`)]}],
 				}),
 			),
 		);
 
 		return Promise.all(promises).then((results) => {
 			for (let i = 0; i < results.length; i++) {
-				assert.ok(results[i]!['img-src']!.includes(`source${i}.com` as any));
+				assert.include(results[i]!['img-src']!, src(`source${i}.fuz.dev`));
 
 				for (let j = 0; j < results.length; j++) {
 					if (i !== j) {
-						assert.ok(!results[i]!['img-src']!.includes(`source${j}.com` as any));
+						assert.notInclude(results[i]!['img-src']! as Array<any>, src(`source${j}.fuz.dev`));
 					}
 				}
 			}

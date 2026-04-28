@@ -1,65 +1,26 @@
-import {assert} from 'vitest';
-import type {CspDirectives, CspDirective} from '$lib/csp.js';
+import type {CspSource} from '$lib/csp.js';
 
 /**
- * Test domain constants used across CSP test files.
+ * Casts a string to `CspSource` for tests. The `CspSource` template-literal
+ * types don't always widen from arbitrary string literals, so this centralizes
+ * the cast and makes the intent ("typed CSP source") clearer than `as any`.
+ */
+export const src = (s: string): CspSource => s as CspSource;
+
+/**
+ * Like `src` but for arrays. Defaults to `Array<CspSource>`; pass a generic
+ * argument to target a more specific source type (e.g. `srcs<CspFrameSource>`).
+ */
+export const srcs = <T = CspSource>(...vals: Array<string>): Array<T> => vals as Array<T>;
+
+/**
+ * Named real-world test domains used across CSP test files.
+ * Use `src()` directly for one-off placeholder values.
  */
 export const TEST_SOURCES = {
-	TRUSTED: 'trusted.domain',
-	TRUSTED_A: 'a.trusted.domain',
-	TRUSTED_2: 'trusted2.domain',
-	TRUSTED_3: 'trusted3.domain',
-	GOOGLE_FONTS: 'fonts.googleapis.com',
-	GOOGLE_FONTS_STATIC: 'fonts.gstatic.com',
-	CLOUDFLARE_CDN: 'cdnjs.cloudflare.com',
-	ANALYTICS: 'analytics.fuz.dev',
-	STRIPE: 'js.stripe.com',
+	GOOGLE_FONTS: src('fonts.googleapis.com'),
+	GOOGLE_FONTS_STATIC: src('fonts.gstatic.com'),
+	CLOUDFLARE_CDN: src('cdnjs.cloudflare.com'),
+	ANALYTICS: src('analytics.fuz.dev'),
+	STRIPE: src('js.stripe.com'),
 } as const;
-
-/**
- * Asserts that a source is included in a directive.
- */
-export const assert_source_in_directive = (
-	csp: CspDirectives,
-	directive: CspDirective,
-	source: string,
-	message?: string,
-): void => {
-	const directive_value = csp[directive];
-	assert.isArray(directive_value, message || `${directive} should be an array`);
-	assert.include(
-		directive_value as Array<any>,
-		source,
-		message || `${source} should be in ${directive}`,
-	);
-};
-
-/**
- * Asserts that a source is not included in a directive.
- */
-export const assert_source_not_in_directive = (
-	csp: CspDirectives,
-	directive: CspDirective,
-	source: string,
-	message?: string,
-): void => {
-	const directive_value = csp[directive];
-	if (Array.isArray(directive_value)) {
-		assert.notInclude(
-			directive_value as Array<any>,
-			source,
-			message || `${source} should not be in ${directive}`,
-		);
-	}
-};
-
-/**
- * Asserts that a directive does not exist in the CSP.
- */
-export const assert_directive_not_exists = (
-	csp: CspDirectives,
-	directive: CspDirective,
-	message?: string,
-): void => {
-	assert.notProperty(csp, directive, message || `${directive} should not exist in CSP`);
-};

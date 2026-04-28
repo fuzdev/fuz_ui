@@ -1,21 +1,22 @@
 import {test, assert, describe} from 'vitest';
 
 import {create_csp_directives} from '$lib/csp.js';
-import {TEST_SOURCES, assert_directive_not_exists} from './csp_test_helpers.js';
+import {src, srcs} from './csp_test_helpers.js';
 
-const {TRUSTED, TRUSTED_2} = TEST_SOURCES;
+const A = src('a.fuz.dev');
+const B = src('b.fuz.dev');
 
 describe('overrides option — replace per directive', () => {
 	test('replaces the value, ignoring replace_defaults and extend', () => {
 		const csp = create_csp_directives({
-			extend: [{'script-src': [TRUSTED as any]}],
+			extend: [{'script-src': [A]}],
 			overrides: {
-				'script-src': ['self', TRUSTED_2 as any],
+				'script-src': ['self', B],
 			},
 		});
 
-		// `TRUSTED` from extend is dropped — overrides replaces wholesale.
-		assert.deepEqual(csp['script-src'], ['self', TRUSTED_2]);
+		// `A` from extend is dropped — overrides replaces wholesale.
+		assert.deepEqual(csp['script-src'], ['self', B]);
 	});
 
 	test('only the named directive is affected', () => {
@@ -23,31 +24,31 @@ describe('overrides option — replace per directive', () => {
 			replace_defaults: {'script-src': ['self'], 'connect-src': ['self']},
 			extend: [
 				{
-					'script-src': [TRUSTED as any],
-					'connect-src': [TRUSTED as any],
+					'script-src': [A],
+					'connect-src': [A],
 				},
 			],
 			overrides: {
-				'script-src': ['self', TRUSTED_2 as any],
+				'script-src': ['self', B],
 			},
 		});
 
 		assert.deepEqual(csp, {
-			'script-src': ['self', TRUSTED_2],
-			'connect-src': ['self', TRUSTED],
+			'script-src': ['self', B],
+			'connect-src': ['self', A],
 		});
 	});
 
 	test('multiple directives in one overrides object', () => {
 		const csp = create_csp_directives({
 			overrides: {
-				'script-src': ['self', TRUSTED_2 as any],
-				'connect-src': ['self', TRUSTED_2 as any],
+				'script-src': ['self', B],
+				'connect-src': ['self', B],
 			},
 		});
 
-		assert.deepEqual(csp['script-src'], ['self', TRUSTED_2]);
-		assert.deepEqual(csp['connect-src'], ['self', TRUSTED_2]);
+		assert.deepEqual(csp['script-src'], ['self', B]);
+		assert.deepEqual(csp['connect-src'], ['self', B]);
 	});
 
 	test('boolean directive value', () => {
@@ -62,7 +63,7 @@ describe('overrides option — replace per directive', () => {
 
 	test('can set a directive to ["none"] explicitly', () => {
 		const csp = create_csp_directives({
-			extend: [{'connect-src': [TRUSTED as any]}],
+			extend: [{'connect-src': [A]}],
 			overrides: {
 				'connect-src': ['none'],
 			},
@@ -80,8 +81,8 @@ describe('overrides option — null removes', () => {
 			},
 		});
 
-		assert_directive_not_exists(csp, 'script-src');
-		assert.ok('connect-src' in csp, 'other directives unaffected');
+		assert.notProperty(csp, 'script-src');
+		assert.property(csp, 'connect-src', 'other directives unaffected');
 	});
 
 	test('null on a directive not present is a no-op', () => {
@@ -97,13 +98,13 @@ describe('overrides option — null removes', () => {
 
 	test('null wins over extend in the same call', () => {
 		const csp = create_csp_directives({
-			extend: [{'script-src': [TRUSTED as any]}],
+			extend: [{'script-src': [A]}],
 			overrides: {
 				'script-src': null,
 			},
 		});
 
-		assert_directive_not_exists(csp, 'script-src');
+		assert.notProperty(csp, 'script-src');
 	});
 });
 
@@ -125,10 +126,10 @@ describe('overrides option — undefined values', () => {
 describe('overrides interaction with extend output', () => {
 	test('overrides ["none"] replaces an extend-built array (full pipeline)', () => {
 		// replace_defaults seeds, extend appends, overrides replaces wholesale with ['none'].
-		// The intermediate ['self', TRUSTED] never reaches the output.
+		// The intermediate ['self', A] never reaches the output.
 		const csp = create_csp_directives({
 			replace_defaults: {'img-src': ['self']},
-			extend: [{'img-src': [TRUSTED as any]}],
+			extend: [{'img-src': [A]}],
 			overrides: {'img-src': ['none']},
 		});
 
@@ -140,13 +141,13 @@ describe('precedence: replace_defaults → extend → overrides', () => {
 	test('full pipeline: replace_defaults sets, extend appends, overrides replaces', () => {
 		const csp = create_csp_directives({
 			replace_defaults: {'connect-src': ['self']},
-			extend: [{'connect-src': [TRUSTED as any]}],
+			extend: [{'connect-src': [A]}],
 			overrides: {
-				'connect-src': ['self', TRUSTED_2 as any],
+				'connect-src': ['self', B],
 			},
 		});
 
-		assert.deepEqual(csp, {'connect-src': ['self', TRUSTED_2]});
+		assert.deepEqual(csp, {'connect-src': ['self', B]});
 	});
 
 	test('overrides runs after extend even when extend would throw on `none`', () => {
@@ -154,7 +155,7 @@ describe('precedence: replace_defaults → extend → overrides', () => {
 		assert.throws(
 			() =>
 				create_csp_directives({
-					extend: [{'object-src': [TRUSTED as any]}],
+					extend: [{'object-src': [A]}],
 					overrides: {'object-src': ['self']},
 				}),
 			/Cannot extend directive 'object-src'/,
@@ -163,24 +164,25 @@ describe('precedence: replace_defaults → extend → overrides', () => {
 
 	test('overrides can independently replace a `none` default', () => {
 		const csp = create_csp_directives({
-			overrides: {'object-src': ['self', TRUSTED as any]},
+			overrides: {'object-src': ['self', A]},
 		});
 
-		assert.deepEqual(csp['object-src'], ['self', TRUSTED]);
+		assert.deepEqual(csp['object-src'], ['self', A]);
 	});
 });
 
 describe('input immutability', () => {
 	test('mutating override input does not change output', () => {
-		const value = ['self', 'https://fuz.dev' as any];
+		const value = srcs('self', 'https://fuz.dev');
 		const csp = create_csp_directives({
 			overrides: {'script-src': value},
 		});
 
-		value.push('https://modified.com' as any);
+		value.push(src('https://modified.fuz.dev'));
 
-		assert.ok(
-			!csp['script-src']!.includes('https://modified.com' as any),
+		assert.notInclude(
+			csp['script-src']! as Array<any>,
+			src('https://modified.fuz.dev'),
 			'mutating input array does not affect output',
 		);
 	});
