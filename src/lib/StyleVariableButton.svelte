@@ -39,6 +39,6 @@
 
 <style>
 	button {
-		min-height: var(--input_height_sm);
+		min-height: var(--input_height_compact);
 	}
 </style>
