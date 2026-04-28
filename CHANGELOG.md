@@ -1,5 +1,38 @@
 # @fuzdev/fuz_ui
 
+## 0.192.0
+
+### Minor Changes
+
+- use `$state.raw` over `$state` ([69cb802](https://github.com/fuzdev/fuz_ui/commit/69cb802))
+- use kebab-case class names ([dce8fdc](https://github.com/fuzdev/fuz_ui/commit/dce8fdc))
+- feat: improve csp API ([#124](https://github.com/fuzdev/fuz_ui/pull/124))
+  - replace `create_csp_directives` options with three-stage pipeline:
+    `replace_defaults` → `extend` → `overrides`
+  - remove the trust-level surface: `CspTrustLevel`, `CspSourceSpec`,
+    `csp_trust_levels`, `csp_trust_level_value`, `parse_csp_trust_level`,
+    `is_csp_trusted`, `csp_directive_required_trust_defaults`. Migrate
+    `{source, trust}` entries to per-directive arrays under `extend`.
+  - rename `csp_trusted_sources_of_fuzdev` → `csp_directives_of_fuzdev`;
+    now a `Partial<CspDirectives>` scoped to `img-src`, `media-src`,
+    `font-src`, `connect-src`, `frame-src`, and `frame-ancestors`
+    (previously applied to all directives via trust levels — re-add to
+    other directives explicitly if you relied on that).
+  - per-key `undefined` is a no-op in all three stages; per-key `null` in
+    `extend` throws with a pointer to `overrides`
+  - friendlier errors for non-object `extend` entries and non-string
+    source elements
+  - defaults: add `'wasm-unsafe-eval'` to `script-src` and `worker-src`
+    (allows WASM compile; `eval` and `new Function` remain blocked); add
+    `'data:'` to `media-src`
+
+- feat: add `'wasm-unsafe-eval'` to `script-src` and `worker-src` csp defaults ([e1ea601](https://github.com/fuzdev/fuz_ui/commit/e1ea601))
+
+### Patch Changes
+
+- fix: check contextmenu state item count for `select_last` ([8218072](https://github.com/fuzdev/fuz_ui/commit/8218072))
+- fix: preserve `{@link …}` content when reading TSDoc comments ([#124](https://github.com/fuzdev/fuz_ui/pull/124))
+
 ## 0.191.4
 
 ### Patch Changes
