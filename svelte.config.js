@@ -16,16 +16,13 @@ try {
 	];
 } catch {}
 
-// fuz_ui's own CSP — kept as a hand-rolled directive map (not via
-// `create_csp_directives`) because importing self from dist is fragile during
-// builds. Mirrors the library defaults plus img-src extensions for fuz.dev /
-// zzz.software (matching `csp_directives_of_fuzdev`).
-//
-// TODO swap to `create_csp_directives({extend: [csp_directives_of_fuzdev]})` once
-// self-import-from-dist is reliable. Until then, any change to `csp_directive_value_defaults`
-// in `src/lib/csp.ts` must be mirrored here by hand. The output below is the result of:
-//   create_csp_directives({extend: [csp_directives_of_fuzdev]})
-const csp_img_extensions = /** @type {const} */ (['https://*.fuz.dev/', 'https://*.zzz.software/']);
+// fuz_ui's own CSP — hand-rolled because self-import-from-dist is fragile during builds.
+// Kept in sync with `create_csp_directives({extend: [csp_directives_of_fuzdev]})` by
+// `src/test/svelte_config.csp.test.ts`. TODO swap to the helper once the dist round-trip settles.
+const csp_fuzdev_extensions = /** @type {const} */ ([
+	'https://*.fuz.dev/',
+	'https://*.zzz.software/',
+]);
 
 /** @type {import('@sveltejs/kit').Config} */
 export default {
@@ -49,14 +46,21 @@ export default {
 				'style-src': ['self', 'unsafe-inline'],
 				'style-src-elem': ['self', 'unsafe-inline'],
 				'style-src-attr': ['unsafe-inline'],
-				'img-src': ['self', 'data:', 'blob:', 'filesystem:', ...csp_img_extensions],
-				'media-src': ['self', 'data:', 'blob:', 'mediastream:', 'filesystem:'],
-				'font-src': ['self', 'data:'],
+				'img-src': ['self', 'data:', 'blob:', 'filesystem:', ...csp_fuzdev_extensions],
+				'media-src': [
+					'self',
+					'data:',
+					'blob:',
+					'mediastream:',
+					'filesystem:',
+					...csp_fuzdev_extensions,
+				],
+				'font-src': ['self', 'data:', ...csp_fuzdev_extensions],
 				'manifest-src': ['self'],
 				'child-src': ['none'],
-				'connect-src': ['self'],
-				'frame-src': ['self'],
-				'frame-ancestors': ['self'],
+				'connect-src': ['self', ...csp_fuzdev_extensions],
+				'frame-src': ['self', ...csp_fuzdev_extensions],
+				'frame-ancestors': ['self', ...csp_fuzdev_extensions],
 				'form-action': ['self'],
 				'worker-src': ['self', 'blob:', 'wasm-unsafe-eval'],
 				'object-src': ['none'],
