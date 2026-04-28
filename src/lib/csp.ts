@@ -1,173 +1,220 @@
-import type {ArrayElement, Defined} from '@fuzdev/fuz_util/types.js';
+import type {Defined} from '@fuzdev/fuz_util/types.js';
 
 // TODO schemas, but I may be moving to ArkType from Zod if precompilation looks good
 
+/**
+ * Per-directive map of source arrays — accepted as `extend` layer entries.
+ * Excludes directives like `'upgrade-insecure-requests'` (boolean) that can't be appended to.
+ */
+export type CspDirectiveSourcesMap = {
+	[K in CspDirective as CspDirectives[K] extends ReadonlyArray<any> ? K : never]?: CspDirectives[K];
+};
+
+/**
+ * Options for `create_csp_directives`.
+ *
+ * The pipeline runs in three stages:
+ * 1. `replace_defaults` sets the starting state (defaults to `csp_directive_value_defaults`).
+ * 2. `extend` appends sources per directive, layered left to right.
+ * 3. `overrides` replaces or removes per-directive values as a final pass.
+ */
 export interface CreateCspDirectivesOptions {
 	/**
-	 * Override or transform specific directives.
-	 * Returning `null` or `undefined` from a transform function will remove the directive.
+	 * Starting values per directive — *wholesale replaces* the library defaults.
+	 *
+	 * - Omitted: uses `csp_directive_value_defaults` (the curated library defaults).
+	 * - Provided: exactly the directives you list, nothing else inherited.
+	 *   Anything not listed is **absent** from the starting state — including security defaults
+	 *   like `default-src: 'none'`. To tweak a single directive while keeping the rest, use
+	 *   `extend` (to append) or `overrides` (to replace per-key) instead.
+	 * - `{}`: starts blank with no directives.
+	 *
+	 * `null` is not accepted (top-level or per-key) — omit the option to use library defaults,
+	 * pass `{}` to start blank, or use `overrides` to remove a specific directive.
+	 *
+	 * Per-key `undefined` is treated as omitted (no-op).
 	 */
-	directives?: {
-		[K in CspDirective]?:
-			| CspDirectiveValue<K> // Static value replacement
-			| null // Removes the directive
-			// Transform function returning one of the previous types
-			| ((value: CspDirectiveValue<K>) => CspDirectiveValue<K> | null);
+	replace_defaults?: Partial<typeof csp_directive_value_defaults>;
+
+	/**
+	 * Sources to append per directive, layered left to right.
+	 * Each entry is a partial map; values append to the result of `replace_defaults` and prior entries.
+	 * Values are deduplicated within and across layers.
+	 *
+	 * Only array-typed directives can be extended (boolean directives like `upgrade-insecure-requests`
+	 * are excluded by the type). Throws if any entry attempts to extend a directive whose current
+	 * value is `['none']` — use `replace_defaults` or `overrides` to opt into default-deny directives.
+	 *
+	 * Per-key `undefined` is treated as omitted (no-op) — supports conditional patterns like
+	 * `{'connect-src': is_prod ? [API_URL] : undefined}`. Per-key `null` throws — `extend` only
+	 * appends; use `overrides: { 'X': null }` to remove a directive.
+	 */
+	extend?: ReadonlyArray<CspDirectiveSourcesMap>;
+
+	/**
+	 * Final-pass per-directive overrides. Replaces the directive value or removes it entirely.
+	 * Pass `null` to remove a directive from the output.
+	 *
+	 * Highest precedence — wins over `replace_defaults` and `extend`.
+	 *
+	 * Per-key `undefined` is treated as omitted (no-op) — distinct from `null`, which removes.
+	 */
+	overrides?: {
+		[K in CspDirective]?: CspDirectiveValue<K> | null;
 	};
-
-	/**
-	 * Sources to include based on their trust levels.
-	 */
-	trusted_sources?: Array<CspSourceSpec>;
-
-	/**
-	 * Override default values for specific directives,
-	 * merging with `value_defaults_base` (or replacing if that directive is null in the base).
-	 */
-	value_defaults?: Partial<typeof csp_directive_value_defaults>;
-
-	/**
-	 * Base values for directive defaults.
-	 * Set to `null` or `{}` to start with no defaults.
-	 * Defaults to `csp_directive_value_defaults`.
-	 */
-	value_defaults_base?: Partial<typeof csp_directive_value_defaults> | null;
-
-	/**
-	 * Override trust requirements for specific directives,
-	 * merging with `required_trust_defaults_base` (or replacing if that directive is null in the base).
-	 */
-	required_trust_defaults?: Partial<typeof csp_directive_required_trust_defaults>;
-
-	/**
-	 * Base values for directive trust requirements.
-	 * Set to `null` or `{}` to start with no trust requirements.
-	 * Defaults to `csp_directive_required_trust_defaults`.
-	 */
-	required_trust_defaults_base?: Partial<typeof csp_directive_required_trust_defaults> | null;
 }
 
 /**
- * This is designed for compatibility with SvelteKit
- * and maps to the `KitConfig` `directives` option.
- * The goal is to provide an ergonomic, modern, and safe API
- * for Content Security Policy (CSP) creation
- * that's simple to write and audit, and isn't error-prone.
+ * Builds a CSP directives map for use with SvelteKit's `kit.csp.directives` option.
  *
- * Things like validation and rendering to a string
- * are out of scope and left to SvelteKit.
+ * Restrictive by default; opt into specific permissions via `extend` (append) or
+ * `overrides` (replace). Designed to read as an audit log: every user-added source
+ * is named at exactly one site in the source code. Library defaults are inherited
+ * unless you opt out via `replace_defaults`.
+ *
+ * Validation:
+ * - Unknown directive keys throw.
+ * - Extending a `['none']` directive throws (use `replace_defaults`/`overrides` to opt in).
+ * - `null` for `replace_defaults` (top-level or per-key) throws — omit the option for library
+ *   defaults, pass `{}` to start blank, or use `overrides` to remove a specific directive.
+ * - `null` per-key in `extend` throws (use `overrides` for removal).
+ * - `undefined` per-key is treated as omitted in all three stages.
+ * - Non-object entries in `extend` (`null`, `undefined`, primitives) throw with a friendly error.
+ * - Output is validated to ensure `'none'` never appears alongside other tokens,
+ *   that no directive ends up with an empty array (use `['none']` to forbid all),
+ *   and that every source array contains only strings.
+ *
+ * Things like rendering to a string are out of scope and left to SvelteKit.
  */
-export function create_csp_directives(options: CreateCspDirectivesOptions = {}): CspDirectives {
-	const {
-		directives: directives_option,
-		trusted_sources,
-		value_defaults_base = csp_directive_value_defaults,
-		value_defaults: value_defaults_option,
-		required_trust_defaults_base = csp_directive_required_trust_defaults,
-		required_trust_defaults: required_trust_defaults_option,
-	} = options;
+export const create_csp_directives = (options: CreateCspDirectivesOptions = {}): CspDirectives => {
+	const {replace_defaults = csp_directive_value_defaults, extend, overrides} = options;
+
+	// eslint-disable-next-line @typescript-eslint/no-unnecessary-condition
+	if (replace_defaults === null) {
+		throw new Error(
+			`Invalid value 'null' for options.replace_defaults. ` +
+				`Omit the option to use library defaults, or pass {} to start with no directives.`,
+		);
+	}
 
 	const directives: CspDirectives = {};
 
-	// Shallowly merge any provided defaults with the base defaults
-	const value_defaults = {...value_defaults_base, ...value_defaults_option};
-
-	// Merge required trust defaults with the base
-	const required_trust_defaults = {
-		...required_trust_defaults_base,
-		...required_trust_defaults_option,
+	// `Object.entries` widens to `[string, unknown]` and TS can't re-narrow per-key, so
+	// writes via the validated `directive` need a single trusted-bridge cast — kept inside
+	// this helper so the call sites stay free of type assertions. Clones arrays so callers
+	// don't have to worry about user-supplied arrays leaking into the output.
+	const assign = (directive: CspDirective, value: unknown): void => {
+		(directives as Record<CspDirective, unknown>)[directive] = Array.isArray(value)
+			? [...value]
+			: value;
 	};
 
-	// Apply defaults from directive specs
-	for (const spec of csp_directive_specs) {
-		const default_value = value_defaults[spec.name];
-		if (default_value == null) continue; // omit null and undefined
+	// Stage 1: starting state from `replace_defaults`.
+	// `{}` starts blank — every directive must come from `extend`/`overrides`.
+	for_each_directive(replace_defaults, 'replace_defaults', (directive, value) => {
+		// eslint-disable-next-line @typescript-eslint/no-unnecessary-condition
+		if (value === null) {
+			throw new Error(
+				`Invalid value 'null' for directive '${directive}' in options.replace_defaults. ` +
+					`Omit the key instead, or use \`overrides: { '${directive}': null }\` to remove.`,
+			);
+		}
+		// eslint-disable-next-line @typescript-eslint/no-unnecessary-condition
+		if (value === undefined) return;
+		assign(directive, value);
+	});
 
-		directives[spec.name] = Array.isArray(default_value)
-			? [...default_value]
-			: (default_value as CspDirectiveValue<any>);
-	}
-
-	// Get trust requirements (with overrides applied)
-	const trust_requirements: Map<CspDirective, CspTrustLevel | null> = new Map();
-	for (const spec of csp_directive_specs) {
-		const required_trust = required_trust_defaults[spec.name];
-		if (required_trust == null) continue; // omit null and undefined
-
-		trust_requirements.set(spec.name, required_trust);
-	}
-
-	// Validate trusted_sources directives
-	if (trusted_sources?.length) {
-		for (const spec of trusted_sources) {
-			if (spec.directives) {
-				for (const directive of spec.directives) {
-					if (parse_csp_directive(directive) === null) {
-						throw new Error(`Invalid directive in trusted_sources: ${directive}`);
-					}
+	// Stage 2: append sources per layer in `extend`.
+	if (extend?.length) {
+		for (const layer of extend) {
+			for_each_directive(layer, 'extend', (directive, value) => {
+				// `undefined` is treated as omitted, matching `replace_defaults`/`overrides`.
+				// Lets callers write `{'connect-src': cond ? [API] : undefined}` naturally.
+				if (value === undefined) return;
+				// `null` is meaningful enough to deserve its own error — users reaching for null
+				// in extend almost always want removal, which lives on `overrides`.
+				if (value === null) {
+					throw new Error(
+						`Cannot extend directive '${directive}' with null. ` +
+							`extend can only append sources — to remove a directive from the output, ` +
+							`use \`overrides: { '${directive}': null }\`.`,
+					);
 				}
-			}
+				if (!Array.isArray(value)) {
+					throw new Error(
+						`Cannot extend directive '${directive}': value must be an array of sources, got ${typeof value}.`,
+					);
+				}
+				if (!value.length) return;
+				const current = directives[directive];
+				if (is_none(current)) {
+					throw new Error(
+						`Cannot extend directive '${directive}' while its current value is ['none']. ` +
+							`The pipeline runs replace_defaults → extend → overrides, so an \`overrides\` ` +
+							`entry for '${directive}' cannot rescue this — extend sees the ['none'] starting ` +
+							`value first. Opt in via \`replace_defaults: { '${directive}': [...] }\` or move ` +
+							`the sources into \`overrides: { '${directive}': [...] }\`.`,
+					);
+				}
+				if (current === undefined) {
+					assign(directive, [...new Set(value)]);
+				} else if (Array.isArray(current)) {
+					assign(directive, [...new Set([...current, ...value])]);
+				} else {
+					throw new Error(`Cannot extend directive '${directive}': it has a non-array value.`);
+				}
+			});
 		}
 	}
 
-	// Apply trusted sources to directives
-	if (trusted_sources?.length) {
-		for (const [key, value] of Object.entries(directives)) {
-			const directive = key as CspDirective; // keys are from csp_directive_specs, always valid
-
-			// Skip if directive is ['none'] or not an array
-			if (is_none_directive(value) || !Array.isArray(value)) {
-				continue;
-			}
-
-			// Get required trust for this directive
-			const required_trust = trust_requirements.get(directive);
-			if (required_trust == null) continue;
-
-			// Add matching sources - separate the filtering into trust-based and directive-based inclusion
-			const sources_to_add = trusted_sources
-				.filter((spec) => {
-					// Check for explicit inclusion in directives list
-					const explicitly_included = spec.directives?.includes(directive) ?? false;
-
-					// Check for trust level based inclusion
-					const has_trust_level = spec.trust !== undefined;
-					const include_by_trust = has_trust_level && is_csp_trusted(required_trust, spec.trust);
-
-					// Include the source if either condition is met
-					return explicitly_included || include_by_trust;
-				})
-				.map((spec) => spec.source);
-
-			if (sources_to_add.length > 0) {
-				directives[directive] = [...value, ...sources_to_add] as CspDirectiveValue<any>;
-			}
-		}
-	}
-
-	// Apply directive overrides/transformations
-	if (directives_option) {
-		for (const [key, value_or_fn] of Object.entries(directives_option)) {
-			const directive = parse_csp_directive(key);
-			if (directive === null) {
-				throw new Error(`Invalid directive in options.directives: ${key}`);
-			}
-
-			const current = directives[directive] as CspDirectiveValue<any>;
-
-			const result = typeof value_or_fn === 'function' ? value_or_fn(current) : value_or_fn;
-
-			// Handle `undefined` too just in case
-			if (result == null) {
+	// Stage 3: final-pass `overrides` — replace value or remove key.
+	if (overrides) {
+		for_each_directive(overrides, 'overrides', (directive, value) => {
+			if (value === null) {
 				delete directives[directive]; // eslint-disable-line @typescript-eslint/no-dynamic-delete
-			} else {
-				directives[directive] = structuredClone(result) as CspDirectiveValue<any>;
+				// eslint-disable-next-line @typescript-eslint/no-unnecessary-condition
+			} else if (value !== undefined) {
+				assign(directive, value);
 			}
+		});
+	}
+
+	// Stage 4: output validation — empty arrays and mixed `'none'` are invalid CSP.
+	for (const [key, value] of Object.entries(directives)) {
+		if (typeof value === 'boolean') continue;
+		if (!Array.isArray(value)) {
+			throw new Error(
+				`Directive '${key}' has an invalid value: expected an array of sources or a boolean, ` +
+					`got ${value === null ? 'null' : typeof value}.`,
+			);
+		}
+		if (value.length === 0) {
+			throw new Error(
+				`Directive '${key}' has an empty array. ` +
+					`Use ['none'] to forbid all sources, or omit the directive entirely.`,
+			);
+		}
+		// Element-level type check — the `CspSource` template-string type gates this at the
+		// type layer, but `as any` callers can slip non-strings through. A non-string source
+		// would render as `undefined` / `[object Object]` in the emitted CSP header.
+		for (let i = 0; i < value.length; i++) {
+			const v = (value as Array<unknown>)[i];
+			if (typeof v !== 'string') {
+				throw new Error(
+					`Directive '${key}' has a non-string source at index ${i}: got ${v === null ? 'null' : typeof v}.`,
+				);
+			}
+		}
+		if (value.length > 1 && (value as Array<unknown>).includes('none')) {
+			throw new Error(
+				`Directive '${key}' has 'none' alongside other tokens (${value.join(', ')}). ` +
+					`'none' must appear alone in CSP.`,
+			);
 		}
 	}
 
 	return directives;
-}
+};
 
 export type CspDirective = keyof CspDirectives;
 
@@ -178,97 +225,52 @@ export const parse_csp_directive = (directive: unknown): CspDirective | null =>
 
 export type CspDirectiveValue<T extends CspDirective> = Defined<CspDirectives[T]>;
 
-export const csp_trust_levels = ['low', 'medium', 'high'] as const;
+const is_none = (value: unknown): boolean =>
+	Array.isArray(value) && value.length === 1 && value[0] === 'none';
 
 /**
- * Numeric values for CSP trust levels. See `csp_trust_levels`.
- * Lower is less trusted.
- * Includes `undefined` in the type for safety.
- */
-export const csp_trust_level_value: Record<CspTrustLevel, number | undefined> = {
-	low: 0,
-	medium: 1,
-	high: 2,
-};
-
-/**
- * Trust levels for CSP sources.
+ * Iterate over a per-directive options map, validating that every key is a known directive.
+ * Throws if any key fails to parse as a `CspDirective`, mentioning `source_label` so the
+ * error pinpoints which option (`replace_defaults`, `extend`, or `overrides`) was bad.
  *
- * With the base defaults, trust levels roughly correspond to:
- *
- * - `low` – Passive resources only (no script execution, no styling or UI control).
- * 		Examples: `img-src`, `font-src`.
- * - `medium` – Content that may affect layout, styling, or embed external browsing contexts,
- *    but cannot directly run code in the page's JS execution environment or
- * 		perform other high-risk actions. Examples: `style-src`, `frame-src`, `frame-ancestors`.
- * - `high` – Sources that can execute code in the page's context or open powerful network
- *    channels. Examples: `script-src`, `connect-src`, `child-src`.
- * - `null` – No trust. This is used for directives that don't support sources.
- *
+ * Also guards against non-object `source` values (e.g. `extend: [undefined]`, `extend: ['oops']`)
+ * so callers get a friendly library error instead of a cryptic native `TypeError` from
+ * `Object.entries`.
  */
-export type CspTrustLevel = ArrayElement<typeof csp_trust_levels>;
-
-/**
- * Validates and extracts a CSP trust level from an unknown value.
- */
-export const parse_csp_trust_level = (trust: unknown): CspTrustLevel | null =>
-	csp_trust_levels.includes(trust as any) ? (trust as CspTrustLevel) : null;
-
-export interface CspSourceSpec {
-	source: CspSource;
-	trust?: CspTrustLevel;
-	directives?: Array<CspDirective>;
-}
-
-export interface CspDirectiveSpec {
-	name: CspDirective;
-	fallback: Array<CspDirective> | null;
-	fallback_of: Array<CspDirective> | null;
-}
-
-/**
- * Determines if a granted trust level is sufficient to satisfy a required trust level.
- *
- * Trust levels have the following hierarchy:
- * - 'high' sources can be used in high, medium, and low trust directives (highest privilege)
- * - 'medium' sources can be used in medium and low trust directives
- * - 'low' sources can only be used in low trust directives (lowest privilege)
- */
-export const is_csp_trusted = (
-	required_trust: CspTrustLevel | null | undefined,
-	granted_trust: CspTrustLevel | null | undefined,
-): boolean => {
-	const required_value = required_trust && csp_trust_level_value[required_trust];
-	const granted_value = granted_trust && csp_trust_level_value[granted_trust];
-
-	if (required_value == null || granted_value == null) {
-		return false;
+const for_each_directive = <V>(
+	source: Record<string, V>,
+	source_label: 'replace_defaults' | 'extend' | 'overrides',
+	fn: (directive: CspDirective, value: V) => void,
+): void => {
+	// eslint-disable-next-line @typescript-eslint/no-unnecessary-condition
+	if (source === null || typeof source !== 'object') {
+		const got = source === null ? 'null' : typeof source; // eslint-disable-line @typescript-eslint/no-unnecessary-condition
+		throw new Error(`Invalid entry in options.${source_label}: expected an object, got ${got}.`);
 	}
-
-	// A source with higher trust privilege (higher value)
-	// can be used in a directive with less privilege (lower value).
-	return granted_value >= required_value;
+	for (const [key, value] of Object.entries(source)) {
+		const directive = parse_csp_directive(key);
+		if (directive === null) {
+			throw new Error(`Invalid directive in options.${source_label}: ${key}`);
+		}
+		fn(directive, value);
+	}
 };
-
-/**
- * Helper to check if a directive value is `['none']`,
- * or more precisely for robustness with malformed values, checks for an array with `'none'`.
- */
-const is_none_directive = (value: unknown): boolean =>
-	Array.isArray(value) && value.includes('none');
 
 export const COLOR_SCHEME_SCRIPT_HASH = 'sha256-QOxqn7EUzb3ydF9SALJoJGWSvywW9R0AfTDSenB83Z8=';
 
 /**
- * The base CSP directive defaults.
+ * The library CSP directive defaults — directives enabled out of the box.
  * Prioritizes safety but loosens around media and styles, relying on defense-in-depth.
  * WASM compile is allowed (`'wasm-unsafe-eval'` on `script-src` and `worker-src`); `eval` is not.
- * Customizable via `CreateCspDirectivesOptions`.
+ *
+ * Directives not listed here (`report-to`, `require-trusted-types-for`, `trusted-types`,
+ * `sandbox`) are intentionally absent by default — opt in via `replace_defaults` or `overrides`.
+ *
+ * Customizable via `CreateCspDirectivesOptions.replace_defaults`.
  */
-export const csp_directive_value_defaults: Record<
-	CspDirective,
-	CspDirectiveValue<CspDirective> | null
-> = {
+export const csp_directive_value_defaults: Partial<{
+	[K in CspDirective]: CspDirectiveValue<K>;
+}> = {
 	'default-src': ['none'],
 	// `'wasm-unsafe-eval'` permits WASM compile/instantiate only — `eval` and `new Function`
 	// remain blocked. Needed for `@fuzdev/fuz_util/hash_blake3` and any other WASM in the page.
@@ -293,52 +295,18 @@ export const csp_directive_value_defaults: Record<
 	'object-src': ['none'], // Block plugins (Flash, Java, etc.)
 	'base-uri': ['none'], // Prevent base tag hijacking
 	'upgrade-insecure-requests': true, // Upgrade http to https
-	'report-to': null, // Report violations (e.g. `'/csp-violation-report'`)
-	'require-trusted-types-for': null,
-	'trusted-types': null,
-	sandbox: null,
 };
 
-/**
- * Sources that meet this trust requirement are included for it by default.
- * If null, no trusted sources are added to the directive automatically.
- * Directives that don't support sources or default to `['none']` are null.
- *
- * Feedback is welcome, please see the issues - https://github.com/fuzdev/fuz_ui/issues
- */
-export const csp_directive_required_trust_defaults: Record<CspDirective, CspTrustLevel | null> = {
-	'default-src': null,
-	'script-src': 'high',
-	'script-src-elem': 'high',
-	'script-src-attr': null,
-	'style-src': 'medium',
-	'style-src-elem': 'medium',
-	'style-src-attr': 'medium',
-	'img-src': 'low',
-	'media-src': 'low',
-	'font-src': 'low',
-	'manifest-src': null,
-	'child-src': null,
-	'connect-src': 'medium',
-	'frame-src': 'medium',
-	'frame-ancestors': 'medium',
-	'form-action': 'medium',
-	'worker-src': 'medium',
-	'object-src': null,
-	'base-uri': null,
-	'upgrade-insecure-requests': null,
-	'report-to': null,
-	'require-trusted-types-for': null,
-	'trusted-types': null,
-	sandbox: null,
-};
+export interface CspDirectiveSpec {
+	name: CspDirective;
+	fallback: Array<CspDirective> | null;
+	fallback_of: Array<CspDirective> | null;
+}
 
 /**
  * Static data descriptors for the CSP directives.
  * Fuz excludes deprecated directives, so those are intentionally omitted,
  * but any newer missing directives are bugs.
- *
- * Could be co-located but is currently here to keep that module smaller.
  *
  * @see {@link https://developer.mozilla.org/en-US/docs/Web/HTTP/Reference/Headers/Content-Security-Policy}
  */

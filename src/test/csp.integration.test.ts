@@ -1,429 +1,237 @@
 import {describe, test, assert} from 'vitest';
 
-import {create_csp_directives, COLOR_SCHEME_SCRIPT_HASH} from '$lib/csp.js';
-import {
-	create_test_source,
-	create_test_source_with_directives,
-	create_test_source_with_both,
-	TEST_SOURCES,
-	assert_source_in_directive,
-	assert_source_not_in_directive,
-} from './csp_test_helpers.js';
+import {create_csp_directives, COLOR_SCHEME_SCRIPT_HASH, type CspFrameSource} from '$lib/csp.js';
+import {TEST_SOURCES, src, srcs} from './csp_test_helpers.js';
 
-const {
-	TRUSTED,
-	TRUSTED_2,
-	DEFAULT_OVERRIDE,
-	FUNCTION_ADDED,
-	STATIC_OVERRIDE,
-	GOOGLE_FONTS,
-	GOOGLE_FONTS_STATIC,
-	CLOUDFLARE_CDN,
-	ANALYTICS,
-	STRIPE,
-} = TEST_SOURCES;
+const {GOOGLE_FONTS, GOOGLE_FONTS_STATIC, CLOUDFLARE_CDN, ANALYTICS, STRIPE} = TEST_SOURCES;
+const FUZ_WILDCARD = src('https://*.fuz.dev/');
+const FUZ_API = src('https://api.fuz.dev/');
+const FUZ_CDN = src('https://cdn.fuz.dev/');
 
-describe('complex combinations of multiple options', () => {
-	test('integration: all options combined', () => {
+describe('full pipeline integration', () => {
+	test('replace_defaults + extend + overrides compose correctly', () => {
 		const csp = create_csp_directives({
-			value_defaults_base: {
-				'script-src': ['self'],
+			replace_defaults: {
+				'default-src': ['none'],
+				'script-src': ['self', COLOR_SCHEME_SCRIPT_HASH],
+				'style-src': ['self', 'unsafe-inline'],
 				'img-src': ['self'],
+				'connect-src': ['self'],
 			},
-			value_defaults: {
-				'script-src': ['self', DEFAULT_OVERRIDE as any], // Override base
-				'connect-src': ['self'], // Add new directive
-			},
-			required_trust_defaults_base: {
-				'script-src': 'high',
-				'img-src': 'low',
-			},
-			required_trust_defaults: {
-				'connect-src': 'medium', // Add trust requirement
-			},
-			trusted_sources: [
-				create_test_source(TRUSTED, 'high'),
-				create_test_source(TRUSTED_2, 'medium'),
+			extend: [
+				{
+					'script-src': [ANALYTICS],
+					'connect-src': [ANALYTICS],
+				},
 			],
-			directives: {
-				'script-src': (value) => [...value, FUNCTION_ADDED as any],
-				'img-src': ['self', STATIC_OVERRIDE as any], // Complete override
+			overrides: {
+				'connect-src': ['self', ANALYTICS],
 			},
 		});
 
-		// script-src: defaults + trusted high + function added
-		assert_source_in_directive(csp, 'script-src', 'self');
-		assert_source_in_directive(csp, 'script-src', DEFAULT_OVERRIDE);
-		assert_source_in_directive(csp, 'script-src', TRUSTED);
-		assert_source_in_directive(csp, 'script-src', FUNCTION_ADDED);
-		assert_source_not_in_directive(csp, 'script-src', TRUSTED_2); // medium not high enough
-
-		// img-src: completely replaced by static directive
-		assert.deepEqual(csp['img-src'], ['self', STATIC_OVERRIDE]);
-
-		// connect-src: defaults + high and medium trusted sources (requirement is medium)
-		assert_source_in_directive(csp, 'connect-src', 'self');
-		assert_source_in_directive(csp, 'connect-src', TRUSTED);
-		assert_source_in_directive(csp, 'connect-src', TRUSTED_2);
+		// Whole-CSP deepEqual catches both missing sources and unintended leaks.
+		assert.deepEqual(csp, {
+			'default-src': ['none'],
+			'script-src': ['self', COLOR_SCHEME_SCRIPT_HASH, ANALYTICS],
+			'style-src': ['self', 'unsafe-inline'],
+			'img-src': ['self'],
+			'connect-src': ['self', ANALYTICS],
+		});
 	});
 
-	test('integration: mixed directives + trusted_sources + trust overrides', () => {
+	test('multiple extend layers compose with library defaults', () => {
 		const csp = create_csp_directives({
-			trusted_sources: [
-				create_test_source(TRUSTED, 'medium'),
-				create_test_source(TRUSTED_2, 'low'),
+			extend: [
+				// Shared "library" of trusted sources
+				{
+					'img-src': [FUZ_WILDCARD],
+				},
+				// App-specific extras
+				{
+					'connect-src': [FUZ_API],
+					'img-src': [FUZ_CDN],
+				},
 			],
-			directives: {
-				'style-src': (value) => [...value, FUNCTION_ADDED as any],
-				'img-src': ['self', STATIC_OVERRIDE as any],
-			},
-			required_trust_defaults: {
-				'connect-src': 'low', // Lower from high to low
-			},
 		});
 
-		// Check trust override worked
-		assert_source_in_directive(
-			csp,
-			'connect-src',
-			TRUSTED,
-			'medium trust source should be in connect-src with lowered requirement',
-		);
-		assert_source_in_directive(
-			csp,
-			'connect-src',
-			TRUSTED_2,
-			'low trust source should be in connect-src with lowered requirement',
-		);
+		assert.include(csp['img-src']!, FUZ_WILDCARD);
+		assert.include(csp['img-src']!, FUZ_CDN);
+		assert.include(csp['connect-src']!, FUZ_API);
 
-		// Check style-src transform worked with trusted sources
-		assert_source_in_directive(
-			csp,
-			'style-src',
-			TRUSTED,
-			'medium trust source should be in style-src',
-		);
-		assert_source_not_in_directive(
-			csp,
-			'style-src',
-			TRUSTED_2,
-			'low trust source should not be in style-src',
-		);
-		assert_source_in_directive(
-			csp,
-			'style-src',
-			FUNCTION_ADDED,
-			'function added source should be in style-src',
-		);
-
-		// Check img-src static override completely replaced trusted sources
-		assert.deepEqual(
-			csp['img-src'],
-			['self', STATIC_OVERRIDE],
-			'img-src should be completely replaced',
-		);
-		assert_source_not_in_directive(
-			csp,
-			'img-src',
-			TRUSTED,
-			'trusted sources should not be in static override',
-		);
+		// Library defaults still in place
+		assert.include(csp['img-src']!, 'self');
+		assert.include(csp['connect-src']!, 'self');
 	});
 });
 
 describe('real-world SvelteKit scenarios', () => {
-	test('real-world: SvelteKit app with Google Fonts and Analytics', () => {
+	test('Google Fonts (style + font CDN)', () => {
 		const csp = create_csp_directives({
-			trusted_sources: [
-				// Google Fonts
-				create_test_source_with_directives(GOOGLE_FONTS, ['style-src', 'font-src']),
-				create_test_source_with_directives(GOOGLE_FONTS_STATIC, ['style-src', 'font-src']),
-				// Analytics
-				create_test_source_with_both(ANALYTICS, 'high', ['script-src', 'connect-src']),
+			extend: [
+				{
+					'style-src': [GOOGLE_FONTS, GOOGLE_FONTS_STATIC],
+					'font-src': [GOOGLE_FONTS, GOOGLE_FONTS_STATIC],
+				},
 			],
 		});
 
-		// Google Fonts should be in style-src and font-src
-		assert_source_in_directive(csp, 'style-src', GOOGLE_FONTS);
-		assert_source_in_directive(csp, 'style-src', GOOGLE_FONTS_STATIC);
-		assert_source_in_directive(csp, 'font-src', GOOGLE_FONTS);
-		assert_source_in_directive(csp, 'font-src', GOOGLE_FONTS_STATIC);
+		assert.include(csp['style-src']!, GOOGLE_FONTS);
+		assert.include(csp['style-src']!, GOOGLE_FONTS_STATIC);
+		assert.include(csp['font-src']!, GOOGLE_FONTS);
+		assert.include(csp['font-src']!, GOOGLE_FONTS_STATIC);
 
-		// Analytics should be in script-src and connect-src
-		assert_source_in_directive(csp, 'script-src', ANALYTICS);
-		assert_source_in_directive(csp, 'connect-src', ANALYTICS);
-
-		// Google Fonts should not be in script-src
-		assert_source_not_in_directive(csp, 'script-src', GOOGLE_FONTS);
+		// Doesn't leak into script-src
+		assert.notInclude(csp['script-src']! as Array<any>, GOOGLE_FONTS);
 	});
 
-	test('real-world: CDN for scripts and styles', () => {
+	test('Stripe payment integration', () => {
 		const csp = create_csp_directives({
-			trusted_sources: [
-				create_test_source_with_both(CLOUDFLARE_CDN, 'high', ['script-src', 'style-src']),
+			extend: [
+				{
+					'script-src': [STRIPE],
+					'connect-src': [STRIPE],
+					'frame-src': [STRIPE],
+				},
 			],
 		});
 
-		// CDN should be in script-src and style-src (explicit + high trust)
-		assert_source_in_directive(csp, 'script-src', CLOUDFLARE_CDN);
-		assert_source_in_directive(csp, 'style-src', CLOUDFLARE_CDN);
-
-		// Also in other high-trust and medium-trust directives due to trust level
-		assert_source_in_directive(csp, 'connect-src', CLOUDFLARE_CDN);
-		assert_source_in_directive(csp, 'img-src', CLOUDFLARE_CDN);
+		assert.include(csp['script-src']!, STRIPE);
+		assert.include(csp['connect-src']!, STRIPE);
+		assert.include(csp['frame-src']!, STRIPE);
+		assert.notInclude(csp['img-src']! as Array<any>, STRIPE);
+		assert.notInclude(csp['style-src']! as Array<any>, STRIPE);
 	});
 
-	test('real-world: Payment integration (Stripe)', () => {
-		const csp = create_csp_directives({
-			trusted_sources: [
-				// Stripe needs script-src, connect-src, and frame-src
-				create_test_source_with_directives(STRIPE, ['script-src', 'connect-src', 'frame-src']),
-			],
-		});
-
-		assert_source_in_directive(csp, 'script-src', STRIPE);
-		assert_source_in_directive(csp, 'connect-src', STRIPE);
-		assert_source_in_directive(csp, 'frame-src', STRIPE);
-
-		// Should not be in other directives
-		assert_source_not_in_directive(csp, 'img-src', STRIPE);
-		assert_source_not_in_directive(csp, 'style-src', STRIPE);
-	});
-
-	test('real-world: nonce-based script execution', () => {
-		const nonce = 'nonce-abc123';
+	test('nonce-based script execution preserves baseline', () => {
+		const nonce = src('nonce-abc123');
 
 		const csp = create_csp_directives({
-			directives: {
-				'script-src': (value) => [...value, nonce as any],
-			},
+			extend: [{'script-src': [nonce]}],
 		});
 
-		// Nonce should be added to script-src
-		assert_source_in_directive(csp, 'script-src', nonce);
-
-		// Default values should still be present
-		assert_source_in_directive(csp, 'script-src', 'self');
-		assert_source_in_directive(csp, 'script-src', COLOR_SCHEME_SCRIPT_HASH);
-	});
-
-	test('real-world: hash-based inline scripts', () => {
-		const custom_hash = 'sha256-customhashvalue123';
-
-		const csp = create_csp_directives({
-			directives: {
-				'script-src': (value) => [...value, custom_hash as any],
-			},
-		});
-
-		// Custom hash should be added
-		assert_source_in_directive(csp, 'script-src', custom_hash);
-
-		// Default hash should still be present
-		assert_source_in_directive(csp, 'script-src', COLOR_SCHEME_SCRIPT_HASH);
+		assert.include(csp['script-src']!, nonce);
+		assert.include(csp['script-src']!, 'self');
+		assert.include(csp['script-src']!, COLOR_SCHEME_SCRIPT_HASH);
 	});
 });
 
 describe('progressive enhancement patterns', () => {
-	test('progressive: start strict, add sources progressively', () => {
-		// Start with strict CSP
-		const base_csp = create_csp_directives({
-			value_defaults: {
-				'script-src': ['self'],
-				'style-src': ['self'],
-				'img-src': ['self'],
-			},
+	test('start strict, layer in shared lib + app-specific extras', () => {
+		const shared_lib = {'img-src': [FUZ_WILDCARD]};
+
+		// Phase 1: defaults only
+		const phase1 = create_csp_directives();
+		assert.notInclude(phase1['img-src']! as Array<any>, FUZ_WILDCARD);
+
+		// Phase 2: add shared lib
+		const phase2 = create_csp_directives({
+			extend: [shared_lib],
 		});
+		assert.include(phase2['img-src']!, FUZ_WILDCARD);
 
-		// Verify strict
-		assert.deepEqual(base_csp['script-src'], ['self']);
-
-		// Add trusted sources
-		const with_sources = create_csp_directives({
-			value_defaults: {
-				'script-src': ['self'],
-				'style-src': ['self'],
-				'img-src': ['self'],
-			},
-			trusted_sources: [create_test_source(ANALYTICS, 'high')],
+		// Phase 3: add app-specific connect
+		const phase3 = create_csp_directives({
+			extend: [shared_lib, {'connect-src': [ANALYTICS]}],
 		});
-
-		// Now has analytics
-		assert_source_in_directive(with_sources, 'script-src', ANALYTICS);
-	});
-});
-
-describe('multi-environment configurations', () => {
-	test('multi-env: development vs production', () => {
-		const csp = create_csp_directives({
-			directives: {
-				'script-src': (value) => value, // Strict in production
-			},
-		});
-
-		// In production, should not have unsafe-eval
-		assert_source_not_in_directive(csp, 'script-src', 'unsafe-eval' as any);
-
-		// Switch to dev
-		const dev_csp = create_csp_directives({
-			directives: {
-				'script-src': (value) => [...value, 'unsafe-eval' as any],
-			},
-		});
-
-		// In dev, should have unsafe-eval
-		assert_source_in_directive(dev_csp, 'script-src', 'unsafe-eval' as any);
-	});
-});
-
-describe('migration scenarios', () => {
-	test('migration: from loose to strict CSP', () => {
-		// Old loose config
-		const loose_csp = create_csp_directives({
-			directives: {
-				'script-src': ['self', 'unsafe-inline' as any, 'unsafe-eval' as any],
-			},
-		});
-
-		assert_source_in_directive(loose_csp, 'script-src', 'unsafe-inline' as any);
-		assert_source_in_directive(loose_csp, 'script-src', 'unsafe-eval' as any);
-
-		// New strict config with nonces instead
-		const strict_csp = create_csp_directives({
-			directives: {
-				'script-src': (value) => [...value, 'nonce-abc123' as any],
-			},
-		});
-
-		assert_source_not_in_directive(strict_csp, 'script-src', 'unsafe-inline' as any);
-		assert_source_not_in_directive(strict_csp, 'script-src', 'unsafe-eval' as any);
-		assert_source_in_directive(strict_csp, 'script-src', 'nonce-abc123' as any);
+		assert.include(phase3['img-src']!, FUZ_WILDCARD);
+		assert.include(phase3['connect-src']!, ANALYTICS);
 	});
 });
 
 describe('common pitfalls and gotchas', () => {
-	test("gotcha: ['none'] directive blocks trusted sources", () => {
+	test("['none'] in directives blocks everything for that directive", () => {
 		const csp = create_csp_directives({
-			trusted_sources: [create_test_source(TRUSTED, 'high')],
-			directives: {
-				'script-src': ['none'], // Override to none
+			overrides: {
+				'script-src': ['none'],
 			},
 		});
 
-		// Even with high trust, ['none'] blocks everything
 		assert.deepEqual(csp['script-src'], ['none']);
-		assert_source_not_in_directive(csp, 'script-src', TRUSTED);
 	});
 
-	test('gotcha: static override removes default COLOR_SCHEME_SCRIPT_HASH', () => {
+	test('directives static replacement removes default COLOR_SCHEME_SCRIPT_HASH', () => {
 		const csp = create_csp_directives({
-			directives: {
-				'script-src': ['self'], // Forget to include COLOR_SCHEME_SCRIPT_HASH
+			overrides: {
+				'script-src': ['self'], // Forgot the hash
 			},
 		});
 
-		// COLOR_SCHEME_SCRIPT_HASH is removed
-		assert_source_not_in_directive(csp, 'script-src', COLOR_SCHEME_SCRIPT_HASH);
-
-		// To preserve it, use transform function
-		const correct_csp = create_csp_directives({
-			directives: {
-				'script-src': (value) => value, // Keeps defaults
-			},
-		});
-
-		assert_source_in_directive(correct_csp, 'script-src', COLOR_SCHEME_SCRIPT_HASH);
+		assert.notInclude(csp['script-src']! as Array<any>, COLOR_SCHEME_SCRIPT_HASH);
 	});
 
-	test('gotcha: transform receives trusted sources', () => {
-		let transform_called = false;
-		let received_sources: Array<any> = [];
-
-		create_csp_directives({
-			trusted_sources: [create_test_source(TRUSTED, 'high')],
-			directives: {
-				'script-src': (value) => {
-					transform_called = true;
-					received_sources = [...value];
-					return value;
-				},
-			},
+	test('to preserve defaults while adding sources, use extend', () => {
+		const correct_csp = create_csp_directives({
+			extend: [{'script-src': [ANALYTICS]}],
 		});
 
-		// Transform should have been called
-		assert.ok(transform_called, 'transform function should be called');
-
-		// And should have received trusted sources
-		assert.ok(received_sources.includes(TRUSTED), 'transform should receive trusted sources');
-		assert.ok(received_sources.includes('self'), 'transform should receive defaults');
+		assert.include(correct_csp['script-src']!, COLOR_SCHEME_SCRIPT_HASH);
+		assert.include(correct_csp['script-src']!, ANALYTICS);
 	});
 });
 
 describe('maximum complexity scenario', () => {
-	test('maximum complexity: everything at once', () => {
-		const nonce = 'nonce-runtime123';
-		const custom_hash = 'sha256-customscript';
+	test('all options at once — whole-CSP deepEqual catches leakage', () => {
+		// Whole-CSP deepEqual instead of per-source includes: with explicit replace_defaults the
+		// output is fully predictable, so this form catches both "missing source" and
+		// "source leaked into a directive it wasn't named in" — partial includes don't.
+		const nonce = src('nonce-runtime123');
+		const custom_hash = src('sha256-customscript');
 
 		const csp = create_csp_directives({
-			// Custom base
-			value_defaults_base: {
+			replace_defaults: {
 				'default-src': ['none'],
-				'script-src': ['self'],
+				'script-src': ['self', COLOR_SCHEME_SCRIPT_HASH],
+				'style-src': ['self', 'unsafe-inline'],
+				'img-src': ['self', 'data:'],
+				'connect-src': ['self'],
+				'font-src': ['self'],
+				'frame-ancestors': ['self'],
 			},
-			// Override some defaults
-			value_defaults: {
-				'script-src': ['self', COLOR_SCHEME_SCRIPT_HASH as any],
-				'img-src': ['self', 'data:' as any],
-				'style-src': ['self', 'unsafe-inline' as any], // Add so transform has something to work with
-			},
-			// Custom trust base
-			required_trust_defaults_base: {
-				'script-src': 'high',
-				'connect-src': 'high',
-			},
-			// Override some trust requirements
-			required_trust_defaults: {
-				'img-src': 'medium', // Raise from low
-				'style-src': 'low', // Lower from medium
-			},
-			// Multiple trusted sources with different configs
-			trusted_sources: [
-				create_test_source(ANALYTICS, 'high'), // Trust level only
-				create_test_source_with_directives(GOOGLE_FONTS, ['style-src', 'font-src']), // Directives only
-				create_test_source_with_both(CLOUDFLARE_CDN, 'medium', ['script-src']), // Both
+			extend: [
+				{'img-src': [FUZ_WILDCARD]},
+				{
+					'script-src': [ANALYTICS, CLOUDFLARE_CDN, nonce, custom_hash],
+					'connect-src': [ANALYTICS],
+					'style-src': [GOOGLE_FONTS, CLOUDFLARE_CDN],
+					'font-src': [GOOGLE_FONTS],
+				},
 			],
-			// Transform and static directives
-			directives: {
-				'script-src': (value) => [...value, nonce as any, custom_hash as any],
-				'connect-src': ['self', ANALYTICS as any], // Static override
+			overrides: {
+				'connect-src': ['self', ANALYTICS],
 			},
 		});
 
-		// Verify script-src: defaults + high trusted + CDN (explicit) + nonce + hash
-		assert_source_in_directive(csp, 'script-src', 'self');
-		assert_source_in_directive(csp, 'script-src', COLOR_SCHEME_SCRIPT_HASH);
-		assert_source_in_directive(csp, 'script-src', ANALYTICS);
-		assert_source_in_directive(csp, 'script-src', CLOUDFLARE_CDN);
-		assert_source_in_directive(csp, 'script-src', nonce);
-		assert_source_in_directive(csp, 'script-src', custom_hash);
+		assert.deepEqual(csp, {
+			'default-src': ['none'],
+			'script-src': [
+				'self',
+				COLOR_SCHEME_SCRIPT_HASH,
+				ANALYTICS,
+				CLOUDFLARE_CDN,
+				nonce,
+				custom_hash,
+			],
+			'style-src': ['self', 'unsafe-inline', GOOGLE_FONTS, CLOUDFLARE_CDN],
+			'img-src': ['self', 'data:', FUZ_WILDCARD],
+			'connect-src': ['self', ANALYTICS],
+			'font-src': ['self', GOOGLE_FONTS],
+			'frame-ancestors': ['self'],
+		});
+	});
 
-		// Verify connect-src: static override
-		assert.deepEqual(csp['connect-src'], ['self', ANALYTICS]);
+	test('full-pipeline idempotence — same options produce deepEqual results', () => {
+		const options = {
+			replace_defaults: {'img-src': ['self', 'data:']} as any,
+			extend: [
+				{'img-src': [FUZ_WILDCARD]},
+				{'connect-src': [ANALYTICS], 'script-src': [CLOUDFLARE_CDN]},
+			],
+			overrides: {'frame-ancestors': srcs<CspFrameSource>('self', 'https://parent.fuz.dev')},
+		};
 
-		// Verify style-src: defaults + medium/high trusted + Google Fonts (explicit) + unsafe-inline
-		assert_source_in_directive(csp, 'style-src', GOOGLE_FONTS);
-		assert_source_in_directive(csp, 'style-src', CLOUDFLARE_CDN); // medium trust
-		assert_source_in_directive(csp, 'style-src', ANALYTICS); // high trust
-		assert_source_in_directive(csp, 'style-src', 'unsafe-inline' as any);
+		const csp1 = create_csp_directives(options);
+		const csp2 = create_csp_directives(options);
 
-		// Verify img-src: defaults + medium/high trusted (raised requirement)
-		assert_source_in_directive(csp, 'img-src', 'self');
-		assert_source_in_directive(csp, 'img-src', 'data:' as any);
-		assert_source_in_directive(csp, 'img-src', ANALYTICS); // high trust
-		assert_source_in_directive(csp, 'img-src', CLOUDFLARE_CDN); // medium trust
-		assert_source_not_in_directive(csp, 'img-src', GOOGLE_FONTS); // Not in directives, no trust level
-
-		// Verify default-src
-		assert.deepEqual(csp['default-src'], ['none']);
+		assert.deepEqual(csp1, csp2);
 	});
 });

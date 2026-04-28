@@ -1956,11 +1956,11 @@
 				"path": "csp_of_fuzdev.ts",
 				"declarations": [
 					{
-						"name": "csp_trusted_sources_of_fuzdev",
+						"name": "csp_directives_of_fuzdev",
 						"kind": "variable",
-						"doc_comment": "Trusted sources owned by fuz.dev.",
-						"source_line": 6,
-						"type_signature": "CspSourceSpec[]"
+						"doc_comment": "Per-directive sources that allow full interop between fuzdev/sister sites\n(`*.fuz.dev`, `*.zzz.software`) — loading assets and APIs from each other,\nand iframing in both directions.\n\nPass into `create_csp_directives({extend: [csp_directives_of_fuzdev]})`.\nIntended for sites within the ecosystem; external apps usually want a\nnarrower, hand-written allow-list.\n\nDeliberately scoped — `script-src`, `style-src`, `worker-src`, etc. are not\ngranted, even between sister sites. Add at the call site if a specific page\nneeds them.",
+						"source_line": 16,
+						"type_signature": "Partial<CspDirectives>"
 					}
 				]
 			},
@@ -1968,10 +1968,44 @@
 				"path": "csp.ts",
 				"declarations": [
 					{
+						"name": "CspDirectiveSourcesMap",
+						"kind": "type",
+						"doc_comment": "Per-directive map of source arrays — accepted as `extend` layer entries.\nExcludes directives like `'upgrade-insecure-requests'` (boolean) that can't be appended to.",
+						"source_line": 9,
+						"type_signature": "CspDirectiveSourcesMap"
+					},
+					{
+						"name": "CreateCspDirectivesOptions",
+						"kind": "type",
+						"doc_comment": "Options for `create_csp_directives`.\n\nThe pipeline runs in three stages:\n1. `replace_defaults` sets the starting state (defaults to `csp_directive_value_defaults`).\n2. `extend` appends sources per directive, layered left to right.\n3. `overrides` replaces or removes per-directive values as a final pass.",
+						"source_line": 21,
+						"type_signature": "CreateCspDirectivesOptions",
+						"properties": [
+							{
+								"name": "replace_defaults",
+								"kind": "variable",
+								"type_signature": "Partial<typeof csp_directive_value_defaults>",
+								"doc_comment": "Starting values per directive — *wholesale replaces* the library defaults.\n\n- Omitted: uses `csp_directive_value_defaults` (the curated library defaults).\n- Provided: exactly the directives you list, nothing else inherited.\n  Anything not listed is **absent** from the starting state — including security defaults\n  like `default-src: 'none'`. To tweak a single directive while keeping the rest, use\n  `extend` (to append) or `overrides` (to replace per-key) instead.\n- `{}`: starts blank with no directives.\n\n`null` is not accepted (top-level or per-key) — omit the option to use library defaults,\npass `{}` to start blank, or use `overrides` to remove a specific directive.\n\nPer-key `undefined` is treated as omitted (no-op)."
+							},
+							{
+								"name": "extend",
+								"kind": "variable",
+								"type_signature": "ReadonlyArray<CspDirectiveSourcesMap>",
+								"doc_comment": "Sources to append per directive, layered left to right.\nEach entry is a partial map; values append to the result of `replace_defaults` and prior entries.\nValues are deduplicated within and across layers.\n\nOnly array-typed directives can be extended (boolean directives like `upgrade-insecure-requests`\nare excluded by the type). Throws if any entry attempts to extend a directive whose current\nvalue is `['none']` — use `replace_defaults` or `overrides` to opt into default-deny directives.\n\nPer-key `undefined` is treated as omitted (no-op) — supports conditional patterns like\n`{'connect-src': is_prod ? [API_URL] : undefined}`. Per-key `null` throws — `extend` only\nappends; use `overrides: { 'X': null }` to remove a directive."
+							},
+							{
+								"name": "overrides",
+								"kind": "variable",
+								"type_signature": "{\n\t\t[K in CspDirective]?: CspDirectiveValue<K> | null;\n\t}",
+								"doc_comment": "Final-pass per-directive overrides. Replaces the directive value or removes it entirely.\nPass `null` to remove a directive from the output.\n\nHighest precedence — wins over `replace_defaults` and `extend`.\n\nPer-key `undefined` is treated as omitted (no-op) — distinct from `null`, which removes."
+							}
+						]
+					},
+					{
 						"name": "create_csp_directives",
 						"kind": "function",
-						"doc_comment": "This is designed for compatibility with SvelteKit\nand maps to the `KitConfig` `directives` option.\nThe goal is to provide an ergonomic, modern, and safe API\nfor Content Security Policy (CSP) creation\nthat's simple to write and audit, and isn't error-prone.\n\nThings like validation and rendering to a string\nare out of scope and left to SvelteKit.",
-						"source_line": 60,
+						"doc_comment": "Builds a CSP directives map for use with SvelteKit's `kit.csp.directives` option.\n\nRestrictive by default; opt into specific permissions via `extend` (append) or\n`overrides` (replace). Designed to read as an audit log: every user-added source\nis named at exactly one site in the source code. Library defaults are inherited\nunless you opt out via `replace_defaults`.\n\nValidation:\n- Unknown directive keys throw.\n- Extending a `['none']` directive throws (use `replace_defaults`/`overrides` to opt in).\n- `null` for `replace_defaults` (top-level or per-key) throws — omit the option for library\n  defaults, pass `{}` to start blank, or use `overrides` to remove a specific directive.\n- `null` per-key in `extend` throws (use `overrides` for removal).\n- `undefined` per-key is treated as omitted in all three stages.\n- Non-object entries in `extend` (`null`, `undefined`, primitives) throw with a friendly error.\n- Output is validated to ensure `'none'` never appears alongside other tokens,\n  that no directive ends up with an empty array (use `['none']` to forbid all),\n  and that every source array contains only strings.\n\nThings like rendering to a string are out of scope and left to SvelteKit.",
+						"source_line": 89,
 						"type_signature": "(options?: CreateCspDirectivesOptions): CspDirectives",
 						"return_type": "CspDirectives",
 						"parameters": [
@@ -1983,59 +2017,15 @@
 						]
 					},
 					{
-						"name": "CreateCspDirectivesOptions",
-						"kind": "type",
-						"source_line": 5,
-						"type_signature": "CreateCspDirectivesOptions",
-						"properties": [
-							{
-								"name": "directives",
-								"kind": "variable",
-								"type_signature": "{\n\t\t[K in CspDirective]?:\n\t\t\t| CspDirectiveValue<K> // Static value replacement\n\t\t\t| null // Removes the directive\n\t\t\t// Transform function returning one of the previous types\n\t\t\t| ((value: CspDirectiveValue<K>) => CspDirectiveValue<K> | null);\n\t}",
-								"doc_comment": "Override or transform specific directives.\nReturning `null` or `undefined` from a transform function will remove the directive."
-							},
-							{
-								"name": "trusted_sources",
-								"kind": "variable",
-								"type_signature": "Array<CspSourceSpec>",
-								"doc_comment": "Sources to include based on their trust levels."
-							},
-							{
-								"name": "value_defaults",
-								"kind": "variable",
-								"type_signature": "Partial<typeof csp_directive_value_defaults>",
-								"doc_comment": "Override default values for specific directives,\nmerging with `value_defaults_base` (or replacing if that directive is null in the base)."
-							},
-							{
-								"name": "value_defaults_base",
-								"kind": "variable",
-								"type_signature": "Partial<typeof csp_directive_value_defaults> | null",
-								"doc_comment": "Base values for directive defaults.\nSet to `null` or `{}` to start with no defaults.\nDefaults to `csp_directive_value_defaults`."
-							},
-							{
-								"name": "required_trust_defaults",
-								"kind": "variable",
-								"type_signature": "Partial<typeof csp_directive_required_trust_defaults>",
-								"doc_comment": "Override trust requirements for specific directives,\nmerging with `required_trust_defaults_base` (or replacing if that directive is null in the base)."
-							},
-							{
-								"name": "required_trust_defaults_base",
-								"kind": "variable",
-								"type_signature": "Partial<typeof csp_directive_required_trust_defaults> | null",
-								"doc_comment": "Base values for directive trust requirements.\nSet to `null` or `{}` to start with no trust requirements.\nDefaults to `csp_directive_required_trust_defaults`."
-							}
-						]
-					},
-					{
 						"name": "CspDirective",
 						"kind": "type",
-						"source_line": 172,
+						"source_line": 219,
 						"type_signature": "keyof CspDirectives"
 					},
 					{
 						"name": "parse_csp_directive",
 						"kind": "function",
-						"source_line": 174,
+						"source_line": 221,
 						"type_signature": "(directive: unknown): keyof CspDirectives | null",
 						"return_type": "keyof CspDirectives | null",
 						"parameters": [
@@ -2048,7 +2038,7 @@
 					{
 						"name": "CspDirectiveValue",
 						"kind": "type",
-						"source_line": 179,
+						"source_line": 226,
 						"type_signature": "CspDirectiveValue<T>",
 						"generic_params": [
 							{
@@ -2058,66 +2048,22 @@
 						]
 					},
 					{
-						"name": "csp_trust_levels",
+						"name": "COLOR_SCHEME_SCRIPT_HASH",
 						"kind": "variable",
-						"source_line": 181,
-						"type_signature": "readonly [\"low\", \"medium\", \"high\"]"
+						"source_line": 259,
+						"type_signature": "\"sha256-QOxqn7EUzb3ydF9SALJoJGWSvywW9R0AfTDSenB83Z8=\""
 					},
 					{
-						"name": "csp_trust_level_value",
+						"name": "csp_directive_value_defaults",
 						"kind": "variable",
-						"doc_comment": "Numeric values for CSP trust levels. See `csp_trust_levels`.\nLower is less trusted.\nIncludes `undefined` in the type for safety.",
-						"source_line": 188,
-						"type_signature": "Record<\"low\" | \"medium\" | \"high\", number | undefined>"
-					},
-					{
-						"name": "CspTrustLevel",
-						"kind": "type",
-						"doc_comment": "Trust levels for CSP sources.\n\nWith the base defaults, trust levels roughly correspond to:\n\n- `low` – Passive resources only (no script execution, no styling or UI control).\n\t\tExamples: `img-src`, `font-src`.\n- `medium` – Content that may affect layout, styling, or embed external browsing contexts,\n   but cannot directly run code in the page's JS execution environment or\n\t\tperform other high-risk actions. Examples: `style-src`, `frame-src`, `frame-ancestors`.\n- `high` – Sources that can execute code in the page's context or open powerful network\n   channels. Examples: `script-src`, `connect-src`, `child-src`.\n- `null` – No trust. This is used for directives that don't support sources.",
-						"source_line": 209,
-						"type_signature": "\"low\" | \"medium\" | \"high\""
-					},
-					{
-						"name": "parse_csp_trust_level",
-						"kind": "function",
-						"doc_comment": "Validates and extracts a CSP trust level from an unknown value.",
-						"source_line": 214,
-						"type_signature": "(trust: unknown): \"low\" | \"medium\" | \"high\" | null",
-						"return_type": "\"low\" | \"medium\" | \"high\" | null",
-						"parameters": [
-							{
-								"name": "trust",
-								"type": "unknown"
-							}
-						]
-					},
-					{
-						"name": "CspSourceSpec",
-						"kind": "type",
-						"source_line": 217,
-						"type_signature": "CspSourceSpec",
-						"properties": [
-							{
-								"name": "source",
-								"kind": "variable",
-								"type_signature": "CspSource"
-							},
-							{
-								"name": "trust",
-								"kind": "variable",
-								"type_signature": "CspTrustLevel"
-							},
-							{
-								"name": "directives",
-								"kind": "variable",
-								"type_signature": "Array<CspDirective>"
-							}
-						]
+						"doc_comment": "The library CSP directive defaults — directives enabled out of the box.\nPrioritizes safety but loosens around media and styles, relying on defense-in-depth.\nWASM compile is allowed (`'wasm-unsafe-eval'` on `script-src` and `worker-src`); `eval` is not.\n\nDirectives not listed here (`report-to`, `require-trusted-types-for`, `trusted-types`,\n`sandbox`) are intentionally absent by default — opt in via `replace_defaults` or `overrides`.\n\nCustomizable via `CreateCspDirectivesOptions.replace_defaults`.",
+						"source_line": 271,
+						"type_signature": "Partial<{ \"default-src\": (CspSource | CspActionSource)[]; \"script-src\": (CspSource | CspActionSource)[]; \"script-src-elem\": CspSources; ... 20 more ...; sandbox: (\"allow-downloads-without-user-activation\" | ... 11 more ... | \"allow-top-navigation-by-user-activation\")[]; }>"
 					},
 					{
 						"name": "CspDirectiveSpec",
 						"kind": "type",
-						"source_line": 223,
+						"source_line": 300,
 						"type_signature": "CspDirectiveSpec",
 						"properties": [
 							{
@@ -2138,129 +2084,91 @@
 						]
 					},
 					{
-						"name": "is_csp_trusted",
-						"kind": "function",
-						"doc_comment": "Determines if a granted trust level is sufficient to satisfy a required trust level.\n\nTrust levels have the following hierarchy:\n- 'high' sources can be used in high, medium, and low trust directives (highest privilege)\n- 'medium' sources can be used in medium and low trust directives\n- 'low' sources can only be used in low trust directives (lowest privilege)",
-						"source_line": 237,
-						"type_signature": "(required_trust: \"low\" | \"medium\" | \"high\" | null | undefined, granted_trust: \"low\" | \"medium\" | \"high\" | null | undefined): boolean",
-						"return_type": "boolean",
-						"parameters": [
-							{
-								"name": "required_trust",
-								"type": "\"low\" | \"medium\" | \"high\" | null | undefined"
-							},
-							{
-								"name": "granted_trust",
-								"type": "\"low\" | \"medium\" | \"high\" | null | undefined"
-							}
-						]
-					},
-					{
-						"name": "COLOR_SCHEME_SCRIPT_HASH",
-						"kind": "variable",
-						"source_line": 260,
-						"type_signature": "\"sha256-QOxqn7EUzb3ydF9SALJoJGWSvywW9R0AfTDSenB83Z8=\""
-					},
-					{
-						"name": "csp_directive_value_defaults",
-						"kind": "variable",
-						"doc_comment": "The base CSP directive defaults.\nPrioritizes safety but loosens around media and styles, relying on defense-in-depth.\nWASM compile is allowed (`'wasm-unsafe-eval'` on `script-src` and `worker-src`); `eval` is not.\nCustomizable via `CreateCspDirectivesOptions`.",
-						"source_line": 268,
-						"type_signature": "Record<keyof CspDirectives, boolean | (CspSource | CspActionSource)[] | CspSources | CspFrameSource[] | string[] | \"script\"[] | (\"allow-downloads-without-user-activation\" | ... 11 more ... | \"allow-top-navigation-by-user-activation\")[] | null>"
-					},
-					{
-						"name": "csp_directive_required_trust_defaults",
-						"kind": "variable",
-						"doc_comment": "Sources that meet this trust requirement are included for it by default.\nIf null, no trusted sources are added to the directive automatically.\nDirectives that don't support sources or default to `['none']` are null.\n\nFeedback is welcome, please see the issues - https://github.com/fuzdev/fuz_ui/issues",
-						"source_line": 309,
-						"type_signature": "Record<keyof CspDirectives, \"low\" | \"medium\" | \"high\" | null>"
-					},
-					{
 						"name": "csp_directive_specs",
 						"kind": "variable",
-						"doc_comment": "Static data descriptors for the CSP directives.\nFuz excludes deprecated directives, so those are intentionally omitted,\nbut any newer missing directives are bugs.\n\nCould be co-located but is currently here to keep that module smaller.",
+						"doc_comment": "Static data descriptors for the CSP directives.\nFuz excludes deprecated directives, so those are intentionally omitted,\nbut any newer missing directives are bugs.",
 						"see_also": [
 							"{@link https://developer.mozilla.org/en-US/docs/Web/HTTP/Reference/Headers/Content-Security-Policy}"
 						],
-						"source_line": 345,
+						"source_line": 313,
 						"type_signature": "CspDirectiveSpec[]"
 					},
 					{
 						"name": "csp_directive_spec_by_name",
 						"kind": "variable",
-						"source_line": 483,
+						"source_line": 451,
 						"type_signature": "Map<keyof CspDirectives, CspDirectiveSpec>"
 					},
 					{
 						"name": "CspActionSource",
 						"kind": "type",
-						"source_line": 515,
+						"source_line": 483,
 						"type_signature": "CspActionSource"
 					},
 					{
 						"name": "CspBaseSource",
 						"kind": "type",
-						"source_line": 516,
+						"source_line": 484,
 						"type_signature": "CspBaseSource"
 					},
 					{
 						"name": "CspCryptoSource",
 						"kind": "type",
-						"source_line": 523,
+						"source_line": 491,
 						"type_signature": "`nonce-${string}` | `sha256-${string}` | `sha384-${string}` | `sha512-${string}`"
 					},
 					{
 						"name": "CspFrameSource",
 						"kind": "type",
-						"source_line": 524,
+						"source_line": 492,
 						"type_signature": "CspFrameSource"
 					},
 					{
 						"name": "CspHostNameScheme",
 						"kind": "type",
-						"source_line": 525,
+						"source_line": 493,
 						"type_signature": "CspHostNameScheme"
 					},
 					{
 						"name": "CspHostSource",
 						"kind": "type",
-						"source_line": 526,
+						"source_line": 494,
 						"type_signature": "`${string}.${string}` | \"localhost\" | `${string}.${string}:${number}` | `${string}.${string}:*` | `localhost:${number}` | \"localhost:*\" | `${string}://${string}.${string}` | `${string}://${string}.${string}:${number}` | `${string}://${string}.${string}:*` | `${string}://localhost` | `${string}://localhost:${number}`..."
 					},
 					{
 						"name": "CspHostProtocolSchemes",
 						"kind": "type",
-						"source_line": 527,
+						"source_line": 495,
 						"type_signature": "CspHostProtocolSchemes"
 					},
 					{
 						"name": "CspPortScheme",
 						"kind": "type",
-						"source_line": 528,
+						"source_line": 496,
 						"type_signature": "CspPortScheme"
 					},
 					{
 						"name": "CspSchemeSource",
 						"kind": "type",
-						"source_line": 529,
+						"source_line": 497,
 						"type_signature": "CspSchemeSource"
 					},
 					{
 						"name": "CspSource",
 						"kind": "type",
-						"source_line": 536,
+						"source_line": 504,
 						"type_signature": "CspSource"
 					},
 					{
 						"name": "CspSources",
 						"kind": "type",
-						"source_line": 537,
+						"source_line": 505,
 						"type_signature": "CspSources"
 					},
 					{
 						"name": "CspDirectives",
 						"kind": "type",
-						"source_line": 539,
+						"source_line": 507,
 						"type_signature": "CspDirectives",
 						"properties": [
 							{
@@ -8429,7 +8337,7 @@
 						"name": "tsdoc_apply_to_declaration",
 						"kind": "function",
 						"doc_comment": "Apply parsed TSDoc metadata to a declaration.\n\nConsolidates the common pattern of assigning TSDoc fields to declarations,\nwith conditional assignment for array fields (only if non-empty).",
-						"source_line": 193,
+						"source_line": 188,
 						"type_signature": "(declaration: { [x: string]: unknown; name: string; kind: \"function\" | \"json\" | \"type\" | \"variable\" | \"class\" | \"constructor\" | \"component\" | \"css\"; doc_comment?: string | undefined; type_signature?: string | undefined; ... 18 more ...; alias_of?: { ...; } | undefined; }, tsdoc: TsdocParsedComment | undefined): void",
 						"return_type": "void",
 						"parameters": [
@@ -8446,10 +8354,28 @@
 						]
 					},
 					{
+						"name": "tsdoc_comment_to_text",
+						"kind": "function",
+						"doc_comment": "Concatenates a JSDoc comment (string or node array) into plain text, preserving `{@link ...}`.\n\n`JSDocLink` / `JSDocLinkCode` / `JSDocLinkPlain` nodes have empty `.text` — the identifier\nlives on `.name`, not `.text`. Using `.text` alone silently drops link content; we fall back\nto the source-text representation for link nodes so `{@link Foo}` survives intact for downstream\nrenderers (see `tsdoc_mdz.ts`).",
+						"source_line": 220,
+						"type_signature": "(comment: string | NodeArray<JSDocComment>, source_file: SourceFile): string",
+						"return_type": "string",
+						"parameters": [
+							{
+								"name": "comment",
+								"type": "string | NodeArray<JSDocComment>"
+							},
+							{
+								"name": "source_file",
+								"type": "SourceFile"
+							}
+						]
+					},
+					{
 						"name": "tsdoc_clean_comment",
 						"kind": "function",
 						"doc_comment": "Clean raw JSDoc comment text by removing comment markers and leading asterisks.\n\nTransforms `/** ... *\\/` style comments into clean text.",
-						"source_line": 225,
+						"source_line": 236,
 						"type_signature": "(comment_text: string): string | undefined",
 						"return_type": "string | undefined",
 						"return_description": "cleaned comment text, or undefined if empty after cleaning",
@@ -8471,9 +8397,9 @@
 					{
 						"name": "tsdoc_see_to_mdz",
 						"kind": "function",
-						"doc_comment": "Convert raw TSDoc `@see` content to mdz format for rendering.\n\nHandles TSDoc link syntax:\n- `|text` → `[text](url)` (markdown link)\n- `://...` → `https://...` (bare URL, auto-linked by mdz)\n- `` → `` `identifier` `` (code formatting)\n- Bare URLs → returned as-is\n- Bare identifiers → wrapped in backticks\n- `identifier description text` → `` `identifier` description text `` (first token is the reference)",
+						"doc_comment": "Convert raw TSDoc `@see` content to mdz format for rendering.\n\nHandles TSDoc link syntax:\n- `{@link url|text}` → `[text](url)` (markdown link)\n- `{@link https://...}` → `https://...` (bare URL, auto-linked by mdz)\n- `{@link identifier}` → `` `identifier` `` (code formatting)\n- Bare URLs → returned as-is\n- Bare identifiers → wrapped in backticks\n- `identifier description text` → `` `identifier` description text `` (first token is the reference)",
 						"examples": [
-							"```ts\ntsdoc_see_to_mdz('://fuz.dev|API Docs')\n// → '[API Docs](https://fuz.dev)'\n\ntsdoc_see_to_mdz('')\n// → '`SomeType`'\n\ntsdoc_see_to_mdz('https://example.com')\n// → 'https://example.com'\n\ntsdoc_see_to_mdz('library_gen.ts for Gro-specific integration')\n// → '`library_gen.ts` for Gro-specific integration'\n```"
+							"```ts\ntsdoc_see_to_mdz('{@link https://fuz.dev|API Docs}')\n// → '[API Docs](https://fuz.dev)'\n\ntsdoc_see_to_mdz('{@link SomeType}')\n// → '`SomeType`'\n\ntsdoc_see_to_mdz('https://example.com')\n// → 'https://example.com'\n\ntsdoc_see_to_mdz('library_gen.ts for Gro-specific integration')\n// → '`library_gen.ts` for Gro-specific integration'\n```"
 						],
 						"source_line": 45,
 						"type_signature": "(content: string): string",
