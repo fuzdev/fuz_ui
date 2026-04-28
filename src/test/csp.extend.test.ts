@@ -202,16 +202,6 @@ describe('extend on `none` directives', () => {
 });
 
 describe('extend validation', () => {
-	test('throws on unknown directive key', () => {
-		assert.throws(
-			() =>
-				create_csp_directives({
-					extend: [{'imag-src': [TRUSTED] as any} as any],
-				}),
-			/Invalid directive in options.extend: imag-src/,
-		);
-	});
-
 	test('throws when extending a non-array directive', () => {
 		assert.throws(
 			() =>

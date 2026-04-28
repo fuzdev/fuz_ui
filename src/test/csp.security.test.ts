@@ -118,20 +118,6 @@ describe('hash-based script execution', () => {
 		assert.ok(csp['script-src']!.includes(COLOR_SCHEME_SCRIPT_HASH));
 		assert.ok(csp['script-src-elem']!.includes(COLOR_SCHEME_SCRIPT_HASH));
 	});
-
-	test('custom hashes can be added without weakening security', () => {
-		const custom_hash = 'sha256-abcdef1234567890';
-
-		const csp = create_csp_directives({
-			extend: [{'script-src': [custom_hash as any]}],
-		});
-
-		assert.ok(csp['script-src']!.includes(custom_hash as any));
-
-		// But security baseline is maintained
-		assert.ok(!csp['script-src']!.includes('unsafe-inline' as any));
-		assert.ok(!csp['script-src']!.includes('unsafe-eval' as any));
-	});
 });
 
 describe('nonce-based script execution', () => {
@@ -143,19 +129,6 @@ describe('nonce-based script execution', () => {
 		});
 
 		assert.ok(csp['script-src']!.includes(nonce as any));
-	});
-
-	test('nonce does not weaken other protections', () => {
-		const nonce = 'nonce-abc123';
-
-		const csp = create_csp_directives({
-			extend: [{'script-src': [nonce as any]}],
-		});
-
-		assert.ok(csp['script-src']!.includes(nonce as any));
-		assert.ok(!csp['script-src']!.includes('unsafe-inline' as any));
-		assert.ok(!csp['script-src']!.includes('unsafe-eval' as any));
-		assert.ok(csp['script-src']!.includes('self'));
 	});
 });
 

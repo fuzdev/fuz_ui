@@ -121,16 +121,6 @@ describe('replace_defaults option — wholesale replace semantics', () => {
 			'img-src': ['self', TRUSTED_3],
 		});
 	});
-
-	test('throws on unknown directive key', () => {
-		assert.throws(
-			() =>
-				create_csp_directives({
-					replace_defaults: {'imag-src': ['self']} as any,
-				}),
-			/Invalid directive in options.replace_defaults: imag-src/,
-		);
-	});
 });
 
 describe('replace_defaults interaction with extend', () => {

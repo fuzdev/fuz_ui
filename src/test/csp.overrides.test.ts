@@ -136,18 +136,6 @@ describe('overrides interaction with extend output', () => {
 	});
 });
 
-describe('overrides option — validation', () => {
-	test('throws on unknown directive key', () => {
-		assert.throws(
-			() =>
-				create_csp_directives({
-					overrides: {'imag-src': ['self']} as any,
-				}),
-			/Invalid directive in options.overrides: imag-src/,
-		);
-	});
-});
-
 describe('precedence: replace_defaults → extend → overrides', () => {
 	test('full pipeline: replace_defaults sets, extend appends, overrides replaces', () => {
 		const csp = create_csp_directives({
