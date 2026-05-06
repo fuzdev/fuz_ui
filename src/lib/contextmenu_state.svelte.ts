@@ -10,6 +10,12 @@ import {Dimensions} from './dimensions.svelte.js';
 import {create_context} from './context_helpers.js';
 import {url_to_root_relative} from './library_helpers.js';
 
+export const contextmenu_context = create_context<() => ContextmenuState>();
+
+export const contextmenu_submenu_context = create_context<SubmenuState>();
+
+export const contextmenu_dimensions_context = create_context(() => new Dimensions());
+
 export type ContextmenuParams =
 	| Snippet
 	// TODO maybe this should be generic?
@@ -474,12 +480,6 @@ const contextmenu_query_params = (
 	}
 	return params;
 };
-
-export const contextmenu_context = create_context<() => ContextmenuState>();
-
-export const contextmenu_submenu_context = create_context<SubmenuState>();
-
-export const contextmenu_dimensions_context = create_context(() => new Dimensions());
 
 // Global registry of non-scoped contextmenu roots (only used in DEV)
 const non_scoped_roots: Set<symbol> = new Set();

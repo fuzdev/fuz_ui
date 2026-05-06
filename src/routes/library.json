@@ -1050,27 +1050,45 @@
 				"path": "contextmenu_state.svelte.ts",
 				"declarations": [
 					{
+						"name": "contextmenu_context",
+						"kind": "variable",
+						"source_line": 13,
+						"type_signature": "{ get: (error_message?: string | undefined) => () => ContextmenuState; get_maybe: () => (() => ContextmenuState) | undefined; set: (value: () => ContextmenuState) => () => ContextmenuState; }"
+					},
+					{
+						"name": "contextmenu_submenu_context",
+						"kind": "variable",
+						"source_line": 15,
+						"type_signature": "{ get: (error_message?: string | undefined) => SubmenuState; get_maybe: () => SubmenuState | undefined; set: (value: SubmenuState) => SubmenuState; }"
+					},
+					{
+						"name": "contextmenu_dimensions_context",
+						"kind": "variable",
+						"source_line": 17,
+						"type_signature": "{ get: () => Dimensions; set: (value?: Dimensions | undefined) => Dimensions; }"
+					},
+					{
 						"name": "ContextmenuParams",
 						"kind": "type",
-						"source_line": 13,
+						"source_line": 19,
 						"type_signature": "ContextmenuParams"
 					},
 					{
 						"name": "ContextmenuActivateResult",
 						"kind": "type",
-						"source_line": 20,
+						"source_line": 26,
 						"type_signature": "ContextmenuActivateResult"
 					},
 					{
 						"name": "ItemState",
 						"kind": "type",
-						"source_line": 25,
+						"source_line": 31,
 						"type_signature": "ItemState"
 					},
 					{
 						"name": "EntryState",
 						"kind": "class",
-						"source_line": 27,
+						"source_line": 33,
 						"members": [
 							{
 								"name": "is_menu",
@@ -1140,7 +1158,7 @@
 					{
 						"name": "SubmenuState",
 						"kind": "class",
-						"source_line": 50,
+						"source_line": 56,
 						"members": [
 							{
 								"name": "is_menu",
@@ -1189,7 +1207,7 @@
 					{
 						"name": "RootMenuState",
 						"kind": "class",
-						"source_line": 64,
+						"source_line": 70,
 						"members": [
 							{
 								"name": "is_menu",
@@ -1216,13 +1234,13 @@
 					{
 						"name": "ContextmenuRun",
 						"kind": "type",
-						"source_line": 72,
+						"source_line": 78,
 						"type_signature": "ContextmenuRun"
 					},
 					{
 						"name": "ContextmenuStateOptions",
 						"kind": "type",
-						"source_line": 74,
+						"source_line": 80,
 						"type_signature": "ContextmenuStateOptions",
 						"properties": [
 							{
@@ -1239,7 +1257,7 @@
 						"see_also": [
 							"{@link https://developer.mozilla.org/en-US/docs/Web/API/Element/contextmenu_event}"
 						],
-						"source_line": 84,
+						"source_line": 90,
 						"members": [
 							{
 								"name": "layout",
@@ -1466,7 +1484,7 @@
 						"name": "contextmenu_attachment",
 						"kind": "function",
 						"doc_comment": "Creates an attachment that sets up contextmenu behavior on an element.",
-						"source_line": 350,
+						"source_line": 356,
 						"type_signature": "<T extends ContextmenuParams, U extends T | Array<T>>(params: U | null | undefined): Attachment<HTMLElement | SVGElement>",
 						"return_type": "Attachment<HTMLElement | SVGElement>",
 						"parameters": [
@@ -1480,7 +1498,7 @@
 					{
 						"name": "ContextmenuOpenOptions",
 						"kind": "type",
-						"source_line": 374,
+						"source_line": 380,
 						"type_signature": "ContextmenuOpenOptions",
 						"properties": [
 							{
@@ -1509,7 +1527,7 @@
 						"name": "contextmenu_open",
 						"kind": "function",
 						"doc_comment": "Opens the contextmenu, if appropriate,\nquerying the menu items from the DOM starting at the event target.",
-						"source_line": 391,
+						"source_line": 397,
 						"type_signature": "(target: HTMLElement | SVGElement, x: number, y: number, contextmenu: ContextmenuState, options?: ContextmenuOpenOptions | undefined): boolean",
 						"return_type": "boolean",
 						"return_description": "a boolean indicating if the menu was opened or not",
@@ -1541,24 +1559,6 @@
 								"description": "optional configuration for filtering entries and haptic feedback"
 							}
 						]
-					},
-					{
-						"name": "contextmenu_context",
-						"kind": "variable",
-						"source_line": 478,
-						"type_signature": "{ get: (error_message?: string | undefined) => () => ContextmenuState; get_maybe: () => (() => ContextmenuState) | undefined; set: (value: () => ContextmenuState) => () => ContextmenuState; }"
-					},
-					{
-						"name": "contextmenu_submenu_context",
-						"kind": "variable",
-						"source_line": 480,
-						"type_signature": "{ get: (error_message?: string | undefined) => SubmenuState; get_maybe: () => SubmenuState | undefined; set: (value: SubmenuState) => SubmenuState; }"
-					},
-					{
-						"name": "contextmenu_dimensions_context",
-						"kind": "variable",
-						"source_line": 482,
-						"type_signature": "{ get: () => Dimensions; set: (value?: Dimensions | undefined) => Dimensions; }"
 					},
 					{
 						"name": "contextmenu_check_global_root",
@@ -2640,10 +2640,16 @@
 				"path": "docs_helpers.svelte.ts",
 				"declarations": [
 					{
+						"name": "docs_links_context",
+						"kind": "variable",
+						"source_line": 7,
+						"type_signature": "{ get: (error_message?: string | undefined) => DocsLinks; get_maybe: () => DocsLinks | undefined; set: (value: DocsLinks) => DocsLinks; }"
+					},
+					{
 						"name": "docs_slugify",
 						"kind": "function",
 						"doc_comment": "Convert a string to a URL-safe fragment identifier, preserving case.\nUnlike `slugify` from `@fuzdev/fuz_util/path.js` which lowercases,\nthis keeps the original casing so API declarations like `AsyncStatus`\nand `async_status` produce distinct fragment IDs.\nUsed by the `Tome` documentation system for heading and section anchors.",
-						"source_line": 16,
+						"source_line": 18,
 						"type_signature": "(str: string): string",
 						"return_type": "string",
 						"return_description": "a URL-safe fragment identifier with case preserved",
@@ -2658,25 +2664,25 @@
 					{
 						"name": "DOCS_PATH_DEFAULT",
 						"kind": "variable",
-						"source_line": 30,
+						"source_line": 32,
 						"type_signature": "\"/docs\""
 					},
 					{
 						"name": "DOCS_PATH",
 						"kind": "variable",
-						"source_line": 31,
+						"source_line": 33,
 						"type_signature": "\"/docs\" | \"/\" | \"/about\" | \"/docs/Alert\" | \"/docs/Breadcrumb\" | \"/docs/Breadcrumb/a\" | \"/docs/Breadcrumb/a/b\" | \"/docs/Breadcrumb/a/b/c\" | \"/docs/Breadcrumb/a/b/c/d\" | \"/docs/Card\" | ... 63 more ... | `/${string}${`/docs/api/${string}` & {}}`"
 					},
 					{
 						"name": "DOCS_API_PATH",
 						"kind": "variable",
-						"source_line": 32,
+						"source_line": 34,
 						"type_signature": "string"
 					},
 					{
 						"name": "to_docs_path_info",
 						"kind": "function",
-						"source_line": 34,
+						"source_line": 36,
 						"type_signature": "(path_slug: string, pathname: string, root_path?: string): { path: string; path_is_selected: boolean; path_segment: string | undefined; }",
 						"return_type": "{ path: string; path_is_selected: boolean; path_segment: string | undefined; }",
 						"parameters": [
@@ -2694,12 +2700,6 @@
 								"default_value": "DOCS_PATH_DEFAULT"
 							}
 						]
-					},
-					{
-						"name": "docs_links_context",
-						"kind": "variable",
-						"source_line": 45,
-						"type_signature": "{ get: (error_message?: string | undefined) => DocsLinks; get_maybe: () => DocsLinks | undefined; set: (value: DocsLinks) => DocsLinks; }"
 					},
 					{
 						"name": "DocsLinkTag",
@@ -4214,10 +4214,16 @@
 				"path": "library.svelte.ts",
 				"declarations": [
 					{
+						"name": "library_context",
+						"kind": "variable",
+						"source_line": 8,
+						"type_signature": "{ get: (error_message?: string | undefined) => Library; get_maybe: () => Library | undefined; set: (value: Library) => Library; }"
+					},
+					{
 						"name": "parse_library_url_prefix",
 						"kind": "function",
 						"doc_comment": "Normalizes a URL prefix: ensures leading `/`, strips trailing `/`, returns `''` for falsy and non-string values.",
-						"source_line": 11,
+						"source_line": 13,
 						"type_signature": "(value: unknown): string",
 						"return_type": "string",
 						"parameters": [
@@ -4235,7 +4241,7 @@
 							"`module.svelte.ts` for `Module` class",
 							"`declaration.svelte.ts` for `Declaration` class"
 						],
-						"source_line": 25,
+						"source_line": 27,
 						"members": [
 							{
 								"name": "library_json",
@@ -4389,12 +4395,6 @@
 								]
 							}
 						]
-					},
-					{
-						"name": "library_context",
-						"kind": "variable",
-						"source_line": 119,
-						"type_signature": "{ get: (error_message?: string | undefined) => Library; get_maybe: () => Library | undefined; set: (value: Library) => Library; }"
 					}
 				],
 				"dependencies": ["context_helpers.ts", "declaration.svelte.ts", "module.svelte.ts"],
@@ -4637,39 +4637,39 @@
 				"path": "mdz_components.ts",
 				"declarations": [
 					{
-						"name": "MdzComponents",
-						"kind": "type",
-						"doc_comment": "Component registry for custom Svelte components that can be used in mdz content.\n\nFor example, registering 'Alert' allows using `<Alert>...</Alert>` in mdz content.\n\nThe Map values are the Svelte component constructors.",
-						"source_line": 12,
-						"type_signature": "MdzComponents"
-					},
-					{
-						"name": "MdzElements",
-						"kind": "type",
-						"doc_comment": "Element registry for HTML elements that can be used in mdz content.\n\nFor example, registering 'div' allows using `<div>...</div>` in mdz content.\n\nThe Map values are boolean placeholders for future configuration options.",
-						"source_line": 21,
-						"type_signature": "MdzElements"
-					},
-					{
 						"name": "mdz_components_context",
 						"kind": "variable",
 						"doc_comment": "Context for providing custom mdz components.\nMust be set by the application using mdz.",
-						"source_line": 27,
+						"source_line": 9,
 						"type_signature": "{ get: (error_message?: string | undefined) => MdzComponents; get_maybe: () => MdzComponents | undefined; set: (value: MdzComponents) => MdzComponents; }"
 					},
 					{
 						"name": "mdz_elements_context",
 						"kind": "variable",
 						"doc_comment": "Context for providing allowed HTML elements.\nMust be set by the application using mdz.\nBy default, no HTML elements are allowed.",
-						"source_line": 34,
+						"source_line": 16,
 						"type_signature": "{ get: (error_message?: string | undefined) => MdzElements; get_maybe: () => MdzElements | undefined; set: (value: MdzElements) => MdzElements; }"
 					},
 					{
 						"name": "mdz_base_context",
 						"kind": "variable",
 						"doc_comment": "Context for providing a base path getter for resolving relative links in mdz content.\nSet to a getter (e.g., `() => base`) so changes to the base prop are reflected\nwithout needing an effect. When the getter returns a path like `'/docs/mdz/'`,\nrelative paths like `./grammar` resolve to `/docs/mdz/grammar` before rendering.\nWhen not set, relative paths use raw hrefs (browser resolves them).",
-						"source_line": 43,
+						"source_line": 25,
 						"type_signature": "{ get: (error_message?: string | undefined) => () => string | undefined; get_maybe: () => (() => string | undefined) | undefined; set: (value: () => string | undefined) => () => string | undefined; }"
+					},
+					{
+						"name": "MdzComponents",
+						"kind": "type",
+						"doc_comment": "Component registry for custom Svelte components that can be used in mdz content.\n\nFor example, registering 'Alert' allows using `<Alert>...</Alert>` in mdz content.\n\nThe Map values are the Svelte component constructors.",
+						"source_line": 34,
+						"type_signature": "MdzComponents"
+					},
+					{
+						"name": "MdzElements",
+						"kind": "type",
+						"doc_comment": "Element registry for HTML elements that can be used in mdz content.\n\nFor example, registering 'div' allows using `<div>...</div>` in mdz content.\n\nThe Map values are boolean placeholders for future configuration options.",
+						"source_line": 43,
+						"type_signature": "MdzElements"
 					}
 				],
 				"dependencies": ["context_helpers.ts"],
@@ -6977,9 +6977,15 @@
 				"path": "style_variable_helpers.svelte.ts",
 				"declarations": [
 					{
+						"name": "selected_variable_context",
+						"kind": "variable",
+						"source_line": 5,
+						"type_signature": "{ get: () => SelectedStyleVariable; set: (value?: SelectedStyleVariable | undefined) => SelectedStyleVariable; }"
+					},
+					{
 						"name": "SelectedStyleVariable",
 						"kind": "class",
-						"source_line": 6,
+						"source_line": 8,
 						"members": [
 							{
 								"name": "value",
@@ -6999,12 +7005,6 @@
 								]
 							}
 						]
-					},
-					{
-						"name": "selected_variable_context",
-						"kind": "variable",
-						"source_line": 14,
-						"type_signature": "{ get: () => SelectedStyleVariable; set: (value?: SelectedStyleVariable | undefined) => SelectedStyleVariable; }"
 					}
 				],
 				"dependencies": ["context_helpers.ts"],
@@ -7634,16 +7634,28 @@
 				"path": "tome.ts",
 				"declarations": [
 					{
+						"name": "tomes_context",
+						"kind": "variable",
+						"source_line": 9,
+						"type_signature": "{ get: (error_message?: string | undefined) => () => Map<string, { name: string; category: string; Component: Component<any, any, string>; related_tomes: string[]; related_modules: string[]; related_declarations: string[]; }>; get_maybe: () => (() => Map<...>) | undefined; set: (value: () => Map<...>) => () => Map<...."
+					},
+					{
+						"name": "tome_context",
+						"kind": "variable",
+						"source_line": 11,
+						"type_signature": "{ get: (error_message?: string | undefined) => () => { name: string; category: string; Component: Component<any, any, string>; related_tomes: string[]; related_modules: string[]; related_declarations: string[]; }; get_maybe: () => (() => { ...; }) | undefined; set: (value: () => { ...; }) => () => { ...; }; }"
+					},
+					{
 						"name": "Tome",
 						"kind": "type",
-						"source_line": 9,
+						"source_line": 13,
 						"type_signature": "ZodObject<{ name: ZodString; category: ZodString; Component: ZodCustom<Component<any, any, string>, Component<any, any, string>>; related_tomes: ZodArray<...>; related_modules: ZodArray<...>; related_declarations: ZodArray<...>; }, $strip>"
 					},
 					{
 						"name": "to_tome_pathname",
 						"kind": "function",
 						"doc_comment": "",
-						"source_line": 23,
+						"source_line": 27,
 						"type_signature": "(item: string | { name: string; category: string; Component: Component<any, any, string>; related_tomes: string[]; related_modules: string[]; related_declarations: string[]; }, docs_path?: string, hash?: string | undefined): string",
 						"return_type": "string",
 						"parameters": [
@@ -7665,15 +7677,9 @@
 						]
 					},
 					{
-						"name": "tomes_context",
-						"kind": "variable",
-						"source_line": 33,
-						"type_signature": "{ get: (error_message?: string | undefined) => () => Map<string, { name: string; category: string; Component: Component<any, any, string>; related_tomes: string[]; related_modules: string[]; related_declarations: string[]; }>; get_maybe: () => (() => Map<...>) | undefined; set: (value: () => Map<...>) => () => Map<...."
-					},
-					{
 						"name": "get_tome_by_name",
 						"kind": "function",
-						"source_line": 35,
+						"source_line": 37,
 						"type_signature": "(name: string): { name: string; category: string; Component: Component<any, any, string>; related_tomes: string[]; related_modules: string[]; related_declarations: string[]; }",
 						"return_type": "{ name: string; category: string; Component: Component<any, any, string>; related_tomes: string[]; related_modules: string[]; related_declarations: string[]; }",
 						"parameters": [
@@ -7682,12 +7688,6 @@
 								"type": "string"
 							}
 						]
-					},
-					{
-						"name": "tome_context",
-						"kind": "variable",
-						"source_line": 42,
-						"type_signature": "{ get: (error_message?: string | undefined) => () => { name: string; category: string; Component: Component<any, any, string>; related_tomes: string[]; related_modules: string[]; related_declarations: string[]; }; get_maybe: () => (() => { ...; }) | undefined; set: (value: () => { ...; }) => () => { ...; }; }"
 					}
 				],
 				"dependencies": ["context_helpers.ts", "docs_helpers.svelte.ts"],

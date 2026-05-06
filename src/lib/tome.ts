@@ -6,6 +6,10 @@ import {ensure_start} from '@fuzdev/fuz_util/string.js';
 import {create_context} from './context_helpers.js';
 import {DOCS_PATH_DEFAULT, docs_slugify} from './docs_helpers.svelte.js';
 
+export const tomes_context = create_context<() => Map<string, Tome>>();
+
+export const tome_context = create_context<() => Tome>();
+
 export const Tome = z.object({
 	name: z.string(),
 	// TODO maybe now this makes sense with mdz? summary: z.string(),
@@ -30,13 +34,9 @@ export const to_tome_pathname = (
 	return resolve((hash ? path + ensure_start(hash, '#') : path) as any);
 };
 
-export const tomes_context = create_context<() => Map<string, Tome>>();
-
 export const get_tome_by_name = (name: string): Tome => {
 	const get_tomes = tomes_context.get();
 	const tome = get_tomes().get(name);
 	if (!tome) throw Error(`unable to find tome "${name}"`);
 	return tome;
 };
-
-export const tome_context = create_context<() => Tome>();
