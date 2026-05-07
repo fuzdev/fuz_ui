@@ -1,4 +1,10 @@
-import type {DeclarationJson, MemberJson, ParameterInfo, ComponentPropInfo, OverloadInfo} from 'svelte-docinfo/types.js';
+import type {
+	DeclarationJson,
+	MemberJson,
+	ParameterInfo,
+	ComponentPropInfo,
+	OverloadInfo,
+} from 'svelte-docinfo/types.js';
 import {generateImport, getDisplayName} from 'svelte-docinfo/declaration-helpers.js';
 
 import type {Module} from './module.svelte.js';

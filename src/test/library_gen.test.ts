@@ -227,8 +227,14 @@ describe('throwOnDuplicates', () => {
 	test('error message pluralizes correctly for multiple duplicates', () => {
 		const log = create_mock_log();
 		const duplicates: Map<string, Array<DuplicateDeclaration>> = new Map([
-			['foo', [create_duplicate_declaration('foo', 'a.ts'), create_duplicate_declaration('foo', 'b.ts')]],
-			['bar', [create_duplicate_declaration('bar', 'c.ts'), create_duplicate_declaration('bar', 'd.ts')]],
+			[
+				'foo',
+				[create_duplicate_declaration('foo', 'a.ts'), create_duplicate_declaration('foo', 'b.ts')],
+			],
+			[
+				'bar',
+				[create_duplicate_declaration('bar', 'c.ts'), create_duplicate_declaration('bar', 'd.ts')],
+			],
 		]);
 
 		assert.throws(() => throwOnDuplicates(duplicates, log), /2 duplicate declaration names/);

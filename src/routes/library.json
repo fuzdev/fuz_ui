@@ -815,6 +815,7 @@
 							{
 								"name": "is_menu",
 								"kind": "variable",
+								"typeSignature": "false",
 								"modifiers": ["readonly"]
 							},
 							{
@@ -838,22 +839,26 @@
 							{
 								"name": "selected",
 								"kind": "variable",
-								"typeSignature": "boolean"
+								"typeSignature": "boolean",
+								"reactivity": "$state.raw"
 							},
 							{
 								"name": "pending",
 								"kind": "variable",
-								"typeSignature": "boolean"
+								"typeSignature": "boolean",
+								"reactivity": "$state.raw"
 							},
 							{
 								"name": "error_message",
 								"kind": "variable",
-								"typeSignature": "string | null"
+								"typeSignature": "string | null",
+								"reactivity": "$state.raw"
 							},
 							{
 								"name": "promise",
 								"kind": "variable",
-								"typeSignature": "Promise<ContextmenuActivateResult> | null"
+								"typeSignature": "Promise<ContextmenuActivateResult> | null",
+								"reactivity": "$state.raw"
 							},
 							{
 								"name": "constructor",
@@ -885,6 +890,7 @@
 							{
 								"name": "is_menu",
 								"kind": "variable",
+								"typeSignature": "true",
 								"modifiers": ["readonly"]
 							},
 							{
@@ -902,12 +908,14 @@
 							{
 								"name": "selected",
 								"kind": "variable",
-								"typeSignature": "boolean"
+								"typeSignature": "boolean",
+								"reactivity": "$state.raw"
 							},
 							{
 								"name": "items",
 								"kind": "variable",
-								"typeSignature": "ReadonlyArray<ItemState>"
+								"typeSignature": "ReadonlyArray<ItemState>",
+								"reactivity": "$state.raw"
 							},
 							{
 								"name": "constructor",
@@ -934,22 +942,26 @@
 							{
 								"name": "is_menu",
 								"kind": "variable",
+								"typeSignature": "true",
 								"modifiers": ["readonly"]
 							},
 							{
 								"name": "menu",
 								"kind": "variable",
+								"typeSignature": "null",
 								"modifiers": ["readonly"]
 							},
 							{
 								"name": "depth",
 								"kind": "variable",
+								"typeSignature": "1",
 								"modifiers": ["readonly"]
 							},
 							{
 								"name": "items",
 								"kind": "variable",
-								"typeSignature": "ReadonlyArray<ItemState>"
+								"typeSignature": "ReadonlyArray<ItemState>",
+								"reactivity": "$state.raw"
 							}
 						]
 					},
@@ -976,7 +988,8 @@
 							{
 								"name": "layout",
 								"kind": "variable",
-								"typeSignature": "Dimensions"
+								"typeSignature": "Dimensions",
+								"optional": true
 							}
 						]
 					},
@@ -1004,27 +1017,32 @@
 							{
 								"name": "opened",
 								"kind": "variable",
-								"typeSignature": "boolean"
+								"typeSignature": "boolean",
+								"reactivity": "$state.raw"
 							},
 							{
 								"name": "x",
 								"kind": "variable",
-								"typeSignature": "number"
+								"typeSignature": "number",
+								"reactivity": "$state.raw"
 							},
 							{
 								"name": "y",
 								"kind": "variable",
-								"typeSignature": "number"
+								"typeSignature": "number",
+								"reactivity": "$state.raw"
 							},
 							{
 								"name": "params",
 								"kind": "variable",
-								"typeSignature": "ReadonlyArray<ContextmenuParams>"
+								"typeSignature": "ReadonlyArray<ContextmenuParams>",
+								"reactivity": "$state.raw"
 							},
 							{
 								"name": "error",
 								"kind": "variable",
-								"typeSignature": "string | undefined"
+								"typeSignature": "string | undefined",
+								"reactivity": "$state.raw"
 							},
 							{
 								"name": "root_menu",
@@ -1035,27 +1053,38 @@
 							{
 								"name": "selections",
 								"kind": "variable",
-								"typeSignature": "ReadonlyArray<ItemState>"
+								"typeSignature": "ReadonlyArray<ItemState>",
+								"reactivity": "$state.raw"
 							},
 							{
 								"name": "can_collapse",
-								"kind": "variable"
+								"kind": "variable",
+								"typeSignature": "boolean",
+								"reactivity": "$derived"
 							},
 							{
 								"name": "can_expand",
-								"kind": "variable"
+								"kind": "variable",
+								"typeSignature": "boolean",
+								"reactivity": "$derived.by"
 							},
 							{
 								"name": "can_select_next",
-								"kind": "variable"
+								"kind": "variable",
+								"typeSignature": "boolean",
+								"reactivity": "$derived.by"
 							},
 							{
 								"name": "can_select_previous",
-								"kind": "variable"
+								"kind": "variable",
+								"typeSignature": "boolean",
+								"reactivity": "$derived.by"
 							},
 							{
 								"name": "can_activate",
-								"kind": "variable"
+								"kind": "variable",
+								"typeSignature": "boolean",
+								"reactivity": "$derived.by"
 							},
 							{
 								"name": "constructor",
@@ -1206,6 +1235,16 @@
 						"docComment": "Creates an attachment that sets up contextmenu behavior on an element.",
 						"typeSignature": "<T extends ContextmenuParams, U extends T | Array<T>>(params: U | null | undefined): Attachment<HTMLElement | SVGElement>",
 						"sourceLine": 350,
+						"genericParams": [
+							{
+								"name": "T",
+								"constraint": "ContextmenuParams"
+							},
+							{
+								"name": "U",
+								"constraint": "T | Array<T>"
+							}
+						],
 						"parameters": [
 							{
 								"name": "params",
@@ -1224,22 +1263,26 @@
 							{
 								"name": "link_enabled",
 								"kind": "variable",
-								"typeSignature": "boolean"
+								"typeSignature": "boolean",
+								"optional": true
 							},
 							{
 								"name": "text_enabled",
 								"kind": "variable",
-								"typeSignature": "boolean"
+								"typeSignature": "boolean",
+								"optional": true
 							},
 							{
 								"name": "separator_enabled",
 								"kind": "variable",
-								"typeSignature": "boolean"
+								"typeSignature": "boolean",
+								"optional": true
 							},
 							{
 								"name": "vibrate",
 								"kind": "variable",
-								"typeSignature": "boolean"
+								"typeSignature": "boolean",
+								"optional": true
 							}
 						]
 					},
@@ -4108,37 +4151,43 @@
 								"name": "directives",
 								"kind": "variable",
 								"docComment": "Override or transform specific directives.\nReturning `null` or `undefined` from a transform function will remove the directive.",
-								"typeSignature": "{\n\t\t[K in CspDirective]?:\n\t\t\t| CspDirectiveValue<K> // Static value replacement\n\t\t\t| null // Removes the directive\n\t\t\t// Transform function returning one of the previous types\n\t\t\t| ((value: CspDirectiveValue<K>) => CspDirectiveValue<K> | null);\n\t}"
+								"typeSignature": "{\n\t\t[K in CspDirective]?:\n\t\t\t| CspDirectiveValue<K> // Static value replacement\n\t\t\t| null // Removes the directive\n\t\t\t// Transform function returning one of the previous types\n\t\t\t| ((value: CspDirectiveValue<K>) => CspDirectiveValue<K> | null);\n\t}",
+								"optional": true
 							},
 							{
 								"name": "trusted_sources",
 								"kind": "variable",
 								"docComment": "Sources to include based on their trust levels.",
-								"typeSignature": "Array<CspSourceSpec>"
+								"typeSignature": "Array<CspSourceSpec>",
+								"optional": true
 							},
 							{
 								"name": "value_defaults",
 								"kind": "variable",
 								"docComment": "Override default values for specific directives,\nmerging with `value_defaults_base` (or replacing if that directive is null in the base).",
-								"typeSignature": "Partial<typeof csp_directive_value_defaults>"
+								"typeSignature": "Partial<typeof csp_directive_value_defaults>",
+								"optional": true
 							},
 							{
 								"name": "value_defaults_base",
 								"kind": "variable",
 								"docComment": "Base values for directive defaults.\nSet to `null` or `{}` to start with no defaults.\nDefaults to `csp_directive_value_defaults`.",
-								"typeSignature": "Partial<typeof csp_directive_value_defaults> | null"
+								"typeSignature": "Partial<typeof csp_directive_value_defaults> | null",
+								"optional": true
 							},
 							{
 								"name": "required_trust_defaults",
 								"kind": "variable",
 								"docComment": "Override trust requirements for specific directives,\nmerging with `required_trust_defaults_base` (or replacing if that directive is null in the base).",
-								"typeSignature": "Partial<typeof csp_directive_required_trust_defaults>"
+								"typeSignature": "Partial<typeof csp_directive_required_trust_defaults>",
+								"optional": true
 							},
 							{
 								"name": "required_trust_defaults_base",
 								"kind": "variable",
 								"docComment": "Base values for directive trust requirements.\nSet to `null` or `{}` to start with no trust requirements.\nDefaults to `csp_directive_required_trust_defaults`.",
-								"typeSignature": "Partial<typeof csp_directive_required_trust_defaults> | null"
+								"typeSignature": "Partial<typeof csp_directive_required_trust_defaults> | null",
+								"optional": true
 							}
 						]
 					},
@@ -4221,12 +4270,14 @@
 							{
 								"name": "trust",
 								"kind": "variable",
-								"typeSignature": "CspTrustLevel"
+								"typeSignature": "CspTrustLevel",
+								"optional": true
 							},
 							{
 								"name": "directives",
 								"kind": "variable",
-								"typeSignature": "Array<CspDirective>"
+								"typeSignature": "Array<CspDirective>",
+								"optional": true
 							}
 						]
 					},
@@ -4382,7 +4433,8 @@
 							{
 								"name": "sandbox",
 								"kind": "variable",
-								"typeSignature": "Array<\n\t\t| 'allow-downloads-without-user-activation'\n\t\t| 'allow-forms'\n\t\t| 'allow-modals'\n\t\t| 'allow-orientation-lock'\n\t\t| 'allow-pointer-lock'\n\t\t| 'allow-popups'\n\t\t| 'allow-popups-to-escape-sandbox'\n\t\t| 'allow-presentation'\n\t\t| 'allow-same-origin'\n\t\t| 'allow-scripts'\n\t\t| 'allow-storage-access-by-user-activation'\n\t\t| 'allow-top-navigation'\n\t\t| 'allow-top-navigation-by-user-activation'\n\t>"
+								"typeSignature": "Array<\n\t\t| 'allow-downloads-without-user-activation'\n\t\t| 'allow-forms'\n\t\t| 'allow-modals'\n\t\t| 'allow-orientation-lock'\n\t\t| 'allow-pointer-lock'\n\t\t| 'allow-popups'\n\t\t| 'allow-popups-to-escape-sandbox'\n\t\t| 'allow-presentation'\n\t\t| 'allow-same-origin'\n\t\t| 'allow-scripts'\n\t\t| 'allow-storage-access-by-user-activation'\n\t\t| 'allow-top-navigation'\n\t\t| 'allow-top-navigation-by-user-activation'\n\t>",
+								"optional": true
 							}
 						]
 					}
@@ -4414,7 +4466,7 @@
 						"name": "Declaration",
 						"kind": "class",
 						"docComment": "Rich runtime representation of an exported declaration.\n\nWraps svelte-docinfo's `DeclarationJson` discriminated union (on `kind`)\nwith Svelte 5 reactive derivations and computed URLs.\nKind-specific fields are accessed via the `field()` helper since\nnot all fields exist on all variants.",
-						"sourceLine": 25,
+						"sourceLine": 31,
 						"seeAlso": [
 							"{@link https://github.com/ryanatkn/svelte-docinfo svelte-docinfo} for the analysis library",
 							"`DeclarationDetail.svelte` for the rendering component"
@@ -4424,170 +4476,242 @@
 								"name": "module",
 								"kind": "variable",
 								"typeSignature": "Module",
-								"modifiers": ["readonly"]
+								"modifiers": ["readonly"],
+								"reactivity": "$state.raw"
 							},
 							{
 								"name": "declaration_json",
 								"kind": "variable",
 								"typeSignature": "DeclarationJson",
-								"modifiers": ["readonly"]
+								"modifiers": ["readonly"],
+								"reactivity": "$state.raw"
 							},
 							{
 								"name": "library",
-								"kind": "variable"
+								"kind": "variable",
+								"typeSignature": "Library",
+								"reactivity": "$derived"
 							},
 							{
 								"name": "module_path",
 								"kind": "variable",
-								"docComment": "Module path where this declaration is defined."
+								"docComment": "Module path where this declaration is defined.",
+								"typeSignature": "string",
+								"reactivity": "$derived"
 							},
 							{
 								"name": "name",
-								"kind": "variable"
+								"kind": "variable",
+								"typeSignature": "string | undefined",
+								"reactivity": "$derived"
 							},
 							{
 								"name": "kind",
-								"kind": "variable"
+								"kind": "variable",
+								"typeSignature": "\"function\" | \"enum\" | \"type\" | \"class\" | \"variable\" | \"interface\" | \"component\" | \"snippet\" | \"namespace\"",
+								"reactivity": "$derived"
 							},
 							{
 								"name": "url_github",
 								"kind": "variable",
-								"docComment": "GitHub source URL with line number."
+								"docComment": "GitHub source URL with line number.",
+								"typeSignature": "string | undefined",
+								"reactivity": "$derived"
 							},
 							{
 								"name": "url_api",
 								"kind": "variable",
-								"docComment": "API documentation URL."
+								"docComment": "API documentation URL.",
+								"typeSignature": "string",
+								"reactivity": "$derived"
 							},
 							{
 								"name": "import_statement",
 								"kind": "variable",
-								"docComment": "Generated TypeScript import statement."
+								"docComment": "Generated TypeScript import statement.",
+								"typeSignature": "string",
+								"reactivity": "$derived"
 							},
 							{
 								"name": "url_api_full",
 								"kind": "variable",
-								"docComment": "Public documentation link (if homepage_url is available)."
+								"docComment": "Public documentation link (if homepage_url is available).",
+								"typeSignature": "string | undefined",
+								"reactivity": "$derived"
 							},
 							{
 								"name": "display_name",
 								"kind": "variable",
-								"docComment": "Display name with generic parameters."
+								"docComment": "Display name with generic parameters.",
+								"typeSignature": "string",
+								"reactivity": "$derived"
 							},
 							{
 								"name": "type_signature",
-								"kind": "variable"
+								"kind": "variable",
+								"typeSignature": "string | undefined",
+								"reactivity": "$derived"
 							},
 							{
 								"name": "doc_comment",
-								"kind": "variable"
+								"kind": "variable",
+								"typeSignature": "string | undefined",
+								"reactivity": "$derived"
 							},
 							{
 								"name": "deprecated_message",
-								"kind": "variable"
+								"kind": "variable",
+								"typeSignature": "string | undefined",
+								"reactivity": "$derived"
 							},
 							{
 								"name": "parameters",
-								"kind": "variable"
+								"kind": "variable",
+								"typeSignature": "{ name: string; type: string; optional: boolean; rest: boolean; description?: string | undefined; defaultValue?: string | undefined; }[] | undefined",
+								"reactivity": "$derived"
 							},
 							{
 								"name": "props",
-								"kind": "variable"
+								"kind": "variable",
+								"typeSignature": "{ examples: string[]; seeAlso: string[]; throws: { description: string; type?: string | undefined; }[]; name: string; type: string; optional: boolean; bindable: boolean; deprecatedMessage?: string | undefined; since?: string | undefined; description?: string | undefined; defaultValue?: string | undefined; parameters...",
+								"reactivity": "$derived"
 							},
 							{
 								"name": "return_type",
-								"kind": "variable"
+								"kind": "variable",
+								"typeSignature": "string | undefined",
+								"reactivity": "$derived"
 							},
 							{
 								"name": "return_description",
-								"kind": "variable"
+								"kind": "variable",
+								"typeSignature": "string | undefined",
+								"reactivity": "$derived"
 							},
 							{
 								"name": "generic_params",
-								"kind": "variable"
+								"kind": "variable",
+								"typeSignature": "{ name: string; constraint?: string | undefined; defaultType?: string | undefined; }[] | { name: string; constraint?: string | undefined; defaultType?: string | undefined; }[] | { name: string; constraint?: string | undefined; defaultType?: string | undefined; }[] | ... 5 more ... | { ...; }[]",
+								"reactivity": "$derived"
 							},
 							{
 								"name": "extends_type",
-								"kind": "variable"
+								"kind": "variable",
+								"typeSignature": "string | string[] | undefined",
+								"reactivity": "$derived"
 							},
 							{
 								"name": "implements_types",
-								"kind": "variable"
+								"kind": "variable",
+								"typeSignature": "string[] | undefined",
+								"reactivity": "$derived"
 							},
 							{
 								"name": "throws",
-								"kind": "variable"
+								"kind": "variable",
+								"typeSignature": "{ description: string; type?: string | undefined; }[] | { description: string; type?: string | undefined; }[] | { description: string; type?: string | undefined; }[] | { description: string; type?: string | undefined; }[] | ... 4 more ... | { ...; }[]",
+								"reactivity": "$derived"
 							},
 							{
 								"name": "since",
-								"kind": "variable"
+								"kind": "variable",
+								"typeSignature": "string | undefined",
+								"reactivity": "$derived"
 							},
 							{
 								"name": "examples",
-								"kind": "variable"
+								"kind": "variable",
+								"typeSignature": "string[]",
+								"reactivity": "$derived"
 							},
 							{
 								"name": "see_also",
-								"kind": "variable"
+								"kind": "variable",
+								"typeSignature": "string[]",
+								"reactivity": "$derived"
 							},
 							{
 								"name": "members",
 								"kind": "variable",
-								"docComment": "Nested members for classes, interfaces, types, and enums."
+								"docComment": "Nested members for classes, interfaces, types, and enums.",
+								"typeSignature": "({ kind: \"function\"; optional: boolean; parameters: { name: string; type: string; optional: boolean; rest: boolean; description?: string | undefined; defaultValue?: string | undefined; }[]; ... 15 more ...; sourceLine?: number | undefined; } | { ...; } | { ...; })[] | undefined",
+								"reactivity": "$derived"
 							},
 							{
 								"name": "intersects",
 								"kind": "variable",
-								"docComment": "Intersection types whose properties are external (filtered out of props/members).\nPresent on `component` and `type` kinds."
+								"docComment": "Intersection types whose properties are external (filtered out of props/members).\nPresent on `component` and `type` kinds.",
+								"typeSignature": "string[] | undefined",
+								"reactivity": "$derived"
 							},
 							{
 								"name": "accepts_children",
 								"kind": "variable",
-								"docComment": "Whether a component accepts children via props or template usage.\nPresent on `component` kind only."
+								"docComment": "Whether a component accepts children via props or template usage.\nPresent on `component` kind only.",
+								"typeSignature": "boolean | undefined",
+								"reactivity": "$derived"
 							},
 							{
 								"name": "overloads",
 								"kind": "variable",
-								"docComment": "Function overload signatures when multiple public overloads exist.\nPresent on `function` and `snippet` kinds, and on function/constructor members."
+								"docComment": "Function overload signatures when multiple public overloads exist.\nPresent on `function` and `snippet` kinds, and on function/constructor members.",
+								"typeSignature": "{ typeSignature: string; parameters: { name: string; type: string; optional: boolean; rest: boolean; description?: string | undefined; defaultValue?: string | undefined; }[]; genericParams: { ...; }[]; returnType?: string | undefined; docComment?: string | undefined; returnDescription?: string | undefined; }[] | und...",
+								"reactivity": "$derived"
 							},
 							{
 								"name": "alias_of",
 								"kind": "variable",
-								"docComment": "Re-export alias info when this declaration is a renamed re-export."
+								"docComment": "Re-export alias info when this declaration is a renamed re-export.",
+								"typeSignature": "{ module: string; name?: string | undefined; } | { module: string; name?: string | undefined; } | { module: string; name?: string | undefined; } | { module: string; name?: string | undefined; } | ... 5 more ... | undefined",
+								"reactivity": "$derived"
 							},
 							{
 								"name": "mutates",
 								"kind": "variable",
-								"docComment": "Mutation documentation from `@mutates` tags, mapping parameter names to descriptions."
+								"docComment": "Mutation documentation from `@mutates` tags, mapping parameter names to descriptions.",
+								"typeSignature": "Record<string, string> | undefined",
+								"reactivity": "$derived"
 							},
 							{
 								"name": "has_examples",
-								"kind": "variable"
+								"kind": "variable",
+								"typeSignature": "boolean",
+								"reactivity": "$derived"
 							},
 							{
 								"name": "is_deprecated",
-								"kind": "variable"
+								"kind": "variable",
+								"typeSignature": "boolean",
+								"reactivity": "$derived"
 							},
 							{
 								"name": "has_documentation",
-								"kind": "variable"
+								"kind": "variable",
+								"typeSignature": "boolean",
+								"reactivity": "$derived"
 							},
 							{
 								"name": "has_parameters",
-								"kind": "variable"
+								"kind": "variable",
+								"typeSignature": "boolean",
+								"reactivity": "$derived"
 							},
 							{
 								"name": "has_props",
-								"kind": "variable"
+								"kind": "variable",
+								"typeSignature": "boolean",
+								"reactivity": "$derived"
 							},
 							{
 								"name": "has_generics",
-								"kind": "variable"
+								"kind": "variable",
+								"typeSignature": "boolean",
+								"reactivity": "$derived"
 							},
 							{
 								"name": "constructor",
 								"kind": "constructor",
-								"typeSignature": "(module: Module, declaration_json: { kind: \"function\"; parameters: { name: string; type: string; optional: boolean; isRest: boolean; description?: string | undefined; defaultValue?: string | undefined; }[]; ... 16 more ...; sourceLine?: number | undefined; } | ... 6 more ... | { ...; }): Declaration",
+								"typeSignature": "(module: Module, declaration_json: { kind: \"function\"; parameters: { name: string; type: string; optional: boolean; rest: boolean; description?: string | undefined; defaultValue?: string | undefined; }[]; ... 18 more ...; sourceLine?: number | undefined; } | ... 7 more ... | { ...; }): Declaration",
 								"parameters": [
 									{
 										"name": "module",
@@ -4595,7 +4719,7 @@
 									},
 									{
 										"name": "declaration_json",
-										"type": "{ kind: \"function\"; parameters: { name: string; type: string; optional: boolean; isRest: boolean; description?: string | undefined; defaultValue?: string | undefined; }[]; overloads: { typeSignature: string; ... 4 more ...; returnDescription?: string | undefined; }[]; ... 15 more ...; sourceLine?: number | undefined..."
+										"type": "{ kind: \"function\"; parameters: { name: string; type: string; optional: boolean; rest: boolean; description?: string | undefined; defaultValue?: string | undefined; }[]; overloads: { typeSignature: string; ... 4 more ...; returnDescription?: string | undefined; }[]; ... 17 more ...; sourceLine?: number | undefined; ..."
 									}
 								]
 							}
@@ -4773,6 +4897,12 @@
 						"docComment": "This helper function is needed to construct `DialogParams` with type safety.\nIt uses TypeScript's inferred generics for functions,\nwhich do not work for plain objects as of v5.0.4.\n* `ContextmenuParams` uses a similar strategy.",
 						"typeSignature": "<T extends Component<any>>(Component: T, props: ComponentProps<T>, dialog_props?: any): DialogParams<T>",
 						"sourceLine": 11,
+						"genericParams": [
+							{
+								"name": "T",
+								"constraint": "Component<any>"
+							}
+						],
 						"parameters": [
 							{
 								"name": "Component",
@@ -4817,7 +4947,8 @@
 							{
 								"name": "dialog_props",
 								"kind": "variable",
-								"typeSignature": "Partial<ComponentProps<typeof Dialog>> | undefined"
+								"typeSignature": "Partial<ComponentProps<typeof Dialog>> | undefined",
+								"optional": true
 							}
 						]
 					},
@@ -4880,12 +5011,14 @@
 							{
 								"name": "width",
 								"kind": "variable",
-								"typeSignature": "number"
+								"typeSignature": "number",
+								"reactivity": "$state.raw"
 							},
 							{
 								"name": "height",
 								"kind": "variable",
-								"typeSignature": "number"
+								"typeSignature": "number",
+								"reactivity": "$state.raw"
 							}
 						]
 					}
@@ -5025,7 +5158,9 @@
 							},
 							{
 								"name": "docs_links",
-								"kind": "variable"
+								"kind": "variable",
+								"typeSignature": "DocsLinkInfo[]",
+								"reactivity": "$derived.by"
 							},
 							{
 								"name": "fragments_onscreen",
@@ -5774,25 +5909,29 @@
 								"name": "onintersect",
 								"kind": "variable",
 								"docComment": "Called when the element enters or leaves the viewport until disconnected.",
-								"typeSignature": "OnIntersect"
+								"typeSignature": "OnIntersect",
+								"optional": true
 							},
 							{
 								"name": "ondisconnect",
 								"kind": "variable",
 								"docComment": "Called when the attachment's observer is disconnected,\neither by the user calling disconnect or the attachment being destroyed.",
-								"typeSignature": "OnDisconnect"
+								"typeSignature": "OnDisconnect",
+								"optional": true
 							},
 							{
 								"name": "count",
 								"kind": "variable",
 								"docComment": "A value of `1` disconnects after `el` enters and leaves the viewport one time,\nsimilar to 'once' for an event.\n`0` disables and `undefined` or a negative number like `-1` never disconnects.",
-								"typeSignature": "number"
+								"typeSignature": "number",
+								"optional": true
 							},
 							{
 								"name": "options",
 								"kind": "variable",
 								"docComment": "Same as the `options` param to\n[`IntersectionObserver`](https://developer.mozilla.org/en-US/docs/Web/API/IntersectionObserver/IntersectionObserver#options)",
-								"typeSignature": "IntersectionObserverInit"
+								"typeSignature": "IntersectionObserverInit",
+								"optional": true
 							}
 						]
 					},
@@ -5935,7 +6074,8 @@
 								"name": "source",
 								"kind": "variable",
 								"docComment": "Module source options for filtering and path extraction.\n\nCan provide full `ModuleSourceOptions` or partial options that will be\nmerged with defaults. The `project_root` is automatically set to\n`process.cwd()` if not provided.",
-								"typeSignature": "ModuleSourceOptions | Partial<SourceOptionsDefaults>"
+								"typeSignature": "ModuleSourceOptions | Partial<SourceOptionsDefaults>",
+								"optional": true
 							},
 							{
 								"name": "on_duplicates",
@@ -5944,7 +6084,8 @@
 								"typeSignature": "OnDuplicatesCallback",
 								"examples": [
 									"```ts\n// Throw on duplicates (strict flat namespace)\nlibrary_gen({ on_duplicates: throwOnDuplicates });\n\n// Warn but continue\nlibrary_gen({\n  on_duplicates: (dupes, log) => {\n    for (const [name, locs] of dupes) {\n      log.warn(`Duplicate: ${name} in ${locs.map(l => l.module).join(', ')}`);\n    }\n  }\n});\n```"
-								]
+								],
+								"optional": true
 							}
 						]
 					},
@@ -6159,7 +6300,7 @@
 							},
 							{
 								"name": "source_json",
-								"type": "{ [x: string]: unknown; name: string; version: string; modules?: { [x: string]: unknown; path: string; declarations?: { [x: string]: unknown; name: string; kind: \"function\" | \"type\" | \"class\" | \"variable\" | \"component\" | \"constructor\" | \"json\" | \"css\"; ... 20 more ...; alias_of?: { ...; } | undefined; }[] | undefine..."
+								"type": "{ [x: string]: unknown; name: string; version: string; modules?: { [x: string]: unknown; path: string; declarations?: { [x: string]: unknown; name: string; kind: \"function\" | \"type\" | \"class\" | \"variable\" | \"constructor\" | \"component\" | \"json\" | \"css\"; ... 20 more ...; alias_of?: { ...; } | undefined; }[] | undefine..."
 							}
 						],
 						"returnType": "LibraryOutputResult"
@@ -6199,7 +6340,8 @@
 								"name": "library_json",
 								"kind": "variable",
 								"typeSignature": "LibraryJson",
-								"modifiers": ["readonly"]
+								"modifiers": ["readonly"],
+								"reactivity": "$state.raw"
 							},
 							{
 								"name": "url_prefix",
@@ -6211,98 +6353,134 @@
 							{
 								"name": "package_json",
 								"kind": "variable",
-								"modifiers": ["readonly"]
+								"typeSignature": "{ [x: string]: unknown; name: string; version?: string | undefined; private?: boolean | undefined; description?: string | undefined; tagline?: string | undefined; glyph?: string | undefined; logo?: string | undefined; ... 23 more ...; exports?: string | ... 2 more ... | undefined; }",
+								"modifiers": ["readonly"],
+								"reactivity": "$derived"
 							},
 							{
 								"name": "source_json",
 								"kind": "variable",
-								"modifiers": ["readonly"]
+								"typeSignature": "{ [x: string]: unknown; name: string; version: string; modules?: { [x: string]: unknown; path: string; declarations?: { [x: string]: unknown; name: string; kind: \"function\" | \"type\" | \"class\" | \"variable\" | \"constructor\" | \"component\" | \"json\" | \"css\"; ... 20 more ...; alias_of?: { ...; } | undefined; }[] | undefine...",
+								"modifiers": ["readonly"],
+								"reactivity": "$derived"
 							},
 							{
 								"name": "name",
 								"kind": "variable",
-								"modifiers": ["readonly"]
+								"typeSignature": "string",
+								"modifiers": ["readonly"],
+								"reactivity": "$derived"
 							},
 							{
 								"name": "repo_name",
 								"kind": "variable",
-								"modifiers": ["readonly"]
+								"typeSignature": "string",
+								"modifiers": ["readonly"],
+								"reactivity": "$derived"
 							},
 							{
 								"name": "repo_url",
 								"kind": "variable",
-								"modifiers": ["readonly"]
+								"typeSignature": "Url",
+								"modifiers": ["readonly"],
+								"reactivity": "$derived"
 							},
 							{
 								"name": "owner_name",
 								"kind": "variable",
-								"modifiers": ["readonly"]
+								"typeSignature": "string | null",
+								"modifiers": ["readonly"],
+								"reactivity": "$derived"
 							},
 							{
 								"name": "homepage_url",
 								"kind": "variable",
-								"modifiers": ["readonly"]
+								"typeSignature": "Url | null",
+								"modifiers": ["readonly"],
+								"reactivity": "$derived"
 							},
 							{
 								"name": "logo_url",
 								"kind": "variable",
-								"modifiers": ["readonly"]
+								"typeSignature": "Url | null",
+								"modifiers": ["readonly"],
+								"reactivity": "$derived"
 							},
 							{
 								"name": "logo_alt",
 								"kind": "variable",
-								"modifiers": ["readonly"]
+								"typeSignature": "string",
+								"modifiers": ["readonly"],
+								"reactivity": "$derived"
 							},
 							{
 								"name": "npm_url",
 								"kind": "variable",
-								"modifiers": ["readonly"]
+								"typeSignature": "Url | null",
+								"modifiers": ["readonly"],
+								"reactivity": "$derived"
 							},
 							{
 								"name": "changelog_url",
 								"kind": "variable",
-								"modifiers": ["readonly"]
+								"typeSignature": "Url | null",
+								"modifiers": ["readonly"],
+								"reactivity": "$derived"
 							},
 							{
 								"name": "published",
 								"kind": "variable",
-								"modifiers": ["readonly"]
+								"typeSignature": "boolean",
+								"modifiers": ["readonly"],
+								"reactivity": "$derived"
 							},
 							{
 								"name": "org_url",
 								"kind": "variable",
 								"docComment": "Organization URL (e.g., 'https://github.com/ryanatkn').",
-								"modifiers": ["readonly"]
+								"typeSignature": "string | null",
+								"modifiers": ["readonly"],
+								"reactivity": "$derived"
 							},
 							{
 								"name": "modules",
 								"kind": "variable",
 								"docComment": "All modules as rich `Module` instances.",
-								"modifiers": ["readonly"]
+								"typeSignature": "Module[]",
+								"modifiers": ["readonly"],
+								"reactivity": "$derived"
 							},
 							{
 								"name": "modules_sorted",
 								"kind": "variable",
 								"docComment": "All modules sorted alphabetically by path.",
-								"modifiers": ["readonly"]
+								"typeSignature": "Module[]",
+								"modifiers": ["readonly"],
+								"reactivity": "$derived"
 							},
 							{
 								"name": "declarations",
 								"kind": "variable",
 								"docComment": "All declarations across all modules as a flat array.",
-								"modifiers": ["readonly"]
+								"typeSignature": "Declaration[]",
+								"modifiers": ["readonly"],
+								"reactivity": "$derived"
 							},
 							{
 								"name": "module_by_path",
 								"kind": "variable",
 								"docComment": "Module lookup map by path. Provides O(1) lookup.",
-								"modifiers": ["readonly"]
+								"typeSignature": "Map<string, Module>",
+								"modifiers": ["readonly"],
+								"reactivity": "$derived"
 							},
 							{
 								"name": "declaration_by_name",
 								"kind": "variable",
 								"docComment": "Declaration lookup map by name. Provides O(1) lookup.",
-								"modifiers": ["readonly"]
+								"typeSignature": "Map<string | undefined, Declaration>",
+								"modifiers": ["readonly"],
+								"reactivity": "$derived"
 							},
 							{
 								"name": "constructor",
@@ -12646,67 +12824,87 @@
 								"name": "library",
 								"kind": "variable",
 								"typeSignature": "Library",
-								"modifiers": ["readonly"]
+								"modifiers": ["readonly"],
+								"reactivity": "$state.raw"
 							},
 							{
 								"name": "module_json",
 								"kind": "variable",
 								"typeSignature": "ModuleJson",
-								"modifiers": ["readonly"]
+								"modifiers": ["readonly"],
+								"reactivity": "$state.raw"
 							},
 							{
 								"name": "path",
 								"kind": "variable",
-								"docComment": "Canonical module path — `src/lib/`-relative, with source extension\n(`.ts`, `.svelte`, etc.). Examples: `'Alert.ts'`, `'helpers/foo.ts'`,\n`'actions/composables.ts'`.\n\nThis is the key `Library.module_by_path` indexes, so it's also the\nexact string TSDoc backtick references must use to auto-link to a\nmodule via `DocsLink.svelte` (e.g., `` `actions/composables.ts` ``).\nA leading `./` or a `.js` runtime extension will not match. Top-level\nfiles match by bare filename; nested files require the full sub-path."
+								"docComment": "Canonical module path — `src/lib/`-relative, with source extension\n(`.ts`, `.svelte`, etc.). Examples: `'Alert.ts'`, `'helpers/foo.ts'`,\n`'actions/composables.ts'`.\n\nThis is the key `Library.module_by_path` indexes, so it's also the\nexact string TSDoc backtick references must use to auto-link to a\nmodule via `DocsLink.svelte` (e.g., `` `actions/composables.ts` ``).\nA leading `./` or a `.js` runtime extension will not match. Top-level\nfiles match by bare filename; nested files require the full sub-path.",
+								"typeSignature": "string",
+								"reactivity": "$derived"
 							},
 							{
 								"name": "path_import",
 								"kind": "variable",
-								"docComment": "Import-style path with ./ prefix."
+								"docComment": "Import-style path with ./ prefix.",
+								"typeSignature": "string",
+								"reactivity": "$derived"
 							},
 							{
 								"name": "module_comment",
-								"kind": "variable"
+								"kind": "variable",
+								"typeSignature": "string | undefined",
+								"reactivity": "$derived"
 							},
 							{
 								"name": "declarations",
 								"kind": "variable",
-								"docComment": "Array of `Declaration` instances. Filters out default exports."
+								"docComment": "Array of `Declaration` instances. Filters out default exports.",
+								"typeSignature": "Declaration[]",
+								"reactivity": "$derived"
 							},
 							{
 								"name": "url_api",
 								"kind": "variable",
-								"docComment": "API documentation URL for this module."
+								"docComment": "API documentation URL for this module.",
+								"typeSignature": "string",
+								"reactivity": "$derived"
 							},
 							{
 								"name": "url_github",
 								"kind": "variable",
-								"docComment": "GitHub source URL."
+								"docComment": "GitHub source URL.",
+								"typeSignature": "string | undefined",
+								"reactivity": "$derived"
 							},
 							{
 								"name": "has_declarations",
 								"kind": "variable",
-								"typeSignature": "boolean"
+								"typeSignature": "boolean",
+								"reactivity": "$derived"
 							},
 							{
 								"name": "has_module_comment",
 								"kind": "variable",
-								"typeSignature": "boolean"
+								"typeSignature": "boolean",
+								"reactivity": "$derived"
 							},
 							{
 								"name": "dependencies",
 								"kind": "variable",
-								"docComment": "Modules this imports (paths relative to src/lib)."
+								"docComment": "Modules this imports (paths relative to src/lib).",
+								"typeSignature": "string[]",
+								"reactivity": "$derived"
 							},
 							{
 								"name": "dependents",
 								"kind": "variable",
-								"docComment": "Modules that import this (paths relative to src/lib)."
+								"docComment": "Modules that import this (paths relative to src/lib).",
+								"typeSignature": "string[]",
+								"reactivity": "$derived"
 							},
 							{
 								"name": "constructor",
 								"kind": "constructor",
-								"typeSignature": "(library: Library, module_json: { path: string; declarations: ({ kind: \"function\"; parameters: { name: string; type: string; optional: boolean; isRest: boolean; description?: string | undefined; defaultValue?: string | undefined; }[]; ... 16 more ...; sourceLine?: number | undefined; } | ... 6 more ... | { ...; })[]; dependencies: string[]; dependents: string[]; starExports: string[]; moduleComment?: string | undefined; }): Module",
+								"typeSignature": "(library: Library, module_json: { path: string; declarations: ({ kind: \"function\"; parameters: { name: string; type: string; optional: boolean; rest: boolean; description?: string | undefined; defaultValue?: string | undefined; }[]; ... 18 more ...; sourceLine?: number | undefined; } | ... 7 more ... | { ...; })[]; dependencies: string[]; dependents: string[]; starExports: string[]; moduleComment?: string | undefined; }): Module",
 								"parameters": [
 									{
 										"name": "library",
@@ -12714,7 +12912,7 @@
 									},
 									{
 										"name": "module_json",
-										"type": "{ path: string; declarations: ({ kind: \"function\"; parameters: { name: string; type: string; optional: boolean; isRest: boolean; description?: string | undefined; defaultValue?: string | undefined; }[]; ... 16 more ...; sourceLine?: number | undefined; } | ... 6 more ... | { ...; })[]; dependencies: string[]; depend..."
+										"type": "{ path: string; declarations: ({ kind: \"function\"; parameters: { name: string; type: string; optional: boolean; rest: boolean; description?: string | undefined; defaultValue?: string | undefined; }[]; ... 18 more ...; sourceLine?: number | undefined; } | ... 7 more ... | { ...; })[]; dependencies: string[]; dependen..."
 									}
 								]
 							},
@@ -13205,6 +13403,11 @@
 						"docComment": "Utility function to load a value from `localStorage` with optional parsing",
 						"typeSignature": "<T>(key: string, is_json?: boolean, parse_fn?: ((value: unknown) => T | null) | undefined): T | null",
 						"sourceLine": 26,
+						"genericParams": [
+							{
+								"name": "T"
+							}
+						],
 						"parameters": [
 							{
 								"name": "key",
@@ -13241,7 +13444,8 @@
 							{
 								"name": "value",
 								"kind": "variable",
-								"typeSignature": "StyleVariable | null"
+								"typeSignature": "StyleVariable | null",
+								"reactivity": "$state.raw"
 							},
 							{
 								"name": "constructor",
@@ -13312,37 +13516,43 @@
 								"name": "exclude",
 								"kind": "variable",
 								"docComment": "File patterns to exclude.",
-								"typeSignature": "Array<string | RegExp>"
+								"typeSignature": "Array<string | RegExp>",
+								"optional": true
 							},
 							{
 								"name": "components",
 								"kind": "variable",
 								"docComment": "Component import mapping for mdz content.\nKey: component name as used in mdz (e.g., 'Alert').\nValue: import path (e.g., '$lib/Alert.svelte').\n\nIf mdz content references a component not in this map,\nthat `Mdz` usage is skipped (left as runtime).",
-								"typeSignature": "Record<string, string>"
+								"typeSignature": "Record<string, string>",
+								"optional": true
 							},
 							{
 								"name": "elements",
 								"kind": "variable",
 								"docComment": "Allowed HTML elements in mdz content.\nIf mdz content references an element not in this list,\nthat `Mdz` usage is skipped (left as runtime).",
-								"typeSignature": "Array<string>"
+								"typeSignature": "Array<string>",
+								"optional": true
 							},
 							{
 								"name": "component_imports",
 								"kind": "variable",
 								"docComment": "Import sources that resolve to the `Mdz` component.\nUsed to verify that `Mdz` in templates refers to fuz_ui's `Mdz.svelte`.",
-								"typeSignature": "Array<string>"
+								"typeSignature": "Array<string>",
+								"optional": true
 							},
 							{
 								"name": "compiled_component_import",
 								"kind": "variable",
 								"docComment": "Import path for the precompiled wrapper component.",
-								"typeSignature": "string"
+								"typeSignature": "string",
+								"optional": true
 							},
 							{
 								"name": "on_error",
 								"kind": "variable",
 								"docComment": "How to handle errors during mdz parsing or rendering.",
-								"typeSignature": "'log' | 'throw'"
+								"typeSignature": "'log' | 'throw'",
+								"optional": true
 							}
 						]
 					},
@@ -13432,44 +13642,52 @@
 								"name": "raw",
 								"kind": "variable",
 								"docComment": "Raw svg markup string that's inserted unsafely as a child of the `svg` element.\nThis is an escape hatch for non-`path` markup -\ngenerally, you should instead use the `paths` property to avoid security/CSP implications.",
-								"typeSignature": "string | null"
+								"typeSignature": "string | null",
+								"optional": true
 							},
 							{
 								"name": "paths",
 								"kind": "variable",
 								"docComment": "List of svg `path` attribute objects. The `d` attribute is required.",
-								"typeSignature": "Array<{d: string} & SvelteHTMLElements['path']> | null"
+								"typeSignature": "Array<{d: string} & SvelteHTMLElements['path']> | null",
+								"optional": true
 							},
 							{
 								"name": "attrs",
 								"kind": "variable",
-								"typeSignature": "SvelteHTMLElements['svg'] | null"
+								"typeSignature": "SvelteHTMLElements['svg'] | null",
+								"optional": true
 							},
 							{
 								"name": "fill",
 								"kind": "variable",
-								"typeSignature": "string | null"
+								"typeSignature": "string | null",
+								"optional": true
 							},
 							{
 								"name": "width",
 								"kind": "variable",
-								"typeSignature": "string | null"
+								"typeSignature": "string | null",
+								"optional": true
 							},
 							{
 								"name": "height",
 								"kind": "variable",
-								"typeSignature": "string | null"
+								"typeSignature": "string | null",
+								"optional": true
 							},
 							{
 								"name": "label",
 								"kind": "variable",
-								"typeSignature": "string | null"
+								"typeSignature": "string | null",
+								"optional": true
 							},
 							{
 								"name": "viewBox",
 								"kind": "variable",
 								"docComment": "Defaults to `\"0 0 100 100\"`.",
-								"typeSignature": "string | null"
+								"typeSignature": "string | null",
+								"optional": true
 							}
 						]
 					}
@@ -13541,12 +13759,14 @@
 							{
 								"name": "theme",
 								"kind": "variable",
-								"typeSignature": "Theme"
+								"typeSignature": "Theme",
+								"optional": true
 							},
 							{
 								"name": "color_scheme",
 								"kind": "variable",
-								"typeSignature": "ColorScheme"
+								"typeSignature": "ColorScheme",
+								"optional": true
 							}
 						]
 					},
@@ -13558,12 +13778,14 @@
 							{
 								"name": "theme",
 								"kind": "variable",
-								"typeSignature": "Theme"
+								"typeSignature": "Theme",
+								"reactivity": "$state.raw"
 							},
 							{
 								"name": "color_scheme",
 								"kind": "variable",
-								"typeSignature": "ColorScheme"
+								"typeSignature": "ColorScheme",
+								"reactivity": "$state.raw"
 							},
 							{
 								"name": "constructor",
@@ -16400,7 +16622,8 @@
 								"name": "library_path",
 								"kind": "variable",
 								"docComment": "Path to the `library.json` file (relative to `vite.config.ts`).",
-								"typeSignature": "string"
+								"typeSignature": "string",
+								"optional": true
 							}
 						]
 					},

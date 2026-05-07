@@ -7,7 +7,11 @@
 
 import ts from 'typescript';
 
-import {createSourceOptions, type ModuleSourceOptions, type SourceOptionsDefaults} from 'svelte-docinfo';
+import {
+	createSourceOptions,
+	type ModuleSourceOptions,
+	type SourceOptionsDefaults,
+} from 'svelte-docinfo';
 
 /** Default project root for tests. */
 export const TEST_PROJECT_ROOT = '/home/user/project';
