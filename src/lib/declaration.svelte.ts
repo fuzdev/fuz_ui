@@ -1,9 +1,9 @@
 import type {
 	DeclarationJson,
 	MemberJson,
-	ParameterInfo,
-	ComponentPropInfo,
-	OverloadInfo,
+	ParameterJson,
+	ComponentPropJson,
+	OverloadJson,
 } from 'svelte-docinfo/types.js';
 import {generateImport, getDisplayName} from 'svelte-docinfo/declaration-helpers.js';
 
@@ -84,8 +84,8 @@ export class Declaration {
 	type_signature = $derived(this.declaration_json.typeSignature);
 	doc_comment = $derived(this.declaration_json.docComment);
 	deprecated_message = $derived(this.declaration_json.deprecatedMessage);
-	parameters = $derived(field<Array<ParameterInfo>>(this.declaration_json, 'parameters'));
-	props = $derived(field<Array<ComponentPropInfo>>(this.declaration_json, 'props'));
+	parameters = $derived(field<Array<ParameterJson>>(this.declaration_json, 'parameters'));
+	props = $derived(field<Array<ComponentPropJson>>(this.declaration_json, 'props'));
 	return_type = $derived(field<string>(this.declaration_json, 'returnType'));
 	return_description = $derived(field<string>(this.declaration_json, 'returnDescription'));
 	generic_params = $derived(this.declaration_json.genericParams);
@@ -116,7 +116,7 @@ export class Declaration {
 	 * Function overload signatures when multiple public overloads exist.
 	 * Present on `function` and `snippet` kinds, and on function/constructor members.
 	 */
-	overloads = $derived(field<Array<OverloadInfo>>(this.declaration_json, 'overloads'));
+	overloads = $derived(field<Array<OverloadJson>>(this.declaration_json, 'overloads'));
 
 	/**
 	 * Re-export alias info when this declaration is a renamed re-export.

@@ -324,6 +324,7 @@
 						"returnType": "DeclarationSearchState"
 					}
 				],
+				"dependencies": ["declaration.svelte.ts", "library.svelte.ts", "module.svelte.ts"],
 				"dependents": ["ApiIndex.svelte", "ApiModule.svelte"]
 			},
 			{
@@ -347,12 +348,7 @@
 						]
 					}
 				],
-				"dependencies": [
-					"DeclarationDetail.svelte",
-					"TomeSection.svelte",
-					"TomeSectionHeader.svelte"
-				],
-				"dependents": ["ApiIndex.svelte", "ApiModule.svelte"]
+				"dependencies": ["declaration.svelte.ts"]
 			},
 			{
 				"path": "ApiIndex.svelte",
@@ -386,16 +382,7 @@
 						]
 					}
 				],
-				"dependencies": [
-					"ApiDeclarationList.svelte",
-					"ApiModulesList.svelte",
-					"DocsSearch.svelte",
-					"TomeContent.svelte",
-					"TomeLink.svelte",
-					"api_search.svelte.ts",
-					"library.svelte.ts",
-					"tome.ts"
-				]
+				"dependencies": ["api_search.svelte.ts", "library.svelte.ts", "tome.ts"]
 			},
 			{
 				"path": "ApiModule.svelte",
@@ -427,18 +414,7 @@
 						]
 					}
 				],
-				"dependencies": [
-					"ApiDeclarationList.svelte",
-					"DocsSearch.svelte",
-					"Mdz.svelte",
-					"ModuleLink.svelte",
-					"TomeContent.svelte",
-					"TomeSection.svelte",
-					"TomeSectionHeader.svelte",
-					"api_search.svelte.ts",
-					"library.svelte.ts",
-					"tome.ts"
-				]
+				"dependencies": ["api_search.svelte.ts", "library.svelte.ts", "tome.ts"]
 			},
 			{
 				"path": "ApiModulesList.svelte",
@@ -463,8 +439,7 @@
 						]
 					}
 				],
-				"dependencies": ["ModuleLink.svelte", "TomeSection.svelte", "TomeSectionHeader.svelte"],
-				"dependents": ["ApiIndex.svelte"]
+				"dependencies": ["module.svelte.ts"]
 			},
 			{
 				"path": "autofocus.svelte.ts",
@@ -528,8 +503,7 @@
 						],
 						"acceptsChildren": true
 					}
-				],
-				"dependents": ["Docs.svelte", "DocsPrimaryNav.svelte"]
+				]
 			},
 			{
 				"path": "Card.svelte",
@@ -784,6 +758,7 @@
 						"returnType": "number"
 					}
 				],
+				"dependencies": ["contextmenu_state.svelte.ts"],
 				"dependents": ["ContextmenuRoot.svelte", "ContextmenuRootForSafariCompatibility.svelte"]
 			},
 			{
@@ -1365,8 +1340,12 @@
 					"ContextmenuRoot.svelte",
 					"ContextmenuRootForSafariCompatibility.svelte",
 					"ContextmenuSubmenu.svelte",
+					"ContextmenuTextEntry.svelte",
 					"DeclarationLink.svelte",
-					"ModuleLink.svelte"
+					"ModuleLink.svelte",
+					"contextmenu_helpers.ts",
+					"declaration_contextmenu.ts",
+					"module_contextmenu.ts"
 				]
 			},
 			{
@@ -1434,8 +1413,7 @@
 						"acceptsChildren": true
 					}
 				],
-				"dependencies": ["PendingAnimation.svelte", "contextmenu_state.svelte.ts"],
-				"dependents": ["ContextmenuTextEntry.svelte"]
+				"dependencies": ["contextmenu_state.svelte.ts"]
 			},
 			{
 				"path": "ContextmenuLinkEntry.svelte",
@@ -1474,8 +1452,7 @@
 						"acceptsChildren": true
 					}
 				],
-				"dependencies": ["contextmenu_state.svelte.ts"],
-				"dependents": ["ContextmenuRoot.svelte", "ContextmenuRootForSafariCompatibility.svelte"]
+				"dependencies": ["contextmenu_state.svelte.ts"]
 			},
 			{
 				"path": "ContextmenuRoot.svelte",
@@ -1581,13 +1558,7 @@
 						"acceptsChildren": true
 					}
 				],
-				"dependencies": [
-					"ContextmenuLinkEntry.svelte",
-					"ContextmenuSeparator.svelte",
-					"ContextmenuTextEntry.svelte",
-					"contextmenu_helpers.ts",
-					"contextmenu_state.svelte.ts"
-				]
+				"dependencies": ["contextmenu_helpers.ts", "contextmenu_state.svelte.ts"]
 			},
 			{
 				"path": "ContextmenuRootForSafariCompatibility.svelte",
@@ -1707,13 +1678,7 @@
 						"acceptsChildren": true
 					}
 				],
-				"dependencies": [
-					"ContextmenuLinkEntry.svelte",
-					"ContextmenuSeparator.svelte",
-					"ContextmenuTextEntry.svelte",
-					"contextmenu_helpers.ts",
-					"contextmenu_state.svelte.ts"
-				]
+				"dependencies": ["contextmenu_helpers.ts", "contextmenu_state.svelte.ts"]
 			},
 			{
 				"path": "ContextmenuSeparator.svelte",
@@ -3999,8 +3964,7 @@
 						],
 						"acceptsChildren": true
 					}
-				],
-				"dependents": ["ContextmenuRoot.svelte", "ContextmenuRootForSafariCompatibility.svelte"]
+				]
 			},
 			{
 				"path": "ContextmenuSubmenu.svelte",
@@ -4027,7 +3991,7 @@
 						"acceptsChildren": true
 					}
 				],
-				"dependencies": ["contextmenu_state.svelte.ts"]
+				"dependencies": ["contextmenu_state.svelte.ts", "dimensions.svelte.ts"]
 			},
 			{
 				"path": "ContextmenuTextEntry.svelte",
@@ -4052,8 +4016,7 @@
 						]
 					}
 				],
-				"dependencies": ["ContextmenuEntry.svelte"],
-				"dependents": ["ContextmenuRoot.svelte", "ContextmenuRootForSafariCompatibility.svelte"]
+				"dependencies": ["contextmenu_state.svelte.ts"]
 			},
 			{
 				"path": "CopyToClipboard.svelte",
@@ -4121,7 +4084,8 @@
 						"typeSignature": "CspSourceSpec[]",
 						"sourceLine": 6
 					}
-				]
+				],
+				"dependencies": ["csp.ts"]
 			},
 			{
 				"path": "csp.ts",
@@ -4438,7 +4402,8 @@
 							}
 						]
 					}
-				]
+				],
+				"dependents": ["csp_of_fuzdev.ts"]
 			},
 			{
 				"path": "declaration_contextmenu.ts",
@@ -4457,6 +4422,7 @@
 						"returnType": "ContextmenuParams[]"
 					}
 				],
+				"dependencies": ["contextmenu_state.svelte.ts", "declaration.svelte.ts"],
 				"dependents": ["DeclarationLink.svelte"]
 			},
 			{
@@ -4502,7 +4468,7 @@
 							{
 								"name": "name",
 								"kind": "variable",
-								"typeSignature": "string | undefined",
+								"typeSignature": "string",
 								"reactivity": "$derived"
 							},
 							{
@@ -4662,7 +4628,7 @@
 								"name": "alias_of",
 								"kind": "variable",
 								"docComment": "Re-export alias info when this declaration is a renamed re-export.",
-								"typeSignature": "{ module: string; name?: string | undefined; } | { module: string; name?: string | undefined; } | { module: string; name?: string | undefined; } | { module: string; name?: string | undefined; } | ... 5 more ... | undefined",
+								"typeSignature": "{ module: string; name: string; } | { module: string; name: string; } | { module: string; name: string; } | { module: string; name: string; } | { module: string; name: string; } | { module: string; name: string; } | { ...; } | { ...; } | { ...; } | undefined",
 								"reactivity": "$derived"
 							},
 							{
@@ -4711,7 +4677,7 @@
 							{
 								"name": "constructor",
 								"kind": "constructor",
-								"typeSignature": "(module: Module, declaration_json: { kind: \"function\"; parameters: { name: string; type: string; optional: boolean; rest: boolean; description?: string | undefined; defaultValue?: string | undefined; }[]; ... 18 more ...; sourceLine?: number | undefined; } | ... 7 more ... | { ...; }): Declaration",
+								"typeSignature": "(module: Module, declaration_json: { kind: \"function\"; parameters: { name: string; type: string; optional: boolean; rest: boolean; description?: string | undefined; defaultValue?: string | undefined; }[]; ... 17 more ...; sourceLine?: number | undefined; } | ... 7 more ... | { ...; }): Declaration",
 								"parameters": [
 									{
 										"name": "module",
@@ -4719,15 +4685,23 @@
 									},
 									{
 										"name": "declaration_json",
-										"type": "{ kind: \"function\"; parameters: { name: string; type: string; optional: boolean; rest: boolean; description?: string | undefined; defaultValue?: string | undefined; }[]; overloads: { typeSignature: string; ... 4 more ...; returnDescription?: string | undefined; }[]; ... 17 more ...; sourceLine?: number | undefined; ..."
+										"type": "{ kind: \"function\"; parameters: { name: string; type: string; optional: boolean; rest: boolean; description?: string | undefined; defaultValue?: string | undefined; }[]; overloads: { typeSignature: string; ... 4 more ...; returnDescription?: string | undefined; }[]; ... 16 more ...; sourceLine?: number | undefined; ..."
 									}
 								]
 							}
 						]
 					}
 				],
-				"dependencies": ["package_helpers.ts"],
-				"dependents": ["library.svelte.ts", "module.svelte.ts"]
+				"dependencies": ["module.svelte.ts", "package_helpers.ts"],
+				"dependents": [
+					"ApiDeclarationList.svelte",
+					"DeclarationDetail.svelte",
+					"DocsLink.svelte",
+					"api_search.svelte.ts",
+					"declaration_contextmenu.ts",
+					"library.svelte.ts",
+					"module.svelte.ts"
+				]
 			},
 			{
 				"path": "DeclarationDetail.svelte",
@@ -4749,8 +4723,7 @@
 						]
 					}
 				],
-				"dependencies": ["Mdz.svelte", "ModuleLink.svelte", "TypeLink.svelte", "tsdoc_mdz.ts"],
-				"dependents": ["ApiDeclarationList.svelte"]
+				"dependencies": ["declaration.svelte.ts", "tsdoc_mdz.ts"]
 			},
 			{
 				"path": "DeclarationLink.svelte",
@@ -4779,12 +4752,6 @@
 					"contextmenu_state.svelte.ts",
 					"declaration_contextmenu.ts",
 					"library.svelte.ts"
-				],
-				"dependents": [
-					"DocsLink.svelte",
-					"DocsTertiaryNav.svelte",
-					"LibraryDetail.svelte",
-					"TypeLink.svelte"
 				]
 			},
 			{
@@ -4885,8 +4852,7 @@
 						"acceptsChildren": true
 					}
 				],
-				"dependencies": ["Teleport.svelte"],
-				"dependents": ["Dialogs.svelte", "Docs.svelte"]
+				"dependencies": ["dialog.ts"]
 			},
 			{
 				"path": "dialog.ts",
@@ -4964,7 +4930,8 @@
 						"typeSignature": "DialogLayout[]",
 						"sourceLine": 35
 					}
-				]
+				],
+				"dependents": ["Dialog.svelte", "Dialogs.svelte"]
 			},
 			{
 				"path": "Dialogs.svelte",
@@ -4998,7 +4965,7 @@
 						"acceptsChildren": true
 					}
 				],
-				"dependencies": ["Dialog.svelte"]
+				"dependencies": ["dialog.ts"]
 			},
 			{
 				"path": "dimensions.svelte.ts",
@@ -5023,7 +4990,7 @@
 						]
 					}
 				],
-				"dependents": ["contextmenu_state.svelte.ts"]
+				"dependents": ["ContextmenuSubmenu.svelte", "contextmenu_state.svelte.ts"]
 			},
 			{
 				"path": "docs_helpers.svelte.ts",
@@ -5291,16 +5258,7 @@
 						"acceptsChildren": true
 					}
 				],
-				"dependencies": [
-					"Breadcrumb.svelte",
-					"Dialog.svelte",
-					"DocsFooter.svelte",
-					"DocsPrimaryNav.svelte",
-					"DocsSecondaryNav.svelte",
-					"DocsTertiaryNav.svelte",
-					"docs_helpers.svelte.ts",
-					"tome.ts"
-				]
+				"dependencies": ["docs_helpers.svelte.ts", "library.svelte.ts", "tome.ts"]
 			},
 			{
 				"path": "DocsContent.svelte",
@@ -5344,7 +5302,7 @@
 						"acceptsChildren": true
 					}
 				],
-				"dependencies": ["LibrarySummary.svelte"]
+				"dependencies": ["library.svelte.ts", "tome.ts"]
 			},
 			{
 				"path": "DocsFooter.svelte",
@@ -5384,8 +5342,7 @@
 						"acceptsChildren": true
 					}
 				],
-				"dependencies": ["Svg.svelte", "logos.ts"],
-				"dependents": ["Docs.svelte"]
+				"dependencies": ["library.svelte.ts", "logos.ts"]
 			},
 			{
 				"path": "DocsLink.svelte",
@@ -5429,8 +5386,7 @@
 						"acceptsChildren": true
 					}
 				],
-				"dependencies": ["DeclarationLink.svelte", "ModuleLink.svelte", "library.svelte.ts"],
-				"dependents": ["MdzNodeView.svelte"]
+				"dependencies": ["declaration.svelte.ts", "library.svelte.ts", "module.svelte.ts"]
 			},
 			{
 				"path": "DocsList.svelte",
@@ -5460,8 +5416,7 @@
 						],
 						"acceptsChildren": true
 					}
-				],
-				"dependents": ["DocsMenu.svelte", "DocsPageLinks.svelte"]
+				]
 			},
 			{
 				"path": "DocsMenu.svelte",
@@ -5491,8 +5446,7 @@
 						"acceptsChildren": true
 					}
 				],
-				"dependencies": ["DocsList.svelte", "DocsMenuHeader.svelte", "tome.ts"],
-				"dependents": ["DocsSecondaryNav.svelte"]
+				"dependencies": ["tome.ts"]
 			},
 			{
 				"path": "DocsMenuHeader.svelte",
@@ -5510,8 +5464,7 @@
 						],
 						"acceptsChildren": true
 					}
-				],
-				"dependents": ["DocsMenu.svelte"]
+				]
 			},
 			{
 				"path": "DocsPageLinks.svelte",
@@ -5538,8 +5491,7 @@
 						"acceptsChildren": true
 					}
 				],
-				"dependencies": ["DocsList.svelte", "docs_helpers.svelte.ts"],
-				"dependents": ["DocsTertiaryNav.svelte"]
+				"dependencies": ["docs_helpers.svelte.ts"]
 			},
 			{
 				"path": "DocsPrimaryNav.svelte",
@@ -5574,8 +5526,7 @@
 						"acceptsChildren": true
 					}
 				],
-				"dependencies": ["Breadcrumb.svelte"],
-				"dependents": ["Docs.svelte"]
+				"dependencies": ["library.svelte.ts"]
 			},
 			{
 				"path": "DocsSearch.svelte",
@@ -5624,8 +5575,7 @@
 						],
 						"acceptsChildren": true
 					}
-				],
-				"dependents": ["ApiIndex.svelte", "ApiModule.svelte"]
+				]
 			},
 			{
 				"path": "DocsSecondaryNav.svelte",
@@ -5650,8 +5600,7 @@
 						"acceptsChildren": true
 					}
 				],
-				"dependencies": ["DocsMenu.svelte", "tome.ts"],
-				"dependents": ["Docs.svelte"]
+				"dependencies": ["tome.ts"]
 			},
 			{
 				"path": "DocsTertiaryNav.svelte",
@@ -5680,16 +5629,7 @@
 						"acceptsChildren": true
 					}
 				],
-				"dependencies": [
-					"DeclarationLink.svelte",
-					"DocsPageLinks.svelte",
-					"ModuleLink.svelte",
-					"TomeLink.svelte",
-					"docs_helpers.svelte.ts",
-					"library.svelte.ts",
-					"tome.ts"
-				],
-				"dependents": ["Docs.svelte"]
+				"dependencies": ["docs_helpers.svelte.ts", "library.svelte.ts", "tome.ts"]
 			},
 			{
 				"path": "EcosystemLinks.svelte",
@@ -5706,8 +5646,7 @@
 							}
 						]
 					}
-				],
-				"dependents": ["EcosystemLinksPanel.svelte"]
+				]
 			},
 			{
 				"path": "EcosystemLinksPanel.svelte",
@@ -5725,8 +5664,7 @@
 						],
 						"acceptsChildren": true
 					}
-				],
-				"dependencies": ["EcosystemLinks.svelte", "ProjectLinks.svelte"]
+				]
 			},
 			{
 				"path": "GithubLink.svelte",
@@ -5758,7 +5696,7 @@
 						"acceptsChildren": true
 					}
 				],
-				"dependencies": ["Svg.svelte", "logos.ts"]
+				"dependencies": ["logos.ts"]
 			},
 			{
 				"path": "Glyph.svelte",
@@ -5799,8 +5737,7 @@
 						],
 						"acceptsChildren": true
 					}
-				],
-				"dependents": ["TomeHeader.svelte", "TomeSectionHeader.svelte"]
+				]
 			},
 			{
 				"path": "helpers.ts",
@@ -5893,8 +5830,7 @@
 						],
 						"acceptsChildren": true
 					}
-				],
-				"dependents": ["LibraryDetail.svelte", "LibrarySummary.svelte"]
+				]
 			},
 			{
 				"path": "intersect.svelte.ts",
@@ -6140,7 +6076,7 @@
 						"kind": "function",
 						"docComment": "Creates a `Gen` object for generating library metadata with full TypeScript analysis.\n\nThis is the Gro-specific entry point. It handles:\n- Reading files from Gro's filer\n- Loading package.json via Gro utilities\n- Analyzing source with svelte-docinfo (pure analysis)\n- Wrapping with LibraryJson (GitHub/npm metadata)\n- Returning output in Gro's Gen format\n\nFor build-tool agnostic usage, use `analyze` directly.\n\nUsage in a `.gen.ts` file:\n\n```ts\nimport {library_gen} from '@fuzdev/fuz_ui/library_gen.js';\n\nexport const gen = library_gen();\n```",
 						"typeSignature": "(options?: LibraryGenOptions | undefined): Gen",
-						"sourceLine": 156,
+						"sourceLine": 158,
 						"parameters": [
 							{
 								"name": "options",
@@ -6478,7 +6414,7 @@
 								"name": "declaration_by_name",
 								"kind": "variable",
 								"docComment": "Declaration lookup map by name. Provides O(1) lookup.",
-								"typeSignature": "Map<string | undefined, Declaration>",
+								"typeSignature": "Map<string, Declaration>",
 								"modifiers": ["readonly"],
 								"reactivity": "$derived"
 							},
@@ -6538,10 +6474,18 @@
 					"ApiIndex.svelte",
 					"ApiModule.svelte",
 					"DeclarationLink.svelte",
+					"Docs.svelte",
+					"DocsContent.svelte",
+					"DocsFooter.svelte",
 					"DocsLink.svelte",
+					"DocsPrimaryNav.svelte",
 					"DocsTertiaryNav.svelte",
+					"LibraryDetail.svelte",
+					"LibrarySummary.svelte",
 					"ModuleLink.svelte",
-					"TypeLink.svelte"
+					"TypeLink.svelte",
+					"api_search.svelte.ts",
+					"module.svelte.ts"
 				]
 			},
 			{
@@ -6631,12 +6575,7 @@
 						"acceptsChildren": true
 					}
 				],
-				"dependencies": [
-					"DeclarationLink.svelte",
-					"ImgOrSvg.svelte",
-					"ModuleLink.svelte",
-					"package_helpers.ts"
-				]
+				"dependencies": ["library.svelte.ts", "package_helpers.ts"]
 			},
 			{
 				"path": "LibrarySummary.svelte",
@@ -6739,8 +6678,7 @@
 						"acceptsChildren": true
 					}
 				],
-				"dependencies": ["ImgOrSvg.svelte"],
-				"dependents": ["DocsContent.svelte"]
+				"dependencies": ["library.svelte.ts"]
 			},
 			{
 				"path": "logos.ts",
@@ -6861,7 +6799,7 @@
 						"acceptsChildren": true
 					}
 				],
-				"dependencies": ["Svg.svelte", "logos.ts"]
+				"dependencies": ["logos.ts"]
 			},
 			{
 				"path": "mdz_components.ts",
@@ -7331,6 +7269,7 @@
 					}
 				],
 				"moduleComment": "Shared constants and pure helper functions for mdz parsers.\n\nUsed by both the single-pass parser (`mdz.ts`) and the two-phase\nlexer+parser (`mdz_lexer.ts` + `mdz_token_parser.ts`).",
+				"dependencies": ["mdz.ts"],
 				"dependents": [
 					"MdzNodeView.svelte",
 					"mdz.ts",
@@ -7809,7 +7748,7 @@
 					}
 				],
 				"moduleComment": "Converts parsed `MdzNode` arrays to Svelte markup strings.\n\nUsed by the `svelte_preprocess_mdz` preprocessor to expand static `<Mdz content=\"...\">` usages\ninto pre-rendered Svelte markup at build time. The output for each node type matches what\n`MdzNodeView.svelte` renders at runtime, so precompiled and runtime rendering are identical.",
-				"dependencies": ["mdz_helpers.ts"],
+				"dependencies": ["mdz.ts", "mdz_helpers.ts"],
 				"dependents": ["svelte_preprocess_mdz.ts"]
 			},
 			{
@@ -7831,7 +7770,7 @@
 					}
 				],
 				"moduleComment": "mdz token parser — consumes a `MdzToken[]` stream to build the `MdzNode[]` AST.\n\nPhase 2 of the two-phase lexer+parser alternative to the single-pass parser\nin `mdz.ts`. Phase 1 (lexer) is in `mdz_lexer.ts`.",
-				"dependencies": ["mdz_helpers.ts", "mdz_lexer.ts"]
+				"dependencies": ["mdz.ts", "mdz_helpers.ts", "mdz_lexer.ts"]
 			},
 			{
 				"path": "Mdz.svelte",
@@ -10134,8 +10073,7 @@
 						"acceptsChildren": true
 					}
 				],
-				"dependencies": ["MdzNodeView.svelte", "mdz.ts", "mdz_components.ts"],
-				"dependents": ["ApiModule.svelte", "DeclarationDetail.svelte"]
+				"dependencies": ["mdz.ts", "mdz_components.ts"]
 			},
 			{
 				"path": "mdz.ts",
@@ -10470,7 +10408,14 @@
 				],
 				"moduleComment": "mdz - minimal markdown dialect for Fuz documentation.\n\nParses an enhanced markdown dialect with:\n- inline formatting: `code`, **bold**, _italic_, ~strikethrough~\n- auto-detected links: external URLs (`https://...`) and internal paths (`/path`)\n- markdown links: `[text](url)` with custom display text\n- inline code in backticks (creates `Code` nodes; auto-linking to identifiers/modules\n  is handled by the rendering layer via `MdzNodeView.svelte`)\n- paragraph breaks (double newline)\n- block elements: headings, horizontal rules, code blocks\n- HTML elements and Svelte components (opt-in via context)\n\nKey constraint: preserves ALL whitespace exactly as authored,\nand is rendered with white-space pre or pre-wrap.\n\n## Design philosophy\n\n- **False negatives over false positives**: When in doubt, treat as plain text.\n  Block elements can interrupt paragraphs without blank lines; inline formatting is strict.\n- **One way to do things**: Single unambiguous syntax per feature. No alternatives.\n- **Explicit over implicit**: Clear delimiters and column-0 requirements avoid ambiguity.\n- **Simple over complete**: Prefer simple parsing rules over complex edge case handling.\n\n## Status\n\nThis is an early proof of concept with missing features and edge cases.",
 				"dependencies": ["mdz_helpers.ts"],
-				"dependents": ["Mdz.svelte", "svelte_preprocess_mdz.ts"]
+				"dependents": [
+					"Mdz.svelte",
+					"MdzNodeView.svelte",
+					"mdz_helpers.ts",
+					"mdz_to_svelte.ts",
+					"mdz_token_parser.ts",
+					"svelte_preprocess_mdz.ts"
+				]
 			},
 			{
 				"path": "MdzNodeView.svelte",
@@ -10487,13 +10432,7 @@
 						]
 					}
 				],
-				"dependencies": [
-					"DocsLink.svelte",
-					"MdzNodeView.svelte",
-					"mdz_components.ts",
-					"mdz_helpers.ts"
-				],
-				"dependents": ["Mdz.svelte", "MdzNodeView.svelte"]
+				"dependencies": ["mdz.ts", "mdz_components.ts", "mdz_helpers.ts"]
 			},
 			{
 				"path": "MdzPrecompiled.svelte",
@@ -12805,6 +12744,7 @@
 						"returnType": "ContextmenuParams[]"
 					}
 				],
+				"dependencies": ["contextmenu_state.svelte.ts", "module.svelte.ts"],
 				"dependents": ["ModuleLink.svelte"]
 			},
 			{
@@ -12904,7 +12844,7 @@
 							{
 								"name": "constructor",
 								"kind": "constructor",
-								"typeSignature": "(library: Library, module_json: { path: string; declarations: ({ kind: \"function\"; parameters: { name: string; type: string; optional: boolean; rest: boolean; description?: string | undefined; defaultValue?: string | undefined; }[]; ... 18 more ...; sourceLine?: number | undefined; } | ... 7 more ... | { ...; })[]; dependencies: string[]; dependents: string[]; starExports: string[]; moduleComment?: string | undefined; }): Module",
+								"typeSignature": "(library: Library, module_json: { path: string; declarations: ({ kind: \"function\"; parameters: { name: string; type: string; optional: boolean; rest: boolean; description?: string | undefined; defaultValue?: string | undefined; }[]; ... 17 more ...; sourceLine?: number | undefined; } | ... 7 more ... | { ...; })[]; ... 4 more ...; moduleComment?: string | undefined; }): Module",
 								"parameters": [
 									{
 										"name": "library",
@@ -12912,7 +12852,7 @@
 									},
 									{
 										"name": "module_json",
-										"type": "{ path: string; declarations: ({ kind: \"function\"; parameters: { name: string; type: string; optional: boolean; rest: boolean; description?: string | undefined; defaultValue?: string | undefined; }[]; ... 18 more ...; sourceLine?: number | undefined; } | ... 7 more ... | { ...; })[]; dependencies: string[]; dependen..."
+										"type": "{ path: string; declarations: ({ kind: \"function\"; parameters: { name: string; type: string; optional: boolean; rest: boolean; description?: string | undefined; defaultValue?: string | undefined; }[]; ... 17 more ...; sourceLine?: number | undefined; } | ... 7 more ... | { ...; })[]; ... 4 more ...; moduleComment?: ..."
 									}
 								]
 							},
@@ -12932,8 +12872,15 @@
 						]
 					}
 				],
-				"dependencies": ["declaration.svelte.ts", "package_helpers.ts"],
-				"dependents": ["library.svelte.ts"]
+				"dependencies": ["declaration.svelte.ts", "library.svelte.ts", "package_helpers.ts"],
+				"dependents": [
+					"ApiModulesList.svelte",
+					"DocsLink.svelte",
+					"api_search.svelte.ts",
+					"declaration.svelte.ts",
+					"library.svelte.ts",
+					"module_contextmenu.ts"
+				]
 			},
 			{
 				"path": "ModuleLink.svelte",
@@ -12962,14 +12909,6 @@
 					"contextmenu_state.svelte.ts",
 					"library.svelte.ts",
 					"module_contextmenu.ts"
-				],
-				"dependents": [
-					"ApiModule.svelte",
-					"ApiModulesList.svelte",
-					"DeclarationDetail.svelte",
-					"DocsLink.svelte",
-					"DocsTertiaryNav.svelte",
-					"LibraryDetail.svelte"
 				]
 			},
 			{
@@ -13222,8 +13161,7 @@
 						],
 						"acceptsChildren": true
 					}
-				],
-				"dependents": ["ContextmenuEntry.svelte", "PendingButton.svelte"]
+				]
 			},
 			{
 				"path": "PendingButton.svelte",
@@ -13255,8 +13193,7 @@
 						],
 						"acceptsChildren": true
 					}
-				],
-				"dependencies": ["PendingAnimation.svelte"]
+				]
 			},
 			{
 				"path": "ProjectLinks.svelte",
@@ -13267,8 +13204,7 @@
 						"sourceLine": 1
 					}
 				],
-				"dependencies": ["Svg.svelte", "logos.ts"],
-				"dependents": ["EcosystemLinksPanel.svelte"]
+				"dependencies": ["logos.ts"]
 			},
 			{
 				"path": "Redirect.svelte",
@@ -13369,7 +13305,7 @@
 						]
 					}
 				],
-				"dependencies": ["Svg.svelte", "logos.ts"]
+				"dependencies": ["logos.ts"]
 			},
 			{
 				"path": "storage.ts",
@@ -13691,13 +13627,6 @@
 							}
 						]
 					}
-				],
-				"dependents": [
-					"DocsFooter.svelte",
-					"GithubLink.svelte",
-					"MdnLink.svelte",
-					"ProjectLinks.svelte",
-					"Spiders.svelte"
 				]
 			},
 			{
@@ -13726,8 +13655,7 @@
 						],
 						"acceptsChildren": true
 					}
-				],
-				"dependents": ["Dialog.svelte"]
+				]
 			},
 			{
 				"path": "theme_state.svelte.ts",
@@ -14104,6 +14032,7 @@
 					"ApiIndex.svelte",
 					"ApiModule.svelte",
 					"Docs.svelte",
+					"DocsContent.svelte",
 					"DocsMenu.svelte",
 					"DocsSecondaryNav.svelte",
 					"DocsTertiaryNav.svelte",
@@ -14143,13 +14072,7 @@
 						"acceptsChildren": true
 					}
 				],
-				"dependencies": [
-					"TomeHeader.svelte",
-					"docs_helpers.svelte.ts",
-					"intersect.svelte.ts",
-					"tome.ts"
-				],
-				"dependents": ["ApiIndex.svelte", "ApiModule.svelte"]
+				"dependencies": ["docs_helpers.svelte.ts", "intersect.svelte.ts", "tome.ts"]
 			},
 			{
 				"path": "TomeHeader.svelte",
@@ -16431,8 +16354,7 @@
 						"acceptsChildren": true
 					}
 				],
-				"dependencies": ["Hashlink.svelte", "docs_helpers.svelte.ts", "tome.ts"],
-				"dependents": ["TomeContent.svelte"]
+				"dependencies": ["docs_helpers.svelte.ts", "tome.ts"]
 			},
 			{
 				"path": "TomeLink.svelte",
@@ -16463,8 +16385,7 @@
 						"acceptsChildren": true
 					}
 				],
-				"dependencies": ["docs_helpers.svelte.ts", "tome.ts"],
-				"dependents": ["ApiIndex.svelte", "DocsTertiaryNav.svelte"]
+				"dependencies": ["docs_helpers.svelte.ts", "tome.ts"]
 			},
 			{
 				"path": "TomeSection.svelte",
@@ -16521,13 +16442,7 @@
 						"sourceLine": 7
 					}
 				],
-				"dependencies": ["context_helpers.ts", "docs_helpers.svelte.ts", "intersect.svelte.ts"],
-				"dependents": [
-					"ApiDeclarationList.svelte",
-					"ApiModule.svelte",
-					"ApiModulesList.svelte",
-					"TomeSectionHeader.svelte"
-				]
+				"dependencies": ["context_helpers.ts", "docs_helpers.svelte.ts", "intersect.svelte.ts"]
 			},
 			{
 				"path": "TomeSectionHeader.svelte",
@@ -16555,8 +16470,7 @@
 						"acceptsChildren": true
 					}
 				],
-				"dependencies": ["Hashlink.svelte", "TomeSection.svelte", "docs_helpers.svelte.ts"],
-				"dependents": ["ApiDeclarationList.svelte", "ApiModule.svelte", "ApiModulesList.svelte"]
+				"dependencies": ["docs_helpers.svelte.ts"]
 			},
 			{
 				"path": "tsdoc_mdz.ts",
@@ -16606,8 +16520,7 @@
 						]
 					}
 				],
-				"dependencies": ["DeclarationLink.svelte", "library.svelte.ts"],
-				"dependents": ["DeclarationDetail.svelte"]
+				"dependencies": ["library.svelte.ts"]
 			},
 			{
 				"path": "vite_plugin_library_well_known.ts",

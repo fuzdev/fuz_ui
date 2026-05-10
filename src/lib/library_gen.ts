@@ -25,7 +25,7 @@ import {
 	type SourceFileInfo,
 	type SourceOptionsDefaults,
 } from 'svelte-docinfo';
-import {validateSourceOptions, isSource, getSourceRoot} from 'svelte-docinfo/source-config.js';
+import {normalizeSourceOptions, isSource, getSourceRoot} from 'svelte-docinfo/source-config.js';
 import type {SourceJson} from '@fuzdev/fuz_util/source_json.js';
 
 import {library_generate_output} from './library_output.js';
@@ -101,8 +101,10 @@ export const library_collect_source_files_from_disknodes = (
 	options: ModuleSourceOptions,
 	log?: {info: (...args: Array<unknown>) => void; warn: (...args: Array<unknown>) => void},
 ): Array<SourceFileInfo> => {
-	// Validate options early to fail fast on misconfiguration
-	validateSourceOptions(options);
+	// Normalize options (throws on invalid config) and use the normalized form
+	// for downstream `isSource` / `getSourceRoot` calls, so callers that pass
+	// raw options (not via `createSourceOptions`) get consistent path handling.
+	const normalized_options = normalizeSourceOptions(options);
 
 	const all_disknodes = Array.from(disknodes);
 	log?.info(`received ${all_disknodes.length} files total from filer`);
@@ -111,7 +113,7 @@ export const library_collect_source_files_from_disknodes = (
 	for (const disknode of all_disknodes) {
 		// Filter by source_paths BEFORE trying to convert
 		// This avoids errors from test fixtures or other non-source files
-		if (!isSource(disknode.id, options)) {
+		if (!isSource(disknode.id, normalized_options)) {
 			continue;
 		}
 		source_files.push(source_file_from_disknode(disknode));
@@ -120,7 +122,7 @@ export const library_collect_source_files_from_disknodes = (
 	log?.info(`found ${source_files.length} source files to analyze`);
 
 	if (source_files.length === 0) {
-		const effective_root = getSourceRoot(options);
+		const effective_root = getSourceRoot(normalized_options);
 		log?.warn(`No source files found in ${effective_root} - generating empty library metadata`);
 		return [];
 	}
@@ -178,8 +180,8 @@ export const library_gen = (options?: LibraryGenOptions): Gen => {
 				log,
 			);
 
-			// Get pure analysis from svelte-docinfo (no package metadata)
-			const {modules} = analyze({
+			// Get pure analysis from svelte-docinfo (no package metadata).
+			const {modules} = await analyze({
 				sourceFiles: source_files,
 				sourceOptions: source_options,
 				onDuplicates: options?.on_duplicates,
