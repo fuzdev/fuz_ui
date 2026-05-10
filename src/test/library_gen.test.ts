@@ -35,7 +35,6 @@ describe('source_file_from_disknode', () => {
 		assert.strictEqual(result.id, '/project/src/lib/helpers.ts');
 		assert.strictEqual(result.content, 'export const x = 1;');
 		assert.ok(Array.isArray(result.dependencies));
-		assert.ok(Array.isArray(result.dependents));
 	});
 
 	test('converts dependencies Map keys to array', () => {
@@ -59,41 +58,16 @@ describe('source_file_from_disknode', () => {
 		assert.include(dep_list, '/project/src/lib/dep_b.ts');
 	});
 
-	test('converts dependents Map keys to array', () => {
-		const dependents: Map<string, unknown> = new Map([
-			['/project/src/lib/user_a.ts', {}],
-			['/project/src/lib/user_b.ts', {}],
-			['/project/src/lib/user_c.ts', {}],
-		]);
-
-		const disknode = create_mock_disknode({
-			id: '/project/src/lib/shared.ts',
-			contents: 'export const shared = "value";',
-			dependents,
-		});
-
-		const result = source_file_from_disknode(disknode as any);
-
-		assert.strictEqual(result.dependents?.length, 3);
-		// Spread to mutable array for assert.include compatibility
-		const dep_list = [...(result.dependents ?? [])];
-		assert.include(dep_list, '/project/src/lib/user_a.ts');
-		assert.include(dep_list, '/project/src/lib/user_b.ts');
-		assert.include(dep_list, '/project/src/lib/user_c.ts');
-	});
-
-	test('handles empty dependencies and dependents', () => {
+	test('handles empty dependencies', () => {
 		const disknode = create_mock_disknode({
 			id: '/project/src/lib/standalone.ts',
 			contents: 'export const standalone = true;',
 			dependencies: new Map(),
-			dependents: new Map(),
 		});
 
 		const result = source_file_from_disknode(disknode as any);
 
 		assert.strictEqual(result.dependencies?.length, 0);
-		assert.strictEqual(result.dependents?.length, 0);
 	});
 
 	test('throws when disknode has null content', () => {
@@ -331,13 +305,12 @@ describe('library_collect_source_files_from_disknodes', () => {
 			assert.ok(result.some((f) => f.id.endsWith('bar.ts')));
 		});
 
-		test('converts disknode dependencies and dependents to arrays', () => {
+		test('converts disknode dependencies to an array', () => {
 			const disknodes = [
 				create_mock_disknode({
 					id: `${TEST_PROJECT_ROOT}/src/lib/consumer.ts`,
 					contents: 'import { dep } from "./dep.js";',
 					dependencies: new Map([[`${TEST_PROJECT_ROOT}/src/lib/dep.ts`, {}]]),
-					dependents: new Map([[`${TEST_PROJECT_ROOT}/src/lib/user.ts`, {}]]),
 				}),
 			];
 
@@ -345,7 +318,6 @@ describe('library_collect_source_files_from_disknodes', () => {
 
 			assert.strictEqual(result.length, 1);
 			assert.ok(result[0]!.dependencies);
-			assert.ok(result[0]!.dependents);
 		});
 	});
 

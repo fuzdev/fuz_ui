@@ -67,7 +67,13 @@ export interface LibraryGenOptions {
 /**
  * Convert Gro's `Disknode` to the build-tool agnostic `SourceFileInfo` interface.
  *
- * Use this when you want to analyze files using Gro's filer directly.
+ * Use this when you want to analyze files using Gro's filer directly. The
+ * `dependencies` field is populated from the filer's forward-edge graph — the
+ * svelte-docinfo session honors it as pre-resolved input and skips its own
+ * lex+resolve pass for these files, avoiding duplicate work the filer already did.
+ *
+ * Reverse edges (`dependents`) are not threaded through — svelte-docinfo
+ * computes them internally from the forward edges of the owned set.
  *
  * @throws Error if disknode has no content (should be loaded by Gro filer)
  */
@@ -81,7 +87,6 @@ export const source_file_from_disknode = (disknode: Disknode): SourceFileInfo =>
 		id: disknode.id,
 		content: disknode.contents,
 		dependencies: [...disknode.dependencies.keys()],
-		dependents: [...disknode.dependents.keys()],
 	};
 };
 

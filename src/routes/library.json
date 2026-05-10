@@ -6028,9 +6028,9 @@
 					{
 						"name": "source_file_from_disknode",
 						"kind": "function",
-						"docComment": "Convert Gro's `Disknode` to the build-tool agnostic `SourceFileInfo` interface.\n\nUse this when you want to analyze files using Gro's filer directly.",
+						"docComment": "Convert Gro's `Disknode` to the build-tool agnostic `SourceFileInfo` interface.\n\nUse this when you want to analyze files using Gro's filer directly. The\n`dependencies` field is populated from the filer's forward-edge graph — the\nsvelte-docinfo session honors it as pre-resolved input and skips its own\nlex+resolve pass for these files, avoiding duplicate work the filer already did.\n\nReverse edges (`dependents`) are not threaded through — svelte-docinfo\ncomputes them internally from the forward edges of the owned set.",
 						"typeSignature": "(disknode: Disknode): SourceFileInfo",
-						"sourceLine": 74,
+						"sourceLine": 80,
 						"throws": [
 							{
 								"type": "Error",
@@ -6050,7 +6050,7 @@
 						"kind": "function",
 						"docComment": "Collect source files from Gro disknodes, filtering BEFORE conversion to `SourceFileInfo`.\n\nThis avoids errors from files outside source directories (like test fixtures that may\nhave malformed paths or missing content). The filtering uses `isSource` which\nchecks `source_paths` to only include files in configured source directories.",
 						"typeSignature": "(disknodes: Iterable<Disknode>, options: ModuleSourceOptions, log?: { info: (...args: unknown[]) => void; warn: (...args: unknown[]) => void; } | undefined): SourceFileInfo[]",
-						"sourceLine": 99,
+						"sourceLine": 104,
 						"parameters": [
 							{
 								"name": "disknodes",
@@ -6076,7 +6076,7 @@
 						"kind": "function",
 						"docComment": "Creates a `Gen` object for generating library metadata with full TypeScript analysis.\n\nThis is the Gro-specific entry point. It handles:\n- Reading files from Gro's filer\n- Loading package.json via Gro utilities\n- Analyzing source with svelte-docinfo (pure analysis)\n- Wrapping with LibraryJson (GitHub/npm metadata)\n- Returning output in Gro's Gen format\n\nFor build-tool agnostic usage, use `analyze` directly.\n\nUsage in a `.gen.ts` file:\n\n```ts\nimport {library_gen} from '@fuzdev/fuz_ui/library_gen.js';\n\nexport const gen = library_gen();\n```",
 						"typeSignature": "(options?: LibraryGenOptions | undefined): Gen",
-						"sourceLine": 158,
+						"sourceLine": 163,
 						"parameters": [
 							{
 								"name": "options",
