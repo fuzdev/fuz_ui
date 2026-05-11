@@ -193,6 +193,9 @@ export const library_gen = (options?: LibraryGenOptions): Gen => {
 				log: log as any, // Type cast needed due to workspace dependency duplication
 			});
 
+			if (!package_json.version) {
+				throw new Error('package.json is missing required "version" field');
+			}
 			// Wrap modules with package metadata (fuz_ui's own SourceJson type)
 			const source_json: SourceJson = {
 				name: package_json.name,
