@@ -7,6 +7,11 @@ components and TypeScript helpers for building user-friendly websites.
 
 For coding conventions, see Skill(fuz-stack).
 
+## Committing
+
+`git add` and `git commit` are denied by `.claude/settings.local.json` in
+this repo — make the edits and stop, the user commits.
+
 ## Gro commands
 
 ```bash
@@ -74,9 +79,11 @@ represents a component or helper with `name`, `category`, `component`, and
 
 **svelte-docinfo** - TypeScript/Svelte static analysis is provided by the
 `svelte-docinfo` package. fuz_ui imports analysis functions (`analyze`,
-`throwOnDuplicates` from `analyze.js`), source utilities (`isTypescript`,
-`isSvelte` from `source.js`), and types (`ModuleJson`, `DeclarationJson`,
-`generateImport`, `getDisplayName` from `types.js`).
+`throwOnDuplicates`, `createSourceOptions` from the barrel `'svelte-docinfo'`),
+source utilities (`isTypescript`, `isSvelte`, `isCss`, `isJson` from
+`source.js`; `normalizeSourceOptions`, `isSource`, `getSourceRoot` from
+`source-config.js`), and types (`ModuleJson`, `DeclarationJson` from
+`types.js`; `generateImport`, `getDisplayName` from `declaration-helpers.js`).
 
 ## Components
 
@@ -147,8 +154,11 @@ represents a component or helper with `name`, `category`, `component`, and
 
 ### Library and API generation
 
-- `library_gen.ts` - Gro integration: calls `analyze()` from svelte-docinfo,
-  wraps with `SourceJson` metadata, outputs Gro `Gen` format
+- `library_gen.ts` - Gro integration: builds `SourceFileInfo[]` from Gro's
+  filer (via `source_file_from_disknode`, which threads the filer's forward
+  edges through as pre-resolved `dependencies` — svelte-docinfo skips
+  lex+resolve for those entries), calls `analyze()`, wraps with `SourceJson`
+  metadata, outputs Gro `Gen` format
 - `library.svelte.ts` - `Library` class wrapping library data
 - `declaration.svelte.ts` - `Declaration` class for code declarations (uses
   `generateImport`, `getDisplayName` from `svelte-docinfo/types.js`)
@@ -162,12 +172,16 @@ represents a component or helper with `name`, `category`, `component`, and
 Analysis is provided by `svelte-docinfo`. See its CLAUDE.md for the
 full API. Key imports used by fuz_ui:
 
-- `analyze.js` - `analyze()`, `throwOnDuplicates`, `OnDuplicatesCallback`
-- `source.js` - `createSourceOptions`, `validateSourceOptions`, `isSource`,
-  `getSourceRoot`, `isTypescript`, `isSvelte`, `isCss`, `isJson`,
-  `SourceFileInfo`, `ModuleSourceOptions`, `ModuleSourcePartial`
-- `types.js` - `ModuleJson`, `DeclarationJson`, `generateImport`, `getDisplayName`
-- `pipeline.js` - `DuplicateInfo`
+- barrel `'svelte-docinfo'` — `analyze`, `createSourceOptions`,
+  `throwOnDuplicates`, `compactReplacer`, types `ModuleSourceOptions`,
+  `OnDuplicatesCallback`, `SourceFileInfo`, `SourceOptionsDefaults`,
+  `DuplicateDeclaration`
+- `source.js` — type predicates only: `isTypescript`, `isSvelte`, `isCss`,
+  `isJson` (and the `SourceFileInfo` interface re-exported from the barrel)
+- `source-config.js` — config-aware helpers: `normalizeSourceOptions`,
+  `isSource`, `getSourceRoot`
+- `types.js` — `ModuleJson`, `DeclarationJson`
+- `declaration-helpers.js` — `generateImport`, `getDisplayName`
 
 ### Browser and DOM
 
