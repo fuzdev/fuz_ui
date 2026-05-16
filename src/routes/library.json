@@ -4369,7 +4369,7 @@
 						"name": "Declaration",
 						"kind": "class",
 						"docComment": "Rich runtime representation of an exported declaration.\n\nWraps svelte-docinfo's `DeclarationJson` discriminated union (on `kind`)\nwith Svelte 5 reactive derivations and computed URLs.\nKind-specific fields are accessed via the `field()` helper since\nnot all fields exist on all variants.",
-						"sourceLine": 31,
+						"sourceLine": 29,
 						"seeAlso": [
 							"{@link https://github.com/ryanatkn/svelte-docinfo svelte-docinfo} for the analysis library",
 							"`DeclarationDetail.svelte` for the rendering component"
@@ -16467,11 +16467,11 @@
 					{
 						"name": "tsdoc_see_to_mdz",
 						"kind": "function",
-						"docComment": "Convert raw TSDoc `@see` content to mdz format for rendering.\n\nHandles TSDoc link syntax:\n- `|text` → `[text](url)` (markdown link)\n- `://...` → `https://...` (bare URL, auto-linked by mdz)\n- `` → `` `identifier` `` (code formatting)\n- Bare URLs → returned as-is\n- Bare identifiers → wrapped in backticks\n- `identifier description text` → `` `identifier` description text `` (first token is the reference)",
+						"docComment": "Convert raw TSDoc `@see` content to mdz format for rendering.\n\nHandles TSDoc link syntax:\n- `|text` → `[text](url)` (markdown link, TSDoc canonical form)\n- `text` → `[text](url)` (TS-lenient space-separated form)\n- `://...` → `https://...` (bare URL, auto-linked by mdz)\n- `` → `` `identifier` `` (code formatting)\n- Bare URLs → returned as-is\n- Bare markdown links (`[text](url)` ...) → returned as-is\n- Bare identifiers → wrapped in backticks\n- `identifier description text` → `` `identifier` description text `` (first token is the reference)",
 						"typeSignature": "(content: string): string",
-						"sourceLine": 45,
+						"sourceLine": 50,
 						"examples": [
-							"```ts\ntsdoc_see_to_mdz('://fuz.dev|API Docs')\n// → '[API Docs](https://fuz.dev)'\n\ntsdoc_see_to_mdz('')\n// → '`SomeType`'\n\ntsdoc_see_to_mdz('https://example.com')\n// → 'https://example.com'\n\ntsdoc_see_to_mdz('library_gen.ts for Gro-specific integration')\n// → '`library_gen.ts` for Gro-specific integration'\n```"
+							"```ts\ntsdoc_see_to_mdz('://fuz.dev|API Docs')\n// → '[API Docs](https://fuz.dev)'\n\ntsdoc_see_to_mdz('')\n// → '`SomeType`'\n\ntsdoc_see_to_mdz('https://example.com')\n// → 'https://example.com'\n\ntsdoc_see_to_mdz('[svelte-docinfo](https://github.com/ryanatkn/svelte-docinfo) for the analysis library')\n// → '[svelte-docinfo](https://github.com/ryanatkn/svelte-docinfo) for the analysis library'\n\ntsdoc_see_to_mdz('library_gen.ts for Gro-specific integration')\n// → '`library_gen.ts` for Gro-specific integration'\n```"
 						],
 						"parameters": [
 							{

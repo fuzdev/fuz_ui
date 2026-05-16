@@ -42,10 +42,8 @@ export class Module {
 	 */
 	declarations = $derived(
 		this.module_json.declarations
-			? this.module_json.declarations
-					.filter((declaration_json) => declaration_json.name !== 'default')
-					.map((declaration_json) => new Declaration(this, declaration_json))
-			: [],
+			.filter((declaration_json) => declaration_json.name !== 'default')
+			.map((declaration_json) => new Declaration(this, declaration_json)),
 	);
 
 	/**
@@ -62,9 +60,7 @@ export class Module {
 			: undefined,
 	);
 
-	has_declarations: boolean = $derived(
-		!!(this.module_json.declarations && this.module_json.declarations.length > 0),
-	);
+	has_declarations: boolean = $derived(this.module_json.declarations.length > 0);
 
 	has_module_comment: boolean = $derived(!!this.module_comment);
 

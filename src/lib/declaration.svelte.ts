@@ -15,8 +15,6 @@ import {url_github_file} from './package_helpers.js';
 const field = <T>(decl: DeclarationJson, key: string): T | undefined =>
 	(decl as Record<string, unknown>)[key] as T | undefined;
 
-/* eslint-disable @typescript-eslint/no-deprecated */
-
 /**
  * Rich runtime representation of an exported declaration.
  *
@@ -128,12 +126,12 @@ export class Declaration {
 	 */
 	mutates = $derived(this.declaration_json.mutates);
 
-	has_examples = $derived(!!(this.examples && this.examples.length > 0));
+	has_examples = $derived(this.examples.length > 0);
 	is_deprecated = $derived(!!this.deprecated_message);
 	has_documentation = $derived(!!this.doc_comment);
 	has_parameters = $derived(!!(this.parameters && this.parameters.length > 0));
 	has_props = $derived(!!(this.props && this.props.length > 0));
-	has_generics = $derived(!!(this.generic_params && this.generic_params.length > 0));
+	has_generics = $derived(this.generic_params.length > 0);
 
 	constructor(module: Module, declaration_json: DeclarationJson) {
 		this.module = module;

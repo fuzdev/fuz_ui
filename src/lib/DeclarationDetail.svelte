@@ -157,7 +157,7 @@ including parameters, props, members, overloads, intersects, and more.
 				{#if overload.docComment}
 					<Mdz content={overload.docComment} />
 				{/if}
-				{#if overload.parameters?.length}
+				{#if overload.parameters.length}
 					{#each overload.parameters as param (param)}
 						<div class="row gap_md">
 							<code
@@ -205,7 +205,7 @@ including parameters, props, members, overloads, intersects, and more.
 {/if}
 
 <!-- generics -->
-{#if declaration.generic_params?.length}
+{#if declaration.generic_params.length}
 	<section>
 		<h4>generics</h4>
 		{#each declaration.generic_params as generic (generic)}
@@ -260,7 +260,7 @@ including parameters, props, members, overloads, intersects, and more.
 {/if}
 
 <!-- throws -->
-{#if declaration.throws?.length}
+{#if declaration.throws.length}
 	<section>
 		<h4>throws</h4>
 		<ul>
@@ -298,7 +298,7 @@ including parameters, props, members, overloads, intersects, and more.
 {/if}
 
 <!-- examples -->
-{#if declaration.examples?.length}
+{#if declaration.examples.length}
 	<section>
 		<h4>examples</h4>
 		{#each declaration.examples as example (example)}
@@ -308,7 +308,7 @@ including parameters, props, members, overloads, intersects, and more.
 {/if}
 
 <!-- see also -->
-{#if declaration.see_also?.length}
+{#if declaration.see_also.length}
 	<section>
 		<h4>see also</h4>
 		<ul>
@@ -340,7 +340,7 @@ including parameters, props, members, overloads, intersects, and more.
 						/>
 					</p>
 				{/if}
-				{#if member.modifiers?.length}
+				{#if member.modifiers.length}
 					<div class="row gap_md">
 						{#each member.modifiers as modifier (modifier)}
 							<span class="chip">{modifier}</span>
@@ -348,7 +348,7 @@ including parameters, props, members, overloads, intersects, and more.
 					</div>
 				{/if}
 				<!-- parameters for methods and constructors -->
-				{#if (member.kind === 'function' || member.kind === 'constructor') && member.parameters?.length}
+				{#if (member.kind === 'function' || member.kind === 'constructor') && member.parameters.length}
 					<section>
 						{#each member.parameters as param (param)}
 							<section>
@@ -390,7 +390,7 @@ including parameters, props, members, overloads, intersects, and more.
 					{/if}
 				{/if}
 				<!-- throws for methods and constructors -->
-				{#if member.throws?.length}
+				{#if member.throws.length}
 					<div>
 						<strong>throws</strong>
 						<ul>
