@@ -1,489 +1,189 @@
 import {test, assert, describe} from 'vitest';
 
 import {create_csp_directives} from '$lib/csp.js';
-import {
-	create_test_source,
-	TEST_SOURCES,
-	assert_source_in_directive,
-	assert_source_not_in_directive,
-	assert_directive_not_exists,
-} from './csp_test_helpers.js';
+import {src, srcs} from './csp_test_helpers.js';
 
-const {TRUSTED, STATIC_OVERRIDE, FUNCTION_ADDED, COMPLETE_OVERRIDE, DEFAULT_OVERRIDE} =
-	TEST_SOURCES;
+const A = src('a.fuz.dev');
+const B = src('b.fuz.dev');
 
-describe('static directive replacement', () => {
-	test('static directive replacement overrides defaults and trusted sources', () => {
+describe('overrides option — replace per directive', () => {
+	test('replaces the value, ignoring replace_defaults and extend', () => {
 		const csp = create_csp_directives({
-			trusted_sources: [create_test_source(TRUSTED, 'high')],
-			directives: {
-				'script-src': ['self', STATIC_OVERRIDE as any],
+			extend: [{'script-src': [A]}],
+			overrides: {
+				'script-src': ['self', B],
 			},
 		});
 
-		// The static replacement should override defaults and trusted sources
-		assert.deepEqual(csp['script-src'], ['self', STATIC_OVERRIDE]);
-
-		// Other directives should still have trusted sources
-		assert_source_in_directive(
-			csp,
-			'connect-src',
-			TRUSTED,
-			'connect-src should still include trusted source',
-		);
+		// `A` from extend is dropped — overrides replaces wholesale.
+		assert.deepEqual(csp['script-src'], ['self', B]);
 	});
 
-	test('static replacement on multiple directives', () => {
+	test('only the named directive is affected', () => {
 		const csp = create_csp_directives({
-			trusted_sources: [create_test_source(TRUSTED, 'high')],
-			directives: {
-				'script-src': ['self', STATIC_OVERRIDE as any],
-				'connect-src': ['self', STATIC_OVERRIDE as any],
-			},
-		});
-
-		// Both static replacements should override
-		assert.deepEqual(csp['script-src'], ['self', STATIC_OVERRIDE]);
-		assert.deepEqual(csp['connect-src'], ['self', STATIC_OVERRIDE]);
-
-		// Values should not contain trusted sources
-		assert_source_not_in_directive(
-			csp,
-			'script-src',
-			TRUSTED,
-			'static directive should remove trusted sources',
-		);
-		assert_source_not_in_directive(
-			csp,
-			'connect-src',
-			TRUSTED,
-			'static directive should remove trusted sources',
-		);
-	});
-});
-
-describe('transform functions - append pattern', () => {
-	test('transform function appends to defaults and trusted sources', () => {
-		const csp = create_csp_directives({
-			trusted_sources: [create_test_source(TRUSTED, 'high')],
-			directives: {
-				'script-src': (value) => [...value, FUNCTION_ADDED as any],
-			},
-		});
-
-		// The transform should add to the existing values, including trusted sources
-		assert_source_in_directive(csp, 'script-src', 'self', 'script-src should keep default values');
-		assert_source_in_directive(csp, 'script-src', TRUSTED, 'script-src should keep trusted source');
-		assert_source_in_directive(
-			csp,
-			'script-src',
-			FUNCTION_ADDED,
-			'script-src should add function source',
-		);
-
-		// Other directives should be unaffected
-		assert_source_not_in_directive(
-			csp,
-			'connect-src',
-			FUNCTION_ADDED,
-			'connect-src should not have function source',
-		);
-	});
-
-	test('transform receives values after trusted sources are added', () => {
-		let received_value: Array<any> = [];
-
-		const csp = create_csp_directives({
-			trusted_sources: [create_test_source(TRUSTED, 'high')],
-			directives: {
-				'connect-src': (value) => {
-					received_value = value;
-					return [COMPLETE_OVERRIDE as any];
+			replace_defaults: {'script-src': ['self'], 'connect-src': ['self']},
+			extend: [
+				{
+					'script-src': [A],
+					'connect-src': [A],
 				},
+			],
+			overrides: {
+				'script-src': ['self', B],
 			},
 		});
 
-		// Verify that trusted sources were added before transform was called
-		assert.ok(received_value.includes(TRUSTED), 'Trusted sources should be added before transform');
-		assert.deepEqual(csp['connect-src'], [COMPLETE_OVERRIDE]);
+		assert.deepEqual(csp, {
+			'script-src': ['self', B],
+			'connect-src': ['self', A],
+		});
+	});
+
+	test('multiple directives in one overrides object', () => {
+		const csp = create_csp_directives({
+			overrides: {
+				'script-src': ['self', B],
+				'connect-src': ['self', B],
+			},
+		});
+
+		assert.deepEqual(csp['script-src'], ['self', B]);
+		assert.deepEqual(csp['connect-src'], ['self', B]);
+	});
+
+	test('boolean directive value', () => {
+		const csp = create_csp_directives({
+			overrides: {
+				'upgrade-insecure-requests': false,
+			},
+		});
+
+		assert.strictEqual(csp['upgrade-insecure-requests'], false);
+	});
+
+	test('can set a directive to ["none"] explicitly', () => {
+		const csp = create_csp_directives({
+			extend: [{'connect-src': [A]}],
+			overrides: {
+				'connect-src': ['none'],
+			},
+		});
+
+		assert.deepEqual(csp['connect-src'], ['none']);
 	});
 });
 
-describe('transform functions - replace pattern', () => {
-	test('transform function completely replaces values', () => {
+describe('overrides option — null removes', () => {
+	test('null removes the directive from output', () => {
 		const csp = create_csp_directives({
-			trusted_sources: [create_test_source(TRUSTED, 'high')],
-			directives: {
-				'connect-src': () => [COMPLETE_OVERRIDE as any],
-			},
-		});
-
-		// The transform should completely replace the values
-		assert.deepEqual(csp['connect-src'], [COMPLETE_OVERRIDE]);
-
-		// Other directives should still have trusted sources
-		assert_source_in_directive(csp, 'script-src', TRUSTED, 'script-src should keep trusted source');
-	});
-
-	test('append vs replace transform patterns', () => {
-		// Append transform pattern keeps existing values
-		const append_csp = create_csp_directives({
-			trusted_sources: [create_test_source(TRUSTED, 'high')],
-			directives: {
-				'connect-src': (value) => [...value, FUNCTION_ADDED as any],
-			},
-		});
-
-		// Transform should preserve defaults and trusted sources and append the new value
-		assert_source_in_directive(
-			append_csp,
-			'connect-src',
-			'self',
-			'transform should keep default values',
-		);
-		assert_source_in_directive(
-			append_csp,
-			'connect-src',
-			TRUSTED,
-			'transform should keep trusted sources',
-		);
-		assert_source_in_directive(
-			append_csp,
-			'connect-src',
-			FUNCTION_ADDED,
-			'transform should add new values',
-		);
-
-		// Replace transform pattern completely replaces all values
-		const replace_csp = create_csp_directives({
-			trusted_sources: [create_test_source(TRUSTED, 'high')],
-			directives: {
-				'connect-src': () => [FUNCTION_ADDED as any],
-			},
-		});
-
-		// Transform with complete replacement should use only provided values
-		assert.deepEqual(
-			replace_csp['connect-src'],
-			[FUNCTION_ADDED],
-			'transform with replacement should use only provided values',
-		);
-		assert_source_not_in_directive(
-			replace_csp,
-			'connect-src',
-			'self',
-			'transform with replacement should not keep default values',
-		);
-		assert_source_not_in_directive(
-			replace_csp,
-			'connect-src',
-			TRUSTED,
-			'transform with replacement should not keep trusted sources',
-		);
-	});
-});
-
-describe('mixed static and transform directives', () => {
-	test('static and transform directives work together', () => {
-		const csp = create_csp_directives({
-			trusted_sources: [create_test_source(TRUSTED, 'high')],
-			directives: {
-				'script-src': ['self', STATIC_OVERRIDE as any], // Static value
-				'img-src': (value) => [...value, FUNCTION_ADDED as any], // Transform function
-			},
-		});
-
-		// Check static directive worked
-		assert.deepEqual(csp['script-src'], ['self', STATIC_OVERRIDE]);
-		assert_source_not_in_directive(
-			csp,
-			'script-src',
-			TRUSTED,
-			'static directive should remove trusted sources',
-		);
-
-		// Check transform function worked
-		assert_source_in_directive(csp, 'img-src', 'self', 'img-src should keep default sources');
-		assert_source_in_directive(csp, 'img-src', TRUSTED, 'img-src should keep trusted source');
-		assert_source_in_directive(
-			csp,
-			'img-src',
-			FUNCTION_ADDED,
-			'img-src should add function source',
-		);
-	});
-});
-
-describe('precedence rules', () => {
-	test('static directives take precedence over defaults and trusted sources', () => {
-		const csp = create_csp_directives({
-			trusted_sources: [create_test_source(TRUSTED, 'high')],
-			directives: {
-				'script-src': ['self', STATIC_OVERRIDE as any],
-				'connect-src': ['self', STATIC_OVERRIDE as any],
-			},
-		});
-
-		// Static directives should override defaults and not include trusted sources
-		assert.deepEqual(
-			csp['script-src'],
-			['self', STATIC_OVERRIDE],
-			'static directive should override defaults and trusted sources',
-		);
-		assert.deepEqual(
-			csp['connect-src'],
-			['self', STATIC_OVERRIDE],
-			'static directive should override defaults and trusted sources',
-		);
-	});
-
-	test('directives option works with value_defaults', () => {
-		const csp = create_csp_directives({
-			value_defaults: {
-				'img-src': ['self', DEFAULT_OVERRIDE as any],
-				'connect-src': ['self', DEFAULT_OVERRIDE as any],
-			},
-			directives: {
-				'img-src': ['self', STATIC_OVERRIDE as any],
-			},
-		});
-
-		// The directives option should take precedence over value_defaults
-		assert.deepEqual(csp['img-src'], ['self', STATIC_OVERRIDE]);
-
-		// Other value_defaults changes should still apply
-		assert.deepEqual(csp['connect-src'], ['self', DEFAULT_OVERRIDE]);
-	});
-});
-
-describe('removing directives with null/undefined', () => {
-	test('transform returning null removes directive', () => {
-		const csp = create_csp_directives({
-			trusted_sources: [create_test_source(TRUSTED, 'high')],
-			directives: {
-				'script-src': () => null,
-			},
-		});
-
-		// The directive should be removed from the output
-		assert.strictEqual(csp['script-src'], undefined, 'script-src should be undefined/removed');
-		assert_directive_not_exists(csp, 'script-src', 'script-src should not be in the object');
-
-		// Other directives should still exist
-		assert.ok('connect-src' in csp, 'connect-src should still exist');
-	});
-
-	test('transform returning undefined removes directive', () => {
-		const csp = create_csp_directives({
-			trusted_sources: [create_test_source(TRUSTED, 'high')],
-			directives: {
-				// @ts-expect-error - Testing runtime behavior
-				'script-src': () => undefined,
-			},
-		});
-
-		// The directive should be removed from the output
-		assert.strictEqual(csp['script-src'], undefined, 'script-src should be undefined/removed');
-		assert_directive_not_exists(csp, 'script-src', 'script-src should not be in the object');
-
-		// Other directives should still exist
-		assert.ok('connect-src' in csp, 'connect-src should still exist');
-	});
-
-	test('static null value removes directive', () => {
-		const csp = create_csp_directives({
-			directives: {
+			overrides: {
 				'script-src': null,
 			},
 		});
 
-		assert_directive_not_exists(csp, 'script-src', 'script-src should not exist');
-		assert.ok('connect-src' in csp, 'connect-src should still exist');
+		assert.notProperty(csp, 'script-src');
+		assert.property(csp, 'connect-src', 'other directives unaffected');
 	});
-});
 
-describe('["none"] directive behavior', () => {
-	test('transform function can override ["none"] directives', () => {
+	test('null on a directive not present is a no-op', () => {
 		const csp = create_csp_directives({
-			directives: {
-				'script-src': ['none'], // First set to none
-				'default-src': (value) => {
-					// default-src is already ['none'] by default
-					assert.deepEqual(value, ['none'], "Function should receive the original ['none'] value");
-					return ['self', TRUSTED as any];
-				},
+			replace_defaults: {},
+			overrides: {
+				'script-src': null,
 			},
 		});
 
-		// Function should be able to override ['none'] directives
-		assert.deepEqual(csp['default-src'], ['self', TRUSTED]);
+		assert.deepEqual(csp, {});
 	});
 
-	test('static replacement can set directive to ["none"]', () => {
+	test('null wins over extend in the same call', () => {
 		const csp = create_csp_directives({
-			trusted_sources: [create_test_source(TRUSTED, 'high')],
-			directives: {
-				'script-src': ['none'],
+			extend: [{'script-src': [A]}],
+			overrides: {
+				'script-src': null,
 			},
 		});
 
-		// Should be set to ['none'] despite trusted sources
-		assert.deepEqual(csp['script-src'], ['none']);
-
-		// Other directives should still get trusted sources
-		assert_source_in_directive(csp, 'connect-src', TRUSTED);
+		assert.notProperty(csp, 'script-src');
 	});
 });
 
-describe("multiple transforms don't affect each other", () => {
-	test('each transform only affects its own directive', () => {
+describe('overrides option — undefined values', () => {
+	test('undefined value in overrides is a no-op', () => {
+		// Distinct from `null` (removes) — `undefined` is treated as omission, leaving the
+		// pipeline result from earlier stages untouched.
 		const csp = create_csp_directives({
-			directives: {
-				'script-src': (value) => [...value, 'https://script.com' as any],
-				'img-src': (value) => [...value, 'https://images.com' as any],
-				'style-src': (value) => [...value, 'https://styles.com' as any],
+			replace_defaults: {'script-src': ['self']},
+			overrides: {
+				'script-src': undefined as any,
 			},
 		});
 
-		// Each directive should only have its own added source
-		assert_source_in_directive(csp, 'script-src', 'https://script.com' as any);
-		assert_source_not_in_directive(csp, 'script-src', 'https://images.com' as any);
-		assert_source_not_in_directive(csp, 'script-src', 'https://styles.com' as any);
-
-		assert_source_in_directive(csp, 'img-src', 'https://images.com' as any);
-		assert_source_not_in_directive(csp, 'img-src', 'https://script.com' as any);
-		assert_source_not_in_directive(csp, 'img-src', 'https://styles.com' as any);
-
-		assert_source_in_directive(csp, 'style-src', 'https://styles.com' as any);
-		assert_source_not_in_directive(csp, 'style-src', 'https://script.com' as any);
-		assert_source_not_in_directive(csp, 'style-src', 'https://images.com' as any);
+		assert.deepEqual(csp, {'script-src': ['self']});
 	});
 });
 
-describe('structuredClone verification', () => {
-	test('modifications to shared arrays do not affect previous results', () => {
-		const shared_array = ['self', 'https://fuz.dev' as any];
-
-		const csp1 = create_csp_directives({
-			directives: {
-				'script-src': () => shared_array,
-			},
-		});
-
-		// Modify the shared array
-		shared_array.push('https://modified.com' as any);
-
-		const csp2 = create_csp_directives({
-			directives: {
-				'script-src': () => shared_array,
-			},
-		});
-
-		// csp1 should not have the modified value
-		assert_source_not_in_directive(
-			csp1,
-			'script-src',
-			'https://modified.com' as any,
-			'csp1 should not be affected by later modifications to shared array',
-		);
-
-		// csp2 should have the modified value
-		assert_source_in_directive(
-			csp2,
-			'script-src',
-			'https://modified.com' as any,
-			'csp2 should include the modified value',
-		);
-	});
-});
-
-describe('precedence order verification', () => {
-	test('directives option takes precedence over all other options', () => {
+describe('overrides interaction with extend output', () => {
+	test('overrides ["none"] replaces an extend-built array (full pipeline)', () => {
+		// replace_defaults seeds, extend appends, overrides replaces wholesale with ['none'].
+		// The intermediate ['self', A] never reaches the output.
 		const csp = create_csp_directives({
-			value_defaults_base: {
-				'script-src': ['https://base.com' as any],
-			},
-			value_defaults: {
-				'script-src': ['https://defaults.com' as any], // Overrides base
-			},
-			trusted_sources: [create_test_source(TRUSTED, 'high')], // Added to defaults
-			directives: {
-				'script-src': ['https://final.com' as any], // Complete override
-			},
+			replace_defaults: {'img-src': ['self']},
+			extend: [{'img-src': [A]}],
+			overrides: {'img-src': ['none']},
 		});
 
-		// Only the directives value should be present (highest precedence)
-		assert.deepEqual(csp['script-src'], ['https://final.com']);
-		assert_source_not_in_directive(csp, 'script-src', 'https://base.com' as any);
-		assert_source_not_in_directive(csp, 'script-src', 'https://defaults.com' as any);
-		assert_source_not_in_directive(csp, 'script-src', TRUSTED);
-	});
-
-	test('precedence: transform function receives all accumulated values', () => {
-		let received: Array<any> = [];
-
-		create_csp_directives({
-			value_defaults_base: {
-				'script-src': ['https://base.com' as any],
-			},
-			value_defaults: {
-				'script-src': ['https://defaults.com' as any],
-			},
-			trusted_sources: [create_test_source(TRUSTED, 'high')],
-			directives: {
-				'script-src': (value) => {
-					received = [...value];
-					return value;
-				},
-			},
-		});
-
-		// Transform should receive defaults + trusted sources (not base, since value_defaults overrode it)
-		assert.deepEqual(received, ['https://defaults.com', TRUSTED]);
+		assert.deepEqual(csp, {'img-src': ['none']});
 	});
 });
 
-describe('transform function error handling', () => {
-	test('errors from transform functions are propagated', () => {
+describe('precedence: replace_defaults → extend → overrides', () => {
+	test('full pipeline: replace_defaults sets, extend appends, overrides replaces', () => {
+		const csp = create_csp_directives({
+			replace_defaults: {'connect-src': ['self']},
+			extend: [{'connect-src': [A]}],
+			overrides: {
+				'connect-src': ['self', B],
+			},
+		});
+
+		assert.deepEqual(csp, {'connect-src': ['self', B]});
+	});
+
+	test('overrides runs after extend even when extend would throw on `none`', () => {
+		// `overrides` cannot rescue an `extend` on a `'none'` directive — extend runs first.
 		assert.throws(
-			() => {
+			() =>
 				create_csp_directives({
-					directives: {
-						'script-src': () => {
-							throw new Error('Transform failed');
-						},
-					},
-				});
-			},
-			/Transform failed/,
-			'error from transform function should propagate',
+					extend: [{'object-src': [A]}],
+					overrides: {'object-src': ['self']},
+				}),
+			/Cannot extend directive 'object-src'/,
 		);
 	});
 
-	test('transform on directive that does not exist in defaults receives undefined', () => {
-		let received: any = 'not-called';
-
+	test('overrides can independently replace a `none` default', () => {
 		const csp = create_csp_directives({
-			value_defaults_base: null, // Start with no defaults
-			value_defaults: {
-				'script-src': ['self'],
-			},
-			directives: {
-				'img-src': (value) => {
-					received = value;
-					return ['self', 'data:' as any];
-				},
-			},
+			overrides: {'object-src': ['self', A]},
 		});
 
-		// Transform should have received undefined since img-src doesn't exist in defaults
-		assert.strictEqual(
-			received,
-			undefined,
-			'transform should receive undefined for non-existent directive',
-		);
+		assert.deepEqual(csp['object-src'], ['self', A]);
+	});
+});
 
-		// But the directive should still be set to the returned value
-		assert.deepEqual(csp['img-src'], ['self', 'data:']);
+describe('input immutability', () => {
+	test('mutating override input does not change output', () => {
+		const value = srcs('self', 'https://fuz.dev');
+		const csp = create_csp_directives({
+			overrides: {'script-src': value},
+		});
+
+		value.push(src('https://modified.fuz.dev'));
+
+		assert.notInclude(
+			csp['script-src']! as Array<any>,
+			src('https://modified.fuz.dev'),
+			'mutating input array does not affect output',
+		);
 	});
 });
