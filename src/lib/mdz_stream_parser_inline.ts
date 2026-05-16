@@ -14,6 +14,7 @@ import {
 	ensure_paragraph,
 	flush_text,
 	offset,
+	push_stack_entry,
 	revert_above,
 } from './mdz_stream_parser_state.js';
 
@@ -32,15 +33,7 @@ export const try_bold = (state: MdzStreamParserState): boolean => {
 	const id = alloc_id(state);
 	const bold_start = offset(state);
 	emit(state, {type: 'open', id, node_type: 'Bold', start: bold_start});
-	state.stack.push({
-		id,
-		node_type: 'Bold',
-		optimistic: true,
-		delimiter: '**',
-		tag_name: undefined,
-		has_children: false,
-		start: bold_start,
-	});
+	push_stack_entry(state, id, 'Bold', bold_start, true, '**');
 	state.active_text_id = null;
 	state.pos += 2;
 	state.column += 2;
@@ -106,11 +99,17 @@ export const try_italic = (state: MdzStreamParserState, forced = false): boolean
 	}
 
 	// Italic is non-optimistic: require confirmed closer in the buffer.
-	// This avoids flashing italic on common _ usage (snake_case, identifiers).
-	// When the closer isn't visible yet ('pending'), we treat _ as text rather
-	// than holding — holding would block all subsequent content from being parsed
-	// in normal mode. This means italic can't span chunk boundaries, but the
-	// one-shot path (the correctness gate) is always correct.
+	// This avoids flashing italic on common `_` usage (snake_case, identifiers).
+	// When the closer isn't visible yet (`pending`), we treat `_` as text rather
+	// than holding — holding would block all subsequent content from being
+	// parsed in normal mode, and at EOF the parser can't distinguish "still
+	// streaming" from "really done."
+	//
+	// Consequence: italic cannot span chunk boundaries when the closing `_`
+	// arrives in a later chunk. The one-shot path (the correctness gate) is
+	// always correct because the full buffer is visible. See the
+	// `deliberate-divergence` block in `mdz_parser_parity.test.ts` for an
+	// asserted gap.
 	const closer = scan_closer_boundary(state, '_');
 	if (closer !== 'confirmed') {
 		ensure_paragraph(state);
@@ -127,15 +126,7 @@ export const try_italic = (state: MdzStreamParserState, forced = false): boolean
 	const id = alloc_id(state);
 	const italic_start = offset(state);
 	emit(state, {type: 'open', id, node_type: 'Italic', start: italic_start});
-	state.stack.push({
-		id,
-		node_type: 'Italic',
-		optimistic: true,
-		delimiter: '_',
-		tag_name: undefined,
-		has_children: false,
-		start: italic_start,
-	});
+	push_stack_entry(state, id, 'Italic', italic_start, true, '_');
 	state.active_text_id = null;
 	state.pos++;
 	state.column++;
@@ -174,15 +165,7 @@ export const try_strikethrough = (state: MdzStreamParserState): boolean => {
 	const id = alloc_id(state);
 	const strike_start = offset(state);
 	emit(state, {type: 'open', id, node_type: 'Strikethrough', start: strike_start});
-	state.stack.push({
-		id,
-		node_type: 'Strikethrough',
-		optimistic: true,
-		delimiter: '~',
-		tag_name: undefined,
-		has_children: false,
-		start: strike_start,
-	});
+	push_stack_entry(state, id, 'Strikethrough', strike_start, true, '~');
 	state.active_text_id = null;
 	state.pos++;
 	state.column++;
@@ -335,15 +318,7 @@ export const try_code = (state: MdzStreamParserState): boolean => {
 	const id = alloc_id(state);
 	const code_start = offset(state, start);
 	emit(state, {type: 'open', id, node_type: 'Code', start: code_start});
-	state.stack.push({
-		id,
-		node_type: 'Code',
-		optimistic: true,
-		delimiter: '`',
-		tag_name: undefined,
-		has_children: false,
-		start: code_start,
-	});
+	push_stack_entry(state, id, 'Code', code_start, true, '`');
 	state.in_code = true;
 	state.active_text_id = null;
 	state.pos = start + 1; // past opening backtick

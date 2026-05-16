@@ -70,6 +70,13 @@ export interface MdzOpcodeClose {
 	link_type?: 'external' | 'internal';
 	/** Heading slug, computed from full heading content. */
 	heading_id?: string;
+	/**
+	 * If true, consumer drops this node and its descendants from the tree.
+	 * Used for whitespace-only paragraphs that match nothing in `mdz_parse`'s
+	 * output — the streaming parser emits open/text speculatively, then
+	 * retroactively drops the empty wrapper at close.
+	 */
+	discard?: boolean;
 }
 
 /**

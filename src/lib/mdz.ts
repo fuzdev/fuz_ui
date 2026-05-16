@@ -922,8 +922,17 @@ export class MdzParser {
 
 	/**
 	 * Check if current position is the start of an external URL (`https://` or `http://`).
+	 *
+	 * Requires the preceding character (if any) to not be a word character. This
+	 * matches the streaming parser and the spec's "false negatives over false
+	 * positives" policy — `xhttps://...` is treated as plain text rather than
+	 * `x` followed by a link.
 	 */
 	#is_at_url(): boolean {
+		// word boundary check: skip when preceded by [A-Za-z0-9]
+		if (this.#index > 0 && is_word_char(this.#template.charCodeAt(this.#index - 1))) {
+			return false;
+		}
 		if (this.#match('https://')) {
 			// Check for protocol-only (e.g., just "https://")
 			// Must have at least one non-whitespace character after protocol

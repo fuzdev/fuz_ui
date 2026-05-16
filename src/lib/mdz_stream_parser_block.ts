@@ -27,6 +27,7 @@ import {
 	emit,
 	flush_text,
 	offset,
+	push_stack_entry,
 } from './mdz_stream_parser_state.js';
 
 /**
@@ -74,15 +75,7 @@ export const try_heading = (state: MdzStreamParserState): TryResult => {
 		start: heading_start,
 		level: hash_count as 1 | 2 | 3 | 4 | 5 | 6,
 	});
-	state.stack.push({
-		id,
-		node_type: 'Heading',
-		optimistic: false,
-		delimiter: '',
-		tag_name: undefined,
-		has_children: false,
-		start: heading_start,
-	});
+	push_stack_entry(state, id, 'Heading', heading_start);
 	state.in_heading = true;
 	state.heading_text_parts = [''];
 	state.pos = i;
@@ -307,17 +300,60 @@ export const emit_codeblock_text = (
 };
 
 /**
- * Drain the remaining buffer as codeblock content at EOF.
- * No close opcode is emitted here — `close_codeblock_at_eof` (in state.ts)
- * does the revert-and-wrap dance after process completes.
+ * Drain the remaining buffer as codeblock content at EOF, looking for a closing
+ * fence whose terminator is EOF rather than `\n`. Matches `mdz_parse`'s
+ * `#match_code_block`, which allows a fence at the end of the document.
+ *
+ * If a fence is found, the codeblock closes normally. Otherwise the remaining
+ * buffer becomes content and `close_codeblock_at_eof` (in state.ts) handles
+ * the revert-and-wrap dance after process completes.
  */
 export const process_codeblock_forced = (state: MdzStreamParserState): void => {
 	const cb = state.codeblock!;
-	const remaining = state.buffer.slice(state.pos);
-	if (remaining.length > 0) {
-		emit_codeblock_text(state, cb, remaining, state.pos);
+	const start = state.pos;
+
+	while (state.pos < state.buffer.length) {
+		if (state.column === 0) {
+			const fence_match = match_codeblock_close(state, cb.backtick_count, true);
+			if (fence_match !== -1) {
+				// emit content up to the closing fence (excluding trailing newline before fence)
+				let content_end = state.pos;
+				if (content_end > start && state.buffer.charCodeAt(content_end - 1) === NEWLINE) {
+					content_end--;
+				}
+				const content = state.buffer.slice(start, content_end);
+				if (content.length > 0) {
+					emit_codeblock_text(state, cb, content, start);
+				}
+
+				// empty codeblock — revert (matches process_codeblock behavior)
+				if (cb.text_id === null && content.length === 0) {
+					revert_empty_codeblock(state, cb);
+					return;
+				}
+
+				emit(state, {type: 'close', id: cb.id, end: offset(state, fence_match)});
+				state.pos = fence_match;
+				state.codeblock = null;
+				return;
+			}
+		}
+
+		const c = state.buffer.charCodeAt(state.pos);
+		if (c === NEWLINE) {
+			state.column = 0;
+		} else {
+			state.column++;
+		}
+		state.pos++;
 	}
-	state.pos = state.buffer.length;
+
+	// no closing fence — dump the rest as codeblock content; caller's
+	// `close_codeblock_at_eof` then reverts the (now-unclosed) codeblock.
+	const remaining = state.buffer.slice(start, state.pos);
+	if (remaining.length > 0) {
+		emit_codeblock_text(state, cb, remaining, start);
+	}
 };
 
 /**
@@ -400,10 +436,14 @@ export const process_codeblock = (state: MdzStreamParserState): boolean => {
  * Check if the buffer at current position has a codeblock closing fence.
  * Returns the position after the fence (including trailing newline) on success,
  * `-1` when definitely not a fence, or `-2` when more input is needed to decide.
+ *
+ * When `forced` is true, EOF after the fence counts as a valid terminator
+ * (matches `mdz_parse`'s handling of code blocks at end of input).
  */
 export const match_codeblock_close = (
 	state: MdzStreamParserState,
 	backtick_count: number,
+	forced: boolean = false,
 ): number => {
 	let i = state.pos;
 
@@ -415,7 +455,7 @@ export const match_codeblock_close = (
 	}
 	if (count !== backtick_count) {
 		// buffer ended mid-backtick-sequence — could still become a fence
-		if (i >= state.buffer.length && count < backtick_count) return -2;
+		if (!forced && i >= state.buffer.length && count < backtick_count) return -2;
 		return -1;
 	}
 
@@ -429,6 +469,8 @@ export const match_codeblock_close = (
 		return i + 1;
 	}
 	if (i >= state.buffer.length) {
+		// in forced mode, EOF terminates the fence
+		if (forced) return i;
 		// exact backtick count but buffer ended (could be spaces or newline coming)
 		return -2;
 	}
@@ -455,15 +497,7 @@ export const revert_empty_codeblock = (
 	});
 
 	// enter paragraph mode with the wrapper
-	state.stack.push({
-		id: wrap_id,
-		node_type: 'Paragraph',
-		optimistic: false,
-		delimiter: '',
-		tag_name: undefined,
-		has_children: false,
-		start: cb.start,
-	});
+	push_stack_entry(state, wrap_id, 'Paragraph', cb.start);
 	state.in_paragraph = true;
 	state.active_text_id = null;
 	state.codeblock = null;

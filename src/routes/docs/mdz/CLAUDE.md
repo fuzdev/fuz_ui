@@ -5,12 +5,13 @@ mdz (minimal markdown dialect) documentation routes.
 ## Pages
 
 - `+page.svelte` - main docs page with interactive examples and usage guide
+- `streaming/mdz_streaming.mdz` - rendering paths, opcodes, streaming model (rendered via Mdz)
 - `grammar/mdz_grammar.mdz` - formal grammar specification (rendered via Mdz)
 - `spec/mdz_spec.mdz` - comprehensive spec with examples (rendered via Mdz)
 - `fixtures/` - debug page rendering all test fixtures with JSON output
 
-The grammar and spec are `.mdz` files imported with `?raw` and rendered by the
-`Mdz` component — mdz documenting itself.
+The streaming, grammar, and spec are `.mdz` files imported with `?raw` and
+rendered by the `Mdz` component — mdz documenting itself.
 
 ## Auto-linking
 

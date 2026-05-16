@@ -90,6 +90,10 @@ export const mdz_opcodes_to_nodes = (opcodes: Array<MdzOpcode>): Array<MdzNode> 
 				const frame = stack.pop();
 				if (!frame) break;
 
+				// discard signal: the parser determined this node and its descendants
+				// should not appear in the tree (e.g. whitespace-only paragraph)
+				if (op.discard) break;
+
 				// apply deferred metadata
 				frame.end = op.end;
 				if (op.reference !== undefined) frame.reference = op.reference;

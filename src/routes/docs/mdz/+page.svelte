@@ -139,28 +139,18 @@ stream done~`;
 			</p>
 			<p>
 				mdz prioritizes predictability with one canonical pattern per feature, preferring false
-				negatives over false positives to minimize surprise.
+				negatives over false positives to minimize surprise. It also <strong>streams</strong>:
+				<DeclarationLink name="MdzStreamParser" /> renders incoming chunks (e.g. from an LLM) optimistically
+				as a stream of append-only opcodes, never re-parsing.
 			</p>
 			<p>
-				For better performance, static mdz content can be compiled at build time with <TomeLink
+				For better performance with static content, mdz can be compiled at build time with <TomeLink
 					name="svelte_preprocess_mdz"
 				/>.
 			</p>
 			<aside>
 				⚠️ This is an early proof of concept with missing features. Next: attributes, lists,
 				blockquotes
-			</aside>
-			<aside>
-				<p>Possible changes?</p>
-				<ul>
-					<li>rethink any of the choices -- still feels experimental</li>
-					<li>
-						allow ending lines with <code class="white-space:pre"> \</code> to opt out of rendering the
-						line break?
-					</li>
-					<li>is the newline-preserving whitespace design ideal?</li>
-					<li>think through relative link rendering with <code>trailingSlash</code></li>
-				</ul>
 			</aside>
 		</section>
 
@@ -440,23 +430,31 @@ state.apply_batch(parser.take_opcodes());`}
 		</TomeSection>
 
 		<TomeSection>
-			<TomeSectionHeader text="Generated docs" />
-			<p>For more see the generated mdz docs:</p>
+			<TomeSectionHeader text="More docs" />
 			<ul>
 				<li>
 					<strong>
-						<a href={resolve('/docs/mdz/spec')}>mdz specification</a>
+						<a href={resolve('/docs/mdz/streaming')}>streaming and opcodes</a>
 					</strong>
+					— rendering paths, opcode design, and the streaming model
 				</li>
 				<li>
 					<strong>
-						<a href={resolve('/docs/mdz/grammar')}>mdz grammar</a>
+						<a href={resolve('/docs/mdz/spec')}>specification</a>
 					</strong>
+					— feature-by-feature guide with examples
+				</li>
+				<li>
+					<strong>
+						<a href={resolve('/docs/mdz/grammar')}>grammar</a>
+					</strong>
+					— formal grammar rules
 				</li>
 				<li>
 					<strong>
 						<a href={resolve('/docs/mdz/fixtures')}>fixtures debug page</a>
 					</strong>
+					— renders every test fixture
 				</li>
 			</ul>
 		</TomeSection>

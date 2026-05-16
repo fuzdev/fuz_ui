@@ -30,6 +30,12 @@ export interface StackEntry {
 	tag_name: string | undefined;
 	/** Whether any child content has been emitted inside this container. */
 	has_children: boolean;
+	/**
+	 * Whether any non-whitespace text or non-text child has been emitted
+	 * inside this container. Only tracked for `Paragraph` entries to detect
+	 * whitespace-only paragraphs that should be dropped at close.
+	 */
+	has_non_whitespace_content: boolean;
 	/** Global byte offset of the opening delimiter. */
 	start: number;
 }
@@ -107,6 +113,14 @@ export interface MdzStreamParserState {
 	 */
 	skip_leading_newlines: boolean;
 	/**
+	 * Stack index of the innermost open `Paragraph`, or `-1` when none.
+	 * Lets `mark_paragraph_non_whitespace` skip the stack walk that runs on
+	 * every non-whitespace emit. Updated only on Paragraph push/pop (block
+	 * boundaries — only one of `Paragraph`/`Heading` can be on the stack
+	 * at a time, so the cache is stable across inline pushes/pops).
+	 */
+	paragraph_stack_idx: number;
+	/**
 	 * Id of the most-recent `text`/`append_text` emission, used by
 	 * `trim_trailing_newline` to target the right opcode after `take_opcodes()`
 	 * has drained the queue. `null` after a structural emit (open/close/revert)
@@ -142,13 +156,80 @@ export const create_state = (): MdzStreamParserState => ({
 	in_paragraph: false,
 	pending_url: null,
 	heading_text_parts: [],
-	skip_leading_newlines: false,
+	// matches mdz_parse: leading newlines before any block are skipped, not
+	// preserved as paragraph content
+	skip_leading_newlines: true,
+	paragraph_stack_idx: -1,
 	last_text_id: null,
 	last_text_ended_with_newline: false,
 	last_text_was_singleton_newline: false,
 });
 
 export const alloc_id = (state: MdzStreamParserState): MdzNodeId => state.next_id++;
+
+/**
+ * Whether `text` contains any non-whitespace character. Hot path — called from
+ * `emit` on every text emission. Char-loop checking common whitespace (space,
+ * tab, newline, carriage return, form feed, vertical tab) avoids the regex
+ * allocation that `/\S/.test()` incurs per call.
+ *
+ * Deliberately ASCII-only. `/\S/` and `String.prototype.trim()` (which
+ * `mdz_parse` uses to detect whitespace-only paragraphs) recognize Unicode
+ * whitespace too (U+00A0 NBSP, U+2028/U+2029, U+3000, etc.). A paragraph
+ * containing only Unicode whitespace would be kept by the streaming parser
+ * but dropped by `mdz_parse` — no fixture currently hits this.
+ */
+const has_non_whitespace = (text: string): boolean => {
+	for (let i = 0; i < text.length; i++) {
+		const c = text.charCodeAt(i);
+		// 0x09=tab, 0x0a=LF, 0x0b=VT, 0x0c=FF, 0x0d=CR, 0x20=space
+		if (c !== 0x20 && (c < 0x09 || c > 0x0d)) return true;
+	}
+	return false;
+};
+
+/**
+ * Push a new container frame onto the stack. Fills the boilerplate fields
+ * (`has_children`, `has_non_whitespace_content`) so call sites only spell out
+ * what varies per container type. Keeping the object literal in one place
+ * also gives V8 a single monomorphic creation site for `StackEntry`.
+ */
+export const push_stack_entry = (
+	state: MdzStreamParserState,
+	id: MdzNodeId,
+	node_type: MdzContainerNodeType,
+	start: number,
+	optimistic: boolean = false,
+	delimiter: string = '',
+	tag_name: string | undefined = undefined,
+): void => {
+	state.stack.push({
+		id,
+		node_type,
+		optimistic,
+		delimiter,
+		tag_name,
+		has_children: false,
+		has_non_whitespace_content: false,
+		start,
+	});
+	if (node_type === 'Paragraph') {
+		state.paragraph_stack_idx = state.stack.length - 1;
+	}
+};
+
+/**
+ * Mark the innermost open `Paragraph` as having non-whitespace content,
+ * via the `paragraph_stack_idx` cache (O(1) instead of an O(stack) walk).
+ *
+ * No-op when no Paragraph is open — that includes the Heading case, since
+ * block boundaries are mutually exclusive (a Heading on stack means
+ * `paragraph_stack_idx === -1`).
+ */
+const mark_paragraph_non_whitespace = (state: MdzStreamParserState): void => {
+	if (state.paragraph_stack_idx === -1) return;
+	state.stack[state.paragraph_stack_idx]!.has_non_whitespace_content = true;
+};
 
 /** Global byte offset for a local buffer position. */
 export const offset = (state: MdzStreamParserState, pos: number = state.pos): number =>
@@ -159,11 +240,24 @@ export const emit = (state: MdzStreamParserState, op: MdzOpcode): void => {
 	// mark the innermost container as having children
 	if (op.type === 'text' || op.type === 'append_text' || op.type === 'void') {
 		const top = state.stack[state.stack.length - 1];
-		if (top) top.has_children = true;
+		if (top) {
+			top.has_children = true;
+			// propagate non-whitespace marker to the nearest Paragraph so
+			// whitespace-only paragraphs can be discarded at close
+			if (op.type === 'void' || has_non_whitespace(op.content)) {
+				mark_paragraph_non_whitespace(state);
+			}
+		}
 	} else if (op.type === 'open') {
 		// opening a child container counts as content for the parent
 		const parent = state.stack[state.stack.length - 1];
-		if (parent) parent.has_children = true;
+		if (parent) {
+			parent.has_children = true;
+			mark_paragraph_non_whitespace(state);
+		}
+	} else if (op.type === 'wrap') {
+		// retroactive Link wrap of a text node — the resulting Link is non-whitespace
+		mark_paragraph_non_whitespace(state);
 	}
 	// track the most recent text run so `trim_trailing_newline` can target it
 	// after `take_opcodes()` has drained the queue
@@ -252,15 +346,7 @@ export const ensure_paragraph = (state: MdzStreamParserState): void => {
 	const id = alloc_id(state);
 	const start = offset(state);
 	emit(state, {type: 'open', id, node_type: 'Paragraph', start});
-	state.stack.push({
-		id,
-		node_type: 'Paragraph',
-		optimistic: false,
-		delimiter: '',
-		tag_name: undefined,
-		has_children: false,
-		start,
-	});
+	push_stack_entry(state, id, 'Paragraph', start);
 	state.in_paragraph = true;
 };
 
@@ -366,9 +452,19 @@ export const close_paragraph = (state: MdzStreamParserState): void => {
 				});
 			}
 			const entry = state.stack.pop()!;
-			emit(state, {type: 'close', id: entry.id, end: offset(state)});
+			// drop whitespace-only paragraphs to match `mdz_parse`'s output;
+			// consumers (`mdz_opcodes_to_nodes`, `MdzStreamState`) honor `discard`
+			// by removing the node and its descendants from the tree
+			const discard = !entry.has_non_whitespace_content;
+			emit(
+				state,
+				discard
+					? {type: 'close', id: entry.id, end: offset(state), discard: true}
+					: {type: 'close', id: entry.id, end: offset(state)},
+			);
 			state.active_text_id = null;
 			state.in_paragraph = false;
+			state.paragraph_stack_idx = -1;
 			return;
 		}
 	}
@@ -396,6 +492,15 @@ export const close_heading = (state: MdzStreamParserState): void => {
 	}
 };
 
+/**
+ * Close an unclosed codeblock at EOF by reverting it to a paragraph wrapper.
+ *
+ * Unlike `revert_empty_codeblock` (which pushes the wrapper onto the stack
+ * because parsing continues), this is terminal — called only from `finish()`
+ * after no further emits happen — so it skips the `push_stack_entry` /
+ * `in_paragraph` / `paragraph_stack_idx` bookkeeping. The wrapper exists only
+ * in the opcode stream; the parser state's stack stays untouched.
+ */
 export const close_codeblock_at_eof = (state: MdzStreamParserState): void => {
 	if (!state.codeblock) return;
 	const cb = state.codeblock;

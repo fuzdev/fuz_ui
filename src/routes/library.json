@@ -2665,7 +2665,7 @@
 						"name": "DOCS_PATH",
 						"kind": "variable",
 						"source_line": 31,
-						"type_signature": "\"/docs\" | \"/\" | \"/about\" | \"/docs/Alert\" | \"/docs/Breadcrumb\" | \"/docs/Breadcrumb/a\" | \"/docs/Breadcrumb/a/b\" | \"/docs/Breadcrumb/a/b/c\" | \"/docs/Breadcrumb/a/b/c/d\" | \"/docs/Card\" | ... 63 more ... | `/${string}${`/docs/api/${string}` & {}}`"
+						"type_signature": "\"/docs\" | \"/\" | \"/about\" | \"/docs/Alert\" | \"/docs/Breadcrumb\" | \"/docs/Breadcrumb/a\" | \"/docs/Breadcrumb/a/b\" | \"/docs/Breadcrumb/a/b/c\" | \"/docs/Breadcrumb/a/b/c/d\" | \"/docs/Card\" | ... 65 more ... | `/${string}${`/docs/api/${string}` & {}}`"
 					},
 					{
 						"name": "DOCS_API_PATH",
@@ -5754,6 +5754,12 @@
 								"kind": "variable",
 								"type_signature": "string",
 								"doc_comment": "Heading slug, computed from full heading content."
+							},
+							{
+								"name": "discard",
+								"kind": "variable",
+								"type_signature": "boolean",
+								"doc_comment": "If true, consumer drops this node and its descendants from the tree.\nUsed for whitespace-only paragraphs that match nothing in `mdz_parse`'s\noutput — the streaming parser emits open/text speculatively, then\nretroactively drops the empty wrapper at close."
 							}
 						]
 					},
@@ -5761,7 +5767,7 @@
 						"name": "MdzOpcodeText",
 						"kind": "type",
 						"doc_comment": "Create a leaf text or code node.\nThe parent is implicit — the innermost open container on the renderer's stack.",
-						"source_line": 79,
+						"source_line": 86,
 						"type_signature": "MdzOpcodeText",
 						"properties": [
 							{
@@ -5802,7 +5808,7 @@
 						"name": "MdzOpcodeAppendText",
 						"kind": "type",
 						"doc_comment": "Append content to an existing text node.\nStreaming optimization — avoids creating a new node per chunk\nduring plain text runs.",
-						"source_line": 95,
+						"source_line": 102,
 						"type_signature": "MdzOpcodeAppendText",
 						"properties": [
 							{
@@ -5826,7 +5832,7 @@
 						"name": "MdzOpcodeTrimText",
 						"kind": "type",
 						"doc_comment": "Trim `count` characters from the end of an existing text node.\nIf trimming empties the node, the consumer removes it from its parent.\n\nUsed by paragraph/codeblock close to drop the trailing newline that\nseparates inline content from the block boundary. Emitted instead of\nretroactively mutating the prior `text`/`append_text` opcode, so the\nopcode stream is append-only.",
-						"source_line": 110,
+						"source_line": 117,
 						"type_signature": "MdzOpcodeTrimText",
 						"properties": [
 							{
@@ -5850,7 +5856,7 @@
 						"name": "MdzOpcodeVoid",
 						"kind": "type",
 						"doc_comment": "Create a self-contained leaf node (e.g., horizontal rule).\nInserted as a child of the innermost open container, or at root level.",
-						"source_line": 120,
+						"source_line": 127,
 						"type_signature": "MdzOpcodeVoid",
 						"properties": [
 							{
@@ -5886,7 +5892,7 @@
 						"name": "MdzOpcodeRevert",
 						"kind": "type",
 						"doc_comment": "Undo an optimistic open. Removes the container wrapper,\ninserts `replacement_text` as literal text at the container's position,\nand re-parents the container's children to the grandparent.\n\nWhen `wrap_node_type` and `wrap_id` are set, the replacement text and\nre-parented children are wrapped in a new container of the given type\ninstead of being placed directly at the grandparent level. The wrapper\nis pushed onto the consumer's stack (open for future content). This is\nused for block-level reverts (e.g., codeblock → paragraph) where the\ngrandparent is root and content needs a container.",
-						"source_line": 142,
+						"source_line": 149,
 						"type_signature": "MdzOpcodeRevert",
 						"properties": [
 							{
@@ -5929,7 +5935,7 @@
 						"name": "MdzOpcodeWrap",
 						"kind": "type",
 						"doc_comment": "Retroactively wrap an existing text node in a container.\nUsed for text-first auto-links: URL/path text streams as plain text,\nthen gets wrapped in a Link when the URL boundary is found.\n\nWhen `trim_end` is set, trailing characters (punctuation) are trimmed\nfrom the target text node and placed in a new sibling Text node after\nthe Link wrapper, identified by `trim_id`.",
-						"source_line": 164,
+						"source_line": 171,
 						"type_signature": "MdzOpcodeWrap",
 						"properties": [
 							{
@@ -5997,14 +6003,14 @@
 						"name": "MdzNodeType",
 						"kind": "type",
 						"doc_comment": "All node types that can appear in the mdz tree.",
-						"source_line": 187,
+						"source_line": 194,
 						"type_signature": "MdzNodeType"
 					},
 					{
 						"name": "MdzOpcode",
 						"kind": "type",
 						"doc_comment": "Discriminated union of all mdz opcodes.",
-						"source_line": 190,
+						"source_line": 197,
 						"type_signature": "MdzOpcode"
 					}
 				],
@@ -6017,7 +6023,7 @@
 						"name": "try_heading",
 						"kind": "function",
 						"doc_comment": "Try to parse a heading at column 0.\nReturns true if consumed, false if needs more input, null if definitely not a heading.",
-						"source_line": 36,
+						"source_line": 37,
 						"type_signature": "(state: MdzStreamParserState): TryResult",
 						"return_type": "TryResult",
 						"parameters": [
@@ -6031,7 +6037,7 @@
 						"name": "try_hr",
 						"kind": "function",
 						"doc_comment": "Try to parse a horizontal rule at column 0.\nReturns true if consumed, false if needs more input, null if definitely not an HR.\nWhen `forced` is true, treats buffer end as EOF (no more input coming).",
-						"source_line": 99,
+						"source_line": 92,
 						"type_signature": "(state: MdzStreamParserState, forced?: boolean): TryResult",
 						"return_type": "TryResult",
 						"parameters": [
@@ -6050,7 +6056,7 @@
 						"name": "try_codeblock_open",
 						"kind": "function",
 						"doc_comment": "Try to open a code block at column 0.\n\nOpens the codeblock optimistically when possible. When the current paragraph\nhas no prior content, opens immediately on `\\`\\`\\`lang\\n` without lookahead,\nenabling streaming. When the paragraph has content (text before the fence on\na prior line), falls back to lookahead via `find_closing_fence` to avoid\nsplitting the paragraph on revert.",
-						"source_line": 163,
+						"source_line": 156,
 						"type_signature": "(state: MdzStreamParserState): TryResult",
 						"return_type": "TryResult",
 						"parameters": [
@@ -6064,7 +6070,7 @@
 						"name": "find_closing_fence",
 						"kind": "function",
 						"doc_comment": "Scan buffer from `start` for a valid closing fence with `backtick_count` backticks.\nUsed as a fallback when the current paragraph has prior content (to avoid\nsplitting the paragraph on revert). Returns 'found' if a valid closing fence\nexists, 'not_found' if the buffer ends before we can determine, 'invalid' if\nwe can see the full remaining content and there's no valid closing fence.",
-						"source_line": 232,
+						"source_line": 225,
 						"type_signature": "(state: MdzStreamParserState, start: number, backtick_count: number): \"found\" | \"not_found\" | \"invalid\"",
 						"return_type": "\"found\" | \"not_found\" | \"invalid\"",
 						"parameters": [
@@ -6086,7 +6092,7 @@
 						"name": "emit_codeblock_text",
 						"kind": "function",
 						"doc_comment": "Emit codeblock content as `text` (first chunk) or `append_text` (subsequent\nchunks), updating `cb.text_id` on first emit. `content_start` is the local\nbuffer position where the content slice began — only used to compute the\nglobal byte offset for the first `text` opcode.",
-						"source_line": 286,
+						"source_line": 279,
 						"type_signature": "(state: MdzStreamParserState, cb: CodeblockState, content: string, content_start: number): void",
 						"return_type": "void",
 						"parameters": [
@@ -6111,8 +6117,8 @@
 					{
 						"name": "process_codeblock_forced",
 						"kind": "function",
-						"doc_comment": "Drain the remaining buffer as codeblock content at EOF.\nNo close opcode is emitted here — `close_codeblock_at_eof` (in state.ts)\ndoes the revert-and-wrap dance after process completes.",
-						"source_line": 314,
+						"doc_comment": "Drain the remaining buffer as codeblock content at EOF, looking for a closing\nfence whose terminator is EOF rather than `\\n`. Matches `mdz_parse`'s\n`#match_code_block`, which allows a fence at the end of the document.\n\nIf a fence is found, the codeblock closes normally. Otherwise the remaining\nbuffer becomes content and `close_codeblock_at_eof` (in state.ts) handles\nthe revert-and-wrap dance after process completes.",
+						"source_line": 311,
 						"type_signature": "(state: MdzStreamParserState): void",
 						"return_type": "void",
 						"parameters": [
@@ -6126,7 +6132,7 @@
 						"name": "process_codeblock",
 						"kind": "function",
 						"doc_comment": "Process bytes while in codeblock mode.\nReturns true if processing should continue, false if more input needed.",
-						"source_line": 327,
+						"source_line": 363,
 						"type_signature": "(state: MdzStreamParserState): boolean",
 						"return_type": "boolean",
 						"parameters": [
@@ -6139,9 +6145,9 @@
 					{
 						"name": "match_codeblock_close",
 						"kind": "function",
-						"doc_comment": "Check if the buffer at current position has a codeblock closing fence.\nReturns the position after the fence (including trailing newline) on success,\n`-1` when definitely not a fence, or `-2` when more input is needed to decide.",
-						"source_line": 404,
-						"type_signature": "(state: MdzStreamParserState, backtick_count: number): number",
+						"doc_comment": "Check if the buffer at current position has a codeblock closing fence.\nReturns the position after the fence (including trailing newline) on success,\n`-1` when definitely not a fence, or `-2` when more input is needed to decide.\n\nWhen `forced` is true, EOF after the fence counts as a valid terminator\n(matches `mdz_parse`'s handling of code blocks at end of input).",
+						"source_line": 443,
+						"type_signature": "(state: MdzStreamParserState, backtick_count: number, forced?: boolean): number",
 						"return_type": "number",
 						"parameters": [
 							{
@@ -6151,6 +6157,11 @@
 							{
 								"name": "backtick_count",
 								"type": "number"
+							},
+							{
+								"name": "forced",
+								"type": "boolean",
+								"default_value": "false"
 							}
 						]
 					},
@@ -6158,7 +6169,7 @@
 						"name": "revert_empty_codeblock",
 						"kind": "function",
 						"doc_comment": "Revert an empty codeblock (closing fence found but no content was emitted).\nWraps the opening fence delimiter in a new paragraph and accumulates the\nclosing fence text for normal paragraph processing.",
-						"source_line": 443,
+						"source_line": 485,
 						"type_signature": "(state: MdzStreamParserState, cb: CodeblockState): boolean",
 						"return_type": "boolean",
 						"parameters": [
@@ -6183,7 +6194,7 @@
 					{
 						"name": "try_bold",
 						"kind": "function",
-						"source_line": 22,
+						"source_line": 23,
 						"type_signature": "(state: MdzStreamParserState): boolean",
 						"return_type": "boolean",
 						"parameters": [
@@ -6197,7 +6208,7 @@
 						"name": "close_bold",
 						"kind": "function",
 						"doc_comment": "Close a `Bold` container at the given stack index. The caller in\n`process_inline` already located the open via `find_open`, so we trust the\nindex rather than re-walking the stack.",
-						"source_line": 56,
+						"source_line": 49,
 						"type_signature": "(state: MdzStreamParserState, stack_idx: number): boolean",
 						"return_type": "boolean",
 						"parameters": [
@@ -6214,7 +6225,7 @@
 					{
 						"name": "try_italic",
 						"kind": "function",
-						"source_line": 82,
+						"source_line": 75,
 						"type_signature": "(state: MdzStreamParserState, forced?: boolean): boolean",
 						"return_type": "boolean",
 						"parameters": [
@@ -6232,7 +6243,7 @@
 					{
 						"name": "try_strikethrough",
 						"kind": "function",
-						"source_line": 148,
+						"source_line": 139,
 						"type_signature": "(state: MdzStreamParserState): boolean",
 						"return_type": "boolean",
 						"parameters": [
@@ -6245,7 +6256,7 @@
 					{
 						"name": "check_close_word_boundary",
 						"kind": "function",
-						"source_line": 195,
+						"source_line": 178,
 						"type_signature": "(state: MdzStreamParserState): boolean",
 						"return_type": "boolean",
 						"parameters": [
@@ -6258,7 +6269,7 @@
 					{
 						"name": "close_single_delimiter",
 						"kind": "function",
-						"source_line": 204,
+						"source_line": 187,
 						"type_signature": "(state: MdzStreamParserState, stack_idx: number): boolean",
 						"return_type": "boolean",
 						"parameters": [
@@ -6276,7 +6287,7 @@
 						"name": "scan_closer_boundary",
 						"kind": "function",
 						"doc_comment": "Scan for the first potential closing delimiter and check its word boundary.\nReturns a tri-state:\n- `'confirmed'`: closer found in buffer with valid word boundary\n- `'rejected'`: closer found but with invalid word boundary (greedy first-match fails)\n- `'pending'`: no closer in buffer yet, or can't determine boundary\n\nOptimistic constructs (strikethrough) treat `'pending'` as proceed.\nNon-optimistic constructs (italic) treat `'pending'` as text.\n\nUses native `indexOf` instead of a manual char loop for faster scanning.",
-						"source_line": 239,
+						"source_line": 222,
 						"type_signature": "(state: MdzStreamParserState, delimiter: string): \"confirmed\" | \"rejected\" | \"pending\"",
 						"return_type": "\"confirmed\" | \"rejected\" | \"pending\"",
 						"parameters": [
@@ -6293,7 +6304,7 @@
 					{
 						"name": "try_code",
 						"kind": "function",
-						"source_line": 261,
+						"source_line": 244,
 						"type_signature": "(state: MdzStreamParserState): boolean",
 						"return_type": "boolean",
 						"parameters": [
@@ -6307,7 +6318,7 @@
 						"name": "code_search_limit",
 						"kind": "function",
 						"doc_comment": "Compute search limit for inline code scanning.\nFinds the closest closing delimiter for any open formatting on the stack.\nThis prevents backtick scanning from crossing bold/italic/etc boundaries.",
-						"source_line": 360,
+						"source_line": 335,
 						"type_signature": "(state: MdzStreamParserState, from: number): number",
 						"return_type": "number",
 						"parameters": [
@@ -6325,7 +6336,7 @@
 						"name": "has_inline_formatting_on_stack",
 						"kind": "function",
 						"doc_comment": "Check if any inline formatting container (Bold, Italic, Strikethrough, Link)\nis on the stack above the current block boundary.\nUsed to decide whether backtick can go optimistic — when formatting is open,\nthe code span might cross the formatting boundary, so we hold instead.",
-						"source_line": 382,
+						"source_line": 357,
 						"type_signature": "(state: MdzStreamParserState): boolean",
 						"return_type": "boolean",
 						"parameters": [
@@ -6339,7 +6350,7 @@
 						"name": "process_code_content",
 						"kind": "function",
 						"doc_comment": "Process content inside an optimistic inline Code container.\nScans raw text (no inline formatting) until closing backtick or newline.\nBacktick closes (or reverts if empty). Newline reverts (code can't span lines).",
-						"source_line": 396,
+						"source_line": 371,
 						"type_signature": "(state: MdzStreamParserState): void",
 						"return_type": "void",
 						"parameters": [
@@ -6360,7 +6371,7 @@
 					{
 						"name": "try_link_open",
 						"kind": "function",
-						"source_line": 40,
+						"source_line": 41,
 						"type_signature": "(state: MdzStreamParserState): boolean",
 						"return_type": "boolean",
 						"parameters": [
@@ -6374,7 +6385,7 @@
 						"name": "abort_link_to_text",
 						"kind": "function",
 						"doc_comment": "Revert an optimistic Link container to its literal `[` and consume the\n`]` at `bracket_pos` as text. Used whenever a `]` doesn't form a valid\n`[text](url)` — missing `(`, empty url, invalid url char, etc.",
-						"source_line": 68,
+						"source_line": 61,
 						"type_signature": "(state: MdzStreamParserState, link_stack_idx: number, bracket_pos: number): void",
 						"return_type": "void",
 						"parameters": [
@@ -6396,7 +6407,7 @@
 						"name": "try_complete_link",
 						"kind": "function",
 						"doc_comment": "Try to complete a link after seeing `]`.\nReturns false if more input is needed (leaves pos at `]`).",
-						"source_line": 88,
+						"source_line": 81,
 						"type_signature": "(state: MdzStreamParserState, link_stack_idx: number): boolean",
 						"return_type": "boolean",
 						"parameters": [
@@ -6413,7 +6424,7 @@
 					{
 						"name": "try_tag_open",
 						"kind": "function",
-						"source_line": 164,
+						"source_line": 157,
 						"type_signature": "(state: MdzStreamParserState): TryResult",
 						"return_type": "TryResult",
 						"parameters": [
@@ -6426,7 +6437,7 @@
 					{
 						"name": "try_close_tag",
 						"kind": "function",
-						"source_line": 244,
+						"source_line": 229,
 						"type_signature": "(state: MdzStreamParserState): TryResult",
 						"return_type": "TryResult",
 						"parameters": [
@@ -6492,6 +6503,12 @@
 								"doc_comment": "Whether any child content has been emitted inside this container."
 							},
 							{
+								"name": "has_non_whitespace_content",
+								"kind": "variable",
+								"type_signature": "boolean",
+								"doc_comment": "Whether any non-whitespace text or non-text child has been emitted\ninside this container. Only tracked for `Paragraph` entries to detect\nwhitespace-only paragraphs that should be dropped at close."
+							},
+							{
 								"name": "start",
 								"kind": "variable",
 								"type_signature": "number",
@@ -6502,7 +6519,7 @@
 					{
 						"name": "CodeblockState",
 						"kind": "type",
-						"source_line": 37,
+						"source_line": 43,
 						"type_signature": "CodeblockState",
 						"properties": [
 							{
@@ -6538,7 +6555,7 @@
 						"name": "PendingUrl",
 						"kind": "type",
 						"doc_comment": "Pending auto-link URL/path state for text-first rendering.\nWhen set, URL chars flow as visible text. On terminator, a `wrap` opcode\nretroactively wraps the text node in a Link.\n\nFor URLs, `confirmed` starts false during speculative prefix matching\n(chars stream as text while we verify `https://` or `http://`).\nFor paths, `confirmed` starts true (prefix already validated by hold).",
-						"source_line": 56,
+						"source_line": 62,
 						"type_signature": "PendingUrl",
 						"properties": [
 							{
@@ -6579,7 +6596,7 @@
 						"name": "MdzStreamParserState",
 						"kind": "type",
 						"doc_comment": "Mutable state for the streaming parser. One instance per `MdzStreamParser`.\nHandlers in sibling modules take this as their first parameter — the streaming\nparser uses free functions, not class methods, so state crosses module\nboundaries.",
-						"source_line": 73,
+						"source_line": 79,
 						"type_signature": "MdzStreamParserState",
 						"properties": [
 							{
@@ -6679,6 +6696,12 @@
 								"doc_comment": "When true, skip leading newlines at the start of the next processing pass.\nSet after block element closes (codeblock, heading, HR) when trailing\nnewlines couldn't be absorbed within the same buffer — needed for\nchar-by-char streaming where post-block newlines arrive in later chunks."
 							},
 							{
+								"name": "paragraph_stack_idx",
+								"kind": "variable",
+								"type_signature": "number",
+								"doc_comment": "Stack index of the innermost open `Paragraph`, or `-1` when none.\nLets `mark_paragraph_non_whitespace` skip the stack walk that runs on\nevery non-whitespace emit. Updated only on Paragraph push/pop (block\nboundaries — only one of `Paragraph`/`Heading` can be on the stack\nat a time, so the cache is stable across inline pushes/pops)."
+							},
+							{
 								"name": "last_text_id",
 								"kind": "variable",
 								"type_signature": "MdzNodeId | null",
@@ -6701,7 +6724,7 @@
 					{
 						"name": "create_state",
 						"kind": "function",
-						"source_line": 127,
+						"source_line": 141,
 						"type_signature": "(): MdzStreamParserState",
 						"return_type": "MdzStreamParserState",
 						"parameters": []
@@ -6709,7 +6732,7 @@
 					{
 						"name": "alloc_id",
 						"kind": "function",
-						"source_line": 151,
+						"source_line": 168,
 						"type_signature": "(state: MdzStreamParserState): number",
 						"return_type": "number",
 						"parameters": [
@@ -6720,10 +6743,51 @@
 						]
 					},
 					{
+						"name": "push_stack_entry",
+						"kind": "function",
+						"doc_comment": "Push a new container frame onto the stack. Fills the boilerplate fields\n(`has_children`, `has_non_whitespace_content`) so call sites only spell out\nwhat varies per container type. Keeping the object literal in one place\nalso gives V8 a single monomorphic creation site for `StackEntry`.",
+						"source_line": 197,
+						"type_signature": "(state: MdzStreamParserState, id: number, node_type: MdzContainerNodeType, start: number, optimistic?: boolean, delimiter?: string, tag_name?: string | undefined): void",
+						"return_type": "void",
+						"parameters": [
+							{
+								"name": "state",
+								"type": "MdzStreamParserState"
+							},
+							{
+								"name": "id",
+								"type": "number"
+							},
+							{
+								"name": "node_type",
+								"type": "MdzContainerNodeType"
+							},
+							{
+								"name": "start",
+								"type": "number"
+							},
+							{
+								"name": "optimistic",
+								"type": "boolean",
+								"default_value": "false"
+							},
+							{
+								"name": "delimiter",
+								"type": "string",
+								"default_value": "''"
+							},
+							{
+								"name": "tag_name",
+								"type": "string | undefined",
+								"default_value": "undefined"
+							}
+						]
+					},
+					{
 						"name": "offset",
 						"kind": "function",
 						"doc_comment": "Global byte offset for a local buffer position.",
-						"source_line": 154,
+						"source_line": 235,
 						"type_signature": "(state: MdzStreamParserState, pos?: number): number",
 						"return_type": "number",
 						"parameters": [
@@ -6741,7 +6805,7 @@
 					{
 						"name": "emit",
 						"kind": "function",
-						"source_line": 157,
+						"source_line": 238,
 						"type_signature": "(state: MdzStreamParserState, op: MdzOpcode): void",
 						"return_type": "void",
 						"parameters": [
@@ -6759,7 +6823,7 @@
 						"name": "accumulate_text",
 						"kind": "function",
 						"doc_comment": "Accumulate text, tracking the start offset for the first character.",
-						"source_line": 211,
+						"source_line": 305,
 						"type_signature": "(state: MdzStreamParserState, text: string, start_offset: number): void",
 						"return_type": "void",
 						"parameters": [
@@ -6781,7 +6845,7 @@
 						"name": "flush_text",
 						"kind": "function",
 						"doc_comment": "Flush accumulated text as a text or append_text opcode.",
-						"source_line": 225,
+						"source_line": 319,
 						"type_signature": "(state: MdzStreamParserState): void",
 						"return_type": "void",
 						"parameters": [
@@ -6794,7 +6858,7 @@
 					{
 						"name": "ensure_paragraph",
 						"kind": "function",
-						"source_line": 250,
+						"source_line": 344,
 						"type_signature": "(state: MdzStreamParserState): void",
 						"return_type": "void",
 						"parameters": [
@@ -6808,7 +6872,7 @@
 						"name": "find_open",
 						"kind": "function",
 						"doc_comment": "Find the innermost open container of a given type.\nReturns stack index, or -1 if not found.\nDoes not cross block boundaries (Paragraph, Heading).",
-						"source_line": 272,
+						"source_line": 358,
 						"type_signature": "(state: MdzStreamParserState, type: MdzContainerNodeType): number",
 						"return_type": "number",
 						"parameters": [
@@ -6826,7 +6890,7 @@
 						"name": "revert_above",
 						"kind": "function",
 						"doc_comment": "Revert all stack entries above the given index.",
-						"source_line": 285,
+						"source_line": 371,
 						"type_signature": "(state: MdzStreamParserState, target_idx: number): void",
 						"return_type": "void",
 						"parameters": [
@@ -6844,7 +6908,7 @@
 						"name": "revert_all_optimistic",
 						"kind": "function",
 						"doc_comment": "Revert all optimistic inline containers in the current block context.",
-						"source_line": 306,
+						"source_line": 392,
 						"type_signature": "(state: MdzStreamParserState): void",
 						"return_type": "void",
 						"parameters": [
@@ -6858,7 +6922,7 @@
 						"name": "trim_trailing_newline",
 						"kind": "function",
 						"doc_comment": "Trim a trailing newline from paragraph content.\nChecks unflushed accumulated text first; otherwise emits a `trim_text`\nopcode targeting the most recent text/append_text via the tracking fields\non `state` (which survive `take_opcodes()` drains). The opcode stream\nstays append-only — no retroactive opcode mutation.",
-						"source_line": 333,
+						"source_line": 419,
 						"type_signature": "(state: MdzStreamParserState): void",
 						"return_type": "void",
 						"parameters": [
@@ -6871,7 +6935,7 @@
 					{
 						"name": "close_paragraph",
 						"kind": "function",
-						"source_line": 351,
+						"source_line": 437,
 						"type_signature": "(state: MdzStreamParserState): void",
 						"return_type": "void",
 						"parameters": [
@@ -6884,7 +6948,7 @@
 					{
 						"name": "close_heading",
 						"kind": "function",
-						"source_line": 377,
+						"source_line": 473,
 						"type_signature": "(state: MdzStreamParserState): void",
 						"return_type": "void",
 						"parameters": [
@@ -6897,7 +6961,8 @@
 					{
 						"name": "close_codeblock_at_eof",
 						"kind": "function",
-						"source_line": 399,
+						"doc_comment": "Close an unclosed codeblock at EOF by reverting it to a paragraph wrapper.\n\nUnlike `revert_empty_codeblock` (which pushes the wrapper onto the stack\nbecause parsing continues), this is terminal — called only from `finish()`\nafter no further emits happen — so it skips the `push_stack_entry` /\n`in_paragraph` / `paragraph_stack_idx` bookkeeping. The wrapper exists only\nin the opcode stream; the parser state's stack stays untouched.",
+						"source_line": 504,
 						"type_signature": "(state: MdzStreamParserState): void",
 						"return_type": "void",
 						"parameters": [
@@ -6910,7 +6975,7 @@
 					{
 						"name": "handle_paragraph_break",
 						"kind": "function",
-						"source_line": 417,
+						"source_line": 522,
 						"type_signature": "(state: MdzStreamParserState): void",
 						"return_type": "void",
 						"parameters": [
@@ -7114,8 +7179,8 @@
 					{
 						"name": "MdzStreamParser",
 						"kind": "class",
-						"doc_comment": "Streaming opcode parser for mdz content.\nFeed chunks via `feed()`, retrieve opcodes via `take_opcodes()`, call `finish()` at end.\n\nThe opcode sequence is not deterministic across chunk boundaries — the same input\nfed in different chunk sizes may produce different `text`/`append_text` splits and\ndifferent optimistic/revert sequences. The final tree (via `mdz_opcodes_to_nodes`)\nis always identical regardless of chunking.",
-						"source_line": 110,
+						"doc_comment": "Streaming opcode parser for mdz content.\nFeed chunks via `feed()`, retrieve opcodes via `take_opcodes()`, call `finish()` at end.\n\nThe opcode sequence is not deterministic across chunk boundaries — the same input\nfed in different chunk sizes may produce different `text`/`append_text` splits and\ndifferent optimistic/revert sequences. The final tree (via `mdz_opcodes_to_nodes`)\nmatches the one-shot result for all input except one case: italic (`_..._`) where\nthe opening and closing delimiters straddle a chunk boundary. Italic is\nnon-optimistic — it requires a confirmed closer in the buffer — so when the\ncloser arrives only in a later chunk, the opening `_` has already been emitted\nas text and italic cannot apply retroactively. See `try_italic` in\n`mdz_stream_parser_inline.ts`.",
+						"source_line": 114,
 						"members": [
 							{
 								"name": "feed",
@@ -7133,7 +7198,7 @@
 							{
 								"name": "finish",
 								"kind": "function",
-								"doc_comment": "Signal end of input. Resolves all pending state:\ncloses open blocks, reverts unclosed optimistic opens.\n\nTrailing newline trimming uses three cooperating mechanisms:\n1. `trim_trailing_newline()` in `close_paragraph()` — trims from the last\n   emitted text/append_text opcode (handles mid-stream paragraph breaks)\n2. Pre-flush trim below — trims unflushed `accumulated_text` before it becomes\n   an opcode (handles trailing `\\n` from `#process_remaining()`)\n3. The pre-flush trim runs before `revert_all_optimistic()`, so the `\\n` is\n   removed before reverts are emitted. `trim_trailing_newline()` in\n   `close_paragraph()` handles any remaining cases after reverts.",
+								"doc_comment": "Signal end of input. Resolves all pending state: closes open blocks,\nreverts unclosed optimistic opens, trims trailing newlines.\n\nTrailing-newline trimming is handled in one place: `trim_trailing_newline()`\ncalled at the top of `close_paragraph()` and `close_codeblock_at_eof()`,\nbefore either function reverts its inner stack. The trim sees the\njust-flushed text node's `last_text_id` (or a still-accumulated `\\n`) and\nemits a `trim_text` opcode. Revert opcodes only fire after.\n\nOptimistic-container revert is handled by `close_paragraph` and\n`close_heading` (each pops its own inner stack), so no separate\n`revert_all_optimistic` is needed — optimistic containers can only exist\ninside an open Paragraph or Heading (parser invariant).",
 								"type_signature": "(): void",
 								"return_type": "void",
 								"parameters": []
@@ -7272,14 +7337,6 @@
 										"type": "MdzOpcode[]"
 									}
 								]
-							},
-							{
-								"name": "reset",
-								"kind": "function",
-								"doc_comment": "Reset the state (clear all nodes).",
-								"type_signature": "(): void",
-								"return_type": "void",
-								"parameters": []
 							}
 						]
 					}

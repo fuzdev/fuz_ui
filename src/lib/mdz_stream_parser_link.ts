@@ -32,6 +32,7 @@ import {
 	ensure_paragraph,
 	flush_text,
 	offset,
+	push_stack_entry,
 	revert_above,
 } from './mdz_stream_parser_state.js';
 
@@ -44,15 +45,7 @@ export const try_link_open = (state: MdzStreamParserState): boolean => {
 	const id = alloc_id(state);
 	const link_start = offset(state);
 	emit(state, {type: 'open', id, node_type: 'Link', start: link_start});
-	state.stack.push({
-		id,
-		node_type: 'Link',
-		optimistic: true,
-		delimiter: '[',
-		tag_name: undefined,
-		has_children: false,
-		start: link_start,
-	});
+	push_stack_entry(state, id, 'Link', link_start, true, '[');
 	state.active_text_id = null;
 	state.pos++;
 	state.column++;
@@ -225,15 +218,7 @@ export const try_tag_open = (state: MdzStreamParserState): TryResult => {
 	const tag_start = offset(state, start);
 	const delimiter = state.buffer.slice(start, i); // e.g., "<Alert>"
 	emit(state, {type: 'open', id, node_type, start: tag_start, name});
-	state.stack.push({
-		id,
-		node_type,
-		optimistic: true,
-		delimiter,
-		tag_name: name,
-		has_children: false,
-		start: tag_start,
-	});
+	push_stack_entry(state, id, node_type, tag_start, true, delimiter, name);
 	state.active_text_id = null;
 	state.pos = i;
 	state.column += i - start;

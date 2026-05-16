@@ -63,7 +63,6 @@ import {
 	flush_text,
 	handle_paragraph_break,
 	offset,
-	revert_all_optimistic,
 } from './mdz_stream_parser_state.js';
 import {
 	process_codeblock,
@@ -105,7 +104,12 @@ import {consume_text_run} from './mdz_stream_parser_text.js';
  * The opcode sequence is not deterministic across chunk boundaries — the same input
  * fed in different chunk sizes may produce different `text`/`append_text` splits and
  * different optimistic/revert sequences. The final tree (via `mdz_opcodes_to_nodes`)
- * is always identical regardless of chunking.
+ * matches the one-shot result for all input except one case: italic (`_..._`) where
+ * the opening and closing delimiters straddle a chunk boundary. Italic is
+ * non-optimistic — it requires a confirmed closer in the buffer — so when the
+ * closer arrives only in a later chunk, the opening `_` has already been emitted
+ * as text and italic cannot apply retroactively. See `try_italic` in
+ * `mdz_stream_parser_inline.ts`.
  */
 export class MdzStreamParser {
 	#state: MdzStreamParserState = create_state();
@@ -129,17 +133,19 @@ export class MdzStreamParser {
 	}
 
 	/**
-	 * Signal end of input. Resolves all pending state:
-	 * closes open blocks, reverts unclosed optimistic opens.
+	 * Signal end of input. Resolves all pending state: closes open blocks,
+	 * reverts unclosed optimistic opens, trims trailing newlines.
 	 *
-	 * Trailing newline trimming uses three cooperating mechanisms:
-	 * 1. `trim_trailing_newline()` in `close_paragraph()` — trims from the last
-	 *    emitted text/append_text opcode (handles mid-stream paragraph breaks)
-	 * 2. Pre-flush trim below — trims unflushed `accumulated_text` before it becomes
-	 *    an opcode (handles trailing `\n` from `#process_remaining()`)
-	 * 3. The pre-flush trim runs before `revert_all_optimistic()`, so the `\n` is
-	 *    removed before reverts are emitted. `trim_trailing_newline()` in
-	 *    `close_paragraph()` handles any remaining cases after reverts.
+	 * Trailing-newline trimming is handled in one place: `trim_trailing_newline()`
+	 * called at the top of `close_paragraph()` and `close_codeblock_at_eof()`,
+	 * before either function reverts its inner stack. The trim sees the
+	 * just-flushed text node's `last_text_id` (or a still-accumulated `\n`) and
+	 * emits a `trim_text` opcode. Revert opcodes only fire after.
+	 *
+	 * Optimistic-container revert is handled by `close_paragraph` and
+	 * `close_heading` (each pops its own inner stack), so no separate
+	 * `revert_all_optimistic` is needed — optimistic containers can only exist
+	 * inside an open Paragraph or Heading (parser invariant).
 	 */
 	finish(): void {
 		const state = this.#state;
@@ -153,20 +159,15 @@ export class MdzStreamParser {
 			flush_text(state);
 			complete_pending_url(state);
 		}
-		// pre-flush trim: remove trailing \n from accumulated text before it's emitted
-		if (state.accumulated_text.endsWith('\n')) {
-			state.accumulated_text = state.accumulated_text.slice(0, -1);
-		}
 		flush_text(state);
-		// revert any unclosed optimistic inline containers
-		revert_all_optimistic(state);
-		// close heading if open
+		// close heading if open — internally reverts its inner optimistic stack
 		if (state.in_heading) {
 			close_heading(state);
 		}
-		// close paragraph if open
+		// close paragraph if open — internally trims trailing \n, reverts its
+		// inner optimistic stack, then pops
 		close_paragraph(state);
-		// close codeblock if open (unclosed at EOF)
+		// close codeblock if open (unclosed at EOF) — internally trims trailing \n
 		if (state.codeblock) {
 			close_codeblock_at_eof(state);
 		}
@@ -191,12 +192,17 @@ export class MdzStreamParser {
  * as content end and never waits for more input.
  */
 const process_loop = (state: MdzStreamParserState, forced: boolean): void => {
-	// absorb leading newlines left over from a block element close in a prior chunk
+	// absorb leading newlines at start of input or left over from a block element
+	// close in a prior chunk. Only clear the flag once a non-newline char arrives —
+	// otherwise an all-newline chunk would prematurely drop the flag and let the
+	// next chunk's leading content stick to a `\n` text node.
 	if (state.skip_leading_newlines) {
 		while (state.pos < state.buffer.length && state.buffer.charCodeAt(state.pos) === NEWLINE) {
 			state.pos++;
 		}
-		state.skip_leading_newlines = false;
+		if (state.pos < state.buffer.length) {
+			state.skip_leading_newlines = false;
+		}
 	}
 	while (state.pos < state.buffer.length) {
 		// codeblock mode

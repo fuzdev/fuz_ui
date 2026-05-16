@@ -101,23 +101,38 @@ export class MdzStreamState {
 				}
 				const node = this.#nodes.get(opcode.id);
 				if (node) {
-					// apply deferred metadata
-					if (opcode.reference !== undefined) node.reference = opcode.reference;
-					if (opcode.link_type !== undefined) node.link_type = opcode.link_type;
-					if (opcode.heading_id !== undefined) node.heading_id = opcode.heading_id;
-					// Code/Codeblock: collapse text children into `content` so renderers
-					// can read it directly without walking children every render.
-					if (node.type === 'Code' || node.type === 'Codeblock') {
-						let content = '';
-						for (const child of node.children) content += child.content;
-						node.content = content;
+					if (opcode.discard) {
+						// drop the node and its descendants from its parent's children
+						const parent_id = this.#parents.get(opcode.id);
+						const parent_children =
+							parent_id !== null && parent_id !== undefined
+								? this.#nodes.get(parent_id)?.children
+								: this.root;
+						if (parent_children) {
+							const idx = parent_children.indexOf(node);
+							if (idx !== -1) parent_children.splice(idx, 1);
+						}
+					} else {
+						// apply deferred metadata
+						if (opcode.reference !== undefined) node.reference = opcode.reference;
+						if (opcode.link_type !== undefined) node.link_type = opcode.link_type;
+						if (opcode.heading_id !== undefined) node.heading_id = opcode.heading_id;
+						// Code/Codeblock: collapse text children into `content` so renderers
+						// can read it directly without walking children every render.
+						if (node.type === 'Code' || node.type === 'Codeblock') {
+							let content = '';
+							for (const child of node.children) content += child.content;
+							node.content = content;
+						}
 					}
 				}
 				// pop from stack
 				const idx = this.#stack.lastIndexOf(opcode.id);
 				if (idx !== -1) this.#stack.splice(idx, 1);
 				// cleanup: closed nodes have no further opcode interactions.
-				// children are retained in the render tree via children arrays.
+				// children are retained in the render tree via children arrays
+				// (discarded nodes' subtrees also need full cleanup, which the
+				// traversal in `#cleanup_node` already handles).
 				this.#cleanup_node(opcode.id);
 				break;
 			}
@@ -368,15 +383,5 @@ export class MdzStreamState {
 		for (const op of opcodes) {
 			this.apply(op);
 		}
-	}
-
-	/**
-	 * Reset the state (clear all nodes).
-	 */
-	reset(): void {
-		this.root = [];
-		this.#nodes.clear();
-		this.#parents.clear();
-		this.#stack = [];
 	}
 }

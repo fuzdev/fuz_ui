@@ -157,16 +157,6 @@ describe('MdzStreamState', () => {
 			assert.equal(state.root[0]!.link_type, 'external');
 		});
 
-		test('reset clears all state', () => {
-			const state = new MdzStreamState();
-			state.apply(open_paragraph(1));
-			state.apply(text(2, 'hello'));
-			state.apply(close(1));
-			state.reset();
-
-			assert.equal(state.root.length, 0);
-		});
-
 		test('apply_batch processes multiple opcodes', () => {
 			const state = new MdzStreamState();
 			state.apply_batch([open_paragraph(1), text(2, 'hello'), close(1)]);
