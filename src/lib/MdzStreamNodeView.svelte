@@ -48,11 +48,7 @@
 {:else if node.type === 'Text'}
 	{node.content}
 {:else if node.type === 'Code'}
-	<!-- Code nodes have two shapes: direct text (from immediate backtick scan) stores content
-	     on the node itself, while optimistic Code containers (streaming) accumulate text children. -->
-	{@const content =
-		node.children.length > 0 ? node.children.map((c) => c.content).join('') : node.content}
-	<DocsLink reference={content} />
+	<DocsLink reference={node.content} />
 {:else if node.type === 'Bold'}
 	<strong>{@render render_children(node.children)}</strong>
 {:else if node.type === 'Italic'}
@@ -90,9 +86,7 @@
 		{@render render_children(node.children)}
 	</svelte:element>
 {:else if node.type === 'Codeblock'}
-	{@const content =
-		node.children.length > 0 ? node.children.map((c) => c.content).join('') : node.content}
-	<Code lang={node.lang} {content} />
+	<Code lang={node.lang} content={node.content} />
 {/if}
 
 {#snippet render_children(nodes: Array<MdzStreamNode>)}

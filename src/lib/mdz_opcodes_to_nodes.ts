@@ -29,7 +29,12 @@ import type {
 	MdzCodeNode,
 } from './mdz.js';
 import type {MdzOpcode, MdzNodeId} from './mdz_opcodes.js';
-import {extract_single_tag, mdz_heading_id} from './mdz_helpers.js';
+import {
+	extract_single_tag,
+	mdz_heading_id,
+	mdz_merge_adjacent_text,
+	mdz_push_merging_text,
+} from './mdz_helpers.js';
 
 interface StackFrame {
 	id: MdzNodeId;
@@ -120,6 +125,27 @@ export const mdz_opcodes_to_nodes = (opcodes: Array<MdzOpcode>): Array<MdzNode> 
 				break;
 			}
 
+			case 'trim_text': {
+				if (DEV && !text_nodes.has(op.id)) {
+					throw new Error(`mdz_opcodes_to_nodes: trim_text for unknown id ${op.id}`);
+				}
+				const existing = text_nodes.get(op.id);
+				if (existing) {
+					existing.content = existing.content.slice(0, existing.content.length - op.count);
+					existing.end -= op.count;
+					if (existing.content.length === 0) {
+						const parent = node_parents.get(op.id);
+						if (parent) {
+							const idx = parent.indexOf(existing as MdzNode);
+							if (idx !== -1) parent.splice(idx, 1);
+						}
+						text_nodes.delete(op.id);
+						node_parents.delete(op.id);
+					}
+				}
+				break;
+			}
+
 			case 'void': {
 				target().push({type: 'Hr', start: op.start, end: op.end} as MdzHrNode);
 				break;
@@ -155,7 +181,7 @@ export const mdz_opcodes_to_nodes = (opcodes: Array<MdzOpcode>): Array<MdzNode> 
 							start: op.start,
 						};
 						if (op.replacement_text) {
-							push_merging_text(wrapper.children, {
+							mdz_push_merging_text(wrapper.children, {
 								type: 'Text',
 								content: op.replacement_text,
 								start: op.start,
@@ -163,7 +189,7 @@ export const mdz_opcodes_to_nodes = (opcodes: Array<MdzOpcode>): Array<MdzNode> 
 							} as MdzTextNode);
 						}
 						for (const child of reverted_frame.children) {
-							push_merging_text(wrapper.children, child);
+							mdz_push_merging_text(wrapper.children, child);
 						}
 						stack.push(wrapper);
 					} else {
@@ -173,7 +199,7 @@ export const mdz_opcodes_to_nodes = (opcodes: Array<MdzOpcode>): Array<MdzNode> 
 						// O(n²) array pushes to O(n) string concatenations — each revert
 						// merges into the parent's last text node instead of growing the array.
 						if (op.replacement_text) {
-							push_merging_text(dest, {
+							mdz_push_merging_text(dest, {
 								type: 'Text',
 								content: op.replacement_text,
 								start: op.start,
@@ -181,7 +207,7 @@ export const mdz_opcodes_to_nodes = (opcodes: Array<MdzOpcode>): Array<MdzNode> 
 							} as MdzTextNode);
 						}
 						for (const child of reverted_frame.children) {
-							push_merging_text(dest, child);
+							mdz_push_merging_text(dest, child);
 						}
 					}
 				}
@@ -244,7 +270,7 @@ export const mdz_opcodes_to_nodes = (opcodes: Array<MdzOpcode>): Array<MdzNode> 
 const build_node = (frame: StackFrame): MdzNode | null => {
 	switch (frame.node_type) {
 		case 'Paragraph': {
-			const children = merge_adjacent_text(frame.children);
+			const children = mdz_merge_adjacent_text(frame.children);
 			if (children.length === 0) return null;
 
 			// extract single tag (MDX convention)
@@ -260,7 +286,7 @@ const build_node = (frame: StackFrame): MdzNode | null => {
 		}
 
 		case 'Heading': {
-			const children = merge_adjacent_text(frame.children);
+			const children = mdz_merge_adjacent_text(frame.children);
 			const id = frame.heading_id ?? mdz_heading_id(children);
 			return {
 				type: 'Heading',
@@ -275,7 +301,7 @@ const build_node = (frame: StackFrame): MdzNode | null => {
 		case 'Bold':
 			return {
 				type: 'Bold',
-				children: merge_adjacent_text(frame.children),
+				children: mdz_merge_adjacent_text(frame.children),
 				start: frame.start,
 				end: frame.end!,
 			} as MdzBoldNode;
@@ -283,7 +309,7 @@ const build_node = (frame: StackFrame): MdzNode | null => {
 		case 'Italic':
 			return {
 				type: 'Italic',
-				children: merge_adjacent_text(frame.children),
+				children: mdz_merge_adjacent_text(frame.children),
 				start: frame.start,
 				end: frame.end!,
 			} as MdzItalicNode;
@@ -291,7 +317,7 @@ const build_node = (frame: StackFrame): MdzNode | null => {
 		case 'Strikethrough':
 			return {
 				type: 'Strikethrough',
-				children: merge_adjacent_text(frame.children),
+				children: mdz_merge_adjacent_text(frame.children),
 				start: frame.start,
 				end: frame.end!,
 			} as MdzStrikethroughNode;
@@ -300,7 +326,7 @@ const build_node = (frame: StackFrame): MdzNode | null => {
 			return {
 				type: 'Link',
 				reference: frame.reference ?? '',
-				children: merge_adjacent_text(frame.children),
+				children: mdz_merge_adjacent_text(frame.children),
 				link_type: frame.link_type ?? 'internal',
 				start: frame.start,
 				end: frame.end!,
@@ -339,7 +365,7 @@ const build_node = (frame: StackFrame): MdzNode | null => {
 			return {
 				type: 'Element',
 				name: frame.name ?? '',
-				children: merge_adjacent_text(frame.children),
+				children: mdz_merge_adjacent_text(frame.children),
 				start: frame.start,
 				end: frame.end!,
 			} as MdzElementNode;
@@ -348,7 +374,7 @@ const build_node = (frame: StackFrame): MdzNode | null => {
 			return {
 				type: 'Component',
 				name: frame.name ?? '',
-				children: merge_adjacent_text(frame.children),
+				children: mdz_merge_adjacent_text(frame.children),
 				start: frame.start,
 				end: frame.end!,
 			} as MdzComponentNode;
@@ -356,69 +382,4 @@ const build_node = (frame: StackFrame): MdzNode | null => {
 		default:
 			return null;
 	}
-};
-
-/**
- * Merge adjacent Text nodes into single nodes.
- * Fast path: returns the original array when no adjacent text pairs exist.
- */
-const merge_adjacent_text = (nodes: Array<MdzNode>): Array<MdzNode> => {
-	if (nodes.length <= 1) return nodes;
-
-	// fast path: check if any merging is actually needed
-	let needs_merge = false;
-	for (let i = 1; i < nodes.length; i++) {
-		if (nodes[i - 1]!.type === 'Text' && nodes[i]!.type === 'Text') {
-			needs_merge = true;
-			break;
-		}
-	}
-	if (!needs_merge) return nodes;
-
-	const merged: Array<MdzNode> = [];
-	let pending: MdzTextNode | null = null;
-
-	for (const node of nodes) {
-		if (node.type === 'Text') {
-			if (pending) {
-				pending = {
-					type: 'Text',
-					content: pending.content + node.content,
-					start: pending.start,
-					end: node.end,
-				};
-			} else {
-				pending = {...node};
-			}
-		} else {
-			if (pending) {
-				merged.push(pending);
-				pending = null;
-			}
-			merged.push(node);
-		}
-	}
-
-	if (pending) merged.push(pending);
-
-	return merged;
-};
-
-/**
- * Push a node to a children array, merging adjacent Text nodes in place.
- * Mutates the last element's `content` and `end` when both are Text, avoiding array growth.
- *
- * Safe to mutate because the streaming parser resets `active_text_id` after every
- * revert, so no future `append_text` opcode will target a node that was merged here.
- */
-const push_merging_text = (dest: Array<MdzNode>, node: MdzNode): void => {
-	if (node.type === 'Text') {
-		const last = dest[dest.length - 1];
-		if (last?.type === 'Text') {
-			last.content += node.content;
-			last.end = node.end;
-			return;
-		}
-	}
-	dest.push(node);
 };

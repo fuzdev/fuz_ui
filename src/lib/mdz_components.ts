@@ -41,3 +41,24 @@ export const mdz_elements_context = create_context<() => MdzElements | undefined
  * When not set, relative paths use raw hrefs (browser resolves them).
  */
 export const mdz_base_context = create_context<() => string | undefined>();
+
+interface MdzGetterContext<T> {
+	get_maybe(): (() => T | undefined) | undefined;
+	set(value: () => T | undefined): unknown;
+}
+
+/**
+ * Set an mdz context to a getter that prefers the local `value_fn` and falls
+ * back to the ancestor's value when `value_fn()` returns `undefined`.
+ *
+ * Pass `value_fn` as a getter (not a snapshot) so prop changes remain reactive.
+ * The ancestor lookup happens once at component init — that's intentional, it
+ * captures the surrounding scope's context at mount time.
+ */
+export const set_mdz_context_with_fallback = <T>(
+	context: MdzGetterContext<T>,
+	value_fn: () => T | undefined,
+): void => {
+	const ancestor = context.get_maybe();
+	context.set(() => value_fn() ?? ancestor?.());
+};

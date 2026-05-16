@@ -64,6 +64,8 @@ import {
 	extract_single_tag,
 	mdz_heading_id,
 	mdz_is_url,
+	mdz_is_safe_reference,
+	mdz_push_merging_text,
 } from './mdz_helpers.js';
 
 // TODO design incremental parsing or some system that preserves Svelte components across re-renders when possible
@@ -689,6 +691,19 @@ export class MdzParser {
 			}
 		}
 
+		// Reject unsafe protocols (javascript:, data:, etc.) — fall back to text.
+		// `is_valid_path_char` permits `:` so a malicious `[x](javascript:...)` would
+		// otherwise pass character validation and reach the renderer.
+		if (!mdz_is_safe_reference(reference)) {
+			this.#index = start + 1;
+			return {
+				type: 'Text',
+				content: '[',
+				start,
+				end: this.#index,
+			};
+		}
+
 		this.#index = close_paren + 1;
 
 		// Determine link type (external vs internal)
@@ -1129,15 +1144,8 @@ export class MdzParser {
 				break;
 			}
 
-			const node = this.#parse_node();
 			// merge adjacent Text nodes (e.g., text + failed delimiter + text)
-			const prev = nodes[nodes.length - 1];
-			if (prev?.type === 'Text' && node.type === 'Text') {
-				prev.content += node.content;
-				prev.end = node.end;
-			} else {
-				nodes.push(node);
-			}
+			mdz_push_merging_text(nodes, this.#parse_node());
 		}
 
 		// Restore previous boundary

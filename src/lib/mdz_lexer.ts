@@ -9,6 +9,7 @@
 
 import {
 	mdz_is_url,
+	mdz_is_safe_reference,
 	is_letter,
 	is_tag_name_char,
 	is_word_char,
@@ -714,6 +715,13 @@ export class MdzLexer {
 				this.#revert_tokens_from_link_open(start);
 				return;
 			}
+		}
+
+		// Reject unsafe protocols (javascript:, data:, etc.) — `is_valid_path_char`
+		// permits `:` so we need an explicit filter here.
+		if (!mdz_is_safe_reference(reference)) {
+			this.#revert_tokens_from_link_open(start);
+			return;
 		}
 
 		this.#index = close_paren + 1;

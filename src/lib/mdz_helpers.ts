@@ -7,7 +7,7 @@
  * @module
  */
 
-import type {MdzNode, MdzComponentNode, MdzElementNode} from './mdz.js';
+import type {MdzNode, MdzTextNode, MdzComponentNode, MdzElementNode} from './mdz.js';
 import {slugify} from '@fuzdev/fuz_util/path.js';
 
 // Character codes for performance
@@ -310,6 +310,69 @@ export const resolve_relative_path = (reference: string, base: string): string =
 	}
 	if (trailing) segments.push('');
 	return segments.join('/');
+};
+
+/**
+ * Push a node into a children array, coalescing with the previous Text node.
+ * Mutates `prev.content` and `prev.end` when both are Text, avoiding array growth
+ * and an extra allocation. Callers must own `dest` and not retain references to
+ * the prior last element across the call.
+ */
+export const mdz_push_merging_text = (dest: Array<MdzNode>, node: MdzNode): void => {
+	if (node.type === 'Text') {
+		const last = dest[dest.length - 1];
+		if (last?.type === 'Text') {
+			last.content += node.content;
+			last.end = node.end;
+			return;
+		}
+	}
+	dest.push(node);
+};
+
+/**
+ * Return a new array with adjacent Text nodes merged into single nodes.
+ * Fast path: returns the original array when no merging is needed.
+ */
+export const mdz_merge_adjacent_text = (nodes: Array<MdzNode>): Array<MdzNode> => {
+	if (nodes.length <= 1) return nodes;
+
+	let needs_merge = false;
+	for (let i = 1; i < nodes.length; i++) {
+		if (nodes[i - 1]!.type === 'Text' && nodes[i]!.type === 'Text') {
+			needs_merge = true;
+			break;
+		}
+	}
+	if (!needs_merge) return nodes;
+
+	const merged: Array<MdzNode> = [];
+	let pending: MdzTextNode | null = null;
+
+	for (const node of nodes) {
+		if (node.type === 'Text') {
+			if (pending) {
+				pending = {
+					type: 'Text',
+					content: pending.content + node.content,
+					start: pending.start,
+					end: node.end,
+				};
+			} else {
+				pending = {...node};
+			}
+		} else {
+			if (pending) {
+				merged.push(pending);
+				pending = null;
+			}
+			merged.push(node);
+		}
+	}
+
+	if (pending) merged.push(pending);
+
+	return merged;
 };
 
 export const extract_single_tag = (

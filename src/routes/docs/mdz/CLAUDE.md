@@ -25,10 +25,9 @@ Trailing punctuation (`.,:;!?]`) is trimmed per GFM conventions.
 
 ## Context and MdzRoot
 
-`MdzRoot` is the context provider for mdz rendering. It sets `mdz_base_context`,
-`mdz_components_context`, and `mdz_elements_context` via getter functions.
-All three contexts use the getter pattern (`() => value | undefined`) and
-support nesting with ancestor fallback.
+`mdz_base_context`, `mdz_components_context`, and `mdz_elements_context` use
+the getter pattern (`() => value | undefined`) so changes flow through without
+an extra effect. All three support nesting with ancestor fallback.
 
 ```svelte
 <MdzRoot base="/docs/mdz/" components={mdz_components} elements={mdz_elements}>
@@ -36,12 +35,18 @@ support nesting with ancestor fallback.
 </MdzRoot>
 ```
 
+`MdzRoot` is the typical context provider — it sets all three contexts.
+`Mdz` and `MdzStream` also accept a `base` prop and set `mdz_base_context`
+themselves (with ancestor fallback), so single-file usage works without
+wrapping in `MdzRoot`. Components and elements must come from `MdzRoot` or
+a manually set context.
+
 When `base` is set, relative paths (`./`, `../`) are resolved to absolute
 paths using `resolve_relative_path()` and SvelteKit's `resolve()`.
 Without `base`, relative paths use raw hrefs (browser resolves them).
 
-`Mdz` and `MdzStream` are pure renderers — they read contexts but don't
-set them.
+The fallback pattern is encapsulated in `set_mdz_context_with_fallback()` —
+prefer it over calling `.set(() => value ?? ancestor?.())` by hand.
 
 ## Preprocessor
 

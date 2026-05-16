@@ -10,7 +10,7 @@
 
 import {DEV} from 'esm-env';
 
-import type {MdzNodeId, MdzNodeType, MdzOpcode, MdzTextNodeType} from './mdz_opcodes.js';
+import type {MdzNodeId, MdzNodeType, MdzOpcode} from './mdz_opcodes.js';
 
 /**
  * A reactive node in the stream renderer tree.
@@ -28,7 +28,6 @@ export class MdzStreamNode {
 	name?: string;
 	lang?: string | null;
 	heading_id?: string = $state();
-	text_type?: MdzTextNodeType;
 
 	constructor(id: MdzNodeId, type: MdzNodeType) {
 		this.id = id;
@@ -53,6 +52,25 @@ export class MdzStreamState {
 	#stack: Array<MdzNodeId> = [];
 
 	/**
+	 * Register a new node and attach it to its current parent (innermost open
+	 * container, or root). Shared by `open`, `text`, and `void` paths.
+	 */
+	#attach(node: MdzStreamNode): void {
+		this.#nodes.set(node.id, node);
+		const parent_id = this.#stack.length > 0 ? this.#stack[this.#stack.length - 1]! : null;
+		this.#parents.set(node.id, parent_id);
+		if (parent_id !== null) {
+			const parent = this.#nodes.get(parent_id);
+			if (DEV && !parent) {
+				throw new Error(`MdzStreamState: parent id ${parent_id} on stack but missing from nodes`);
+			}
+			if (parent) parent.children.push(node);
+		} else {
+			this.root.push(node);
+		}
+	}
+
+	/**
 	 * Apply a single opcode.
 	 */
 	apply(opcode: MdzOpcode): void {
@@ -67,23 +85,7 @@ export class MdzStreamState {
 				if (opcode.level !== undefined) node.level = opcode.level;
 				if (opcode.name !== undefined) node.name = opcode.name;
 				if (opcode.lang !== undefined) node.lang = opcode.lang;
-				this.#nodes.set(opcode.id, node);
-
-				const parent_id = this.#stack.length > 0 ? this.#stack[this.#stack.length - 1]! : null;
-				this.#parents.set(opcode.id, parent_id);
-
-				if (parent_id !== null) {
-					const parent = this.#nodes.get(parent_id);
-					if (DEV && !parent) {
-						throw new Error(
-							`MdzStreamState: parent id ${parent_id} on stack but missing from nodes`,
-						);
-					}
-					if (parent) parent.children.push(node);
-				} else {
-					this.root.push(node);
-				}
-
+				this.#attach(node);
 				this.#stack.push(opcode.id);
 				break;
 			}
@@ -103,6 +105,13 @@ export class MdzStreamState {
 					if (opcode.reference !== undefined) node.reference = opcode.reference;
 					if (opcode.link_type !== undefined) node.link_type = opcode.link_type;
 					if (opcode.heading_id !== undefined) node.heading_id = opcode.heading_id;
+					// Code/Codeblock: collapse text children into `content` so renderers
+					// can read it directly without walking children every render.
+					if (node.type === 'Code' || node.type === 'Codeblock') {
+						let content = '';
+						for (const child of node.children) content += child.content;
+						node.content = content;
+					}
 				}
 				// pop from stack
 				const idx = this.#stack.lastIndexOf(opcode.id);
@@ -121,23 +130,7 @@ export class MdzStreamState {
 				}
 				const node = new MdzStreamNode(opcode.id, opcode.text_type);
 				node.content = opcode.content;
-				node.text_type = opcode.text_type;
-				this.#nodes.set(opcode.id, node);
-
-				const parent_id = this.#stack.length > 0 ? this.#stack[this.#stack.length - 1]! : null;
-				this.#parents.set(opcode.id, parent_id);
-
-				if (parent_id !== null) {
-					const parent = this.#nodes.get(parent_id);
-					if (DEV && !parent) {
-						throw new Error(
-							`MdzStreamState: parent id ${parent_id} on stack but missing from nodes`,
-						);
-					}
-					if (parent) parent.children.push(node);
-				} else {
-					this.root.push(node);
-				}
+				this.#attach(node);
 				break;
 			}
 
@@ -152,6 +145,30 @@ export class MdzStreamState {
 				break;
 			}
 
+			case 'trim_text': {
+				if (DEV && !this.#nodes.has(opcode.id)) {
+					throw new Error(`MdzStreamState: trim_text for unknown id ${opcode.id}`);
+				}
+				const node = this.#nodes.get(opcode.id);
+				if (node) {
+					node.content = node.content.slice(0, node.content.length - opcode.count);
+					if (node.content.length === 0) {
+						const parent_id = this.#parents.get(opcode.id);
+						const parent_children =
+							parent_id !== null && parent_id !== undefined
+								? this.#nodes.get(parent_id)?.children
+								: this.root;
+						if (parent_children) {
+							const idx = parent_children.indexOf(node);
+							if (idx !== -1) parent_children.splice(idx, 1);
+						}
+						this.#nodes.delete(opcode.id);
+						this.#parents.delete(opcode.id);
+					}
+				}
+				break;
+			}
+
 			case 'void': {
 				if (DEV && this.#nodes.has(opcode.id)) {
 					throw new Error(
@@ -159,22 +176,7 @@ export class MdzStreamState {
 					);
 				}
 				const node = new MdzStreamNode(opcode.id, opcode.node_type);
-				this.#nodes.set(opcode.id, node);
-
-				const parent_id = this.#stack.length > 0 ? this.#stack[this.#stack.length - 1]! : null;
-				this.#parents.set(opcode.id, parent_id);
-
-				if (parent_id !== null) {
-					const parent = this.#nodes.get(parent_id);
-					if (DEV && !parent) {
-						throw new Error(
-							`MdzStreamState: parent id ${parent_id} on stack but missing from nodes`,
-						);
-					}
-					if (parent) parent.children.push(node);
-				} else {
-					this.root.push(node);
-				}
+				this.#attach(node);
 				break;
 			}
 
@@ -227,7 +229,6 @@ export class MdzStreamState {
 				if (opcode.replacement_text) {
 					const text_node = new MdzStreamNode(opcode.id, 'Text');
 					text_node.content = opcode.replacement_text;
-					text_node.text_type = 'Text';
 					replacement_nodes.push(text_node);
 				}
 				for (const child of node.children) {
@@ -307,7 +308,6 @@ export class MdzStreamState {
 					target.content = target.content.slice(0, target.content.length - opcode.trim_end);
 					trimmed_node = new MdzStreamNode(opcode.trim_id, 'Text');
 					trimmed_node.content = trimmed_content;
-					trimmed_node.text_type = 'Text';
 					this.#nodes.set(opcode.trim_id, trimmed_node);
 					this.#parents.set(opcode.trim_id, parent_id ?? null);
 				}
@@ -336,7 +336,16 @@ export class MdzStreamState {
 		}
 	}
 
-	/** Remove a node and its descendants from the lookup maps. Iterative to avoid stack overflow on deep trees. */
+	/**
+	 * Remove a node and its descendants from the lookup maps. Iterative to avoid
+	 * stack overflow on deep trees.
+	 *
+	 * Parser invariant: once a container closes, no future opcode targets that
+	 * subtree (no `append_text` to a closed Text, no nested `wrap`/`revert`).
+	 * Children stay reachable via `parent.children` arrays — only the lookup
+	 * maps are pruned. If this invariant is violated, the misbehaving opcode
+	 * triggers a DEV throw in `apply()` and silently no-ops in production.
+	 */
 	#cleanup_node(id: MdzNodeId): void {
 		const queue: Array<MdzNodeId> = [id];
 		while (queue.length > 0) {

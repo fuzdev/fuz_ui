@@ -5,6 +5,7 @@
 		mdz_base_context,
 		mdz_components_context,
 		mdz_elements_context,
+		set_mdz_context_with_fallback,
 		type MdzComponents,
 		type MdzElements,
 	} from './mdz_components.js';
@@ -21,13 +22,9 @@
 		children: Snippet;
 	} = $props();
 
-	const get_ancestor_base = mdz_base_context.get_maybe();
-	const get_ancestor_components = mdz_components_context.get_maybe();
-	const get_ancestor_elements = mdz_elements_context.get_maybe();
-
-	mdz_base_context.set(() => base ?? get_ancestor_base?.());
-	mdz_components_context.set(() => components ?? get_ancestor_components?.());
-	mdz_elements_context.set(() => elements ?? get_ancestor_elements?.());
+	set_mdz_context_with_fallback(mdz_base_context, () => base);
+	set_mdz_context_with_fallback(mdz_components_context, () => components);
+	set_mdz_context_with_fallback(mdz_elements_context, () => elements);
 </script>
 
 {@render children()}

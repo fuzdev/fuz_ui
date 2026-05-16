@@ -831,6 +831,29 @@ describe('MdzStreamParser fixture comparison', () => {
 		assert.deepEqual(nodes, mdz_parse('aaa\nbbb\n\nccc'));
 	});
 
+	// Targeted regression for the post-drain trim path: the paragraph text is
+	// emitted and drained in chunk 1, then the single '\n' that joins it to the
+	// codeblock fence is accumulated and flushed as an `append_text` in chunk 2.
+	// `close_paragraph` must trim the trailing '\n' from the previously-drained
+	// text by id (via `last_text_*` tracking on state), not by scanning
+	// `state.opcodes` — that array was emptied by `take_opcodes()`.
+	test('trim_text targets drained text id when paragraph closes after drain', () => {
+		const parser = new MdzStreamParser();
+		parser.feed('Some text.\n');
+		const ops1 = parser.take_opcodes();
+		parser.feed('```\ncode\n```\n');
+		parser.finish();
+		const ops2 = parser.take_opcodes();
+		const text_op = ops1.find((o): o is MdzOpcodeText => o.type === 'text');
+		assert.ok(text_op);
+		assert.equal(text_op.content, 'Some text.');
+		const trim_op = ops2.find((o) => o.type === 'trim_text');
+		assert.ok(trim_op, 'trim_text must fire on the drained text id');
+		assert.equal(trim_op.id, text_op.id, 'trim_text id must match the drained text');
+		const result = mdz_opcodes_to_nodes([...ops1, ...ops2]);
+		assert.deepEqual(result, mdz_parse('Some text.\n```\ncode\n```\n'));
+	});
+
 	test('char-by-char safe fixtures match one-shot', () => {
 		const safe_fixtures = fixtures.filter((f) => is_char_by_char_safe(f.input));
 		// sanity: we should have a meaningful number of safe fixtures
@@ -844,6 +867,64 @@ describe('MdzStreamParser fixture comparison', () => {
 			parser.finish();
 			const char_result = mdz_opcodes_to_nodes(parser.take_opcodes());
 			assert.deepEqual(char_result, fixture.expected, `Char-by-char: "${fixture.name}"`);
+		}
+	});
+
+	// Exercises chunk boundaries between the two extremes (one-shot and char-by-char).
+	// Many streaming bugs hide at 2- to 16-byte boundaries — past the buffer-context
+	// thresholds that defeat char-by-char but inside the lookahead horizons.
+	// Uses a deterministic LCG so failures are reproducible.
+	test('safe fixtures match one-shot under varied chunk sizes', () => {
+		const safe_fixtures = fixtures.filter((f) => is_char_by_char_safe(f.input));
+		// LCG: numerical recipes constants — deterministic and seedable
+		let lcg_state = 0xc0ffee;
+		const next_chunk_size = (): number => {
+			lcg_state = (lcg_state * 1664525 + 1013904223) >>> 0;
+			// chunk sizes 2..16 inclusive
+			return 2 + (lcg_state % 15);
+		};
+
+		for (const fixture of safe_fixtures) {
+			const parser = new MdzStreamParser();
+			let i = 0;
+			while (i < fixture.input.length) {
+				const size = Math.min(next_chunk_size(), fixture.input.length - i);
+				parser.feed(fixture.input.slice(i, i + size));
+				i += size;
+			}
+			parser.finish();
+			const result = mdz_opcodes_to_nodes(parser.take_opcodes());
+			assert.deepEqual(result, fixture.expected, `Varied chunks: "${fixture.name}"`);
+		}
+	});
+
+	// Exercises `take_opcodes()` boundaries — opcodes are drained mid-stream and
+	// concatenated, which must produce the same tree as a single drain at finish.
+	test('safe fixtures match one-shot with mid-stream take_opcodes drains', () => {
+		const safe_fixtures = fixtures.filter((f) => is_char_by_char_safe(f.input));
+		let lcg_state = 0xbadf00d;
+		const next_chunk_size = (): number => {
+			lcg_state = (lcg_state * 1664525 + 1013904223) >>> 0;
+			return 2 + (lcg_state % 15);
+		};
+
+		for (const fixture of safe_fixtures) {
+			const parser = new MdzStreamParser();
+			const drained: Array<MdzOpcode> = [];
+			let i = 0;
+			while (i < fixture.input.length) {
+				const size = Math.min(next_chunk_size(), fixture.input.length - i);
+				parser.feed(fixture.input.slice(i, i + size));
+				// drain ~half the time
+				if ((lcg_state & 1) === 0) {
+					drained.push(...parser.take_opcodes());
+				}
+				i += size;
+			}
+			parser.finish();
+			drained.push(...parser.take_opcodes());
+			const result = mdz_opcodes_to_nodes(drained);
+			assert.deepEqual(result, fixture.expected, `Drained: "${fixture.name}"`);
 		}
 	});
 });

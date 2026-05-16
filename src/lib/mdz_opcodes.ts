@@ -99,6 +99,21 @@ export interface MdzOpcodeAppendText {
 }
 
 /**
+ * Trim `count` characters from the end of an existing text node.
+ * If trimming empties the node, the consumer removes it from its parent.
+ *
+ * Used by paragraph/codeblock close to drop the trailing newline that
+ * separates inline content from the block boundary. Emitted instead of
+ * retroactively mutating the prior `text`/`append_text` opcode, so the
+ * opcode stream is append-only.
+ */
+export interface MdzOpcodeTrimText {
+	type: 'trim_text';
+	id: MdzNodeId;
+	count: number;
+}
+
+/**
  * Create a self-contained leaf node (e.g., horizontal rule).
  * Inserted as a child of the innermost open container, or at root level.
  */
@@ -177,6 +192,7 @@ export type MdzOpcode =
 	| MdzOpcodeClose
 	| MdzOpcodeText
 	| MdzOpcodeAppendText
+	| MdzOpcodeTrimText
 	| MdzOpcodeVoid
 	| MdzOpcodeRevert
 	| MdzOpcodeWrap;

@@ -2,7 +2,7 @@
 	import type {SvelteHTMLElements} from 'svelte/elements';
 
 	import MdzStreamNodeView from './MdzStreamNodeView.svelte';
-	import {mdz_base_context} from './mdz_components.js';
+	import {mdz_base_context, set_mdz_context_with_fallback} from './mdz_components.js';
 	import type {MdzStreamState} from './mdz_stream_state.svelte.js';
 
 	const {
@@ -18,8 +18,7 @@
 		base?: string;
 	} = $props();
 
-	const get_ancestor_base = mdz_base_context.get_maybe();
-	mdz_base_context.set(() => base ?? get_ancestor_base?.());
+	set_mdz_context_with_fallback(mdz_base_context, () => base);
 </script>
 
 <svelte:element
