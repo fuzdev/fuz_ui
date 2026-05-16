@@ -16,7 +16,7 @@ describe('ContextmenuState - Edge Cases', () => {
 
 	describe('error handling', () => {
 		test('synchronous errors display correctly', () => {
-			const entry = new EntryState(contextmenu.root_menu, () => {
+			const entry = new EntryState(contextmenu.root_menu, () => () => {
 				throw new Error('sync error');
 			});
 
@@ -38,10 +38,10 @@ describe('ContextmenuState - Edge Cases', () => {
 		});
 
 		test('multiple errors in sequence handled', async () => {
-			const entry1 = new EntryState(contextmenu.root_menu, () => {
+			const entry1 = new EntryState(contextmenu.root_menu, () => () => {
 				throw new Error('error 1');
 			});
-			const entry2 = new EntryState(contextmenu.root_menu, () => {
+			const entry2 = new EntryState(contextmenu.root_menu, () => () => {
 				throw new Error('error 2');
 			});
 
@@ -53,7 +53,7 @@ describe('ContextmenuState - Edge Cases', () => {
 		});
 
 		test('error state cleared on successful action', async () => {
-			const failing_entry = new EntryState(contextmenu.root_menu, () => {
+			const failing_entry = new EntryState(contextmenu.root_menu, () => () => {
 				throw new Error('initial error');
 			});
 			const success_entry = new EntryState(contextmenu.root_menu, () => () => {
@@ -222,7 +222,8 @@ describe('ContextmenuState - Edge Cases', () => {
 				walker = walker.menu;
 				actual_depth++;
 			}
-			assert.ok(actual_depth >= depth);
+			// depth submenus + root_menu = depth + 1 levels from entry to root
+			assert.strictEqual(actual_depth, depth + 1);
 		});
 	});
 
@@ -236,8 +237,8 @@ describe('ContextmenuState - Edge Cases', () => {
 				}
 			}
 
-			// Final state should be consistent
-			assert.ok(typeof contextmenu.opened === 'boolean');
+			// Final state should be consistent — last iteration i=9 (odd), no close
+			assert.strictEqual(contextmenu.opened, true);
 		});
 
 		test('concurrent selections', () => {

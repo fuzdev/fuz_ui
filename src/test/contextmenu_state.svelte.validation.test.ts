@@ -321,7 +321,7 @@ describe('ContextmenuState - Validation', () => {
 				const result = contextmenu.can_activate;
 				assert.strictEqual(result, true);
 				// Verify the disabled function was called
-				assert.ok(counter > 0);
+				assert.strictEqual(counter, 1);
 			});
 
 			test('dynamic disabled state changes', () => {

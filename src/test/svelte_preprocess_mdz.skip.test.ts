@@ -470,7 +470,7 @@ describe('ternary/conditional expressions', () => {
 		assert.equal(result, input, 'should be unchanged when nested branch has unconfigured tag');
 	});
 
-	test('transforms ternary with empty string branch', async () => {
+	test('transforms ternary with empty string in consequent', async () => {
 		const input = `<script lang="ts">
 	import Mdz from '@fuzdev/fuz_ui/Mdz.svelte';
 	let show = $state(true);
@@ -628,7 +628,7 @@ describe('ternary/conditional expressions', () => {
 		assert.ok(!result.includes('import Mdz from'), 'should remove Mdz import when all transformed');
 	});
 
-	test('transforms ternary with empty string branch', async () => {
+	test('transforms ternary with empty string in alternate', async () => {
 		const input = `<script lang="ts">
 	import Mdz from '@fuzdev/fuz_ui/Mdz.svelte';
 	let show = $state(true);

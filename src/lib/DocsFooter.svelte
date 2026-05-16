@@ -38,7 +38,7 @@
 		{@render logo_footer?.()}
 	</div>
 	{#if root_url}
-		<div class="root_url">
+		<div class="root-url">
 			<!-- eslint-disable-next-line svelte/no-navigation-without-resolve -->
 			<a href={root_url}>{format_url(root_url)}</a>
 		</div>
@@ -58,7 +58,7 @@
 	.logo a:hover {
 		--border_color: var(--color_a_50);
 	}
-	.root_url {
+	.root-url {
 		/* TODO messy */
 		margin-top: var(--space_md);
 	}

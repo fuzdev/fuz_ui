@@ -129,16 +129,16 @@
 	<div
 		class="dialog"
 		class:ready
-		class:layout_page={layout === 'page'}
+		class:layout-page={layout === 'page'}
 		role="dialog"
 		aria-modal="true"
 		bind:this={dialog_el}
 		tabindex="-1"
 		style:z-index={100 + index}
 	>
-		<div class="dialog_layout">
+		<div class="dialog-layout">
 			<div
-				class="dialog_wrapper"
+				class="dialog-wrapper"
 				role="none"
 				onmousedown={(e) => {
 					// Close if clicking outside `content_el` but inside the wrapper
@@ -153,8 +153,8 @@
 					}
 				}}
 			>
-				<div class="dialog_bg" aria-hidden="true"></div>
-				<div class="dialog_content" bind:this={content_el}>
+				<div class="dialog-bg" aria-hidden="true"></div>
+				<div class="dialog-content" bind:this={content_el}>
 					<!-- mount the content only after teleporting to avoid issues -->
 					{#if ready}{@render children(close)}{/if}
 				</div>
@@ -180,18 +180,18 @@
 		overscroll-behavior: contain;
 	}
 
-	.dialog_wrapper {
+	.dialog-wrapper {
 		position: relative; /* for the surface */
 		min-height: 100%;
 		display: flex;
 		align-items: center;
 		justify-content: center;
 	}
-	.layout_page .dialog_wrapper {
+	.layout-page .dialog-wrapper {
 		align-items: start;
 	}
 
-	.dialog_bg {
+	.dialog-bg {
 		position: absolute;
 		inset: 0;
 		z-index: 0;
@@ -199,23 +199,23 @@
 		transition: opacity var(--duration_3) ease;
 		background-color: var(--dialog_bg, var(--darken_60));
 	}
-	.ready .dialog_bg {
+	.ready .dialog-bg {
 		opacity: 1;
 	}
 
-	.dialog_layout {
+	.dialog-layout {
 		height: 100%;
 		/* makes the content overflow downwards instead of upwards+downwards because it's centered */
 		max-height: 100%;
 	}
 
-	.dialog_content {
+	.dialog-content {
 		width: 100%;
 		transform: scale(0.99);
 		transition: transform var(--duration_1) ease;
 		padding: 40px;
 	}
-	.ready .dialog_content {
+	.ready .dialog-content {
 		transform: scale(1);
 	}
 </style>

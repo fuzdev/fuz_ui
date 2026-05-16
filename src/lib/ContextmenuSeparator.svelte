@@ -4,12 +4,12 @@
 	const {...rest}: SvelteHTMLElements['li'] = $props();
 </script>
 
-<li role="separator" aria-orientation="vertical" {...rest} class:contextmenu_separator={true}></li>
+<li role="separator" aria-orientation="vertical" {...rest} class:contextmenu-separator={true}></li>
 
 <style>
-	.contextmenu_separator {
+	.contextmenu-separator {
 		height: var(--border_width);
-		margin: var(--spacing_xs) var(--spacing_sm);
+		margin: var(--space_xs) var(--space_sm);
 		background-color: var(--border_color_10);
 		list-style: none;
 	}

@@ -43,7 +43,7 @@
 </script>
 
 <!-- TODO consider making this a text input or otherwise editable directly -->
-<div {...rest} class="hue_input {rest.class}" style:--hue={value}>
+<div {...rest} class="hue-input {rest.class}" style:--hue={value}>
 	<label class="unstyled">
 		{#if children}<div class="title">{@render children()}</div>{/if}
 		<div class="preview">
@@ -51,7 +51,7 @@
 			<input type="number" step="0" class="hue" {value} oninput={on_input_event} />
 		</div>
 	</label>
-	<div class="minimap_wrapper">
+	<div class="minimap-wrapper">
 		<div class="minimap" onclick={set_hue_from_minimap} aria-hidden="true"></div>
 	</div>
 	<input
@@ -66,7 +66,7 @@
 </div>
 
 <style>
-	.hue_input {
+	.hue-input {
 		--outline_color: hsl(var(--hue) 50% 60%);
 		/* TODO @many figure these variables out so they're easily customized (similar pattern in a lot of places) */
 		/* --thumb_background_color: hsl(var(--hue) 50% 50%); */
@@ -84,7 +84,7 @@
 		border-top-left-radius: var(--border_radius, var(--border_radius_md));
 		border-top-right-radius: var(--border_radius, var(--border_radius_md));
 	}
-	.minimap_wrapper {
+	.minimap-wrapper {
 		padding: 0 var(--input_padding_x);
 		background: hsl(0 50% 50%) 0%;
 	}

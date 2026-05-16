@@ -55,14 +55,14 @@ describe('ContextmenuState - Initialization', () => {
 		test('default layout dimensions are reasonable', () => {
 			// Layout exists even if dimensions are initially 0
 			assert.ok(contextmenu.layout);
-			assert.ok(typeof contextmenu.layout.width === 'number');
-			assert.ok(typeof contextmenu.layout.height === 'number');
+			assert.typeOf(contextmenu.layout.width, 'number');
+			assert.typeOf(contextmenu.layout.height, 'number');
 
 			// Dimensions are not negative or NaN
-			assert.ok(!Number.isNaN(contextmenu.layout.width));
-			assert.ok(!Number.isNaN(contextmenu.layout.height));
-			assert.ok(contextmenu.layout.width >= 0);
-			assert.ok(contextmenu.layout.height >= 0);
+			assert.isFalse(Number.isNaN(contextmenu.layout.width));
+			assert.isFalse(Number.isNaN(contextmenu.layout.height));
+			assert.isAtLeast(contextmenu.layout.width, 0);
+			assert.isAtLeast(contextmenu.layout.height, 0);
 		});
 	});
 });

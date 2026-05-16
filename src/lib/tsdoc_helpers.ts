@@ -107,19 +107,14 @@ export const tsdoc_parse = (
 	// Extract main comment text
 	for (const comment of tsdoc_comments) {
 		if (ts.isJSDoc(comment) && comment.comment) {
-			const text =
-				typeof comment.comment === 'string'
-					? comment.comment
-					: comment.comment.map((c) => c.text).join('');
-			full_text += text + '\n';
+			full_text += tsdoc_comment_to_text(comment.comment, source_file) + '\n';
 		}
 	}
 
 	// Extract tags
 	const tags = ts.getJSDocTags(node);
 	for (const tag of tags) {
-		const tag_text =
-			typeof tag.comment === 'string' ? tag.comment : tag.comment?.map((c) => c.text).join('');
+		const tag_text = tag.comment ? tsdoc_comment_to_text(tag.comment, source_file) : undefined;
 		const tag_name = tag.tagName.text;
 
 		if (tag_name === 'param' && ts.isJSDocParameterTag(tag)) {
@@ -212,6 +207,22 @@ export const tsdoc_apply_to_declaration = (
 	if (tsdoc.since) {
 		declaration.since = tsdoc.since;
 	}
+};
+
+/**
+ * Concatenates a JSDoc comment (string or node array) into plain text, preserving `{@link ...}`.
+ *
+ * `JSDocLink` / `JSDocLinkCode` / `JSDocLinkPlain` nodes have empty `.text` — the identifier
+ * lives on `.name`, not `.text`. Using `.text` alone silently drops link content; we fall back
+ * to the source-text representation for link nodes so `{@link Foo}` survives intact for downstream
+ * renderers (see `tsdoc_mdz.ts`).
+ */
+export const tsdoc_comment_to_text = (
+	comment: string | ts.NodeArray<ts.JSDocComment>,
+	source_file: ts.SourceFile,
+): string => {
+	if (typeof comment === 'string') return comment;
+	return comment.map((c) => (ts.isJSDocLinkLike(c) ? c.getText(source_file) : c.text)).join('');
 };
 
 /**

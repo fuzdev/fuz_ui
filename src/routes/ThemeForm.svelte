@@ -63,7 +63,7 @@
 	);
 </script>
 
-<div class="theme_form">
+<div class="theme-form">
 	<h2 class="text-align:center">
 		{#if editing}edit{:else}create{/if} theme
 	</h2>
@@ -120,7 +120,7 @@
 {/if}
 
 <style>
-	.theme_form {
+	.theme-form {
 		width: 100%;
 	}
 	header {

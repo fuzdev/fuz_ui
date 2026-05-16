@@ -25,7 +25,7 @@
 </script>
 
 {#if enabled}
-	<div {...rest} class="docs_primary_nav {rest.class}" class:scrolled>
+	<div {...rest} class="docs-primary-nav {rest.class}" class:scrolled>
 		<div class="background" aria-hidden="true"></div>
 		<div class="content">
 			<nav aria-label="Primary nav">
@@ -43,7 +43,7 @@
 {/if}
 
 <style>
-	.docs_primary_nav {
+	.docs-primary-nav {
 		position: sticky;
 		top: 0;
 		z-index: 10;

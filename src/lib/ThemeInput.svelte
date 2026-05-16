@@ -28,14 +28,14 @@
 	} = $props();
 </script>
 
-<menu {...rest} class="theme_input unstyled {rest.class}">
+<menu {...rest} class="theme-input unstyled {rest.class}">
 	{#each themes as theme (theme.name)}
 		<!-- TODO @many proper equality check, won't work when we allow editing, need an id or unique names and a deep equality check -->
 		{@const selected = theme.name === selected_theme.theme.name}
 		<li class="row" role="none">
 			<button
 				type="button"
-				class="theme_button color_a"
+				class="theme-button color_a"
 				role="menuitemradio"
 				aria-label="{theme.name} theme"
 				aria-checked={selected}
@@ -64,15 +64,15 @@
 </menu>
 
 <style>
-	.theme_button {
+	.theme-button {
 		flex: 1;
 		border-radius: 0;
 	}
-	li:first-child .theme_button {
+	li:first-child .theme-button {
 		border-top-left-radius: var(--border_radius_sm);
 		border-top-right-radius: var(--border_radius_sm);
 	}
-	li:last-child .theme_button {
+	li:last-child .theme-button {
 		border-bottom-left-radius: var(--border_radius_sm);
 		border-bottom-right-radius: var(--border_radius_sm);
 	}

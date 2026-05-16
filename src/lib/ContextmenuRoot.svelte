@@ -273,7 +273,7 @@
 
 {#if scoped}
 	<div
-		class="contextmenu_root"
+		class="contextmenu-root"
 		role="region"
 		oncontextmenu={on_window_contextmenu}
 		ontouchstartcapture={!bypass_with_tap_then_longpress ? undefined : touchstart}
@@ -287,7 +287,7 @@
 
 {#if !contextmenu.has_custom_layout}
 	<div
-		class="contextmenu_layout"
+		class="contextmenu-layout"
 		bind:clientWidth={layout.width}
 		bind:clientHeight={layout.height}
 		aria-hidden="true"
@@ -335,7 +335,7 @@
 {/snippet}
 
 <style>
-	.contextmenu_root {
+	.contextmenu-root {
 		display: contents;
 	}
 	.contextmenu {
@@ -356,7 +356,7 @@
 		border-radius: var(--contextmenu_border_radius, var(--border_radius_xs));
 	}
 
-	.contextmenu_layout {
+	.contextmenu-layout {
 		z-index: -200;
 		position: fixed;
 		inset: 0;

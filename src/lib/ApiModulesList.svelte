@@ -27,7 +27,7 @@
 		{#if modules.length === 0}
 			<p class="color_c">No modules match your search.</p>
 		{:else}
-			<ul class="modules_list">
+			<ul class="modules-list">
 				{#each modules as module (module.path)}
 					<li>
 						<ModuleLink module_path={module.path} />
@@ -39,14 +39,14 @@
 {/if}
 
 <style>
-	.modules_list {
+	.modules-list {
 		display: flex;
 		flex-wrap: wrap;
 		gap: var(--space_xs);
 		padding: 0;
 		list-style: none;
 	}
-	.modules_list li {
+	.modules-list li {
 		margin: 0;
 	}
 </style>

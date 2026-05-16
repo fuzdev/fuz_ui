@@ -75,5 +75,5 @@ export interface SharedTestOptions {
 	 * Duration in milliseconds to advance timers for longpress detection.
 	 * Only used when requires_longpress is true.
 	 */
-	longpress_duration?: boolean;
+	longpress_duration?: number;
 }

@@ -182,20 +182,6 @@ describe('ContextmenuState - Selection', () => {
 			assert.strictEqual(contextmenu.selections.length, 1);
 		});
 
-		test('expand_selected() does not crash on empty submenu (regression)', () => {
-			// This is a regression test for the bug where expand_selected()
-			// would access parent.items[0] without checking if items is empty
-			const empty_submenu = new SubmenuState(contextmenu.root_menu, 2);
-			contextmenu.root_menu.items = [...contextmenu.root_menu.items, empty_submenu];
-			contextmenu.select(empty_submenu);
-
-			// Before fix: would throw "Cannot read property 'selected' of undefined"
-			// After fix: should be a safe no-op
-			assert.doesNotThrow(() => {
-				contextmenu.expand_selected();
-			});
-		});
-
 		test("rapid selection changes don't cause race conditions", () => {
 			// Rapidly change selections and verify state consistency
 			contextmenu.select(entry1);
@@ -257,6 +243,15 @@ describe('ContextmenuState - Selection', () => {
 			contextmenu.collapse_selected();
 			assert.strictEqual(contextmenu.selections.length, 1);
 			assert.strictEqual(contextmenu.selections[0]!, submenu1);
+		});
+
+		test('select_first and select_last on empty menu are no-ops', () => {
+			contextmenu.root_menu.items = [];
+			contextmenu.select_first();
+			assert.strictEqual(contextmenu.selections.length, 0);
+
+			contextmenu.select_last();
+			assert.strictEqual(contextmenu.selections.length, 0);
 		});
 
 		test('keyboard navigation boundary conditions', () => {

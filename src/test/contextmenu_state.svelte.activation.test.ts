@@ -24,7 +24,7 @@ describe('ContextmenuState - Activation', () => {
 		});
 
 		test('activate() handles synchronous error', () => {
-			const entry = new EntryState(contextmenu.root_menu, () => {
+			const entry = new EntryState(contextmenu.root_menu, () => () => {
 				throw new Error('test error');
 			});
 
@@ -351,25 +351,65 @@ describe('ContextmenuState - Activation', () => {
 			assert.strictEqual(entry.pending, false);
 		});
 
-		test('disabled state is checked via can_activate (not enforced by activate)', () => {
-			// The state layer provides can_activate to check disabled state
-			// but doesn't prevent calling activate() directly
+		test('activate() returns false for disabled entries and does not run callback', () => {
+			let ran = false;
 			const disabled_entry = new EntryState(
 				contextmenu.root_menu,
 				() => () => {
+					ran = true;
 					return {ok: true};
 				},
 				() => true, // disabled function returns true
 			);
 
 			contextmenu.root_menu.items = [...contextmenu.root_menu.items, disabled_entry];
+			contextmenu.open([], 0, 0);
 			contextmenu.select(disabled_entry);
 
 			// can_activate should return false for disabled entries
 			assert.strictEqual(contextmenu.can_activate, false);
 
-			// The UI should check can_activate before calling activate
-			// (The state layer doesn't enforce this programmatically)
+			// activate() itself enforces the disabled check
+			const result = contextmenu.activate(disabled_entry);
+			assert.strictEqual(result, false);
+			assert.strictEqual(ran, false);
+			assert.strictEqual(contextmenu.opened, true); // menu stays open
+		});
+
+		test('activate() uses "unknown error" fallback for non-Error sync throws', () => {
+			const entry = new EntryState(contextmenu.root_menu, () => () => {
+				throw 'not an Error object'; // eslint-disable-line @typescript-eslint/only-throw-error
+			});
+
+			void contextmenu.activate(entry);
+
+			assert.strictEqual(entry.error_message, 'unknown error');
+			assert.strictEqual(contextmenu.error, undefined);
+		});
+
+		test('activate() uses "unknown error" fallback for async rejection with non-Error', async () => {
+			const entry = new EntryState(contextmenu.root_menu, () => async () => {
+				throw 42; // eslint-disable-line @typescript-eslint/only-throw-error
+			});
+
+			await contextmenu.activate(entry);
+
+			assert.strictEqual(entry.error_message, 'unknown error');
+			assert.strictEqual(contextmenu.error, undefined);
+			assert.strictEqual(entry.pending, false);
+		});
+
+		test('activate() uses "unknown error" for sync {ok: false} without message', () => {
+			const entry = new EntryState(contextmenu.root_menu, () => () => {
+				return {ok: false} as any;
+			});
+
+			contextmenu.open([], 0, 0);
+			void contextmenu.activate(entry);
+
+			assert.strictEqual(entry.error_message, 'unknown error');
+			assert.strictEqual(contextmenu.error, undefined);
+			assert.strictEqual(contextmenu.opened, true);
 		});
 	});
 });

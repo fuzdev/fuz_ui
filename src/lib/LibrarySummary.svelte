@@ -29,13 +29,13 @@
 	const {package_json} = $derived(library);
 </script>
 
-<div class="library_summary">
+<div class="library-summary">
 	<!-- TODO maybe continue this snippet pattern, or maybe simplify? -->
 	<header class="box mb_lg">
 		{#if repo_name}
 			{@render repo_name(library.repo_name)}
 		{:else}
-			<div class="repo_name">{library.repo_name}</div>
+			<div class="repo-name">{library.repo_name}</div>
 		{/if}
 		<!-- TODO maybe add `icon_alt` to package.json -->
 		<!-- TODO what about svg logos? maybe a package.json logo url that defaults to favicon? -->
@@ -118,14 +118,14 @@
 <!-- TODO better rendering, also show author, etc -->
 
 <style>
-	.library_summary {
+	.library-summary {
 		padding: var(--space_lg);
 		display: flex;
 		flex-direction: column;
 		align-items: center;
 		max-width: var(--max_width, var(--distance_sm));
 	}
-	.repo_name {
+	.repo-name {
 		font-family: var(--font_family_serif);
 		font-size: var(--font_size_xl2);
 		font-weight: 400;

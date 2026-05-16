@@ -34,7 +34,7 @@
 	<!-- eslint-disable svelte/no-navigation-without-resolve -->
 	<a
 		{...rest}
-		class="declaration_link {class_prop}"
+		class="declaration-link {class_prop}"
 		href={declaration.url_api + (hash ? ensure_start(hash, '#') : '')}
 		{@attach contextmenu_attachment(contextmenu_entries)}
 	>

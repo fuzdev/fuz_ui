@@ -301,6 +301,7 @@ export class ContextmenuState {
 
 	select_last(): void {
 		const {items} = this.selections.at(-1)?.menu ?? this.root_menu;
+		if (!items.length) return;
 		this.select(items.at(-1)!);
 	}
 

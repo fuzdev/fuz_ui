@@ -16,14 +16,14 @@
 	const expand_width = $derived(!sidebar);
 </script>
 
-<aside {...rest} class="docs_secondary_nav unstyled {rest.class}" class:sidebar>
+<aside {...rest} class="docs-secondary-nav unstyled {rest.class}" class:sidebar>
 	<nav aria-label="Secondary nav">
 		<DocsMenu {tomes} {expand_width} />
 	</nav>
 </aside>
 
 <style>
-	.docs_secondary_nav {
+	.docs-secondary-nav {
 		/* TODO @many lots of duplicate code between `DocsSecondaryNav` and `DocsTertiaryNav` */
 		position: fixed;
 		left: 0;
@@ -48,7 +48,7 @@
 
 	/* sync this breakpoint with `Docs` */
 	@media (max-width: 800px) {
-		.docs_secondary_nav {
+		.docs-secondary-nav {
 			position: static;
 			background-color: initial;
 			align-items: initial;
@@ -56,7 +56,7 @@
 		}
 	}
 	/* TODO @many dialog navs  */
-	.docs_secondary_nav:not(.sidebar) {
+	.docs-secondary-nav:not(.sidebar) {
 		position: static;
 		background-color: initial;
 		align-items: initial;

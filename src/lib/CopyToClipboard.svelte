@@ -62,7 +62,7 @@
 	type="button"
 	title="copy to clipboard"
 	{...rest}
-	class="copy_to_clipboard {rest.class}"
+	class="copy-to-clipboard {rest.class}"
 	class:icon_button={children ? false : icon_button}
 	class:copied
 	class:failed

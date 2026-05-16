@@ -1,7 +1,53 @@
 import {test, assert, describe, beforeEach} from 'vitest';
 import {flushSync} from 'svelte';
 
-import {to_docs_path_info, DocsLinks, DOCS_PATH_DEFAULT} from '$lib/docs_helpers.svelte.js';
+import {
+	docs_slugify,
+	to_docs_path_info,
+	DocsLinks,
+	DOCS_PATH_DEFAULT,
+} from '$lib/docs_helpers.svelte.js';
+
+describe('docs_slugify', () => {
+	test('preserves case unlike standard slugify', () => {
+		assert.strictEqual(docs_slugify('AsyncStatus'), 'AsyncStatus');
+		assert.strictEqual(docs_slugify('async_status'), 'async_status');
+	});
+
+	test('replaces spaces with hyphens', () => {
+		assert.strictEqual(docs_slugify('hello world'), 'hello-world');
+	});
+
+	test('collapses multiple hyphens', () => {
+		assert.strictEqual(docs_slugify('a---b'), 'a-b');
+	});
+
+	test('removes invalid characters', () => {
+		assert.strictEqual(docs_slugify('hello@world!'), 'helloworld');
+		assert.strictEqual(docs_slugify('foo(bar)'), 'foobar');
+	});
+
+	test('preserves $, _, and digits', () => {
+		assert.strictEqual(docs_slugify('$state_123'), '$state_123');
+	});
+
+	test('trims leading and trailing hyphens', () => {
+		assert.strictEqual(docs_slugify('-hello-'), 'hello');
+		assert.strictEqual(docs_slugify('--hello--'), 'hello');
+	});
+
+	test('trims whitespace', () => {
+		assert.strictEqual(docs_slugify('  hello  '), 'hello');
+	});
+
+	test('handles empty string', () => {
+		assert.strictEqual(docs_slugify(''), '');
+	});
+
+	test('handles spaces that produce leading/trailing hyphens after cleanup', () => {
+		assert.strictEqual(docs_slugify(' @hello@ '), 'hello');
+	});
+});
 
 describe('to_docs_path_info', () => {
 	test('extracts path segment from pathname', () => {
@@ -265,6 +311,37 @@ describe('DocsLinks', () => {
 			assert.strictEqual(docs_links.docs_links.length, 2);
 			assert.ok(docs_links.links.has(id3));
 			assert.ok(docs_links.links.has(id4));
+		});
+	});
+
+	describe('generate_section_id', () => {
+		test('generates incrementing section IDs', () => {
+			assert.strictEqual(docs_links.generate_section_id(), 'section_0');
+			assert.strictEqual(docs_links.generate_section_id(), 'section_1');
+			assert.strictEqual(docs_links.generate_section_id(), 'section_2');
+		});
+
+		test('counter is instance-scoped', () => {
+			const other = new DocsLinks();
+			assert.strictEqual(docs_links.generate_section_id(), 'section_0');
+			assert.strictEqual(other.generate_section_id(), 'section_0');
+		});
+	});
+
+	describe('add with explicit_id', () => {
+		test('uses explicit_id when provided', () => {
+			const id = docs_links.add('slug', 'Title', '/docs/test', undefined, 1, undefined, 'my-id');
+			flushSync();
+
+			assert.strictEqual(id, 'my-id');
+			assert.ok(docs_links.links.has('my-id'));
+		});
+
+		test('auto-generates id when explicit_id is not provided', () => {
+			const id = docs_links.add('slug', 'Title', '/docs/test');
+			flushSync();
+
+			assert.ok(id.startsWith('docs_link_'));
 		});
 	});
 

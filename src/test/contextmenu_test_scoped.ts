@@ -27,7 +27,7 @@ export const create_shared_scoped_tests = (
 
 			const {container} = mounted;
 
-			const scoped_div = container.querySelector('.contextmenu_root');
+			const scoped_div = container.querySelector('.contextmenu-root');
 			assert.ok(scoped_div);
 			assert.strictEqual(scoped_div.getAttribute('role'), 'region');
 		});
@@ -37,7 +37,7 @@ export const create_shared_scoped_tests = (
 
 			const {container} = mounted;
 
-			const scoped_div = container.querySelector('.contextmenu_root');
+			const scoped_div = container.querySelector('.contextmenu-root');
 			assert.strictEqual(scoped_div, null);
 		});
 

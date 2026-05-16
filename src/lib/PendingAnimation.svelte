@@ -21,7 +21,7 @@
 
 <span
 	{...rest}
-	class="pending_animation {rest.class} {inline
+	class="pending-animation {rest.class} {inline
 		? 'display:inline-flex align-items:center'
 		: 'display:flex'}"
 	class:running
@@ -35,7 +35,7 @@
 >
 
 <style>
-	.pending_animation span {
+	.pending-animation span {
 		font-size: var(--font_size, inherit);
 		display: inline-block;
 		transform: scale3d(var(--scale_x, 0.4), var(--scale_y, 0.4), var(--scale_z, 0.4));

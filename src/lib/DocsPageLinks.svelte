@@ -20,10 +20,10 @@
 	const hash = $derived(page.url.hash.slice(1));
 </script>
 
-<DocsList {...rest} {expand_width} class="docs_page_links">
+<DocsList {...rest} {expand_width} class="docs-page-links">
 	<h4 class="mb_sm">on this page</h4>
 	{#if sidebar}
-		<div class="sidebar_wrapper">{@render content()}</div>
+		<div class="sidebar-wrapper">{@render content()}</div>
 	{:else}
 		{@render content()}
 	{/if}
@@ -54,8 +54,8 @@
 {/snippet}
 
 <style>
-	/* this is needed because `.docs_page_links` needs to be a block to collapse the vertical margin */
-	.sidebar_wrapper {
+	/* this is needed because `.docs-page-links` needs to be a block to collapse the vertical margin */
+	.sidebar-wrapper {
 		display: flex;
 		flex-direction: column;
 		align-items: flex-start;
