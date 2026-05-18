@@ -108,6 +108,7 @@ export default {
 			its base path to resolve those at compile time. Add a static <code>base</code> attribute to
 			the <DeclarationLink name="Mdz" /> tag:
 		</p>
+		<!-- eslint-disable svelte/no-useless-mustaches -->
 		<Code content={`<Mdz base="/docs/mdz/" content="see ./grammar and ../spec" />`} />
 		<p>
 			The preprocessor reads <code>base</code>, resolves relative paths to absolute via
