@@ -11,9 +11,11 @@
 	import MdzStream from '$lib/MdzStream.svelte';
 	import {MdzStreamParser} from '$lib/mdz_stream_parser.js';
 	import {MdzStreamState} from '$lib/mdz_stream_state.svelte.js';
+	import type {MdzOpcode} from '$lib/mdz_opcodes.js';
 	import DeclarationLink from '$lib/DeclarationLink.svelte';
 	import TomeLink from '$lib/TomeLink.svelte';
 	import MdzRoot from '$lib/MdzRoot.svelte';
+	import Details from '$lib/Details.svelte';
 	import Alert from '$lib/Alert.svelte';
 
 	const LIBRARY_ITEM_NAME = 'mdz';
@@ -79,6 +81,8 @@ const y = 1336;
 
 (stream done)`;
 
+	const STREAM_OPCODES_MAX = 20;
+
 	let stream_content = $state(stream_initial);
 	let stream_parser = $state(new MdzStreamParser());
 	let stream_state = $state(new MdzStreamState());
@@ -86,12 +90,20 @@ const y = 1336;
 	let stream_running = $state(false);
 	let stream_finished = $state(false);
 	let stream_interval_ms = $state(100);
+	let stream_recent_opcodes = $state<Array<MdzOpcode>>([]);
 	let stream_timer: ReturnType<typeof setInterval> | undefined;
+
+	const stream_drain = (): void => {
+		const ops = stream_parser.take_opcodes();
+		if (ops.length === 0) return;
+		stream_state.apply_batch(ops);
+		stream_recent_opcodes = [...stream_recent_opcodes, ...ops].slice(-STREAM_OPCODES_MAX);
+	};
 
 	const stream_step = (): void => {
 		if (stream_pos >= stream_content.length) {
 			stream_parser.finish();
-			stream_state.apply_batch(stream_parser.take_opcodes());
+			stream_drain();
 			stream_running = false;
 			stream_finished = true;
 			if (stream_timer !== undefined) {
@@ -101,7 +113,7 @@ const y = 1336;
 			return;
 		}
 		stream_parser.feed(stream_content[stream_pos]!);
-		stream_state.apply_batch(stream_parser.take_opcodes());
+		stream_drain();
 		stream_pos++;
 	};
 
@@ -125,6 +137,7 @@ const y = 1336;
 		stream_state = new MdzStreamState();
 		stream_pos = 0;
 		stream_finished = false;
+		stream_recent_opcodes = [];
 	};
 
 	onMount(() => {
@@ -169,7 +182,7 @@ const y = 1336;
 
 		<TomeSection>
 			<TomeSectionHeader text="Playground" />
-			<textarea bind:value={playground_content}></textarea>
+			<textarea bind:value={playground_content} aria-label="mdz source"></textarea>
 			<div class="panel shade_05 mb_lg p_md">
 				<Mdz content={playground_content} />
 			</div>
@@ -373,7 +386,8 @@ const nodes = mdz_parse(content);`}
 			<p>
 				Try it -- each character is fed one at a time to show how constructs build incrementally:
 			</p>
-			<textarea bind:value={stream_content} oninput={stream_reset}></textarea>
+			<textarea bind:value={stream_content} oninput={stream_reset} aria-label="streaming mdz source"
+			></textarea>
 			<div class="row gap_md mb_md">
 				<button type="button" onclick={() => (stream_running ? stream_pause() : stream_start())}>
 					{stream_running ? 'pause' : stream_finished ? 'restart' : 'stream'}
@@ -398,8 +412,32 @@ const nodes = mdz_parse(content);`}
 				<small class="ml_auto">{stream_pos}/{stream_content.length}</small>
 			</div>
 			<div class="panel shade_05 mb_lg p_md" style:min-height="16rem">
-				<MdzStream state={stream_state} />
+				{#if stream_pos === 0}
+					<p class="color_c_50">(press <strong>stream</strong> to begin)</p>
+				{:else}
+					<MdzStream state={stream_state} />
+				{/if}
 			</div>
+			<Details>
+				{#snippet summary()}
+					opcodes ({stream_recent_opcodes.length === STREAM_OPCODES_MAX
+						? `last ${STREAM_OPCODES_MAX}`
+						: stream_recent_opcodes.length})
+				{/snippet}
+				<p>
+					Each character fed to <DeclarationLink name="MdzStreamParser" /> can emit zero or more opcodes.
+					This shows the most recent {STREAM_OPCODES_MAX} — watch <code>open</code>,
+					<code>text</code>,
+					<code>close</code> sequences form, and <code>revert</code> when an optimistic assumption
+					(e.g. unclosed <code>~</code>) is abandoned.
+				</p>
+				<Code
+					lang="json"
+					content={stream_recent_opcodes.length === 0
+						? '(no opcodes yet)'
+						: stream_recent_opcodes.map((op) => JSON.stringify(op)).join('\n')}
+				/>
+			</Details>
 			<Code
 				lang="ts"
 				content={`import {MdzStreamParser} from '@fuzdev/fuz_ui/mdz_stream_parser.js';
