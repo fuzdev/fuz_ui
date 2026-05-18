@@ -20,6 +20,18 @@ gro build     # build for production
 IMPORTANT for AI agents: Do NOT run `gro dev` - the developer will manage the
 dev server.
 
+## Benchmarks
+
+```bash
+npm run benchmark         # run mdz parser benchmarks, compare against baseline
+npm run benchmark:save    # save current results as the new baseline
+npm run benchmark:clean   # remove the local baseline (forces a fresh seed)
+```
+
+Baseline lives at `src/benchmarks/baseline.json` and is **gitignored** —
+local-only. After a fuz_util upgrade that bumps the baseline schema version,
+the next run auto-deletes the stale file with a warning; `--save` re-seeds.
+
 ## Key dependencies
 
 - Svelte 5 - component framework
