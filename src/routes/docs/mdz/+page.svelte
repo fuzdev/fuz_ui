@@ -1,4 +1,5 @@
 <script lang="ts">
+	import {onMount} from 'svelte';
 	import Code from '@fuzdev/fuz_code/Code.svelte';
 	import {resolve} from '$app/paths';
 
@@ -76,7 +77,7 @@ const y = 1336;
 
 ---
 
-stream done~`;
+(stream done)`;
 
 	let stream_content = $state(stream_initial);
 	let stream_parser = $state(new MdzStreamParser());
@@ -125,6 +126,12 @@ stream done~`;
 		stream_pos = 0;
 		stream_finished = false;
 	};
+
+	onMount(() => {
+		return () => {
+			if (stream_timer !== undefined) clearInterval(stream_timer);
+		};
+	});
 </script>
 
 <MdzRoot base="/docs/mdz/" components={mdz_components} elements={mdz_elements}>
@@ -166,7 +173,6 @@ stream done~`;
 			<div class="panel shade_05 mb_lg p_md">
 				<Mdz content={playground_content} />
 			</div>
-			<Code content={`<Mdz content="${playground_content}" />`} />
 		</TomeSection>
 
 		<TomeSection>
@@ -360,12 +366,14 @@ const nodes = mdz_parse(content);`}
 				parser emits opcodes as rendering instructions - never re-parsing - and the state applies
 				them as fine-grained Svelte mutations. This is an implementation of the design described by
 				<a href="https://pngwn.at/">pngwn</a> in
-				<a href="https://bsky.app/profile/pngwn.at/post/3mi527zntb22n">this bluesky post</a>.
+				<a href="https://bsky.app/profile/pngwn.at/post/3mi527zntb22n">this bluesky post</a>. See
+				<a href={resolve('/docs/mdz/streaming')}>streaming and opcodes</a> for the full opcode design
+				and rendering paths.
 			</p>
 			<p>
 				Try it -- each character is fed one at a time to show how constructs build incrementally:
 			</p>
-			<textarea bind:value={stream_content} onchange={stream_reset}></textarea>
+			<textarea bind:value={stream_content} oninput={stream_reset}></textarea>
 			<div class="row gap_md mb_md">
 				<button type="button" onclick={() => (stream_running ? stream_pause() : stream_start())}>
 					{stream_running ? 'pause' : stream_finished ? 'restart' : 'stream'}
@@ -378,7 +386,7 @@ const nodes = mdz_parse(content);`}
 						max="200"
 						step="10"
 						bind:value={stream_interval_ms}
-						onchange={() => {
+						oninput={() => {
 							if (stream_running) {
 								stream_pause();
 								stream_start();
@@ -389,7 +397,7 @@ const nodes = mdz_parse(content);`}
 				</label>
 				<small class="ml_auto">{stream_pos}/{stream_content.length}</small>
 			</div>
-			<div class="panel shade_05 mb_lg p_md">
+			<div class="panel shade_05 mb_lg p_md" style:min-height="16rem">
 				<MdzStream state={stream_state} />
 			</div>
 			<Code

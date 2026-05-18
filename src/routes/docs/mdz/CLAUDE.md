@@ -19,10 +19,16 @@ mdz auto-links four path patterns:
 
 - `https://` and `http://` - external URLs (`link_type: 'external'`)
 - `/path` - absolute internal paths, resolved via SvelteKit `resolve()`
-- `./path` and `../path` - relative internal paths
+- `./path` - relative internal paths (same directory)
+- `../path` - relative internal paths (parent directory)
 
 All auto-linked paths must be preceded by whitespace or start of string.
 Trailing punctuation (`.,:;!?]`) is trimmed per GFM conventions.
+
+`javascript:`, `data:`, and other non-`http(s)` URI schemes are stripped at
+render time by `mdz_is_safe_reference` — the link's display text renders as
+plain children, no `href` is emitted. Applies to both explicit markdown
+links (`[text](javascript:...)`) and auto-linked URIs.
 
 ## Context and MdzRoot
 

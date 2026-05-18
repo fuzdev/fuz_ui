@@ -201,6 +201,10 @@ Trailing punctuation handling same as auto-URLs.
 
 Absolute paths are resolved through SvelteKit's `resolve()` to apply the base path. Relative paths are resolved against the `base` prop/context when provided, producing absolute paths passed through `resolve()`. Without `base`, relative paths use raw hrefs, letting the browser resolve them against the current URL.
 
+**Safe-reference filter:**
+
+At render time, link references containing `:` are required to start with `http://` or `https://`. Other schemes (`javascript:`, `data:`, `file:`, etc.) produce no `href` — children render as plain text. See `mdz_is_safe_reference`.
+
 ---
 
 ## Headings
@@ -352,8 +356,7 @@ Opening and closing tags must match exactly.
 
 **Opt-in system:**
 
-Components must be registered via `mdz_components_context`.
-Elements must be registered via `mdz_elements_context`.
+Components and elements must be registered via `MdzRoot` (which sets `mdz_components_context` and `mdz_elements_context`).
 Unregistered components render as `<ComponentName />` placeholder.
 Unregistered elements render as `<element-name />` placeholder.
 

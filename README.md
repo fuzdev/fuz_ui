@@ -14,7 +14,7 @@ that focus on end-users.
 Fuz emphasizes capability and efficiency and tries to be simple for those goals.
 Compared to most UI libraries, Fuz has fewer conventional features and more opinions.
 
-To learn more see [the docs](https://ui.fuz.dev/docs) and ./contributing.md.
+To learn more see [the docs](https://ui.fuz.dev/docs) and [contributing.md](contributing.md).
 Feel free to take the ideas and code for your own purposes.
 
 The Svelte components and helpers:
@@ -33,7 +33,7 @@ The Svelte components and helpers:
 ## Usage
 
 > ⚠️ Expect a lot of breaking changes. If you want to help stabilize the API,
-> thank you see ./contributing.md, your input is appreciated.
+> thank you see [contributing.md](contributing.md), your input is appreciated.
 >
 > If you feel comfortable looking at the source code,
 > fuz_ui is ready to use in your own projects,
@@ -69,7 +69,7 @@ See [the library](https://ui.fuz.dev/docs) for more.
 
 ## Contributing
 
-See ./contributing.md.
+See [contributing.md](contributing.md).
 
 ## Develop
 

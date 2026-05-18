@@ -4,7 +4,7 @@
 
 This document provides a comprehensive guide to mdz syntax, features, and usage patterns.
 
-For a high-level introduction, see `mdz.mdz`. For formal grammar rules, see `mdz_grammar.mdz`.
+For a high-level introduction, see /docs/mdz. For formal grammar rules, see ../grammar. For the streaming model, see ../streaming.
 
 ---
 
@@ -151,7 +151,12 @@ Double newlines (paragraph breaks) interrupt all inline formatting:
 
 ## Links
 
-mdz supports three types of links:
+mdz supports four kinds of links:
+
+- standard markdown link syntax
+- auto-detected external URLs (`https://`, `http://`)
+- auto-detected absolute paths (`/path`)
+- auto-detected relative paths (`./path`, `../path`)
 
 ### Markdown Links
 
@@ -208,6 +213,16 @@ See ../shared/utils for a parent-relative path.
 ```
 
 Absolute paths (`/docs/api`) are resolved through SvelteKit's `resolve()` to apply the base path. Relative paths (`./foo`, `../bar`) are resolved against the `base` prop/context when provided, producing absolute paths passed through `resolve()`. Without `base`, relative paths use raw hrefs, letting the browser resolve them against the current URL.
+
+### Unsafe URI schemes
+
+For security, `MdzNodeView` and `MdzStreamNodeView` strip the `href` from any link whose reference is not a `http://` or `https://` URL, a path (`/`, `./`, `../`), a fragment (`#`), or a query (`?`). `javascript:`, `data:`, `file:`, and other schemes render as their display text only — no clickable anchor is emitted.
+
+```
+[click](javascript:alert(1))
+```
+
+Renders as the literal text `[click](javascript:alert(1))` (the parser also rejects `javascript:` from auto-link detection, so this is defense in depth at both parse and render). The check lives in `mdz_is_safe_reference`.
 
 ---
 
