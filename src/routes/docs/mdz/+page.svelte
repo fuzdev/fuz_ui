@@ -32,7 +32,7 @@ Inline links to identifiers using backticks: \`mdz_parse\`, \`Mdz\`
 
 #### A heading
 
-A paragraph with links: [fuz homepage](https://fuz.dev), ./introduction
+A paragraph with links: [fuz homepage](https://fuz.dev), ./grammar
 
 \`\`\`ts
 const y = 1336;
