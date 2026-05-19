@@ -213,6 +213,125 @@ const y = 1336;
 		</TomeSection>
 
 		<TomeSection>
+			<TomeSectionHeader text="Streaming" />
+			<p>
+				Use <code>Mdz</code> when you have complete content upfront. For content that arrives
+				incrementally (e.g. from an LLM), use <DeclarationLink name="MdzStreamParser" /> with
+				<DeclarationLink name="MdzStreamState" /> and <DeclarationLink name="MdzStream" />. The
+				parser emits opcodes as rendering instructions - never re-parsing - and the state applies
+				them as fine-grained Svelte mutations. This is an implementation of the design described by
+				<a href="https://pngwn.at/">pngwn</a> in
+				<a href="https://bsky.app/profile/pngwn.at/post/3mi527zntb22n">this bluesky post</a>. See
+				<a href={resolve('/docs/mdz/streaming')}>streaming and opcodes</a> for the full opcode design
+				and rendering paths. (temporarily AI-generated)
+			</p>
+			<p>
+				Try it -- each character is fed one at a time to show how constructs build incrementally:
+			</p>
+			<textarea
+				style:height="300px"
+				bind:value={stream_content}
+				oninput={stream_reset}
+				aria-label="streaming mdz source"
+			></textarea>
+			<div class="row gap_md mb_md">
+				<button type="button" onclick={() => (stream_running ? stream_pause() : stream_start())}>
+					{stream_running ? 'pause' : stream_finished ? 'restart' : 'stream'}
+				</button>
+				<button type="button" onclick={stream_reset} disabled={stream_pos === 0}>reset</button>
+				<button
+					type="button"
+					onclick={() => stream_seek(stream_pos - 1)}
+					disabled={stream_pos === 0}
+					aria-label="back one character"
+				>
+					◀
+				</button>
+				<button
+					type="button"
+					onclick={() => stream_seek(stream_pos + 1)}
+					disabled={stream_finished}
+					aria-label="forward one character"
+				>
+					▶
+				</button>
+				<label class="row gap_xs">
+					<input
+						type="range"
+						min="10"
+						max="200"
+						step="10"
+						bind:value={stream_interval_ms}
+						oninput={() => {
+							if (stream_running) {
+								stream_pause();
+								stream_start();
+							}
+						}}
+					/>
+					{stream_interval_ms}ms
+				</label>
+			</div>
+			<label class="row gap_md mb_md">
+				<small>scrub</small>
+				<input
+					type="range"
+					min="0"
+					max={stream_content.length}
+					step="1"
+					value={stream_pos}
+					oninput={(e) => stream_seek(+e.currentTarget.value)}
+					aria-label="scrub stream position"
+					style:flex="1"
+				/>
+				<small>{stream_pos}/{stream_content.length}</small>
+			</label>
+			<div class="panel shade_05 mb_lg p_md" style:min-height="300px">
+				{#if stream_pos === 0}
+					<p class="color_d_50">(press <strong>stream</strong> to begin)</p>
+				{:else}
+					<MdzStream state={stream_state} />
+				{/if}
+			</div>
+			<Details>
+				{#snippet summary()}
+					opcodes ({stream_recent_opcodes.length === STREAM_OPCODES_MAX
+						? `last ${STREAM_OPCODES_MAX}`
+						: stream_recent_opcodes.length})
+				{/snippet}
+				<p>
+					Each character fed to <DeclarationLink name="MdzStreamParser" /> can emit zero or more opcodes.
+					This shows the most recent {STREAM_OPCODES_MAX}: watch <code>open</code>,
+					<code>text</code>, <code>close</code> sequences form, and <code>revert</code> when an
+					optimistic assumption (e.g. unclosed <code>~</code>) is abandoned.
+				</p>
+				<Code
+					lang="json"
+					content={stream_recent_opcodes.length === 0
+						? '(no opcodes yet)'
+						: [...stream_recent_opcodes].reverse().join('\n')}
+				/>
+			</Details>
+			<Code
+				lang="ts"
+				content={`import {MdzStreamParser} from '@fuzdev/fuz_ui/mdz_stream_parser.js';
+import {MdzStreamState} from '@fuzdev/fuz_ui/mdz_stream_state.svelte.js';
+
+const parser = new MdzStreamParser();
+const state = new MdzStreamState();
+
+// feed chunks as they arrive
+parser.feed(chunk);
+state.apply_batch(parser.take_opcodes());
+
+// when done
+parser.finish();
+state.apply_batch(parser.take_opcodes());`}
+			/>
+			<Code content={`<MdzStream {state} />`} />
+		</TomeSection>
+
+		<TomeSection>
 			<TomeSectionHeader text="Basic formatting" />
 			<p>Supports <strong>bold</strong>, <em>italic</em>, and strikethrough:</p>
 			<Code content={`<Mdz content="${basic_example}" />`} />
@@ -392,125 +511,6 @@ const nodes = mdz_parse(content);`}
 			<p>
 				For example you may want <code>white-space:pre</code> to avoid wrapping in some circumstances.
 			</p>
-		</TomeSection>
-
-		<TomeSection>
-			<TomeSectionHeader text="Streaming" />
-			<p>
-				Use <code>Mdz</code> when you have complete content upfront. For content that arrives
-				incrementally (e.g. from an LLM), use <DeclarationLink name="MdzStreamParser" /> with
-				<DeclarationLink name="MdzStreamState" /> and <DeclarationLink name="MdzStream" />. The
-				parser emits opcodes as rendering instructions - never re-parsing - and the state applies
-				them as fine-grained Svelte mutations. This is an implementation of the design described by
-				<a href="https://pngwn.at/">pngwn</a> in
-				<a href="https://bsky.app/profile/pngwn.at/post/3mi527zntb22n">this bluesky post</a>. See
-				<a href={resolve('/docs/mdz/streaming')}>streaming and opcodes</a> for the full opcode design
-				and rendering paths. (temporarily AI-generated)
-			</p>
-			<p>
-				Try it -- each character is fed one at a time to show how constructs build incrementally:
-			</p>
-			<textarea
-				style:height="300px"
-				bind:value={stream_content}
-				oninput={stream_reset}
-				aria-label="streaming mdz source"
-			></textarea>
-			<div class="row gap_md mb_md">
-				<button type="button" onclick={() => (stream_running ? stream_pause() : stream_start())}>
-					{stream_running ? 'pause' : stream_finished ? 'restart' : 'stream'}
-				</button>
-				<button type="button" onclick={stream_reset} disabled={stream_pos === 0}>reset</button>
-				<button
-					type="button"
-					onclick={() => stream_seek(stream_pos - 1)}
-					disabled={stream_pos === 0}
-					aria-label="back one character"
-				>
-					◀
-				</button>
-				<button
-					type="button"
-					onclick={() => stream_seek(stream_pos + 1)}
-					disabled={stream_finished}
-					aria-label="forward one character"
-				>
-					▶
-				</button>
-				<label class="row gap_xs">
-					<input
-						type="range"
-						min="10"
-						max="200"
-						step="10"
-						bind:value={stream_interval_ms}
-						oninput={() => {
-							if (stream_running) {
-								stream_pause();
-								stream_start();
-							}
-						}}
-					/>
-					{stream_interval_ms}ms
-				</label>
-			</div>
-			<label class="row gap_md mb_md">
-				<small>scrub</small>
-				<input
-					type="range"
-					min="0"
-					max={stream_content.length}
-					step="1"
-					value={stream_pos}
-					oninput={(e) => stream_seek(+e.currentTarget.value)}
-					aria-label="scrub stream position"
-					style:flex="1"
-				/>
-				<small>{stream_pos}/{stream_content.length}</small>
-			</label>
-			<div class="panel shade_05 mb_lg p_md" style:min-height="300px">
-				{#if stream_pos === 0}
-					<p class="color_d_50">(press <strong>stream</strong> to begin)</p>
-				{:else}
-					<MdzStream state={stream_state} />
-				{/if}
-			</div>
-			<Details>
-				{#snippet summary()}
-					opcodes ({stream_recent_opcodes.length === STREAM_OPCODES_MAX
-						? `last ${STREAM_OPCODES_MAX}`
-						: stream_recent_opcodes.length})
-				{/snippet}
-				<p>
-					Each character fed to <DeclarationLink name="MdzStreamParser" /> can emit zero or more opcodes.
-					This shows the most recent {STREAM_OPCODES_MAX}: watch <code>open</code>,
-					<code>text</code>, <code>close</code> sequences form, and <code>revert</code> when an
-					optimistic assumption (e.g. unclosed <code>~</code>) is abandoned.
-				</p>
-				<Code
-					lang="json"
-					content={stream_recent_opcodes.length === 0
-						? '(no opcodes yet)'
-						: [...stream_recent_opcodes].reverse().join('\n')}
-				/>
-			</Details>
-			<Code
-				lang="ts"
-				content={`import {MdzStreamParser} from '@fuzdev/fuz_ui/mdz_stream_parser.js';
-import {MdzStreamState} from '@fuzdev/fuz_ui/mdz_stream_state.svelte.js';
-
-const parser = new MdzStreamParser();
-const state = new MdzStreamState();
-
-// feed chunks as they arrive
-parser.feed(chunk);
-state.apply_batch(parser.take_opcodes());
-
-// when done
-parser.finish();
-state.apply_batch(parser.take_opcodes());`}
-			/>
-			<Code content={`<MdzStream {state} />`} />
 		</TomeSection>
 
 		<TomeSection>
