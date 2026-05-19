@@ -1444,9 +1444,6 @@ a.chip {
 .mb_xl9 {
 	margin-bottom: var(--space_xl9);
 }
-.ml_auto {
-	margin-left: auto;
-}
 .ml_sm {
 	margin-left: var(--space_sm);
 }

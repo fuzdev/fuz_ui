@@ -142,6 +142,28 @@ const y = 1336;
 		stream_recent_opcodes = [];
 	};
 
+	// the parser/state are append-only — seeking backwards requires replay from 0.
+	const stream_seek = (target_pos: number): void => {
+		stream_pause();
+		if (target_pos < stream_pos) {
+			stream_parser = new MdzStreamParser();
+			stream_state = new MdzStreamState();
+			stream_pos = 0;
+			stream_finished = false;
+			stream_recent_opcodes = [];
+		}
+		while (stream_pos < target_pos && stream_pos < stream_content.length) {
+			stream_parser.feed(stream_content[stream_pos]!);
+			stream_pos++;
+		}
+		stream_drain();
+		if (stream_pos >= stream_content.length && !stream_finished) {
+			stream_parser.finish();
+			stream_drain();
+			stream_finished = true;
+		}
+	};
+
 	onMount(() => {
 		return () => {
 			if (stream_timer !== undefined) clearInterval(stream_timer);
@@ -399,6 +421,22 @@ const nodes = mdz_parse(content);`}
 					{stream_running ? 'pause' : stream_finished ? 'restart' : 'stream'}
 				</button>
 				<button type="button" onclick={stream_reset} disabled={stream_pos === 0}>reset</button>
+				<button
+					type="button"
+					onclick={() => stream_seek(stream_pos - 1)}
+					disabled={stream_pos === 0}
+					aria-label="back one character"
+				>
+					◀
+				</button>
+				<button
+					type="button"
+					onclick={() => stream_seek(stream_pos + 1)}
+					disabled={stream_finished}
+					aria-label="forward one character"
+				>
+					▶
+				</button>
 				<label class="row gap_xs">
 					<input
 						type="range"
@@ -415,8 +453,21 @@ const nodes = mdz_parse(content);`}
 					/>
 					{stream_interval_ms}ms
 				</label>
-				<small class="ml_auto">{stream_pos}/{stream_content.length}</small>
 			</div>
+			<label class="row gap_md mb_md">
+				<small>scrub</small>
+				<input
+					type="range"
+					min="0"
+					max={stream_content.length}
+					step="1"
+					value={stream_pos}
+					oninput={(e) => stream_seek(+e.currentTarget.value)}
+					aria-label="scrub stream position"
+					style:flex="1"
+				/>
+				<small>{stream_pos}/{stream_content.length}</small>
+			</label>
 			<div class="panel shade_05 mb_lg p_md" style:min-height="300px">
 				{#if stream_pos === 0}
 					<p class="color_d_50">(press <strong>stream</strong> to begin)</p>
@@ -432,10 +483,9 @@ const nodes = mdz_parse(content);`}
 				{/snippet}
 				<p>
 					Each character fed to <DeclarationLink name="MdzStreamParser" /> can emit zero or more opcodes.
-					This shows the most recent {STREAM_OPCODES_MAX} — watch <code>open</code>,
-					<code>text</code>,
-					<code>close</code> sequences form, and <code>revert</code> when an optimistic assumption
-					(e.g. unclosed <code>~</code>) is abandoned.
+					This shows the most recent {STREAM_OPCODES_MAX}: watch <code>open</code>,
+					<code>text</code>, <code>close</code> sequences form, and <code>revert</code> when an
+					optimistic assumption (e.g. unclosed <code>~</code>) is abandoned.
 				</p>
 				<Code
 					lang="json"
