@@ -900,7 +900,7 @@ export class MdzLexer {
 
 			// Check for URL or internal path mid-text (char code guard avoids startsWith on every char)
 			if (
-				((char_code === 104 /* h */ || char_code === 72 /* H */) && this.#is_at_url()) ||
+				((char_code === 104 /* h */ || char_code === 72) /* H */ && this.#is_at_url()) ||
 				(char_code === SLASH && is_at_absolute_path(this.#text, this.#index)) ||
 				(char_code === PERIOD && is_at_relative_path(this.#text, this.#index))
 			) {

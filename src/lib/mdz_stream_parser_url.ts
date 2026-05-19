@@ -183,7 +183,10 @@ export const process_url_prefix = (state: MdzStreamParserState): void => {
 	const cmp_code = pos < 5 ? ascii_to_lower(char_code) : char_code;
 
 	// narrow viable prefixes
-	if (pu.viable_https && (pos >= HTTPS_PREFIX.length || cmp_code !== HTTPS_PREFIX.charCodeAt(pos))) {
+	if (
+		pu.viable_https &&
+		(pos >= HTTPS_PREFIX.length || cmp_code !== HTTPS_PREFIX.charCodeAt(pos))
+	) {
 		pu.viable_https = false;
 	}
 	if (pu.viable_http && (pos >= HTTP_PREFIX.length || cmp_code !== HTTP_PREFIX.charCodeAt(pos))) {

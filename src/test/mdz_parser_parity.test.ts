@@ -326,6 +326,7 @@ describe('mdz parser parity', () => {
 			'   \n   ',
 			'**bold** done',
 			'xhttps://fuz.dev',
+			'xHTTPS://fuz.dev',
 			'# Heading\n\nbody',
 			'---\nafter',
 			'```ts\ncode\n```',
@@ -345,6 +346,8 @@ describe('mdz parser parity', () => {
 		// Stronger than mere rendered-text equivalence.
 		const tidy_inputs = [
 			'see https://fuz.dev here',
+			'see HTTPS://fuz.dev here',
+			'HTTPS://fuz.dev',
 			'a https://x.io b',
 			'<Alert>hi</Alert>',
 			'<div>x</div>',

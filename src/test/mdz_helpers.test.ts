@@ -545,6 +545,20 @@ describe('match_url_prefix_case_insensitive', () => {
 		assert.equal(match_url_prefix_case_insensitive('https//fuz.dev', 0), 0);
 		assert.equal(match_url_prefix_case_insensitive('https:/fuz.dev', 0), 0);
 	});
+
+	test('rejects schemes with wrong letters or layout', () => {
+		// wrong letters in scheme
+		assert.equal(match_url_prefix_case_insensitive('Httpz://x', 0), 0);
+		assert.equal(match_url_prefix_case_insensitive('ottps://x', 0), 0);
+		assert.equal(match_url_prefix_case_insensitive('hxtps://x', 0), 0);
+		// embedded whitespace or other chars in scheme
+		assert.equal(match_url_prefix_case_insensitive('Htt p://x', 0), 0);
+		assert.equal(match_url_prefix_case_insensitive('h_ttps://x', 0), 0);
+		// backslashes are not forward slashes
+		assert.equal(match_url_prefix_case_insensitive('https:\\\\path', 0), 0);
+		// uppercase H followed by non-scheme letters
+		assert.equal(match_url_prefix_case_insensitive('Hello://world', 0), 0);
+	});
 });
 
 describe('ascii_to_lower', () => {

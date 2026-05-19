@@ -186,14 +186,19 @@ export const is_valid_path_char = (char_code: number): boolean =>
  * Trim trailing punctuation from URL/path per RFC 3986 and GFM rules.
  * - Trims simple trailing: .,;:!?]
  * - Balanced logic for () only (valid in path components)
- * - Invalid chars like [] {} are already stopped by whitelist, but ] trimmed as fallback
+ *
+ * Note on `]`: the mdz parsers (`mdz.ts`, `mdz_stream_parser_url.ts`,
+ * `mdz_lexer.ts`) scan URL/path chars through `is_valid_path_char`, which
+ * already rejects `]` — so it can never reach this function via parser flow.
+ * The `]` branch here is for external callers using this helper directly on
+ * arbitrary URL-ish input (it is part of the published `@fuzdev/fuz_ui`
+ * surface, see `mdz_helpers.test.ts` for direct coverage).
  *
  * Optimized to avoid O(n²) string slicing - tracks end index and slices once at the end.
  */
 export const trim_trailing_punctuation = (url: string): string => {
 	let end = url.length;
 
-	// Trim simple trailing punctuation (] as fallback - whitelist should prevent it)
 	while (end > 0) {
 		const last_char = url.charCodeAt(end - 1);
 		if (

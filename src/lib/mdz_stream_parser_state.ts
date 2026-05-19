@@ -528,6 +528,12 @@ export const handle_paragraph_break = (state: MdzStreamParserState): void => {
 	while (state.pos < state.buffer.length && state.buffer.charCodeAt(state.pos) === NEWLINE) {
 		state.pos++;
 	}
+	// if we ran out of buffer while skipping, carry the absorb across chunks —
+	// otherwise a `\n\n\n\n` split mid-run would leak a leading `\n` into the
+	// next paragraph's text. Mirrors the heading-newline absorb in `process_inline`.
+	if (state.pos >= state.buffer.length) {
+		state.skip_leading_newlines = true;
+	}
 	state.column = 0;
 	state.prev_char = NEWLINE;
 };

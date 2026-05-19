@@ -832,6 +832,34 @@ describe('MdzStreamParser fixture comparison', () => {
 		assert.deepEqual(nodes, mdz_parse('hello\n\nworld'));
 	});
 
+	// Regression: handle_paragraph_break previously ate consecutive newlines only
+	// within the current buffer. A run of 3+ newlines split across chunks could
+	// leak a leading `\n` into the next paragraph's text. The fix mirrors the
+	// heading-newline absorb path: set skip_leading_newlines=true when the absorb
+	// runs out of buffer.
+	test('paragraph break: multi-newline run absorbed across chunks', () => {
+		// Vary newline-run length to lock in the absorb boundary for 3+ newlines
+		// (the buggy case was anything that could split mid-run across chunks).
+		const newline_counts = [3, 4, 5];
+		const chunk_sizes = [2, 3, 5, 7, 14];
+		for (const n of newline_counts) {
+			const input = `paragraph 1${'\n'.repeat(n)}paragraph 2\n`;
+			const expected = mdz_parse(input);
+			for (const chunk_size of chunk_sizes) {
+				const parser = new MdzStreamParser();
+				for (let i = 0; i < input.length; i += chunk_size) {
+					parser.feed(input.slice(i, i + chunk_size));
+				}
+				parser.finish();
+				assert.deepEqual(
+					mdz_opcodes_to_nodes(parser.take_opcodes()),
+					expected,
+					`newlines=${n} chunk_size=${chunk_size}`,
+				);
+			}
+		}
+	});
+
 	test('trailing newline trimmed: HR split across chunks', () => {
 		const parser = new MdzStreamParser();
 		parser.feed('hello\n');
