@@ -233,8 +233,8 @@ describe('url_well_known', () => {
 
 	test('handles various filenames', () => {
 		assert.equal(
-			url_well_known('https://example.com', 'security.txt'),
-			'https://example.com/.well-known/security.txt',
+			url_well_known('https://fuz.dev', 'security.txt'),
+			'https://fuz.dev/.well-known/security.txt',
 		);
 	});
 });

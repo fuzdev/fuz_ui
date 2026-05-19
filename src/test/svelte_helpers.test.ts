@@ -525,7 +525,7 @@ const foo = 'bar';
 	test('handles JSDoc with @module and other tags', () => {
 		const script_content = `
 /**
- * @see https://example.com
+ * @see https://fuz.dev
  *
  * @module
  */
@@ -535,7 +535,7 @@ const foo = 'bar';
 
 		const result = svelte_extract_module_comment(script_content);
 		assert.ok(result);
-		assert.include(result, '@see https://example.com');
+		assert.include(result, '@see https://fuz.dev');
 		// @module tag should be stripped from output
 		assert.notInclude(result, '@module');
 	});
@@ -547,7 +547,7 @@ describe('svelte_analyze_file module_comment', () => {
 /**
  * This component displays a greeting message.
  *
- * @see https://example.com/docs
+ * @see https://fuz.dev/docs
  *
  * @module
  */

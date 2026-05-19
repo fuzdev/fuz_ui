@@ -161,14 +161,14 @@ describe('mdz parser parity', () => {
 
 	describe('intraword URL', () => {
 		for (const input of [
-			'xhttps://example.com',
-			'1https://example.com',
-			'.https://example.com',
-			'(https://example.com)',
-			'"https://example.com"',
-			'see https://example.com',
-			'\nhttps://example.com',
-			'https://example.com',
+			'xhttps://fuz.dev',
+			'1https://fuz.dev',
+			'.https://fuz.dev',
+			'(https://fuz.dev)',
+			'"https://fuz.dev"',
+			'see https://fuz.dev',
+			'\nhttps://fuz.dev',
+			'https://fuz.dev',
 		]) {
 			test(`one-shot matches mdz_parse for ${JSON.stringify(input)}`, () => {
 				assert.deepEqual(stream_parse_text(input), mdz_parse(input));
@@ -225,8 +225,8 @@ describe('mdz parser parity', () => {
 			'\n# heading',
 			// boundary slipups
 			'word*not_emph*word',
-			'a\nhttps://example.com',
-			'a https://example.com b',
+			'a\nhttps://fuz.dev',
+			'a https://fuz.dev b',
 		]) {
 			test(`one-shot matches mdz_parse for ${JSON.stringify(input)}`, () => {
 				assert.deepEqual(stream_parse_text(input), mdz_parse(input));
@@ -270,12 +270,12 @@ describe('mdz parser parity', () => {
 		const inputs = [
 			'hello',
 			'\nhello',
-			'see https://example.com here',
+			'see https://fuz.dev here',
 			'`code`',
 			'a\n\nb',
 			'# Heading\n\ntext',
 			'```ts\ncode\n```',
-			'[text](https://example.com)',
+			'[text](https://fuz.dev)',
 		];
 		for (const input of inputs) {
 			for (const chunk_size of [1, 2, 3]) {
@@ -304,7 +304,7 @@ describe('mdz parser parity', () => {
 			' ',
 			'   \n   ',
 			'**bold** done',
-			'xhttps://example.com',
+			'xhttps://fuz.dev',
 			'# Heading\n\nbody',
 			'---\nafter',
 			'```ts\ncode\n```',
@@ -323,7 +323,7 @@ describe('mdz parser parity', () => {
 		// apply the same tidy to path 3's output and assert structural equality.
 		// Stronger than mere rendered-text equivalence.
 		const tidy_inputs = [
-			'see https://example.com here',
+			'see https://fuz.dev here',
 			'a https://x.io b',
 			'<Alert>hi</Alert>',
 			'<div>x</div>',
@@ -398,7 +398,7 @@ describe('mdz parser parity', () => {
 	});
 
 	describe('chunked vs mdz_parse', () => {
-		const inputs = ['\nhello', 'xhttps://example.com', 'see https://example.com\n', '**bold**\n'];
+		const inputs = ['\nhello', 'xhttps://fuz.dev', 'see https://fuz.dev\n', '**bold**\n'];
 		for (const input of inputs) {
 			for (const chunk_size of [1, 2, 3]) {
 				test(`chunk_size=${chunk_size} matches mdz_parse for ${JSON.stringify(input)}`, () => {

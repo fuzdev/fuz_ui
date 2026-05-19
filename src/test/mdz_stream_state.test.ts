@@ -149,11 +149,11 @@ describe('MdzStreamState', () => {
 				type: 'close',
 				id: 1,
 				end: 20,
-				reference: 'https://example.com',
+				reference: 'https://fuz.dev',
 				link_type: 'external',
 			});
 
-			assert.equal(state.root[0]!.reference, 'https://example.com');
+			assert.equal(state.root[0]!.reference, 'https://fuz.dev');
 			assert.equal(state.root[0]!.link_type, 'external');
 		});
 
@@ -380,30 +380,30 @@ describe('MdzStreamState', () => {
 		test('wrap converts text node to link', () => {
 			const state = new MdzStreamState();
 			state.apply(open_paragraph(1));
-			state.apply(text(2, 'https://example.com'));
-			state.apply(wrap(3, 2, 'https://example.com'));
+			state.apply(text(2, 'https://fuz.dev'));
+			state.apply(wrap(3, 2, 'https://fuz.dev'));
 			state.apply(close(1));
 
 			const para = state.root[0]!;
 			assert.equal(para.children.length, 1);
 			const link = para.children[0]!;
 			assert.equal(link.type, 'Link');
-			assert.equal(link.reference, 'https://example.com');
+			assert.equal(link.reference, 'https://fuz.dev');
 			assert.equal(link.link_type, 'external');
 			assert.equal(link.children.length, 1);
-			assert.equal(link.children[0]!.content, 'https://example.com');
+			assert.equal(link.children[0]!.content, 'https://fuz.dev');
 		});
 
 		test('wrap with trim_end splits text node', () => {
 			const state = new MdzStreamState();
 			state.apply(open_paragraph(1));
-			state.apply(text(2, 'https://example.com.'));
+			state.apply(text(2, 'https://fuz.dev.'));
 			state.apply({
 				type: 'wrap',
 				id: 3,
 				node_type: 'Link',
 				target_id: 2,
-				reference: 'https://example.com',
+				reference: 'https://fuz.dev',
 				link_type: 'external',
 				start: 0,
 				end: 19,
@@ -415,7 +415,7 @@ describe('MdzStreamState', () => {
 			const para = state.root[0]!;
 			assert.equal(para.children.length, 2);
 			assert.equal(para.children[0]!.type, 'Link');
-			assert.equal(para.children[0]!.children[0]!.content, 'https://example.com');
+			assert.equal(para.children[0]!.children[0]!.content, 'https://fuz.dev');
 			assert.equal(para.children[1]!.type, 'Text');
 			assert.equal(para.children[1]!.content, '.');
 		});
@@ -424,8 +424,8 @@ describe('MdzStreamState', () => {
 			const state = new MdzStreamState();
 			state.apply(open_paragraph(1));
 			state.apply(text(2, 'see '));
-			state.apply(text(3, 'https://example.com'));
-			state.apply(wrap(4, 3, 'https://example.com'));
+			state.apply(text(3, 'https://fuz.dev'));
+			state.apply(wrap(4, 3, 'https://fuz.dev'));
 			state.apply(close(1));
 
 			const para = state.root[0]!;

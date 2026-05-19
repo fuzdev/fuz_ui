@@ -235,7 +235,11 @@ const y = 1336;
 				aria-label="streaming mdz source"
 			></textarea>
 			<div class="row gap_md mb_md">
-				<button type="button" onclick={() => (stream_running ? stream_pause() : stream_start())}>
+				<button
+					style:width="85px"
+					type="button"
+					onclick={() => (stream_running ? stream_pause() : stream_start())}
+				>
 					{stream_running ? 'pause' : stream_finished ? 'restart' : 'stream'}
 				</button>
 				<button type="button" onclick={stream_reset} disabled={stream_pos === 0}>reset</button>
@@ -273,7 +277,10 @@ const y = 1336;
 				</label>
 			</div>
 			<label class="row gap_md mb_md">
-				<small>scrub</small>
+				<small style:width="50px" style:text-align="right">
+					scrub<br />
+					{stream_pos}/{stream_content.length}
+				</small>
 				<input
 					type="range"
 					min="0"
@@ -284,11 +291,16 @@ const y = 1336;
 					aria-label="scrub stream position"
 					style:flex="1"
 				/>
-				<small>{stream_pos}/{stream_content.length}</small>
 			</label>
 			<div class="panel shade_05 mb_lg p_md" style:min-height="300px">
 				{#if stream_pos === 0}
-					<p class="color_d_50">(press <strong>stream</strong> to begin)</p>
+					<p class="color_d_50">
+						(press <button
+							type="button"
+							class="inline color_d sm"
+							onclick={() => (stream_running ? stream_pause() : stream_start())}>stream</button
+						> to begin)
+					</p>
 				{:else}
 					<MdzStream state={stream_state} />
 				{/if}

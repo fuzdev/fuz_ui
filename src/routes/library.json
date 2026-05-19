@@ -3953,7 +3953,7 @@
 						"source_line": 33,
 						"type_signature": "(homepage: string, declaration_name: string): string",
 						"return_type": "string",
-						"return_description": "full URL like 'https://example.com/docs/api#declaration_name'",
+						"return_description": "full URL like 'https://fuz.dev/docs/api#declaration_name'",
 						"parameters": [
 							{
 								"name": "homepage",
@@ -4010,7 +4010,7 @@
 						"kind": "function",
 						"doc_comment": "Convert a full URL to root-relative format by removing the origin.\n\nUses SvelteKit's page state for the current origin by default.",
 						"examples": [
-							"```ts\n// Assuming page.url.origin is 'https://example.com'\nurl_to_root_relative('https://example.com/docs/api')\n// => '/docs/api'\n```"
+							"```ts\n// Assuming page.url.origin is 'https://fuz.dev'\nurl_to_root_relative('https://fuz.dev/docs/api')\n// => '/docs/api'\n```"
 						],
 						"source_line": 76,
 						"type_signature": "(url: string, origin?: string): string",
@@ -10313,7 +10313,7 @@
 						"kind": "function",
 						"doc_comment": "Convert raw TSDoc `@see` content to mdz format for rendering.\n\nHandles TSDoc link syntax:\n- `{@link url|text}` → `[text](url)` (markdown link)\n- `{@link https://...}` → `https://...` (bare URL, auto-linked by mdz)\n- `{@link identifier}` → `` `identifier` `` (code formatting)\n- Bare URLs → returned as-is\n- Bare identifiers → wrapped in backticks\n- `identifier description text` → `` `identifier` description text `` (first token is the reference)",
 						"examples": [
-							"```ts\ntsdoc_see_to_mdz('{@link https://fuz.dev|API Docs}')\n// → '[API Docs](https://fuz.dev)'\n\ntsdoc_see_to_mdz('{@link SomeType}')\n// → '`SomeType`'\n\ntsdoc_see_to_mdz('https://example.com')\n// → 'https://example.com'\n\ntsdoc_see_to_mdz('library_gen.ts for Gro-specific integration')\n// → '`library_gen.ts` for Gro-specific integration'\n```"
+							"```ts\ntsdoc_see_to_mdz('{@link https://fuz.dev|API Docs}')\n// → '[API Docs](https://fuz.dev)'\n\ntsdoc_see_to_mdz('{@link SomeType}')\n// → '`SomeType`'\n\ntsdoc_see_to_mdz('https://fuz.dev')\n// → 'https://fuz.dev'\n\ntsdoc_see_to_mdz('library_gen.ts for Gro-specific integration')\n// → '`library_gen.ts` for Gro-specific integration'\n```"
 						],
 						"source_line": 45,
 						"type_signature": "(content: string): string",

@@ -28,7 +28,7 @@ export const url_api_declaration = (declaration_name: string): string =>
  *
  * @param homepage - package homepage URL
  * @param declaration_name - name of the declaration to link to
- * @returns full URL like 'https://example.com/docs/api#declaration_name'
+ * @returns full URL like 'https://fuz.dev/docs/api#declaration_name'
  */
 export const url_api_declaration_full = (homepage: string, declaration_name: string): string =>
 	`${homepage}${DOCS_PATH_DEFAULT}/api#${encodeURIComponent(declaration_name)}`;
@@ -68,8 +68,8 @@ export const url_package_logo = (
  *
  * @example
  * ```ts
- * // Assuming page.url.origin is 'https://example.com'
- * url_to_root_relative('https://example.com/docs/api')
+ * // Assuming page.url.origin is 'https://fuz.dev'
+ * url_to_root_relative('https://fuz.dev/docs/api')
  * // => '/docs/api'
  * ```
  */

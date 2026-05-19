@@ -184,22 +184,22 @@ describe('is_valid_path_char', () => {
 
 describe('trim_trailing_punctuation', () => {
 	test('trims simple trailing punctuation', () => {
-		assert.equal(trim_trailing_punctuation('https://example.com.'), 'https://example.com');
-		assert.equal(trim_trailing_punctuation('https://example.com,'), 'https://example.com');
-		assert.equal(trim_trailing_punctuation('https://example.com;'), 'https://example.com');
-		assert.equal(trim_trailing_punctuation('https://example.com:'), 'https://example.com');
-		assert.equal(trim_trailing_punctuation('https://example.com!'), 'https://example.com');
-		assert.equal(trim_trailing_punctuation('https://example.com?'), 'https://example.com');
-		assert.equal(trim_trailing_punctuation('https://example.com]'), 'https://example.com');
+		assert.equal(trim_trailing_punctuation('https://fuz.dev.'), 'https://fuz.dev');
+		assert.equal(trim_trailing_punctuation('https://fuz.dev,'), 'https://fuz.dev');
+		assert.equal(trim_trailing_punctuation('https://fuz.dev;'), 'https://fuz.dev');
+		assert.equal(trim_trailing_punctuation('https://fuz.dev:'), 'https://fuz.dev');
+		assert.equal(trim_trailing_punctuation('https://fuz.dev!'), 'https://fuz.dev');
+		assert.equal(trim_trailing_punctuation('https://fuz.dev?'), 'https://fuz.dev');
+		assert.equal(trim_trailing_punctuation('https://fuz.dev]'), 'https://fuz.dev');
 	});
 
 	test('trims multiple trailing punctuation chars', () => {
-		assert.equal(trim_trailing_punctuation('https://example.com..'), 'https://example.com');
-		assert.equal(trim_trailing_punctuation('https://example.com!?'), 'https://example.com');
+		assert.equal(trim_trailing_punctuation('https://fuz.dev..'), 'https://fuz.dev');
+		assert.equal(trim_trailing_punctuation('https://fuz.dev!?'), 'https://fuz.dev');
 	});
 
 	test('returns original string reference when no trimming needed', () => {
-		const url = 'https://example.com/path';
+		const url = 'https://fuz.dev/path';
 		const result = trim_trailing_punctuation(url);
 		assert.ok(result === url, 'should return same string reference');
 	});
@@ -212,14 +212,14 @@ describe('trim_trailing_punctuation', () => {
 	});
 
 	test('trims unmatched trailing closing parens', () => {
-		assert.equal(trim_trailing_punctuation('https://example.com)'), 'https://example.com');
-		assert.equal(trim_trailing_punctuation('https://example.com))'), 'https://example.com');
+		assert.equal(trim_trailing_punctuation('https://fuz.dev)'), 'https://fuz.dev');
+		assert.equal(trim_trailing_punctuation('https://fuz.dev))'), 'https://fuz.dev');
 	});
 
 	test('keeps matched parens but trims excess', () => {
 		assert.equal(
-			trim_trailing_punctuation('https://example.com/(foo))'),
-			'https://example.com/(foo)',
+			trim_trailing_punctuation('https://fuz.dev/(foo))'),
+			'https://fuz.dev/(foo)',
 		);
 	});
 
@@ -233,8 +233,8 @@ describe('trim_trailing_punctuation', () => {
 
 	test('keeps multiple balanced paren pairs', () => {
 		assert.equal(
-			trim_trailing_punctuation('https://example.com/(a)(b)'),
-			'https://example.com/(a)(b)',
+			trim_trailing_punctuation('https://fuz.dev/(a)(b)'),
+			'https://fuz.dev/(a)(b)',
 		);
 	});
 
@@ -247,8 +247,8 @@ describe('trim_trailing_punctuation', () => {
 
 	test('trims punctuation after parens', () => {
 		assert.equal(
-			trim_trailing_punctuation('https://example.com/(foo).'),
-			'https://example.com/(foo)',
+			trim_trailing_punctuation('https://fuz.dev/(foo).'),
+			'https://fuz.dev/(foo)',
 		);
 	});
 });
@@ -412,7 +412,7 @@ describe('mdz_text_content', () => {
 
 	test('recurses into Link children, not reference', () => {
 		assert.equal(
-			mdz_text_content([link('https://example.com', [text('click here')])]),
+			mdz_text_content([link('https://fuz.dev', [text('click here')])]),
 			'click here',
 		);
 	});
@@ -446,11 +446,11 @@ describe('mdz_heading_id', () => {
 
 describe('mdz_is_url', () => {
 	test('returns true for valid URLs', () => {
-		assert.equal(mdz_is_url('https://example.com'), true);
+		assert.equal(mdz_is_url('https://fuz.dev'), true);
 		assert.equal(mdz_is_url('https://a'), true);
-		assert.equal(mdz_is_url('http://example.com'), true);
+		assert.equal(mdz_is_url('http://fuz.dev'), true);
 		assert.equal(mdz_is_url('http://a'), true);
-		assert.equal(mdz_is_url('https://example.com/path?query=1#hash'), true);
+		assert.equal(mdz_is_url('https://fuz.dev/path?query=1#hash'), true);
 	});
 
 	test('returns true for IPv6 URLs', () => {
@@ -497,9 +497,9 @@ describe('mdz_is_url', () => {
 
 	test('returns false for non-URLs', () => {
 		assert.equal(mdz_is_url(''), false);
-		assert.equal(mdz_is_url('example.com'), false);
+		assert.equal(mdz_is_url('fuz.dev'), false);
 		assert.equal(mdz_is_url('/path'), false);
-		assert.equal(mdz_is_url('ftp://example.com'), false);
+		assert.equal(mdz_is_url('ftp://fuz.dev'), false);
 	});
 });
 
@@ -520,11 +520,11 @@ describe('mdz_is_safe_reference', () => {
 	});
 
 	test('allows http and https URLs', () => {
-		assert.equal(mdz_is_safe_reference('https://example.com'), true);
-		assert.equal(mdz_is_safe_reference('http://example.com'), true);
+		assert.equal(mdz_is_safe_reference('https://fuz.dev'), true);
+		assert.equal(mdz_is_safe_reference('http://fuz.dev'), true);
 		assert.equal(mdz_is_safe_reference('HTTPS://EXAMPLE.COM'), true);
 		assert.equal(mdz_is_safe_reference('Http://Example.Com'), true);
-		assert.equal(mdz_is_safe_reference('https://example.com/path?q=1#h'), true);
+		assert.equal(mdz_is_safe_reference('https://fuz.dev/path?q=1#h'), true);
 	});
 
 	test('rejects javascript protocol', () => {
@@ -544,10 +544,10 @@ describe('mdz_is_safe_reference', () => {
 	});
 
 	test('rejects other protocols with colons', () => {
-		assert.equal(mdz_is_safe_reference('ftp://example.com'), false);
+		assert.equal(mdz_is_safe_reference('ftp://fuz.dev'), false);
 		assert.equal(mdz_is_safe_reference('file:///etc/passwd'), false);
-		assert.equal(mdz_is_safe_reference('blob:http://example.com/uuid'), false);
-		assert.equal(mdz_is_safe_reference('mailto:user@example.com'), false);
+		assert.equal(mdz_is_safe_reference('blob:http://fuz.dev/uuid'), false);
+		assert.equal(mdz_is_safe_reference('mailto:user@fuz.dev'), false);
 	});
 });
 
@@ -654,7 +654,7 @@ describe('extract_single_tag', () => {
 	});
 
 	test('returns null for Link node (has children but is not a tag)', () => {
-		assert.equal(extract_single_tag([link('https://example.com', [text('link')])]), null);
+		assert.equal(extract_single_tag([link('https://fuz.dev', [text('link')])]), null);
 	});
 
 	test('returns null for mixed component and element', () => {

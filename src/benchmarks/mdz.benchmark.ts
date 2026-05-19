@@ -35,7 +35,7 @@ const generate_large_input = (): string => {
 		sections.push(`## Section ${i + 1}
 
 This is paragraph ${i + 1} with **bold** and _italic_ text.
-Here's a \`code snippet\` and a [link](https://example.com/${i}).
+Here's a \`code snippet\` and a [link](https://fuz.dev/${i}).
 
 \`\`\`
 code block ${i + 1}
@@ -55,7 +55,7 @@ const inputs = [
 
 This is a _simple_ paragraph with **bold** text and \`inline code\`.
 
-Here's a link: [click here](https://example.com) and an auto-link https://example.com/path.
+Here's a link: [click here](https://fuz.dev) and an auto-link https://fuz.dev/path.
 
 Some ~strikethrough~ text and more _italic_ words.`,
 	},
@@ -81,8 +81,8 @@ function hello() {
 
 ## Links and References
 
-Visit [the docs](https://docs.example.com) for more info.
-Also see https://example.com/api and /internal/path for details.
+Visit [the docs](https://docs.fuz.dev) for more info.
+Also see https://fuz.dev/api and /internal/path for details.
 
 ## Formatting
 

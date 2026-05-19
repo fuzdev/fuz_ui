@@ -517,7 +517,7 @@ describe('MdzStreamParser opcodes', () => {
 
 	test('URL streams as text then wrap converts to link', () => {
 		const parser = new MdzStreamParser();
-		parser.feed('see https://exam');
+		parser.feed('see https://fu');
 		const ops1 = parser.take_opcodes();
 		// text should be visible (not buffered)
 		const has_text = ops1.some(
@@ -525,29 +525,29 @@ describe('MdzStreamParser opcodes', () => {
 		);
 		assert.ok(has_text, 'URL text should stream before terminator');
 
-		parser.feed('ple.com rest');
+		parser.feed('z.dev rest');
 		parser.finish();
 		const ops2 = parser.take_opcodes();
 		const wrap_op = ops2.find((o): o is MdzOpcodeWrap => o.type === 'wrap');
 		assert.ok(wrap_op, 'wrap opcode should be emitted when URL terminates');
 		assert.equal(wrap_op.node_type, 'Link');
-		assert.equal(wrap_op.reference, 'https://example.com');
+		assert.equal(wrap_op.reference, 'https://fuz.dev');
 		assert.equal(wrap_op.link_type, 'external');
 
 		// verify final tree matches single-pass
 		const all_ops = [...ops1, ...ops2];
 		const result = mdz_opcodes_to_nodes(all_ops);
-		assert.deepEqual(result, mdz_parse('see https://example.com rest'));
+		assert.deepEqual(result, mdz_parse('see https://fuz.dev rest'));
 	});
 
 	test('URL with trailing punctuation trims correctly', () => {
-		const result = stream_parse('visit https://example.com.');
-		assert.deepEqual(result, mdz_parse('visit https://example.com.'));
+		const result = stream_parse('visit https://fuz.dev.');
+		assert.deepEqual(result, mdz_parse('visit https://fuz.dev.'));
 	});
 
 	test('URL with multiple trailing punctuation chars', () => {
-		const result = stream_parse('see https://example.com...');
-		assert.deepEqual(result, mdz_parse('see https://example.com...'));
+		const result = stream_parse('see https://fuz.dev...');
+		assert.deepEqual(result, mdz_parse('see https://fuz.dev...'));
 	});
 
 	test('bare protocol with no content is not a link', () => {
@@ -556,13 +556,13 @@ describe('MdzStreamParser opcodes', () => {
 	});
 
 	test('URL with preceding text and trailing punctuation', () => {
-		const result = stream_parse('visit https://example.com, ok');
-		assert.deepEqual(result, mdz_parse('visit https://example.com, ok'));
+		const result = stream_parse('visit https://fuz.dev, ok');
+		assert.deepEqual(result, mdz_parse('visit https://fuz.dev, ok'));
 	});
 
 	test('http:// URL detected and wrapped', () => {
-		const result = stream_parse('see http://example.com ok');
-		assert.deepEqual(result, mdz_parse('see http://example.com ok'));
+		const result = stream_parse('see http://fuz.dev ok');
+		assert.deepEqual(result, mdz_parse('see http://fuz.dev ok'));
 	});
 
 	test('partial URL prefix streams as text then confirms', () => {
@@ -576,12 +576,12 @@ describe('MdzStreamParser opcodes', () => {
 		);
 		assert.ok(has_htt, 'partial URL prefix should stream as text immediately');
 
-		parser.feed('ps://example.com ok');
+		parser.feed('ps://fuz.dev ok');
 		parser.finish();
 		const ops2 = parser.take_opcodes();
 		const all_ops = [...ops1, ...ops2];
 		const result = mdz_opcodes_to_nodes(all_ops);
-		assert.deepEqual(result, mdz_parse('see https://example.com ok'));
+		assert.deepEqual(result, mdz_parse('see https://fuz.dev ok'));
 	});
 
 	test('non-URL h-word is not held beyond one char', () => {
@@ -597,32 +597,32 @@ describe('MdzStreamParser opcodes', () => {
 	});
 
 	test('URL after word char is not detected (no word boundary)', () => {
-		const result = stream_parse('xhttps://example.com');
-		assert.deepEqual(result, mdz_parse('xhttps://example.com'));
+		const result = stream_parse('xhttps://fuz.dev');
+		assert.deepEqual(result, mdz_parse('xhttps://fuz.dev'));
 		assert.equal(result.length, 1);
 		assert.equal(result[0]!.type, 'Paragraph');
 		const para = result[0]! as {children: Array<{type: string; content?: string}>};
 		assert.equal(para.children.length, 1);
 		assert.equal(para.children[0]!.type, 'Text');
-		assert.equal(para.children[0]!.content, 'xhttps://example.com');
+		assert.equal(para.children[0]!.content, 'xhttps://fuz.dev');
 	});
 
 	test('URL after digit is not detected (no word boundary)', () => {
-		const result = stream_parse('1https://example.com');
-		assert.deepEqual(result, mdz_parse('1https://example.com'));
+		const result = stream_parse('1https://fuz.dev');
+		assert.deepEqual(result, mdz_parse('1https://fuz.dev'));
 		const para = result[0]! as {children: Array<{type: string; content?: string}>};
 		assert.equal(para.children.length, 1);
 		assert.equal(para.children[0]!.type, 'Text');
 	});
 
 	test('URL after punctuation is detected (word boundary)', () => {
-		const result = stream_parse('(https://example.com)');
-		assert.deepEqual(result, mdz_parse('(https://example.com)'));
+		const result = stream_parse('(https://fuz.dev)');
+		assert.deepEqual(result, mdz_parse('(https://fuz.dev)'));
 	});
 
 	test('URL after quote is detected (word boundary)', () => {
-		const result = stream_parse('"https://example.com"');
-		assert.deepEqual(result, mdz_parse('"https://example.com"'));
+		const result = stream_parse('"https://fuz.dev"');
+		assert.deepEqual(result, mdz_parse('"https://fuz.dev"'));
 	});
 
 	test('URL with balanced parens in path preserves them', () => {
@@ -631,17 +631,17 @@ describe('MdzStreamParser opcodes', () => {
 	});
 
 	test('speculation cancels then URL detected on retry', () => {
-		const result = stream_parse('hhttps://example.com https://example.com');
+		const result = stream_parse('hhttps://fuz.dev https://fuz.dev');
 		const para = result[0]! as {
 			children: Array<{type: string; content?: string; reference?: string}>;
 		};
-		// first h starts speculation, second h fails it, so hhttps://example.com is text
+		// first h starts speculation, second h fails it, so hhttps://fuz.dev is text
 		// then space, then URL is detected
 		assert.equal(para.children[0]!.type, 'Text');
 		assert.ok(para.children[0]!.content!.startsWith('hhttps://'));
 		const link = para.children.find((c) => c.type === 'Link');
 		assert.ok(link, 'second URL should be detected after failed speculation');
-		assert.equal(link.reference, 'https://example.com');
+		assert.equal(link.reference, 'https://fuz.dev');
 	});
 
 	test('path auto-link streams then wraps with internal link_type', () => {
@@ -668,34 +668,34 @@ describe('MdzStreamParser opcodes', () => {
 	});
 
 	test('URL at EOF wraps correctly', () => {
-		const result = stream_parse('see https://example.com');
-		assert.deepEqual(result, mdz_parse('see https://example.com'));
+		const result = stream_parse('see https://fuz.dev');
+		assert.deepEqual(result, mdz_parse('see https://fuz.dev'));
 	});
 
 	test('URL inside bold wraps correctly', () => {
-		const result = stream_parse('**see https://example.com end**');
-		assert.deepEqual(result, mdz_parse('**see https://example.com end**'));
+		const result = stream_parse('**see https://fuz.dev end**');
+		assert.deepEqual(result, mdz_parse('**see https://fuz.dev end**'));
 	});
 
 	test('URL streams correctly across multiple chunks', () => {
 		const parser = new MdzStreamParser();
-		parser.feed('see https://exa');
-		parser.feed('mple');
-		parser.feed('.com');
+		parser.feed('see https://f');
+		parser.feed('uz');
+		parser.feed('.dev');
 		parser.feed(' rest');
 		parser.finish();
 		const result = mdz_opcodes_to_nodes(parser.take_opcodes());
-		assert.deepEqual(result, mdz_parse('see https://example.com rest'));
+		assert.deepEqual(result, mdz_parse('see https://fuz.dev rest'));
 	});
 
 	test('URL detected correctly with single-char feeds', () => {
 		const parser = new MdzStreamParser();
-		for (const c of 'see https://example.com rest') {
+		for (const c of 'see https://fuz.dev rest') {
 			parser.feed(c);
 		}
 		parser.finish();
 		const result = mdz_opcodes_to_nodes(parser.take_opcodes());
-		assert.deepEqual(result, mdz_parse('see https://example.com rest'));
+		assert.deepEqual(result, mdz_parse('see https://fuz.dev rest'));
 	});
 
 	test('path detected correctly with single-char feeds', () => {
