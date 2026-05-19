@@ -1,8 +1,10 @@
 # mdz Streaming and Opcodes
 
-mdz can render incrementally as content arrives — for example, from an LLM emitting tokens one at a time. The streaming parser and its opcode protocol are independent of any specific renderer.
+mdz can render incrementally as content arrives, like from an LLM emitting tokens one at a time. The streaming parser and its opcode protocol are independent of any specific renderer.
 
 For a high-level introduction, see /docs/mdz. For formal grammar, see ../grammar. For comprehensive examples, see ../spec.
+
+> ⚠️ this page is AI-generated
 
 ---
 
@@ -14,7 +16,7 @@ mdz ships three ways to turn `.mdz` text into a rendered tree. Pick based on whe
 
 For inline use in a Svelte template, with content known up front:
 
-```
+```svelte
 <Mdz content="**bold** text" />
 ```
 
@@ -24,14 +26,14 @@ Internally calls `mdz_parse` and renders via `MdzNodeView`. Best for: documentat
 
 For control over wrapper markup, custom whitespace handling, or non-default CSS:
 
-```
+```ts
 import {mdz_parse} from '@fuzdev/fuz_ui/mdz.js';
 import MdzNodeView from '@fuzdev/fuz_ui/MdzNodeView.svelte';
 
 const nodes = mdz_parse(content);
 ```
 
-```
+```svelte
 <div class="custom white-space:pre">
 	{#each nodes as node}
 		<MdzNodeView {node} />
@@ -45,7 +47,7 @@ Same input, same tree as path 1, but you own the surrounding container. `mdz_par
 
 For content that arrives in chunks:
 
-```
+```ts
 import {MdzStreamParser} from '@fuzdev/fuz_ui/mdz_stream_parser.js';
 import {MdzStreamState} from '@fuzdev/fuz_ui/mdz_stream_state.svelte.js';
 
@@ -61,7 +63,7 @@ parser.finish();
 state.apply_batch(parser.take_opcodes());
 ```
 
-```
+```svelte
 <MdzStream {state} />
 ```
 
