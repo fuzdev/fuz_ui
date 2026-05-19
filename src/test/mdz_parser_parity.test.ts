@@ -176,6 +176,27 @@ describe('mdz parser parity', () => {
 		}
 	});
 
+	describe('case-insensitive URL scheme', () => {
+		for (const input of [
+			'HTTPS://fuz.dev',
+			'Https://fuz.dev',
+			'HtTpS://fuz.dev',
+			'HTTP://fuz.dev',
+			'Http://fuz.dev',
+			'see HTTPS://fuz.dev here',
+			'xHTTPS://fuz.dev',
+		]) {
+			test(`one-shot matches mdz_parse for ${JSON.stringify(input)}`, () => {
+				assert.deepEqual(stream_parse_text(input), mdz_parse(input));
+			});
+			for (const chunk_size of [1, 2, 3]) {
+				test(`chunk_size=${chunk_size} matches mdz_parse for ${JSON.stringify(input)}`, () => {
+					assert.deepEqual(stream_parse_chunked(input, chunk_size), mdz_parse(input));
+				});
+			}
+		}
+	});
+
 	describe('intraword path', () => {
 		for (const input of [
 			'x/path/to/thing',

@@ -3,10 +3,7 @@ import {tsdoc_see_to_mdz} from '$lib/tsdoc_mdz.js';
 
 describe('tsdoc_see_to_mdz', () => {
 	test('converts {@link url|text} to markdown link', () => {
-		assert.equal(
-			tsdoc_see_to_mdz('{@link https://fuz.dev|Example}'),
-			'[Example](https://fuz.dev)',
-		);
+		assert.equal(tsdoc_see_to_mdz('{@link https://fuz.dev|Example}'), '[Example](https://fuz.dev)');
 	});
 
 	test('converts {@link url} to bare URL', () => {

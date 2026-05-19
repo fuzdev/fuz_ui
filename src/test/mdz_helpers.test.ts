@@ -13,6 +13,8 @@ import {
 	mdz_heading_id,
 	mdz_is_url,
 	mdz_is_safe_reference,
+	match_url_prefix_case_insensitive,
+	ascii_to_lower,
 	resolve_relative_path,
 	extract_single_tag,
 	ASTERISK,
@@ -217,10 +219,7 @@ describe('trim_trailing_punctuation', () => {
 	});
 
 	test('keeps matched parens but trims excess', () => {
-		assert.equal(
-			trim_trailing_punctuation('https://fuz.dev/(foo))'),
-			'https://fuz.dev/(foo)',
-		);
+		assert.equal(trim_trailing_punctuation('https://fuz.dev/(foo))'), 'https://fuz.dev/(foo)');
 	});
 
 	test('handles empty string', () => {
@@ -232,10 +231,7 @@ describe('trim_trailing_punctuation', () => {
 	});
 
 	test('keeps multiple balanced paren pairs', () => {
-		assert.equal(
-			trim_trailing_punctuation('https://fuz.dev/(a)(b)'),
-			'https://fuz.dev/(a)(b)',
-		);
+		assert.equal(trim_trailing_punctuation('https://fuz.dev/(a)(b)'), 'https://fuz.dev/(a)(b)');
 	});
 
 	test('keeps nested balanced parens', () => {
@@ -246,10 +242,7 @@ describe('trim_trailing_punctuation', () => {
 	});
 
 	test('trims punctuation after parens', () => {
-		assert.equal(
-			trim_trailing_punctuation('https://fuz.dev/(foo).'),
-			'https://fuz.dev/(foo)',
-		);
+		assert.equal(trim_trailing_punctuation('https://fuz.dev/(foo).'), 'https://fuz.dev/(foo)');
 	});
 });
 
@@ -411,10 +404,7 @@ describe('mdz_text_content', () => {
 	});
 
 	test('recurses into Link children, not reference', () => {
-		assert.equal(
-			mdz_text_content([link('https://fuz.dev', [text('click here')])]),
-			'click here',
-		);
+		assert.equal(mdz_text_content([link('https://fuz.dev', [text('click here')])]), 'click here');
 	});
 
 	test('skips Hr nodes interspersed with text', () => {
@@ -500,6 +490,76 @@ describe('mdz_is_url', () => {
 		assert.equal(mdz_is_url('fuz.dev'), false);
 		assert.equal(mdz_is_url('/path'), false);
 		assert.equal(mdz_is_url('ftp://fuz.dev'), false);
+	});
+
+	test('scheme match is case-insensitive (RFC 3986)', () => {
+		assert.equal(mdz_is_url('HTTPS://fuz.dev'), true);
+		assert.equal(mdz_is_url('Https://fuz.dev'), true);
+		assert.equal(mdz_is_url('HtTpS://fuz.dev'), true);
+		assert.equal(mdz_is_url('HTTP://fuz.dev'), true);
+		assert.equal(mdz_is_url('Http://fuz.dev'), true);
+		assert.equal(mdz_is_url('HTTPS://'), false);
+		assert.equal(mdz_is_url('HTTP://'), false);
+	});
+});
+
+describe('match_url_prefix_case_insensitive', () => {
+	test('returns 8 for lowercase https://', () => {
+		assert.equal(match_url_prefix_case_insensitive('https://fuz.dev', 0), 8);
+	});
+
+	test('returns 7 for lowercase http://', () => {
+		assert.equal(match_url_prefix_case_insensitive('http://fuz.dev', 0), 7);
+	});
+
+	test('matches HTTPS:// case-insensitively', () => {
+		assert.equal(match_url_prefix_case_insensitive('HTTPS://fuz.dev', 0), 8);
+		assert.equal(match_url_prefix_case_insensitive('Https://fuz.dev', 0), 8);
+		assert.equal(match_url_prefix_case_insensitive('HtTpS://fuz.dev', 0), 8);
+	});
+
+	test('matches HTTP:// case-insensitively', () => {
+		assert.equal(match_url_prefix_case_insensitive('HTTP://fuz.dev', 0), 7);
+		assert.equal(match_url_prefix_case_insensitive('Http://fuz.dev', 0), 7);
+	});
+
+	test('returns 0 for non-http(s) schemes', () => {
+		assert.equal(match_url_prefix_case_insensitive('ftp://fuz.dev', 0), 0);
+		assert.equal(match_url_prefix_case_insensitive('javascript:alert(1)', 0), 0);
+		assert.equal(match_url_prefix_case_insensitive('mailto:a@b.c', 0), 0);
+	});
+
+	test('returns 0 when too short', () => {
+		assert.equal(match_url_prefix_case_insensitive('http:/', 0), 0);
+		assert.equal(match_url_prefix_case_insensitive('h', 0), 0);
+		assert.equal(match_url_prefix_case_insensitive('', 0), 0);
+	});
+
+	test('honors pos offset', () => {
+		assert.equal(match_url_prefix_case_insensitive('see HTTPS://fuz.dev', 4), 8);
+		assert.equal(match_url_prefix_case_insensitive('xx Http://fuz.dev', 3), 7);
+		assert.equal(match_url_prefix_case_insensitive('Https://fuz.dev', 1), 0);
+	});
+
+	test('colon and slashes are literal (only scheme letters case-fold)', () => {
+		assert.equal(match_url_prefix_case_insensitive('https//fuz.dev', 0), 0);
+		assert.equal(match_url_prefix_case_insensitive('https:/fuz.dev', 0), 0);
+	});
+});
+
+describe('ascii_to_lower', () => {
+	test('lowercases ASCII upper-case letters', () => {
+		assert.equal(ascii_to_lower(65 /* A */), 97 /* a */);
+		assert.equal(ascii_to_lower(72 /* H */), 104 /* h */);
+		assert.equal(ascii_to_lower(90 /* Z */), 122 /* z */);
+	});
+
+	test('passes through non-uppercase chars unchanged', () => {
+		assert.equal(ascii_to_lower(97 /* a */), 97);
+		assert.equal(ascii_to_lower(48 /* 0 */), 48);
+		assert.equal(ascii_to_lower(32 /* space */), 32);
+		assert.equal(ascii_to_lower(91 /* [ */), 91);
+		assert.equal(ascii_to_lower(0xc4 /* Ä, non-ASCII */), 0xc4);
 	});
 });
 

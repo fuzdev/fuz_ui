@@ -37,8 +37,7 @@ import {
 	HR_HYPHEN_COUNT,
 	MIN_CODEBLOCK_BACKTICKS,
 	MAX_HEADING_LEVEL,
-	HTTPS_PREFIX_LENGTH,
-	HTTP_PREFIX_LENGTH,
+	match_url_prefix_case_insensitive,
 	is_at_absolute_path,
 	is_at_relative_path,
 } from './mdz_helpers.js';
@@ -901,7 +900,7 @@ export class MdzLexer {
 
 			// Check for URL or internal path mid-text (char code guard avoids startsWith on every char)
 			if (
-				(char_code === 104 /* h */ && this.#is_at_url()) ||
+				((char_code === 104 /* h */ || char_code === 72 /* H */) && this.#is_at_url()) ||
 				(char_code === SLASH && is_at_absolute_path(this.#text, this.#index)) ||
 				(char_code === PERIOD && is_at_relative_path(this.#text, this.#index))
 			) {
@@ -925,12 +924,8 @@ export class MdzLexer {
 	#tokenize_auto_link_url(): void {
 		const start = this.#index;
 
-		// Consume protocol
-		if (this.#match('https://')) {
-			this.#index += HTTPS_PREFIX_LENGTH;
-		} else if (this.#match('http://')) {
-			this.#index += HTTP_PREFIX_LENGTH;
-		}
+		// Consume protocol (case-insensitive match; original casing preserved in reference)
+		this.#index += match_url_prefix_case_insensitive(this.#text, this.#index);
 
 		// Collect URL characters
 		while (this.#index < this.#text.length) {
@@ -995,17 +990,12 @@ export class MdzLexer {
 	}
 
 	#is_at_url(): boolean {
-		if (this.#match('https://')) {
-			if (this.#index + HTTPS_PREFIX_LENGTH >= this.#text.length) return false;
-			const next_char = this.#text.charCodeAt(this.#index + HTTPS_PREFIX_LENGTH);
-			return next_char !== SPACE && next_char !== NEWLINE;
-		}
-		if (this.#match('http://')) {
-			if (this.#index + HTTP_PREFIX_LENGTH >= this.#text.length) return false;
-			const next_char = this.#text.charCodeAt(this.#index + HTTP_PREFIX_LENGTH);
-			return next_char !== SPACE && next_char !== NEWLINE;
-		}
-		return false;
+		// Scheme matching is case-insensitive (RFC 3986).
+		const prefix_len = match_url_prefix_case_insensitive(this.#text, this.#index);
+		if (prefix_len === 0) return false;
+		if (this.#index + prefix_len >= this.#text.length) return false;
+		const next_char = this.#text.charCodeAt(this.#index + prefix_len);
+		return next_char !== SPACE && next_char !== NEWLINE;
 	}
 
 	#is_at_word_boundary(index: number, check_before: boolean, check_after: boolean): boolean {

@@ -184,7 +184,7 @@ Link nodes have a `link_type` field:
 
 **Auto-detected URLs:**
 
-Must start with `https://` or `http://` (case-sensitive).
+Must start with `https://` or `http://`. Scheme matching is case-insensitive (RFC 3986 §3.1) — `HTTPS://`, `Https://`, etc. all match. The original casing is preserved in the emitted reference; browsers normalize schemes themselves.
 Must be preceded by a non-word character (not `A-Z`, `a-z`, or `0-9`) or start of string. `xhttps://...` is plain text, not a link.
 Continues until whitespace or certain trailing punctuation.
 Trailing punctuation is trimmed: `.,;:!?]`

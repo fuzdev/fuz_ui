@@ -55,6 +55,53 @@ export const MAX_HEADING_LEVEL = 6; // Headings support levels 1-6
 export const HTTPS_PREFIX_LENGTH = 8; // Length of "https://"
 export const HTTP_PREFIX_LENGTH = 7; // Length of "http://"
 export const H_LOWER = 104; // h
+export const H_UPPER = 72; // H
+
+/**
+ * Lowercase an ASCII letter code; passes other chars through.
+ * Mirrors the `[A-Z] → [a-z]` shift without touching non-ASCII.
+ */
+export const ascii_to_lower = (char_code: number): number =>
+	char_code >= A_UPPER && char_code <= Z_UPPER ? char_code + 32 : char_code;
+
+/**
+ * Case-insensitive URL scheme prefix check. Returns the prefix length
+ * (8 for `https://`, 7 for `http://`) or 0 if neither matches at `pos`.
+ *
+ * URI schemes are case-insensitive per RFC 3986 §3.1, and mobile keyboards
+ * routinely auto-capitalize the first letter of a sentence, producing
+ * `Https://` etc. The original case is preserved in the emitted reference —
+ * browsers normalize schemes themselves.
+ */
+export const match_url_prefix_case_insensitive = (s: string, pos: number): 0 | 7 | 8 => {
+	if (pos + HTTP_PREFIX_LENGTH > s.length) return 0;
+	// h | H
+	if (ascii_to_lower(s.charCodeAt(pos)) !== H_LOWER) return 0;
+	// 'ttps://' (7 chars) or 'ttp://' (6 chars)
+	if (
+		ascii_to_lower(s.charCodeAt(pos + 1)) === 116 /* t */ &&
+		ascii_to_lower(s.charCodeAt(pos + 2)) === 116 /* t */ &&
+		ascii_to_lower(s.charCodeAt(pos + 3)) === 112 /* p */
+	) {
+		if (
+			pos + HTTPS_PREFIX_LENGTH <= s.length &&
+			ascii_to_lower(s.charCodeAt(pos + 4)) === 115 /* s */ &&
+			s.charCodeAt(pos + 5) === COLON &&
+			s.charCodeAt(pos + 6) === SLASH &&
+			s.charCodeAt(pos + 7) === SLASH
+		) {
+			return HTTPS_PREFIX_LENGTH;
+		}
+		if (
+			s.charCodeAt(pos + 4) === COLON &&
+			s.charCodeAt(pos + 5) === SLASH &&
+			s.charCodeAt(pos + 6) === SLASH
+		) {
+			return HTTP_PREFIX_LENGTH;
+		}
+	}
+	return 0;
+};
 
 /**
  * Check if character code is a letter (A-Z, a-z).
@@ -270,7 +317,7 @@ export const mdz_heading_id_from_text = (text: string): string => slugify(text, 
  * Requires at least one valid character after the protocol.
  * Rejects whitespace and characters that can't start a valid hostname.
  */
-const URL_PATTERN = /^https?:\/\/[^\s)\]}<>.,:/?#!]/;
+const URL_PATTERN = /^https?:\/\/[^\s)\]}<>.,:/?#!]/i;
 export const mdz_is_url = (s: string): boolean => URL_PATTERN.test(s);
 
 /**

@@ -9,6 +9,7 @@ import {
 	BACKTICK,
 	HTTPS_PREFIX_LENGTH,
 	H_LOWER,
+	H_UPPER,
 	LEFT_ANGLE,
 	LEFT_BRACKET,
 	NEWLINE,
@@ -20,6 +21,7 @@ import {
 	TILDE,
 	UNDERSCORE,
 	is_word_char,
+	match_url_prefix_case_insensitive,
 } from './mdz_helpers.js';
 import {
 	type MdzStreamParserState,
@@ -50,14 +52,14 @@ export const consume_text_run = (state: MdzStreamParserState): void => {
 			c === LEFT_ANGLE ||
 			c === NEWLINE ||
 			// URL/path: only break when actually at a URL or path start.
-			// Most h/./slash in prose are not URLs/paths — continuing the scan
+			// Most h/H/./slash in prose are not URLs/paths — continuing the scan
 			// avoids the full dispatch cycle through process_loop → process_inline.
-			// For `h` at a word boundary, also break when there isn't enough buffer
-			// left to confirm `https://` / `http://` — process_inline's speculator
-			// then carries the prefix match across chunk boundaries.
-			(c === H_LOWER &&
-				(state.buffer.startsWith('https://', state.pos) ||
-					state.buffer.startsWith('http://', state.pos) ||
+			// For `h`/`H` at a word boundary, also break when there isn't enough
+			// buffer left to confirm `https://` / `http://` — process_inline's
+			// speculator then carries the prefix match across chunk boundaries.
+			// Scheme matching is case-insensitive (RFC 3986).
+			((c === H_LOWER || c === H_UPPER) &&
+				(match_url_prefix_case_insensitive(state.buffer, state.pos) > 0 ||
 					(state.buffer.length - state.pos < HTTPS_PREFIX_LENGTH &&
 						!is_word_char(state.buffer.charCodeAt(state.pos - 1))))) ||
 			((c === SLASH || c === PERIOD) &&

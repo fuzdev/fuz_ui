@@ -14,15 +14,15 @@
  */
 
 import {
-	HTTPS_PREFIX_LENGTH,
-	HTTP_PREFIX_LENGTH,
 	NEWLINE,
 	SPACE,
 	TAB,
 	PERIOD,
 	SLASH,
+	ascii_to_lower,
 	is_valid_path_char,
 	is_word_char,
+	match_url_prefix_case_insensitive,
 	trim_trailing_punctuation,
 } from './mdz_helpers.js';
 import {
@@ -42,16 +42,12 @@ const HTTP_PREFIX = 'http://';
 /**
  * Forced-mode URL detection: the full prefix must be in the buffer.
  * Used at EOF when speculative prefix matching isn't needed.
+ * Scheme match is case-insensitive (RFC 3986).
  */
 export const try_auto_url_forced = (state: MdzStreamParserState): TryResult => {
 	if (state.prev_char !== -1 && is_word_char(state.prev_char)) return 'not_match';
 
-	let prefix_len = 0;
-	if (state.buffer.startsWith('https://', state.pos)) {
-		prefix_len = HTTPS_PREFIX_LENGTH;
-	} else if (state.buffer.startsWith('http://', state.pos)) {
-		prefix_len = HTTP_PREFIX_LENGTH;
-	}
+	const prefix_len = match_url_prefix_case_insensitive(state.buffer, state.pos);
 	if (prefix_len === 0) return 'not_match';
 
 	// must have content after protocol
@@ -172,20 +168,25 @@ export const start_speculative_url = (state: MdzStreamParserState): void => {
 /**
  * Speculative URL prefix matching. Checks each char against viable prefixes,
  * streaming as text. Confirms on full match, cancels on mismatch.
+ *
+ * Scheme letters (`h`, `t`, `p`, `s`) are matched case-insensitively (RFC 3986);
+ * the `:` and `//` portion remains literal. Original casing is preserved in
+ * the emitted reference.
  */
 export const process_url_prefix = (state: MdzStreamParserState): void => {
 	const pu = state.pending_url!;
 	const char_code = state.buffer.charCodeAt(state.pos);
 	const pos = pu.url_text.length;
 
+	// scheme letters (positions 0-4) match case-insensitively;
+	// `:` and `/` (positions 5-7 for https, 4-6 for http) are literal.
+	const cmp_code = pos < 5 ? ascii_to_lower(char_code) : char_code;
+
 	// narrow viable prefixes
-	if (
-		pu.viable_https &&
-		(pos >= HTTPS_PREFIX.length || char_code !== HTTPS_PREFIX.charCodeAt(pos))
-	) {
+	if (pu.viable_https && (pos >= HTTPS_PREFIX.length || cmp_code !== HTTPS_PREFIX.charCodeAt(pos))) {
 		pu.viable_https = false;
 	}
-	if (pu.viable_http && (pos >= HTTP_PREFIX.length || char_code !== HTTP_PREFIX.charCodeAt(pos))) {
+	if (pu.viable_http && (pos >= HTTP_PREFIX.length || cmp_code !== HTTP_PREFIX.charCodeAt(pos))) {
 		pu.viable_http = false;
 	}
 
@@ -267,9 +268,8 @@ export const complete_pending_url = (state: MdzStreamParserState): void => {
 
 	// for external URLs, must have content after protocol prefix
 	if (pu.link_type === 'external') {
-		const is_https = reference.startsWith('https://');
-		const min_len = is_https ? HTTPS_PREFIX_LENGTH + 1 : HTTP_PREFIX_LENGTH + 1;
-		if (reference.length < min_len) return; // just protocol, no content
+		const prefix_len = match_url_prefix_case_insensitive(reference, 0);
+		if (reference.length < prefix_len + 1) return; // just protocol, no content
 	}
 
 	const text_id = state.active_text_id;
@@ -330,9 +330,8 @@ export const scan_auto_link_forced = (
 
 	// for external URLs, must have content after protocol prefix
 	if (link_type === 'external') {
-		const is_https = reference.startsWith('https://');
-		const min_len = is_https ? HTTPS_PREFIX_LENGTH + 1 : HTTP_PREFIX_LENGTH + 1;
-		if (reference.length < min_len) return 'not_match';
+		const prefix_len = match_url_prefix_case_insensitive(reference, 0);
+		if (reference.length < prefix_len + 1) return 'not_match';
 	}
 
 	const end_pos = state.pos + reference.length;

@@ -48,6 +48,7 @@ import {
 	LEFT_BRACKET,
 	RIGHT_BRACKET,
 	H_LOWER,
+	H_UPPER,
 	PERIOD,
 	is_word_char,
 } from './mdz_helpers.js';
@@ -382,8 +383,9 @@ const process_inline = (state: MdzStreamParserState, forced: boolean): boolean =
 		// not a valid tag — fall through to text
 	}
 
-	// auto-detected URLs (text-first speculative prefix matching)
-	if (char_code === H_LOWER) {
+	// auto-detected URLs (text-first speculative prefix matching).
+	// Fires on `h` and `H` — scheme matching is case-insensitive (RFC 3986).
+	if (char_code === H_LOWER || char_code === H_UPPER) {
 		if (forced) {
 			const result = try_auto_url_forced(state);
 			if (result === 'consumed') return true;

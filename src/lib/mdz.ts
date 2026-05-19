@@ -51,8 +51,7 @@ import {
 	HR_HYPHEN_COUNT,
 	MIN_CODEBLOCK_BACKTICKS,
 	MAX_HEADING_LEVEL,
-	HTTPS_PREFIX_LENGTH,
-	HTTP_PREFIX_LENGTH,
+	match_url_prefix_case_insensitive,
 	is_letter,
 	is_tag_name_char,
 	is_word_char,
@@ -927,31 +926,21 @@ export class MdzParser {
 	 * matches the streaming parser and the spec's "false negatives over false
 	 * positives" policy — `xhttps://...` is treated as plain text rather than
 	 * `x` followed by a link.
+	 *
+	 * Scheme matching is case-insensitive (RFC 3986 §3.1); the original casing
+	 * is preserved in the emitted reference.
 	 */
 	#is_at_url(): boolean {
 		// word boundary check: skip when preceded by [A-Za-z0-9]
 		if (this.#index > 0 && is_word_char(this.#template.charCodeAt(this.#index - 1))) {
 			return false;
 		}
-		if (this.#match('https://')) {
-			// Check for protocol-only (e.g., just "https://")
-			// Must have at least one non-whitespace character after protocol
-			if (this.#index + HTTPS_PREFIX_LENGTH >= this.#template.length) {
-				return false;
-			}
-			const next_char = this.#template.charCodeAt(this.#index + HTTPS_PREFIX_LENGTH);
-			return next_char !== SPACE && next_char !== NEWLINE;
-		}
-		if (this.#match('http://')) {
-			// Check for protocol-only (e.g., just "http://")
-			// Must have at least one non-whitespace character after protocol
-			if (this.#index + HTTP_PREFIX_LENGTH >= this.#template.length) {
-				return false;
-			}
-			const next_char = this.#template.charCodeAt(this.#index + HTTP_PREFIX_LENGTH);
-			return next_char !== SPACE && next_char !== NEWLINE;
-		}
-		return false;
+		const prefix_len = match_url_prefix_case_insensitive(this.#template, this.#index);
+		if (prefix_len === 0) return false;
+		// Must have at least one non-whitespace character after protocol
+		if (this.#index + prefix_len >= this.#template.length) return false;
+		const next_char = this.#template.charCodeAt(this.#index + prefix_len);
+		return next_char !== SPACE && next_char !== NEWLINE;
 	}
 
 	/**
@@ -961,12 +950,8 @@ export class MdzParser {
 	#parse_auto_link_url(): MdzLinkNode {
 		const start = this.#index;
 
-		// Consume protocol
-		if (this.#match('https://')) {
-			this.#index += HTTPS_PREFIX_LENGTH;
-		} else if (this.#match('http://')) {
-			this.#index += HTTP_PREFIX_LENGTH;
-		}
+		// Consume protocol (case-insensitive match; original casing preserved in reference)
+		this.#index += match_url_prefix_case_insensitive(this.#template, this.#index);
 
 		// Collect URL characters using RFC 3986 whitelist
 		// Stop at whitespace or any character invalid in URIs
@@ -1089,7 +1074,7 @@ export class MdzParser {
 
 			// Check for URL or internal absolute/relative path mid-text (char code guard avoids startsWith on every char)
 			if (
-				(char_code === 104 /* h */ && this.#is_at_url()) ||
+				((char_code === 104 /* h */ || char_code === 72 /* H */) && this.#is_at_url()) ||
 				(char_code === SLASH && is_at_absolute_path(this.#template, this.#index)) ||
 				(char_code === PERIOD && is_at_relative_path(this.#template, this.#index))
 			) {
