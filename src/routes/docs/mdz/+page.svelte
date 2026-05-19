@@ -11,7 +11,6 @@
 	import MdzStream from '$lib/MdzStream.svelte';
 	import {MdzStreamParser} from '$lib/mdz_stream_parser.js';
 	import {MdzStreamState} from '$lib/mdz_stream_state.svelte.js';
-	import type {MdzOpcode} from '$lib/mdz_opcodes.js';
 	import DeclarationLink from '$lib/DeclarationLink.svelte';
 	import TomeLink from '$lib/TomeLink.svelte';
 	import MdzRoot from '$lib/MdzRoot.svelte';
@@ -90,14 +89,17 @@ const y = 1336;
 	let stream_running = $state(false);
 	let stream_finished = $state(false);
 	let stream_interval_ms = $state(100);
-	let stream_recent_opcodes = $state<Array<MdzOpcode>>([]);
+	let stream_recent_opcodes = $state<Array<string>>([]);
 	let stream_timer: ReturnType<typeof setInterval> | undefined;
 
 	const stream_drain = (): void => {
 		const ops = stream_parser.take_opcodes();
 		if (ops.length === 0) return;
 		stream_state.apply_batch(ops);
-		stream_recent_opcodes = [...stream_recent_opcodes, ...ops].slice(-STREAM_OPCODES_MAX);
+		stream_recent_opcodes = [
+			...stream_recent_opcodes,
+			...ops.map((op) => JSON.stringify(op)),
+		].slice(-STREAM_OPCODES_MAX);
 	};
 
 	const stream_step = (): void => {
@@ -439,7 +441,7 @@ const nodes = mdz_parse(content);`}
 					lang="json"
 					content={stream_recent_opcodes.length === 0
 						? '(no opcodes yet)'
-						: [...stream_recent_opcodes].reverse().map((op) => JSON.stringify(op)).join('\n')}
+						: [...stream_recent_opcodes].reverse().join('\n')}
 				/>
 			</Details>
 			<Code
