@@ -381,12 +381,16 @@ const nodes = mdz_parse(content);`}
 				<a href="https://pngwn.at/">pngwn</a> in
 				<a href="https://bsky.app/profile/pngwn.at/post/3mi527zntb22n">this bluesky post</a>. See
 				<a href={resolve('/docs/mdz/streaming')}>streaming and opcodes</a> for the full opcode design
-				and rendering paths.
+				and rendering paths. (temporarily AI-generated)
 			</p>
 			<p>
 				Try it -- each character is fed one at a time to show how constructs build incrementally:
 			</p>
-			<textarea bind:value={stream_content} oninput={stream_reset} aria-label="streaming mdz source"
+			<textarea
+				style:height="300px"
+				bind:value={stream_content}
+				oninput={stream_reset}
+				aria-label="streaming mdz source"
 			></textarea>
 			<div class="row gap_md mb_md">
 				<button type="button" onclick={() => (stream_running ? stream_pause() : stream_start())}>
@@ -411,9 +415,9 @@ const nodes = mdz_parse(content);`}
 				</label>
 				<small class="ml_auto">{stream_pos}/{stream_content.length}</small>
 			</div>
-			<div class="panel shade_05 mb_lg p_md" style:min-height="16rem">
+			<div class="panel shade_05 mb_lg p_md" style:min-height="300px">
 				{#if stream_pos === 0}
-					<p class="color_c_50">(press <strong>stream</strong> to begin)</p>
+					<p class="color_d_50">(press <strong>stream</strong> to begin)</p>
 				{:else}
 					<MdzStream state={stream_state} />
 				{/if}
@@ -435,7 +439,7 @@ const nodes = mdz_parse(content);`}
 					lang="json"
 					content={stream_recent_opcodes.length === 0
 						? '(no opcodes yet)'
-						: stream_recent_opcodes.map((op) => JSON.stringify(op)).join('\n')}
+						: [...stream_recent_opcodes].reverse().map((op) => JSON.stringify(op)).join('\n')}
 				/>
 			</Details>
 			<Code

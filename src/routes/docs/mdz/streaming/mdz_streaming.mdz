@@ -2,9 +2,9 @@
 
 mdz can render incrementally as content arrives, like from an LLM emitting tokens one at a time. The streaming parser and its opcode protocol are independent of any specific renderer.
 
-For a high-level introduction, see /docs/mdz. For formal grammar, see ../grammar. For comprehensive examples, see ../spec.
+For a high-level introduction and streaming example, see /docs/mdz. For formal grammar, see ../grammar. For comprehensive examples, see ../spec.
 
-> ⚠️ this page is AI-generated
+> ⚠️ this page is AI-generated, and only partially reviewed
 
 ---
 
@@ -89,14 +89,14 @@ When the parser sees `**` it doesn't know yet whether it'll form bold or end up 
 
 The opcode types are:
 
-- `open` — open a container (Bold, Italic, Link, Heading, Codeblock, etc.)
-- `close` — close the previously opened container, with deferred metadata (e.g. heading id, link reference). Carries `discard: true` to signal that the node and its descendants should drop from the tree (whitespace-only paragraphs)
+- `open` — open a container (Paragraph, Bold, Italic, Link, Heading, Codeblock, etc.)
+- `close` — close the previously opened container, with deferred metadata resolved at close time (heading id, link reference). May carry `discard: true` for whitespace-only paragraphs the consumer should drop.
 - `text` — create a leaf Text or Code node
 - `append_text` — extend the last text node (avoids one node per character during plain runs)
 - `trim_text` — drop trailing characters from a text node (used for trailing-newline trim at block close)
 - `void` — create a self-contained leaf (Hr)
 - `revert` — undo an optimistic open, optionally re-wrapping children in a new container
-- `wrap` — retroactively wrap an existing text node in a Link (auto-links only — see below)
+- `wrap` — retroactively wrap an existing text node in a Link (auto-links only — may also split trailing punctuation; see below)
 
 The full type definition is in `mdz_opcodes.ts`.
 
@@ -106,7 +106,7 @@ The full type definition is in `mdz_opcodes.ts`.
 
 Auto-detected URLs (`https://...`, `/path`, `./relative`) are the one case where neither optimistic-open nor hold-until-terminator gives a good streaming feel.
 
-If the parser opens a Link optimistically on every word-boundary `h`, every word starting with h flashes blue before reverting. If it instead holds all bytes until a terminator, a 40-character URL creates a 40-character pause in the rendered output — readers see a stutter.
+If the parser opens a Link optimistically on every leading `h`, every word starting with h flashes blue before reverting. If it instead holds all bytes until a terminator, a 40-character URL creates a 40-character pause in the rendered output — readers see a stutter.
 
 The `wrap` opcode resolves both problems. The URL streams as ordinary visible text. When the terminator finally arrives, `wrap` retroactively re-parents that text node inside a Link. The text content never changes — only its parent changes. Readers see prose flowing naturally, then a single moment where the URL upgrades from prose to clickable link. No flash, no pause.
 
@@ -134,7 +134,7 @@ Once emitted, opcodes are never mutated or removed. This means:
 - A network protocol can carry opcodes from parser to renderer.
 - The renderer never re-parses.
 
-The `revert` and `trim_text` opcodes look retroactive but aren't — they're new opcodes the consumer interprets as "drop these nodes" or "shorten this string." The stream itself only grows.
+The `revert` and `trim_text` opcodes look retroactive but aren't — they're new opcodes the consumer interprets as "drop these nodes" or "shorten this string". The stream itself only grows.
 
 This is the same insight as [pngwn's Penguin-Flavoured Markdown](https://bsky.app/profile/pngwn.at/post/3mi527zntb22n): restrict the dialect so streaming is tractable, render optimistically and correct when wrong, emit serializable opcodes target-agnostically.
 
