@@ -4537,7 +4537,7 @@
 								"name": "members",
 								"kind": "variable",
 								"docComment": "Nested members for classes, interfaces, types, and enums.",
-								"typeSignature": "({ kind: \"function\"; optional: boolean; parameters: { name: string; type: string; optional: boolean; rest: boolean; description?: string | undefined; defaultValue?: string | undefined; }[]; ... 15 more ...; sourceLine?: number | undefined; } | { ...; } | { ...; })[] | undefined",
+								"typeSignature": "({ kind: \"function\"; name: string; optional: boolean; parameters: { name: string; type: string; optional: boolean; rest: boolean; description?: string | undefined; defaultValue?: string | undefined; }[]; ... 14 more ...; sourceLine?: number | undefined; } | { ...; } | { ...; })[] | undefined",
 								"reactivity": "$derived"
 							},
 							{
@@ -13441,21 +13441,24 @@
 								"kind": "variable",
 								"docComment": "Import sources that resolve to the `Mdz` component.\nUsed to verify that `Mdz` in templates refers to fuz_ui's `Mdz.svelte`.",
 								"typeSignature": "Array<string>",
-								"optional": true
+								"optional": true,
+								"defaultValue": "['@fuzdev/fuz_ui/Mdz.svelte']"
 							},
 							{
 								"name": "compiled_component_import",
 								"kind": "variable",
 								"docComment": "Import path for the precompiled wrapper component.",
 								"typeSignature": "string",
-								"optional": true
+								"optional": true,
+								"defaultValue": "'@fuzdev/fuz_ui/MdzPrecompiled.svelte'"
 							},
 							{
 								"name": "on_error",
 								"kind": "variable",
 								"docComment": "How to handle errors during mdz parsing or rendering.",
 								"typeSignature": "'log' | 'throw'",
-								"optional": true
+								"optional": true,
+								"defaultValue": "'throw' in CI, 'log' otherwise"
 							}
 						]
 					},
@@ -16526,7 +16529,8 @@
 								"kind": "variable",
 								"docComment": "Path to the `library.json` file (relative to `vite.config.ts`).",
 								"typeSignature": "string",
-								"optional": true
+								"optional": true,
+								"defaultValue": "'./src/routes/library.json'"
 							}
 						]
 					},
