@@ -102,6 +102,29 @@ export default {
 	</TomeSection>
 
 	<TomeSection>
+		<TomeSectionHeader text="Relative paths and the base attribute" />
+		<p>
+			Content with relative auto-links (<code>./grammar</code>, <code>../spec</code>) needs to know
+			its base path to resolve those at compile time. Add a static <code>base</code> attribute to
+			the <DeclarationLink name="Mdz" /> tag:
+		</p>
+		<!-- eslint-disable svelte/no-useless-mustaches -->
+		<Code content={`<Mdz base="/docs/mdz/" content="see ./grammar and ../spec" />`} />
+		<p>
+			The preprocessor reads <code>base</code>, resolves relative paths to absolute via
+			<code>resolve_relative_path()</code>, and emits the resolved <code>href</code> values.
+			<code>base</code> must be a static string literal — dynamic expressions cause the call to fall back
+			to runtime rendering.
+		</p>
+		<p>
+			Without <code>base</code>, relative paths are kept as raw hrefs and the browser resolves them
+			against the current URL at click time. This is a preprocessor-only attribute; at runtime <DeclarationLink
+				name="Mdz"
+			/> accepts a <code>base</code> prop with the same meaning.
+		</p>
+	</TomeSection>
+
+	<TomeSection>
 		<TomeSectionHeader text="Skip conditions" />
 		<p>The preprocessor falls back to runtime rendering when:</p>
 		<ul>

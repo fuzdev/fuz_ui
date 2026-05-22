@@ -3,6 +3,7 @@
 	import {resolve} from '$app/paths';
 
 	import Mdz from '$lib/Mdz.svelte';
+	import MdzRoot from '$lib/MdzRoot.svelte';
 	import Details from '$lib/Details.svelte';
 	import TomeSection from '$lib/TomeSection.svelte';
 	import TomeSectionHeader from '$lib/TomeSectionHeader.svelte';
@@ -21,19 +22,26 @@
 	</p>
 	<h2>{data.fixtures.length} fixtures</h2>
 
-	{#each data.fixtures as fixture (fixture.name)}
-		<TomeSection class="mb_xl">
-			<TomeSectionHeader text={fixture.name} />
+	<!--
+		Fixtures author their relative links (`./grammar`, `../mdz`) against
+		`/docs/mdz/`, not this debug page's URL. Override the layout's
+		current-pathname default so example links resolve as intended.
+	-->
+	<MdzRoot base="/docs/mdz/">
+		{#each data.fixtures as fixture (fixture.name)}
+			<TomeSection class="mb_xl">
+				<TomeSectionHeader text={fixture.name} />
 
-			<div class="mb_xl2">
-				<Code lang="md" content={fixture.input} />
-			</div>
+				<div class="mb_xl2">
+					<Code lang="md" content={fixture.input} />
+				</div>
 
-			<Mdz content={fixture.input} />
+				<Mdz content={fixture.input} />
 
-			<Details summary="JSON" open={false}>
-				<Code lang="json" content={format_json(fixture.expected)} />
-			</Details>
-		</TomeSection>
-	{/each}
+				<Details summary="JSON" open={false}>
+					<Code lang="json" content={format_json(fixture.expected)} />
+				</Details>
+			</TomeSection>
+		{/each}
+	</MdzRoot>
 </main>

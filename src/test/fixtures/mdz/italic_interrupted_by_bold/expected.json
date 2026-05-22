@@ -13,20 +13,8 @@
 				"children": [
 					{
 						"type": "Text",
-						"content": " ",
+						"content": " _before ",
 						"start": 6,
-						"end": 7
-					},
-					{
-						"type": "Text",
-						"content": "_",
-						"start": 7,
-						"end": 8
-					},
-					{
-						"type": "Text",
-						"content": "before ",
-						"start": 8,
 						"end": 15
 					}
 				],

@@ -19,11 +19,10 @@
 	{/if}
 </p>
 
-<!-- eslint-disable-next-line @typescript-eslint/no-deprecated -->
+<!-- renders the `@deprecated` TSDoc tag -->
 {#if declaration.is_deprecated}
 	<p>
 		<strong>⚠️ deprecated:</strong>
-		<!-- eslint-disable-next-line @typescript-eslint/no-deprecated -->
 		{declaration.deprecated_message}
 	</p>
 {/if}

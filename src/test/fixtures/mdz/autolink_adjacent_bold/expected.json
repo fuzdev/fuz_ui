@@ -17,21 +17,21 @@
 			},
 			{
 				"type": "Link",
-				"reference": "https://example.com",
+				"reference": "https://fuz.dev",
 				"children": [
 					{
 						"type": "Text",
-						"content": "https://example.com",
+						"content": "https://fuz.dev",
 						"start": 8,
-						"end": 27
+						"end": 23
 					}
 				],
 				"link_type": "external",
 				"start": 8,
-				"end": 27
+				"end": 23
 			}
 		],
 		"start": 0,
-		"end": 27
+		"end": 23
 	}
 ]

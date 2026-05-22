@@ -3,7 +3,7 @@
 
 	import {mdz_parse} from './mdz.js';
 	import MdzNodeView from './MdzNodeView.svelte';
-	import {mdz_base_context} from './mdz_components.js';
+	import {mdz_base_context, set_mdz_context_with_fallback} from './mdz_components.js';
 
 	const {
 		content,
@@ -18,7 +18,7 @@
 		base?: string;
 	} = $props();
 
-	mdz_base_context.set(() => base);
+	set_mdz_context_with_fallback(mdz_base_context, () => base);
 
 	const nodes = $derived(mdz_parse(content));
 </script>

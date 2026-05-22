@@ -4,6 +4,7 @@
 	import MdnLink from '$lib/MdnLink.svelte';
 	import TomeSectionHeader from '$lib/TomeSectionHeader.svelte';
 	import TomeSection from '$lib/TomeSection.svelte';
+	import DeclarationLink from '$lib/DeclarationLink.svelte';
 	import Contextmenu from '$lib/Contextmenu.svelte';
 	import ContextmenuEntry from '$lib/ContextmenuEntry.svelte';
 	import Details from '$lib/Details.svelte';
@@ -27,14 +28,16 @@
 		<a href="https://www.w3.org/TR/uievents/#event-type-contextmenu">w3 spec</a>.
 	</p>
 	<p>
-		When you rightclick inside a <code>ContextmenuRoot</code>, or longpress on touch devices, it
-		searches the DOM tree for behaviors defined with <code>Contextmenu</code> starting from the target
-		element up to the root. If any behaviors are found, the Fuz contextmenu opens, showing all contextually
-		available actions. If no behaviors are found, the default system contextmenu opens.
+		When you rightclick inside a <DeclarationLink name="ContextmenuRoot" />, or longpress on touch
+		devices, it searches the DOM tree for behaviors defined with <DeclarationLink
+			name="Contextmenu"
+		/> starting from the target element up to the root. If any behaviors are found, the Fuz contextmenu
+		opens, showing all contextually available actions. If no behaviors are found, the default system contextmenu
+		opens.
 	</p>
 	<p>
-		Here's a <code>{root_component_name}</code> with a <code>Contextmenu</code> inside another
-		<code>Contextmenu</code>:
+		Here's a <code>{root_component_name}</code> with a <DeclarationLink name="Contextmenu" /> inside another
+		<DeclarationLink name="Contextmenu" />:
 	</p>
 	<ContextmenuRootComponent scoped>
 		<Contextmenu>
@@ -87,7 +90,8 @@
 		need to hunt for specific parent elements to find the desired action, unlike many systems --
 		instead, all actions in the tree are available, improving UX convenience and predictability at
 		the cost of more noisy menus. Developers can opt out of this inheritance behavior by simply not
-		nesting <code>Contextmenu</code> declarations, and submenus are useful for managing complexity.
+		nesting <DeclarationLink name="Contextmenu" /> declarations, and submenus are useful for managing
+		complexity.
 	</p>
 	<h4>Mouse and keyboard:</h4>
 	<ul>

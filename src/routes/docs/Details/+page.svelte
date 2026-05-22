@@ -7,6 +7,7 @@
 	import MdnLink from '$lib/MdnLink.svelte';
 	import TomeSectionHeader from '$lib/TomeSectionHeader.svelte';
 	import TomeSection from '$lib/TomeSection.svelte';
+	import DeclarationLink from '$lib/DeclarationLink.svelte';
 
 	const LIBRARY_ITEM_NAME = 'Details';
 
@@ -16,7 +17,7 @@
 <TomeContent {tome}>
 	<section>
 		<p>
-			The <code>Details</code> component is an alternative to the <MdnLink
+			The <DeclarationLink name="Details" /> component is an alternative to the <MdnLink
 				path="Web/HTML/Element/details"
 			/> element. By default it's lazy, and you can pass <code>eager</code> to render the children immediately
 			like the base element.

@@ -5,6 +5,7 @@
 
 import {describe, test, assert, afterEach, beforeEach, vi} from 'vitest';
 import {flushSync, tick} from 'svelte';
+import {on} from 'svelte/events';
 import {
 	unmount_component,
 	create_contextmenu_event,
@@ -372,7 +373,7 @@ export const create_shared_nested_tests = (
 				const window_listener = () => {
 					window_handler_called = true;
 				};
-				window.addEventListener('contextmenu', window_listener);
+				const off = on(window, 'contextmenu', window_listener);
 
 				try {
 					const event = create_contextmenu_event(150, 250);
@@ -392,7 +393,7 @@ export const create_shared_nested_tests = (
 						'event should not be prevented to allow browser contextmenu',
 					);
 				} finally {
-					window.removeEventListener('contextmenu', window_listener);
+					off();
 				}
 			});
 

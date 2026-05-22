@@ -13,6 +13,7 @@
 	import ThemeInput from '$lib/ThemeInput.svelte';
 	import ThemeForm from '$routes/ThemeForm.svelte';
 	import MdnLink from '$lib/MdnLink.svelte';
+	import DeclarationLink from '$lib/DeclarationLink.svelte';
 	import {theme_state_context} from '$lib/theme_state.svelte.js';
 
 	const LIBRARY_ITEM_NAME = 'ThemeRoot';
@@ -38,12 +39,13 @@
 			> for dark mode and custom themes.
 		</p>
 		<p>
-			<code>ThemeRoot</code> adds global support for both the browser's
+			<DeclarationLink name="ThemeRoot" /> adds global support for both the browser's
 			<MdnLink path="Web/CSS/color-scheme" />
 			and custom themes based on
 			<a href="https://css.fuz.dev/docs/variables">fuz_css style variables</a>, which use
 			<MdnLink path="Web/CSS/--*">CSS custom properties</MdnLink>.
-			<code>ThemeRoot</code> is a singleton component that's mounted at the top-level of the page:
+			<DeclarationLink name="ThemeRoot" /> is a singleton component that's mounted at the top-level of
+			the page:
 		</p>
 		<Code lang="ts" content={`import ThemeRoot from '@fuzdev/fuz_ui/ThemeRoot.svelte';`} />
 		<Code content={`<!-- +layout.svelte -->\n<ThemeRoot>\n\t{@render children()}\n</ThemeRoot>`} />
@@ -52,8 +54,9 @@
 			<aside>
 				<p>Most theme usage affects the whole page, so Fuz makes that easy.</p>
 				<p>
-					By default <code>ThemeRoot</code> syncs its settings to the global <code>:root</code> tag
-					and persists to <code>localStorage</code>.
+					By default <DeclarationLink name="ThemeRoot" /> syncs its settings to the global
+					<code>:root</code>
+					tag and persists to <code>localStorage</code>.
 				</p>
 				<p>These behaviors can be customized with its props:</p>
 				<ul>
@@ -69,24 +72,26 @@
 			{#snippet summary()}Why nested children?{/snippet}
 			<aside>
 				<p>
-					<code>ThemeRoot</code> is designed to wrap every page at the top level so it can provide
-					the selected theme and color scheme in the Svelte context via a <code>theme_state</code>
+					<DeclarationLink name="ThemeRoot" /> is designed to wrap every page at the top level so it can
+					provide the selected theme and color scheme in the Svelte context via a
+					<code>theme_state</code>
 					instance. It works without children, but <code>theme_state_context.get()</code> will fail
 					unless you call
 					<code>theme_state_context.set()</code> yourself.
 				</p>
 				<p>
 					This lets you call <code>theme_state_context.get()</code> to access the reactive
-					<code>ThemeState</code>
+					<DeclarationLink name="ThemeState" />
 					class instance anywhere in your code. The helper components on this page like
-					<code>ColorSchemeInput</code> and <code>ThemeInput</code> use it so they don't require a
+					<DeclarationLink name="ColorSchemeInput" /> and <DeclarationLink name="ThemeInput" /> use it
+					so they don't require a
 					<code>theme_state</code> prop.
 				</p>
 				<p>
-					If you don't don't want to wrap everything in <code>ThemeRoot</code> for some reason, you
-					can set a <code>ThemeState</code> in context manually. It must be the same reference as
-					the
-					<code>ThemeRoot</code> prop:
+					If you don't don't want to wrap everything in <DeclarationLink name="ThemeRoot" /> for some
+					reason, you can set a <DeclarationLink name="ThemeState" /> in context manually. It must be
+					the same reference as the
+					<DeclarationLink name="ThemeRoot" /> prop:
 				</p>
 				<Code
 					content={'<' +
@@ -106,7 +111,7 @@
 	<TomeSection>
 		<TomeSectionHeader text="Color scheme" />
 		<p>
-			<code>ThemeRoot</code> defaults to automatic
+			<DeclarationLink name="ThemeRoot" /> defaults to automatic
 			<MdnLink path="Web/CSS/color-scheme" />
 			detection with
 			<MdnLink path="Web/CSS/@media/prefers-color-scheme" />, and users can also set it directly:
@@ -131,13 +136,16 @@
 			both color schemes.
 		</p>
 		<Details>
-			{#snippet summary()}More about <code>ColorSchemeInput</code>{/snippet}
+			{#snippet summary()}More about <DeclarationLink name="ColorSchemeInput" />{/snippet}
 			<aside>
 				<p>
-					<code>ColorSchemeInput</code> enables users to choose and persist the color scheme without boilerplate.
+					<DeclarationLink name="ColorSchemeInput" /> enables users to choose and persist the color scheme
+					without boilerplate.
 				</p>
 				<p>
-					By default, <code>ColorSchemeInput</code> works with <code>ThemeRoot</code>'s
+					By default, <DeclarationLink name="ColorSchemeInput" /> works with <DeclarationLink
+						name="ThemeRoot"
+					/>'s
 					<code>theme_state</code> in context to save the user's preference to
 					<code>localStorage</code>. To customize this behavior, pass your own <code>value</code> or
 					<code>onchange</code>
@@ -195,7 +203,7 @@
 </ThemeRoot>`}
 		/>
 		<p>
-			<code>ThemeRoot</code> can be customized with the the nonreactive prop
+			<DeclarationLink name="ThemeRoot" /> can be customized with the the nonreactive prop
 			<code>theme_state</code>:
 		</p>
 		<Code
@@ -212,7 +220,7 @@
 			This could be fixed, let me know if you have a usecase.
 		</aside>
 		<p>
-			<code>ThemeRoot</code> sets the <code>theme_state</code> in the Svelte context:
+			<DeclarationLink name="ThemeRoot" /> sets the <code>theme_state</code> in the Svelte context:
 		</p>
 		<Code
 			lang="ts"
@@ -233,10 +241,10 @@ theme_state.color_scheme; // '${theme_state.color_scheme}'`}
 	<TomeSection>
 		<TomeSectionHeader text="More details" />
 		<p>
-			<code>ThemeRoot</code> initializes the system's theme support. Without it, the page will not
-			reflect the user's system
-			<code>color-scheme</code>. By default, <code>ThemeRoot</code> applies the base theme to the
-			root of the page via <code>create_theme_setup_script</code>. It uses JS to add the
+			<DeclarationLink name="ThemeRoot" /> initializes the system's theme support. Without it, the page
+			will not reflect the user's system
+			<code>color-scheme</code>. By default, <DeclarationLink name="ThemeRoot" /> applies the base theme
+			to the root of the page via <code>create_theme_setup_script</code>. It uses JS to add the
 			<code>.dark</code> CSS class to the <code>:root</code> element.
 		</p>
 		<p>
@@ -248,7 +256,7 @@ theme_state.color_scheme; // '${theme_state.color_scheme}'`}
 		</p>
 		<p>
 			The theme setup script interacts with <code>sync_color_scheme</code> to save the user's
-			preference to <code>localStorage</code>. See also <code>ColorSchemeInput</code>.
+			preference to <code>localStorage</code>. See also <DeclarationLink name="ColorSchemeInput" />.
 		</p>
 		<p>
 			The setup script avoids flash-on-load due to color scheme, but currently themes flash in after

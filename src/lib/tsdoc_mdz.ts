@@ -35,8 +35,8 @@ const format_reference = (ref: string): string => (mdz_is_url(ref) ? ref : `\`${
  * tsdoc_see_to_mdz('{@link SomeType}')
  * // → '`SomeType`'
  *
- * tsdoc_see_to_mdz('https://example.com')
- * // → 'https://example.com'
+ * tsdoc_see_to_mdz('https://fuz.dev')
+ * // → 'https://fuz.dev'
  *
  * tsdoc_see_to_mdz('library_gen.ts for Gro-specific integration')
  * // → '`library_gen.ts` for Gro-specific integration'
