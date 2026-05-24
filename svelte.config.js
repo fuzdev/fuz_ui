@@ -1,6 +1,7 @@
 import {vitePreprocess} from '@sveltejs/vite-plugin-svelte';
 import adapter from '@sveltejs/adapter-static';
 import {svelte_preprocess_fuz_code} from '@fuzdev/fuz_code/svelte_preprocess_fuz_code.js';
+import {execSync} from 'node:child_process';
 
 // Self-referencing import from dist — unavailable on first build after clean checkout,
 // but subsequent builds use the preprocessor for static Mdz compilation.
@@ -68,5 +69,6 @@ export default {
 				'upgrade-insecure-requests': true,
 			},
 		},
+		version: {name: execSync('git rev-parse HEAD').toString().trim()},
 	},
 };
