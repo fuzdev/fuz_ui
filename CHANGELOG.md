@@ -1,5 +1,11 @@
 # @fuzdev/fuz_ui
 
+## 0.193.0
+
+### Minor Changes
+
+- feat: rename `Tome.name` → `Tome.slug`, add `Tome.title`, prefix tome helpers with `tome_` ([4cbfb3b](https://github.com/fuzdev/fuz_ui/commit/4cbfb3b))
+
 ## 0.192.0
 
 ### Minor Changes
