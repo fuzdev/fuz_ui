@@ -1,18 +1,24 @@
 import type {
 	DeclarationJson,
-	MemberJson,
-	ParameterJson,
-	ComponentPropJson,
-	OverloadJson,
+	DeclarationJsonInput,
+	MemberJsonInput,
+	ParameterJsonInput,
+	ComponentPropJsonInput,
+	OverloadJsonInput,
 } from 'svelte-docinfo/types.js';
 import {generateImport, getDisplayName} from 'svelte-docinfo/declaration-helpers.js';
 
 import type {Module} from './module.svelte.js';
 import {url_github_file} from './package_helpers.js';
 
+// `library.json` is serialized with svelte-docinfo's `compactReplacer`, which
+// strips empty default arrays — so the on-disk data is the `*Input` shape
+// (defaulted arrays optional), not the parsed `*Json` shape. Typing it as
+// input makes TypeScript force a guard on every defaulted-array read.
+//
 // Helper to access kind-specific fields on the discriminated union.
 // At runtime the field is present or undefined; TypeScript needs the cast.
-const field = <T>(decl: DeclarationJson, key: string): T | undefined =>
+const field = <T>(decl: DeclarationJsonInput, key: string): T | undefined =>
 	(decl as Record<string, unknown>)[key] as T | undefined;
 
 /**
@@ -28,7 +34,7 @@ const field = <T>(decl: DeclarationJson, key: string): T | undefined =>
  */
 export class Declaration {
 	readonly module: Module = $state.raw()!;
-	readonly declaration_json: DeclarationJson = $state.raw()!;
+	readonly declaration_json: DeclarationJsonInput = $state.raw()!;
 
 	library = $derived(this.module.library);
 
@@ -62,7 +68,13 @@ export class Declaration {
 	 * Generated TypeScript import statement.
 	 */
 	import_statement = $derived(
-		generateImport(this.declaration_json, this.module_path, this.library.package_json.name),
+		// `generateImport` reads only `name`/`kind`/path, none of the defaulted
+		// arrays, so asserting the parsed shape here is sound.
+		generateImport(
+			this.declaration_json as DeclarationJson,
+			this.module_path,
+			this.library.package_json.name,
+		),
 	);
 
 	/**
@@ -77,13 +89,20 @@ export class Declaration {
 	/**
 	 * Display name with generic parameters.
 	 */
-	display_name = $derived(getDisplayName(this.declaration_json));
+	// `getDisplayName` reads `genericParams` unguarded, so feed it the defaulted
+	// value rather than the raw (possibly-absent) input field.
+	display_name = $derived(
+		getDisplayName({
+			...this.declaration_json,
+			genericParams: this.declaration_json.genericParams ?? [],
+		} as DeclarationJson),
+	);
 
 	type_signature = $derived(this.declaration_json.typeSignature);
 	doc_comment = $derived(this.declaration_json.docComment);
 	deprecated_message = $derived(this.declaration_json.deprecatedMessage);
-	parameters = $derived(field<Array<ParameterJson>>(this.declaration_json, 'parameters'));
-	props = $derived(field<Array<ComponentPropJson>>(this.declaration_json, 'props'));
+	parameters = $derived(field<Array<ParameterJsonInput>>(this.declaration_json, 'parameters'));
+	props = $derived(field<Array<ComponentPropJsonInput>>(this.declaration_json, 'props'));
 	return_type = $derived(field<string>(this.declaration_json, 'returnType'));
 	return_description = $derived(field<string>(this.declaration_json, 'returnDescription'));
 	generic_params = $derived(this.declaration_json.genericParams ?? []);
@@ -96,7 +115,7 @@ export class Declaration {
 	/**
 	 * Nested members for classes, interfaces, types, and enums.
 	 */
-	members = $derived(field<Array<MemberJson>>(this.declaration_json, 'members'));
+	members = $derived(field<Array<MemberJsonInput>>(this.declaration_json, 'members'));
 
 	/**
 	 * Intersection types whose properties are external (filtered out of props/members).
@@ -114,7 +133,7 @@ export class Declaration {
 	 * Function overload signatures when multiple public overloads exist.
 	 * Present on `function` and `snippet` kinds, and on function/constructor members.
 	 */
-	overloads = $derived(field<Array<OverloadJson>>(this.declaration_json, 'overloads'));
+	overloads = $derived(field<Array<OverloadJsonInput>>(this.declaration_json, 'overloads'));
 
 	/**
 	 * Re-export alias info when this declaration is a renamed re-export.
@@ -133,7 +152,7 @@ export class Declaration {
 	has_props = $derived(!!(this.props && this.props.length > 0));
 	has_generics = $derived(this.generic_params.length > 0);
 
-	constructor(module: Module, declaration_json: DeclarationJson) {
+	constructor(module: Module, declaration_json: DeclarationJsonInput) {
 		this.module = module;
 		this.declaration_json = declaration_json;
 	}

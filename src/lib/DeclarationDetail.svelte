@@ -340,7 +340,7 @@ including parameters, props, members, overloads, intersects, and more.
 						/>
 					</p>
 				{/if}
-				{#if member.modifiers.length}
+				{#if member.modifiers?.length}
 					<div class="row gap_md">
 						{#each member.modifiers as modifier (modifier)}
 							<span class="chip">{modifier}</span>

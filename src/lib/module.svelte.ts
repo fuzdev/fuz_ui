@@ -1,4 +1,4 @@
-import type {ModuleJson} from 'svelte-docinfo/types.js';
+import type {ModuleJsonInput} from 'svelte-docinfo/types.js';
 
 import {Declaration} from './declaration.svelte.js';
 import type {Library} from './library.svelte.js';
@@ -15,7 +15,10 @@ import {url_github_file} from './package_helpers.js';
  */
 export class Module {
 	readonly library: Library = $state.raw()!;
-	readonly module_json: ModuleJson = $state.raw()!;
+	// `library.json` is compacted (svelte-docinfo's `compactReplacer` strips empty
+	// default arrays), so the on-disk data is the `*Input` shape. Typing it as
+	// input makes TypeScript force guards on defaulted-array reads.
+	readonly module_json: ModuleJsonInput = $state.raw()!;
 
 	/**
 	 * Canonical module path — `src/lib/`-relative, with source extension
@@ -74,7 +77,7 @@ export class Module {
 	 */
 	dependents = $derived(this.module_json.dependents ?? []);
 
-	constructor(library: Library, module_json: ModuleJson) {
+	constructor(library: Library, module_json: ModuleJsonInput) {
 		this.library = library;
 		this.module_json = module_json;
 	}

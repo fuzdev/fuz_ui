@@ -4369,7 +4369,7 @@
 						"name": "Declaration",
 						"kind": "class",
 						"docComment": "Rich runtime representation of an exported declaration.\n\nWraps svelte-docinfo's `DeclarationJson` discriminated union (on `kind`)\nwith Svelte 5 reactive derivations and computed URLs.\nKind-specific fields are accessed via the `field()` helper since\nnot all fields exist on all variants.",
-						"sourceLine": 29,
+						"sourceLine": 35,
 						"seeAlso": [
 							"{@link https://github.com/ryanatkn/svelte-docinfo svelte-docinfo} for the analysis library",
 							"`DeclarationDetail.svelte` for the rendering component"
@@ -4385,7 +4385,7 @@
 							{
 								"name": "declaration_json",
 								"kind": "variable",
-								"typeSignature": "DeclarationJson",
+								"typeSignature": "DeclarationJsonInput",
 								"modifiers": ["readonly"],
 								"reactivity": "$state.raw"
 							},
@@ -4470,13 +4470,13 @@
 							{
 								"name": "parameters",
 								"kind": "variable",
-								"typeSignature": "{ name: string; type: string; optional: boolean; rest: boolean; description?: string | undefined; defaultValue?: string | undefined; }[] | undefined",
+								"typeSignature": "{ name: string; type: string; optional?: boolean | undefined; rest?: boolean | undefined; description?: string | undefined; defaultValue?: string | undefined; }[] | undefined",
 								"reactivity": "$derived"
 							},
 							{
 								"name": "props",
 								"kind": "variable",
-								"typeSignature": "{ examples: string[]; seeAlso: string[]; throws: { description: string; type?: string | undefined; }[]; name: string; type: string; optional: boolean; bindable: boolean; deprecatedMessage?: string | undefined; since?: string | undefined; description?: string | undefined; defaultValue?: string | undefined; parameters...",
+								"typeSignature": "{ name: string; type: string; examples?: string[] | undefined; deprecatedMessage?: string | undefined; seeAlso?: string[] | undefined; throws?: { description: string; type?: string | undefined; }[] | undefined; ... 5 more ...; parameters?: { ...; }[] | undefined; }[] | undefined",
 								"reactivity": "$derived"
 							},
 							{
@@ -4494,7 +4494,7 @@
 							{
 								"name": "generic_params",
 								"kind": "variable",
-								"typeSignature": "{ name: string; constraint?: string | undefined; defaultType?: string | undefined; }[] | { name: string; constraint?: string | undefined; defaultType?: string | undefined; }[] | { name: string; constraint?: string | undefined; defaultType?: string | undefined; }[] | ... 5 more ... | { ...; }[]",
+								"typeSignature": "{ name: string; constraint?: string | undefined; defaultType?: string | undefined; }[]",
 								"reactivity": "$derived"
 							},
 							{
@@ -4512,7 +4512,7 @@
 							{
 								"name": "throws",
 								"kind": "variable",
-								"typeSignature": "{ description: string; type?: string | undefined; }[] | { description: string; type?: string | undefined; }[] | { description: string; type?: string | undefined; }[] | { description: string; type?: string | undefined; }[] | ... 4 more ... | { ...; }[]",
+								"typeSignature": "{ description: string; type?: string | undefined; }[]",
 								"reactivity": "$derived"
 							},
 							{
@@ -4537,7 +4537,7 @@
 								"name": "members",
 								"kind": "variable",
 								"docComment": "Nested members for classes, interfaces, types, and enums.",
-								"typeSignature": "({ kind: \"function\"; name: string; optional: boolean; parameters: { name: string; type: string; optional: boolean; rest: boolean; description?: string | undefined; defaultValue?: string | undefined; }[]; ... 14 more ...; sourceLine?: number | undefined; } | { ...; } | { ...; })[] | undefined",
+								"typeSignature": "({ kind: \"function\"; name: string; optional?: boolean | undefined; returnType?: string | undefined; returnDescription?: string | undefined; parameters?: { name: string; type: string; optional?: boolean | undefined; rest?: boolean | undefined; description?: string | undefined; defaultValue?: string | undefined; }[] |...",
 								"reactivity": "$derived"
 							},
 							{
@@ -4558,7 +4558,7 @@
 								"name": "overloads",
 								"kind": "variable",
 								"docComment": "Function overload signatures when multiple public overloads exist.\nPresent on `function` and `snippet` kinds, and on function/constructor members.",
-								"typeSignature": "{ typeSignature: string; parameters: { name: string; type: string; optional: boolean; rest: boolean; description?: string | undefined; defaultValue?: string | undefined; }[]; genericParams: { ...; }[]; returnType?: string | undefined; docComment?: string | undefined; returnDescription?: string | undefined; }[] | und...",
+								"typeSignature": "{ typeSignature: string; parameters?: { name: string; type: string; optional?: boolean | undefined; rest?: boolean | undefined; description?: string | undefined; defaultValue?: string | undefined; }[] | undefined; returnType?: string | undefined; genericParams?: { ...; }[] | undefined; docComment?: string | undefine...",
 								"reactivity": "$derived"
 							},
 							{
@@ -4614,7 +4614,7 @@
 							{
 								"name": "constructor",
 								"kind": "constructor",
-								"typeSignature": "(module: Module, declaration_json: { kind: \"function\"; parameters: { name: string; type: string; optional: boolean; rest: boolean; description?: string | undefined; defaultValue?: string | undefined; }[]; ... 17 more ...; sourceLine?: number | undefined; } | ... 7 more ... | { ...; }): Declaration",
+								"typeSignature": "(module: Module, declaration_json: { kind: \"function\"; name: string; returnType?: string | undefined; returnDescription?: string | undefined; parameters?: { name: string; type: string; optional?: boolean | undefined; rest?: boolean | undefined; description?: string | undefined; defaultValue?: string | undefined; }[] | undefined; ... 14 more ...; genericParams?: { ...; }[] | undefined; } | ... 7 more ... | { ...; }): Declaration",
 								"parameters": [
 									{
 										"name": "module",
@@ -4622,7 +4622,7 @@
 									},
 									{
 										"name": "declaration_json",
-										"type": "{ kind: \"function\"; parameters: { name: string; type: string; optional: boolean; rest: boolean; description?: string | undefined; defaultValue?: string | undefined; }[]; overloads: { typeSignature: string; ... 4 more ...; returnDescription?: string | undefined; }[]; ... 16 more ...; sourceLine?: number | undefined; ..."
+										"type": "{ kind: \"function\"; name: string; returnType?: string | undefined; returnDescription?: string | undefined; parameters?: { name: string; type: string; optional?: boolean | undefined; rest?: boolean | undefined; description?: string | undefined; defaultValue?: string | undefined; }[] | undefined; ... 14 more ...; gene..."
 									}
 								]
 							}
@@ -12733,7 +12733,7 @@
 							{
 								"name": "module_json",
 								"kind": "variable",
-								"typeSignature": "ModuleJson",
+								"typeSignature": "ModuleJsonInput",
 								"modifiers": ["readonly"],
 								"reactivity": "$state.raw"
 							},
@@ -12807,7 +12807,7 @@
 							{
 								"name": "constructor",
 								"kind": "constructor",
-								"typeSignature": "(library: Library, module_json: { path: string; declarations: ({ kind: \"function\"; parameters: { name: string; type: string; optional: boolean; rest: boolean; description?: string | undefined; defaultValue?: string | undefined; }[]; ... 17 more ...; sourceLine?: number | undefined; } | ... 7 more ... | { ...; })[]; ... 4 more ...; moduleComment?: string | undefined; }): Module",
+								"typeSignature": "(library: Library, module_json: { path: string; declarations?: ({ kind: \"function\"; name: string; returnType?: string | undefined; returnDescription?: string | undefined; parameters?: { ...; }[] | undefined; ... 14 more ...; genericParams?: { ...; }[] | undefined; } | ... 7 more ... | { ...; })[] | undefined; ... 4 more ...; partial?: boolean | undefined; }): Module",
 								"parameters": [
 									{
 										"name": "library",
@@ -12815,7 +12815,7 @@
 									},
 									{
 										"name": "module_json",
-										"type": "{ path: string; declarations: ({ kind: \"function\"; parameters: { name: string; type: string; optional: boolean; rest: boolean; description?: string | undefined; defaultValue?: string | undefined; }[]; ... 17 more ...; sourceLine?: number | undefined; } | ... 7 more ... | { ...; })[]; ... 4 more ...; moduleComment?: ..."
+										"type": "{ path: string; declarations?: ({ kind: \"function\"; name: string; returnType?: string | undefined; returnDescription?: string | undefined; parameters?: { name: string; type: string; optional?: boolean | undefined; rest?: boolean | undefined; description?: string | undefined; defaultValue?: string | undefined; }[] | ..."
 									}
 								]
 							},
