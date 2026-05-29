@@ -1,5 +1,12 @@
 # @fuzdev/fuz_ui
 
+## 0.195.0
+
+### Minor Changes
+
+- feat: extract `svelte-docinfo` ([#107](https://github.com/fuzdev/fuz_ui/pull/107))
+- bump node@24.14 ([#107](https://github.com/fuzdev/fuz_ui/pull/107))
+
 ## 0.194.0
 
 ### Minor Changes
