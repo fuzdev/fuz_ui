@@ -133,8 +133,8 @@ export const create_touch_event = (
  *
  * Note: Treats both null and undefined as null for comparison consistency.
  *
- * @param obj - The object to normalize
- * @returns The normalized object without undefined values
+ * @param obj - the object to normalize
+ * @returns the normalized object without undefined values
  */
 export const normalize_json = (obj: any): any => {
 	// Treat both null and undefined as null for comparison consistency

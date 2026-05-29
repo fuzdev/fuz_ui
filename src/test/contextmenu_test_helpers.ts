@@ -49,7 +49,7 @@ export const mount_contextmenu_root = <TProps extends Record<string, any>>(
  *
  * @param element - the HTML or SVG element to setup
  * @param params - array of contextmenu params (entries, snippets, etc.)
- * @returns Cleanup function to call when done
+ * @returns cleanup function to call when done
  */
 export const setup_contextmenu_attachment = async (
 	element: HTMLElement | SVGElement,

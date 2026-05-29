@@ -8,10 +8,10 @@
 import ts from 'typescript';
 
 import {
-	module_create_source_options,
+	createSourceOptions,
 	type ModuleSourceOptions,
-	type ModuleSourcePartial,
-} from '$lib/module_helpers.js';
+	type SourceOptionsDefaults,
+} from 'svelte-docinfo';
 
 /** Default project root for tests. */
 export const TEST_PROJECT_ROOT = '/home/user/project';
@@ -19,21 +19,21 @@ export const TEST_PROJECT_ROOT = '/home/user/project';
 /**
  * Create ModuleSourceOptions for testing with consistent defaults.
  *
- * @param project_root Project root path (defaults to TEST_PROJECT_ROOT)
- * @param overrides Optional overrides for default options
+ * @param project_root - project root path (defaults to `TEST_PROJECT_ROOT`)
+ * @param overrides - optional overrides for default options
  */
 export const create_test_source_options = (
 	project_root: string = TEST_PROJECT_ROOT,
-	overrides?: Partial<ModuleSourcePartial>,
-): ModuleSourceOptions => module_create_source_options(project_root, overrides);
+	overrides?: Partial<SourceOptionsDefaults>,
+): ModuleSourceOptions => createSourceOptions(project_root, overrides);
 
 /**
  * Create a minimal TypeScript program from source code for testing.
  *
  * Useful for testing analysis functions without reading from disk.
  *
- * @param files Array of virtual files with path and content
- * @returns Program and type checker
+ * @param files - array of virtual files with path and content
+ * @returns program and type checker
  */
 export const create_test_program = (
 	files: Array<{path: string; content: string}>,
