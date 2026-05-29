@@ -6,6 +6,10 @@ import {ensure_start} from '@fuzdev/fuz_util/string.js';
 import {create_context} from './context_helpers.js';
 import {DOCS_PATH_DEFAULT} from './docs_helpers.svelte.js';
 
+export const tomes_context = create_context<() => Map<string, Tome>>();
+
+export const tome_context = create_context<() => Tome>();
+
 export const Tome = z.object({
 	/**
 	 * Stable identifier and URL path segment — must be a URL-safe slug
@@ -47,13 +51,9 @@ export const tome_to_pathname = (
  */
 export const tome_to_title = (tome: Tome): string => tome.title ?? tome.slug;
 
-export const tomes_context = create_context<() => Map<string, Tome>>();
-
 export const tome_get_by_slug = (slug: string): Tome => {
 	const get_tomes = tomes_context.get();
 	const tome = get_tomes().get(slug);
 	if (!tome) throw Error(`unable to find tome "${slug}"`);
 	return tome;
 };
-
-export const tome_context = create_context<() => Tome>();
