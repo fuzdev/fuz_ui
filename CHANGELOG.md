@@ -1,5 +1,12 @@
 # @fuzdev/fuz_ui
 
+## 0.194.0
+
+### Minor Changes
+
+- deps: upgrade fuz_css ([b87cbee](https://github.com/fuzdev/fuz_ui/commit/b87cbee))
+- upgrade fuz_css ([#123](https://github.com/fuzdev/fuz_ui/pull/123))
+
 ## 0.193.1
 
 ### Patch Changes
