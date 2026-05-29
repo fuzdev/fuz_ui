@@ -157,7 +157,7 @@ including parameters, props, members, overloads, intersects, and more.
 				{#if overload.docComment}
 					<Mdz content={overload.docComment} />
 				{/if}
-				{#if overload.parameters.length}
+				{#if overload.parameters?.length}
 					{#each overload.parameters as param (param)}
 						<div class="row gap_md">
 							<code
@@ -348,7 +348,7 @@ including parameters, props, members, overloads, intersects, and more.
 					</div>
 				{/if}
 				<!-- parameters for methods and constructors -->
-				{#if (member.kind === 'function' || member.kind === 'constructor') && member.parameters.length}
+				{#if (member.kind === 'function' || member.kind === 'constructor') && member.parameters?.length}
 					<section>
 						{#each member.parameters as param (param)}
 							<section>
@@ -390,7 +390,7 @@ including parameters, props, members, overloads, intersects, and more.
 					{/if}
 				{/if}
 				<!-- throws for methods and constructors -->
-				{#if member.throws.length}
+				{#if member.throws?.length}
 					<div>
 						<strong>throws</strong>
 						<ul>

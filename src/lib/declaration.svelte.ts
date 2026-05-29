@@ -86,13 +86,13 @@ export class Declaration {
 	props = $derived(field<Array<ComponentPropJson>>(this.declaration_json, 'props'));
 	return_type = $derived(field<string>(this.declaration_json, 'returnType'));
 	return_description = $derived(field<string>(this.declaration_json, 'returnDescription'));
-	generic_params = $derived(this.declaration_json.genericParams);
+	generic_params = $derived(this.declaration_json.genericParams ?? []);
 	extends_type = $derived(field<string | Array<string>>(this.declaration_json, 'extends'));
 	implements_types = $derived(field<Array<string>>(this.declaration_json, 'implements'));
-	throws = $derived(this.declaration_json.throws);
+	throws = $derived(this.declaration_json.throws ?? []);
 	since = $derived(this.declaration_json.since);
-	examples = $derived(this.declaration_json.examples);
-	see_also = $derived(this.declaration_json.seeAlso);
+	examples = $derived(this.declaration_json.examples ?? []);
+	see_also = $derived(this.declaration_json.seeAlso ?? []);
 	/**
 	 * Nested members for classes, interfaces, types, and enums.
 	 */

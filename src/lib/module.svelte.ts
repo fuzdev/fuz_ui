@@ -41,7 +41,7 @@ export class Module {
 	 * Array of `Declaration` instances. Filters out default exports.
 	 */
 	declarations = $derived(
-		this.module_json.declarations
+		(this.module_json.declarations ?? [])
 			.filter((declaration_json) => declaration_json.name !== 'default')
 			.map((declaration_json) => new Declaration(this, declaration_json)),
 	);
@@ -60,19 +60,19 @@ export class Module {
 			: undefined,
 	);
 
-	has_declarations: boolean = $derived(this.module_json.declarations.length > 0);
+	has_declarations: boolean = $derived((this.module_json.declarations?.length ?? 0) > 0);
 
 	has_module_comment: boolean = $derived(!!this.module_comment);
 
 	/**
 	 * Modules this imports (paths relative to src/lib).
 	 */
-	dependencies = $derived(this.module_json.dependencies);
+	dependencies = $derived(this.module_json.dependencies ?? []);
 
 	/**
 	 * Modules that import this (paths relative to src/lib).
 	 */
-	dependents = $derived(this.module_json.dependents);
+	dependents = $derived(this.module_json.dependents ?? []);
 
 	constructor(library: Library, module_json: ModuleJson) {
 		this.library = library;
