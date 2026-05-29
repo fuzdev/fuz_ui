@@ -18,7 +18,7 @@
 
 	// Formats boolean html attrs for display, using shorthand when true
 	const to_boolean_attr = (name: 'running' | 'inline', value: boolean): string => {
-		const default_value = name === 'running' ? true : name === 'inline' ? false : undefined; // eslint-disable-line @typescript-eslint/no-unnecessary-condition
+		const default_value = name === 'running' ? true : name === 'inline' ? false : undefined;
 		if (default_value === undefined) throw Error();
 		if (default_value === value) return '';
 		return value ? ' ' + name : ` ${name}={false}`;

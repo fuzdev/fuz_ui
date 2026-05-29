@@ -93,10 +93,10 @@
 			"@changesets/changelog-git": "^0.2.1",
 			"@fuzdev/fuz_code": "^0.45.1",
 			"@fuzdev/fuz_css": "^0.59.0",
-			"@fuzdev/fuz_util": "^0.57.0",
-			"@fuzdev/gro": "^0.198.0",
+			"@fuzdev/fuz_util": "^0.61.1",
+			"@fuzdev/gro": "^0.199.1",
 			"@jridgewell/trace-mapping": "^0.3.31",
-			"@ryanatkn/eslint-config": "^0.11.0",
+			"@ryanatkn/eslint-config": "^0.12.1",
 			"@sveltejs/acorn-typescript": "^1.0.9",
 			"@sveltejs/adapter-static": "^3.0.10",
 			"@sveltejs/kit": "^2.55.0",
@@ -2019,13 +2019,13 @@
 					{
 						"name": "CspDirective",
 						"kind": "type",
-						"source_line": 219,
+						"source_line": 216,
 						"type_signature": "keyof CspDirectives"
 					},
 					{
 						"name": "parse_csp_directive",
 						"kind": "function",
-						"source_line": 221,
+						"source_line": 218,
 						"type_signature": "(directive: unknown): keyof CspDirectives | null",
 						"return_type": "keyof CspDirectives | null",
 						"parameters": [
@@ -2038,7 +2038,7 @@
 					{
 						"name": "CspDirectiveValue",
 						"kind": "type",
-						"source_line": 226,
+						"source_line": 223,
 						"type_signature": "CspDirectiveValue<T>",
 						"generic_params": [
 							{
@@ -2050,20 +2050,20 @@
 					{
 						"name": "COLOR_SCHEME_SCRIPT_HASH",
 						"kind": "variable",
-						"source_line": 259,
+						"source_line": 255,
 						"type_signature": "\"sha256-QOxqn7EUzb3ydF9SALJoJGWSvywW9R0AfTDSenB83Z8=\""
 					},
 					{
 						"name": "csp_directive_value_defaults",
 						"kind": "variable",
 						"doc_comment": "The library CSP directive defaults — directives enabled out of the box.\nPrioritizes safety but loosens around media and styles, relying on defense-in-depth.\nWASM compile is allowed (`'wasm-unsafe-eval'` on `script-src` and `worker-src`); `eval` is not.\n\nDirectives not listed here (`report-to`, `require-trusted-types-for`, `trusted-types`,\n`sandbox`) are intentionally absent by default — opt in via `replace_defaults` or `overrides`.\n\nCustomizable via `CreateCspDirectivesOptions.replace_defaults`.",
-						"source_line": 271,
+						"source_line": 267,
 						"type_signature": "Partial<{ \"default-src\": (CspSource | CspActionSource)[]; \"script-src\": (CspSource | CspActionSource)[]; \"script-src-elem\": CspSources; ... 20 more ...; sandbox: (\"allow-downloads-without-user-activation\" | ... 11 more ... | \"allow-top-navigation-by-user-activation\")[]; }>"
 					},
 					{
 						"name": "CspDirectiveSpec",
 						"kind": "type",
-						"source_line": 300,
+						"source_line": 296,
 						"type_signature": "CspDirectiveSpec",
 						"properties": [
 							{
@@ -2090,85 +2090,85 @@
 						"see_also": [
 							"{@link https://developer.mozilla.org/en-US/docs/Web/HTTP/Reference/Headers/Content-Security-Policy}"
 						],
-						"source_line": 313,
+						"source_line": 309,
 						"type_signature": "CspDirectiveSpec[]"
 					},
 					{
 						"name": "csp_directive_spec_by_name",
 						"kind": "variable",
-						"source_line": 451,
+						"source_line": 447,
 						"type_signature": "Map<keyof CspDirectives, CspDirectiveSpec>"
 					},
 					{
 						"name": "CspActionSource",
 						"kind": "type",
-						"source_line": 483,
+						"source_line": 479,
 						"type_signature": "CspActionSource"
 					},
 					{
 						"name": "CspBaseSource",
 						"kind": "type",
-						"source_line": 484,
+						"source_line": 480,
 						"type_signature": "CspBaseSource"
 					},
 					{
 						"name": "CspCryptoSource",
 						"kind": "type",
-						"source_line": 491,
+						"source_line": 487,
 						"type_signature": "`nonce-${string}` | `sha256-${string}` | `sha384-${string}` | `sha512-${string}`"
 					},
 					{
 						"name": "CspFrameSource",
 						"kind": "type",
-						"source_line": 492,
+						"source_line": 488,
 						"type_signature": "CspFrameSource"
 					},
 					{
 						"name": "CspHostNameScheme",
 						"kind": "type",
-						"source_line": 493,
+						"source_line": 489,
 						"type_signature": "CspHostNameScheme"
 					},
 					{
 						"name": "CspHostSource",
 						"kind": "type",
-						"source_line": 494,
+						"source_line": 490,
 						"type_signature": "`${string}.${string}` | \"localhost\" | `${string}.${string}:${number}` | `${string}.${string}:*` | `localhost:${number}` | \"localhost:*\" | `${string}://${string}.${string}` | `${string}://${string}.${string}:${number}` | `${string}://${string}.${string}:*` | `${string}://localhost` | `${string}://localhost:${number}`..."
 					},
 					{
 						"name": "CspHostProtocolSchemes",
 						"kind": "type",
-						"source_line": 495,
+						"source_line": 491,
 						"type_signature": "CspHostProtocolSchemes"
 					},
 					{
 						"name": "CspPortScheme",
 						"kind": "type",
-						"source_line": 496,
+						"source_line": 492,
 						"type_signature": "CspPortScheme"
 					},
 					{
 						"name": "CspSchemeSource",
 						"kind": "type",
-						"source_line": 497,
+						"source_line": 493,
 						"type_signature": "CspSchemeSource"
 					},
 					{
 						"name": "CspSource",
 						"kind": "type",
-						"source_line": 504,
+						"source_line": 500,
 						"type_signature": "CspSource"
 					},
 					{
 						"name": "CspSources",
 						"kind": "type",
-						"source_line": 505,
+						"source_line": 501,
 						"type_signature": "CspSources"
 					},
 					{
 						"name": "CspDirectives",
 						"kind": "type",
-						"source_line": 507,
+						"source_line": 503,
 						"type_signature": "CspDirectives",
 						"properties": [
 							{

@@ -11,7 +11,7 @@
 	const props: SvelteHTMLElements['h1'] | SvelteHTMLElements['h2'] = $props();
 
 	const get_tome = tome_context.get();
-	if (DEV && !get_tome) throw Error('TomeHeader expects a tome in context'); // eslint-disable-line @typescript-eslint/no-unnecessary-condition
+	if (DEV && !get_tome) throw Error('TomeHeader expects a tome in context');
 	const tome = $derived(get_tome());
 
 	const docs_links = docs_links_context.get();

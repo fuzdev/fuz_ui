@@ -308,7 +308,7 @@ describe('directive specs structure', () => {
 			assert.strictEqual(typeof spec.name, 'string', `spec name should be a string`);
 
 			assert.ok(
-				Array.isArray(spec.fallback) || spec.fallback === null, // eslint-disable-line @typescript-eslint/no-unnecessary-condition
+				Array.isArray(spec.fallback) || spec.fallback === null,
 				`${spec.name} fallback should be array or null`,
 			);
 

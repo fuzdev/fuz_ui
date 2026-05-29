@@ -204,7 +204,7 @@ describe('ContextmenuState - Edge Cases', () => {
 
 			for (let i = 1; i <= depth; i++) {
 				const submenu = new SubmenuState(current_menu, i + 1) as any;
-				// eslint-disable-next-line @typescript-eslint/no-unnecessary-condition
+
 				if (current_menu.is_menu) {
 					current_menu.items = [...current_menu.items, submenu];
 				}
