@@ -46,22 +46,12 @@ export const tome_to_pathname = (
 	return resolve((hash ? path + ensure_start(hash, '#') : path) as any);
 };
 
-<<<<<<< HEAD
-export const get_tome_by_name = (name: string): Tome => {
-||||||| 8218072c
-export const tomes_context = create_context<() => Map<string, Tome>>();
-
-export const get_tome_by_name = (name: string): Tome => {
-=======
 /**
  * The display label for a tome — its `title` if set, else its `slug`.
  */
 export const tome_to_title = (tome: Tome): string => tome.title ?? tome.slug;
 
-export const tomes_context = create_context<() => Map<string, Tome>>();
-
 export const tome_get_by_slug = (slug: string): Tome => {
->>>>>>> main
 	const get_tomes = tomes_context.get();
 	const tome = get_tomes().get(slug);
 	if (!tome) throw Error(`unable to find tome "${slug}"`);

@@ -914,7 +914,8 @@
 					"library.svelte.ts",
 					"mdz_components.ts",
 					"style_variable_helpers.svelte.ts",
-					"theme_state.svelte.ts"
+					"theme_state.svelte.ts",
+					"tome.ts"
 				]
 			},
 			{
@@ -2861,7 +2862,8 @@
 					"TomeLink.svelte",
 					"TomeSection.svelte",
 					"TomeSectionHeader.svelte",
-					"library_helpers.ts"
+					"library_helpers.ts",
+					"tome.ts"
 				]
 			},
 			{
@@ -7675,19 +7677,34 @@
 						]
 					},
 					{
-						"name": "get_tome_by_name",
+						"name": "tome_to_title",
 						"kind": "function",
-						"source_line": 50,
-						"type_signature": "(name: string): { slug: string; category: string; Component: Component<any, any, string>; related_tomes: string[]; related_modules: string[]; related_declarations: string[]; title?: string | undefined; }",
+						"doc_comment": "The display label for a tome — its `title` if set, else its `slug`.",
+						"source_line": 52,
+						"type_signature": "(tome: { slug: string; category: string; Component: Component<any, any, string>; related_tomes: string[]; related_modules: string[]; related_declarations: string[]; title?: string | undefined; }): string",
+						"return_type": "string",
+						"parameters": [
+							{
+								"name": "tome",
+								"type": "{ slug: string; category: string; Component: Component<any, any, string>; related_tomes: string[]; related_modules: string[]; related_declarations: string[]; title?: string | undefined; }"
+							}
+						]
+					},
+					{
+						"name": "tome_get_by_slug",
+						"kind": "function",
+						"source_line": 54,
+						"type_signature": "(slug: string): { slug: string; category: string; Component: Component<any, any, string>; related_tomes: string[]; related_modules: string[]; related_declarations: string[]; title?: string | undefined; }",
 						"return_type": "{ slug: string; category: string; Component: Component<any, any, string>; related_tomes: string[]; related_modules: string[]; related_declarations: string[]; title?: string | undefined; }",
 						"parameters": [
 							{
-								"name": "name",
+								"name": "slug",
 								"type": "string"
 							}
 						]
 					}
 				],
+				"dependencies": ["context_helpers.ts", "docs_helpers.svelte.ts"],
 				"dependents": [
 					"ApiIndex.svelte",
 					"ApiModule.svelte",
