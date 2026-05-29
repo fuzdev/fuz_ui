@@ -1,14 +1,14 @@
 <script lang="ts">
 	import Code from '@fuzdev/fuz_code/Code.svelte';
 
-	import {get_tome_by_name} from '$lib/tome.js';
+	import {tome_get_by_slug} from '$lib/tome.js';
 	import PendingAnimation from '$lib/PendingAnimation.svelte';
 	import TomeContent from '$lib/TomeContent.svelte';
 	import TomeSectionHeader from '$lib/TomeSectionHeader.svelte';
 	import TomeSection from '$lib/TomeSection.svelte';
 
-	const LIBRARY_ITEM_NAME = 'PendingAnimation';
-	const tome = get_tome_by_name(LIBRARY_ITEM_NAME);
+	const TOME_SLUG = 'PendingAnimation';
+	const tome = tome_get_by_slug(TOME_SLUG);
 
 	let turtle_slot = $state.raw('🐢');
 	let turtle_slot_2a = $state.raw('🐸');

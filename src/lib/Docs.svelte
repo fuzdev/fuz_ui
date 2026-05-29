@@ -27,8 +27,8 @@
 	} = $props();
 
 	// TODO this API is messy, inconsistent usage of props/context
-	const tomes_by_name = $derived(new Map(tomes.map((t) => [t.name, t])));
-	tomes_context.set(() => tomes_by_name);
+	const tomes_by_slug = $derived(new Map(tomes.map((t) => [t.slug, t])));
+	tomes_context.set(() => tomes_by_slug);
 
 	// TODO @many dialog navs - this is messy to satisfy SSR with the current design that puts the secondary nav in a dialog
 	const TERTIARY_NAV_BREAKPOINT = 1000;
@@ -69,7 +69,7 @@
 		{/key}
 		<!-- TODO @many dialog navs -->
 		{#if !innerWidth.current || innerWidth.current > TERTIARY_NAV_BREAKPOINT}
-			<DocsTertiaryNav {tomes} {tomes_by_name} />
+			<DocsTertiaryNav {tomes} {tomes_by_slug} />
 		{/if}
 		<section class="box">
 			<DocsFooter {library} root_url="https://www.fuz.dev/">
@@ -102,7 +102,7 @@
 			</div>
 			<div class="px_lg pb_xl">
 				<DocsSecondaryNav {tomes} sidebar={false} />
-				<DocsTertiaryNav {tomes} {tomes_by_name} sidebar={false} />
+				<DocsTertiaryNav {tomes} {tomes_by_slug} sidebar={false} />
 			</div>
 		</div>
 	</Dialog>

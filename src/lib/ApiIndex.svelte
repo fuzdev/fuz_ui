@@ -1,6 +1,6 @@
 <script lang="ts">
 	import {library_context, type Library} from './library.svelte.js';
-	import {get_tome_by_name, type Tome} from './tome.js';
+	import {tome_get_by_slug, type Tome} from './tome.js';
 	import TomeContent from './TomeContent.svelte';
 	import TomeLink from './TomeLink.svelte';
 	import DocsSearch from './DocsSearch.svelte';
@@ -10,7 +10,7 @@
 
 	const {
 		library = library_context.get(),
-		tome = get_tome_by_name('api'),
+		tome = tome_get_by_slug('api'),
 		minimal = false,
 	}: {
 		/**
@@ -40,7 +40,7 @@
 <TomeContent {tome}>
 	{#if minimal}
 		<section>
-			<p>Browse the full <TomeLink name="api" /> docs.</p>
+			<p>Browse the full <TomeLink slug="api" /> docs.</p>
 		</section>
 	{:else}
 		<section>

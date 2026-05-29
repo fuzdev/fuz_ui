@@ -4,11 +4,11 @@
 	import TomeSection from '$lib/TomeSection.svelte';
 	import TomeSectionHeader from '$lib/TomeSectionHeader.svelte';
 	import TomeLink from '$lib/TomeLink.svelte';
-	import {get_tome_by_name} from '$lib/tome.js';
+	import {tome_get_by_slug} from '$lib/tome.js';
 
-	const LIBRARY_ITEM_NAME = 'introduction';
+	const TOME_SLUG = 'introduction';
 
-	const tome = get_tome_by_name(LIBRARY_ITEM_NAME);
+	const tome = tome_get_by_slug(TOME_SLUG);
 </script>
 
 <TomeContent {tome}>
@@ -34,9 +34,9 @@
 		/>
 		<p>See the nav for the available components and other helpers.</p>
 		<p>
-			<TomeLink name="mdz" /> is a markdown dialect enhanced with Svelte components, autolinked identifiers,
+			<TomeLink slug="mdz" /> is a markdown dialect enhanced with Svelte components, autolinked identifiers,
 			and other integrations. To compile static content at build time instead of parsing at runtime with
-			slower dynamic rendering, use <TomeLink name="svelte_preprocess_mdz" />:
+			slower dynamic rendering, use <TomeLink slug="svelte_preprocess_mdz" />:
 		</p>
 		<Code
 			lang="js"
