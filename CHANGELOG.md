@@ -1,5 +1,11 @@
 # @fuzdev/fuz_ui
 
+## 0.195.1
+
+### Patch Changes
+
+- fix: broken local peer deps ([d9300e3](https://github.com/fuzdev/fuz_ui/commit/d9300e3))
+
 ## 0.195.0
 
 ### Minor Changes
