@@ -1,5 +1,11 @@
 # @fuzdev/fuz_ui
 
+## 0.193.1
+
+### Patch Changes
+
+- fix: change `Spiders` to `pointer-events: none` and support rest args ([0dbbd2f](https://github.com/fuzdev/fuz_ui/commit/0dbbd2f))
+
 ## 0.193.0
 
 ### Minor Changes
