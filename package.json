@@ -38,8 +38,8 @@
   "peerDependencies": {
     "@fuzdev/fuz_code": ">=0.45.1",
     "@fuzdev/fuz_css": ">=0.53.0",
-    "@fuzdev/fuz_util": "file:../fuz_util",
-    "@fuzdev/gro": "file:../gro",
+    "@fuzdev/fuz_util": ">=0.61.1",
+    "@fuzdev/gro": ">=0.199.1",
     "@jridgewell/trace-mapping": "^0.3",
     "@sveltejs/kit": "^2.47.3",
     "@types/estree": "^1",
