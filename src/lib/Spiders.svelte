@@ -8,6 +8,7 @@
 <script lang="ts">
 	import {random_int, shuffle} from '@fuzdev/fuz_util/random.js';
 	import {create_random_alea} from '@fuzdev/fuz_util/random_alea.js';
+	import type {SvelteHTMLElements} from 'svelte/elements';
 
 	import Svg from './Svg.svelte';
 	import {logo_fuz} from './logos.js';
@@ -27,11 +28,12 @@
 		],
 		seed = minute_of_day(),
 		random = create_random_alea(seed),
+		...rest
 	}: {
 		spiders?: Array<string>; // for now, just colors
 		seed?: unknown;
 		random?: typeof Math.random;
-	} = $props();
+	} & SvelteHTMLElements['div'] = $props();
 
 	const shuffled = $derived(shuffle(spiders.slice(), (min, max) => random_int(min, max, random)));
 	const rotations = $derived(shuffled.map(() => random_int(0, 359, random)));
@@ -39,7 +41,7 @@
 
 <!-- TODO animate each in randomly -->
 <!-- TODO show when intersected in viewport, maybe inline `svelte-intersect` in Fuz? -->
-<div class="spiders" style:--spider_count={spiders.length}>
+<div {...rest} class="spiders {rest.class}" style:--spider_count={spiders.length}>
 	{#each shuffled as color, i (color)}
 		<Svg data={logo_fuz} fill={color} style="transform: rotate(${rotations[i]}deg)" />
 	{/each}
@@ -48,6 +50,7 @@
 <style>
 	.spiders {
 		--width: calc(100% / var(--spider_count));
+		pointer-events: none;
 		position: relative;
 		z-index: 1;
 		overflow: hidden;
