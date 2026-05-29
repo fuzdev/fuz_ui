@@ -1,13 +1,13 @@
 <script lang="ts">
 	import Code from '@fuzdev/fuz_code/Code.svelte';
 
-	import {get_tome_by_name} from '$lib/tome.js';
+	import {tome_get_by_slug} from '$lib/tome.js';
 	import Redirect from '$lib/Redirect.svelte';
 	import MdnLink from '$lib/MdnLink.svelte';
 	import TomeContent from '$lib/TomeContent.svelte';
 
-	const LIBRARY_ITEM_NAME = 'Redirect';
-	const tome = get_tome_by_name(LIBRARY_ITEM_NAME);
+	const TOME_SLUG = 'Redirect';
+	const tome = tome_get_by_slug(TOME_SLUG);
 </script>
 
 <!-- eslint-disable svelte/no-useless-mustaches -->

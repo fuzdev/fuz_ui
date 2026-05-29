@@ -259,7 +259,7 @@ export class ContextmenuState {
 		do {
 			i.selected = true;
 			new_selections.unshift(i);
-		} while ((i = i.menu) && i.menu); // eslint-disable-line @typescript-eslint/no-unnecessary-condition
+		} while ((i = i.menu) && i.menu);
 		this.selections = new_selections;
 	}
 
@@ -424,7 +424,7 @@ export const contextmenu_open = (
 	// `navigator.vibrate()` works with `ContextmenuRoot` but gets blocked by some browsers
 	// when used with `ContextmenuRootForSafariCompatibility` because its longpress
 	// workaround triggers from a timeout rather than a direct user interaction.
-	// eslint-disable-next-line @typescript-eslint/no-unnecessary-condition
+
 	if (BROWSER && vibrate && navigator.vibrate) {
 		navigator.vibrate(CONTEXTMENU_OPEN_VIBRATE_DURATION);
 	}

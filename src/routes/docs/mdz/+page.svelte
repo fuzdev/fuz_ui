@@ -2,7 +2,7 @@
 	import Code from '@fuzdev/fuz_code/Code.svelte';
 	import {resolve} from '$app/paths';
 
-	import {get_tome_by_name} from '$lib/tome.js';
+	import {tome_get_by_slug} from '$lib/tome.js';
 	import TomeContent from '$lib/TomeContent.svelte';
 	import TomeSection from '$lib/TomeSection.svelte';
 	import TomeSectionHeader from '$lib/TomeSectionHeader.svelte';
@@ -12,8 +12,8 @@
 	import {mdz_components_context, mdz_elements_context} from '$lib/mdz_components.js';
 	import Alert from '$lib/Alert.svelte';
 
-	const LIBRARY_ITEM_NAME = 'mdz';
-	const tome = get_tome_by_name(LIBRARY_ITEM_NAME);
+	const TOME_SLUG = 'mdz';
+	const tome = tome_get_by_slug(TOME_SLUG);
 
 	mdz_components_context.set(new Map([['Alert', Alert]]));
 
@@ -64,7 +64,7 @@
 		</p>
 		<p>
 			For better performance, static mdz content can be compiled at build time with <TomeLink
-				name="svelte_preprocess_mdz"
+				slug="svelte_preprocess_mdz"
 			/>.
 		</p>
 		<aside>

@@ -4,7 +4,7 @@
 
 	import Alert from '$lib/Alert.svelte';
 	import TomeContent from '$lib/TomeContent.svelte';
-	import {get_tome_by_name} from '$lib/tome.js';
+	import {tome_get_by_slug} from '$lib/tome.js';
 	import Dialog from '$lib/Dialog.svelte';
 	import TomeLink from '$lib/TomeLink.svelte';
 	import MdnLink from '$lib/MdnLink.svelte';
@@ -17,9 +17,9 @@
 	} from '$lib/dialog.js';
 	import Text from '$routes/docs/Dialog/Text.svelte';
 
-	const LIBRARY_ITEM_NAME = 'Dialog';
+	const TOME_SLUG = 'Dialog';
 
-	const tome = get_tome_by_name(LIBRARY_ITEM_NAME);
+	const tome = tome_get_by_slug(TOME_SLUG);
 
 	let opened = $state.raw(false);
 	let dialog_overflowing_opened = $state.raw(false);
@@ -57,7 +57,7 @@
 <TomeContent {tome}>
 	<section>
 		<p>
-			A modal that overlays the entire page. Uses <TomeLink name="Teleport" /> to allow usage from any
+			A modal that overlays the entire page. Uses <TomeLink slug="Teleport" /> to allow usage from any
 			component without inheriting styles.
 		</p>
 		<aside>

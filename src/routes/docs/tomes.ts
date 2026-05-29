@@ -33,7 +33,7 @@ import mdz from '$routes/docs/mdz/+page.svelte';
 
 export const tomes: Array<Tome> = [
 	{
-		name: 'introduction',
+		slug: 'introduction',
 		category: 'guide',
 		Component: introduction,
 		related_tomes: ['api', 'svelte_preprocess_mdz'],
@@ -41,7 +41,7 @@ export const tomes: Array<Tome> = [
 		related_declarations: [],
 	},
 	{
-		name: 'theming',
+		slug: 'theming',
 		category: 'guide',
 		Component: theming,
 		related_tomes: ['ThemeRoot'],
@@ -49,7 +49,7 @@ export const tomes: Array<Tome> = [
 		related_declarations: ['ThemeRoot', 'ThemeState'],
 	},
 	{
-		name: 'api',
+		slug: 'api',
 		category: 'guide',
 		Component: api,
 		related_tomes: [],
@@ -57,7 +57,7 @@ export const tomes: Array<Tome> = [
 		related_declarations: [],
 	},
 	{
-		name: 'svelte_preprocess_mdz',
+		slug: 'svelte_preprocess_mdz',
 		category: 'helpers',
 		Component: svelte_preprocess_mdz,
 		related_tomes: ['mdz'],
@@ -65,7 +65,7 @@ export const tomes: Array<Tome> = [
 		related_declarations: ['svelte_preprocess_mdz', 'mdz_to_svelte', 'MdzPrecompiled'],
 	},
 	{
-		name: 'vite_plugin_library_well_known',
+		slug: 'vite_plugin_library_well_known',
 		category: 'helpers',
 		Component: vite_plugin_library_well_known,
 		related_tomes: ['api', 'LibraryDetail', 'LibrarySummary'],
@@ -73,7 +73,7 @@ export const tomes: Array<Tome> = [
 		related_declarations: ['vite_plugin_library_well_known', 'library_gen'],
 	},
 	{
-		name: 'csp',
+		slug: 'csp',
 		category: 'helpers',
 		Component: csp,
 		related_tomes: [],
@@ -81,7 +81,7 @@ export const tomes: Array<Tome> = [
 		related_declarations: [],
 	},
 	{
-		name: 'intersect',
+		slug: 'intersect',
 		category: 'helpers',
 		Component: intersect,
 		related_tomes: [],
@@ -89,7 +89,7 @@ export const tomes: Array<Tome> = [
 		related_declarations: [],
 	},
 	{
-		name: 'logos',
+		slug: 'logos',
 		category: 'helpers',
 		Component: logos,
 		related_tomes: ['LibraryDetail', 'LibrarySummary', 'Svg'],
@@ -97,7 +97,7 @@ export const tomes: Array<Tome> = [
 		related_declarations: [],
 	},
 	{
-		name: 'mdz',
+		slug: 'mdz',
 		category: 'helpers',
 		Component: mdz,
 		related_tomes: ['svelte_preprocess_mdz'],
@@ -105,7 +105,7 @@ export const tomes: Array<Tome> = [
 		related_declarations: ['Mdz', 'mdz_parse', 'MdzNodeView'],
 	},
 	{
-		name: 'Alert',
+		slug: 'Alert',
 		category: 'components',
 		Component: Alert,
 		related_tomes: ['Card'],
@@ -113,7 +113,7 @@ export const tomes: Array<Tome> = [
 		related_declarations: ['Alert'],
 	},
 	{
-		name: 'Breadcrumb',
+		slug: 'Breadcrumb',
 		category: 'components',
 		Component: Breadcrumb,
 		related_tomes: ['Redirect'],
@@ -121,7 +121,7 @@ export const tomes: Array<Tome> = [
 		related_declarations: ['Breadcrumb'],
 	},
 	{
-		name: 'Card',
+		slug: 'Card',
 		category: 'components',
 		Component: Card,
 		related_tomes: ['Alert'],
@@ -129,7 +129,7 @@ export const tomes: Array<Tome> = [
 		related_declarations: ['Card'],
 	},
 	{
-		name: 'Contextmenu',
+		slug: 'Contextmenu',
 		category: 'components',
 		Component: Contextmenu,
 		related_tomes: [],
@@ -137,7 +137,7 @@ export const tomes: Array<Tome> = [
 		related_declarations: ['Contextmenu', 'ContextmenuRoot', 'ContextmenuEntry'],
 	},
 	{
-		name: 'Details',
+		slug: 'Details',
 		category: 'components',
 		Component: Details,
 		related_tomes: [],
@@ -145,7 +145,7 @@ export const tomes: Array<Tome> = [
 		related_declarations: ['Details'],
 	},
 	{
-		name: 'Dialog',
+		slug: 'Dialog',
 		category: 'components',
 		Component: Dialog,
 		related_tomes: ['Teleport'],
@@ -153,7 +153,7 @@ export const tomes: Array<Tome> = [
 		related_declarations: ['Dialog', 'Dialogs'],
 	},
 	{
-		name: 'HueInput',
+		slug: 'HueInput',
 		category: 'components',
 		Component: HueInput,
 		related_tomes: [], // TODO externals?
@@ -161,7 +161,7 @@ export const tomes: Array<Tome> = [
 		related_declarations: ['HueInput'],
 	},
 	{
-		name: 'Docs',
+		slug: 'Docs',
 		category: 'components',
 		Component: Docs,
 		related_tomes: [],
@@ -169,7 +169,7 @@ export const tomes: Array<Tome> = [
 		related_declarations: ['Docs'],
 	},
 	{
-		name: 'LibraryDetail',
+		slug: 'LibraryDetail',
 		category: 'components',
 		Component: LibraryDetail,
 		related_tomes: ['api', 'logos', 'LibrarySummary', 'vite_plugin_library_well_known'],
@@ -177,7 +177,7 @@ export const tomes: Array<Tome> = [
 		related_declarations: ['LibraryDetail'],
 	},
 	{
-		name: 'LibrarySummary',
+		slug: 'LibrarySummary',
 		category: 'components',
 		Component: LibrarySummary,
 		related_tomes: ['api', 'logos', 'LibraryDetail', 'vite_plugin_library_well_known'],
@@ -185,7 +185,7 @@ export const tomes: Array<Tome> = [
 		related_declarations: ['LibrarySummary'],
 	},
 	{
-		name: 'PendingAnimation',
+		slug: 'PendingAnimation',
 		category: 'components',
 		Component: PendingAnimation,
 		related_tomes: ['PendingButton'],
@@ -193,7 +193,7 @@ export const tomes: Array<Tome> = [
 		related_declarations: ['PendingAnimation'],
 	},
 	{
-		name: 'PendingButton',
+		slug: 'PendingButton',
 		category: 'components',
 		Component: PendingButton,
 		related_tomes: ['PendingAnimation'],
@@ -201,7 +201,7 @@ export const tomes: Array<Tome> = [
 		related_declarations: ['PendingButton'],
 	},
 	{
-		name: 'Redirect',
+		slug: 'Redirect',
 		category: 'components',
 		Component: Redirect,
 		related_tomes: ['Breadcrumb'],
@@ -209,7 +209,7 @@ export const tomes: Array<Tome> = [
 		related_declarations: ['Redirect'],
 	},
 	{
-		name: 'Svg',
+		slug: 'Svg',
 		category: 'components',
 		Component: Svg,
 		related_tomes: ['logos'],
@@ -217,7 +217,7 @@ export const tomes: Array<Tome> = [
 		related_declarations: ['Svg'],
 	},
 	{
-		name: 'Teleport',
+		slug: 'Teleport',
 		category: 'components',
 		Component: Teleport,
 		related_tomes: ['Dialog'],
@@ -225,7 +225,7 @@ export const tomes: Array<Tome> = [
 		related_declarations: ['Teleport'],
 	},
 	{
-		name: 'ThemeRoot',
+		slug: 'ThemeRoot',
 		category: 'components',
 		Component: ThemeRoot,
 		related_tomes: ['theming'],

@@ -2,4 +2,4 @@
 '@fuzdev/fuz_ui': minor
 ---
 
-use kebab-case class names
+deps: upgrade fuz_css

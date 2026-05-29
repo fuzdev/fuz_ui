@@ -1,6 +1,6 @@
 <script lang="ts">
 	import {library_context, type Library} from './library.svelte.js';
-	import {get_tome_by_name, type Tome} from './tome.js';
+	import {tome_get_by_slug, type Tome} from './tome.js';
 	import TomeContent from './TomeContent.svelte';
 	import TomeSection from './TomeSection.svelte';
 	import TomeSectionHeader from './TomeSectionHeader.svelte';
@@ -13,7 +13,7 @@
 	const {
 		module_path: module_path_param,
 		library = library_context.get(),
-		tome = get_tome_by_name('api'),
+		tome = tome_get_by_slug('api'),
 	}: {
 		/**
 		 * The module path parameter from the route (e.g., "lib/Button.svelte").

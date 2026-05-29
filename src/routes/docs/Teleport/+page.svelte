@@ -1,13 +1,13 @@
 <script lang="ts">
 	import Code from '@fuzdev/fuz_code/Code.svelte';
 
-	import {get_tome_by_name} from '$lib/tome.js';
+	import {tome_get_by_slug} from '$lib/tome.js';
 	import Teleport from '$lib/Teleport.svelte';
 	import TomeContent from '$lib/TomeContent.svelte';
 	import TomeLink from '$lib/TomeLink.svelte';
 
-	const LIBRARY_ITEM_NAME = 'Teleport';
-	const tome = get_tome_by_name(LIBRARY_ITEM_NAME);
+	const TOME_SLUG = 'Teleport';
+	const tome = tome_get_by_slug(TOME_SLUG);
 
 	let swap = $state.raw(true);
 	let teleport_1: HTMLElement | undefined = $state.raw();
@@ -20,7 +20,7 @@
 	<section>
 		<p>
 			Relocates elements in the DOM, in the rare cases that's useful and the best solution. The <TomeLink
-				name="Dialog"
+				slug="Dialog"
 			/> uses this to mount dialogs from any component without inheriting styles.
 		</p>
 		<aside>

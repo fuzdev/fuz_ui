@@ -141,7 +141,7 @@ export const library_generate = (input: LibraryGenerateInput): LibraryGenerateRe
 	// Phase 1: Analyze all modules and collect re-exports
 	const source_json: SourceJson = {
 		name: package_json.name,
-		version: package_json.version,
+		version: package_json.version || '',
 		modules,
 	};
 

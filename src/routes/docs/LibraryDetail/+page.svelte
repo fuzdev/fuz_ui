@@ -1,13 +1,13 @@
 <script lang="ts">
 	import Code from '@fuzdev/fuz_code/Code.svelte';
 
-	import {get_tome_by_name} from '$lib/tome.js';
+	import {tome_get_by_slug} from '$lib/tome.js';
 	import LibraryDetail from '$lib/LibraryDetail.svelte';
 	import TomeContent from '$lib/TomeContent.svelte';
 	import {library_context} from '$lib/library.svelte.js';
 
-	const LIBRARY_ITEM_NAME = 'LibraryDetail';
-	const tome = get_tome_by_name(LIBRARY_ITEM_NAME);
+	const TOME_SLUG = 'LibraryDetail';
+	const tome = tome_get_by_slug(TOME_SLUG);
 
 	const library = library_context.get();
 </script>
