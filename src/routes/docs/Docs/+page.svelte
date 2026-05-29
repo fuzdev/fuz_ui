@@ -1,10 +1,10 @@
 <script lang="ts">
 	import GithubLink from '$lib/GithubLink.svelte';
-	import {get_tome_by_name} from '$lib/tome.js';
+	import {tome_get_by_slug} from '$lib/tome.js';
 	import TomeContent from '$lib/TomeContent.svelte';
 
-	const LIBRARY_ITEM_NAME = 'Docs';
-	const tome = get_tome_by_name(LIBRARY_ITEM_NAME);
+	const TOME_SLUG = 'Docs';
+	const tome = tome_get_by_slug(TOME_SLUG);
 </script>
 
 <TomeContent {tome}>

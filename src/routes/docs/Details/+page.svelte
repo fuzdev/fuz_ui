@@ -3,14 +3,14 @@
 
 	import TomeContent from '$lib/TomeContent.svelte';
 	import Details from '$lib/Details.svelte';
-	import {get_tome_by_name} from '$lib/tome.js';
+	import {tome_get_by_slug} from '$lib/tome.js';
 	import MdnLink from '$lib/MdnLink.svelte';
 	import TomeSectionHeader from '$lib/TomeSectionHeader.svelte';
 	import TomeSection from '$lib/TomeSection.svelte';
 
-	const LIBRARY_ITEM_NAME = 'Details';
+	const TOME_SLUG = 'Details';
 
-	const tome = get_tome_by_name(LIBRARY_ITEM_NAME);
+	const tome = tome_get_by_slug(TOME_SLUG);
 </script>
 
 <TomeContent {tome}>

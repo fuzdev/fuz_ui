@@ -1,7 +1,7 @@
 <script lang="ts">
 	import Code from '@fuzdev/fuz_code/Code.svelte';
 
-	import {get_tome_by_name} from '$lib/tome.js';
+	import {tome_get_by_slug} from '$lib/tome.js';
 	import Svg from '$lib/Svg.svelte';
 	import TomeContent from '$lib/TomeContent.svelte';
 	import TomeSection from '$lib/TomeSection.svelte';
@@ -9,8 +9,8 @@
 	import {logo_fuz, logo_github} from '$lib/logos.js';
 	import DeclarationLink from '$lib/DeclarationLink.svelte';
 
-	const LIBRARY_ITEM_NAME = 'Svg';
-	const tome = get_tome_by_name(LIBRARY_ITEM_NAME);
+	const TOME_SLUG = 'Svg';
+	const tome = tome_get_by_slug(TOME_SLUG);
 </script>
 
 <!-- eslint-disable svelte/no-useless-mustaches -->

@@ -1,14 +1,14 @@
 <script lang="ts">
 	import Code from '@fuzdev/fuz_code/Code.svelte';
 
-	import {get_tome_by_name} from '$lib/tome.js';
+	import {tome_get_by_slug} from '$lib/tome.js';
 	import Alert from '$lib/Alert.svelte';
 	import TomeContent from '$lib/TomeContent.svelte';
 	import TomeSection from '$lib/TomeSection.svelte';
 	import TomeSectionHeader from '$lib/TomeSectionHeader.svelte';
 
-	const LIBRARY_ITEM_NAME = 'Alert';
-	const tome = get_tome_by_name(LIBRARY_ITEM_NAME);
+	const TOME_SLUG = 'Alert';
+	const tome = tome_get_by_slug(TOME_SLUG);
 
 	let clicks = $state.raw(0);
 

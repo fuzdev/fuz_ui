@@ -6,7 +6,7 @@
 	import TomeContent from '$lib/TomeContent.svelte';
 	import Details from '$lib/Details.svelte';
 	import Dialog from '$lib/Dialog.svelte';
-	import {get_tome_by_name} from '$lib/tome.js';
+	import {tome_get_by_slug} from '$lib/tome.js';
 	import ColorSchemeInput from '$lib/ColorSchemeInput.svelte';
 	import TomeSectionHeader from '$lib/TomeSectionHeader.svelte';
 	import TomeSection from '$lib/TomeSection.svelte';
@@ -15,9 +15,9 @@
 	import MdnLink from '$lib/MdnLink.svelte';
 	import {theme_state_context} from '$lib/theme_state.svelte.js';
 
-	const LIBRARY_ITEM_NAME = 'ThemeRoot';
+	const TOME_SLUG = 'ThemeRoot';
 
-	const tome = get_tome_by_name(LIBRARY_ITEM_NAME);
+	const tome = tome_get_by_slug(TOME_SLUG);
 
 	const themes = default_themes.slice();
 

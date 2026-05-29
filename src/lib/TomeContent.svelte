@@ -5,7 +5,7 @@
 
 	import TomeHeader from './TomeHeader.svelte';
 	import {tome_context, type Tome} from './tome.js';
-	import {DOCS_PATH_DEFAULT, docs_links_context, docs_slugify} from './docs_helpers.svelte.js';
+	import {DOCS_PATH_DEFAULT, docs_links_context} from './docs_helpers.svelte.js';
 	import {intersect} from './intersect.svelte.js';
 
 	const {
@@ -24,7 +24,7 @@
 
 	tome_context.set(() => tome);
 
-	const fragment = $derived(docs_slugify(tome.name));
+	const fragment = $derived(tome.slug);
 
 	const at_root = $derived(page.url.pathname === resolve(docs_path as any));
 </script>

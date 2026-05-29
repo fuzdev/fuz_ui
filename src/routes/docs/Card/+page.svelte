@@ -2,15 +2,15 @@
 	import {resolve} from '$app/paths';
 	import Code from '@fuzdev/fuz_code/Code.svelte';
 
-	import {get_tome_by_name} from '$lib/tome.js';
+	import {tome_get_by_slug} from '$lib/tome.js';
 	import Card from '$lib/Card.svelte';
 	import TomeContent from '$lib/TomeContent.svelte';
 	import TomeSectionHeader from '$lib/TomeSectionHeader.svelte';
 	import TomeSection from '$lib/TomeSection.svelte';
 	import {DOCS_PATH} from '$lib/docs_helpers.svelte.js';
 
-	const LIBRARY_ITEM_NAME = 'Card';
-	const tome = get_tome_by_name(LIBRARY_ITEM_NAME);
+	const TOME_SLUG = 'Card';
+	const tome = tome_get_by_slug(TOME_SLUG);
 </script>
 
 <!-- eslint-disable svelte/no-useless-mustaches -->

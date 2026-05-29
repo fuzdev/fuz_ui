@@ -5,6 +5,8 @@ import {create_context} from './context_helpers.js';
 import {Declaration} from './declaration.svelte.js';
 import {Module} from './module.svelte.js';
 
+export const library_context = create_context<Library>();
+
 /**
  * Normalizes a URL prefix: ensures leading `/`, strips trailing `/`, returns `''` for falsy and non-string values.
  */
@@ -115,8 +117,6 @@ export class Library {
 		return library_search_declarations(this.declarations, query);
 	}
 }
-
-export const library_context = create_context<Library>();
 
 /**
  * Search declarations by query string with multi-term AND logic.

@@ -2,6 +2,10 @@ import {create_context} from '$lib/context_helpers.js';
 import ContextmenuRoot from '$lib/ContextmenuRoot.svelte';
 import ContextmenuRootForSafariCompatibility from '$lib/ContextmenuRootForSafariCompatibility.svelte';
 
+export const selected_contextmenu_root_component_context = create_context(
+	() => new SelectedContextmenuRootComponent('standard'),
+);
+
 export type ContextmenuRootVariant = 'standard' | 'compat';
 
 export class SelectedContextmenuRootComponent {
@@ -21,7 +25,3 @@ export class SelectedContextmenuRootComponent {
 		this.variant = initial_variant;
 	}
 }
-
-export const selected_contextmenu_root_component_context = create_context(
-	() => new SelectedContextmenuRootComponent('standard'),
-);

@@ -2,7 +2,7 @@
 	import Code from '@fuzdev/fuz_code/Code.svelte';
 
 	import GithubLink from '$lib/GithubLink.svelte';
-	import {get_tome_by_name} from '$lib/tome.js';
+	import {tome_get_by_slug} from '$lib/tome.js';
 	import TomeContent from '$lib/TomeContent.svelte';
 	import MdnLink from '$lib/MdnLink.svelte';
 	import {csp_directive_specs} from '$lib/csp.js';
@@ -10,8 +10,8 @@
 	import TomeSection from '$lib/TomeSection.svelte';
 	import DeclarationLink from '$lib/DeclarationLink.svelte';
 
-	const LIBRARY_ITEM_NAME = 'csp';
-	const tome = get_tome_by_name(LIBRARY_ITEM_NAME);
+	const TOME_SLUG = 'csp';
+	const tome = tome_get_by_slug(TOME_SLUG);
 </script>
 
 <!-- eslint-disable svelte/no-useless-mustaches -->

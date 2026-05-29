@@ -2,14 +2,14 @@
 	import Code from '@fuzdev/fuz_code/Code.svelte';
 	import {asset} from '$app/paths';
 
-	import {get_tome_by_name} from '$lib/tome.js';
+	import {tome_get_by_slug} from '$lib/tome.js';
 	import TomeContent from '$lib/TomeContent.svelte';
 	import TomeSection from '$lib/TomeSection.svelte';
 	import TomeSectionHeader from '$lib/TomeSectionHeader.svelte';
 	import DeclarationLink from '$lib/DeclarationLink.svelte';
 
-	const LIBRARY_ITEM_NAME = 'vite_plugin_library_well_known';
-	const tome = get_tome_by_name(LIBRARY_ITEM_NAME);
+	const TOME_SLUG = 'vite_plugin_library_well_known';
+	const tome = tome_get_by_slug(TOME_SLUG);
 
 	const package_json_url = asset('/.well-known/package.json');
 	const library_json_url = asset('/.well-known/library.json');

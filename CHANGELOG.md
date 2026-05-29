@@ -1,5 +1,24 @@
 # @fuzdev/fuz_ui
 
+## 0.194.0
+
+### Minor Changes
+
+- deps: upgrade fuz_css ([b87cbee](https://github.com/fuzdev/fuz_ui/commit/b87cbee))
+- upgrade fuz_css ([#123](https://github.com/fuzdev/fuz_ui/pull/123))
+
+## 0.193.1
+
+### Patch Changes
+
+- fix: change `Spiders` to `pointer-events: none` and support rest args ([0dbbd2f](https://github.com/fuzdev/fuz_ui/commit/0dbbd2f))
+
+## 0.193.0
+
+### Minor Changes
+
+- feat: rename `Tome.name` → `Tome.slug`, add `Tome.title`, prefix tome helpers with `tome_` ([4cbfb3b](https://github.com/fuzdev/fuz_ui/commit/4cbfb3b))
+
 ## 0.192.0
 
 ### Minor Changes

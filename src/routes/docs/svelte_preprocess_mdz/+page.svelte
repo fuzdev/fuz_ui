@@ -1,7 +1,7 @@
 <script lang="ts">
 	import Code from '@fuzdev/fuz_code/Code.svelte';
 
-	import {get_tome_by_name} from '$lib/tome.js';
+	import {tome_get_by_slug} from '$lib/tome.js';
 	import TomeContent from '$lib/TomeContent.svelte';
 	import TomeSection from '$lib/TomeSection.svelte';
 	import TomeSectionHeader from '$lib/TomeSectionHeader.svelte';
@@ -9,15 +9,15 @@
 	import ModuleLink from '$lib/ModuleLink.svelte';
 	import TomeLink from '$lib/TomeLink.svelte';
 
-	const LIBRARY_ITEM_NAME = 'svelte_preprocess_mdz';
-	const tome = get_tome_by_name(LIBRARY_ITEM_NAME);
+	const TOME_SLUG = 'svelte_preprocess_mdz';
+	const tome = tome_get_by_slug(TOME_SLUG);
 </script>
 
 <TomeContent {tome}>
 	<section>
 		<p>
 			<DeclarationLink name="svelte_preprocess_mdz" /> is a Svelte preprocessor that compiles static <TomeLink
-				name="mdz"
+				slug="mdz"
 			/> content to Svelte markup at build time. Instead of parsing mdz at runtime and rendering dynamically,
 			the preprocessor replaces the <DeclarationLink name="Mdz" /> component with
 			<DeclarationLink name="MdzPrecompiled" /> containing pre-rendered children.
@@ -119,7 +119,7 @@ export default {
 		</ul>
 	</TomeSection>
 	<aside>
-		See also <TomeLink name="mdz" /> for the mdz format,
+		See also <TomeLink slug="mdz" /> for the mdz format,
 		<ModuleLink module_path="svelte_preprocess_mdz.ts" /> and
 		<ModuleLink module_path="mdz_to_svelte.ts" /> for full API docs.
 	</aside>
