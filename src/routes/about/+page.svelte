@@ -1,14 +1,15 @@
 <script lang="ts">
-	import {library_context} from '$lib/library.svelte.js';
+	import {Library, library_context} from '$lib/library.svelte.js';
 	import EcosystemLinksPanel from '$lib/EcosystemLinksPanel.svelte';
 	import LibraryDetail from '$lib/LibraryDetail.svelte';
 	import DocsFooter from '$lib/DocsFooter.svelte';
 	import Breadcrumb from '$lib/Breadcrumb.svelte';
-	import Svg from '$lib/Svg.svelte';
-	import {logo_fuz} from '$lib/logos.js';
-	import {MAIN_HEADER_MARGIN_TOP} from '$lib/constants.js';
+	import {FUZ_DEV_URL, MAIN_HEADER_MARGIN_TOP} from '$lib/constants.js';
+	import {site_context} from '$lib/site.svelte.js';
+	import {library_json} from '$routes/library.js';
 
-	const library = library_context.get();
+	const library = library_context.set(new Library(library_json));
+	const site = site_context.get();
 
 	// TODO standardize
 </script>
@@ -20,7 +21,7 @@
 				{library.repo_name}
 			</h1>
 		</header>
-		<Breadcrumb><Svg data={logo_fuz} size="var(--icon_size_sm)" /></Breadcrumb>
+		<Breadcrumb />
 	</section>
 	<EcosystemLinksPanel />
 	<section class="box width:100% mb_lg">
@@ -29,9 +30,9 @@
 		</div>
 	</section>
 	<section class="box mb_xl7">
-		<DocsFooter {library} root_url="https://www.fuz.dev/">
+		<DocsFooter repo_url={site.repo_url} root_url={FUZ_DEV_URL}>
 			<div class="mb_xl5">
-				<Breadcrumb><Svg data={logo_fuz} size="var(--icon_size_sm)" /></Breadcrumb>
+				<Breadcrumb />
 			</div>
 		</DocsFooter>
 	</section>

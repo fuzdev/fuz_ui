@@ -7,7 +7,7 @@
 		declaration_count,
 		filtered_module_count,
 		filtered_declaration_count,
-		search_query = $bindable(),
+		search_query = $bindable(), // eslint-disable-line @typescript-eslint/no-useless-default-assignment
 		...rest
 	}: SvelteHTMLElements['input'] & {
 		placeholder?: string;

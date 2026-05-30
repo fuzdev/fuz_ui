@@ -277,6 +277,9 @@ All contexts use the standardized pattern via `context_helpers.ts`:
 **Other:**
 
 - `selected_variable_context` - style variable selection
+- `site_context` - light site identity (`SiteState`: icon, glyph, repo_url) for app
+  chrome like `Breadcrumb` and `DocsFooter`; set once at the root layout. Distinct
+  from `library_context`, which carries the heavy module/declaration metadata
 
 ## Documentation system
 

@@ -401,7 +401,7 @@ describe('ContextmenuState - Activation', () => {
 
 		test('activate() uses "unknown error" for sync {ok: false} without message', () => {
 			const entry = new EntryState(contextmenu.root_menu, () => () => {
-				return {ok: false} as any;
+				return {ok: false};
 			});
 
 			contextmenu.open([], 0, 0);

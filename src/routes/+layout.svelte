@@ -6,12 +6,9 @@
 
 	import ThemeRoot from '$lib/ThemeRoot.svelte';
 	import ContextmenuRoot from '$lib/ContextmenuRoot.svelte';
-	import {library_context, Library} from '$lib/library.svelte.js';
-	import {library_json_from_modules} from '@fuzdev/fuz_util/library_json.js';
-	import {modules} from 'virtual:svelte-docinfo';
 	import Spiders from '$lib/Spiders.svelte';
-
-	import package_json from '../../package.json' with {type: 'json'};
+	import {SiteState, site_context} from '$lib/site.svelte.js';
+	import {logo_fuz_ui} from '$lib/logos.js';
 
 	const {
 		children,
@@ -19,9 +16,13 @@
 		children: Snippet;
 	} = $props();
 
-	const library_json = library_json_from_modules(package_json, modules);
-
-	library_context.set(new Library(library_json));
+	site_context.set(
+		new SiteState({
+			icon: logo_fuz_ui,
+			glyph: '🧶',
+			repo_url: 'https://github.com/fuzdev/fuz_ui',
+		}),
+	);
 </script>
 
 <svelte:head>

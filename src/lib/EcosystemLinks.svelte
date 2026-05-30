@@ -1,4 +1,6 @@
 <script lang="ts">
+	import {FUZ_DEV_URL} from './constants.js';
+
 	const {
 		selected,
 	}: {
@@ -8,7 +10,8 @@
 
 <ul>
 	<li>
-		<a rel="me" href="https://www.fuz.dev/" class:selected={selected === 'fuz.dev'}>fuz.dev</a>
+		<!-- eslint-disable-next-line svelte/no-navigation-without-resolve -->
+		<a rel="me" href={FUZ_DEV_URL} class:selected={selected === 'fuz.dev'}>fuz.dev</a>
 		- the Fuz stack homepage{#if selected === 'fuz.dev'}, you are here{/if}
 	</li>
 	<li>

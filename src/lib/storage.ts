@@ -41,7 +41,7 @@ export const load_from_storage = <T>(
 			return parse_fn(value);
 		}
 
-		return value as unknown as T;
+		return value;
 	} catch (_) {
 		return null;
 	}

@@ -66,7 +66,7 @@ describe('error handling', () => {
 		assert.throws(
 			() =>
 				create_csp_directives({
-					extend: [{'invalid-directive': ['self'] as any} as any],
+					extend: [{'invalid-directive': ['self'] as any}],
 				}),
 			/Invalid directive in options.extend/,
 		);
@@ -98,7 +98,7 @@ describe('error handling', () => {
 	test('error message identifies extend as the source', () => {
 		try {
 			create_csp_directives({
-				extend: [{'my-bad-directive': [A] as any} as any],
+				extend: [{'my-bad-directive': [A] as any}],
 			});
 		} catch (error: any) {
 			assert.include(error.message, 'my-bad-directive');

@@ -443,7 +443,7 @@ class MdzTokenParser {
 						end: node.end,
 					};
 				} else {
-					pending_text = {...node} as MdzTextNode;
+					pending_text = {...node};
 				}
 			} else {
 				if (pending_text) {

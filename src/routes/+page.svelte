@@ -5,13 +5,13 @@
 	import Card from '$lib/Card.svelte';
 	import GithubLink from '$lib/GithubLink.svelte';
 	import ProjectLinks from '$lib/ProjectLinks.svelte';
-	import {library_context} from '$lib/library.svelte.js';
+	import {site_context} from '$lib/site.svelte.js';
 	import Svg from '$lib/Svg.svelte';
 	import {logo_fuz_ui} from '$lib/logos.js';
-	import {MAIN_HEADER_MARGIN_TOP} from '$lib/constants.js';
+	import {FUZ_DEV_URL, MAIN_HEADER_MARGIN_TOP} from '$lib/constants.js';
 	import {DOCS_PATH} from '$lib/docs_helpers.svelte.js';
 
-	const library = library_context.get();
+	const site = site_context.get();
 </script>
 
 <main class="box width:100%">
@@ -20,7 +20,7 @@
 			<h1 class="mb_sm" style:margin-top={MAIN_HEADER_MARGIN_TOP}>fuz_ui</h1>
 			<div class="box mb_lg"><Svg data={logo_fuz_ui} size="var(--icon_size_xl2)" /></div>
 			<blockquote class="unstyled panel shade_05 shadow_bottom_sm py_sm px_xl mb_xl3">
-				friendly user zystem 🧶
+				friendly user zystem {site.glyph}
 			</blockquote>
 			<div class="mb_lg p_xs2 shadow_md border_radius_sm">
 				<div class="width_atmost_sm panel p_lg shadow_inset_xs shade_00">
@@ -46,13 +46,13 @@
 		</section>
 		<section>
 			<!-- TODO add color variants -->
-			<Card href={DOCS_PATH}>docs{#snippet icon()}🧶{/snippet}</Card>
+			<Card href={DOCS_PATH}>docs{#snippet icon()}{site.glyph}{/snippet}</Card>
 		</section>
 		<section class="panel p_lg shadow_inset_xs">
 			<ProjectLinks />
 		</section>
 		<section>
-			<DocsFooter {library} root_url="https://www.fuz.dev/">
+			<DocsFooter repo_url={site.repo_url} root_url={FUZ_DEV_URL}>
 				{#snippet logo_header()}
 					<a href={resolve('/about')} class="mb_xs">about</a>
 				{/snippet}

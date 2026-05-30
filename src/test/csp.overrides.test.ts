@@ -115,7 +115,7 @@ describe('overrides option — undefined values', () => {
 		const csp = create_csp_directives({
 			replace_defaults: {'script-src': ['self']},
 			overrides: {
-				'script-src': undefined as any,
+				'script-src': undefined,
 			},
 		});
 

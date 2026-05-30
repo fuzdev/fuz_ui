@@ -1,4 +1,4 @@
-import type {SvgData} from './Svg.svelte';
+import type {SvgData} from './svg.js';
 
 // TODO these can be optimized during builds, helpers and gen files?
 

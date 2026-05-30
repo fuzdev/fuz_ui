@@ -219,7 +219,7 @@ describe('extend validation', () => {
 		assert.throws(
 			() =>
 				create_csp_directives({
-					extend: [{'upgrade-insecure-requests': true as any} as any],
+					extend: [{'upgrade-insecure-requests': true as any}],
 				}),
 			/Cannot extend directive 'upgrade-insecure-requests'/,
 		);
@@ -229,7 +229,7 @@ describe('extend validation', () => {
 		assert.throws(
 			() =>
 				create_csp_directives({
-					extend: [{'img-src': 'self' as any} as any],
+					extend: [{'img-src': 'self' as any}],
 				}),
 			/Cannot extend directive 'img-src': value must be an array of sources, got string/,
 		);
@@ -243,7 +243,7 @@ describe('extend validation', () => {
 			() =>
 				create_csp_directives({
 					replace_defaults: {'upgrade-insecure-requests': true},
-					extend: [{'upgrade-insecure-requests': [A] as any} as any],
+					extend: [{'upgrade-insecure-requests': [A] as any}],
 				}),
 			/Cannot extend directive 'upgrade-insecure-requests': it has a non-array value/,
 		);
@@ -330,7 +330,7 @@ describe('extend layer entry validation', () => {
 		assert.throws(
 			() =>
 				create_csp_directives({
-					extend: ['oops' as any],
+					extend: ['oops'],
 				}),
 			/Invalid entry in options.extend: expected an object, got string/,
 		);

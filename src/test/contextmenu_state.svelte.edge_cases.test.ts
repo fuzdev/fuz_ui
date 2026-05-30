@@ -173,7 +173,7 @@ describe('ContextmenuState - Edge Cases', () => {
 
 		test('zero-sized layout', () => {
 			const zero_layout = {width: 0, height: 0};
-			const cm = new ContextmenuState({layout: zero_layout as any});
+			const cm = new ContextmenuState({layout: zero_layout});
 
 			assert.strictEqual(cm.layout.width, 0);
 			assert.strictEqual(cm.layout.height, 0);

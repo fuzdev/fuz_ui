@@ -4,7 +4,6 @@
 	import {innerWidth} from 'svelte/reactivity/window';
 	import {page} from '$app/state';
 
-	import type {Library} from './library.svelte.js';
 	import Breadcrumb from './Breadcrumb.svelte';
 	import {Tome, tomes_context} from './tome.js';
 	import DocsPrimaryNav from './DocsPrimaryNav.svelte';
@@ -12,19 +11,19 @@
 	import DocsTertiaryNav from './DocsTertiaryNav.svelte';
 	import Dialog from './Dialog.svelte';
 	import DocsFooter from './DocsFooter.svelte';
+	import {site_context} from './site.svelte.js';
+	import {FUZ_DEV_URL} from './constants.js';
 	import {DocsLinks, docs_links_context} from './docs_helpers.svelte.js';
 
 	const {
 		tomes,
-		library,
-		breadcrumb_children,
 		children,
 	}: {
 		tomes: Array<Tome>;
-		library: Library;
-		breadcrumb_children?: Snippet<[is_primary_nav: boolean]>;
 		children: Snippet;
 	} = $props();
+
+	const site = site_context.get('`Docs` requires `site_context`; set it in your root layout');
 
 	// TODO this API is messy, inconsistent usage of props/context
 	const tomes_by_slug = $derived(new Map(tomes.map((t) => [t.slug, t])));
@@ -51,7 +50,7 @@
 <svelte:window onhashchange={() => (show_secondary_nav_dialog = false)} />
 
 <div class="docs" style:--docs_menu_width={docs_menu_width}>
-	<DocsPrimaryNav {library} {breadcrumb_children}>
+	<DocsPrimaryNav>
 		<div class="nav-dialog-toggle">
 			<button class="plain" type="button" onclick={() => toggle_secondary_nav_dialog()}>menu</button
 			>
@@ -72,15 +71,9 @@
 			<DocsTertiaryNav {tomes} {tomes_by_slug} />
 		{/if}
 		<section class="box">
-			<DocsFooter {library} root_url="https://www.fuz.dev/">
+			<DocsFooter repo_url={site.repo_url} root_url={FUZ_DEV_URL}>
 				<div class="mb_xl5">
-					<Breadcrumb>
-						{#if breadcrumb_children}
-							{@render breadcrumb_children(false)}
-						{:else}
-							{library.package_json.glyph ?? '🏠'}
-						{/if}
-					</Breadcrumb>
+					<Breadcrumb />
 				</div>
 			</DocsFooter>
 		</section>
@@ -92,13 +85,7 @@
 	<Dialog onclose={() => (show_secondary_nav_dialog = false)}>
 		<div class="pane" style:--docs_menu_width={docs_menu_width}>
 			<div class="p_xl pb_0">
-				<Breadcrumb>
-					{#if breadcrumb_children}
-						{@render breadcrumb_children(false)}
-					{:else}
-						{library.package_json.glyph ?? '🏠'}
-					{/if}
-				</Breadcrumb>
+				<Breadcrumb />
 			</div>
 			<div class="px_lg pb_xl">
 				<DocsSecondaryNav {tomes} sidebar={false} />

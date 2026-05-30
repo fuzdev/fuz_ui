@@ -1,5 +1,6 @@
 <script lang="ts">
-	import Svg, {type SvgData} from './Svg.svelte';
+	import Svg from './Svg.svelte';
+	import type {SvgData} from './svg.js';
 	import {
 		// TODO when fuz.dev is ready
 		// logo_fuz,

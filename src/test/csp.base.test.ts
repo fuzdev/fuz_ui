@@ -93,7 +93,7 @@ describe('replace_defaults option — wholesale replace semantics', () => {
 		const csp = create_csp_directives({
 			replace_defaults: {
 				'script-src': ['self', B],
-				'img-src': undefined as any,
+				'img-src': undefined,
 			},
 		});
 
