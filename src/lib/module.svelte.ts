@@ -56,6 +56,18 @@ export class Module {
 	url_api = $derived(`/docs/api${this.library.url_prefix}/${this.path}`);
 
 	/**
+	 * Public documentation link (if `homepage_url` is available).
+	 *
+	 * Absolute URL into the library's own deployed docs, for rendering a
+	 * foreign library's modules on a different site (e.g. an aggregator).
+	 */
+	url_api_full = $derived(
+		this.library.homepage_url
+			? `${this.library.homepage_url.replace(/\/$/, '')}/docs/api/${this.path}`
+			: undefined,
+	);
+
+	/**
 	 * GitHub source URL.
 	 */
 	url_github = $derived(

@@ -21,6 +21,7 @@ with file-type coloring. Uses svelte-docinfo's file type predicates for module c
 
 	const {
 		library,
+		links_full = false,
 		repo_name,
 		description,
 		tagline,
@@ -29,6 +30,12 @@ with file-type coloring. Uses svelte-docinfo's file type predicates for module c
 		children,
 	}: {
 		library: Library;
+		/**
+		 * Link the module/declaration index to the library's own deployed docs
+		 * (`url_api_full`) instead of site-local paths. Use when rendering a
+		 * foreign library on a different site, e.g. an aggregator.
+		 */
+		links_full?: boolean;
 		repo_name?: Snippet<[repo_name: string]>;
 		description?: Snippet<[description: string]>;
 		tagline?: Snippet<[description: string]>;
@@ -166,7 +173,7 @@ with file-type coloring. Uses svelte-docinfo's file type predicates for module c
 					>
 						<div class="module-content">
 							<span class="font_size_xl">
-								<ModuleLink module_path={module.path}>
+								<ModuleLink module_path={module.path} full={links_full}>
 									{module.path}
 								</ModuleLink>
 							</span>
@@ -174,7 +181,7 @@ with file-type coloring. Uses svelte-docinfo's file type predicates for module c
 								<ul class="declarations unstyled">
 									{#each module.declarations as declaration (declaration.name)}
 										<li>
-											<DeclarationLink name={declaration.name} />
+											<DeclarationLink name={declaration.name} full={links_full} />
 										</li>
 									{/each}
 								</ul>

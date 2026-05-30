@@ -9,6 +9,7 @@
 	const {
 		module_path,
 		hash,
+		full = false,
 		children,
 		class: class_prop = 'chip',
 		...rest
@@ -16,17 +17,25 @@
 		module_path: string; // TODO maybe rename?
 		/** URL fragment to append, with or without the `#`. */
 		hash?: string;
+		/**
+		 * Link to the library's own deployed docs (`url_api_full`) instead of a
+		 * site-local path (`url_api`). Use when rendering a foreign library on a
+		 * different site, e.g. an aggregator, so links don't dangle locally.
+		 */
+		full?: boolean;
 	} = $props();
 
 	const library = library_context.get();
 
 	const module = $derived(library.module_by_path.get(module_path));
 
+	// When linking a foreign library's docs, prefer its full URL; fall back to
+	// the site-local path if `homepage_url` is unavailable.
+	const url_api = $derived((full && module?.url_api_full) || module?.url_api);
+
 	const color_class = $derived(module_path.endsWith('.svelte') ? 'color_h' : '');
 
 	const contextmenu_entries = $derived(module ? create_module_contextmenu(module) : undefined);
-
-	// TODO @many support full https:// url variants - automatic detection? library prop?
 </script>
 
 {#if module}
@@ -34,7 +43,7 @@
 	<a
 		{...rest}
 		class="module-link {class_prop} {color_class}"
-		href={module.url_api + (hash ? ensure_start(hash, '#') : '')}
+		href={url_api + (hash ? ensure_start(hash, '#') : '')}
 		{@attach contextmenu_attachment(contextmenu_entries)}
 	>
 		<!-- eslint-enable svelte/no-navigation-without-resolve -->
