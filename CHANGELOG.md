@@ -1,5 +1,11 @@
 # @fuzdev/fuz_ui
 
+## 0.196.0
+
+### Minor Changes
+
+- feat: add `svelte-docinfo` and remove well-known and library gen ([fe3cca2](https://github.com/fuzdev/fuz_ui/commit/fe3cca2))
+
 ## 0.195.1
 
 ### Patch Changes
