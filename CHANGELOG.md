@@ -1,5 +1,11 @@
 # @fuzdev/fuz_ui
 
+## 0.197.0
+
+### Minor Changes
+
+- feat: add `SiteState` and use it to simplify docs component deps ([ab82e08](https://github.com/fuzdev/fuz_ui/commit/ab82e08))
+
 ## 0.196.0
 
 ### Minor Changes
