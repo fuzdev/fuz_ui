@@ -55,8 +55,8 @@ import '@fuzdev/fuz_css/style.css';
 // and import a fuz_css theme:
 import '@fuzdev/fuz_css/theme.css'; // or bring your own
 
-// using Gro generates fuz_css' utility classes stylesheet by default:
-import '$routes/fuz.css';
+// the fuz_css Vite plugin exposes the generated utility classes as a virtual module:
+import 'virtual:fuz.css';
 
 // then import Fuz Svelte components:
 import ThemeRoot from '@fuzdev/fuz_ui/ThemeRoot.svelte';

@@ -18,7 +18,6 @@ this repo — make the edits and stop, the user commits.
 gro check     # typecheck, test, lint, format check (run before committing)
 gro typecheck # typecheck only (faster iteration)
 gro test      # run tests with vitest
-gro gen       # regenerate .gen files (fuz.css)
 gro build     # build for production
 ```
 
@@ -60,8 +59,7 @@ src/
 ├── lib/              # exportable library code
 │   ├── *.svelte      # UI components (50+)
 │   ├── *.ts          # TypeScript utilities
-│   ├── *.svelte.ts   # Svelte 5 runes and reactive utilities
-│   └── *.gen.ts      # Gro genfiles (code generators)
+│   └── *.svelte.ts   # Svelte 5 runes and reactive utilities
 ├── test/             # test files (not co-located)
 │   └── fixtures/     # fixture-based tests (mdz, tsdoc, ts, svelte)
 └── routes/           # SvelteKit routes
