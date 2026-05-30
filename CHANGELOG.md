@@ -1,5 +1,11 @@
 # @fuzdev/fuz_ui
 
+## 0.198.0
+
+### Minor Changes
+
+- fix: library links ([31e7620](https://github.com/fuzdev/fuz_ui/commit/31e7620))
+
 ## 0.197.0
 
 ### Minor Changes
