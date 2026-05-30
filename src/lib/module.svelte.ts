@@ -15,9 +15,10 @@ import {url_github_file} from './package_helpers.js';
  */
 export class Module {
 	readonly library: Library = $state.raw()!;
-	// `library.json` is compacted (svelte-docinfo's `compactReplacer` strips empty
-	// default arrays), so the on-disk data is the `*Input` shape. Typing it as
-	// input makes TypeScript force guards on defaulted-array reads.
+	// The `virtual:svelte-docinfo` module is compacted (svelte-docinfo's
+	// `compactReplacer` strips empty default arrays), so the runtime data is the
+	// `*Input` shape. Typing it as input makes TypeScript force guards on
+	// defaulted-array reads.
 	readonly module_json: ModuleJsonInput = $state.raw()!;
 
 	/**

@@ -90,8 +90,8 @@ describe('tsdoc_see_to_mdz', () => {
 
 	test('splits identifier from description text', () => {
 		assert.equal(
-			tsdoc_see_to_mdz('library_gen.ts for Gro-specific integration'),
-			'`library_gen.ts` for Gro-specific integration',
+			tsdoc_see_to_mdz('tome.ts for the documentation system'),
+			'`tome.ts` for the documentation system',
 		);
 	});
 

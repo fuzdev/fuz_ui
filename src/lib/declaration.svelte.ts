@@ -11,10 +11,11 @@ import {generateImport, getDisplayName} from 'svelte-docinfo/declaration-helpers
 import type {Module} from './module.svelte.js';
 import {url_github_file} from './package_helpers.js';
 
-// `library.json` is serialized with svelte-docinfo's `compactReplacer`, which
-// strips empty default arrays — so the on-disk data is the `*Input` shape
-// (defaulted arrays optional), not the parsed `*Json` shape. Typing it as
-// input makes TypeScript force a guard on every defaulted-array read.
+// The `virtual:svelte-docinfo` module is serialized with svelte-docinfo's
+// `compactReplacer`, which strips empty default arrays — so the runtime data
+// is the `*Input` shape (defaulted arrays optional), not the parsed `*Json`
+// shape. Typing it as input makes TypeScript force a guard on every
+// defaulted-array read.
 //
 // Helper to access kind-specific fields on the discriminated union.
 // At runtime the field is present or undefined; TypeScript needs the cast.

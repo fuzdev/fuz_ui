@@ -16,7 +16,7 @@ with file-type coloring. Uses svelte-docinfo's file type predicates for module c
 	import ImgOrSvg from './ImgOrSvg.svelte';
 	import DeclarationLink from './DeclarationLink.svelte';
 	import ModuleLink from './ModuleLink.svelte';
-	import {url_github_file, repo_url_parse, url_well_known} from './package_helpers.js';
+	import {url_github_file, repo_url_parse} from './package_helpers.js';
 	import {isTypescript, isSvelte, isCss, isJson} from 'svelte-docinfo/source.js';
 
 	const {
@@ -137,21 +137,6 @@ with file-type coloring. Uses svelte-docinfo's file type predicates for module c
 						<span class="title">license</span>
 						<div class="content">
 							<a class="chip" title="license" href={license_url}>{package_json.license}</a>
-						</div>
-					{/if}
-					{#if library.homepage_url}
-						<span class="title">data</span>
-						<div class="content">
-							<a
-								class="chip"
-								title="data"
-								href={url_well_known(library.homepage_url, 'package.json')}>package.json</a
-							>
-							<a
-								class="chip"
-								title="data"
-								href={url_well_known(library.homepage_url, 'library.json')}>library.json</a
-							>
 						</div>
 					{/if}
 				</section>

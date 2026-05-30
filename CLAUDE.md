@@ -18,7 +18,7 @@ this repo — make the edits and stop, the user commits.
 gro check     # typecheck, test, lint, format check (run before committing)
 gro typecheck # typecheck only (faster iteration)
 gro test      # run tests with vitest
-gro gen       # regenerate .gen files (library.json, fuz.css)
+gro gen       # regenerate .gen files (fuz.css)
 gro build     # build for production
 ```
 
@@ -65,10 +65,9 @@ src/
 ├── test/             # test files (not co-located)
 │   └── fixtures/     # fixture-based tests (mdz, tsdoc, ts, svelte)
 └── routes/           # SvelteKit routes
-    ├── docs/         # documentation pages
-    │   ├── tomes.ts  # central documentation registry
-    │   └── api/      # auto-generated API docs
-    └── library.gen.ts # library metadata generator
+    └── docs/         # documentation pages
+        ├── tomes.ts  # central documentation registry
+        └── api/      # auto-generated API docs
 ```
 
 ### Core concepts
@@ -78,12 +77,11 @@ represents a component or helper with `name`, `category`, `component`, and
 `related` fields. Central registry: `src/routes/docs/tomes.ts`
 
 **svelte-docinfo** - TypeScript/Svelte static analysis is provided by the
-`svelte-docinfo` package. fuz_ui imports analysis functions (`analyze`,
-`throwOnDuplicates`, `createSourceOptions` from the barrel `'svelte-docinfo'`),
-source utilities (`isTypescript`, `isSvelte`, `isCss`, `isJson` from
-`source.js`; `normalizeSourceOptions`, `isSource`, `getSourceRoot` from
-`source-config.js`), and types (`ModuleJson`, `DeclarationJson` from
-`types.js`; `generateImport`, `getDisplayName` from `declaration-helpers.js`).
+`svelte-docinfo` package. The analyzed modules arrive at runtime via the
+Vite plugin's `virtual:svelte-docinfo` module. fuz_ui consumes source
+utilities (`isTypescript`, `isSvelte`, `isCss`, `isJson` from `source.js`),
+types (`ModuleJson`, `DeclarationJson` from `types.js`), and declaration
+helpers (`generateImport`, `getDisplayName` from `declaration-helpers.js`).
 
 ## Components
 
@@ -154,33 +152,28 @@ source utilities (`isTypescript`, `isSvelte`, `isCss`, `isJson` from
 
 ### Library and API generation
 
-- `library_gen.ts` - Gro integration: builds `SourceFileInfo[]` from Gro's
-  filer (via `source_file_from_disknode`, which threads the filer's forward
-  edges through as pre-resolved `dependencies` — svelte-docinfo skips
-  lex+resolve for those entries), calls `analyze()`, wraps with `SourceJson`
-  metadata, outputs Gro `Gen` format
+Library metadata is built at runtime from svelte-docinfo's analysis. The
+`svelte-docinfo` Vite plugin (`svelte-docinfo/vite.js`, wired in
+`vite.config.ts`) exposes the analyzed modules through the
+`virtual:svelte-docinfo` module; the app's `+layout.svelte` passes them to
+`library_json_from_modules` (from `@fuzdev/fuz_util/library_json.js`) to
+construct the `LibraryJson`.
+
 - `library.svelte.ts` - `Library` class wrapping library data
 - `declaration.svelte.ts` - `Declaration` class for code declarations (uses
-  `generateImport`, `getDisplayName` from `svelte-docinfo/types.js`)
+  `generateImport`, `getDisplayName` from `svelte-docinfo/declaration-helpers.js`)
 - `module.svelte.ts` - `Module` class for source files (uses `ModuleJson` from
   `svelte-docinfo/types.js`)
 - `LibraryDetail.svelte` - library overview component (uses `isTypescript`,
   `isSvelte`, `isCss`, `isJson` from `svelte-docinfo/source.js`)
 - `library_helpers.ts` - docs URL helpers
-- `vite_plugin_library_well_known.ts` - RFC 8615 `.well-known/` metadata publishing
 
 Analysis is provided by `svelte-docinfo`. See its CLAUDE.md for the
 full API. Key imports used by fuz_ui:
 
-- barrel `'svelte-docinfo'` — `analyze`, `createSourceOptions`,
-  `throwOnDuplicates`, `compactReplacer`, types `ModuleSourceOptions`,
-  `OnDuplicatesCallback`, `SourceFileInfo`, `SourceOptionsDefaults`,
-  `DuplicateDeclaration`
-- `source.js` — type predicates only: `isTypescript`, `isSvelte`, `isCss`,
-  `isJson` (and the `SourceFileInfo` interface re-exported from the barrel)
-- `source-config.js` — config-aware helpers: `normalizeSourceOptions`,
-  `isSource`, `getSourceRoot`
-- `types.js` — `ModuleJson`, `DeclarationJson`
+- `source.js` — type predicates: `isTypescript`, `isSvelte`, `isCss`,
+  `isJson`
+- `types.js` — `ModuleJson`, `DeclarationJson` (and their `*Input` variants)
 - `declaration-helpers.js` — `generateImport`, `getDisplayName`
 
 ### Browser and DOM
@@ -299,7 +292,8 @@ API docs.
 **API documentation** - auto-generated from TypeScript/Svelte source with full
 TSDoc support. Two-phase architecture: TSDoc extraction at build time
 (via `svelte-docinfo`), mdz rendering at runtime (`mdz.ts`). Setup
-requires `library.gen.ts` and API routes. See `src/routes/docs/api/` for
+requires the `svelte-docinfo` Vite plugin (which exposes
+`virtual:svelte-docinfo`) and API routes. See `src/routes/docs/api/` for
 example routes.
 
 **Docs layout** - `<Docs>` provides three-column responsive layout with managed

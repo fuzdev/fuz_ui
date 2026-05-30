@@ -43,8 +43,8 @@ const format_reference = (ref: string): string => (mdz_is_url(ref) ? ref : `\`${
  * tsdoc_see_to_mdz('[svelte-docinfo](https://github.com/ryanatkn/svelte-docinfo) for the analysis library')
  * // → '[svelte-docinfo](https://github.com/ryanatkn/svelte-docinfo) for the analysis library'
  *
- * tsdoc_see_to_mdz('library_gen.ts for Gro-specific integration')
- * // → '`library_gen.ts` for Gro-specific integration'
+ * tsdoc_see_to_mdz('tome.ts for the documentation system')
+ * // → '`tome.ts` for the documentation system'
  * ```
  */
 export const tsdoc_see_to_mdz = (content: string): string => {
