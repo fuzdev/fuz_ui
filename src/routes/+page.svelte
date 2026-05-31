@@ -25,10 +25,11 @@
 			<div class="mb_lg p_xs2 shadow_md border_radius_sm">
 				<div class="width_atmost_sm panel p_lg shadow_inset_xs shade_00">
 					<p>
-						fuz_ui is a Svelte UI library with components and helpers for making zippy websites. It
-						builds on <a href="https://css.fuz.dev/">fuz_css</a>, which is based on CSS custom
-						properties, and fuz_ui continues those patterns. It's in early alpha and will have many
-						breaking changes.
+						fuz_ui is a Svelte UI library with components and helpers for making zippy websites.
+						It's built on <a href="https://css.fuz.dev/">fuz_css</a>
+						and provides includes a documentation system built on
+						<a href="https://svelte-docinfo.fuz.dev/">svelte-docinfo</a>. It's in early alpha with
+						breaking changes ahead.
 					</p>
 					<p>
 						Compared to most UI libraries, fuz_ui has fewer features and more opinions, but the

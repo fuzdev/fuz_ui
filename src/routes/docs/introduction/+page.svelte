@@ -14,9 +14,11 @@
 <TomeContent {tome}>
 	<section>
 		<p>
-			fuz_ui is a Svelte UI library built on <a href="https://css.fuz.dev/">fuz_css</a>. It provides
-			components, helpers, and a documentation system for building zippy websites. It's in early
-			alpha with breaking changes ahead.
+			fuz_ui is a Svelte UI library with components and helpers for making zippy websites. It's
+			built on <a href="https://css.fuz.dev/">fuz_css</a>
+			and provides includes a documentation system built on
+			<a href="https://svelte-docinfo.fuz.dev/">svelte-docinfo</a>. It's in early alpha with
+			breaking changes ahead.
 		</p>
 	</section>
 	<TomeSection>
