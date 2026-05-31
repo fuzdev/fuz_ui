@@ -370,7 +370,7 @@ For `svelte_preprocess_mdz` fixtures, input files with fake imports need
 
 - [`fuz_css`](../fuz_css/CLAUDE.md) - CSS framework (peer dependency)
 - [`fuz_util`](../fuz_util/CLAUDE.md) - utility functions (peer dependency)
-- [`svelte-docinfo`](../private_svelte-docinfo/CLAUDE.md) - TypeScript/Svelte static analysis (dependency)
+- [`svelte-docinfo`](../svelte-docinfo/CLAUDE.md) - TypeScript/Svelte static analysis (dependency)
 - [`fuz_template`](../fuz_template/CLAUDE.md) - starter template using fuz_ui
 - [`fuz_blog`](../fuz_blog/CLAUDE.md) - blog template using fuz_ui
 - [`fuz_mastodon`](../fuz_mastodon/CLAUDE.md) - Mastodon components using fuz_ui
