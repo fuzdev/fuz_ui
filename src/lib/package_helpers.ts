@@ -8,7 +8,6 @@
  * - `url_github_file` - GitHub file permalink
  * - `url_github_org` - GitHub organization page
  * - `url_npm_package` - npm package page
- * - `url_well_known` - .well-known metadata file
  *
  * Parsers:
  * - `repo_url_parse` - extract repo URL from `package.json` repository field
@@ -21,7 +20,7 @@
  * @module
  */
 
-import {ensure_end, strip_end, strip_start} from '@fuzdev/fuz_util/string.js';
+import {strip_end, strip_start} from '@fuzdev/fuz_util/string.js';
 import type {PackageJson} from '@fuzdev/fuz_util/package_json.js';
 
 /**
@@ -184,21 +183,4 @@ export const repo_url_parse = (repository: PackageJson['repository']): string | 
 	const url = typeof repository === 'string' ? repository : repository.url;
 	if (!url) return null;
 	return strip_end(strip_start(strip_end(url, '.git'), 'git+'), '/');
-};
-
-/**
- * Build .well-known URL for package metadata files.
- *
- * @param homepage_url - package homepage URL
- * @param filename - filename in .well-known directory
- * @returns full URL to the .well-known file
- *
- * @example
- * ```ts
- * url_well_known('https://fuz.dev', 'package.json')
- * // => 'https://fuz.dev/.well-known/package.json'
- * ```
- */
-export const url_well_known = (homepage_url: string, filename: string): string => {
-	return `${ensure_end(homepage_url, '/')}.well-known/${filename}`;
 };

@@ -1,20 +1,41 @@
-import {
-	type DeclarationJson,
-	declaration_generate_import,
-	declaration_get_display_name,
-} from '@fuzdev/fuz_util/source_json.js';
+import type {
+	DeclarationJson,
+	DeclarationJsonInput,
+	MemberJsonInput,
+	ParameterJsonInput,
+	ComponentPropJsonInput,
+	OverloadJsonInput,
+} from 'svelte-docinfo/types.js';
+import {generateImport, getDisplayName} from 'svelte-docinfo/declaration-helpers.js';
 
 import type {Module} from './module.svelte.js';
 import {url_github_file} from './package_helpers.js';
 
-/* eslint-disable @typescript-eslint/no-deprecated */
+// The `virtual:svelte-docinfo` module is serialized with svelte-docinfo's
+// `compactReplacer`, which strips empty default arrays — so the runtime data
+// is the `*Input` shape (defaulted arrays optional), not the parsed `*Json`
+// shape. Typing it as input makes TypeScript force a guard on every
+// defaulted-array read.
+//
+// Helper to access kind-specific fields on the discriminated union.
+// At runtime the field is present or undefined; TypeScript needs the cast.
+const field = <T>(decl: DeclarationJsonInput, key: string): T | undefined =>
+	(decl as Record<string, unknown>)[key] as T | undefined;
 
 /**
  * Rich runtime representation of an exported declaration.
+ *
+ * Wraps svelte-docinfo's `DeclarationJson` discriminated union (on `kind`)
+ * with Svelte 5 reactive derivations and computed URLs.
+ * Kind-specific fields are accessed via the `field()` helper since
+ * not all fields exist on all variants.
+ *
+ * @see {@link https://github.com/ryanatkn/svelte-docinfo svelte-docinfo} for the analysis library
+ * @see `DeclarationDetail.svelte` for the rendering component
  */
 export class Declaration {
 	readonly module: Module = $state.raw()!;
-	readonly declaration_json: DeclarationJson = $state.raw()!;
+	readonly declaration_json: DeclarationJsonInput = $state.raw()!;
 
 	library = $derived(this.module.library);
 
@@ -30,11 +51,11 @@ export class Declaration {
 	 * GitHub source URL with line number.
 	 */
 	url_github = $derived(
-		this.library.repo_url && this.declaration_json.source_line
+		this.library.repo_url && this.declaration_json.sourceLine
 			? url_github_file(
 					this.library.repo_url,
 					`src/lib/${this.module_path}`,
-					this.declaration_json.source_line,
+					this.declaration_json.sourceLine,
 				)
 			: undefined,
 	);
@@ -48,8 +69,10 @@ export class Declaration {
 	 * Generated TypeScript import statement.
 	 */
 	import_statement = $derived(
-		declaration_generate_import(
-			this.declaration_json,
+		// `generateImport` reads only `name`/`kind`/path, none of the defaulted
+		// arrays, so asserting the parsed shape here is sound.
+		generateImport(
+			this.declaration_json as DeclarationJson,
 			this.module_path,
 			this.library.package_json.name,
 		),
@@ -67,37 +90,70 @@ export class Declaration {
 	/**
 	 * Display name with generic parameters.
 	 */
-	display_name = $derived(declaration_get_display_name(this.declaration_json));
+	// `getDisplayName` reads `genericParams` unguarded, so feed it the defaulted
+	// value rather than the raw (possibly-absent) input field.
+	display_name = $derived(
+		getDisplayName({
+			...this.declaration_json,
+			genericParams: this.declaration_json.genericParams ?? [],
+		} as DeclarationJson),
+	);
 
-	type_signature = $derived(this.declaration_json.type_signature);
-	doc_comment = $derived(this.declaration_json.doc_comment);
-	deprecated_message = $derived(this.declaration_json.deprecated_message);
-	parameters = $derived(this.declaration_json.parameters);
-	props = $derived(this.declaration_json.props);
-	return_type = $derived(this.declaration_json.return_type);
-	return_description = $derived(this.declaration_json.return_description);
-	generic_params = $derived(this.declaration_json.generic_params);
-	extends = $derived(this.declaration_json.extends);
-	implements = $derived(this.declaration_json.implements);
-	throws = $derived(this.declaration_json.throws);
+	type_signature = $derived(this.declaration_json.typeSignature);
+	doc_comment = $derived(this.declaration_json.docComment);
+	deprecated_message = $derived(this.declaration_json.deprecatedMessage);
+	parameters = $derived(field<Array<ParameterJsonInput>>(this.declaration_json, 'parameters'));
+	props = $derived(field<Array<ComponentPropJsonInput>>(this.declaration_json, 'props'));
+	return_type = $derived(field<string>(this.declaration_json, 'returnType'));
+	return_description = $derived(field<string>(this.declaration_json, 'returnDescription'));
+	generic_params = $derived(this.declaration_json.genericParams ?? []);
+	extends_type = $derived(field<string | Array<string>>(this.declaration_json, 'extends'));
+	implements_types = $derived(field<Array<string>>(this.declaration_json, 'implements'));
+	throws = $derived(this.declaration_json.throws ?? []);
 	since = $derived(this.declaration_json.since);
-	examples = $derived(this.declaration_json.examples);
-	see_also = $derived(this.declaration_json.see_also);
-	members: Array<DeclarationJson> | undefined = $derived(
-		this.declaration_json.members as Array<DeclarationJson> | undefined,
-	);
-	properties: Array<DeclarationJson> | undefined = $derived(
-		this.declaration_json.properties as Array<DeclarationJson> | undefined,
-	);
+	examples = $derived(this.declaration_json.examples ?? []);
+	see_also = $derived(this.declaration_json.seeAlso ?? []);
+	/**
+	 * Nested members for classes, interfaces, types, and enums.
+	 */
+	members = $derived(field<Array<MemberJsonInput>>(this.declaration_json, 'members'));
 
-	has_examples = $derived(!!(this.examples && this.examples.length > 0));
+	/**
+	 * Intersection types whose properties are external (filtered out of props/members).
+	 * Present on `component` and `type` kinds.
+	 */
+	intersects = $derived(field<Array<string>>(this.declaration_json, 'intersects'));
+
+	/**
+	 * Whether a component accepts children via props or template usage.
+	 * Present on `component` kind only.
+	 */
+	accepts_children = $derived(field<boolean>(this.declaration_json, 'acceptsChildren'));
+
+	/**
+	 * Function overload signatures when multiple public overloads exist.
+	 * Present on `function` and `snippet` kinds, and on function/constructor members.
+	 */
+	overloads = $derived(field<Array<OverloadJsonInput>>(this.declaration_json, 'overloads'));
+
+	/**
+	 * Re-export alias info when this declaration is a renamed re-export.
+	 */
+	alias_of = $derived(this.declaration_json.aliasOf);
+
+	/**
+	 * Mutation documentation from `@mutates` tags, mapping parameter names to descriptions.
+	 */
+	mutates = $derived(this.declaration_json.mutates);
+
+	has_examples = $derived(this.examples.length > 0);
 	is_deprecated = $derived(!!this.deprecated_message);
 	has_documentation = $derived(!!this.doc_comment);
 	has_parameters = $derived(!!(this.parameters && this.parameters.length > 0));
 	has_props = $derived(!!(this.props && this.props.length > 0));
-	has_generics = $derived(!!(this.generic_params && this.generic_params.length > 0));
+	has_generics = $derived(this.generic_params.length > 0);
 
-	constructor(module: Module, declaration_json: DeclarationJson) {
+	constructor(module: Module, declaration_json: DeclarationJsonInput) {
 		this.module = module;
 		this.declaration_json = declaration_json;
 	}

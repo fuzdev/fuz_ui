@@ -89,7 +89,6 @@ export interface CreateCspDirectivesOptions {
 export const create_csp_directives = (options: CreateCspDirectivesOptions = {}): CspDirectives => {
 	const {replace_defaults = csp_directive_value_defaults, extend, overrides} = options;
 
-	// eslint-disable-next-line @typescript-eslint/no-unnecessary-condition
 	if (replace_defaults === null) {
 		throw new Error(
 			`Invalid value 'null' for options.replace_defaults. ` +
@@ -112,14 +111,13 @@ export const create_csp_directives = (options: CreateCspDirectivesOptions = {}):
 	// Stage 1: starting state from `replace_defaults`.
 	// `{}` starts blank — every directive must come from `extend`/`overrides`.
 	for_each_directive(replace_defaults, 'replace_defaults', (directive, value) => {
-		// eslint-disable-next-line @typescript-eslint/no-unnecessary-condition
 		if (value === null) {
 			throw new Error(
 				`Invalid value 'null' for directive '${directive}' in options.replace_defaults. ` +
 					`Omit the key instead, or use \`overrides: { '${directive}': null }\` to remove.`,
 			);
 		}
-		// eslint-disable-next-line @typescript-eslint/no-unnecessary-condition
+
 		if (value === undefined) return;
 		assign(directive, value);
 	});
@@ -172,7 +170,6 @@ export const create_csp_directives = (options: CreateCspDirectivesOptions = {}):
 		for_each_directive(overrides, 'overrides', (directive, value) => {
 			if (value === null) {
 				delete directives[directive]; // eslint-disable-line @typescript-eslint/no-dynamic-delete
-				// eslint-disable-next-line @typescript-eslint/no-unnecessary-condition
 			} else if (value !== undefined) {
 				assign(directive, value);
 			}
@@ -242,9 +239,8 @@ const for_each_directive = <V>(
 	source_label: 'replace_defaults' | 'extend' | 'overrides',
 	fn: (directive: CspDirective, value: V) => void,
 ): void => {
-	// eslint-disable-next-line @typescript-eslint/no-unnecessary-condition
 	if (source === null || typeof source !== 'object') {
-		const got = source === null ? 'null' : typeof source; // eslint-disable-line @typescript-eslint/no-unnecessary-condition
+		const got = source === null ? 'null' : typeof source;
 		throw new Error(`Invalid entry in options.${source_label}: expected an object, got ${got}.`);
 	}
 	for (const [key, value] of Object.entries(source)) {

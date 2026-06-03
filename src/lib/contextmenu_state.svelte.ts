@@ -10,6 +10,12 @@ import {Dimensions} from './dimensions.svelte.js';
 import {create_context} from './context_helpers.js';
 import {url_to_root_relative} from './library_helpers.js';
 
+export const contextmenu_context = create_context<() => ContextmenuState>();
+
+export const contextmenu_submenu_context = create_context<SubmenuState>();
+
+export const contextmenu_dimensions_context = create_context(() => new Dimensions());
+
 export type ContextmenuParams =
 	| Snippet
 	// TODO maybe this should be generic?
@@ -253,7 +259,7 @@ export class ContextmenuState {
 		do {
 			i.selected = true;
 			new_selections.unshift(i);
-		} while ((i = i.menu) && i.menu); // eslint-disable-line @typescript-eslint/no-unnecessary-condition
+		} while ((i = i.menu) && i.menu);
 		this.selections = new_selections;
 	}
 
@@ -418,7 +424,7 @@ export const contextmenu_open = (
 	// `navigator.vibrate()` works with `ContextmenuRoot` but gets blocked by some browsers
 	// when used with `ContextmenuRootForSafariCompatibility` because its longpress
 	// workaround triggers from a timeout rather than a direct user interaction.
-	// eslint-disable-next-line @typescript-eslint/no-unnecessary-condition
+
 	if (BROWSER && vibrate && navigator.vibrate) {
 		navigator.vibrate(CONTEXTMENU_OPEN_VIBRATE_DURATION);
 	}
@@ -474,12 +480,6 @@ const contextmenu_query_params = (
 	}
 	return params;
 };
-
-export const contextmenu_context = create_context<() => ContextmenuState>();
-
-export const contextmenu_submenu_context = create_context<SubmenuState>();
-
-export const contextmenu_dimensions_context = create_context(() => new Dimensions());
 
 // Global registry of non-scoped contextmenu roots (only used in DEV)
 const non_scoped_roots: Set<symbol> = new Set();

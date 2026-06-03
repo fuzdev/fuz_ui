@@ -55,7 +55,7 @@ const trigger_intersection = (isIntersecting: boolean): void => {
 
 // Install mock globally
 beforeEach(() => {
-	global.IntersectionObserver = MockIntersectionObserver as any;
+	global.IntersectionObserver = MockIntersectionObserver;
 	observer_callback = null;
 	observer_options = undefined;
 	observed_elements = [];

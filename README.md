@@ -4,9 +4,11 @@
 
 > friendly user zystem 🧶 [fuz.dev](https://ui.fuz.dev/)
 
-fuz_ui is a [Svelte](https://svelte.dev/) UI library
-with components and helpers for making zippy websites.
-It's in early alpha and it will go through many breaking changes.
+fuz_ui is a Svelte UI library with components and helpers for making zippy
+websites. It's built on [fuz_css](https://css.fuz.dev/)
+and provides includes a documentation system built on
+[svelte-docinfo](https://svelte-docinfo.fuz.dev/).
+It's in early alpha with breaking changes ahead.
 
 fuz_ui is being made to support
 [my other projects](https://www.ryanatkn.com/)
@@ -55,8 +57,8 @@ import '@fuzdev/fuz_css/style.css';
 // and import a fuz_css theme:
 import '@fuzdev/fuz_css/theme.css'; // or bring your own
 
-// using Gro generates fuz_css' utility classes stylesheet by default:
-import '$routes/fuz.css';
+// the fuz_css Vite plugin exposes the generated utility classes as a virtual module:
+import 'virtual:fuz.css';
 
 // then import Fuz Svelte components:
 import ThemeRoot from '@fuzdev/fuz_ui/ThemeRoot.svelte';

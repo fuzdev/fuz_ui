@@ -87,8 +87,8 @@ describe('tsdoc_see_to_mdz', () => {
 
 	test('splits identifier from description text', () => {
 		assert.equal(
-			tsdoc_see_to_mdz('library_gen.ts for Gro-specific integration'),
-			'`library_gen.ts` for Gro-specific integration',
+			tsdoc_see_to_mdz('tome.ts for the documentation system'),
+			'`tome.ts` for the documentation system',
 		);
 	});
 
@@ -103,6 +103,32 @@ describe('tsdoc_see_to_mdz', () => {
 		assert.equal(
 			tsdoc_see_to_mdz('https://fuz.dev for more info'),
 			'https://fuz.dev for more info',
+		);
+	});
+
+	test('accepts TS-lenient space-separated {@link url text}', () => {
+		assert.equal(
+			tsdoc_see_to_mdz('{@link https://example.com Example Site}'),
+			'[Example Site](https://example.com)',
+		);
+	});
+
+	test('space-separated {@link} does not split when first token is not a URL', () => {
+		// Identifier-style references must stay intact — only URLs split on space.
+		assert.equal(tsdoc_see_to_mdz('{@link module.function rest}'), '`module.function rest`');
+	});
+
+	test('passes through bare markdown link', () => {
+		assert.equal(
+			tsdoc_see_to_mdz('[Example](https://example.com)'),
+			'[Example](https://example.com)',
+		);
+	});
+
+	test('passes through bare markdown link with description', () => {
+		assert.equal(
+			tsdoc_see_to_mdz('[svelte-docinfo](https://github.com/x/y) for the analysis library'),
+			'[svelte-docinfo](https://github.com/x/y) for the analysis library',
 		);
 	});
 });

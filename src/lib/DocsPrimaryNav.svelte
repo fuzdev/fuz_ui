@@ -4,17 +4,12 @@
 	import {scrollY} from 'svelte/reactivity/window';
 	import type {SvelteHTMLElements} from 'svelte/elements';
 
-	import type {Library} from './library.svelte.js';
 	import Breadcrumb from './Breadcrumb.svelte';
 
 	const {
-		library,
-		breadcrumb_children,
 		children,
 		...rest
 	}: SvelteHTMLElements['div'] & {
-		library: Library;
-		breadcrumb_children?: Snippet<[is_primary_nav: boolean]>;
 		children?: Snippet;
 	} = $props();
 
@@ -29,13 +24,7 @@
 		<div class="background" aria-hidden="true"></div>
 		<div class="content">
 			<nav aria-label="Primary nav">
-				<Breadcrumb>
-					{#if breadcrumb_children}
-						{@render breadcrumb_children(true)}
-					{:else}
-						{library.package_json.glyph ?? '🏠'}
-					{/if}
-				</Breadcrumb>
+				<Breadcrumb />
 			</nav>
 			{@render children?.()}
 		</div>

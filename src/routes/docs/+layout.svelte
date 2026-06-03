@@ -6,9 +6,8 @@
 	import {selected_variable_context} from '$lib/style_variable_helpers.svelte.js';
 	import StyleVariableDetail from '$routes/StyleVariableDetail.svelte';
 	import Dialog from '$lib/Dialog.svelte';
-	import {library_context} from '$lib/library.svelte.js';
-	import Svg from '$lib/Svg.svelte';
-	import {logo_fuz} from '$lib/logos.js';
+	import {Library, library_context} from '$lib/library.svelte.js';
+	import {library_json} from '$routes/library.js';
 
 	const {
 		children,
@@ -16,21 +15,12 @@
 		children: Snippet;
 	} = $props();
 
-	const selected_variable = selected_variable_context.set();
+	library_context.set(new Library(library_json));
 
-	const library = library_context.get();
+	const selected_variable = selected_variable_context.set();
 </script>
 
-<Docs {tomes} {library}>
-	{#snippet breadcrumb_children(is_primary_nav)}
-		{#if is_primary_nav}
-			<div class="icon row">
-				<Svg data={logo_fuz} size="var(--icon_size_sm)" /> <span class="ml_sm">fuz</span>
-			</div>
-		{:else}
-			<Svg data={logo_fuz} size="var(--icon_size_sm)" />
-		{/if}
-	{/snippet}
+<Docs {tomes}>
 	{@render children()}
 </Docs>
 

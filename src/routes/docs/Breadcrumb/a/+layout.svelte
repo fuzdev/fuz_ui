@@ -1,7 +1,7 @@
 <script lang="ts">
 	import type {Snippet} from 'svelte';
 
-	import {get_tome_by_name} from '$lib/tome.js';
+	import {tome_get_by_slug} from '$lib/tome.js';
 	import TomeContent from '$lib/TomeContent.svelte';
 
 	const {
@@ -10,9 +10,9 @@
 		children: Snippet;
 	} = $props();
 
-	const LIBRARY_ITEM_NAME = 'Breadcrumb';
+	const TOME_SLUG = 'Breadcrumb';
 
-	const tome = get_tome_by_name(LIBRARY_ITEM_NAME);
+	const tome = tome_get_by_slug(TOME_SLUG);
 </script>
 
 <TomeContent {tome}>

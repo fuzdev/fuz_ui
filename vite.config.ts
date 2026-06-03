@@ -1,10 +1,10 @@
 import {defineConfig} from 'vite';
 import {sveltekit} from '@sveltejs/kit/vite';
-
-import {vite_plugin_library_well_known} from './src/lib/vite_plugin_library_well_known.ts';
+import svelte_docinfo from 'svelte-docinfo/vite.js';
+import {vite_plugin_fuz_css} from '@fuzdev/fuz_css/vite_plugin_fuz_css.js';
 
 export default defineConfig(({mode}) => ({
-	plugins: [sveltekit(), vite_plugin_library_well_known()],
+	plugins: [vite_plugin_fuz_css(), sveltekit(), svelte_docinfo()],
 	// In test mode, use browser conditions so Svelte's mount() resolves to the client version
 	resolve: mode === 'test' ? {conditions: ['browser']} : undefined,
 	optimizeDeps: {exclude: ['@fuzdev/blake3_wasm']},

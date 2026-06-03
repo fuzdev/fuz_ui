@@ -4,6 +4,8 @@ import {ensure_end, ensure_start} from '@fuzdev/fuz_util/string.js';
 
 import {create_context} from './context_helpers.js';
 
+export const docs_links_context = create_context<DocsLinks>();
+
 /**
  * Convert a string to a URL-safe fragment identifier, preserving case.
  * Unlike `slugify` from `@fuzdev/fuz_util/path.js` which lowercases,
@@ -41,8 +43,6 @@ export const to_docs_path_info = (
 	const path_is_selected = path_segment === path_slug; // messy but works
 	return {path, path_is_selected, path_segment};
 };
-
-export const docs_links_context = create_context<DocsLinks>();
 
 export type DocsLinkTag = 'h2' | 'h3' | 'h4';
 

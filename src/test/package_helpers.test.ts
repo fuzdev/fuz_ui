@@ -8,7 +8,6 @@ import {
 	package_is_published,
 	repo_name_parse,
 	repo_url_parse,
-	url_well_known,
 } from '$lib/package_helpers.js';
 
 describe('url_github_file', () => {
@@ -213,28 +212,5 @@ describe('repo_url_parse', () => {
 
 	test('returns null for object without url', () => {
 		assert.equal(repo_url_parse({type: 'git'} as any), null);
-	});
-});
-
-describe('url_well_known', () => {
-	test('builds .well-known URL', () => {
-		assert.equal(
-			url_well_known('https://fuz.dev', 'package.json'),
-			'https://fuz.dev/.well-known/package.json',
-		);
-	});
-
-	test('handles homepage with trailing slash', () => {
-		assert.equal(
-			url_well_known('https://fuz.dev/', 'package.json'),
-			'https://fuz.dev/.well-known/package.json',
-		);
-	});
-
-	test('handles various filenames', () => {
-		assert.equal(
-			url_well_known('https://fuz.dev', 'security.txt'),
-			'https://fuz.dev/.well-known/security.txt',
-		);
 	});
 });

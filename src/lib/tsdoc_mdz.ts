@@ -17,10 +17,12 @@ const format_reference = (ref: string): string => (mdz_is_url(ref) ? ref : `\`${
  * Convert raw TSDoc `@see` content to mdz format for rendering.
  *
  * Handles TSDoc link syntax:
- * - `{@link url|text}` → `[text](url)` (markdown link)
+ * - `{@link url|text}` → `[text](url)` (markdown link, TSDoc canonical form)
+ * - `{@link url text}` → `[text](url)` (TS-lenient space-separated form)
  * - `{@link https://...}` → `https://...` (bare URL, auto-linked by mdz)
  * - `{@link identifier}` → `` `identifier` `` (code formatting)
  * - Bare URLs → returned as-is
+ * - Bare markdown links (`[text](url)` ...) → returned as-is
  * - Bare identifiers → wrapped in backticks
  * - `identifier description text` → `` `identifier` description text `` (first token is the reference)
  *
@@ -38,8 +40,11 @@ const format_reference = (ref: string): string => (mdz_is_url(ref) ? ref : `\`${
  * tsdoc_see_to_mdz('https://fuz.dev')
  * // → 'https://fuz.dev'
  *
- * tsdoc_see_to_mdz('library_gen.ts for Gro-specific integration')
- * // → '`library_gen.ts` for Gro-specific integration'
+ * tsdoc_see_to_mdz('[svelte-docinfo](https://github.com/ryanatkn/svelte-docinfo) for the analysis library')
+ * // → '[svelte-docinfo](https://github.com/ryanatkn/svelte-docinfo) for the analysis library'
+ *
+ * tsdoc_see_to_mdz('tome.ts for the documentation system')
+ * // → '`tome.ts` for the documentation system'
  * ```
  */
 export const tsdoc_see_to_mdz = (content: string): string => {
@@ -51,7 +56,7 @@ export const tsdoc_see_to_mdz = (content: string): string => {
 	if (link_match) {
 		const inner = link_match[1]!.trim();
 
-		// Check for pipe separator (custom display text)
+		// Pipe separator takes precedence (TSDoc canonical form)
 		const pipe_index = inner.indexOf('|');
 		if (pipe_index !== -1) {
 			const reference = inner.slice(0, pipe_index).trim();
@@ -59,7 +64,25 @@ export const tsdoc_see_to_mdz = (content: string): string => {
 			return `[${display_text}](${reference})`;
 		}
 
+		// Space-separated form: TS accepts `{@link url text}` as equivalent to `{@link url|text}`.
+		// Only treat space as a separator when the first token looks like a link target (URL),
+		// so identifier-style references like `module.function` aren't split.
+		const space_index = inner.indexOf(' ');
+		if (space_index !== -1) {
+			const reference = inner.slice(0, space_index);
+			if (mdz_is_url(reference)) {
+				const display_text = inner.slice(space_index + 1).trim();
+				return `[${display_text}](${reference})`;
+			}
+		}
+
 		return format_reference(inner);
+	}
+
+	// Pass through bare markdown links (`[text](url)` optionally followed by description)
+	// so authors can write `@see [text](url) for context` directly.
+	if (trimmed.charCodeAt(0) === 91 /* [ */ && /^\[[^\]]+\]\([^)\s]+\)/.test(trimmed)) {
+		return trimmed;
 	}
 
 	// Split at first whitespace: first token is the reference, rest is description

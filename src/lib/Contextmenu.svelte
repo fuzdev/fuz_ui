@@ -4,8 +4,10 @@
 
 	import {contextmenu_attachment} from './contextmenu_state.svelte.js';
 
+	/* eslint-disable @typescript-eslint/no-unnecessary-type-assertion */
+
 	const {
-		tag = 'span' as T, // TODO why is casting needed?
+		tag = 'span' as any, // TODO why is casting needed?
 		entries,
 		children,
 		...rest

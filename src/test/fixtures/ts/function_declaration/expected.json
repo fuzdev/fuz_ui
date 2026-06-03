@@ -1,7 +1,0 @@
-{
-	"name": "my_function",
-	"kind": "function",
-	"type_signature": "(): void",
-	"return_type": "void",
-	"parameters": []
-}

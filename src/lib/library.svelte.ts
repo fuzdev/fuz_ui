@@ -5,6 +5,8 @@ import {create_context} from './context_helpers.js';
 import {Declaration} from './declaration.svelte.js';
 import {Module} from './module.svelte.js';
 
+export const library_context = create_context<Library>();
+
 /**
  * Normalizes a URL prefix: ensures leading `/`, strips trailing `/`, returns `''` for falsy and non-string values.
  */
@@ -62,7 +64,7 @@ export class Library {
 	 */
 	readonly modules = $derived(
 		this.source_json.modules
-			? this.source_json.modules.map((module_json) => new Module(this, module_json))
+			? this.source_json.modules.map((module_json) => new Module(this, module_json as any)) // TODO: remove cast when fuz_util SourceJson uses svelte-docinfo types
 			: [],
 	);
 
@@ -115,8 +117,6 @@ export class Library {
 		return library_search_declarations(this.declarations, query);
 	}
 }
-
-export const library_context = create_context<Library>();
 
 /**
  * Search declarations by query string with multi-term AND logic.

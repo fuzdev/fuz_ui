@@ -6,6 +6,9 @@
 	import {strip_start, ensure_end} from '@fuzdev/fuz_util/string.js';
 	import type {SvelteHTMLElements} from 'svelte/elements';
 
+	import Svg from './Svg.svelte';
+	import {site_context} from './site.svelte.js';
+
 	const {
 		path,
 		selected_path,
@@ -29,8 +32,16 @@
 		 */
 		base_path?: string;
 		separator?: Snippet;
+		/**
+		 * Content of the root link. Defaults to the `site_context` icon rendered as
+		 * an `Svg`, then the `site_context` glyph, then `•`.
+		 */
 		children?: Snippet;
 	} = $props();
+
+	const site = site_context.get_maybe();
+	const icon_data = $derived(site?.icon ?? null);
+	const glyph_text = $derived(site?.glyph ?? null);
 
 	const final_base_path = $derived(base_path ?? resolve('/').slice(0, -1));
 
@@ -51,7 +62,10 @@
 <div {...rest} class="breadcrumb {rest.class}">
 	<!-- eslint-disable-next-line svelte/no-navigation-without-resolve -->
 	<a href={root_path} class:selected={root_path === final_base_path + final_selected_path}
-		>{#if children}{@render children()}{:else}•{/if}</a
+		>{#if children}{@render children()}{:else if icon_data}<Svg
+				data={icon_data}
+				size="1em"
+			/>{:else if glyph_text}{glyph_text}{:else}•{/if}</a
 	>{#each path_pieces as path_piece (path_piece)}{#if path_piece.type === 'piece'}<!-- eslint-disable-next-line svelte/no-navigation-without-resolve --><a
 				href={final_base_path + path_piece.path}
 				class:selected={path_piece.path === final_selected_path}>{path_piece.name}</a

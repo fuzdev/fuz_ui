@@ -5,7 +5,7 @@
 	import type {SvelteHTMLElements} from 'svelte/elements';
 
 	import DocsList from './DocsList.svelte';
-	import {to_tome_pathname, type Tome} from './tome.js';
+	import {tome_to_pathname, tome_to_title, type Tome} from './tome.js';
 	import DocsMenuHeader from './DocsMenuHeader.svelte';
 
 	const {
@@ -37,10 +37,10 @@
 					>{/if}
 				<ul class="unstyled">
 					{#each tomes as item (item)}
-						{@const pathname = to_tome_pathname(item)}
+						{@const pathname = tome_to_pathname(item)}
 						<li role="none" transition:slide>
 							<a class="menuitem" href={pathname} class:selected={pathname === page.url.pathname}
-								><div class="ellipsis">{item.name}</div></a
+								><div class="ellipsis">{tome_to_title(item)}</div></a
 							>
 						</li>
 					{/each}

@@ -12,51 +12,6 @@
 import {ensure_end, strip_start} from '@fuzdev/fuz_util/string.js';
 import {page} from '$app/state';
 
-import {DOCS_API_PATH, DOCS_PATH_DEFAULT} from './docs_helpers.svelte.js';
-
-/**
- * Build project-relative API documentation URL with hash anchor.
- *
- * @param declaration_name - name of the declaration to link to
- * @returns URL path like '/docs/api#declaration_name'
- */
-export const url_api_declaration = (declaration_name: string): string =>
-	`${DOCS_API_PATH}#${encodeURIComponent(declaration_name)}`;
-
-/**
- * Build full API documentation URL with domain and hash anchor.
- *
- * @param homepage - package homepage URL
- * @param declaration_name - name of the declaration to link to
- * @returns full URL like 'https://fuz.dev/docs/api#declaration_name'
- */
-export const url_api_declaration_full = (homepage: string, declaration_name: string): string =>
-	`${homepage}${DOCS_PATH_DEFAULT}/api#${encodeURIComponent(declaration_name)}`;
-
-/**
- * Build project-relative module documentation URL.
- *
- * @param module_path - module path (e.g., 'helpers.ts')
- * @returns URL path like '/docs/api/helpers.ts'
- */
-export const url_api_module = (module_path: string): string => `${DOCS_API_PATH}/${module_path}`;
-
-/**
- * Build package logo URL with favicon.png fallback.
- *
- * @param homepage_url - package homepage URL, or null
- * @param logo_path - optional custom logo path (defaults to 'favicon.png')
- * @returns full URL to the logo, or null if no homepage
- */
-export const url_package_logo = (
-	homepage_url: string | null,
-	logo_path?: string,
-): string | null => {
-	if (!homepage_url) return null;
-	const path = logo_path ? strip_start(logo_path, '/') : 'favicon.png';
-	return ensure_end(homepage_url, '/') + path;
-};
-
 /**
  * Convert a full URL to root-relative format by removing the origin.
  *

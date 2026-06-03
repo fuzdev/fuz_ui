@@ -3,12 +3,11 @@
 	import type {Snippet} from 'svelte';
 	import type {SvelteHTMLElements} from 'svelte/elements';
 
-	import type {Library} from './library.svelte.js';
 	import Svg from './Svg.svelte';
 	import {logo_github} from './logos.js';
 
 	const {
-		library,
+		repo_url,
 		root_url = null,
 		logo,
 		logo_header,
@@ -16,8 +15,14 @@
 		children,
 		...rest
 	}: SvelteHTMLElements['footer'] & {
-		library: Library;
+		/**
+		 * Link target for the logo, e.g. the project's source repository.
+		 */
+		repo_url?: Url | null;
 		root_url?: Url | null;
+		/**
+		 * Overrides the default GitHub logo mark, e.g. for repos hosted elsewhere.
+		 */
 		logo?: Snippet;
 		logo_header?: Snippet;
 		logo_footer?: Snippet;
@@ -28,13 +33,12 @@
 	{@render children?.()}
 	<div class="logo box panel p_lg shadow_inset_xs">
 		{@render logo_header?.()}
-		<!-- eslint-disable-next-line svelte/no-navigation-without-resolve -->
-		<a href={library.repo_url} rel="me" title="source code on GitHub"
-			>{#if logo}{@render logo()}{:else}<Svg
-					data={logo_github}
-					size="var(--icon_size_lg)"
-				/>{/if}</a
-		>
+		{#if repo_url}
+			<!-- eslint-disable-next-line svelte/no-navigation-without-resolve -->
+			<a href={repo_url} rel="me" title="source code">{@render logo_mark()}</a>
+		{:else}
+			{@render logo_mark()}
+		{/if}
 		{@render logo_footer?.()}
 	</div>
 	{#if root_url}
@@ -44,6 +48,11 @@
 		</div>
 	{/if}
 </footer>
+
+{#snippet logo_mark()}{#if logo}{@render logo()}{:else}<Svg
+			data={logo_github}
+			size="var(--icon_size_lg)"
+		/>{/if}{/snippet}
 
 <style>
 	/* TODO probably extract */

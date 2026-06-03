@@ -603,7 +603,7 @@ export class MdzLexer {
 		const open_type = kind === 'italic' ? 'italic_open' : 'strikethrough_open';
 		const close_type = kind === 'italic' ? 'italic_close' : 'strikethrough_close';
 		const open_token_index = this.#tokens.length;
-		this.#tokens.push({type: open_type, start, end: this.#index} as MdzToken);
+		this.#tokens.push({type: open_type, start, end: this.#index});
 
 		// Set search boundary for nested parsers
 		const saved_max = this.#max_search_index;
@@ -634,7 +634,7 @@ export class MdzLexer {
 				type: close_type,
 				start: close_index,
 				end: close_index + 1,
-			} as MdzToken);
+			});
 			this.#index = close_index + 1;
 		} else {
 			// Convert opening to text

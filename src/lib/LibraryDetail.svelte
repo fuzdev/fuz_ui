@@ -1,3 +1,12 @@
+<!--
+@component
+
+Renders library metadata (name, description, links, license) and a module index
+with file-type coloring. Uses svelte-docinfo's file type predicates for module classification.
+
+@see `library.svelte.ts` for the `Library` wrapper class
+@see {@link https://github.com/ryanatkn/svelte-docinfo svelte-docinfo} for the analysis library
+-->
 <script lang="ts">
 	import {page} from '$app/state';
 	import {format_url} from '@fuzdev/fuz_util/url.js';
@@ -7,16 +16,12 @@
 	import ImgOrSvg from './ImgOrSvg.svelte';
 	import DeclarationLink from './DeclarationLink.svelte';
 	import ModuleLink from './ModuleLink.svelte';
-	import {url_github_file, repo_url_parse, url_well_known} from './package_helpers.js';
-	import {
-		module_is_typescript,
-		module_is_svelte,
-		module_is_css,
-		module_is_json,
-	} from './module_helpers.js';
+	import {url_github_file, repo_url_parse} from './package_helpers.js';
+	import {isTypescript, isSvelte, isCss, isJson} from 'svelte-docinfo/source.js';
 
 	const {
 		library,
+		links_full = false,
 		repo_name,
 		description,
 		tagline,
@@ -25,6 +30,12 @@
 		children,
 	}: {
 		library: Library;
+		/**
+		 * Link the module/declaration index to the library's own deployed docs
+		 * (`url_api_full`) instead of site-local paths. Use when rendering a
+		 * foreign library on a different site, e.g. an aggregator.
+		 */
+		links_full?: boolean;
 		repo_name?: Snippet<[repo_name: string]>;
 		description?: Snippet<[description: string]>;
 		tagline?: Snippet<[description: string]>;
@@ -135,21 +146,6 @@
 							<a class="chip" title="license" href={license_url}>{package_json.license}</a>
 						</div>
 					{/if}
-					{#if library.homepage_url}
-						<span class="title">data</span>
-						<div class="content">
-							<a
-								class="chip"
-								title="data"
-								href={url_well_known(library.homepage_url, 'package.json')}>package.json</a
-							>
-							<a
-								class="chip"
-								title="data"
-								href={url_well_known(library.homepage_url, 'library.json')}>library.json</a
-							>
-						</div>
-					{/if}
 				</section>
 			</div>
 		</div>
@@ -170,14 +166,14 @@
 					<!-- TODO improve rendering and enrich data - start with the type (not just extension - mime?) -->
 					<li
 						class="module"
-						class:ts={module_is_typescript(module.path)}
-						class:svelte={module_is_svelte(module.path)}
-						class:css={module_is_css(module.path)}
-						class:json={module_is_json(module.path)}
+						class:ts={isTypescript(module.path)}
+						class:svelte={isSvelte(module.path)}
+						class:css={isCss(module.path)}
+						class:json={isJson(module.path)}
 					>
 						<div class="module-content">
 							<span class="font_size_xl">
-								<ModuleLink module_path={module.path}>
+								<ModuleLink module_path={module.path} full={links_full}>
 									{module.path}
 								</ModuleLink>
 							</span>
@@ -185,7 +181,7 @@
 								<ul class="declarations unstyled">
 									{#each module.declarations as declaration (declaration.name)}
 										<li>
-											<DeclarationLink name={declaration.name} />
+											<DeclarationLink name={declaration.name} full={links_full} />
 										</li>
 									{/each}
 								</ul>

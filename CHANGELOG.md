@@ -1,5 +1,61 @@
 # @fuzdev/fuz_ui
 
+## 0.198.1
+
+### Patch Changes
+
+- feat: add `svelte-docinfo` ([9b666c5](https://github.com/fuzdev/fuz_ui/commit/9b666c5))
+
+## 0.198.0
+
+### Minor Changes
+
+- fix: library links ([31e7620](https://github.com/fuzdev/fuz_ui/commit/31e7620))
+
+## 0.197.0
+
+### Minor Changes
+
+- feat: add `SiteState` and use it to simplify docs component deps ([ab82e08](https://github.com/fuzdev/fuz_ui/commit/ab82e08))
+
+## 0.196.0
+
+### Minor Changes
+
+- feat: add `svelte-docinfo` and remove well-known and library gen ([fe3cca2](https://github.com/fuzdev/fuz_ui/commit/fe3cca2))
+
+## 0.195.1
+
+### Patch Changes
+
+- fix: broken local peer deps ([d9300e3](https://github.com/fuzdev/fuz_ui/commit/d9300e3))
+
+## 0.195.0
+
+### Minor Changes
+
+- feat: extract `svelte-docinfo` ([#107](https://github.com/fuzdev/fuz_ui/pull/107))
+- bump node@24.14 ([#107](https://github.com/fuzdev/fuz_ui/pull/107))
+
+## 0.194.0
+
+### Minor Changes
+
+- deps: upgrade fuz_css ([b87cbee](https://github.com/fuzdev/fuz_ui/commit/b87cbee))
+- upgrade fuz_css ([#123](https://github.com/fuzdev/fuz_ui/pull/123))
+
+## 0.193.1
+
+### Patch Changes
+
+- fix: change `Spiders` to `pointer-events: none` and support rest args ([0dbbd2f](https://github.com/fuzdev/fuz_ui/commit/0dbbd2f))
+
+## 0.193.0
+
+### Minor Changes
+
+- feat: rename `Tome.name` → `Tome.slug`, add `Tome.title`, prefix tome helpers with `tome_` ([4cbfb3b](https://github.com/fuzdev/fuz_ui/commit/4cbfb3b))
+
 ## 0.192.0
 
 ### Minor Changes
