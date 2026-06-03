@@ -3,16 +3,20 @@ import adapter from '@sveltejs/adapter-static';
 import {svelte_preprocess_fuz_code} from '@fuzdev/fuz_code/svelte_preprocess_fuz_code.js';
 import {execSync} from 'node:child_process';
 
-// Self-referencing import from dist — unavailable on first build after clean checkout,
-// but subsequent builds use the preprocessor for static Mdz compilation.
+// Static `<Mdz>` compilation via the extracted `@fuzdev/mdz` package. Inline code renders
+// as fuz_ui's `DocsLink` (API auto-linking) and fenced blocks as fuz_code's `Code`, matching
+// the runtime injection in `ApiModule`/`DeclarationDetail`. Wrapped in try/catch since the
+// dist may be absent on the first build after a clean checkout.
 /** @type {Array<import('svelte/compiler').PreprocessorGroup>} */
 let fuz_mdz_preprocessors = [];
 try {
-	const {svelte_preprocess_mdz} = await import('@fuzdev/fuz_ui/svelte_preprocess_mdz.js');
+	const {svelte_preprocess_mdz} = await import('@fuzdev/mdz/svelte_preprocess_mdz.js');
 	fuz_mdz_preprocessors = [
 		svelte_preprocess_mdz({
-			component_imports: ['$lib/Mdz.svelte'],
-			compiled_component_import: '$lib/MdzPrecompiled.svelte',
+			component_imports: ['@fuzdev/mdz/Mdz.svelte'],
+			compiled_component_import: '@fuzdev/mdz/MdzPrecompiled.svelte',
+			code_component_import: '$lib/DocsLink.svelte',
+			codeblock_component_import: '@fuzdev/fuz_code/Code.svelte',
 		}),
 	];
 } catch {}

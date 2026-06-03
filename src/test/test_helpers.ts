@@ -173,7 +173,7 @@ export interface GenericFixture<T> {
 export interface FixtureLoaderConfig<T> {
 	/** Directory containing fixture subdirectories */
 	fixtures_dir: string;
-	/** Input file extension (e.g., '.mdz', '.ts', '.svelte') */
+	/** Input file extension (e.g., '.ts', '.svelte') */
 	input_extension: string;
 	/**
 	 * Transform the parsed expected.json data.
@@ -186,14 +186,14 @@ export interface FixtureLoaderConfig<T> {
  * Load all fixtures from a directory with the specified configuration.
  * Each fixture is a subdirectory containing an input file and expected.json.
  *
- * This generic pattern is used across mdz, tsdoc, ts, and svelte fixture loaders
+ * This generic pattern is used across the tsdoc, ts, and svelte fixture loaders
  * to reduce duplication (~60 LOC saved).
  *
  * @example
  * ```ts
- * const fixtures = await load_fixtures_generic<Array<MdzNode>>({
+ * const fixtures = await load_fixtures_generic<Array<DeclarationJson>>({
  *   fixtures_dir: import.meta.dirname,
- *   input_extension: '.mdz',
+ *   input_extension: '.ts',
  * });
  * ```
  */
@@ -244,7 +244,7 @@ export interface UpdateTaskConfig<TInput, TOutput> {
  * Handles the common pattern of reading fixtures, generating outputs,
  * comparing with existing files, and writing only changed files.
  *
- * This generic pattern is used across mdz, tsdoc, ts, and svelte update tasks
+ * This generic pattern is used across the tsdoc, ts, and svelte update tasks
  * to reduce duplication (~240 LOC saved).
  *
  * @example
@@ -254,8 +254,8 @@ export interface UpdateTaskConfig<TInput, TOutput> {
  *   run: async ({log}) => {
  *     await run_update_task({
  *       fixtures_dir: join(import.meta.dirname),
- *       input_extension: '.mdz',
- *       process: (input) => mdz_parse(input),
+ *       input_extension: '.ts',
+ *       process: (input) => tsdoc_parse(input),
  *     }, log);
  *   },
  * };

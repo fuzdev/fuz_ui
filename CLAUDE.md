@@ -24,24 +24,15 @@ gro build     # build for production
 IMPORTANT for AI agents: Do NOT run `gro dev` - the developer will manage the
 dev server.
 
-## Benchmarks
-
-```bash
-npm run benchmark         # run mdz parser benchmarks, compare against baseline
-npm run benchmark:save    # save current results as the new baseline
-npm run benchmark:clean   # remove the local baseline (forces a fresh seed)
-```
-
-Baseline lives at `src/benchmarks/baseline.json` and is **gitignored** —
-local-only. After a fuz_util upgrade that bumps the baseline schema version,
-the next run auto-deletes the stale file with a warning; `--save` re-seeds.
-
 ## Key dependencies
 
 - Svelte 5 - component framework
 - SvelteKit - application framework
 - fuz_css (@fuzdev/fuz_css) - CSS framework and design system foundation
 - fuz_util (@fuzdev/fuz_util) - utility library
+- mdz (@fuzdev/mdz) - markdown dialect (parser, renderer, preprocessor) rendered
+  throughout the docs; `DocsLink` (inline code) and fuz_code's `Code` (code
+  blocks) are injected into its rendering seam (optional peer)
 - svelte-docinfo (svelte-docinfo) - TypeScript/Svelte static analysis
 - Gro (@fuzdev/gro) - build system and CLI
 
@@ -73,7 +64,7 @@ src/
 │   ├── *.ts          # TypeScript utilities
 │   └── *.svelte.ts   # Svelte 5 runes and reactive utilities
 ├── test/             # test files (not co-located)
-│   └── fixtures/     # fixture-based tests (mdz, tsdoc, ts, svelte)
+│   └── fixtures/     # fixture-based tests (tsdoc, ts, svelte)
 └── routes/           # SvelteKit routes
     └── docs/         # documentation pages
         ├── tomes.ts  # central documentation registry
@@ -134,10 +125,11 @@ helpers (`generateImport`, `getDisplayName` from `declaration-helpers.js`).
 ### Documentation
 
 - `PackageDetail`, `PackageSummary` - package info display
-- `Mdz` - renders mdz (minimal markdown dialect) content
-- `MdzStream`, `MdzStreamNodeView` - streaming mdz renderer (opcode-driven)
-- `MdzRoot` - context provider for mdz (base, components, elements)
-- `ApiIndex`, `ApiModule`, `ApiDeclarationList` - API documentation
+- `ApiIndex`, `ApiModule`, `ApiDeclarationList` - API documentation; render TSDoc
+  prose as mdz via `@fuzdev/mdz`, injecting `DocsLink` (inline code) and fuz_code's
+  `Code` (code blocks)
+
+mdz itself (`Mdz`, `MdzRoot`, `MdzStream`, the preprocessor) lives in `@fuzdev/mdz`.
 
 ### Utilities
 
@@ -151,11 +143,6 @@ helpers (`generateImport`, `getDisplayName` from `declaration-helpers.js`).
 - `tome.ts` - documentation system types and utilities
 - `theme_state.svelte.ts` - theme and color scheme management (ThemeState class)
 - `context_helpers.ts` - Svelte context utilities (`create_context()`)
-- `mdz.ts` - minimal markdown dialect parser and renderer
-- `mdz_stream_parser.ts` - streaming opcode parser (`MdzStreamParser`)
-- `mdz_opcodes.ts` - opcode type definitions for streaming parser
-- `mdz_opcodes_to_nodes.ts` - opcode-to-MdzNode tree bridge
-- `mdz_stream_state.svelte.ts` - reactive Svelte 5 state (`MdzStreamState`)
 
 ### Component helpers
 
@@ -200,75 +187,19 @@ full API. Key imports used by fuz_ui:
 - `intersect.svelte.ts` - Svelte 5 attachment for IntersectionObserver
 - `helpers.ts` - general utilities (`render_value_to_string`)
 
-### Preprocessor
+## mdz rendering
 
-- `svelte_preprocess_mdz.ts` - build-time compilation of static `Mdz` content
-- `mdz_to_svelte.ts` - converts `MdzNode` arrays to Svelte markup strings
-- `MdzPrecompiled.svelte` - wrapper component for precompiled output
+mdz (parser, renderer, streaming, and the `svelte_preprocess_mdz` build-time
+preprocessor) lives in `@fuzdev/mdz` — see its CLAUDE.md. fuz_ui consumes it for
+TSDoc prose rendering and wires the rendering seam in two places, so inline code
+links API identifiers (`DocsLink`) and code blocks get syntax highlighting (fuz_code
+`Code`):
 
-## Preprocessor: svelte_preprocess_mdz
-
-Compiles static `<Mdz content="...">` usages to pre-rendered Svelte markup at
-build time, replacing `Mdz` with `MdzPrecompiled` containing children.
-Eliminates runtime mdz parsing for known-static content.
-
-### Setup
-
-```js
-// svelte.config.js
-import {svelte_preprocess_mdz} from '@fuzdev/fuz_ui/svelte_preprocess_mdz.js';
-
-export default {
-	preprocess: [
-		svelte_preprocess_mdz({
-			components: {Alert: '$lib/Alert.svelte'},
-			elements: ['aside', 'details'],
-		}),
-		// ...other preprocessors
-	],
-};
-```
-
-### Options
-
-- `exclude` — file patterns to skip (`Array<string | RegExp>`)
-- `components` — mdz component name to import path mapping (`Record<string, string>`)
-- `elements` — allowed HTML element names in mdz content (`Array<string>`)
-- `component_imports` — import sources that resolve to Mdz (default: `['@fuzdev/fuz_ui/Mdz.svelte']`)
-- `compiled_component_import` — import path for MdzPrecompiled (default: `'@fuzdev/fuz_ui/MdzPrecompiled.svelte'`)
-- `on_error` — `'log'` or `'throw'` (default: `'throw'` in CI, `'log'` otherwise)
-
-### Skip conditions
-
-The preprocessor leaves `Mdz` untouched (falls back to runtime) when:
-
-- File is excluded via `exclude` option
-- No matching import source found for Mdz
-- `import type` declaration (not a runtime import)
-- `MdzPrecompiled` name already imported from a different source
-- `content` prop is dynamic (variable, function call, `$state`, `$derived`)
-- Spread attributes present (`{...props}`)
-- Content references unconfigured components or elements
-- `base` prop is dynamic (falls back to runtime for correct resolution)
-- A ternary branch has dynamic content or unconfigured tags
-
-### What gets transformed
-
-- Static string attributes: `content="**bold**"`
-- JS string expressions: `content={'**bold**'}`
-- Template literals without interpolation: ``content={`**bold**`}``
-- Const variable references: `const msg = '**bold**'; content={msg}`
-- Ternary chains with static branches: `content={show ? '**a**' : '**b**'}`
-- Nested ternaries: `content={a ? 'x' : b ? 'y' : 'z'}` → `{#if}/{:else if}/{:else}`
-
-### Import management
-
-The preprocessor automatically:
-
-- Adds `MdzPrecompiled` import
-- Adds imports required by rendered content (`DocsLink`, `Code`, `resolve`, configured components)
-- Removes the `Mdz` import when all usages are transformed and the identifier is not referenced elsewhere
-- Removes dead `const` bindings that were only consumed by transformed content
+- **Runtime** — `ApiModule` / `DeclarationDetail` set `mdz_code_context` /
+  `mdz_codeblock_context` (via `set_mdz_context_with_fallback`) before rendering
+  `<Mdz>`.
+- **Build time** — `svelte.config.js` passes `code_component_import` /
+  `codeblock_component_import` to `svelte_preprocess_mdz`.
 
 ## Context system
 
@@ -284,12 +215,11 @@ All contexts use the standardized pattern via `context_helpers.ts`:
 - `tomes_context` - available documentation (Map<string, Tome>)
 - `tome_context` - current documentation page (Tome)
 - `docs_links_context` - documentation navigation (DocsLinks class)
-- `mdz_components_context` - custom mdz components (getter)
-- `mdz_elements_context` - allowed HTML elements (getter)
-- `mdz_base_context` - base path for relative link resolution (getter)
 
-All three use getter pattern (`() => value | undefined`). Set via `MdzRoot` component
-or directly with `context.set(() => value)`.
+The mdz contexts (`mdz_code_context`, `mdz_codeblock_context`, `mdz_base_context`,
+`mdz_components_context`, `mdz_elements_context`) are defined in `@fuzdev/mdz`; fuz_ui
+sets the code/codeblock ones to inject `DocsLink` / fuz_code `Code` (see mdz rendering
+above).
 
 **Contextmenu:**
 
@@ -315,7 +245,7 @@ API docs.
 
 **API documentation** - auto-generated from TypeScript/Svelte source with full
 TSDoc support. Two-phase architecture: TSDoc extraction at build time
-(via `svelte-docinfo`), mdz rendering at runtime (`mdz.ts`). Setup
+(via `svelte-docinfo`), mdz rendering at runtime (via `@fuzdev/mdz`). Setup
 requires the `svelte-docinfo` Vite plugin (which exposes
 `virtual:svelte-docinfo`) and API routes. See `src/routes/docs/api/` for
 example routes.
@@ -359,20 +289,18 @@ regenerate with update tasks.
 
 ### Fixture categories
 
-| Category                          | Input file     | Tests                               |
-| --------------------------------- | -------------- | ----------------------------------- |
-| `fixtures/mdz/`                   | `input.mdz`    | mdz parser (`mdz_parse`)            |
-| `fixtures/tsdoc/`                 | `input.ts`     | TSDoc/JSDoc parsing (`tsdoc_parse`) |
-| `fixtures/ts/`                    | `input.ts`     | TypeScript declaration analysis     |
-| `fixtures/svelte/`                | `input.svelte` | Svelte component analysis           |
-| `fixtures/svelte_preprocess_mdz/` | `input.svelte` | mdz preprocessor transforms         |
+| Category          | Input file     | Tests                               |
+| ----------------- | -------------- | ----------------------------------- |
+| `fixtures/tsdoc/` | `input.ts`     | TSDoc/JSDoc parsing (`tsdoc_parse`) |
+| `fixtures/ts/`    | `input.ts`     | TypeScript declaration analysis     |
+| `fixtures/svelte/` | `input.svelte` | Svelte component analysis           |
+
+(mdz and `svelte_preprocess_mdz` fixtures moved to `@fuzdev/mdz`.)
 
 ### Regenerating fixtures
 
 ```bash
 gro src/test/fixtures/update                        # all categories
-gro src/test/fixtures/mdz/update                    # mdz only
-gro src/test/fixtures/svelte_preprocess_mdz/update  # preprocessor only
 gro src/test/fixtures/tsdoc/update                  # tsdoc only
 gro src/test/fixtures/ts/update                     # ts only
 gro src/test/fixtures/svelte/update                 # svelte only
@@ -381,18 +309,17 @@ gro src/test/fixtures/svelte/update                 # svelte only
 ### Adding a fixture
 
 1. Create a new directory under the appropriate category (e.g.
-   `fixtures/mdz/my_new_case/`)
-2. Add the input file (`input.mdz`, `input.ts`, or `input.svelte`)
+   `fixtures/ts/my_new_case/`)
+2. Add the input file (`input.ts` or `input.svelte`)
 3. Run the category's update task to generate `expected.json`
 4. Run `gro test` to verify
-
-For `svelte_preprocess_mdz` fixtures, input files with fake imports need
-`// @ts-nocheck` in the script block.
 
 ## Related projects
 
 - [`fuz_css`](../fuz_css/CLAUDE.md) - CSS framework (peer dependency)
 - [`fuz_util`](../fuz_util/CLAUDE.md) - utility functions (peer dependency)
+- [`mdz`](../mdz/CLAUDE.md) - markdown dialect rendered throughout the docs (optional peer)
+- [`fuz_code`](../fuz_code/CLAUDE.md) - syntax highlighting injected into mdz code blocks (peer)
 - [`svelte-docinfo`](../svelte-docinfo/CLAUDE.md) - TypeScript/Svelte static analysis (dependency)
 - [`fuz_template`](../fuz_template/CLAUDE.md) - starter template using fuz_ui
 - [`fuz_blog`](../fuz_blog/CLAUDE.md) - blog template using fuz_ui
