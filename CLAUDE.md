@@ -117,6 +117,7 @@ helpers (`generateImport`, `getDisplayName` from `declaration-helpers.js`).
 - `Hashlink` - hash anchor links
 - `TomeLink`, `DeclarationLink`, `ModuleLink` - docs navigation
 - `GithubLink`, `MdnLink` - external reference links
+- `ProjectLinks` - @fuzdev ecosystem package grid; add an entry inline and a matching logo in `logos.ts`
 
 ### Documentation
 
