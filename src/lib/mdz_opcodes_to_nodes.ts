@@ -16,16 +16,8 @@ import {DEV} from 'esm-env';
 import type {
 	MdzNode,
 	MdzTextNode,
-	MdzBoldNode,
-	MdzItalicNode,
-	MdzStrikethroughNode,
 	MdzLinkNode,
-	MdzParagraphNode,
 	MdzHeadingNode,
-	MdzHrNode,
-	MdzCodeblockNode,
-	MdzElementNode,
-	MdzComponentNode,
 	MdzCodeNode,
 } from './mdz.js';
 import type {MdzOpcode, MdzNodeId} from './mdz_opcodes.js';
@@ -108,8 +100,8 @@ export const mdz_opcodes_to_nodes = (opcodes: Array<MdzOpcode>): Array<MdzNode> 
 			case 'text': {
 				const node: MdzTextNode | MdzCodeNode =
 					op.text_type === 'Code'
-						? ({type: 'Code', content: op.content, start: op.start, end: op.end} as MdzCodeNode)
-						: ({type: 'Text', content: op.content, start: op.start, end: op.end} as MdzTextNode);
+						? {type: 'Code', content: op.content, start: op.start, end: op.end}
+						: {type: 'Text', content: op.content, start: op.start, end: op.end};
 				text_nodes.set(op.id, node);
 				const dest = target();
 				dest.push(node);
@@ -140,7 +132,7 @@ export const mdz_opcodes_to_nodes = (opcodes: Array<MdzOpcode>): Array<MdzNode> 
 					if (existing.content.length === 0) {
 						const parent = node_parents.get(op.id);
 						if (parent) {
-							const idx = parent.indexOf(existing as MdzNode);
+							const idx = parent.indexOf(existing);
 							if (idx !== -1) parent.splice(idx, 1);
 						}
 						text_nodes.delete(op.id);
@@ -151,7 +143,7 @@ export const mdz_opcodes_to_nodes = (opcodes: Array<MdzOpcode>): Array<MdzNode> 
 			}
 
 			case 'void': {
-				target().push({type: 'Hr', start: op.start, end: op.end} as MdzHrNode);
+				target().push({type: 'Hr', start: op.start, end: op.end});
 				break;
 			}
 
@@ -190,7 +182,7 @@ export const mdz_opcodes_to_nodes = (opcodes: Array<MdzOpcode>): Array<MdzNode> 
 								content: op.replacement_text,
 								start: op.start,
 								end: op.start + op.replacement_text.length,
-							} as MdzTextNode);
+							});
 						}
 						for (const child of reverted_frame.children) {
 							mdz_push_merging_text(wrapper.children, child);
@@ -208,7 +200,7 @@ export const mdz_opcodes_to_nodes = (opcodes: Array<MdzOpcode>): Array<MdzNode> 
 								content: op.replacement_text,
 								start: op.start,
 								end: op.start + op.replacement_text.length,
-							} as MdzTextNode);
+							});
 						}
 						for (const child of reverted_frame.children) {
 							mdz_push_merging_text(dest, child);
@@ -223,7 +215,7 @@ export const mdz_opcodes_to_nodes = (opcodes: Array<MdzOpcode>): Array<MdzNode> 
 				const parent_children = node_parents.get(op.target_id);
 				if (!text_node || !parent_children) break;
 
-				const idx = parent_children.indexOf(text_node as MdzNode);
+				const idx = parent_children.indexOf(text_node);
 				if (idx === -1) break;
 
 				// handle trailing punctuation trim
@@ -237,7 +229,7 @@ export const mdz_opcodes_to_nodes = (opcodes: Array<MdzOpcode>): Array<MdzNode> 
 						content: trimmed_content,
 						start: text_node.end,
 						end: text_node.end + trimmed_content.length,
-					} as MdzTextNode;
+					};
 					text_nodes.set(op.trim_id, trimmed_node);
 					node_parents.set(op.trim_id, parent_children);
 				}
@@ -246,7 +238,7 @@ export const mdz_opcodes_to_nodes = (opcodes: Array<MdzOpcode>): Array<MdzNode> 
 				const link: MdzLinkNode = {
 					type: 'Link',
 					reference: op.reference,
-					children: [text_node as MdzNode],
+					children: [text_node],
 					link_type: op.link_type,
 					start: op.start,
 					end: op.end,
@@ -256,7 +248,7 @@ export const mdz_opcodes_to_nodes = (opcodes: Array<MdzOpcode>): Array<MdzNode> 
 				if (trimmed_node) {
 					parent_children.splice(idx, 1, link as MdzNode, trimmed_node as MdzNode);
 				} else {
-					parent_children[idx] = link as MdzNode;
+					parent_children[idx] = link;
 				}
 
 				node_parents.delete(op.target_id);
@@ -286,7 +278,7 @@ const build_node = (frame: StackFrame): MdzNode | null => {
 				children,
 				start: children[0]!.start,
 				end: children[children.length - 1]!.end,
-			} as MdzParagraphNode;
+			};
 		}
 
 		case 'Heading': {
@@ -308,7 +300,7 @@ const build_node = (frame: StackFrame): MdzNode | null => {
 				children: mdz_merge_adjacent_text(frame.children),
 				start: frame.start,
 				end: frame.end!,
-			} as MdzBoldNode;
+			};
 
 		case 'Italic':
 			return {
@@ -316,7 +308,7 @@ const build_node = (frame: StackFrame): MdzNode | null => {
 				children: mdz_merge_adjacent_text(frame.children),
 				start: frame.start,
 				end: frame.end!,
-			} as MdzItalicNode;
+			};
 
 		case 'Strikethrough':
 			return {
@@ -324,7 +316,7 @@ const build_node = (frame: StackFrame): MdzNode | null => {
 				children: mdz_merge_adjacent_text(frame.children),
 				start: frame.start,
 				end: frame.end!,
-			} as MdzStrikethroughNode;
+			};
 
 		case 'Link':
 			return {
@@ -334,7 +326,7 @@ const build_node = (frame: StackFrame): MdzNode | null => {
 				link_type: frame.link_type ?? 'internal',
 				start: frame.start,
 				end: frame.end!,
-			} as MdzLinkNode;
+			};
 
 		case 'Code': {
 			// optimistic inline code container — concatenate children text into leaf MdzCodeNode
@@ -347,7 +339,7 @@ const build_node = (frame: StackFrame): MdzNode | null => {
 				content,
 				start: frame.start,
 				end: frame.end!,
-			} as MdzCodeNode;
+			};
 		}
 
 		case 'Codeblock': {
@@ -362,7 +354,7 @@ const build_node = (frame: StackFrame): MdzNode | null => {
 				content,
 				start: frame.start,
 				end: frame.end!,
-			} as MdzCodeblockNode;
+			};
 		}
 
 		case 'Element':
@@ -372,7 +364,7 @@ const build_node = (frame: StackFrame): MdzNode | null => {
 				children: mdz_merge_adjacent_text(frame.children),
 				start: frame.start,
 				end: frame.end!,
-			} as MdzElementNode;
+			};
 
 		case 'Component':
 			return {
@@ -381,7 +373,7 @@ const build_node = (frame: StackFrame): MdzNode | null => {
 				children: mdz_merge_adjacent_text(frame.children),
 				start: frame.start,
 				end: frame.end!,
-			} as MdzComponentNode;
+			};
 
 		default:
 			return null;
