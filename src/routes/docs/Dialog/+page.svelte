@@ -8,6 +8,7 @@
 	import Dialog from '$lib/Dialog.svelte';
 	import TomeLink from '$lib/TomeLink.svelte';
 	import MdnLink from '$lib/MdnLink.svelte';
+	import DeclarationLink from '$lib/DeclarationLink.svelte';
 	import Dialogs from '$lib/Dialogs.svelte';
 	import {
 		dialog_layouts,
@@ -139,7 +140,7 @@
 				<div class="pane p_xl width_atmost_md">
 					{#if selected_layout === 'page'}
 						<p>
-							This is a <code>Dialog</code> with
+							This is a <DeclarationLink name="Dialog" /> with
 							<code
 								>layout="<select bind:value={selected_layout}
 									>{#each dialog_layouts as layout (layout)}
@@ -154,7 +155,7 @@
 						</p>
 					{:else if selected_layout === 'centered'}
 						<p>
-							This is a <code>Dialog</code> with
+							This is a <DeclarationLink name="Dialog" /> with
 							<code
 								>layout="<select bind:value={selected_layout}
 									>{#each dialog_layouts as layout (layout)}

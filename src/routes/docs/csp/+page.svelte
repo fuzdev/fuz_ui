@@ -135,8 +135,8 @@ const csp_blank = create_csp_directives({
 			content={`create_csp_directives({
   extend: [
     {
-      'img-src': ['https://cdn.example.com/'],
-      'connect-src': ['https://api.example.com/'],
+      'img-src': ['https://cdn.fuz.dev/'],
+      'connect-src': ['https://api.fuz.dev/'],
     },
   ],
 });`}
@@ -153,8 +153,8 @@ create_csp_directives({
   extend: [
     csp_directives_of_fuzdev,
     {
-      'connect-src': ['https://api.example.com/'],
-      'img-src': ['https://media.example.com/'],
+      'connect-src': ['https://api.fuz.dev/'],
+      'img-src': ['https://media.fuz.dev/'],
     },
   ],
 });`}
@@ -182,7 +182,7 @@ create_csp_directives({
 		<Code
 			lang="ts"
 			content={`create_csp_directives({
-  extend: [{'connect-src': ['https://api.example.com/']}],
+  extend: [{'connect-src': ['https://api.fuz.dev/']}],
   overrides: {
     // Wholesale replace — drops the connect-src extend output above.
     'connect-src': ['self'],

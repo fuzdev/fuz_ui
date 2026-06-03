@@ -3,14 +3,11 @@ import {tsdoc_see_to_mdz} from '$lib/tsdoc_mdz.js';
 
 describe('tsdoc_see_to_mdz', () => {
 	test('converts {@link url|text} to markdown link', () => {
-		assert.equal(
-			tsdoc_see_to_mdz('{@link https://example.com|Example}'),
-			'[Example](https://example.com)',
-		);
+		assert.equal(tsdoc_see_to_mdz('{@link https://fuz.dev|Example}'), '[Example](https://fuz.dev)');
 	});
 
 	test('converts {@link url} to bare URL', () => {
-		assert.equal(tsdoc_see_to_mdz('{@link https://example.com}'), 'https://example.com');
+		assert.equal(tsdoc_see_to_mdz('{@link https://fuz.dev}'), 'https://fuz.dev');
 	});
 
 	test('converts {@link identifier} to backticks', () => {
@@ -18,7 +15,7 @@ describe('tsdoc_see_to_mdz', () => {
 	});
 
 	test('passes through bare URL', () => {
-		assert.equal(tsdoc_see_to_mdz('https://example.com'), 'https://example.com');
+		assert.equal(tsdoc_see_to_mdz('https://fuz.dev'), 'https://fuz.dev');
 	});
 
 	test('wraps bare identifier in backticks', () => {
@@ -34,15 +31,15 @@ describe('tsdoc_see_to_mdz', () => {
 	});
 
 	test('handles http:// URLs in {@link}', () => {
-		assert.equal(tsdoc_see_to_mdz('{@link http://example.com}'), 'http://example.com');
+		assert.equal(tsdoc_see_to_mdz('{@link http://fuz.dev}'), 'http://fuz.dev');
 	});
 
 	test('handles bare http:// URLs', () => {
-		assert.equal(tsdoc_see_to_mdz('http://example.com'), 'http://example.com');
+		assert.equal(tsdoc_see_to_mdz('http://fuz.dev'), 'http://fuz.dev');
 	});
 
 	test('handles {@link} with http:// URL and text', () => {
-		assert.equal(tsdoc_see_to_mdz('{@link http://example.com|Docs}'), '[Docs](http://example.com)');
+		assert.equal(tsdoc_see_to_mdz('{@link http://fuz.dev|Docs}'), '[Docs](http://fuz.dev)');
 	});
 
 	test('handles complex identifiers like Foo<Bar>', () => {
@@ -68,15 +65,15 @@ describe('tsdoc_see_to_mdz', () => {
 
 	test('handles spaces around pipe', () => {
 		assert.equal(
-			tsdoc_see_to_mdz('{@link https://example.com | Example Site }'),
-			'[Example Site](https://example.com)',
+			tsdoc_see_to_mdz('{@link https://fuz.dev | Example Site }'),
+			'[Example Site](https://fuz.dev)',
 		);
 	});
 
 	test('handles multiple pipes by using first as separator', () => {
 		assert.equal(
-			tsdoc_see_to_mdz('{@link https://example.com|Text|More}'),
-			'[Text|More](https://example.com)',
+			tsdoc_see_to_mdz('{@link https://fuz.dev|Text|More}'),
+			'[Text|More](https://fuz.dev)',
 		);
 	});
 
@@ -104,8 +101,8 @@ describe('tsdoc_see_to_mdz', () => {
 
 	test('passes through URL with description as-is', () => {
 		assert.equal(
-			tsdoc_see_to_mdz('https://example.com for more info'),
-			'https://example.com for more info',
+			tsdoc_see_to_mdz('https://fuz.dev for more info'),
+			'https://fuz.dev for more info',
 		);
 	});
 

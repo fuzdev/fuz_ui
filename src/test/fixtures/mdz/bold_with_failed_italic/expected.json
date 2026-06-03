@@ -13,20 +13,8 @@
 				"children": [
 					{
 						"type": "Text",
-						"content": "bold",
+						"content": "bold_text",
 						"start": 10,
-						"end": 14
-					},
-					{
-						"type": "Text",
-						"content": "_",
-						"start": 14,
-						"end": 15
-					},
-					{
-						"type": "Text",
-						"content": "text",
-						"start": 15,
 						"end": 19
 					}
 				],

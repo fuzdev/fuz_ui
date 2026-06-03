@@ -29,7 +29,8 @@
     "preview": "vite preview",
     "deploy": "gro deploy",
     "benchmark": "gro run src/benchmarks/mdz.benchmark.ts",
-    "benchmark:save": "gro run src/benchmarks/mdz.benchmark.ts --save"
+    "benchmark:save": "gro run src/benchmarks/mdz.benchmark.ts --save",
+    "benchmark:clean": "rm -f src/benchmarks/baseline.json"
   },
   "type": "module",
   "engines": {

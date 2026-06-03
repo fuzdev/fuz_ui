@@ -7,20 +7,8 @@
 				"children": [
 					{
 						"type": "Text",
-						"content": "bold with ",
+						"content": "bold with _unclosed italic",
 						"start": 2,
-						"end": 12
-					},
-					{
-						"type": "Text",
-						"content": "_",
-						"start": 12,
-						"end": 13
-					},
-					{
-						"type": "Text",
-						"content": "unclosed italic",
-						"start": 13,
 						"end": 28
 					}
 				],

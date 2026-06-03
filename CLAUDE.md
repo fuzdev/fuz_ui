@@ -24,6 +24,18 @@ gro build     # build for production
 IMPORTANT for AI agents: Do NOT run `gro dev` - the developer will manage the
 dev server.
 
+## Benchmarks
+
+```bash
+npm run benchmark         # run mdz parser benchmarks, compare against baseline
+npm run benchmark:save    # save current results as the new baseline
+npm run benchmark:clean   # remove the local baseline (forces a fresh seed)
+```
+
+Baseline lives at `src/benchmarks/baseline.json` and is **gitignored** —
+local-only. After a fuz_util upgrade that bumps the baseline schema version,
+the next run auto-deletes the stale file with a warning; `--save` re-seeds.
+
 ## Key dependencies
 
 - Svelte 5 - component framework
@@ -123,6 +135,8 @@ helpers (`generateImport`, `getDisplayName` from `declaration-helpers.js`).
 
 - `PackageDetail`, `PackageSummary` - package info display
 - `Mdz` - renders mdz (minimal markdown dialect) content
+- `MdzStream`, `MdzStreamNodeView` - streaming mdz renderer (opcode-driven)
+- `MdzRoot` - context provider for mdz (base, components, elements)
 - `ApiIndex`, `ApiModule`, `ApiDeclarationList` - API documentation
 
 ### Utilities
@@ -138,6 +152,10 @@ helpers (`generateImport`, `getDisplayName` from `declaration-helpers.js`).
 - `theme_state.svelte.ts` - theme and color scheme management (ThemeState class)
 - `context_helpers.ts` - Svelte context utilities (`create_context()`)
 - `mdz.ts` - minimal markdown dialect parser and renderer
+- `mdz_stream_parser.ts` - streaming opcode parser (`MdzStreamParser`)
+- `mdz_opcodes.ts` - opcode type definitions for streaming parser
+- `mdz_opcodes_to_nodes.ts` - opcode-to-MdzNode tree bridge
+- `mdz_stream_state.svelte.ts` - reactive Svelte 5 state (`MdzStreamState`)
 
 ### Component helpers
 
@@ -266,8 +284,12 @@ All contexts use the standardized pattern via `context_helpers.ts`:
 - `tomes_context` - available documentation (Map<string, Tome>)
 - `tome_context` - current documentation page (Tome)
 - `docs_links_context` - documentation navigation (DocsLinks class)
-- `mdz_components_context` - custom mdz components
-- `mdz_base_context` - base path for relative link resolution
+- `mdz_components_context` - custom mdz components (getter)
+- `mdz_elements_context` - allowed HTML elements (getter)
+- `mdz_base_context` - base path for relative link resolution (getter)
+
+All three use getter pattern (`() => value | undefined`). Set via `MdzRoot` component
+or directly with `context.set(() => value)`.
 
 **Contextmenu:**
 

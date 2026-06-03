@@ -5,6 +5,7 @@
 
 import {describe, test, assert, afterEach, beforeEach, vi} from 'vitest';
 import {flushSync, tick} from 'svelte';
+import {on} from 'svelte/events';
 import {
 	unmount_component,
 	create_contextmenu_event,
@@ -91,7 +92,7 @@ export const create_shared_link_entry_tests = (
 				const window_listener = () => {
 					window_handler_called = true;
 				};
-				window.addEventListener('contextmenu', window_listener);
+				const off = on(window, 'contextmenu', window_listener);
 
 				try {
 					// Right-click on the link
@@ -117,7 +118,7 @@ export const create_shared_link_entry_tests = (
 						'event should not propagate to window handler',
 					);
 				} finally {
-					window.removeEventListener('contextmenu', window_listener);
+					off();
 				}
 			});
 
@@ -207,7 +208,7 @@ export const create_shared_link_entry_tests = (
 				const window_listener = () => {
 					window_handler_called = true;
 				};
-				window.addEventListener('contextmenu', window_listener);
+				const off = on(window, 'contextmenu', window_listener);
 
 				try {
 					// Test both links
@@ -232,7 +233,7 @@ export const create_shared_link_entry_tests = (
 						);
 					}
 				} finally {
-					window.removeEventListener('contextmenu', window_listener);
+					off();
 				}
 			});
 

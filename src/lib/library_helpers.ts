@@ -23,8 +23,8 @@ import {page} from '$app/state';
  *
  * @example
  * ```ts
- * // Assuming page.url.origin is 'https://example.com'
- * url_to_root_relative('https://example.com/docs/api')
+ * // Assuming page.url.origin is 'https://fuz.dev'
+ * url_to_root_relative('https://fuz.dev/docs/api')
  * // => '/docs/api'
  * ```
  */
