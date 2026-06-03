@@ -1,5 +1,11 @@
 # @fuzdev/fuz_ui
 
+## 0.198.1
+
+### Patch Changes
+
+- feat: add `svelte-docinfo` ([9b666c5](https://github.com/fuzdev/fuz_ui/commit/9b666c5))
+
 ## 0.198.0
 
 ### Minor Changes
