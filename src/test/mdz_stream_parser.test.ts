@@ -83,7 +83,7 @@ describe('MdzStreamParser opcodes', () => {
 
 	test('horizontal rule produces void opcode', () => {
 		const ops = collect_opcodes('---\n');
-		 
+
 		const hr = ops.find((o): o is MdzOpcodeVoid => o.type === 'void' && o.node_type === 'Hr');
 		assert.ok(hr);
 	});

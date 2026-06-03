@@ -13,13 +13,7 @@
 
 import {DEV} from 'esm-env';
 
-import type {
-	MdzNode,
-	MdzTextNode,
-	MdzLinkNode,
-	MdzHeadingNode,
-	MdzCodeNode,
-} from './mdz.js';
+import type {MdzNode, MdzTextNode, MdzLinkNode, MdzHeadingNode, MdzCodeNode} from './mdz.js';
 import type {MdzOpcode, MdzNodeId} from './mdz_opcodes.js';
 import {
 	extract_single_tag,

@@ -201,7 +201,7 @@ export const push_stack_entry = (
 	start: number,
 	optimistic: boolean = false,
 	delimiter: string = '',
-	tag_name?: string  ,
+	tag_name?: string,
 ): void => {
 	state.stack.push({
 		id,
