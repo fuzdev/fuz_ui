@@ -11,14 +11,25 @@ including parameters, props, members, overloads, intersects, and more.
 -->
 <script lang="ts">
 	import Code from '@fuzdev/fuz_code/Code.svelte';
+	import Mdz from '@fuzdev/mdz/Mdz.svelte';
+	import {tsdoc_see_to_mdz} from '@fuzdev/mdz/tsdoc_mdz.js';
+	import {
+		mdz_code_context,
+		mdz_codeblock_context,
+		set_mdz_context_with_fallback,
+	} from '@fuzdev/mdz/mdz_components.js';
 
 	import type {Declaration} from './declaration.svelte.js';
 	import TypeLink from './TypeLink.svelte';
 	import ModuleLink from './ModuleLink.svelte';
-	import Mdz from './Mdz.svelte';
-	import {tsdoc_see_to_mdz} from './tsdoc_mdz.js';
+	import DocsLink from './DocsLink.svelte';
 
 	const {declaration}: {declaration: Declaration} = $props();
+
+	// render mdz inline `code` as API-linking `DocsLink` and fenced blocks as syntax-highlighted
+	// `Code`, matching the rest of the docs — the injection mdz core leaves open
+	set_mdz_context_with_fallback(mdz_code_context, () => DocsLink);
+	set_mdz_context_with_fallback(mdz_codeblock_context, () => Code);
 </script>
 
 <!-- Metadata -->

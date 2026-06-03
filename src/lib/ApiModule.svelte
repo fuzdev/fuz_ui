@@ -1,4 +1,12 @@
 <script lang="ts">
+	import Code from '@fuzdev/fuz_code/Code.svelte';
+	import Mdz from '@fuzdev/mdz/Mdz.svelte';
+	import {
+		mdz_code_context,
+		mdz_codeblock_context,
+		set_mdz_context_with_fallback,
+	} from '@fuzdev/mdz/mdz_components.js';
+
 	import {library_context, type Library} from './library.svelte.js';
 	import {tome_get_by_slug, type Tome} from './tome.js';
 	import TomeContent from './TomeContent.svelte';
@@ -6,7 +14,7 @@
 	import TomeSectionHeader from './TomeSectionHeader.svelte';
 	import DocsSearch from './DocsSearch.svelte';
 	import ModuleLink from './ModuleLink.svelte';
-	import Mdz from './Mdz.svelte';
+	import DocsLink from './DocsLink.svelte';
 	import ApiDeclarationList from './ApiDeclarationList.svelte';
 	import {create_module_declaration_search} from './api_search.svelte.js';
 
@@ -30,6 +38,11 @@
 		 */
 		tome?: Tome;
 	} = $props();
+
+	// render mdz inline `code` as API-linking `DocsLink` and fenced blocks as syntax-highlighted
+	// `Code`, matching the rest of the docs — the injection mdz core leaves open
+	set_mdz_context_with_fallback(mdz_code_context, () => DocsLink);
+	set_mdz_context_with_fallback(mdz_codeblock_context, () => Code);
 
 	// normalize module_path to string (could be array from [...module_path] route param)
 	const module_path = $derived(

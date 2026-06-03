@@ -1,9 +1,0 @@
-[
-	{
-		"type": "Codeblock",
-		"lang": "🎉typescript",
-		"content": "const foo = 'bar';",
-		"start": 0,
-		"end": 38
-	}
-]

@@ -1,9 +1,0 @@
-[
-	{
-		"type": "Codeblock",
-		"lang": "c++",
-		"content": "int main() {}",
-		"start": 0,
-		"end": 24
-	}
-]

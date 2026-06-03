@@ -21,8 +21,6 @@ import logos from '$routes/docs/logos/+page.svelte';
 import theming from '$routes/docs/theming/+page.svelte';
 import api from '$routes/docs/api/+page.svelte';
 import intersect from '$routes/docs/intersect/+page.svelte';
-import svelte_preprocess_mdz from '$routes/docs/svelte_preprocess_mdz/+page.svelte';
-import mdz from '$routes/docs/mdz/+page.svelte';
 
 // TODO maybe decouple `related` from `Tome` to get bidirectionality for free
 
@@ -35,7 +33,7 @@ export const tomes: Array<Tome> = [
 		slug: 'introduction',
 		category: 'guide',
 		Component: introduction,
-		related_tomes: ['api', 'svelte_preprocess_mdz'],
+		related_tomes: ['api'],
 		related_modules: [],
 		related_declarations: [],
 	},
@@ -54,14 +52,6 @@ export const tomes: Array<Tome> = [
 		related_tomes: [],
 		related_modules: [],
 		related_declarations: [],
-	},
-	{
-		slug: 'svelte_preprocess_mdz',
-		category: 'helpers',
-		Component: svelte_preprocess_mdz,
-		related_tomes: ['mdz'],
-		related_modules: ['svelte_preprocess_mdz.ts', 'mdz_to_svelte.ts'],
-		related_declarations: ['svelte_preprocess_mdz', 'mdz_to_svelte', 'MdzPrecompiled'],
 	},
 	{
 		slug: 'csp',
@@ -86,31 +76,6 @@ export const tomes: Array<Tome> = [
 		related_tomes: ['LibraryDetail', 'LibrarySummary', 'Svg'],
 		related_modules: ['logos.ts'],
 		related_declarations: [],
-	},
-	{
-		slug: 'mdz',
-		category: 'helpers',
-		Component: mdz,
-		related_tomes: ['svelte_preprocess_mdz'],
-		related_modules: [
-			'mdz.ts',
-			'mdz_stream_parser.ts',
-			'mdz_stream_state.svelte.ts',
-			'mdz_opcodes.ts',
-			'mdz_opcodes_to_nodes.ts',
-		],
-		related_declarations: [
-			'Mdz',
-			'MdzRoot',
-			'MdzNodeView',
-			'MdzStream',
-			'MdzStreamNodeView',
-			'MdzStreamParser',
-			'MdzStreamState',
-			'MdzOpcode',
-			'mdz_parse',
-			'mdz_opcodes_to_nodes',
-		],
 	},
 	{
 		slug: 'Alert',

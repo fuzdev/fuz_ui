@@ -41,6 +41,7 @@
     "@fuzdev/fuz_css": ">=0.53.0",
     "@fuzdev/fuz_util": ">=0.61.1",
     "@fuzdev/gro": ">=0.199.1",
+    "@fuzdev/mdz": ">=0.1.0",
     "@jridgewell/trace-mapping": "^0.3",
     "@sveltejs/kit": "^2.47.3",
     "@types/estree": "^1",
@@ -58,6 +59,9 @@
       "optional": true
     },
     "@fuzdev/gro": {
+      "optional": true
+    },
+    "@fuzdev/mdz": {
       "optional": true
     },
     "@jridgewell/trace-mapping": {
@@ -86,6 +90,7 @@
     "@fuzdev/fuz_css": "^0.61.1",
     "@fuzdev/fuz_util": "^0.63.0",
     "@fuzdev/gro": "^0.200.0",
+    "@fuzdev/mdz": "^0.1.0",
     "@jridgewell/trace-mapping": "^0.3.31",
     "@ryanatkn/eslint-config": "^0.12.1",
     "@sveltejs/acorn-typescript": "^1.0.9",
