@@ -136,7 +136,8 @@ with file-type coloring. Uses svelte-docinfo's file type predicates for module c
 					{#if library.changelog_url}
 						<span class="title">version</span>
 						<div class="content">
-							<a class="chip" title="version" href={library.changelog_url}>{package_json.version}</a>
+							<a class="chip" title="version" href={library.changelog_url}>{package_json.version}</a
+							>
 						</div>
 					{/if}
 					{#if license_url}
