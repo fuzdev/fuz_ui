@@ -22,6 +22,7 @@ import theming from '$routes/docs/theming/+page.svelte';
 import api from '$routes/docs/api/+page.svelte';
 import intersect from '$routes/docs/intersect/+page.svelte';
 import svelte_preprocess_mdz from '$routes/docs/svelte_preprocess_mdz/+page.svelte';
+import vite_plugin_pkg_json from '$routes/docs/vite_plugin_pkg_json/+page.svelte';
 import mdz from '$routes/docs/mdz/+page.svelte';
 
 // TODO maybe decouple `related` from `Tome` to get bidirectionality for free
@@ -70,6 +71,14 @@ export const tomes: Array<Tome> = [
 		related_tomes: [],
 		related_modules: ['csp.ts'],
 		related_declarations: [],
+	},
+	{
+		slug: 'vite_plugin_pkg_json',
+		category: 'helpers',
+		Component: vite_plugin_pkg_json,
+		related_tomes: ['svelte_preprocess_mdz', 'LibraryDetail'],
+		related_modules: ['vite_plugin_pkg_json.ts'],
+		related_declarations: ['vite_plugin_pkg_json'],
 	},
 	{
 		slug: 'intersect',

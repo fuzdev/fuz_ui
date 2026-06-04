@@ -19,8 +19,8 @@
  *
  * ```ts
  * // vite.config.ts
- * import {vite_plugin_fuz_pkg} from '@fuzdev/fuz_ui/vite_plugin_fuz_pkg.js';
- * export default defineConfig({plugins: [vite_plugin_fuz_pkg(), sveltekit()]});
+ * import {vite_plugin_pkg_json} from '@fuzdev/fuz_ui/vite_plugin_pkg_json.js';
+ * export default defineConfig({plugins: [vite_plugin_pkg_json(), sveltekit()]});
  * ```
  *
  * @module
@@ -50,7 +50,7 @@ const RESOLVED_VIRTUAL_ID = '\0virtual:pkg.json';
  * Creates the `virtual:pkg.json` plugin. Zero-config for canonical fuz usage —
  * the publish-safe field set ships with `pkg_json_keys`.
  */
-export const vite_plugin_fuz_pkg = (): Plugin => {
+export const vite_plugin_pkg_json = (): Plugin => {
 	let root = '';
 	let is_dev = false;
 	/** Curated JSON cached for build; left `null` in dev so `load` re-reads. */
@@ -71,11 +71,11 @@ export const vite_plugin_fuz_pkg = (): Plugin => {
 		} catch (err) {
 			// ctx.error throws, so this never returns
 			return ctx.error(
-				`vite_plugin_fuz_pkg: failed to read or parse ${package_json_path}: ${(err as Error).message}`,
+				`vite_plugin_pkg_json: failed to read or parse ${package_json_path}: ${(err as Error).message}`,
 			);
 		}
 		if (raw.name === undefined) {
-			ctx.warn(`vite_plugin_fuz_pkg: ${package_json_path} has no "name" field`);
+			ctx.warn(`vite_plugin_pkg_json: ${package_json_path} has no "name" field`);
 		}
 		const curated: Record<string, unknown> = {};
 		for (const key of pkg_json_keys) {
@@ -85,7 +85,7 @@ export const vite_plugin_fuz_pkg = (): Plugin => {
 	};
 
 	return {
-		name: 'vite-plugin-fuz-pkg',
+		name: 'vite-plugin-pkg-json',
 		// Resolve the virtual id before other plugins claim it.
 		enforce: 'pre',
 		configResolved(config) {

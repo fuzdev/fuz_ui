@@ -2,4 +2,4 @@
 '@fuzdev/fuz_ui': minor
 ---
 
-feat: add vite `PkgJson` plugin with `'virtual:pkg.json'` import
+feat: add `vite_plugin_pkg_json` serving a curated `PkgJson` as `'virtual:pkg.json'`

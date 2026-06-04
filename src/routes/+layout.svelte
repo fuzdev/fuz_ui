@@ -7,6 +7,8 @@
 	import ThemeRoot from '$lib/ThemeRoot.svelte';
 	import ContextmenuRoot from '$lib/ContextmenuRoot.svelte';
 	import Spiders from '$lib/Spiders.svelte';
+	import package_json from 'virtual:pkg.json';
+
 	import {SiteState, site_context} from '$lib/site.svelte.js';
 	import {logo_fuz_ui} from '$lib/logos.js';
 
@@ -16,11 +18,12 @@
 		children: Snippet;
 	} = $props();
 
+	// `glyph` and `repo_url` derive from `package_json` (`glyph` + `repository`);
+	// `icon` stays explicit since it's a structured `SvgData` logo, not metadata.
 	site_context.set(
 		new SiteState({
 			icon: logo_fuz_ui,
-			glyph: '🧶',
-			repo_url: 'https://github.com/fuzdev/fuz_ui',
+			pkg: package_json,
 		}),
 	);
 </script>
