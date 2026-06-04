@@ -2,4 +2,4 @@
 '@fuzdev/fuz_ui': minor
 ---
 
-add streaming mdz parser and renderer
+feat: add streaming mdz parser and renderer
