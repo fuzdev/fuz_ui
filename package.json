@@ -48,9 +48,6 @@
     "@fuzdev/fuz_code": {
       "optional": true
     },
-    "@fuzdev/fuz_util": {
-      "optional": true
-    },
     "@fuzdev/gro": {
       "optional": true
     },
