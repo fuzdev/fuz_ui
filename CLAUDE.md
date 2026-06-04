@@ -190,16 +190,17 @@ full API. Key imports used by fuz_ui:
 ## mdz rendering
 
 mdz (parser, renderer, streaming, and the `svelte_preprocess_mdz` build-time
-preprocessor) lives in `@fuzdev/mdz` — see its CLAUDE.md. fuz_ui consumes it for
-TSDoc prose rendering and wires the rendering seam in two places, so inline code
-links API identifiers (`DocsLink`) and code blocks get syntax highlighting (fuz_code
-`Code`):
+preprocessor) lives in `@fuzdev/mdz` — see its CLAUDE.md. fuz_ui consumes it to
+render TSDoc prose, wiring the rendering seam so inline code links API identifiers
+(`DocsLink`) and code blocks get syntax highlighting (fuz_code `Code`).
 
-- **Runtime** — `ApiModule` / `DeclarationDetail` set `mdz_code_context` /
-  `mdz_codeblock_context` (via `set_mdz_context_with_fallback`) before rendering
-  `<Mdz>`.
-- **Build time** — `svelte.config.js` passes `code_component_import` /
-  `codeblock_component_import` to `svelte_preprocess_mdz`.
+All of fuz_ui's mdz is dynamic TSDoc prose, so the injection happens at **runtime**:
+`ApiModule` / `DeclarationDetail` set `mdz_code_context` / `mdz_codeblock_context`
+(via `set_mdz_context_with_fallback`) before rendering `<Mdz>`. The plain
+`svelte_preprocess_mdz()` in `svelte.config.js` is the standard ecosystem
+preprocessor (it precompiles any static `<Mdz>` content to plain markup); fuz_ui
+authors no static mdz, so it's effectively a pass-through and needs no injection
+options.
 
 ## Context system
 
