@@ -46,11 +46,11 @@ with file-type coloring. Uses svelte-docinfo's file type predicates for module c
 
 	// TODO show other data (lines of code)
 
-	const {package_json} = $derived(library);
+	const {pkg_json} = $derived(library);
 
-	const repository_url = $derived(repo_url_parse(package_json.repository));
+	const repository_url = $derived(repo_url_parse(pkg_json.repository));
 	const license_url = $derived(
-		package_json.license && repository_url ? url_github_file(repository_url, 'LICENSE') : null,
+		pkg_json.license && repository_url ? url_github_file(repository_url, 'LICENSE') : null,
 	);
 </script>
 
@@ -67,30 +67,30 @@ with file-type coloring. Uses svelte-docinfo's file type predicates for module c
 						{@render repo_name(library.repo_name)}
 					{:else}
 						<div class="repo-name">
-							{library.repo_name}{#if package_json.glyph}&nbsp;{package_json.glyph}{/if}
+							{library.repo_name}{#if pkg_json.glyph}&nbsp;{pkg_json.glyph}{/if}
 						</div>
 					{/if}
 				</header>
 				{@render children?.(library)}
-				{#if package_json.description}
+				{#if pkg_json.description}
 					{#if description}
-						{@render description(package_json.description)}
+						{@render description(pkg_json.description)}
 					{:else}
-						<div class="description">{package_json.description}</div>
+						<div class="description">{pkg_json.description}</div>
 					{/if}
 				{/if}
-				{#if package_json.tagline}
+				{#if pkg_json.tagline}
 					{#if tagline}
-						{@render tagline(package_json.tagline)}
+						{@render tagline(pkg_json.tagline)}
 					{:else}
-						<div class="tagline">{package_json.tagline}</div>
+						<div class="tagline">{pkg_json.tagline}</div>
 					{/if}
 				{/if}
 				{#if library.npm_url}
 					{#if npm_url}
 						{@render npm_url(library.npm_url)}
 					{:else}
-						<blockquote class="npm-url">npm i -D {package_json.name}</blockquote>
+						<blockquote class="npm-url">npm i -D {pkg_json.name}</blockquote>
 					{/if}
 				{/if}
 				<!-- TODO accessible HTML -->
@@ -130,20 +130,19 @@ with file-type coloring. Uses svelte-docinfo's file type predicates for module c
 					{#if library.npm_url}
 						<span class="title">npm</span>
 						<div class="content">
-							<a class="chip" title="npm" href={library.npm_url}>{package_json.name}</a>
+							<a class="chip" title="npm" href={library.npm_url}>{pkg_json.name}</a>
 						</div>
 					{/if}
 					{#if library.changelog_url}
 						<span class="title">version</span>
 						<div class="content">
-							<a class="chip" title="version" href={library.changelog_url}>{package_json.version}</a
-							>
+							<a class="chip" title="version" href={library.changelog_url}>{pkg_json.version}</a>
 						</div>
 					{/if}
 					{#if license_url}
 						<span class="title">license</span>
 						<div class="content">
-							<a class="chip" title="license" href={license_url}>{package_json.license}</a>
+							<a class="chip" title="license" href={license_url}>{pkg_json.license}</a>
 						</div>
 					{/if}
 				</section>
