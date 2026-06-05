@@ -10,6 +10,7 @@ import {
 	repo_name_parse,
 	repo_url_github_owner,
 	repo_url_parse,
+	url_github_file,
 	url_logo,
 	url_npm_package,
 } from '@fuzdev/fuz_util/package_helpers.js';
@@ -59,7 +60,7 @@ export class Library {
 	readonly published = $derived(package_is_published(this.pkg_json));
 	readonly npm_url: Url | null = $derived(this.published ? url_npm_package(this.name) : null);
 	readonly changelog_url: Url | null = $derived(
-		this.published ? this.repo_url + '/blob/main/CHANGELOG.md' : null,
+		this.published ? url_github_file(this.repo_url, 'CHANGELOG.md') : null,
 	);
 
 	/**
