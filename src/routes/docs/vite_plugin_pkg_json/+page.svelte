@@ -39,7 +39,7 @@
 			<DeclarationLink name="vite_plugin_pkg_json" /> is a Vite plugin that serves a publish-safe subset
 			of your <code>package.json</code> as the virtual module
 			<Code lang="ts" content="'virtual:pkg.json'" inline />. The default export is typed
-			<code>PkgJson</code> (from <code>@fuzdev/fuz_util/pkg_json.js</code>), containing package
+			<a href="https://util.fuz.dev/docs/api#PkgJson"><code>PkgJson</code></a>, containing package
 			identity plus the Fuz extension fields, with everything else excluded.
 		</p>
 		<p>
