@@ -57,7 +57,7 @@
 </Docs>`}
 		/>
 		<p>
-			For live and complete working examples, see the docs layouts in
+			For live and complete examples, see the docs layouts in
 			<GithubLink path="fuzdev/fuz_ui/blob/main/src/routes/docs/%2Blayout.svelte">fuz_ui</GithubLink
 			>
 			or
