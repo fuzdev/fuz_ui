@@ -8,7 +8,9 @@
  * (`scripts`, `dependencies`, `devDependencies`, private config) and trips
  * SvelteKit's `server.fs.allow` on cold HMR reloads. This plugin reads the
  * project's `package.json` at build time, strips it to `pkg_json_keys`, and
- * serves only that subset.
+ * serves only that subset. Consumers combine it with `virtual:svelte-docinfo`'s
+ * analyzed `modules` via `library_json_from_modules` to build a `LibraryJson`
+ * (see `src/routes/library.ts` for the canonical pattern).
  *
  * The `.json` suffix on the virtual id is load-bearing, mirroring how
  * `vite_plugin_fuz_css`'s `virtual:fuz.css` relies on `.css`: `load()` returns

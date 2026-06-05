@@ -26,7 +26,7 @@
 		children?: Snippet;
 	} = $props();
 
-	const {package_json} = $derived(library);
+	const {pkg_json} = $derived(library);
 </script>
 
 <div class="library-summary">
@@ -51,24 +51,24 @@
 			{/if}
 		{/if}
 	</header>
-	{#if package_json.tagline}
+	{#if pkg_json.tagline}
 		{#if tagline}
-			{@render tagline(package_json.tagline, package_json.glyph)}
+			{@render tagline(pkg_json.tagline, pkg_json.glyph)}
 		{:else}
 			<p class="panel py_md px_xl">
-				{package_json.tagline}
-				{package_json.glyph}
+				{pkg_json.tagline}
+				{pkg_json.glyph}
 			</p>
 		{/if}
 	{/if}
-	{#if package_json.description}
+	{#if pkg_json.description}
 		{#if description}
-			{@render description(package_json.description, package_json.glyph)}
+			{@render description(pkg_json.description, pkg_json.glyph)}
 		{:else}
 			<p class="text-align:center">
-				{package_json.description}
-				{#if !package_json.tagline}
-					{package_json.glyph}
+				{pkg_json.description}
+				{#if !pkg_json.tagline}
+					{pkg_json.glyph}
 				{/if}
 			</p>
 		{/if}
@@ -96,7 +96,7 @@
 		{/if}
 		{#if library.changelog_url}
 			<!-- eslint-disable-next-line svelte/no-navigation-without-resolve -->
-			<a class="chip" title="version" href={library.changelog_url}>{package_json.version}</a>
+			<a class="chip" title="version" href={library.changelog_url}>{pkg_json.version}</a>
 		{/if}
 		{#if library.npm_url}
 			<!-- eslint-disable-next-line svelte/no-navigation-without-resolve -->
@@ -108,7 +108,7 @@
 			{@render npm_url(library.npm_url)}
 		{:else}
 			<p class="panel py_md px_xl font_family_mono text-align:center">
-				npm i -D {package_json.name}
+				npm i -D {pkg_json.name}
 			</p>
 		{/if}
 	{/if}

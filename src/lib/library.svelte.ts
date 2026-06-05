@@ -34,7 +34,7 @@ export class Library {
 	 */
 	readonly url_prefix: string;
 
-	readonly package_json = $derived(this.library_json.package_json);
+	readonly pkg_json = $derived(this.library_json.pkg_json);
 	readonly source_json = $derived(this.library_json.source_json);
 
 	readonly name = $derived(this.library_json.name);

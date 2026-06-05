@@ -74,7 +74,7 @@ export class Declaration {
 		generateImport(
 			this.declaration_json as DeclarationJson,
 			this.module_path,
-			this.library.package_json.name,
+			this.library.pkg_json.name,
 		),
 	);
 

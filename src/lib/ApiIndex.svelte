@@ -34,7 +34,7 @@
 </script>
 
 <svelte:head>
-	<title>API docs - {library.package_json.name}</title>
+	<title>API docs - {library.pkg_json.name}</title>
 </svelte:head>
 
 <TomeContent {tome}>
@@ -44,7 +44,7 @@
 		</section>
 	{:else}
 		<section>
-			<p>{library.package_json.description}</p>
+			<p>{library.pkg_json.description}</p>
 
 			{#if search.modules.all.length + search.declarations.all.length > 1}
 				<DocsSearch

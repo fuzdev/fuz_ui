@@ -59,8 +59,8 @@ export default defineConfig({
 			lang="ts"
 			content={`declare module 'virtual:pkg.json' {
   import type {PkgJson} from '@fuzdev/fuz_util/pkg_json.js';
-  const package_json: PkgJson;
-  export default package_json;
+  const pkg_json: PkgJson;
+  export default pkg_json;
 }`}
 		/>
 	</TomeSection>
@@ -75,16 +75,25 @@ export default defineConfig({
 		</p>
 		<Code
 			lang="ts"
-			content={`import package_json from 'virtual:pkg.json';
+			content={`import pkg_json from 'virtual:pkg.json';
 import {SiteState, site_context} from '@fuzdev/fuz_ui/site.svelte.js';
 
-// glyph + repo_url derive from package_json.glyph and package_json.repository
-site_context.set(new SiteState({pkg: package_json}));`}
+// glyph + repo_url derive from pkg_json.glyph and pkg_json.repository
+site_context.set(new SiteState({pkg: pkg_json}));`}
 		/>
 		<p>
-			It's also the source for <code>LibraryJson.package_json</code> — the package metadata rendered by
-			the library and API docs.
+			It's also the curated <code>pkg_json</code> half of a <code>LibraryJson</code>. The canonical
+			pattern combines it with the analyzed <code>modules</code> from
+			<code>virtual:svelte-docinfo</code> — put this in <code>src/routes/library.ts</code>:
 		</p>
+		<Code
+			lang="ts"
+			content={`import {library_json_from_modules} from '@fuzdev/fuz_util/library_json.js';
+import {modules} from 'virtual:svelte-docinfo';
+import pkg_json from 'virtual:pkg.json';
+
+export const library_json = library_json_from_modules(pkg_json, modules);`}
+		/>
 	</TomeSection>
 
 	<TomeSection>
@@ -102,7 +111,7 @@ logo, logo_alt, license, homepage, repository, funding, exports`}
 			<code>exports</code> and <code>private</code> are kept because
 			<code>library_json_parse</code> derives <code>published</code> from them. The type is strict
 			and <code>Pick</code>ed from the same list, so the runtime strip and the type can't drift —
-			accessing a stripped field like <code>package_json.scripts</code> is a compile error.
+			accessing a stripped field like <code>pkg_json.scripts</code> is a compile error.
 		</p>
 	</TomeSection>
 
