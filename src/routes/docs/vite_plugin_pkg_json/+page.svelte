@@ -21,15 +21,15 @@
 		version: 'published version',
 		private: "unpublished flag (feeds a library's published status)",
 		description: 'short description',
+		tagline: 'Fuz extension field',
+		glyph: 'Fuz extension field (emoji or character icon)',
+		logo: 'Fuz extension field (logo image path)',
+		logo_alt: 'Fuz extension field (logo alt text)',
 		license: 'SPDX license id',
 		homepage: 'homepage URL',
 		repository: 'source repository (feeds repo_url)',
 		funding: 'funding info',
 		exports: "package entry points (feeds a library's published status)",
-		tagline: 'Fuz extension field',
-		glyph: 'Fuz extension field (emoji or character icon)',
-		logo: 'Fuz extension field (logo image path)',
-		logo_alt: 'Fuz extension field (logo alt text)',
 	};
 </script>
 
