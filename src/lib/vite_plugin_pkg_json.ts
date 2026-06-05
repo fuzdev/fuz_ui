@@ -31,7 +31,8 @@
 import {readFileSync} from 'node:fs';
 import {join} from 'node:path';
 import type {Plugin, Rollup} from 'vite';
-import {pkg_json_keys} from '@fuzdev/fuz_util/pkg_json.js';
+import type {PackageJson} from '@fuzdev/fuz_util/package_json.js';
+import {pkg_json_from_package_json} from '@fuzdev/fuz_util/pkg_json.js';
 
 const VIRTUAL_ID = 'virtual:pkg.json';
 /**
@@ -59,17 +60,19 @@ export const vite_plugin_pkg_json = (): Plugin => {
 	let cached: string | null = null;
 
 	/**
-	 * Reads `package.json`, strips it to `pkg_json_keys`, and returns the curated
-	 * JSON text. Routes failures through the plugin context (`ctx.error`/`ctx.warn`)
-	 * so a missing or malformed file surfaces as a named, actionable diagnostic
-	 * rather than a raw `readFileSync`/`JSON.parse` stack trace.
+	 * Reads `package.json`, strips it to the publish-safe `PkgJson` subset via
+	 * `pkg_json_from_package_json` (the same strip the runtime uses, so the two
+	 * can't drift), and returns the curated JSON text. Routes failures through the
+	 * plugin context (`ctx.error`/`ctx.warn`) so a missing or malformed file
+	 * surfaces as a named, actionable diagnostic rather than a raw
+	 * `readFileSync`/`JSON.parse` stack trace.
 	 */
 	const read_curated = (ctx: Rollup.PluginContext): string => {
 		const package_json_path = join(root, 'package.json');
 		ctx.addWatchFile(package_json_path); // re-emit when package.json changes
-		let raw: Record<string, unknown>;
+		let raw: PackageJson;
 		try {
-			raw = JSON.parse(readFileSync(package_json_path, 'utf8')) as Record<string, unknown>;
+			raw = JSON.parse(readFileSync(package_json_path, 'utf8')) as PackageJson;
 		} catch (err) {
 			// ctx.error throws, so this never returns
 			return ctx.error(
@@ -79,11 +82,7 @@ export const vite_plugin_pkg_json = (): Plugin => {
 		if (raw.name === undefined) {
 			ctx.warn(`vite_plugin_pkg_json: ${package_json_path} has no "name" field`);
 		}
-		const curated: Record<string, unknown> = {};
-		for (const key of pkg_json_keys) {
-			if (raw[key] !== undefined) curated[key] = raw[key];
-		}
-		return JSON.stringify(curated);
+		return JSON.stringify(pkg_json_from_package_json(raw));
 	};
 
 	return {
