@@ -63,19 +63,12 @@ import {sveltekit} from '@sveltejs/kit/vite';
 import {vite_plugin_pkg_json} from '@fuzdev/fuz_ui/vite_plugin_pkg_json.js';
 
 export default defineConfig({
-  plugins: [vite_plugin_pkg_json(), sveltekit()],
+  plugins: [sveltekit(), vite_plugin_pkg_json()],
 });`}
 		/>
 		<p>
-			Plugin order is unconstrained. The plugin uses <code>enforce: 'pre'</code>, so it claims
-			<code>virtual:pkg.json</code> before other plugins resolve it.
-		</p>
-		<p>
-			The plugin call takes no required options. The served field set defaults to
-			<a href="https://util.fuz.dev/docs/api#pkg_json_keys"><code>pkg_json_keys</code></a> (widen it
-			via <code>keys</code>, see Custom keys below). It does still need an ambient declaration so
-			the default export type-checks, in
-			<code>src/app.d.ts</code>:
+			The plugin uses <code>enforce: 'pre'</code> so order does not matter. For TypeScript it
+			requires ambient declarations, like in <code>src/app.d.ts</code>:
 		</p>
 		<Code
 			lang="ts"
@@ -155,7 +148,7 @@ export const library_json = library_json_from_modules(pkg_json, modules);`}
 			content={`// src/routes/pkg_json_keys.ts — one shared const for all three sites
 import {pkg_json_keys} from '@fuzdev/fuz_util/pkg_json.js';
 
-export const pkg_json_keys_custom = [...pkg_json_keys, 'keywords'] as const;`}
+export const custom_keys = [...pkg_json_keys, 'keywords'] as const;`}
 		/>
 		<p>
 			Because <code>library_json_from_modules</code> re-strips at runtime, the <em>same</em> list
@@ -165,10 +158,10 @@ export const pkg_json_keys_custom = [...pkg_json_keys, 'keywords'] as const;`}
 		<Code
 			lang="ts"
 			content={`// vite.config.ts
-vite_plugin_pkg_json({keys: pkg_json_keys_custom});
+vite_plugin_pkg_json({keys: custom_keys});
 
 // src/routes/library.ts
-library_json_from_modules(pkg_json, modules, pkg_json_keys_custom);`}
+library_json_from_modules(pkg_json, modules, custom_keys);`}
 		/>
 		<p>
 			The extra fields are served at runtime but stay outside the static <code>PkgJson</code> type;
@@ -176,20 +169,6 @@ library_json_from_modules(pkg_json, modules, pkg_json_keys_custom);`}
 		</p>
 	</TomeSection>
 
-	<TomeSection>
-		<TomeSectionHeader text="Build vs dev" />
-		<ul>
-			<li>
-				fail-fast — a missing or malformed <code>package.json</code> surfaces as a named
-				<code>vite_plugin_pkg_json</code> diagnostic immediately, not when something first imports
-				the module. A missing <code>name</code> field is a non-fatal warning. The curated module still
-				serves.
-			</li>
-			<li>
-				dev — edits to <code>package.json</code> propagate through a reload; build serves a stable value.
-			</li>
-		</ul>
-	</TomeSection>
 	<aside>
 		For more, see <ModuleLink module_path="vite_plugin_pkg_json.ts" />, the
 		<GithubLink path="fuzdev/fuz_ui/blob/main/src/lib/vite_plugin_pkg_json.ts"
