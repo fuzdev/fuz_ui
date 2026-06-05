@@ -65,20 +65,20 @@ export const tomes: Array<Tome> = [
 		related_declarations: ['svelte_preprocess_mdz', 'mdz_to_svelte', 'MdzPrecompiled'],
 	},
 	{
-		slug: 'csp',
-		category: 'helpers',
-		Component: csp,
-		related_tomes: [],
-		related_modules: ['csp.ts'],
-		related_declarations: [],
-	},
-	{
 		slug: 'vite_plugin_pkg_json',
 		category: 'helpers',
 		Component: vite_plugin_pkg_json,
 		related_tomes: ['svelte_preprocess_mdz', 'LibraryDetail'],
 		related_modules: ['vite_plugin_pkg_json.ts'],
 		related_declarations: ['vite_plugin_pkg_json'],
+	},
+	{
+		slug: 'csp',
+		category: 'helpers',
+		Component: csp,
+		related_tomes: [],
+		related_modules: ['csp.ts'],
+		related_declarations: [],
 	},
 	{
 		slug: 'intersect',
