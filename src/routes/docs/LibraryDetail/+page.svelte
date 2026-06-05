@@ -21,8 +21,14 @@
 		<p>
 			<DeclarationLink name="LibraryDetail" /> renders the full metadata for a library and its repo, including
 			its module and declaration index. It takes a
-			<DeclarationLink name="Library" />, built from the curated <code>pkg_json</code> served by
-			<TomeLink slug="vite_plugin_pkg_json" /> combined with the analyzed <code>modules</code> from
+			<DeclarationLink name="Library" />, built from the <code>package.json</code> subset <Code
+				lang="ts"
+				content="'virtual:pkg_json'"
+				inline
+			/>
+			served by
+			<TomeLink slug="vite_plugin_pkg_json" /> combined with the analyzed <code>modules</code>
+			from
 			<a href="https://svelte-docinfo.fuz.dev/"><code>virtual:svelte-docinfo</code></a>:
 		</p>
 		<Code
