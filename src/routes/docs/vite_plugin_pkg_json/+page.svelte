@@ -138,10 +138,9 @@ export const library_json = library_json_from_modules(pkg_json, modules);`}
 	<TomeSection>
 		<TomeSectionHeader text="Custom keys" />
 		<p>
-			The kept field set defaults to <a href="https://util.fuz.dev/docs/api#pkg_json_keys"
+			The set of picked fields defaults to <a href="https://util.fuz.dev/docs/api#pkg_json_keys"
 				><code>pkg_json_keys</code></a
-			>. To expose extra publish-safe fields, pass a wider <code>keys</code> list, composed from the default
-			with a spread so the curated fields stay in:
+			>, and you can extend or replace them:
 		</p>
 		<Code
 			lang="ts"
@@ -151,8 +150,8 @@ import {pkg_json_keys} from '@fuzdev/fuz_util/pkg_json.js';
 export const custom_keys = [...pkg_json_keys, 'keywords'] as const;`}
 		/>
 		<p>
-			Because <code>library_json_from_modules</code> re-strips at runtime, the <em>same</em> list
-			has to reach all three places (the plugin, that runtime call, and the
+			Because <code>library_json_from_modules</code> re-strips at runtime, the same list must reach
+			all three places (the plugin, that runtime call, and the
 			<code>virtual:pkg.json</code> ambient type), or the extras get dropped:
 		</p>
 		<Code
@@ -164,8 +163,8 @@ vite_plugin_pkg_json({keys: custom_keys});
 library_json_from_modules(pkg_json, modules, custom_keys);`}
 		/>
 		<p>
-			The extra fields are served at runtime but stay outside the static <code>PkgJson</code> type;
-			widen the <code>virtual:pkg.json</code> declaration in <code>src/app.d.ts</code> to type them.
+			For type safety also update the <code>src/app.d.ts</code>
+			declaration described in <a href="#Setup">Setup</a>.
 		</p>
 	</TomeSection>
 
