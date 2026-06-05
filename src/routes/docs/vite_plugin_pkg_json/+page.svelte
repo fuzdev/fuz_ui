@@ -108,8 +108,8 @@ export const library_json = library_json_from_modules(pkg_json, modules);`}
 logo, logo_alt, license, homepage, repository, funding, exports`}
 		/>
 		<p>
-			<code>exports</code> and <code>private</code> are kept because
-			<code>library_json_parse</code> derives <code>published</code> from them. The type is strict
+			<code>exports</code> and <code>private</code> are kept because a consumer derives a
+			library's <code>published</code> status from them. The type is strict
 			and <code>Pick</code>ed from the same list, so the runtime strip and the type can't drift —
 			accessing a stripped field like <code>pkg_json.scripts</code> is a compile error.
 		</p>

@@ -2,7 +2,7 @@ import type {Url} from '@fuzdev/fuz_util/url.js';
 import type {PkgJson} from '@fuzdev/fuz_util/pkg_json.js';
 
 import {create_context} from './context_helpers.js';
-import {repo_url_parse} from './package_helpers.js';
+import {repo_url_parse} from '@fuzdev/fuz_util/package_helpers.js';
 import type {SvgData} from './svg.js';
 
 export interface SiteStateOptions {

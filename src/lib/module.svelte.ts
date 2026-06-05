@@ -2,7 +2,7 @@ import type {ModuleJsonInput} from 'svelte-docinfo/types.js';
 
 import {Declaration} from './declaration.svelte.js';
 import type {Library} from './library.svelte.js';
-import {url_github_file} from './package_helpers.js';
+import {url_github_file} from '@fuzdev/fuz_util/package_helpers.js';
 
 /**
  * Rich runtime representation of a module with computed properties.

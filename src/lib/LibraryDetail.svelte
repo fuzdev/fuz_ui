@@ -16,7 +16,7 @@ with file-type coloring. Uses svelte-docinfo's file type predicates for module c
 	import ImgOrSvg from './ImgOrSvg.svelte';
 	import DeclarationLink from './DeclarationLink.svelte';
 	import ModuleLink from './ModuleLink.svelte';
-	import {url_github_file, repo_url_parse} from './package_helpers.js';
+	import {url_github_file} from '@fuzdev/fuz_util/package_helpers.js';
 	import {isTypescript, isSvelte, isCss, isJson} from 'svelte-docinfo/source.js';
 
 	const {
@@ -48,9 +48,8 @@ with file-type coloring. Uses svelte-docinfo's file type predicates for module c
 
 	const {pkg_json} = $derived(library);
 
-	const repository_url = $derived(repo_url_parse(pkg_json.repository));
 	const license_url = $derived(
-		pkg_json.license && repository_url ? url_github_file(repository_url, 'LICENSE') : null,
+		pkg_json.license ? url_github_file(library.repo_url, 'LICENSE') : null,
 	);
 </script>
 
