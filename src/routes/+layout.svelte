@@ -23,7 +23,7 @@
 	site_context.set(
 		new SiteState({
 			icon: logo_fuz_ui,
-			pkg: pkg_json,
+			pkg_json,
 		}),
 	);
 </script>

@@ -81,7 +81,7 @@ export default defineConfig({
 		</p>
 		<Code
 			lang="ts"
-			content={`declare module 'virtual:pkg.json' {
+			content={`// src/app.d.ts\ndeclare module 'virtual:pkg.json' {
   import type {PkgJson} from '@fuzdev/fuz_util/pkg_json.js';
   const pkg_json: PkgJson;
   export default pkg_json;
@@ -103,7 +103,7 @@ export default defineConfig({
 import {SiteState, site_context} from '@fuzdev/fuz_ui/site.svelte.js';
 
 // glyph + repo_url derive from pkg_json.glyph and pkg_json.repository
-site_context.set(new SiteState({pkg: pkg_json}));`}
+site_context.set(new SiteState({pkg_json}));`}
 		/>
 		<p>
 			It's also the curated <code>pkg_json</code> half of a <code>LibraryJson</code> (rendered by
