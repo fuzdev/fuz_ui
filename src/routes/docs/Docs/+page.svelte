@@ -11,6 +11,7 @@
 </script>
 
 <!-- eslint-disable svelte/no-useless-mustaches -->
+<!-- eslint-disable no-useless-escape -->
 
 <TomeContent {tome}>
 	<section>
