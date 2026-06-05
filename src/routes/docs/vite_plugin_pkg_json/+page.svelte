@@ -17,19 +17,19 @@
 	// Supplemental notes for the served keys; the set itself comes from `pkg_json_keys`
 	// so the list can't drift from the source. New keys render without a note.
 	const key_notes: Partial<Record<(typeof pkg_json_keys)[number], string>> = {
-		name: 'package name',
-		version: 'published version',
-		private: "unpublished flag (feeds a library's published status)",
-		description: 'short description',
-		tagline: 'Fuz extension field',
-		glyph: 'Fuz extension field (emoji or character icon)',
-		logo: 'Fuz extension field (logo image path)',
-		logo_alt: 'Fuz extension field (logo alt text)',
-		license: 'SPDX license id',
-		homepage: 'homepage URL',
-		repository: 'source repository (feeds repo_url)',
-		funding: 'funding info',
-		exports: "package entry points (feeds a library's published status)",
+		name: '',
+		version: '',
+		private: '',
+		description: '',
+		tagline: 'Fuz extension, like description but snappier',
+		glyph: 'Fuz extension, emoji or character icon',
+		logo: 'Fuz extension, logo image path',
+		logo_alt: 'Fuz extension, logo alt text',
+		license: '',
+		homepage: '',
+		repository: '',
+		funding: '',
+		exports: '',
 	};
 </script>
 
@@ -39,14 +39,16 @@
 			<DeclarationLink name="vite_plugin_pkg_json" /> is a Vite plugin that serves a publish-safe subset
 			of your <code>package.json</code> as the virtual module
 			<Code lang="ts" content="'virtual:pkg.json'" inline />. The default export is typed
-			<a href="https://util.fuz.dev/docs/api#PkgJson"><code>PkgJson</code></a>, containing package
-			identity plus the Fuz extension fields, with everything else excluded.
+			<a href="https://util.fuz.dev/docs/api#PkgJson"><code>PkgJson</code></a> from fuz_util, and contains
+			package identity plus Fuz extension fields, with everything else excluded.
 		</p>
 		<p>
-			Apps can use package info like name/version/repository and the Fuz extension fields like logo
-			for things like library docs, e.g. the <TomeLink slug="Breadcrumb" /> above uses it for the icon
-			to avoid redeclaring data and threading props. The plugin strips <code>package.json</code> to the
-			allowlist and serves only that.
+			The plugin strips <code>package.json</code> to the allowlist and serves only that. This makes
+			info like name/version/repository and the Fuz extension fields like logo available to your
+			code. The docs system around the content you're reading relies on it, and it's useful for
+			smaller things too -- the <TomeLink slug="Breadcrumb" /> in the main nav above receives the icon
+			through context to avoid redeclaring data and threading props, and the source of truth remains
+			<code>package.json</code>.
 		</p>
 	</section>
 
@@ -66,8 +68,8 @@ export default defineConfig({
 });`}
 		/>
 		<p>
-			The plugin uses <code>enforce: 'pre'</code> so order does not matter. For TypeScript it
-			requires ambient declarations, like in <code>src/app.d.ts</code>:
+			The plugin uses <code>enforce: 'pre'</code> so any order works. For TypeScript it requires
+			ambient declarations, like in <code>src/app.d.ts</code>:
 		</p>
 		<Code
 			lang="ts"
@@ -77,13 +79,16 @@ export default defineConfig({
   export default pkg_json;
 }`}
 		/>
+		<p>You may then import the default export anywhere in client or server code:</p>
+		<Code lang="ts" content={`import pkg_json from 'virtual:pkg.json';`} />
 	</TomeSection>
 
 	<TomeSection>
 		<TomeSectionHeader text="Usage" />
 		<p>
-			Import the default export anywhere in client or server code. A common use is deriving site
-			identity for <DeclarationLink name="SiteState" /> at the root layout, so
+			fuz_ui has optional patterns that leverage the feature. One example is adding <DeclarationLink
+				name="SiteState"
+			/> at the root layout, so
 			<code>glyph</code> and <code>repo_url</code> come from <code>package.json</code> instead of being
 			hardcoded:
 		</p>
@@ -97,8 +102,8 @@ site_context.set(new SiteState({pkg_json}));`}
 		/>
 		<p>
 			It's also the curated <code>pkg_json</code> half of a
-			<a href="https://util.fuz.dev/docs/api#LibraryJson"><code>LibraryJson</code></a> (rendered by
-			<TomeLink slug="LibraryDetail" />). The fuz_ui docs pattern combines it with the analyzed
+			<a href="https://util.fuz.dev/docs/api#LibraryJson"><code>LibraryJson</code></a> rendered by
+			<TomeLink slug="LibraryDetail" />. The fuz_ui docs pattern combines it with the analyzed
 			<code>modules</code> from
 			<code>virtual:svelte-docinfo</code>
 			(<a href="https://svelte-docinfo.fuz.dev/">svelte-docinfo.fuz.dev</a>):
@@ -116,9 +121,10 @@ export const library_json = library_json_from_modules(pkg_json, modules);`}
 	<TomeSection>
 		<TomeSectionHeader text="What gets served" />
 		<p>
-			The plugin keeps only the keys in <a href="https://util.fuz.dev/docs/api#pkg_json_keys"
-				><code>pkg_json_keys</code></a
-			> (package identity and the Fuz extension fields). Everything else is dropped:
+			By default the plugin keeps only the keys in <a
+				href="https://util.fuz.dev/docs/api#pkg_json_keys"><code>pkg_json_keys</code></a
+			>, including package identity values and some Fuz extension fields. Everything else is
+			dropped:
 		</p>
 		<ul>
 			{#each pkg_json_keys as key (key)}
@@ -127,10 +133,6 @@ export const library_json = library_json_from_modules(pkg_json, modules);`}
 				</li>
 			{/each}
 		</ul>
-		<p>
-			The type is strict and <code>Pick</code>ed from the same list, so the runtime strip and the
-			type can't drift. Accessing a stripped field like <code>pkg_json.scripts</code> is a compile error.
-		</p>
 	</TomeSection>
 
 	<TomeSection>
@@ -172,6 +174,6 @@ library_json_from_modules(pkg_json, modules, custom_keys);`}
 			>source code</GithubLink
 		> and <GithubLink path="fuzdev/fuz_ui/blob/main/src/test/vite_plugin_pkg_json.test.ts"
 			>tests</GithubLink
-		>. See also <TomeLink slug="svelte_preprocess_mdz" />, the other build-time tool.
+		>.
 	</aside>
 </TomeContent>
