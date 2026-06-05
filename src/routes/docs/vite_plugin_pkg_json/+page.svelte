@@ -147,29 +147,21 @@ export const library_json = library_json_from_modules(pkg_json, modules);`}
 		<TomeSectionHeader text="Build vs dev" />
 		<ul>
 			<li>
-				<strong>Fail-fast</strong> — <code>package.json</code> is read once at
+				fail-fast — <code>package.json</code> is read once at
 				<code>buildStart</code> (build) or dev-server startup, so a missing or malformed file
 				surfaces as a named <code>vite_plugin_pkg_json</code> diagnostic immediately rather than
 				when something first imports the module. A missing <code>name</code> field is a non-fatal warning,
 				not an error — the curated module still serves.
 			</li>
 			<li>
-				<strong>Build</strong> — the curated JSON is cached after the first read and reused for
-				every
+				build — the curated JSON is cached after the first read and reused for every
 				<code>load</code>.
 			</li>
 			<li>
-				<strong>Dev</strong> — <code>load</code> re-reads each time and registers
+				dev — <code>load</code> re-reads each time and registers
 				<code>package.json</code> as a watch file, so edits to it propagate through a reload.
 			</li>
 		</ul>
-		<p>
-			The <code>.json</code> suffix on the virtual id is load-bearing: <code>load</code> returns raw
-			JSON text and Vite's built-in <code>vite:json</code> plugin transforms it into an ES module
-			(default export plus named exports). It mirrors how
-			<code>vite_plugin_fuz_css</code> relies on the <code>.css</code> suffix of
-			<code>virtual:fuz.css</code>.
-		</p>
 	</TomeSection>
 	<aside>
 		For more, see <ModuleLink module_path="vite_plugin_pkg_json.ts" />, the
