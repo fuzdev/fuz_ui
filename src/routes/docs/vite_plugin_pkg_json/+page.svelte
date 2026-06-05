@@ -46,13 +46,8 @@
 			Apps can use package info like name/version/repository and the Fuz extension fields
 			logo/logo_alt/tagline for things like the library docs (e.g. the <TomeLink
 				slug="Breadcrumb"
-			/> above uses it for the icon to avoid redeclaring data and threading props). Importing the root
-			<code>package.json</code>
-			directly inlines the
-			<em>whole</em> file into the client bundle (<code>scripts</code>, <code>dependencies</code>,
-			<code>devDependencies</code>, private config) and trips SvelteKit's
-			<code>server.fs.allow</code> on cold HMR reloads. This plugin reads
-			<code>package.json</code> once, strips it to the allowlist, and serves only that.
+			/> above uses it for the icon to avoid redeclaring data and threading props). This plugin strips
+			<code>package.json</code> to the allowlist and serves only that.
 		</p>
 	</section>
 
