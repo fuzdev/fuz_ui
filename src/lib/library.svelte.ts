@@ -10,7 +10,6 @@ import {
 	repo_name_parse,
 	repo_url_github_owner,
 	repo_url_parse,
-	url_github_org,
 	url_logo,
 	url_npm_package,
 } from '@fuzdev/fuz_util/package_helpers.js';
@@ -64,9 +63,9 @@ export class Library {
 	);
 
 	/**
-	 * Organization URL (e.g., 'https://github.com/ryanatkn').
+	 * Organization URL (e.g., 'https://github.com/ryanatkn'), built from `owner_name`.
 	 */
-	readonly org_url = $derived(url_github_org(this.repo_url, this.repo_name));
+	readonly org_url = $derived(this.owner_name ? 'https://github.com/' + this.owner_name : null);
 
 	/**
 	 * All modules as rich `Module` instances.
