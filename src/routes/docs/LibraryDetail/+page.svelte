@@ -19,8 +19,8 @@
 <TomeContent {tome}>
 	<section>
 		<p>
-			<DeclarationLink name="LibraryDetail" /> renders a library's full metadata — name, description,
-			links, and license — alongside its module and declaration index. It takes a
+			<DeclarationLink name="LibraryDetail" /> renders the full metadata for a library and its repo, including
+			its module and declaration index. It takes a
 			<DeclarationLink name="Library" />, built from the curated <code>pkg_json</code> served by
 			<TomeLink slug="vite_plugin_pkg_json" /> combined with the analyzed <code>modules</code> from
 			<a href="https://svelte-docinfo.fuz.dev/"><code>virtual:svelte-docinfo</code></a>:
