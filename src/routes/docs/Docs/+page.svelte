@@ -24,7 +24,8 @@
 		</p>
 		<p>
 			It requires two contexts: <code>site_context</code> (a <DeclarationLink name="SiteState" /> for
-			chrome like <DeclarationLink name="Breadcrumb" />) set once at the root layout, and
+			chrome like <DeclarationLink name="Breadcrumb" />) set once at the root layout (typically the
+			root, anywhere up the tree works), and
 			<code>library_context</code> (a <DeclarationLink name="Library" />) set in the docs layout:
 		</p>
 		<Code
