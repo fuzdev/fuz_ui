@@ -53,12 +53,11 @@
 	<TomeSection>
 		<TomeSectionHeader text="Setup" />
 		<p>
-			Register the plugin, <ModuleLink module_path="vite_plugin_pkg_json.ts" />, in
-			<code>vite.config.ts</code>:
+			Register the plugin, <ModuleLink module_path="vite_plugin_pkg_json.ts" />:
 		</p>
 		<Code
 			lang="ts"
-			content={`import {defineConfig} from 'vite';
+			content={`// vite.config.ts\nimport {defineConfig} from 'vite';
 import {sveltekit} from '@sveltejs/kit/vite';
 import {vite_plugin_pkg_json} from '@fuzdev/fuz_ui/vite_plugin_pkg_json.js';
 
@@ -90,7 +89,7 @@ export default defineConfig({
 		</p>
 		<Code
 			lang="ts"
-			content={`import pkg_json from 'virtual:pkg.json';
+			content={`// +layout.svelte or some other root\nimport pkg_json from 'virtual:pkg.json';
 import {SiteState, site_context} from '@fuzdev/fuz_ui/site.svelte.js';
 
 // glyph + repo_url derive from pkg_json.glyph and pkg_json.repository
@@ -102,12 +101,11 @@ site_context.set(new SiteState({pkg_json}));`}
 			<TomeLink slug="LibraryDetail" />). The fuz_ui docs pattern combines it with the analyzed
 			<code>modules</code> from
 			<code>virtual:svelte-docinfo</code>
-			(<a href="https://svelte-docinfo.fuz.dev/">svelte-docinfo.fuz.dev</a>). Put this in
-			<code>src/routes/library.ts</code>:
+			(<a href="https://svelte-docinfo.fuz.dev/">svelte-docinfo.fuz.dev</a>):
 		</p>
 		<Code
 			lang="ts"
-			content={`import {library_json_from_modules} from '@fuzdev/fuz_util/library_json.js';
+			content={`// src/routes/library.ts\nimport {library_json_from_modules} from '@fuzdev/fuz_util/library_json.js';
 import {modules} from 'virtual:svelte-docinfo';
 import pkg_json from 'virtual:pkg.json';
 
