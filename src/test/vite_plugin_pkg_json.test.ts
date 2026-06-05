@@ -137,6 +137,64 @@ describe('curate', () => {
 	});
 });
 
+describe('keys option', () => {
+	test('a wider keys list exposes extra fields the default strips', () => {
+		const dir = make_temp_dir();
+		try {
+			write_package_json(dir, {
+				name: '@x/y',
+				version: '1.0.0',
+				keywords: ['a', 'b'],
+			});
+
+			// default keys: `keywords` is not publish-curated, so it's stripped
+			const default_plugin = vite_plugin_pkg_json() as unknown as PluginHooks;
+			default_plugin.configResolved({root: dir, command: 'build'});
+			const default_ctx = create_mock_ctx();
+			default_plugin.buildStart.call(default_ctx);
+			const default_parsed = JSON.parse(
+				default_plugin.load.call(default_ctx, RESOLVED_VIRTUAL_ID)!,
+			) as Record<string, unknown>;
+			assert.notOk('keywords' in default_parsed);
+
+			// widened keys: compose from the default so curated fields stay in
+			const plugin = vite_plugin_pkg_json({
+				keys: [...pkg_json_keys, 'keywords'],
+			}) as unknown as PluginHooks;
+			plugin.configResolved({root: dir, command: 'build'});
+			const ctx = create_mock_ctx();
+			plugin.buildStart.call(ctx);
+			const parsed = JSON.parse(plugin.load.call(ctx, RESOLVED_VIRTUAL_ID)!) as Record<
+				string,
+				unknown
+			>;
+			assert.deepEqual(parsed.keywords, ['a', 'b']);
+			assert.strictEqual(parsed.name, '@x/y');
+		} finally {
+			rmSync(dir, {recursive: true, force: true});
+		}
+	});
+
+	test('a narrower keys list drops curated defaults', () => {
+		const dir = make_temp_dir();
+		try {
+			write_package_json(dir, {name: '@x/y', version: '1.0.0', glyph: '🧶'});
+			const plugin = vite_plugin_pkg_json({keys: ['name', 'version']}) as unknown as PluginHooks;
+			plugin.configResolved({root: dir, command: 'build'});
+			const ctx = create_mock_ctx();
+			plugin.buildStart.call(ctx);
+			const parsed = JSON.parse(plugin.load.call(ctx, RESOLVED_VIRTUAL_ID)!) as Record<
+				string,
+				unknown
+			>;
+			assert.deepEqual(Object.keys(parsed), ['name', 'version']);
+			assert.notOk('glyph' in parsed);
+		} finally {
+			rmSync(dir, {recursive: true, force: true});
+		}
+	});
+});
+
 describe('errors', () => {
 	test('throws a named diagnostic when package.json is missing', () => {
 		const dir = make_temp_dir(); // empty, no package.json

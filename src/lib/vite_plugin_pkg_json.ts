@@ -25,6 +25,22 @@
  * export default defineConfig({plugins: [vite_plugin_pkg_json(), sveltekit()]});
  * ```
  *
+ * The kept field set defaults to `pkg_json_keys`. To expose extra publish-safe
+ * fields, pass a wider `keys` list — typically composed from the default with a
+ * spread (`` keys: [...pkg_json_keys, 'keywords'] ``). Because `library_json_from_modules`
+ * re-strips at runtime, the *same* list must reach that call (and the consumer's
+ * `virtual:pkg.json` ambient type) for the extras to survive end to end — share
+ * one const across all three sites:
+ *
+ * ```ts
+ * // src/routes/pkg_json_keys.ts
+ * import {pkg_json_keys} from '@fuzdev/fuz_util/pkg_json.js';
+ * export const pkg_json_keys_custom = [...pkg_json_keys, 'keywords'] as const;
+ *
+ * // vite.config.ts        → vite_plugin_pkg_json({keys: pkg_json_keys_custom})
+ * // src/routes/library.ts → library_json_from_modules(pkg_json, modules, pkg_json_keys_custom)
+ * ```
+ *
  * @module
  */
 
@@ -32,7 +48,7 @@ import {readFileSync} from 'node:fs';
 import {join} from 'node:path';
 import type {Plugin, Rollup} from 'vite';
 import type {PackageJson} from '@fuzdev/fuz_util/package_json.js';
-import {pkg_json_from_package_json} from '@fuzdev/fuz_util/pkg_json.js';
+import {pkg_json_from_package_json, pkg_json_keys} from '@fuzdev/fuz_util/pkg_json.js';
 
 const VIRTUAL_ID = 'virtual:pkg.json';
 /**
@@ -49,18 +65,30 @@ const VIRTUAL_ID = 'virtual:pkg.json';
  */
 const RESOLVED_VIRTUAL_ID = '\0virtual:pkg.json';
 
+/** Options for `vite_plugin_pkg_json`. */
+export interface VitePluginPkgJsonOptions {
+	/**
+	 * The `package.json` fields to keep in the served subset. Defaults to the
+	 * curated, publish-safe `pkg_json_keys`. Pass a wider list — usually
+	 * `` [...pkg_json_keys, 'extra'] `` — to expose more fields; the same list
+	 * must reach `library_json_from_modules` (see the module comment).
+	 */
+	keys?: ReadonlyArray<keyof PackageJson>;
+}
+
 /**
  * Creates the `virtual:pkg.json` plugin. Zero-config for canonical fuz usage —
- * the publish-safe field set ships with `pkg_json_keys`.
+ * the publish-safe field set defaults to `pkg_json_keys`; widen it via `keys`.
  */
-export const vite_plugin_pkg_json = (): Plugin => {
+export const vite_plugin_pkg_json = (options: VitePluginPkgJsonOptions = {}): Plugin => {
+	const {keys = pkg_json_keys} = options;
 	let root = '';
 	let is_dev = false;
 	/** Curated JSON cached for build; left `null` in dev so `load` re-reads. */
 	let cached: string | null = null;
 
 	/**
-	 * Reads `package.json`, strips it to the publish-safe `PkgJson` subset via
+	 * Reads `package.json`, strips it to the configured `keys` subset via
 	 * `pkg_json_from_package_json` (the same strip the runtime uses, so the two
 	 * can't drift), and returns the curated JSON text. Routes failures through the
 	 * plugin context (`ctx.error`/`ctx.warn`) so a missing or malformed file
@@ -82,7 +110,7 @@ export const vite_plugin_pkg_json = (): Plugin => {
 		if (raw.name === undefined) {
 			ctx.warn(`vite_plugin_pkg_json: ${package_json_path} has no "name" field`);
 		}
-		return JSON.stringify(pkg_json_from_package_json(raw));
+		return JSON.stringify(pkg_json_from_package_json(raw, keys));
 	};
 
 	return {
