@@ -10,6 +10,7 @@ import Dialog from '$routes/docs/Dialog/+page.svelte';
 import Teleport from '$routes/docs/Teleport/+page.svelte';
 import Alert from '$routes/docs/Alert/+page.svelte';
 import Docs from '$routes/docs/Docs/+page.svelte';
+import Library from '$routes/docs/Library/+page.svelte';
 import Contextmenu from '$routes/docs/Contextmenu/+page.svelte';
 import Redirect from '$routes/docs/Redirect/+page.svelte';
 import HueInput from '$routes/docs/HueInput/+page.svelte';
@@ -22,6 +23,7 @@ import theming from '$routes/docs/theming/+page.svelte';
 import api from '$routes/docs/api/+page.svelte';
 import intersect from '$routes/docs/intersect/+page.svelte';
 import svelte_preprocess_mdz from '$routes/docs/svelte_preprocess_mdz/+page.svelte';
+import vite_plugin_pkg_json from '$routes/docs/vite_plugin_pkg_json/+page.svelte';
 import mdz from '$routes/docs/mdz/+page.svelte';
 
 // TODO maybe decouple `related` from `Tome` to get bidirectionality for free
@@ -62,6 +64,14 @@ export const tomes: Array<Tome> = [
 		related_tomes: ['mdz'],
 		related_modules: ['svelte_preprocess_mdz.ts', 'mdz_to_svelte.ts'],
 		related_declarations: ['svelte_preprocess_mdz', 'mdz_to_svelte', 'MdzPrecompiled'],
+	},
+	{
+		slug: 'vite_plugin_pkg_json',
+		category: 'helpers',
+		Component: vite_plugin_pkg_json,
+		related_tomes: ['svelte_preprocess_mdz', 'LibraryDetail'],
+		related_modules: ['vite_plugin_pkg_json.ts'],
+		related_declarations: ['vite_plugin_pkg_json'],
 	},
 	{
 		slug: 'csp',
@@ -172,9 +182,17 @@ export const tomes: Array<Tome> = [
 		slug: 'Docs',
 		category: 'components',
 		Component: Docs,
-		related_tomes: [],
+		related_tomes: ['Library', 'LibraryDetail', 'LibrarySummary'],
 		related_modules: [],
 		related_declarations: ['Docs'],
+	},
+	{
+		slug: 'Library',
+		category: 'components',
+		Component: Library,
+		related_tomes: ['Docs', 'LibraryDetail', 'LibrarySummary', 'api'],
+		related_modules: [],
+		related_declarations: ['Library'],
 	},
 	{
 		slug: 'LibraryDetail',

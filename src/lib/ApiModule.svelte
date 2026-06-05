@@ -54,7 +54,7 @@
 </script>
 
 <svelte:head>
-	<title>{module_name} - API docs - {library.package_json.name}</title>
+	<title>{module_name} - API docs - {library.pkg_json.name}</title>
 </svelte:head>
 
 <TomeContent {tome}>
