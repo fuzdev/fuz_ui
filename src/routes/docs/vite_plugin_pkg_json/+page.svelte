@@ -44,9 +44,9 @@
 		</p>
 		<p>
 			Apps can use package info like name/version/repository and the Fuz extension fields like logo
-			for usage like the library docs (e.g. the <TomeLink slug="Breadcrumb" /> above uses it for the icon
-			to avoid redeclaring data and threading props). This plugin strips
-			<code>package.json</code> to the allowlist and serves only that.
+			for things like library docs, e.g. the <TomeLink slug="Breadcrumb" /> above uses it for the icon
+			to avoid redeclaring data and threading props. The plugin strips <code>package.json</code> to the
+			allowlist and serves only that.
 		</p>
 	</section>
 
