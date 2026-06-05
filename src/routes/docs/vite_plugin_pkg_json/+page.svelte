@@ -36,15 +36,16 @@
 <TomeContent {tome}>
 	<section>
 		<p>
-			<DeclarationLink name="vite_plugin_pkg_json" /> is a Vite plugin that serves a curated, publish-safe
-			subset of your <code>package.json</code> as the virtual module
-			<code>virtual:pkg.json</code>. The default export is typed
-			<code>PkgJson</code> (from <code>@fuzdev/fuz_util/pkg_json.js</code>) — package identity plus
-			the Fuz extension fields, with everything else stripped out.
+			<DeclarationLink name="vite_plugin_pkg_json" /> is a Vite plugin that serves a publish-safe subset
+			of your <code>package.json</code> as the virtual module
+			<Code lang="ts" content="'virtual:pkg.json'" inline />. The default export is typed
+			<code>PkgJson</code> (from <code>@fuzdev/fuz_util/pkg_json.js</code>), containing package
+			identity plus the Fuz extension fields, with everything else excluded.
 		</p>
 		<p>
-			Apps need package identity — name, version, repository, the Fuz extension fields — in the
-			client for chrome like <DeclarationLink name="Breadcrumb" /> and library docs. Importing the root
+			Apps can use the package identity (name, version, repository, the Fuz extension fields) for
+			things like the icon in the <DeclarationLink name="Breadcrumb" /> and library docs. Importing the
+			root
 			<code>package.json</code>
 			directly inlines the
 			<em>whole</em> file into the client bundle (<code>scripts</code>, <code>dependencies</code>,
