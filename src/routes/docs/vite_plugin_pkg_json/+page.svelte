@@ -43,9 +43,10 @@
 			identity plus the Fuz extension fields, with everything else excluded.
 		</p>
 		<p>
-			Apps can use the package identity (name, version, repository, the Fuz extension fields) for
-			things like the icon in the <DeclarationLink name="Breadcrumb" /> and library docs. Importing the
-			root
+			Apps can use package info like name/version/repository and the Fuz extension fields
+			logo/logo_alt/tagline for things like the library docs (e.g. the <TomeLink
+				slug="Breadcrumb"
+			/> above uses it for the icon to avoid redeclaring data and threading props). Importing the root
 			<code>package.json</code>
 			directly inlines the
 			<em>whole</em> file into the client bundle (<code>scripts</code>, <code>dependencies</code>,
