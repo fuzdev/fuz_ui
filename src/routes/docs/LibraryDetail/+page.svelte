@@ -20,27 +20,10 @@
 	<section>
 		<p>
 			<DeclarationLink name="LibraryDetail" /> renders the full metadata for a library and its repo, including
-			its module and declaration index. It takes a
-			<DeclarationLink name="Library" />, built from the <code>package.json</code> subset <Code
-				lang="ts"
-				content="'virtual:pkg_json'"
-				inline
-			/>
-			served by
-			<TomeLink slug="vite_plugin_pkg_json" /> combined with the analyzed <code>modules</code>
-			from
-			<a href="https://svelte-docinfo.fuz.dev/"><code>virtual:svelte-docinfo</code></a>:
+			its module and declaration index. See the <TomeLink slug="Library">Library docs</TomeLink> for how
+			to construct one from <TomeLink slug="vite_plugin_pkg_json" />
+			and <a href="https://svelte-docinfo.fuz.dev/"><code>virtual:svelte-docinfo</code></a>:
 		</p>
-		<Code
-			lang="ts"
-			content={`import {library_json_from_modules} from '@fuzdev/fuz_util/library_json.js';
-import {Library} from '@fuzdev/fuz_ui/library.svelte.js';
-import {modules} from 'virtual:svelte-docinfo';
-import pkg_json from 'virtual:pkg.json';
-
-const library_json = library_json_from_modules(pkg_json, modules);
-const library = new Library(library_json);`}
-		/>
 		<Code lang="ts" content={`import LibraryDetail from '@fuzdev/fuz_ui/LibraryDetail.svelte';`} />
 		<Code content={`<LibraryDetail {library} />`} />
 	</section>

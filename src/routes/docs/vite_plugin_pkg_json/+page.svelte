@@ -72,7 +72,7 @@ export default defineConfig({
 		/>
 		<p>
 			Plugin order is unconstrained — the plugin uses <code>enforce: 'pre'</code>, so it claims
-			<code>virtual:pkg.json</code> before other plugins resolve it regardless of position in the array.
+			<code>virtual:pkg.json</code> before other plugins resolve it.
 		</p>
 		<p>
 			It's zero-config — the publish-safe field set ships with <code>pkg_json_keys</code>. To make
@@ -106,7 +106,8 @@ import {SiteState, site_context} from '@fuzdev/fuz_ui/site.svelte.js';
 site_context.set(new SiteState({pkg_json}));`}
 		/>
 		<p>
-			It's also the curated <code>pkg_json</code> half of a <code>LibraryJson</code> (rendered by
+			It's also the curated <code>pkg_json</code> half of a
+			<a href="https://util.fuz.dev/docs/api#LibraryJson"><code>LibraryJson</code></a> (rendered by
 			<TomeLink slug="LibraryDetail" />). The canonical pattern combines it with the analyzed
 			<code>modules</code> from
 			<code>virtual:svelte-docinfo</code>
@@ -137,11 +138,8 @@ export const library_json = library_json_from_modules(pkg_json, modules);`}
 			{/each}
 		</ul>
 		<p>
-			<code>exports</code> and <code>private</code> are kept because a consumer derives a library's
-			<code>published</code>
-			status from them. The type is strict and <code>Pick</code>ed from the same list, so the
-			runtime strip and the type can't drift — accessing a stripped field like
-			<code>pkg_json.scripts</code> is a compile error.
+			The type is strict and <code>Pick</code>ed from the same list, so the runtime strip and the
+			type can't drift — accessing a stripped field like <code>pkg_json.scripts</code> is a compile error.
 		</p>
 	</TomeSection>
 
@@ -149,19 +147,13 @@ export const library_json = library_json_from_modules(pkg_json, modules);`}
 		<TomeSectionHeader text="Build vs dev" />
 		<ul>
 			<li>
-				fail-fast — <code>package.json</code> is read once at
-				<code>buildStart</code> (build) or dev-server startup, so a missing or malformed file
-				surfaces as a named <code>vite_plugin_pkg_json</code> diagnostic immediately rather than
-				when something first imports the module. A missing <code>name</code> field is a non-fatal warning,
-				not an error — the curated module still serves.
+				fail-fast — a missing or malformed <code>package.json</code> surfaces as a named
+				<code>vite_plugin_pkg_json</code> diagnostic immediately, not when something first imports
+				the module. A missing <code>name</code> field is a non-fatal warning — the curated module still
+				serves.
 			</li>
 			<li>
-				build — the curated JSON is cached after the first read and reused for every
-				<code>load</code>.
-			</li>
-			<li>
-				dev — <code>load</code> re-reads each time and registers
-				<code>package.json</code> as a watch file, so edits to it propagate through a reload.
+				dev — edits to <code>package.json</code> propagate through a reload; build serves a stable value.
 			</li>
 		</ul>
 	</TomeSection>

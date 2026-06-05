@@ -19,22 +19,12 @@
 <TomeContent {tome}>
 	<section>
 		<p>
-			<DeclarationLink name="LibrarySummary" /> renders a compact card for a library and its repo. It
-			takes a <DeclarationLink name="Library" />, built from the curated
-			<code>pkg_json</code> served by <TomeLink slug="vite_plugin_pkg_json" /> combined with the analyzed
-			<code>modules</code>
-			from <a href="https://svelte-docinfo.fuz.dev/"><code>virtual:svelte-docinfo</code></a>:
+			<DeclarationLink name="LibrarySummary" /> renders a compact card for a library and its repo. See
+			the <TomeLink slug="Library">Library</TomeLink> for how to construct one from <TomeLink
+				slug="vite_plugin_pkg_json"
+			/>
+			and <a href="https://svelte-docinfo.fuz.dev/"><code>virtual:svelte-docinfo</code></a>:
 		</p>
-		<Code
-			lang="ts"
-			content={`import {library_json_from_modules} from '@fuzdev/fuz_util/library_json.js';
-import {Library} from '@fuzdev/fuz_ui/library.svelte.js';
-import {modules} from 'virtual:svelte-docinfo';
-import pkg_json from 'virtual:pkg.json';
-
-const library_json = library_json_from_modules(pkg_json, modules);
-const library = new Library(library_json);`}
-		/>
 		<Code
 			lang="ts"
 			content={`import LibrarySummary from '@fuzdev/fuz_ui/LibrarySummary.svelte';`}

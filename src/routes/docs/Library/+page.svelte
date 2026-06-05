@@ -19,7 +19,7 @@
 			<a href="https://util.fuz.dev/docs/api#LibraryJson"><code>LibraryJson</code></a>. It's
 			constructed from the <code>package.json</code> subset <Code
 				lang="ts"
-				content="'virtual:pkg_json'"
+				content="'virtual:pkg.json'"
 				inline
 			/>
 			served by <TomeLink slug="vite_plugin_pkg_json" /> plus the analyzed <code>modules</code> from
@@ -36,9 +36,9 @@ const library_json = library_json_from_modules(pkg_json, modules);
 const library = new Library(library_json);`}
 		/>
 		<p>
-			Set it into <code>library_context</code> at the docs layout so the docs system can read it. It
-			backs the <TomeLink slug="Docs" /> layout and is consumed by <TomeLink slug="LibraryDetail" />
-			and <TomeLink slug="LibrarySummary" />:
+			Set it into <code>library_context</code> at the docs layout. <TomeLink slug="Docs" /> reads it for
+			navigation, and <TomeLink slug="LibraryDetail" /> and <TomeLink slug="LibrarySummary" /> render
+			it:
 		</p>
 		<Code
 			lang="svelte"
