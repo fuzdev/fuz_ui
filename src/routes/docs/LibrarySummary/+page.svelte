@@ -23,7 +23,7 @@
 			description. It takes a <DeclarationLink name="Library" />, built from the curated
 			<code>pkg_json</code> served by <TomeLink slug="vite_plugin_pkg_json" /> combined with the analyzed
 			<code>modules</code>
-			from <code>virtual:svelte-docinfo</code>:
+			from <a href="https://svelte-docinfo.fuz.dev/"><code>virtual:svelte-docinfo</code></a>:
 		</p>
 		<Code
 			lang="ts"

@@ -109,7 +109,9 @@ site_context.set(new SiteState({pkg_json}));`}
 			It's also the curated <code>pkg_json</code> half of a <code>LibraryJson</code> (rendered by
 			<TomeLink slug="LibraryDetail" />). The canonical pattern combines it with the analyzed
 			<code>modules</code> from
-			<code>virtual:svelte-docinfo</code> — put this in <code>src/routes/library.ts</code>:
+			<code>virtual:svelte-docinfo</code>
+			(<a href="https://svelte-docinfo.fuz.dev/">svelte-docinfo.fuz.dev</a>) — put this in
+			<code>src/routes/library.ts</code>:
 		</p>
 		<Code
 			lang="ts"

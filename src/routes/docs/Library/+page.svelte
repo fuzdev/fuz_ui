@@ -1,0 +1,58 @@
+<script lang="ts">
+	import Code from '@fuzdev/fuz_code/Code.svelte';
+
+	import {tome_get_by_slug} from '$lib/tome.js';
+	import TomeContent from '$lib/TomeContent.svelte';
+	import DeclarationLink from '$lib/DeclarationLink.svelte';
+	import TomeLink from '$lib/TomeLink.svelte';
+
+	const TOME_SLUG = 'Library';
+	const tome = tome_get_by_slug(TOME_SLUG);
+</script>
+
+<!-- eslint-disable svelte/no-useless-mustaches -->
+
+<TomeContent {tome}>
+	<section>
+		<p>
+			<DeclarationLink name="Library" /> is the reactive wrapper around a <code>LibraryJson</code> —
+			the curated <code>pkg_json</code> served by <TomeLink slug="vite_plugin_pkg_json" /> plus the
+			analyzed <code>modules</code> from
+			<a href="https://svelte-docinfo.fuz.dev/"><code>virtual:svelte-docinfo</code></a>. It derives everything
+			the docs need from that pair: <code>name</code>, <code>repo_url</code>, <code>logo_url</code>,
+			<code>published</code> status, and rich <code>modules</code>/<code>declarations</code> with
+			lookup maps.
+		</p>
+		<Code
+			lang="ts"
+			content={`import {library_json_from_modules} from '@fuzdev/fuz_util/library_json.js';
+import {Library} from '@fuzdev/fuz_ui/library.svelte.js';
+import {modules} from 'virtual:svelte-docinfo';
+import pkg_json from 'virtual:pkg.json';
+
+const library_json = library_json_from_modules(pkg_json, modules);
+const library = new Library(library_json);`}
+		/>
+		<p>
+			Set it into <code>library_context</code> at the docs layout so the docs system can read it. It
+			backs the <TomeLink slug="Docs" /> layout and is consumed by <TomeLink slug="LibraryDetail" />
+			and <TomeLink slug="LibrarySummary" />:
+		</p>
+		<Code
+			lang="svelte"
+			content={`<!-- src/routes/docs/+layout.svelte -->
+<script lang="ts">
+  import {Library, library_context} from '@fuzdev/fuz_ui/library.svelte.js';
+  import {library_json} from '$routes/library.js';
+
+  library_context.set(new Library(library_json));
+<\/script>`}
+		/>
+		<p>
+			These very docs are the live example — fuz_ui sets its own <DeclarationLink name="Library" /> this
+			way. See <TomeLink slug="Docs" /> for the surrounding layout, and
+			<TomeLink slug="LibraryDetail" /> / <TomeLink slug="LibrarySummary" /> for the components that render
+			it.
+		</p>
+	</section>
+</TomeContent>

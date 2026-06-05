@@ -10,6 +10,7 @@ import Dialog from '$routes/docs/Dialog/+page.svelte';
 import Teleport from '$routes/docs/Teleport/+page.svelte';
 import Alert from '$routes/docs/Alert/+page.svelte';
 import Docs from '$routes/docs/Docs/+page.svelte';
+import Library from '$routes/docs/Library/+page.svelte';
 import Contextmenu from '$routes/docs/Contextmenu/+page.svelte';
 import Redirect from '$routes/docs/Redirect/+page.svelte';
 import HueInput from '$routes/docs/HueInput/+page.svelte';
@@ -181,9 +182,17 @@ export const tomes: Array<Tome> = [
 		slug: 'Docs',
 		category: 'components',
 		Component: Docs,
-		related_tomes: [],
+		related_tomes: ['Library', 'LibraryDetail', 'LibrarySummary'],
 		related_modules: [],
 		related_declarations: ['Docs'],
+	},
+	{
+		slug: 'Library',
+		category: 'components',
+		Component: Library,
+		related_tomes: ['Docs', 'LibraryDetail', 'LibrarySummary', 'api'],
+		related_modules: [],
+		related_declarations: ['Library'],
 	},
 	{
 		slug: 'LibraryDetail',
