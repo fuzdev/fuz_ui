@@ -99,7 +99,7 @@ site_context.set(new SiteState({pkg_json}));`}
 		<p>
 			It's also the curated <code>pkg_json</code> half of a
 			<a href="https://util.fuz.dev/docs/api#LibraryJson"><code>LibraryJson</code></a> (rendered by
-			<TomeLink slug="LibraryDetail" />). The canonical pattern combines it with the analyzed
+			<TomeLink slug="LibraryDetail" />). The fuz_ui docs pattern combines it with the analyzed
 			<code>modules</code> from
 			<code>virtual:svelte-docinfo</code>
 			(<a href="https://svelte-docinfo.fuz.dev/">svelte-docinfo.fuz.dev</a>). Put this in
