@@ -1,5 +1,14 @@
 # @fuzdev/fuz_ui
 
+## 0.199.0
+
+### Minor Changes
+
+- feat: add `MdzRoot` context provider; switch `mdz_components_context` and `mdz_elements_context` to the getter pattern with ancestor fallback (`set_mdz_context_with_fallback`) ([#121](https://github.com/fuzdev/fuz_ui/pull/121))
+- feat: add `vite_plugin_pkg_json` serving a curated `PkgJson` as `'virtual:pkg.json'`, with a `keys` option to widen the served field set ([#126](https://github.com/fuzdev/fuz_ui/pull/126))
+- feat: add streaming mdz parser and renderer ([#121](https://github.com/fuzdev/fuz_ui/pull/121))
+- feat: rework `Library` for the slimmed `LibraryJson` (`pkg_json`/`source_json` pair) ([#126](https://github.com/fuzdev/fuz_ui/pull/126))
+
 ## 0.198.1
 
 ### Patch Changes
