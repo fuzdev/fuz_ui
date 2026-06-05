@@ -16,10 +16,10 @@
 <TomeContent {tome}>
 	<section>
 		<p>
-			<DeclarationLink name="Docs" /> is the component behind these docs — a three-column responsive layout
-			with managed navigation. It uses ordinary SvelteKit patterns: it takes an array of <DeclarationLink
-				name="Tome"
-			/>s and renders the current page as <code>children</code>, so it lives in a
+			<DeclarationLink name="Docs" /> is the top-level component behind fuz_ui's docs system, which is
+			used to construct this page. It has a three-column responsive layout with managed navigation and
+			uses ordinary SvelteKit patterns: it takes an array of <DeclarationLink name="Tome" />s and
+			renders the current page as <code>children</code>, so it lives in a
 			<code>+layout.svelte</code> wrapping your docs routes.
 		</p>
 		<p>
