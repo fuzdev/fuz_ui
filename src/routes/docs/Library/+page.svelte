@@ -15,13 +15,15 @@
 <TomeContent {tome}>
 	<section>
 		<p>
-			<DeclarationLink name="Library" /> is the reactive wrapper around a <code>LibraryJson</code> —
-			the curated <code>pkg_json</code> served by <TomeLink slug="vite_plugin_pkg_json" /> plus the
-			analyzed <code>modules</code> from
-			<a href="https://svelte-docinfo.fuz.dev/"><code>virtual:svelte-docinfo</code></a>. It derives everything
-			the docs need from that pair: <code>name</code>, <code>repo_url</code>, <code>logo_url</code>,
-			<code>published</code> status, and rich <code>modules</code>/<code>declarations</code> with
-			lookup maps.
+			<DeclarationLink name="Library" /> is the reactive wrapper around a
+			<a href="https://util.fuz.dev/docs/api#LibraryJson"><code>LibraryJson</code></a>. It's
+			constructed from the <code>package.json</code> subset <Code
+				lang="ts"
+				content="'virtual:pkg_json'"
+				inline
+			/>
+			served by <TomeLink slug="vite_plugin_pkg_json" /> plus the analyzed <code>modules</code> from
+			<a href="https://svelte-docinfo.fuz.dev/"><code>virtual:svelte-docinfo</code></a>.
 		</p>
 		<Code
 			lang="ts"
@@ -49,9 +51,10 @@ const library = new Library(library_json);`}
 <\/script>`}
 		/>
 		<p>
-			These very docs are the live example — fuz_ui sets its own <DeclarationLink name="Library" /> this
-			way. See <TomeLink slug="Docs" /> for the surrounding layout, and
-			<TomeLink slug="LibraryDetail" /> / <TomeLink slug="LibrarySummary" /> for the components that render
+			These docs you're reading are the live example. fuz_ui sets its own <DeclarationLink
+				name="Library"
+			/> as described above. See <TomeLink slug="Docs" /> for the surrounding layout, and
+			<TomeLink slug="LibraryDetail" />/<TomeLink slug="LibrarySummary" /> for the components that render
 			it.
 		</p>
 	</section>
