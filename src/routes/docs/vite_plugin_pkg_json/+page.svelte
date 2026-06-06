@@ -43,12 +43,12 @@
 			package identity plus Fuz extension fields, with everything else excluded.
 		</p>
 		<p>
-			The plugin strips <code>package.json</code> to the allowlist and serves only that. This makes
-			info like name/version/repository and the Fuz extension fields like logo available to your
-			code. The docs system around the content you're reading relies on it, and it's useful for
-			smaller things too -- the <TomeLink slug="Breadcrumb" /> in the main nav above receives the icon
-			through context to avoid redeclaring data and threading props, and the source of truth remains
-			<code>package.json</code>.
+			The plugin strips <code>package.json</code> to the allowlist and serves only that, so info
+			like name/version/repository and the Fuz extension fields like logo are available to your
+			code. The docs system around the content you're reading relies on it. Importing the root
+			<code>package.json</code> directly instead inlines the whole file -- <code>scripts</code>,
+			<code>dependencies</code>, private config -- into the client bundle and trips SvelteKit's
+			<code>server.fs.allow</code> on a cold HMR reload; serving the curated subset avoids both.
 		</p>
 	</section>
 
@@ -64,7 +64,7 @@ import {sveltekit} from '@sveltejs/kit/vite';
 import {vite_plugin_pkg_json} from '@fuzdev/fuz_ui/vite_plugin_pkg_json.js';
 
 export default defineConfig({
-  plugins: [sveltekit(), vite_plugin_pkg_json()],
+	plugins: [sveltekit(), vite_plugin_pkg_json()],
 });`}
 		/>
 		<p>
@@ -74,9 +74,9 @@ export default defineConfig({
 		<Code
 			lang="ts"
 			content={`// src/app.d.ts\ndeclare module 'virtual:pkg.json' {
-  import type {PkgJson} from '@fuzdev/fuz_util/pkg_json.js';
-  const pkg_json: PkgJson;
-  export default pkg_json;
+	import type {PkgJson} from '@fuzdev/fuz_util/pkg_json.js';
+	const pkg_json: PkgJson;
+	export default pkg_json;
 }`}
 		/>
 		<p>You may then import the default export anywhere in client or server code:</p>
@@ -163,9 +163,19 @@ vite_plugin_pkg_json({keys: custom_keys});
 library_json_from_modules(pkg_json, modules, custom_keys);`}
 		/>
 		<p>
-			For type safety also update the <code>src/app.d.ts</code>
-			declaration described in <a href="#Setup">Setup</a>.
+			For type safety, widen the <code>src/app.d.ts</code> ambient type to match -- the same
+			<code>custom_keys</code> const drives it via <code>Pick</code> over
+			<a href="https://util.fuz.dev/docs/api#PackageJson"><code>PackageJson</code></a>:
 		</p>
+		<Code
+			lang="ts"
+			content={`// src/app.d.ts\ndeclare module 'virtual:pkg.json' {
+	import type {PackageJson} from '@fuzdev/fuz_util/package_json.js';
+	import type {custom_keys} from '$routes/pkg_json_keys.js';
+	const pkg_json: Pick<PackageJson, (typeof custom_keys)[number]>;
+	export default pkg_json;
+}`}
+		/>
 	</TomeSection>
 
 	<aside>
