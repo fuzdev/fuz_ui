@@ -153,7 +153,8 @@ export class Declaration {
 	mutates = $derived(this.declaration_json.mutates);
 
 	has_examples = $derived(this.examples.length > 0);
-	is_deprecated = $derived(!!this.deprecated_message);
+	// presence, not truthiness — a bare `@deprecated` (no message text) arrives as `''`
+	is_deprecated = $derived(this.deprecated_message !== undefined);
 	has_documentation = $derived(!!this.doc_comment);
 	has_parameters = $derived(!!(this.parameters && this.parameters.length > 0));
 	has_props = $derived(!!(this.props && this.props.length > 0));
