@@ -21,6 +21,7 @@
 	let dialog_nested_1_opened = $state.raw(false);
 	let dialog_nested_2_opened = $state.raw(false);
 	let dialog_nested_3_opened = $state.raw(false);
+	let dialog_no_dismiss_opened = $state.raw(false);
 
 	let selected_layout: DialogLayout = $state.raw('page');
 
@@ -92,6 +93,9 @@
 		<button type="button" class="mb_lg" onclick={() => (dialog_layout_page_opened = true)}
 			>open a dialog with <code>layout="page"</code> instead of the default
 			<code>layout='centered'</code></button
+		>
+		<button type="button" class="mb_lg" onclick={() => (dialog_no_dismiss_opened = true)}
+			>open a dialog with <code>content_selector={'{null}'}</code> (no click-outside)</button
 		>
 		<button type="button" class="mb_lg" onclick={() => (dialog_nested_1_opened = true)}
 			>open a dialog containing another dialog</button
@@ -211,6 +215,22 @@
 				>
 			</div>
 		</div>
+	</Dialog>
+{/if}
+{#if dialog_no_dismiss_opened}
+	<Dialog onclose={() => (dialog_no_dismiss_opened = false)} content_selector={null}>
+		{#snippet children(close)}
+			<div class="box">
+				<div class="pane p_xl box width_atmost_md">
+					<h1>no click-outside</h1>
+					<p>
+						This dialog passes <code>content_selector={'{null}'}</code>, so clicking outside the
+						content does nothing. <kbd>Escape</kbd> and the button still close it.
+					</p>
+					<button type="button" onclick={close}>close</button>
+				</div>
+			</div>
+		{/snippet}
 	</Dialog>
 {/if}
 {#if dialog_nested_3_opened}

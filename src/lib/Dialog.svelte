@@ -52,7 +52,6 @@
 	} = $props();
 
 	let dialog_el: HTMLDialogElement | undefined;
-	let content_el: HTMLElement | undefined = $state.raw();
 
 	// Guards against a single dismissal firing `onclose` twice. Reset on mount.
 	let closing = false;
@@ -107,16 +106,13 @@
 				class="dialog-wrapper"
 				role="none"
 				onmousedown={(e) => {
-					// close when the press lands outside the content (a `content_selector`
-					// match if given, else the content box)
-					const target = e.target as Element;
-					const outside = content_selector
-						? !target.closest(content_selector)
-						: !!content_el && !content_el.contains(target);
-					if (outside) close(e);
+					// close when the press lands outside the content (`content_selector`)
+					if (content_selector && !(e.target as Element).closest(content_selector)) {
+						close(e);
+					}
 				}}
 			>
-				<div class="dialog-content" bind:this={content_el}>
+				<div class="dialog-content">
 					{@render children(close)}
 				</div>
 			</div>
@@ -166,7 +162,6 @@
 	}
 
 	.dialog-wrapper {
-		position: relative; /* for the surface */
 		min-height: 100%;
 		display: flex;
 		align-items: center;
