@@ -3,7 +3,7 @@
 	import type {SvelteHTMLElements} from 'svelte/elements';
 	import {swallow} from '@fuzdev/fuz_util/dom.js';
 
-	import type {DialogLayout} from './dialog.js';
+	import {dialog_context, type DialogContext, type DialogLayout} from './dialog.js';
 
 	/*
 
@@ -13,9 +13,10 @@
 	closes on Escape, and restores focus to the previously focused element on close
 	-- all natively. The dim background is the native `::backdrop`.
 
-	We render a full-viewport overlay (a centered `.dialog-content`) inside the
-	dialog rather than a content-sized box, to preserve the scrolling and
-	`layout="page"` behaviors.
+	We render a full-viewport overlay inside the dialog rather than a content-sized
+	box, to preserve the scrolling and `layout="page"` behaviors. The content
+	surface itself is the consumer's -- pair this with `DialogContent` for the
+	default `.pane` card and gutter, or render your own surface in `children`.
 
 	*/
 
@@ -51,13 +52,14 @@
 		/**
 		 * Selector for the dialog's content surface(s). When `dismissable`, a press
 		 * that isn't inside an element matching this selector closes the dialog.
-		 * Defaults to the fuz_css `.pane` card; set it to match your content's
-		 * outermost surface -- with no match, presses anywhere close the dialog.
+		 * Defaults to the fuz_css `.pane` card, matching `DialogContent`; set it to
+		 * match your content's outermost surface -- with no match, presses anywhere
+		 * close the dialog.
 		 * @default '.pane'
 		 */
 		content_selector?: string;
 		onclose?: () => void;
-		children: Snippet<[close: (e?: Event) => void]>;
+		children: Snippet<[dialog: DialogContext]>;
 	} = $props();
 
 	let dialog_el: HTMLDialogElement | undefined;
@@ -81,6 +83,11 @@
 		if (e) swallow(e);
 		request_close();
 	};
+
+	// The context is both passed to `children` and set for descendants (e.g.
+	// `DialogContent`), so either path can close the dialog.
+	const context: DialogContext = {close};
+	dialog_context.set(context);
 
 	const setup_dialog = (el: HTMLDialogElement) => {
 		dialog_el = el;
@@ -121,9 +128,7 @@
 					}
 				}}
 			>
-				<div class="dialog-content">
-					{@render children(close)}
-				</div>
+				{@render children(context)}
 			</div>
 		</div>
 	</dialog>
@@ -184,10 +189,5 @@
 		height: 100%;
 		/* makes the content overflow downwards instead of upwards+downwards because it's centered */
 		max-height: 100%;
-	}
-
-	.dialog-content {
-		width: 100%;
-		padding: 40px;
 	}
 </style>

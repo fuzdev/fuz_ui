@@ -6,6 +6,7 @@
 	import TomeContent from '$lib/TomeContent.svelte';
 	import {tome_get_by_slug} from '$lib/tome.js';
 	import Dialog from '$lib/Dialog.svelte';
+	import DialogContent from '$lib/DialogContent.svelte';
 	import TomeLink from '$lib/TomeLink.svelte';
 	import MdnLink from '$lib/MdnLink.svelte';
 	import DeclarationLink from '$lib/DeclarationLink.svelte';
@@ -51,7 +52,9 @@
 	<section>
 		<p>
 			Mounting the component opens the dialog, so the simplest usage gates it with
-			<code>{'{#if}'}</code>:
+			<code>{'{#if}'}</code>. Wrap the content in a <DeclarationLink name="DialogContent" /> for a padded,
+			centered <code>.pane</code> card by default -- it reads <code>close</code> from context, so
+			you don't thread it down from <DeclarationLink name="Dialog" />:
 		</p>
 		<Code
 			content={`<button onclick={() => (opened = true)}>
@@ -59,15 +62,13 @@
 </button>
 {#if opened}
 	<Dialog onclose={() => (opened = false)}>
-		{#snippet children(close)}
-			<div class="box">
-				<div class="pane p_xl box">
-					<h1>attention</h1>
-					<p>this is a dialog</p>
-					<button onclick={close}>ok</button>
-				</div>
-			</div>
-		{/snippet}
+		<DialogContent>
+			{#snippet children({close})}
+				<h1>attention</h1>
+				<p>this is a dialog</p>
+				<button onclick={close}>ok</button>
+			{/snippet}
+		</DialogContent>
 	</Dialog>
 {/if}`}
 		/>
@@ -77,13 +78,22 @@
 		</p>
 		<Code
 			content={`<Dialog show={opened} onclose={() => (opened = false)}>
-	{#snippet children(close)}
-		<div class="pane p_xl box">
+	<DialogContent>
+		{#snippet children({close})}
 			<button onclick={close}>ok</button>
-		</div>
-	{/snippet}
+		{/snippet}
+	</DialogContent>
 </Dialog>`}
 		/>
+		<p>
+			Override the card's classes with <code>class</code> (it defaults to
+			<code>box p_xl width_atmost_md</code>; the <code>pane</code> class is always applied) and the
+			surrounding gutter with <code>gutter</code>. <DeclarationLink name="DialogContent" /> is also optional
+			-- render your own surface directly in <DeclarationLink name="Dialog" />'s
+			<code>children</code> snippet (which also receives the dialog context, e.g.
+			<code>{'{close}'}</code>) when you need a custom layout, multiple <code>.pane</code>s, or a
+			non-<code>.pane</code> content surface (set <code>content_selector</code> to match).
+		</p>
 	</section>
 	<section>
 		<button type="button" class="mb_lg" onclick={() => (opened = true)}> open a dialog </button>
@@ -104,33 +114,29 @@
 </TomeContent>
 {#if opened}
 	<Dialog onclose={() => (opened = false)}>
-		{#snippet children(close)}
-			<div class="box">
-				<div class="pane p_xl box">
-					<h1>attention</h1>
-					<p>this is a dialog</p>
-					<button type="button" onclick={close}>ok</button>
-				</div>
-			</div>
-		{/snippet}
+		<DialogContent>
+			{#snippet children({close})}
+				<h1>attention</h1>
+				<p>this is a dialog</p>
+				<button type="button" onclick={close}>ok</button>
+			{/snippet}
+		</DialogContent>
 	</Dialog>
 {/if}
 {#if dialog_overflowing_opened}
 	<Dialog onclose={() => (dialog_overflowing_opened = false)}>
-		{#snippet children(close)}
-			<div class="box">
-				<div class="pane p_xl">
-					<!-- focus a static element at the top so the dialog opens scrolled to the top;
-					otherwise `showModal()` focuses the close button at the bottom and scrolls to it -->
-					<!-- svelte-ignore a11y_autofocus -->
-					<h1 tabindex="-1" autofocus>attention</h1>
-					{#each {length: 120} as _, i (i)}
-						<p>this is a dialog that overflows vertically</p>
-					{/each}
-					<button type="button" onclick={close}>close</button>
-				</div>
-			</div>
-		{/snippet}
+		<DialogContent>
+			{#snippet children({close})}
+				<!-- focus a static element at the top so the dialog opens scrolled to the top;
+				otherwise `showModal()` focuses the close button at the bottom and scrolls to it -->
+				<!-- svelte-ignore a11y_autofocus -->
+				<h1 tabindex="-1" autofocus>attention</h1>
+				{#each {length: 120} as _, i (i)}
+					<p>this is a dialog that overflows vertically</p>
+				{/each}
+				<button type="button" onclick={close}>close</button>
+			{/snippet}
+		</DialogContent>
 	</Dialog>
 {/if}
 {#if dialog_layout_page_opened}
@@ -138,107 +144,99 @@
 		onclose={() => ((dialog_layout_page_opened = false), reset_items())}
 		layout={selected_layout}
 	>
-		{#snippet children(close)}
-			<div class="box">
-				<div class="pane p_xl width_atmost_md">
-					{#if selected_layout === 'page'}
-						<p>
-							This is a <DeclarationLink name="Dialog" /> with
-							<code
-								>layout="<select bind:value={selected_layout} style:width="120px"
-									>{#each dialog_layouts as layout (layout)}
-										<option value={layout}>{layout}</option>
-									{/each}
-								</select>"</code
-							>.
-						</p>
-						<p>
-							Instead of being centered by default, the dialog's contents are aligned to the top of
-							the page and grow downward. It's useful when the dialog's contents change in height.
-						</p>
-					{:else if selected_layout === 'centered'}
-						<p>
-							This is a <DeclarationLink name="Dialog" /> with
-							<code
-								>layout="<select bind:value={selected_layout} style:width="120px"
-									>{#each dialog_layouts as layout (layout)}
-										<option value={layout}>{layout}</option>
-									{/each}
-								</select>"</code
-							>, the default value.
-						</p>
-						<p>
-							It's often the best choice, but it can be undesirable in some situations, like when
-							the height of the content changes as the user does things, leading to a janky
-							experience.
-						</p>
-					{:else}
-						<Alert status="error">eek a bug! unknown layout "{selected_layout}"</Alert>
-					{/if}
+		<DialogContent>
+			{#snippet children({close})}
+				{#if selected_layout === 'page'}
 					<p>
-						<button type="button" onclick={() => add_item()}>add item</button>
-						<button type="button" disabled={!items.length} onclick={() => reset_items()}
-							>remove all</button
-						>
+						This is a <DeclarationLink name="Dialog" /> with
+						<code
+							>layout="<select bind:value={selected_layout} style:width="120px"
+								>{#each dialog_layouts as layout (layout)}
+									<option value={layout}>{layout}</option>
+								{/each}
+							</select>"</code
+						>.
 					</p>
-					{#each items as item (item)}
-						<p transition:slide>
-							<button type="button" onclick={() => remove_item(item)}>✕</button>
-							new stuff appears {#if selected_layout === 'page'}gracefully{:else if selected_layout === 'centered'}ungracefully{/if}
-						</p>
-					{/each}
-					<button type="button" onclick={close}>close</button>
-				</div>
-			</div>
-		{/snippet}
+					<p>
+						Instead of being centered by default, the dialog's contents are aligned to the top of
+						the page and grow downward. It's useful when the dialog's contents change in height.
+					</p>
+				{:else if selected_layout === 'centered'}
+					<p>
+						This is a <DeclarationLink name="Dialog" /> with
+						<code
+							>layout="<select bind:value={selected_layout} style:width="120px"
+								>{#each dialog_layouts as layout (layout)}
+									<option value={layout}>{layout}</option>
+								{/each}
+							</select>"</code
+						>, the default value.
+					</p>
+					<p>
+						It's often the best choice, but it can be undesirable in some situations, like when the
+						height of the content changes as the user does things, leading to a janky experience.
+					</p>
+				{:else}
+					<Alert status="error">eek a bug! unknown layout "{selected_layout}"</Alert>
+				{/if}
+				<p>
+					<button type="button" onclick={() => add_item()}>add item</button>
+					<button type="button" disabled={!items.length} onclick={() => reset_items()}
+						>remove all</button
+					>
+				</p>
+				{#each items as item (item)}
+					<p transition:slide>
+						<button type="button" onclick={() => remove_item(item)}>✕</button>
+						new stuff appears {#if selected_layout === 'page'}gracefully{:else if selected_layout === 'centered'}ungracefully{/if}
+					</p>
+				{/each}
+				<button type="button" onclick={close}>close</button>
+			{/snippet}
+		</DialogContent>
 	</Dialog>
 {/if}
 {#if dialog_nested_1_opened}
 	<Dialog onclose={() => (dialog_nested_1_opened = false)}>
-		<div class="box">
-			<div class="pane p_xl">
-				<h1>dialog 1</h1>
-				<p>dialogs can open more dialogs</p>
-				<button type="button" onclick={() => (dialog_nested_2_opened = true)}
-					>open another dialog</button
-				>
-			</div>
-		</div>
+		<DialogContent>
+			<h1>dialog 1</h1>
+			<p>dialogs can open more dialogs</p>
+			<button type="button" onclick={() => (dialog_nested_2_opened = true)}
+				>open another dialog</button
+			>
+		</DialogContent>
 	</Dialog>
 {/if}
 {#if dialog_nested_2_opened}
 	<Dialog onclose={() => (dialog_nested_2_opened = false)}>
-		<div class="box">
-			<div class="pane p_xl">
-				<h1>dialog 2</h1>
-				<p>this dialog can open more dialogs</p>
-				<p>this is the second dialog</p>
-				<button type="button" onclick={() => (dialog_nested_3_opened = true)}
-					>open another dialog</button
-				>
-			</div>
-		</div>
+		<DialogContent>
+			<h1>dialog 2</h1>
+			<p>this dialog can open more dialogs</p>
+			<p>this is the second dialog</p>
+			<button type="button" onclick={() => (dialog_nested_3_opened = true)}
+				>open another dialog</button
+			>
+		</DialogContent>
 	</Dialog>
 {/if}
 {#if dialog_no_dismiss_opened}
 	<Dialog onclose={() => (dialog_no_dismiss_opened = false)} dismissable={false}>
-		{#snippet children(close)}
-			<div class="box">
-				<div class="pane p_xl box width_atmost_md">
-					<h1>no click-outside</h1>
-					<p>
-						This dialog passes <code>dismissable={'{false}'}</code>, so clicking outside the content
-						does nothing. <kbd>Escape</kbd> and the button still close it.
-					</p>
-					<button type="button" onclick={close}>close</button>
-				</div>
-			</div>
-		{/snippet}
+		<DialogContent>
+			{#snippet children({close})}
+				<h1>no click-outside</h1>
+				<p>
+					This dialog passes <code>dismissable={'{false}'}</code>, so clicking outside the content
+					does nothing. <kbd>Escape</kbd> and the button still close it.
+				</p>
+				<button type="button" onclick={close}>close</button>
+			{/snippet}
+		</DialogContent>
 	</Dialog>
 {/if}
 {#if dialog_nested_3_opened}
+	<!-- the bare-children path (no DialogContent): render your own surface, here multiple panes -->
 	<Dialog onclose={() => (dialog_nested_3_opened = false)}>
-		<div class="box gap_xl3">
+		<div class="box gap_xl3 p_xl3">
 			<div class="pane p_xl">
 				<h1>3 dialogs!</h1>
 				<button type="button" onclick={() => (dialog_nested_3_opened = false)}>close dialog</button>
