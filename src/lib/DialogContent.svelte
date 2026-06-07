@@ -17,25 +17,34 @@
 	*/
 
 	const {
-		class: class_prop = 'box p_xl width_atmost_md',
+		class: class_prop = 'box p_xl',
 		gutter = 'var(--space_xl3)',
+		max_width = 'var(--distance_md)',
 		children,
 		...rest
 	}: Omit<HTMLAttributes<HTMLDivElement>, 'children' | 'class'> & {
 		/**
 		 * Classes for the `.pane` card. Defaults to the `box` layout (centered
-		 * column), comfortable padding, and a readable max width; pass your own to
-		 * replace these (e.g. `'p_lg'` for a full-width card). The `pane` class is
-		 * always applied.
-		 * @default 'box p_xl width_atmost_md'
+		 * column) and comfortable padding; pass your own to replace these. The
+		 * `pane` class is always applied. Avoid width utilities like
+		 * `width_atmost_md` here, since they set `width: 100%`, which fills the card
+		 * to `max_width` instead of letting it shrink to its content; use `max_width`.
+		 * @default 'box p_xl'
 		 */
 		class?: string;
 		/**
-		 * The gutter between the viewport edges and the `.pane` card -- the area
+		 * The gutter between the viewport edges and the `.pane` card: the area
 		 * outside the card where a press dismisses the dialog. Set to `''` to remove.
 		 * @default 'var(--space_xl3)'
 		 */
 		gutter?: string;
+		/**
+		 * The card's max width. The card shrinks to its content and is capped here,
+		 * so narrow content stays narrow while wide content doesn't sprawl. Set to
+		 * `''` for no cap (pure shrink-to-content).
+		 * @default 'var(--distance_md)'
+		 */
+		max_width?: string;
 		/**
 		 * Rendered inside the `.pane`. Receives the `DialogContext` (e.g. `{close}`)
 		 * so content can close the dialog without reaching into `Dialog`'s
@@ -48,7 +57,7 @@
 </script>
 
 <div class="dialog-content" style:padding={gutter}>
-	<div {...rest} class="pane {class_prop}">
+	<div {...rest} class="pane {class_prop}" style:max-width={max_width}>
 		{@render children(dialog)}
 	</div>
 </div>
@@ -56,7 +65,8 @@
 <style>
 	.dialog-content {
 		width: 100%;
-		/* center the card; the card shrink-wraps unless a width class constrains it */
+		/* center the card and let it shrink to its content (capped by `max_width`);
+		`align-items: center` keeps the flex child from stretching to full width */
 		display: flex;
 		flex-direction: column;
 		align-items: center;

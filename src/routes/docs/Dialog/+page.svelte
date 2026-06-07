@@ -53,8 +53,8 @@
 		<p>
 			Mounting the component opens the dialog, so the simplest usage gates it with
 			<code>{'{#if}'}</code>. Wrap the content in a <DeclarationLink name="DialogContent" /> for a padded,
-			centered <code>.pane</code> card by default -- it reads <code>close</code> from context, so
-			you don't thread it down from <DeclarationLink name="Dialog" />:
+			centered <code>.pane</code> card by default. It reads <code>close</code> from context, so you
+			don't thread it down from <DeclarationLink name="Dialog" />:
 		</p>
 		<Code
 			content={`<button onclick={() => (opened = true)}>
@@ -86,11 +86,13 @@
 </Dialog>`}
 		/>
 		<p>
-			Override the <DeclarationLink name="DialogContent" />'s classes with <code>class</code> (it
-			defaults to <code>box p_xl width_atmost_md</code>; the <code>pane</code> class is always
-			applied) and the surrounding gutter with <code>gutter</code>. <DeclarationLink
-				name="DialogContent"
-			/> is also optional -- render your own content directly in <DeclarationLink name="Dialog" />'s
+			The card shrinks to its content, capped at <code>max_width</code> (default
+			<code>var(--distance_md)</code>), so narrow content stays narrow and wide content doesn't
+			sprawl. Override the <DeclarationLink name="DialogContent" />'s classes with
+			<code>class</code>
+			(default <code>box p_xl</code>; the <code>pane</code> class is always applied) and the
+			surrounding gutter with <code>gutter</code>. <DeclarationLink name="DialogContent" /> is also optional;
+			render your own content directly in <DeclarationLink name="Dialog" />'s
 			<code>children</code> snippet (which also receives the dialog context, e.g.
 			<code>{'{close}'}</code>) when you need a custom layout, multiple <code>.pane</code>s, or non-<code
 				>.pane</code
