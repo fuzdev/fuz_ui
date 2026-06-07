@@ -122,8 +122,12 @@
 				class="dialog-wrapper"
 				role="none"
 				onmousedown={(e) => {
-					// close when a dismissable press lands outside the content surface
-					if (dismissable && !(e.target as Element).closest(content_selector)) {
+					// close when a dismissable press lands outside the content surface;
+					// an empty `content_selector` means no surface, so any press closes
+					if (
+						dismissable &&
+						(!content_selector || !(e.target as Element).closest(content_selector))
+					) {
 						close(e);
 					}
 				}}
