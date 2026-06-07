@@ -108,7 +108,7 @@ helpers (`generateImport`, `getDisplayName` from `declaration-helpers.js`).
 
 ### Overlays and dialogs
 
-- `Dialog`, `Dialogs` - modal dialogs
+- `Dialog`, `DialogContent` - native `<dialog>` modal and its default content surface
 - `Contextmenu*` - context menu system (Root, Entry, LinkEntry, TextEntry,
   Submenu, Separator)
 
@@ -160,7 +160,7 @@ helpers (`generateImport`, `getDisplayName` from `declaration-helpers.js`).
 ### Component helpers
 
 - `contextmenu_state.svelte.ts` - context menu state management
-- `dialog.ts` - dialog utilities (`to_dialog_params()`, DialogLayout enum)
+- `dialog.ts` - dialog types and `dialog_context` (`DialogContext`, `DialogLayout`)
 - `alert.ts` - alert utilities
 - `storage.ts` - localStorage utilities with optional `parse_fn` for custom parsing
 - `csp.ts` - Content Security Policy builder utilities
