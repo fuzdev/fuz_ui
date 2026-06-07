@@ -86,13 +86,16 @@
 </Dialog>`}
 		/>
 		<p>
-			Override the card's classes with <code>class</code> (it defaults to
-			<code>box p_xl width_atmost_md</code>; the <code>pane</code> class is always applied) and the
-			surrounding gutter with <code>gutter</code>. <DeclarationLink name="DialogContent" /> is also optional
-			-- render your own surface directly in <DeclarationLink name="Dialog" />'s
+			Override the <DeclarationLink name="DialogContent" />'s classes with <code>class</code> (it
+			defaults to <code>box p_xl width_atmost_md</code>; the <code>pane</code> class is always
+			applied) and the surrounding gutter with <code>gutter</code>. <DeclarationLink
+				name="DialogContent"
+			/> is also optional -- render your own content directly in <DeclarationLink name="Dialog" />'s
 			<code>children</code> snippet (which also receives the dialog context, e.g.
-			<code>{'{close}'}</code>) when you need a custom layout, multiple <code>.pane</code>s, or a
-			non-<code>.pane</code> content surface (set <code>content_selector</code> to match).
+			<code>{'{close}'}</code>) when you need a custom layout, multiple <code>.pane</code>s, or non-<code
+				>.pane</code
+			>
+			content (set <code>content_selector</code> to match).
 		</p>
 	</section>
 	<section>
