@@ -1,5 +1,6 @@
 <script lang="ts">
 	import type {Snippet} from 'svelte';
+	import type {SvelteHTMLElements} from 'svelte/elements';
 	import {swallow} from '@fuzdev/fuz_util/dom.js';
 
 	import type {DialogLayout} from './dialog.js';
@@ -24,7 +25,8 @@
 		content_selector = '.pane',
 		onclose,
 		children,
-	}: {
+		...rest
+	}: Omit<SvelteHTMLElements['dialog'], 'children' | 'onclose'> & {
 		/**
 		 * Whether the dialog is shown. When the `<dialog>` mounts it opens via
 		 * `showModal()`; when it unmounts it closes.
@@ -94,22 +96,24 @@
 </script>
 
 {#if show}
-	<dialog class="dialog" class:layout-page={layout === 'page'} {@attach setup_dialog}>
+	<dialog
+		{...rest}
+		class="dialog {rest.class}"
+		class:layout-page={layout === 'page'}
+		{@attach setup_dialog}
+	>
 		<div class="dialog-layout">
 			<div
 				class="dialog-wrapper"
 				role="none"
 				onmousedown={(e) => {
-					// Close if clicking outside `content_el` but inside the wrapper.
+					// close when the press lands outside the content (a `content_selector`
+					// match if given, else the content box)
 					const target = e.target as Element;
-					if (
-						content_el &&
-						(content_el === target ||
-							!content_el.contains(target) ||
-							(content_selector && !target.closest(content_selector)))
-					) {
-						close(e);
-					}
+					const outside = content_selector
+						? !target.closest(content_selector)
+						: !!content_el && !content_el.contains(target);
+					if (outside) close(e);
 				}}
 			>
 				<div class="dialog-content" bind:this={content_el}>
