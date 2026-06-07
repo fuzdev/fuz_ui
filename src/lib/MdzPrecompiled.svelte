@@ -1,0 +1,30 @@
+<script lang="ts">
+	import type {Snippet} from 'svelte';
+	import type {SvelteHTMLElements} from 'svelte/elements';
+
+	/**
+	 * Wrapper for precompiled mdz content. Used by `svelte_preprocess_mdz`.
+	 * Not intended for direct use.
+	 *
+	 * @module
+	 */
+
+	const {
+		inline = false,
+		nowrap = false,
+		children,
+		...rest
+	}: (SvelteHTMLElements['div'] | SvelteHTMLElements['span']) & {
+		inline?: boolean;
+		nowrap?: boolean;
+		children: Snippet;
+	} = $props();
+</script>
+
+<svelte:element
+	this={inline ? 'span' : 'div'}
+	{...rest}
+	style:white-space={nowrap ? 'pre' : 'pre-wrap'}
+>
+	{@render children()}
+</svelte:element>

@@ -1,17 +1,18 @@
 # Deps
-node_modules
+node_modules/
 
 # Output
-/.svelte-kit
-/build
-/dist
-/dist_*
-/.gro
-/.zzz
+.svelte-kit/
+build/
+dist/
+dist_*/
+target/
+.gro/
+.fuz/
+.zzz/
 
 # Env
-.env
-.env.*
+.env*
 !.env.example
 !.env.*.example
 !.env.test
@@ -26,12 +27,21 @@ id_rsa
 *.ignore.*
 ignore
 
+# Temporary files
+tmp/
+*.tmp
+.tmp*
+*.bak
+
+# Log files
+*.log
+
 # Workflow
 /worktree
+
+# Benchmarks
+src/benchmarks/baseline.json
 
 # Os
 .DS_Store
 Thumbs.db
-
-# GitHub
-.github/copilot-instructions.md

@@ -1,40 +1,35 @@
 <script lang="ts">
-	import {page} from '$app/stores';
-	import {strip_start} from '@ryanatkn/belt/string.js';
+	import {page} from '$app/state';
+	import {strip_start} from '@fuzdev/fuz_util/string.js';
 	import {goto} from '$app/navigation';
-	import type {Snippet} from 'svelte';
-	import {BROWSER} from 'esm-env';
+	import {onMount, type Snippet} from 'svelte';
 
-	interface Props {
+	const {
+		host = '',
+		path = page.url.pathname,
+		auto = true,
+		children,
+	}: {
 		/**
-		 * The target host to redirect to. Defaults to the current `location.host`.
-		 * @nonreactive
+		 * The target host to redirect to. Defaults to `''` (relative URL).
 		 */
 		host?: string;
 		/**
 		 * The target path to redirect to. Defaults to the current `location.pathname`.
-		 * @nonreactive
 		 */
 		path?: string;
 		/**
 		 * Should the redirect happen automatically without user input? Defaults to `true`.
-		 * @nonreactive
 		 */
 		auto?: boolean;
 		children?: Snippet<[url: string]>;
-	}
+	} = $props();
 
-	const {host = '', path = undefined, auto = true, children}: Props = $props();
+	const url = $derived(host + path);
 
-	// TODO This line shouldn't exist, `path = undefined`, should be `path = $page.url.pathname`,
-	// but it appears to be a bug in Svelte (or possibly SvelteKit) during SSR:
-	// `ReferenceError: $page is not defined`, the `$page` isn't a variable in the file as expected.
-	// Look to see if it's reported, and if not make a reproduction.
-	const final_path = path ?? $page.url.pathname;
-
-	const url = host + final_path;
-
-	if (auto && BROWSER) void goto(url, {replaceState: true});
+	onMount(() => {
+		if (auto) void goto(url, {replaceState: true}); // eslint-disable-line svelte/no-navigation-without-resolve
+	});
 </script>
 
 <svelte:head>
@@ -42,5 +37,6 @@
 </svelte:head>
 
 {#if children}{@render children(url)}{:else}<p>
+		<!-- eslint-disable-next-line svelte/no-navigation-without-resolve -->
 		redirect to <a href={url}>{strip_start(url, 'https://')}</a>
 	</p>{/if}

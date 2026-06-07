@@ -1,7 +1,11 @@
 <script lang="ts">
 	import {onDestroy, type Snippet} from 'svelte';
 
-	interface Props {
+	const {
+		to,
+		onmove,
+		children,
+	}: {
 		/**
 		 * Defaults to `undefined` to lessen friction with SSR.
 		 * We may want to change this to optionally accept a string selector,
@@ -10,11 +14,9 @@
 		to?: HTMLElement | undefined | null;
 		onmove?: (el: HTMLElement, to: HTMLElement) => void;
 		children: Snippet;
-	}
+	} = $props();
 
-	const {to, onmove, children}: Props = $props();
-
-	let el: HTMLElement | undefined | null = $state();
+	let el: HTMLElement | undefined | null = $state.raw();
 
 	$effect(() => {
 		if (el && to) {
@@ -22,7 +24,7 @@
 		}
 	});
 
-	let moved = $state(false);
+	let moved = $state.raw(false);
 
 	const move = (el: HTMLElement, to: HTMLElement): void => {
 		moved = true;

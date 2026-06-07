@@ -1,0 +1,108 @@
+import type {ModuleJsonInput} from 'svelte-docinfo/types.js';
+
+import {Declaration} from './declaration.svelte.js';
+import type {Library} from './library.svelte.js';
+import {url_github_file} from '@fuzdev/fuz_util/package_helpers.js';
+
+/**
+ * Rich runtime representation of a module with computed properties.
+ *
+ * Wraps svelte-docinfo's `ModuleJson` with reactive derivations,
+ * URL generation, and `Declaration` instances.
+ *
+ * @see {@link https://github.com/ryanatkn/svelte-docinfo svelte-docinfo} for the analysis library
+ * @see `declaration.svelte.ts` for the `Declaration` wrapper class
+ */
+export class Module {
+	readonly library: Library = $state.raw()!;
+	// The `virtual:svelte-docinfo` module is compacted (svelte-docinfo's
+	// `compactReplacer` strips empty default arrays), so the runtime data is the
+	// `*Input` shape. Typing it as input makes TypeScript force guards on
+	// defaulted-array reads.
+	readonly module_json: ModuleJsonInput = $state.raw()!;
+
+	/**
+	 * Canonical module path — `src/lib/`-relative, with source extension
+	 * (`.ts`, `.svelte`, etc.). Examples: `'Alert.ts'`, `'helpers/foo.ts'`,
+	 * `'actions/composables.ts'`.
+	 *
+	 * This is the key `Library.module_by_path` indexes, so it's also the
+	 * exact string TSDoc backtick references must use to auto-link to a
+	 * module via `DocsLink.svelte` (e.g., `` `actions/composables.ts` ``).
+	 * A leading `./` or a `.js` runtime extension will not match. Top-level
+	 * files match by bare filename; nested files require the full sub-path.
+	 */
+	path = $derived(this.module_json.path);
+
+	/**
+	 * Import-style path with ./ prefix.
+	 */
+	path_import = $derived('./' + this.path);
+
+	module_comment = $derived(this.module_json.moduleComment);
+
+	/**
+	 * Array of `Declaration` instances. Filters out default exports.
+	 */
+	declarations = $derived(
+		(this.module_json.declarations ?? [])
+			.filter((declaration_json) => declaration_json.name !== 'default')
+			.map((declaration_json) => new Declaration(this, declaration_json)),
+	);
+
+	/**
+	 * API documentation URL for this module.
+	 */
+	url_api = $derived(`/docs/api${this.library.url_prefix}/${this.path}`);
+
+	/**
+	 * Public documentation link (if `homepage_url` is available).
+	 *
+	 * Absolute URL into the library's own deployed docs, for rendering a
+	 * foreign library's modules on a different site (e.g. an aggregator).
+	 */
+	url_api_full = $derived(
+		this.library.homepage_url
+			? `${this.library.homepage_url.replace(/\/$/, '')}/docs/api/${this.path}`
+			: undefined,
+	);
+
+	/**
+	 * GitHub source URL.
+	 */
+	url_github = $derived(
+		this.library.repo_url
+			? url_github_file(this.library.repo_url, `src/lib/${this.path}`)
+			: undefined,
+	);
+
+	has_declarations: boolean = $derived((this.module_json.declarations?.length ?? 0) > 0);
+
+	has_module_comment: boolean = $derived(!!this.module_comment);
+
+	/**
+	 * Modules this imports (paths relative to src/lib).
+	 */
+	dependencies = $derived(this.module_json.dependencies ?? []);
+
+	/**
+	 * Modules that import this (paths relative to src/lib).
+	 */
+	dependents = $derived(this.module_json.dependents ?? []);
+
+	has_dependencies: boolean = $derived(this.dependencies.length > 0);
+
+	has_dependents: boolean = $derived(this.dependents.length > 0);
+
+	constructor(library: Library, module_json: ModuleJsonInput) {
+		this.library = library;
+		this.module_json = module_json;
+	}
+
+	/**
+	 * Look up a declaration by name within this module.
+	 */
+	get_declaration_by_name(name: string): Declaration | undefined {
+		return this.declarations.find((d) => d.name === name);
+	}
+}

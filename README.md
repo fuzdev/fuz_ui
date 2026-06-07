@@ -1,28 +1,30 @@
 # Fuz
 
-[<img src="static/logo.svg" alt="a friendly brown spider facing you" align="right" width="192" height="192">](https://www.fuz.dev/)
+[<img src="static/logo.svg" alt="a friendly brown spider facing you" align="right" width="192" height="192">](https://ui.fuz.dev/)
 
-> friendly user zystem 🧶 [fuz.dev](https://www.fuz.dev/)
+> friendly user zystem 🧶 [fuz.dev](https://ui.fuz.dev/)
 
-Fuz is a [Svelte](https://svelte.dev/) UI library
-with components and helpers for making modern websites.
-It's in early alpha and it will go through many breaking changes.
+fuz_ui is a Svelte UI library with components and helpers for making zippy
+websites. It's built on [fuz_css](https://css.fuz.dev/)
+and provides includes a documentation system built on
+[svelte-docinfo](https://svelte-docinfo.fuz.dev/).
+It's in early alpha with breaking changes ahead.
 
-Fuz is being made to support
+fuz_ui is being made to support
 [my other projects](https://www.ryanatkn.com/)
 that focus on end-users.
 Fuz emphasizes capability and efficiency and tries to be simple for those goals.
 Compared to most UI libraries, Fuz has fewer conventional features and more opinions.
 
-To learn more see [the docs](https://www.fuz.dev/library) and [contributing.md](contributing.md).
+To learn more see [the docs](https://ui.fuz.dev/docs) and [contributing.md](contributing.md).
 Feel free to take the ideas and code for your own purposes.
 
 The Svelte components and helpers:
 
-- builds on my CSS framework [Moss](https://github.com/ryanatkn/moss)
+- builds on [fuz_css](https://github.com/fuzdev/fuz_css)
 - plain CSS and minimal abstraction
-- near-zero dependencies except for Svelte, SvelteKit, Moss,
-  and my utility library [`@ryanatkn/belt`](https://github.com/ryanatkn/belt)
+- near-zero dependencies except for Svelte, SvelteKit, fuz_css,
+  and my utility library [`@fuzdev/fuz_util`](https://github.com/fuzdev/fuz_util)
   (not all components require SvelteKit but some do import its modules, needs more consideration)
 - not a fully-featured enterprise-ready set of components,
   it's being developed for the needs of specific projects, though eventually it will fill out
@@ -36,36 +38,36 @@ The Svelte components and helpers:
 > thank you see [contributing.md](contributing.md), your input is appreciated.
 >
 > If you feel comfortable looking at the source code,
-> Fuz is ready to use in your own projects,
+> fuz_ui is ready to use in your own projects,
 > with the major caveat that there will be a lot of breaking changes ahead.
 > The code is significantly incomplete but I think it's stable enough to use
 > if you're willing to keep up with the relatively fast-moving changelog.
 
 ```bash
-npm i -D @ryanatkn/fuz
+npm i -D @fuzdev/fuz_ui
 ```
 
-Fuz uses my style framework [Moss](https://github.com/ryanatkn/moss).
+Fuz uses my style framework [fuz_css](https://github.com/fuzdev/fuz_css).
 Import modules at their full paths:
 
 ```ts
-// Moss has one main plain CSS stylesheet:
-import '@ryanatkn/moss/style.css';
+// fuz_css has one main plain CSS stylesheet:
+import '@fuzdev/fuz_css/style.css';
 
-// and import a Moss theme:
-import '@ryanatkn/moss/theme.css'; // or bring your own
+// and import a fuz_css theme:
+import '@fuzdev/fuz_css/theme.css'; // or bring your own
 
-// using Gro generates Moss' utility classes stylesheet by default:
-import '$routes/moss.css';
+// the fuz_css Vite plugin exposes the generated utility classes as a virtual module:
+import 'virtual:fuz.css';
 
 // then import Fuz Svelte components:
-import Themed from '@ryanatkn/fuz/Themed.svelte';
+import ThemeRoot from '@fuzdev/fuz_ui/ThemeRoot.svelte';
 
 // and Fuz TypeScript modules:
-import {type Theme, themer_context} from '@ryanatkn/fuz/theme.svelte.js';
+import {type Theme, theme_state_context} from '@fuzdev/fuz_ui/theme_state.svelte.js';
 ```
 
-See [the library](https://www.fuz.dev/library) for more.
+See [the library](https://ui.fuz.dev/docs) for more.
 
 ## Contributing
 
@@ -84,7 +86,7 @@ npm run build
 npm start
 ```
 
-Fuz uses [Gro](https://github.com/ryanatkn/gro),
+Fuz uses [Gro](https://github.com/fuzdev/gro),
 my CLI and toolkit that I use to run tasks in all of my projects.
 If you're not allergic it's handy to install globally.
 

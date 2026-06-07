@@ -1,0 +1,78 @@
+[
+	{
+		"type": "Paragraph",
+		"children": [
+			{
+				"type": "Text",
+				"content": "See ",
+				"start": 0,
+				"end": 4
+			},
+			{
+				"type": "Link",
+				"reference": "/docs/mdz",
+				"children": [
+					{
+						"type": "Text",
+						"content": "/docs/mdz",
+						"start": 4,
+						"end": 13
+					}
+				],
+				"link_type": "internal",
+				"start": 4,
+				"end": 13
+			},
+			{
+				"type": "Text",
+				"content": " and ",
+				"start": 13,
+				"end": 18
+			},
+			{
+				"type": "Link",
+				"reference": "https://external.com",
+				"children": [
+					{
+						"type": "Text",
+						"content": "https://external.com",
+						"start": 18,
+						"end": 38
+					}
+				],
+				"link_type": "external",
+				"start": 18,
+				"end": 38
+			},
+			{
+				"type": "Text",
+				"content": " and ",
+				"start": 38,
+				"end": 43
+			},
+			{
+				"type": "Link",
+				"reference": "https://fuz.dev",
+				"children": [
+					{
+						"type": "Text",
+						"content": "markdown",
+						"start": 44,
+						"end": 52
+					}
+				],
+				"link_type": "external",
+				"start": 43,
+				"end": 70
+			},
+			{
+				"type": "Text",
+				"content": " links.",
+				"start": 70,
+				"end": 77
+			}
+		],
+		"start": 0,
+		"end": 77
+	}
+]

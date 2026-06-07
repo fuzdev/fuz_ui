@@ -1,12 +1,12 @@
 <script lang="ts">
-	import Color_Scheme_Input from '$lib/Color_Scheme_Input.svelte';
-	import Theme_Input from '$lib/Theme_Input.svelte';
+	import ColorSchemeInput from '$lib/ColorSchemeInput.svelte';
+	import ThemeInput from '$lib/ThemeInput.svelte';
 </script>
 
 <div class="p_xl box">
 	<h1 class="mb_0">Settings</h1>
 	<h2>Color Scheme</h2>
-	<Color_Scheme_Input />
+	<ColorSchemeInput />
 	<h2>Theme</h2>
-	<Theme_Input />
+	<ThemeInput />
 </div>

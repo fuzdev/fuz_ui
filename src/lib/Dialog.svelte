@@ -1,10 +1,10 @@
 <script lang="ts">
 	import type {Snippet} from 'svelte';
-	import {is_editable, swallow} from '@ryanatkn/belt/dom.js';
-	import {wait} from '@ryanatkn/belt/async.js';
+	import {is_editable, swallow} from '@fuzdev/fuz_util/dom.js';
+	import {wait} from '@fuzdev/fuz_util/async.js';
 
-	import Teleport from '$lib/Teleport.svelte';
-	import type {Dialog_Layout} from '$lib/dialog.js';
+	import Teleport from './Teleport.svelte';
+	import type {DialogLayout} from './dialog.js';
 
 	// TODO use `<dialog>` here instead of `Teleport`
 	// https://developer.mozilla.org/en-US/docs/Web/HTML/Element/dialog
@@ -21,21 +21,30 @@
 
 	*/
 
-	interface Props {
-		show?: boolean | undefined;
-
+	const {
+		container,
+		layout = 'centered',
+		index = 0,
+		active = true,
+		content_selector = '.pane',
+		onclose,
+		children,
+	}: {
 		// TODO maybe change this API away from an element to a selector? or remove the API completely?
 		container?: HTMLElement;
 		/**
 		 * @default 'centered'
 		 */
-		layout?: Dialog_Layout;
+		layout?: DialogLayout;
 		/**
 		 * index 0 is under 1 is under 2 etc -- the topmost dialog is the last in the array
 		 * @default 0
 		 */
 		index?: number;
-
+		/**
+		 * @default true
+		 */
+		active?: boolean;
 		/**
 		 * If provided, prevents clicks that would close the dialog
 		 * from bubbling past any elements matching this selector.
@@ -44,22 +53,12 @@
 		content_selector?: string | null;
 		onclose?: () => void;
 		children: Snippet<[close: (e?: Event) => void]>;
-	}
-
-	const {
-		show,
-		container,
-		layout = 'centered',
-		index = 0,
-		content_selector = '.pane',
-		onclose,
-		children,
-	}: Props = $props();
+	} = $props();
 
 	const ROOT_SELECTOR = 'body'; // TODO make configurable
 	const CONTAINER_ID = 'fuz_dialog';
 
-	let container_el: HTMLElement | undefined = $state();
+	let container_el: HTMLElement | undefined = $state.raw();
 	$effect(() => {
 		update_container_el(container);
 	});
@@ -84,8 +83,8 @@
 		}
 	};
 
-	let dialog_el: HTMLElement | undefined = $state();
-	let content_el: HTMLElement | undefined = $state();
+	let dialog_el: HTMLElement | undefined = $state.raw();
+	let content_el: HTMLElement | undefined = $state.raw();
 
 	const close = (e?: Event) => {
 		if (e) swallow(e);
@@ -107,69 +106,71 @@
 
 	// The dialog isn't "ready" until the teleport moves it.
 	// Rendering the the dialog's children only once it's ready fixes things like `autofocus`.
-	let ready = $state(false);
+	let ready = $state.raw(false);
 </script>
 
-<svelte:window onkeydown={show ? on_window_keydown : undefined} />
+<svelte:window onkeydown={active ? on_window_keydown : undefined} />
 
-{#if show}
-	<!--
+<!--
 	The `tabindex` and `el.focus()` fix scrolling with the keyboard,
 	needed because SvelteKit puts `tabindex` on the body,
 	but there's more that needs to be done for accessibility, like focus capture.
 	For more see: https://www.w3.org/TR/wai-aria-practices-1.1/#dialog_modal
 	and https://developer.mozilla.org/en-US/docs/Web/Accessibility/Keyboard-navigable_JavaScript_widgets
 -->
-	<Teleport
-		to={container_el}
-		onmove={async () => {
-			await wait(); // TODO this is a hack to get animations working, `Teleport` now mounts synchronously?!
-			ready = true;
-			dialog_el?.focus(); // TODO make this more declarative? probably want to focus only after moving though, not on mount, which makes an action trickier
-		}}
+<Teleport
+	to={container_el}
+	onmove={async () => {
+		await wait(); // TODO this is a hack to get animations working, `Teleport` now mounts synchronously?!
+		ready = true;
+		dialog_el?.focus(); // TODO make this more declarative? probably want to focus only after moving though, not on mount, which makes an action trickier
+	}}
+>
+	<div
+		class="dialog"
+		class:ready
+		class:layout-page={layout === 'page'}
+		role="dialog"
+		aria-modal="true"
+		bind:this={dialog_el}
+		tabindex="-1"
+		style:z-index={100 + index}
 	>
-		<div
-			class="dialog"
-			class:ready
-			class:layout_page={layout === 'page'}
-			role="dialog"
-			aria-modal="true"
-			bind:this={dialog_el}
-			tabindex="-1"
-			style:z-index={100 + index}
-		>
-			<div class="dialog_layout">
-				<div
-					class="dialog_wrapper"
-					role="none"
-					onmousedown={(e) => {
-						// Close if clicking outside `content_el` but inside the wrapper
-						const target = e.target as Element;
-						if (
-							content_el &&
-							(content_el === target ||
-								!content_el.contains(target) ||
-								(content_selector && !target.closest(content_selector)))
-						) {
-							close(e);
-						}
-					}}
-				>
-					<div class="dialog_bg" aria-hidden="true"></div>
-					<div class="dialog_content" bind:this={content_el}>
-						<!-- mount the content only after teleporting to avoid issues -->
-						{#if ready}{@render children(close)}{/if}
-					</div>
+		<div class="dialog-layout">
+			<div
+				class="dialog-wrapper"
+				role="none"
+				onmousedown={(e) => {
+					// Close if clicking outside `content_el` but inside the wrapper
+					const target = e.target as Element;
+					if (
+						content_el &&
+						(content_el === target ||
+							!content_el.contains(target) ||
+							(content_selector && !target.closest(content_selector)))
+					) {
+						close(e);
+					}
+				}}
+			>
+				<div class="dialog-bg" aria-hidden="true"></div>
+				<div class="dialog-content" bind:this={content_el}>
+					<!-- mount the content only after teleporting to avoid issues -->
+					{#if ready}{@render children(close)}{/if}
 				</div>
 			</div>
 		</div>
-	</Teleport>
-{/if}
+	</div>
+</Teleport>
 
 <style>
 	.dialog {
 		--pane_shadow: var(--shadow_bottom_xl)
-			color-mix(in hsl, var(--shadow_color) var(--shadow_alpha_5), transparent);
+			color-mix(
+				in hsl,
+				var(--shadow_color, var(--shadow_color_umbra)) var(--shadow_alpha_70),
+				transparent
+			);
 		position: fixed;
 		inset: 0;
 		overflow: auto;
@@ -179,42 +180,42 @@
 		overscroll-behavior: contain;
 	}
 
-	.dialog_wrapper {
-		position: relative; /* for the bg */
+	.dialog-wrapper {
+		position: relative; /* for the surface */
 		min-height: 100%;
 		display: flex;
 		align-items: center;
 		justify-content: center;
 	}
-	.layout_page .dialog_wrapper {
+	.layout-page .dialog-wrapper {
 		align-items: start;
 	}
 
-	.dialog_bg {
+	.dialog-bg {
 		position: absolute;
 		inset: 0;
 		z-index: 0;
 		opacity: 0;
 		transition: opacity var(--duration_3) ease;
-		background-color: var(--dialog_bg, var(--darken_6));
+		background-color: var(--dialog_bg, var(--darken_60));
 	}
-	.ready .dialog_bg {
+	.ready .dialog-bg {
 		opacity: 1;
 	}
 
-	.dialog_layout {
+	.dialog-layout {
 		height: 100%;
 		/* makes the content overflow downwards instead of upwards+downwards because it's centered */
 		max-height: 100%;
 	}
 
-	.dialog_content {
+	.dialog-content {
 		width: 100%;
 		transform: scale(0.99);
 		transition: transform var(--duration_1) ease;
 		padding: 40px;
 	}
-	.ready .dialog_content {
+	.ready .dialog-content {
 		transform: scale(1);
 	}
 </style>

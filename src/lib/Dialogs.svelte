@@ -1,18 +1,20 @@
 <script lang="ts">
 	import type {Snippet} from 'svelte';
 
-	import type {Dialog_Params} from '$lib/dialog.js';
-	import Dialog from '$lib/Dialog.svelte';
+	import type {DialogParams} from './dialog.js';
+	import Dialog from './Dialog.svelte';
 
 	// TODO this is experimental
 
-	interface Props {
-		dialogs: Array<Dialog_Params>;
+	const {
+		dialogs,
+		onclose,
+		children,
+	}: {
+		dialogs: Array<DialogParams>;
 		onclose?: () => void;
-		children?: Snippet<[dialog: Dialog_Params]>;
-	}
-
-	const {dialogs, onclose, children}: Props = $props();
+		children?: Snippet<[dialog: DialogParams]>;
+	} = $props();
 </script>
 
 {#each dialogs as dialog, index (dialog)}<Dialog
