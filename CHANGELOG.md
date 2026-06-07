@@ -1,5 +1,15 @@
 # @fuzdev/fuz_ui
 
+## 0.200.0
+
+### Minor Changes
+
+- feat: improve docs components ([#127](https://github.com/fuzdev/fuz_ui/pull/127))
+
+### Patch Changes
+
+- tweak: reorder project links ([8789a43](https://github.com/fuzdev/fuz_ui/commit/8789a43))
+
 ## 0.199.0
 
 ### Minor Changes
