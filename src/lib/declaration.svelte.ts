@@ -142,6 +142,12 @@ export class Declaration {
 	alias_of = $derived(this.declaration_json.aliasOf);
 
 	/**
+	 * Other modules that also export this declaration (re-export paths
+	 * relative to src/lib). Absent when only exported from its defining module.
+	 */
+	also_exported_from = $derived(field<Array<string>>(this.declaration_json, 'alsoExportedFrom'));
+
+	/**
 	 * Mutation documentation from `@mutates` tags, mapping parameter names to descriptions.
 	 */
 	mutates = $derived(this.declaration_json.mutates);

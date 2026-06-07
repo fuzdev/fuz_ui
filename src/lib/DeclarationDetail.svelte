@@ -47,6 +47,16 @@ including parameters, props, members, overloads, intersects, and more.
 	{/if}
 </div>
 
+<!-- also exported from -->
+{#if declaration.also_exported_from?.length}
+	<p class="row gap_md flex-wrap:wrap">
+		<strong>also exported from</strong>
+		{#each declaration.also_exported_from as module_path (module_path)}
+			<ModuleLink {module_path} />
+		{/each}
+	</p>
+{/if}
+
 <!-- eslint-disable-next-line @typescript-eslint/no-deprecated -->
 {#if declaration.deprecated_message}
 	<p>
