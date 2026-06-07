@@ -44,14 +44,14 @@ including parameters, props, members, overloads, intersects, and more.
 		{#if param.description}
 			<Mdz content={param.description} />
 		{/if}
-		<div class="row gap_md">
+		<div class="row gap_md mb_sm">
 			<strong>type</strong>
 			<TypeLink type={param.type} />
 		</div>
 		{#if param.optional || param.defaultValue}
 			<div class="row gap_md">
 				{#if param.optional}
-					<span class="chip">optional</span>
+					<strong>optional</strong>
 				{/if}
 				{#if param.defaultValue}
 					<strong>default</strong>
@@ -114,24 +114,27 @@ including parameters, props, members, overloads, intersects, and more.
 </p>
 
 <!-- chips -->
-<div class="row gap_md flex-wrap:wrap">
-	<!-- eslint-disable-next-line @typescript-eslint/no-deprecated -->
-	{#if declaration.is_deprecated}
-		<span class="chip">⚠️ deprecated</span>
-	{/if}
-	{#if declaration.reactivity}
-		<span class="chip">{declaration.reactivity}</span>
-	{/if}
-	{#if declaration.accepts_children}
-		<span class="chip">accepts children</span>
-	{/if}
-	{#if declaration.alias_of}
-		<span class="chip"
-			>alias of {declaration.alias_of.name}{#if declaration.alias_of.module}
-				in {declaration.alias_of.module}{/if}</span
-		>
-	{/if}
-</div>
+<!-- eslint-disable-next-line @typescript-eslint/no-deprecated -->
+{#if declaration.is_deprecated || declaration.reactivity || declaration.accepts_children || declaration.alias_of}
+	<p class="row gap_md flex-wrap:wrap">
+		<!-- eslint-disable-next-line @typescript-eslint/no-deprecated -->
+		{#if declaration.is_deprecated}
+			<span class="chip">⚠️ deprecated</span>
+		{/if}
+		{#if declaration.reactivity}
+			<span class="chip">{declaration.reactivity}</span>
+		{/if}
+		{#if declaration.accepts_children}
+			<span class="chip">accepts children</span>
+		{/if}
+		{#if declaration.alias_of}
+			<span class="chip"
+				>alias of {declaration.alias_of.name}{#if declaration.alias_of.module}
+					in {declaration.alias_of.module}{/if}</span
+			>
+		{/if}
+	</p>
+{/if}
 
 <!-- also exported from -->
 {#if declaration.also_exported_from?.length}
@@ -186,17 +189,17 @@ including parameters, props, members, overloads, intersects, and more.
 				{#if prop.description}
 					<Mdz content={prop.description} />
 				{/if}
-				<div class="row gap_md mb_lg">
+				<div class="row gap_md mb_sm">
 					<strong>type</strong>
 					<TypeLink type={prop.type} />
 				</div>
 				{#if prop.optional || prop.bindable || prop.defaultValue}
 					<div class="row gap_md">
 						{#if prop.optional}
-							<span class="chip">optional</span>
+							<strong>optional</strong>
 						{/if}
 						{#if prop.bindable}
-							<span class="chip">bindable</span>
+							<strong>bindable</strong>
 						{/if}
 						{#if prop.defaultValue}
 							<strong>default</strong>
