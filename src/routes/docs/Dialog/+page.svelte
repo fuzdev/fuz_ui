@@ -95,7 +95,7 @@
 			<code>layout='centered'</code></button
 		>
 		<button type="button" class="mb_lg" onclick={() => (dialog_no_dismiss_opened = true)}
-			>open a dialog with <code>content_selector={'{null}'}</code> (no click-outside)</button
+			>open a dialog with <code>dismissable={'{false}'}</code> (no click-outside)</button
 		>
 		<button type="button" class="mb_lg" onclick={() => (dialog_nested_1_opened = true)}
 			>open a dialog containing another dialog</button
@@ -120,7 +120,10 @@
 		{#snippet children(close)}
 			<div class="box">
 				<div class="pane p_xl">
-					<h1>attention</h1>
+					<!-- focus a static element at the top so the dialog opens scrolled to the top;
+					otherwise `showModal()` focuses the close button at the bottom and scrolls to it -->
+					<!-- svelte-ignore a11y_autofocus -->
+					<h1 tabindex="-1" autofocus>attention</h1>
 					{#each {length: 120} as _, i (i)}
 						<p>this is a dialog that overflows vertically</p>
 					{/each}
@@ -218,14 +221,14 @@
 	</Dialog>
 {/if}
 {#if dialog_no_dismiss_opened}
-	<Dialog onclose={() => (dialog_no_dismiss_opened = false)} content_selector={null}>
+	<Dialog onclose={() => (dialog_no_dismiss_opened = false)} dismissable={false}>
 		{#snippet children(close)}
 			<div class="box">
 				<div class="pane p_xl box width_atmost_md">
 					<h1>no click-outside</h1>
 					<p>
-						This dialog passes <code>content_selector={'{null}'}</code>, so clicking outside the
-						content does nothing. <kbd>Escape</kbd> and the button still close it.
+						This dialog passes <code>dismissable={'{false}'}</code>, so clicking outside the content
+						does nothing. <kbd>Escape</kbd> and the button still close it.
 					</p>
 					<button type="button" onclick={close}>close</button>
 				</div>

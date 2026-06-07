@@ -22,6 +22,7 @@
 	const {
 		show = true,
 		layout = 'centered',
+		dismissable = true,
 		content_selector = '.pane',
 		onclose,
 		children,
@@ -42,11 +43,19 @@
 		 */
 		layout?: DialogLayout;
 		/**
-		 * If set, clicks inside the dialog but outside the closest element matching
-		 * this selector close the dialog. Set to `null` to disable click-outside.
+		 * Whether clicking outside the content (see `content_selector`) closes the
+		 * dialog. `Escape` closes it regardless of this.
+		 * @default true
+		 */
+		dismissable?: boolean;
+		/**
+		 * Selector for the dialog's content surface(s). When `dismissable`, a press
+		 * that isn't inside an element matching this selector closes the dialog.
+		 * Defaults to the fuz_css `.pane` card; set it to match your content's
+		 * outermost surface -- with no match, presses anywhere close the dialog.
 		 * @default '.pane'
 		 */
-		content_selector?: string | null;
+		content_selector?: string;
 		onclose?: () => void;
 		children: Snippet<[close: (e?: Event) => void]>;
 	} = $props();
@@ -106,8 +115,8 @@
 				class="dialog-wrapper"
 				role="none"
 				onmousedown={(e) => {
-					// close when the press lands outside the content (`content_selector`)
-					if (content_selector && !(e.target as Element).closest(content_selector)) {
+					// close when a dismissable press lands outside the content surface
+					if (dismissable && !(e.target as Element).closest(content_selector)) {
 						close(e);
 					}
 				}}
