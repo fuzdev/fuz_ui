@@ -1,0 +1,172 @@
+import"../chunks/DsnmJJEf.js";import{f as r,b as a,d as s,r as i}from"../chunks/Bv2i3XN8.js";import{M as o}from"../chunks/CET_9WAs.js";const d=`# mdz Streaming and Opcodes
+
+mdz can render incrementally as content arrives, like from an LLM emitting tokens one at a time. The streaming parser and its opcode protocol are independent of any specific renderer.
+
+For a high-level introduction and streaming example, see /docs/mdz. For formal grammar, see ../grammar. For comprehensive examples, see ../spec.
+
+> ⚠️ this page is AI-generated, and only partially reviewed
+
+---
+
+## Three rendering paths
+
+mdz ships three ways to turn \`.mdz\` text into a rendered tree. Pick based on whether content is static, available all-at-once, or streaming.
+
+### Path 1: \`Mdz\` component (default)
+
+For inline use in a Svelte template, with content known up front:
+
+\`\`\`svelte
+<Mdz content="**bold** text" />
+\`\`\`
+
+Internally calls \`mdz_parse\` and renders via \`MdzNodeView\`. Best for: documentation pages, alerts, tooltips — anything where you have the full string before render. With /docs/svelte_preprocess_mdz this also compiles away at build time for static strings.
+
+### Path 2: \`mdz_parse\` + \`MdzNodeView\` (one-shot, manual)
+
+For control over wrapper markup, custom whitespace handling, or non-default CSS:
+
+\`\`\`ts
+import {mdz_parse} from '@fuzdev/fuz_ui/mdz.js';
+import MdzNodeView from '@fuzdev/fuz_ui/MdzNodeView.svelte';
+
+const nodes = mdz_parse(content);
+\`\`\`
+
+\`\`\`svelte
+<div class="custom white-space:pre">
+	{#each nodes as node}
+		<MdzNodeView {node} />
+	{/each}
+</div>
+\`\`\`
+
+Same input, same tree as path 1, but you own the surrounding container. \`mdz_parse\` is the canonical reference parser — fixture tests pin its output as the source of truth.
+
+### Path 3: \`MdzStreamParser\` + \`MdzStreamState\` + \`MdzStream\`
+
+For content that arrives in chunks:
+
+\`\`\`ts
+import {MdzStreamParser} from '@fuzdev/fuz_ui/mdz_stream_parser.js';
+import {MdzStreamState} from '@fuzdev/fuz_ui/mdz_stream_state.svelte.js';
+
+const parser = new MdzStreamParser();
+const state = new MdzStreamState();
+
+// feed chunks as they arrive
+parser.feed(chunk);
+state.apply_batch(parser.take_opcodes());
+
+// when done
+parser.finish();
+state.apply_batch(parser.take_opcodes());
+\`\`\`
+
+\`\`\`svelte
+<MdzStream {state} />
+\`\`\`
+
+\`MdzStreamParser\` emits opcodes — small, serializable rendering instructions — as bytes arrive. \`MdzStreamState\` applies them to a reactive Svelte 5 tree. \`MdzStream\` walks that tree and produces DOM. Each layer is replaceable; opcodes are target-agnostic.
+
+---
+
+## Picking a path
+
+Use **path 1** when the content is fixed at write time or arrives from a synchronous source. The svelte_preprocess_mdz preprocessor can collapse the call to a static render.
+
+Use **path 2** when you need custom wrapping markup but still parse all-at-once.
+
+Use **path 3** when chunks arrive over time. The output tree is identical to path 1/2 for the same final input (with one documented exception — see below).
+
+---
+
+## Opcode design
+
+A streaming parser can't backtrack — it must emit something coherent for every byte it consumes. mdz handles this with **optimistic** opens and explicit reverts.
+
+When the parser sees \`**\` it doesn't know yet whether it'll form bold or end up as literal \`**\`. It emits \`open Bold\` immediately. If a closing \`**\` arrives, it emits \`close Bold\` and the speculation succeeded. If a paragraph break or EOF interrupts first, it emits \`revert Bold\` — the consumer drops the wrapper, re-parents the children to the grandparent, and prepends the literal \`**\` delimiter as text.
+
+The opcode types are:
+
+- \`open\` — open a container (Paragraph, Bold, Italic, Link, Heading, Codeblock, etc.)
+- \`close\` — close the previously opened container, with deferred metadata resolved at close time (heading id, link reference). May carry \`discard: true\` for whitespace-only paragraphs the consumer should drop.
+- \`text\` — create a leaf Text or Code node
+- \`append_text\` — extend the last text node (avoids one node per character during plain runs)
+- \`trim_text\` — drop trailing characters from a text node (used for trailing-newline trim at block close)
+- \`void\` — create a self-contained leaf (Hr)
+- \`revert\` — undo an optimistic open, optionally re-wrapping children in a new container
+- \`wrap\` — retroactively wrap an existing text node in a Link (auto-links only — may also split trailing punctuation; see below)
+
+The full type definition is in \`mdz_opcodes.ts\`.
+
+---
+
+## Why \`wrap\` exists
+
+Auto-detected URLs (\`https://...\`, \`/path\`, \`./relative\`) are the one case where neither optimistic-open nor hold-until-terminator gives a good streaming feel.
+
+If the parser opens a Link optimistically on every leading \`h\`, every word starting with h flashes blue before reverting. If it instead holds all bytes until a terminator, a 40-character URL creates a 40-character pause in the rendered output — readers see a stutter.
+
+The \`wrap\` opcode resolves both problems. The URL streams as ordinary visible text. When the terminator finally arrives, \`wrap\` retroactively re-parents that text node inside a Link. The text content never changes — only its parent changes. Readers see prose flowing naturally, then a single moment where the URL upgrades from prose to clickable link. No flash, no pause.
+
+\`wrap\` also handles trailing punctuation trim. For \`https://fuz.dev.\`, the \`.\` is not part of the URL. \`wrap\` carries \`trim_end\` and \`trim_id\` fields that split the text node — the URL portion goes inside the Link, the trailing punctuation becomes a sibling Text node after it.
+
+---
+
+## Determinism and chunk boundaries
+
+The opcode sequence is **not** deterministic across different chunk sizes. The same input fed as one chunk versus many produces different intermediate \`text\`/\`append_text\` splits and different optimistic/revert sequences along the way.
+
+The final rendered tree **is** deterministic — with one documented exception:
+
+**Italic (\`_..._\`) cannot span a chunk boundary.** Italic is the only non-optimistic inline construct — it requires a confirmed closing \`_\` visible in the buffer before opening. If the closer arrives only in a later chunk, the opening \`_\` has already streamed as plain text and can't be retroactively italicized. The one-shot path always forms italic because the full buffer is visible.
+
+This is asserted in \`src/test/mdz_parser_parity.test.ts\` so it can't regress silently. For LLM streaming, chunks are typically multi-token and italic survives within a single chunk; the divergence only triggers for pathologically narrow chunking.
+
+---
+
+## Append-only invariant
+
+Once emitted, opcodes are never mutated or removed. This means:
+
+- A consumer can persist the opcode stream and replay it later.
+- A network protocol can carry opcodes from parser to renderer.
+- The renderer never re-parses.
+
+The \`revert\` and \`trim_text\` opcodes look retroactive but aren't — they're new opcodes the consumer interprets as "drop these nodes" or "shorten this string". The stream itself only grows.
+
+This is the same insight as [pngwn's Penguin-Flavoured Markdown](https://bsky.app/profile/pngwn.at/post/3mi527zntb22n): restrict the dialect so streaming is tractable, render optimistically and correct when wrong, emit serializable opcodes target-agnostically.
+
+---
+
+## Consumers
+
+Two consumers ship in fuz_ui:
+
+- \`mdz_opcodes_to_nodes(opcodes)\` — replays an opcode array into the same \`MdzNode[]\` tree that \`mdz_parse\` produces. Used by tests to assert parity. Useful when you want the static tree shape but already have opcodes (e.g. cached from an earlier stream).
+
+- \`MdzStreamState\` — applies opcodes to a reactive Svelte 5 tree of \`MdzStreamNode\` instances. Each node's \`content\`, \`children\`, and metadata fields are \`$state\`, so Svelte updates only what changed. \`MdzStream\` renders the tree.
+
+The two consumers' outputs are structurally equivalent (parity tests assert this). \`MdzStreamState\` is built for fine-grained reactivity and keeps per-id node identity for granular updates, so it skips a couple of tidies (adjacent-Text merging, single-tag paragraph unwrap) that \`mdz_opcodes_to_nodes\` applies at tree-build time.
+
+---
+
+## Limitations
+
+- **Italic chunk-boundary divergence**, as documented above. Asserted gap, not a bug.
+- **Opcode stream order varies with chunking**, but final tree does not (except for italic).
+- **No partial-revert** — once a container closes, it's committed. Mid-render edits aren't supported.
+- **Single-pass** — backtracking would defeat the streaming guarantee. Ambiguous syntax (e.g. unclosed \`[\`) renders as visible text via revert rather than re-parsing.
+
+---
+
+## See also
+
+- \`MdzStreamParser\` — the parser class
+- \`MdzStreamState\` — reactive consumer
+- \`mdz_opcodes_to_nodes\` — tree consumer
+- \`MdzOpcode\` — opcode type union
+- ../grammar — formal grammar for the dialect
+- ../spec — feature-by-feature spec
+`;var c=r('<div class="mt_xl5"><!></div>');function m(t){var e=c(),n=s(e);o(n,{get content(){return d}}),i(e),a(t,e)}export{m as component};
