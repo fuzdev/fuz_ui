@@ -9,14 +9,7 @@
 	import TomeLink from '$lib/TomeLink.svelte';
 	import MdnLink from '$lib/MdnLink.svelte';
 	import DeclarationLink from '$lib/DeclarationLink.svelte';
-	import Dialogs from '$lib/Dialogs.svelte';
-	import {
-		dialog_layouts,
-		type DialogParams,
-		type DialogLayout,
-		to_dialog_params,
-	} from '$lib/dialog.js';
-	import Text from '$routes/docs/Dialog/Text.svelte';
+	import {dialog_layouts, type DialogLayout} from '$lib/dialog.js';
 
 	const TOME_SLUG = 'Dialog';
 
@@ -41,33 +34,24 @@
 	const reset_items = () => {
 		items = [];
 	};
-
-	let dialogs: Array<DialogParams> = $state.raw([]);
-	const add_dialogs = (count: number) => {
-		const to_text = (index: number) => '!'.repeat(count * 3 - index * 3);
-		dialogs = Array.from({length: count}, (_, i) =>
-			to_dialog_params(Text, {
-				text: to_text(i),
-				size: 'var(--font_size_xl4)',
-				padding: 'var(--space_sm) var(--space_lg)',
-			}),
-		);
-	};
 </script>
 
 <TomeContent {tome}>
 	<section>
 		<p>
-			A modal that overlays the entire page. Uses <TomeLink slug="Teleport" /> to allow usage from any
-			component without inheriting styles.
-		</p>
-		<aside>
-			⚠️ This will change to use and align APIs with the builtin <MdnLink
+			A modal that overlays the entire page, built on the native <MdnLink
 				path="Web/HTML/Element/dialog"
-			/>. API
-		</aside>
+			/> element. Opening it with <code>showModal()</code> uses the browser's top layer, so it
+			escapes ancestor stacking and overflow contexts without <TomeLink slug="Teleport" />, traps
+			focus, makes the rest of the page <code>inert</code>, closes on <kbd>Escape</kbd>, and
+			restores focus to the previously focused element on close.
+		</p>
 	</section>
 	<section>
+		<p>
+			Mounting the component opens the dialog, so the simplest usage gates it with
+			<code>{'{#if}'}</code>:
+		</p>
 		<Code
 			content={`<button onclick={() => (opened = true)}>
 	open a dialog
@@ -86,6 +70,19 @@
 	</Dialog>
 {/if}`}
 		/>
+		<p>
+			Or pass <code>show</code> and let the component manage its own conditional rendering (it
+			defaults to <code>true</code>):
+		</p>
+		<Code
+			content={`<Dialog show={opened} onclose={() => (opened = false)}>
+	{#snippet children(close)}
+		<div class="pane p_xl box">
+			<button onclick={close}>ok</button>
+		</div>
+	{/snippet}
+</Dialog>`}
+		/>
 	</section>
 	<section>
 		<button type="button" class="mb_lg" onclick={() => (opened = true)}> open a dialog </button>
@@ -99,7 +96,6 @@
 		<button type="button" class="mb_lg" onclick={() => (dialog_nested_1_opened = true)}
 			>open a dialog containing another dialog</button
 		>
-		<button type="button" class="mb_lg" onclick={() => add_dialogs(5)}>open many dialogs</button>
 	</section>
 </TomeContent>
 {#if opened}
@@ -142,7 +138,7 @@
 						<p>
 							This is a <DeclarationLink name="Dialog" /> with
 							<code
-								>layout="<select bind:value={selected_layout}
+								>layout="<select bind:value={selected_layout} style:width="120px"
 									>{#each dialog_layouts as layout (layout)}
 										<option value={layout}>{layout}</option>
 									{/each}
@@ -157,7 +153,7 @@
 						<p>
 							This is a <DeclarationLink name="Dialog" /> with
 							<code
-								>layout="<select bind:value={selected_layout}
+								>layout="<select bind:value={selected_layout} style:width="120px"
 									>{#each dialog_layouts as layout (layout)}
 										<option value={layout}>{layout}</option>
 									{/each}
@@ -236,15 +232,3 @@
 		</div>
 	</Dialog>
 {/if}
-<Dialogs
-	{dialogs}
-	onclose={() => {
-		dialogs = dialogs.slice(0, -1);
-	}}
->
-	{#snippet children(dialog)}
-		<div class="pane p_md width_atmost_md mx_auto">
-			<dialog.Component {...dialog.props} />
-		</div>
-	{/snippet}
-</Dialogs>

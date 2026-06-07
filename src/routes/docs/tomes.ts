@@ -168,7 +168,7 @@ export const tomes: Array<Tome> = [
 		Component: Dialog,
 		related_tomes: ['Teleport'],
 		related_modules: ['dialog.ts'],
-		related_declarations: ['Dialog', 'Dialogs'],
+		related_declarations: ['Dialog'],
 	},
 	{
 		slug: 'HueInput',
