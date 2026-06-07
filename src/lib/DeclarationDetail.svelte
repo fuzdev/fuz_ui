@@ -11,6 +11,7 @@ including parameters, props, members, overloads, intersects, and more.
 -->
 <script lang="ts">
 	import Code from '@fuzdev/fuz_code/Code.svelte';
+	import type {ParameterJsonInput} from 'svelte-docinfo/types.js';
 
 	import type {Declaration} from './declaration.svelte.js';
 	import TypeLink from './TypeLink.svelte';
@@ -19,7 +20,89 @@ including parameters, props, members, overloads, intersects, and more.
 	import {tsdoc_see_to_mdz} from './tsdoc_mdz.js';
 
 	const {declaration}: {declaration: Declaration} = $props();
+
+	// Optional prose metadata shared by component props and nested members,
+	// rendered in a compact form (the top-level declaration uses prominent
+	// sections for the same fields instead).
+	interface DocExtras {
+		deprecatedMessage?: string;
+		since?: string;
+		examples?: Array<string>;
+		seeAlso?: Array<string>;
+		throws?: Array<{type?: string; description: string}>;
+	}
 </script>
+
+<!-- A single function/method parameter: name, description, type, and optional/default. -->
+{#snippet param_detail(param: ParameterJsonInput)}
+	<section>
+		<h4>
+			<code
+				>{param.name}{#if param.optional}<strong>?</strong>{/if}</code
+			>
+		</h4>
+		{#if param.description}
+			<Mdz content={param.description} />
+		{/if}
+		<div class="row gap_md mb_sm">
+			<strong>type</strong>
+			<TypeLink type={param.type} />
+		</div>
+		{#if param.optional || param.defaultValue}
+			<div class="row gap_md">
+				{#if param.optional}
+					<strong>optional</strong>
+				{/if}
+				{#if param.defaultValue}
+					<strong>default</strong>
+					<Code lang="ts" content={param.defaultValue} />
+				{/if}
+			</div>
+		{/if}
+	</section>
+{/snippet}
+
+<!-- Compact prose metadata for props and members (deprecated, since, examples, see also, throws). -->
+{#snippet doc_extras(item: DocExtras)}
+	<!-- eslint-disable-next-line @typescript-eslint/no-deprecated -->
+	{#if item.deprecatedMessage !== undefined}
+		<p class="row gap_md">
+			<span class="chip">⚠️ deprecated</span>
+			<!-- eslint-disable-next-line @typescript-eslint/no-deprecated -->
+			{#if item.deprecatedMessage}{item.deprecatedMessage}{/if}
+		</p>
+	{/if}
+	{#if item.since}
+		<p><strong>since</strong> {item.since}</p>
+	{/if}
+	{#if item.examples?.length}
+		{#each item.examples as example (example)}
+			<Mdz content={example} />
+		{/each}
+	{/if}
+	{#if item.seeAlso?.length}
+		<p><strong>see also</strong></p>
+		<ul>
+			{#each item.seeAlso as ref (ref)}
+				<li><Mdz content={tsdoc_see_to_mdz(ref)} /></li>
+			{/each}
+		</ul>
+	{/if}
+	{#if item.throws?.length}
+		<p><strong>throws</strong></p>
+		<ul>
+			{#each item.throws as thrown (thrown)}
+				<li>
+					{#if thrown.type}
+						<code>{thrown.type}</code> - {thrown.description}
+					{:else}
+						{thrown.description}
+					{/if}
+				</li>
+			{/each}
+		</ul>
+	{/if}
+{/snippet}
 
 <!-- Metadata -->
 <p class="row justify-content:space-between">
@@ -31,21 +114,37 @@ including parameters, props, members, overloads, intersects, and more.
 </p>
 
 <!-- chips -->
-<div class="row gap_md">
-	<!-- eslint-disable-next-line @typescript-eslint/no-deprecated -->
-	{#if declaration.is_deprecated}
-		<span class="chip">⚠️ deprecated</span>
-	{/if}
-	{#if declaration.accepts_children}
-		<span class="chip">accepts children</span>
-	{/if}
-	{#if declaration.alias_of}
-		<span class="chip"
-			>alias of {declaration.alias_of.name}{#if declaration.alias_of.module}
-				in {declaration.alias_of.module}{/if}</span
-		>
-	{/if}
-</div>
+<!-- eslint-disable-next-line @typescript-eslint/no-deprecated -->
+{#if declaration.is_deprecated || declaration.reactivity || declaration.accepts_children || declaration.alias_of}
+	<p class="row gap_md flex-wrap:wrap">
+		<!-- eslint-disable-next-line @typescript-eslint/no-deprecated -->
+		{#if declaration.is_deprecated}
+			<span class="chip">⚠️ deprecated</span>
+		{/if}
+		{#if declaration.reactivity}
+			<span class="chip">{declaration.reactivity}</span>
+		{/if}
+		{#if declaration.accepts_children}
+			<span class="chip">accepts children</span>
+		{/if}
+		{#if declaration.alias_of}
+			<span class="chip"
+				>alias of {declaration.alias_of.name}{#if declaration.alias_of.module}
+					in {declaration.alias_of.module}{/if}</span
+			>
+		{/if}
+	</p>
+{/if}
+
+<!-- also exported from -->
+{#if declaration.also_exported_from?.length}
+	<p class="row gap_md flex-wrap:wrap">
+		<strong>also exported from</strong>
+		{#each declaration.also_exported_from as module_path (module_path)}
+			<ModuleLink {module_path} />
+		{/each}
+	</p>
+{/if}
 
 <!-- eslint-disable-next-line @typescript-eslint/no-deprecated -->
 {#if declaration.deprecated_message}
@@ -60,6 +159,9 @@ including parameters, props, members, overloads, intersects, and more.
 	<Code lang="ts" content={declaration.type_signature} />
 {/if}
 
+<!-- import statement -->
+<Code lang="ts" content={declaration.import_statement} />
+
 <!-- documentation -->
 {#if declaration.has_documentation}
 	<Mdz content={declaration.doc_comment!} />
@@ -69,31 +171,7 @@ including parameters, props, members, overloads, intersects, and more.
 {#if declaration.parameters?.length}
 	<section>
 		{#each declaration.parameters as param (param)}
-			<section>
-				<h4>
-					<code
-						>{param.name}{#if param.optional}<strong>?</strong>{/if}</code
-					>
-				</h4>
-				{#if param.description}
-					<Mdz content={param.description} />
-				{/if}
-				<div class="row gap_md">
-					<strong>type</strong>
-					<TypeLink type={param.type} />
-				</div>
-				{#if param.optional || param.defaultValue}
-					<div class="row gap_md">
-						{#if param.optional}
-							<span class="chip">optional</span>
-						{/if}
-						{#if param.defaultValue}
-							<strong>default</strong>
-							<Code lang="ts" content={param.defaultValue} />
-						{/if}
-					</div>
-				{/if}
-			</section>
+			{@render param_detail(param)}
 		{/each}
 	</section>
 {/if}
@@ -111,17 +189,17 @@ including parameters, props, members, overloads, intersects, and more.
 				{#if prop.description}
 					<Mdz content={prop.description} />
 				{/if}
-				<div class="row gap_md mb_lg">
+				<div class="row gap_md mb_sm">
 					<strong>type</strong>
 					<TypeLink type={prop.type} />
 				</div>
 				{#if prop.optional || prop.bindable || prop.defaultValue}
 					<div class="row gap_md">
 						{#if prop.optional}
-							<span class="chip">optional</span>
+							<strong>optional</strong>
 						{/if}
 						{#if prop.bindable}
-							<span class="chip">bindable</span>
+							<strong>bindable</strong>
 						{/if}
 						{#if prop.defaultValue}
 							<strong>default</strong>
@@ -142,6 +220,7 @@ including parameters, props, members, overloads, intersects, and more.
 						{/each}
 					</section>
 				{/if}
+				{@render doc_extras(prop)}
 			</section>
 		{/each}
 	</section>
@@ -326,7 +405,12 @@ including parameters, props, members, overloads, intersects, and more.
 	<section>
 		{#each declaration.members as member (member)}
 			<section>
-				<h4><code>{member.name}</code></h4>
+				<h4>
+					<code
+						>{member.name}{#if member.kind !== 'constructor' && member.optional}<strong>?</strong
+							>{/if}</code
+					>
+				</h4>
 				{#if member.docComment}
 					<Mdz content={member.docComment} />
 				{/if}
@@ -340,42 +424,29 @@ including parameters, props, members, overloads, intersects, and more.
 						/>
 					</p>
 				{/if}
-				{#if member.modifiers?.length}
+				{#if member.modifiers?.length || (member.kind === 'variable' && member.reactivity)}
+					<div class="row gap_md flex-wrap:wrap">
+						{#if member.modifiers?.length}
+							{#each member.modifiers as modifier (modifier)}
+								<span class="chip">{modifier}</span>
+							{/each}
+						{/if}
+						{#if member.kind === 'variable' && member.reactivity}
+							<span class="chip">{member.reactivity}</span>
+						{/if}
+					</div>
+				{/if}
+				{#if member.kind === 'variable' && member.defaultValue}
 					<div class="row gap_md">
-						{#each member.modifiers as modifier (modifier)}
-							<span class="chip">{modifier}</span>
-						{/each}
+						<strong>default</strong>
+						<Code lang="ts" content={member.defaultValue} />
 					</div>
 				{/if}
 				<!-- parameters for methods and constructors -->
 				{#if (member.kind === 'function' || member.kind === 'constructor') && member.parameters?.length}
 					<section>
 						{#each member.parameters as param (param)}
-							<section>
-								<h5>
-									<code
-										>{param.name}{#if param.optional}<strong>?</strong>{/if}</code
-									>
-								</h5>
-								{#if param.description}
-									<Mdz content={param.description} />
-								{/if}
-								<div class="row gap_md">
-									<strong>type</strong>
-									<TypeLink type={param.type} />
-								</div>
-								{#if param.optional || param.defaultValue}
-									<div class="row gap_md">
-										{#if param.optional}
-											<span class="chip">optional</span>
-										{/if}
-										{#if param.defaultValue}
-											<strong>default</strong>
-											<Code lang="ts" content={param.defaultValue} />
-										{/if}
-									</div>
-								{/if}
-							</section>
+							{@render param_detail(param)}
 						{/each}
 					</section>
 				{/if}
@@ -389,23 +460,7 @@ including parameters, props, members, overloads, intersects, and more.
 						<Mdz content={member.returnDescription} />
 					{/if}
 				{/if}
-				<!-- throws for methods and constructors -->
-				{#if member.throws?.length}
-					<div>
-						<strong>throws</strong>
-						<ul>
-							{#each member.throws as thrown (thrown)}
-								<li>
-									{#if thrown.type}
-										<code>{thrown.type}</code> - {thrown.description}
-									{:else}
-										{thrown.description}
-									{/if}
-								</li>
-							{/each}
-						</ul>
-					</div>
-				{/if}
+				{@render doc_extras(member)}
 			</section>
 		{/each}
 	</section>

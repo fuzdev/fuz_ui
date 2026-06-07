@@ -90,6 +90,10 @@ export class Module {
 	 */
 	dependents = $derived(this.module_json.dependents ?? []);
 
+	has_dependencies: boolean = $derived(this.dependencies.length > 0);
+
+	has_dependents: boolean = $derived(this.dependents.length > 0);
+
 	constructor(library: Library, module_json: ModuleJsonInput) {
 		this.library = library;
 		this.module_json = module_json;

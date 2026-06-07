@@ -5,6 +5,7 @@ import type {
 	ParameterJsonInput,
 	ComponentPropJsonInput,
 	OverloadJsonInput,
+	Reactivity,
 } from 'svelte-docinfo/types.js';
 import {generateImport, getDisplayName} from 'svelte-docinfo/declaration-helpers.js';
 
@@ -142,12 +143,26 @@ export class Declaration {
 	alias_of = $derived(this.declaration_json.aliasOf);
 
 	/**
+	 * Other modules that also export this declaration (re-export paths
+	 * relative to src/lib). Absent when only exported from its defining module.
+	 */
+	also_exported_from = $derived(field<Array<string>>(this.declaration_json, 'alsoExportedFrom'));
+
+	/**
 	 * Mutation documentation from `@mutates` tags, mapping parameter names to descriptions.
 	 */
 	mutates = $derived(this.declaration_json.mutates);
 
+	/**
+	 * Svelte reactivity flavor (`$state`, `$state.raw`, `$derived`, `$derived.by`)
+	 * when this variable is initialized with a value-producing rune.
+	 * Present on `variable` kind only.
+	 */
+	reactivity = $derived(field<Reactivity>(this.declaration_json, 'reactivity'));
+
 	has_examples = $derived(this.examples.length > 0);
-	is_deprecated = $derived(!!this.deprecated_message);
+	// presence, not truthiness — a bare `@deprecated` (no message text) arrives as `''`
+	is_deprecated = $derived(this.deprecated_message !== undefined);
 	has_documentation = $derived(!!this.doc_comment);
 	has_parameters = $derived(!!(this.parameters && this.parameters.length > 0));
 	has_props = $derived(!!(this.props && this.props.length > 0));

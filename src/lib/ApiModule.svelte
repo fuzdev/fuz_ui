@@ -115,7 +115,7 @@
 		</TomeSection>
 
 		<!-- Depends on section -->
-		{#if module.dependencies}
+		{#if module.has_dependencies}
 			<TomeSection>
 				<TomeSectionHeader text="Depends on" />
 				<ul>
@@ -129,7 +129,7 @@
 		{/if}
 
 		<!-- Imported by section -->
-		{#if module.dependents}
+		{#if module.has_dependents}
 			<TomeSection>
 				<TomeSectionHeader text="Imported by" />
 				<ul>
