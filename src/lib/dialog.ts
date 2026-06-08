@@ -13,6 +13,13 @@ export interface DialogContext {
 	 * and propagation-stopped) before closing.
 	 */
 	close: (e?: Event) => void;
+	/**
+	 * Registers a content-surface element so a press inside it isn't treated as an
+	 * outside-dismiss -- the surface is known by node identity, independent of any
+	 * class. Use as an attachment on the surface: `{@attach register_surface}`.
+	 * Returns a cleanup that unregisters on unmount.
+	 */
+	register_surface: (element: Element) => () => void;
 }
 
 export const dialog_context = create_context<DialogContext>();

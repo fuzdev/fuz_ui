@@ -1,24 +1,25 @@
 <script lang="ts">
 	import type {Snippet} from 'svelte';
 	import type {SvelteHTMLElements} from 'svelte/elements';
+	import {SvelteSet} from 'svelte/reactivity';
 	import {swallow} from '@fuzdev/fuz_util/dom.js';
 
 	import {dialog_context, type DialogContext, type DialogLayout} from './dialog.js';
 
-	/*
-
-	This component renders a native `<dialog>` opened with `showModal()`, which puts
-	it in the top layer. The top layer escapes ancestor stacking/overflow contexts
-	(so no `Teleport` is needed), traps focus, makes the rest of the page inert,
-	closes on Escape, and restores focus to the previously focused element on close
-	-- all natively. The dim background is the native `::backdrop`.
-
-	We render a full-viewport overlay inside the dialog rather than a content-sized
-	box, to preserve the scrolling and `layout="page"` behaviors. The content
-	surface itself is the consumer's -- pair this with `DialogContent` for the
-	default `.pane` card and gutter, or render your own surface in `children`.
-
-	*/
+	/**
+	 * This component renders a native `<dialog>` opened with `showModal()`, which
+	 * puts it in the top layer. The top layer escapes ancestor stacking/overflow
+	 * contexts (so no `Teleport` is needed), traps focus, makes the rest of the page
+	 * inert, closes on Escape, and restores focus to the previously focused element
+	 * on close -- all natively. The dim background is the native `::backdrop`.
+	 *
+	 * We render a full-viewport overlay inside the dialog rather than a content-sized
+	 * box, to preserve the scrolling and `layout="page"` behaviors. The content
+	 * surface itself is the consumer's -- pair this with `DialogContent` for the
+	 * default `.pane` card and gutter, or render your own surface in `children`.
+	 *
+	 * @module
+	 */
 
 	const {
 		show = true,
@@ -40,6 +41,9 @@
 		 */
 		show?: boolean;
 		/**
+		 * How the content is positioned in the viewport. `centered` vertically
+		 * centers it; `page` aligns it to the top and grows downward, which avoids
+		 * jank when the content's height changes.
 		 * @default 'centered'
 		 */
 		layout?: DialogLayout;
@@ -50,15 +54,24 @@
 		 */
 		dismissable?: boolean;
 		/**
-		 * Selector for the dialog's content surface(s). When `dismissable`, a press
-		 * that isn't inside an element matching this selector closes the dialog.
-		 * Defaults to the fuz_css `.pane` card, matching `DialogContent`; set it to
-		 * match your content's outermost surface -- with no match, presses anywhere
-		 * close the dialog.
+		 * Fallback selector for content surfaces rendered directly in `children`.
+		 * When `dismissable`, a press that isn't inside a registered surface (e.g.
+		 * `DialogContent`, which self-registers) and doesn't match this selector
+		 * closes the dialog. Defaults to the fuz_css `.pane` card; set it to match
+		 * your surface's outermost element -- with no registered surface and no
+		 * match, presses anywhere close the dialog.
 		 * @default '.pane'
 		 */
 		content_selector?: string;
+		/**
+		 * Called when the dialog closes -- via `Escape`, click-outside, or `close`.
+		 * Use it to sync your own open state, e.g. `onclose={() => (opened = false)}`.
+		 */
 		onclose?: () => void;
+		/**
+		 * Rendered inside the dialog overlay. Receives the `DialogContext` (e.g.
+		 * `{close}`); pair with `DialogContent` or render your own surface.
+		 */
 		children: Snippet<[dialog: DialogContext]>;
 	} = $props();
 
@@ -84,9 +97,20 @@
 		request_close();
 	};
 
+	// Content surfaces (e.g. `DialogContent`) register here so a press inside one
+	// isn't an outside-dismiss. Identity-based, so it works regardless of classes;
+	// `content_selector` stays the fallback for surfaces rendered in `children`.
+	const surfaces = new SvelteSet<Element>();
+	const register_surface = (element: Element): (() => void) => {
+		surfaces.add(element);
+		return () => {
+			surfaces.delete(element);
+		};
+	};
+
 	// The context is both passed to `children` and set for descendants (e.g.
 	// `DialogContent`), so either path can close the dialog.
-	const context: DialogContext = {close};
+	const context: DialogContext = {close, register_surface};
 	dialog_context.set(context);
 
 	const setup_dialog = (el: HTMLDialogElement) => {
@@ -122,14 +146,15 @@
 				class="dialog-wrapper"
 				role="none"
 				onmousedown={(e) => {
-					// close when a dismissable press lands outside the content surface;
-					// an empty `content_selector` means no surface, so any press closes
-					if (
-						dismissable &&
-						(!content_selector || !(e.target as Element).closest(content_selector))
-					) {
-						close(e);
+					if (!dismissable) return;
+					const target = e.target as Element;
+					// inside a registered surface (e.g. DialogContent) -> not an outside dismiss
+					for (const surface of surfaces) {
+						if (surface.contains(target)) return;
 					}
+					// fallback for surfaces rendered in `children`: match `content_selector`
+					if (content_selector && target.closest(content_selector)) return;
+					close(e);
 				}}
 			>
 				{@render children(context)}

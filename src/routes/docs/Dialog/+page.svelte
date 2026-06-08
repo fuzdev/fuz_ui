@@ -116,8 +116,9 @@
 			(default <code>box p_xl</code>) and the surrounding gutter with <code>gutter</code>. The
 			fuz_css
 			<code>.pane</code> card class is toggled by the <code>pane</code> prop (default
-			<code>true</code>; pass <code>pane={'{false}'}</code> for a chromeless surface, and set
-			<code>content_selector</code> to match, since click-outside keys on <code>.pane</code>).
+			<code>true</code>; pass <code>pane={'{false}'}</code> for a chromeless surface --
+			<DeclarationLink name="DialogContent" /> registers its surface with the
+			<DeclarationLink name="Dialog" />, so click-outside-to-close keeps working regardless).
 			<DeclarationLink name="DialogContent" /> is also optional; render your own content directly in <DeclarationLink
 				name="Dialog"
 			/>'s
@@ -125,7 +126,8 @@
 			<code>{'{close}'}</code>) when you need a custom layout, multiple <code>.pane</code>s, or non-<code
 				>.pane</code
 			>
-			content (set <code>content_selector</code> to match).
+			content (set <code>content_selector</code> to match, or attach
+			<code>register_surface</code> from the dialog context).
 		</p>
 		<p>
 			<DeclarationLink name="DialogContent" /> renders a <code>close_button</code> in the surface's
@@ -172,10 +174,9 @@
 	<Dialog onclose={() => (dialog_overflowing_opened = false)}>
 		<DialogContent>
 			{#snippet children({close})}
-				<!-- focus a static element at the top so the dialog opens scrolled to the top;
-				otherwise `showModal()` focuses the close button at the bottom and scrolls to it -->
-				<!-- svelte-ignore a11y_autofocus -->
-				<h1 tabindex="-1" autofocus>attention</h1>
+				<!-- the default close button is first in the pane, so `showModal()` focuses it
+				at the top and the dialog opens scrolled to the top -->
+				<h1>attention</h1>
 				{#each {length: 120} as _, i (i)}
 					<p>this is a dialog that overflows vertically</p>
 				{/each}

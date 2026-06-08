@@ -10,10 +10,9 @@
 	 * passes it to `children`, so content can close the dialog without the consumer
 	 * threading `close` down from `Dialog`'s own `children` snippet.
 	 *
-	 * Must be rendered inside a `Dialog`. The `.pane` class matches `Dialog`'s
-	 * default `content_selector`, so click-outside-to-close works out of the box;
-	 * pass `pane={false}` to drop the card (see that prop for the `content_selector`
-	 * caveat).
+	 * Must be rendered inside a `Dialog`, with which it registers its surface, so
+	 * click-outside-to-close treats presses inside the card as inside regardless of
+	 * classes -- `pane={false}` works without further setup.
 	 *
 	 * By default it renders a `close_button` in the surface's top-right corner. The
 	 * surface is a containing block (`position: relative`), so the button -- and any
@@ -44,13 +43,8 @@
 		/**
 		 * Whether to apply the fuz_css `.pane` card class to the content surface --
 		 * its opaque background, shadow, and rounded corners. `true` (the default) is
-		 * the standard dialog card.
-		 *
-		 * Set `false` for a chromeless surface, but note `Dialog`'s
-		 * `content_selector` defaults to `.pane`: without the class,
-		 * click-outside-to-close treats presses inside the surface as outside and
-		 * closes the dialog. When opting out, also set `Dialog`'s `content_selector`
-		 * to match your surface (or pass `dismissable={false}`).
+		 * the standard dialog card; `false` gives a chromeless surface. Either way the
+		 * surface registers with `Dialog`, so click-outside-to-close keeps working.
 		 * @default true
 		 */
 		pane?: boolean;
@@ -88,7 +82,13 @@
 </script>
 
 <div class="dialog-content" style:padding={gutter}>
-	<div {...rest} class={class_prop} class:pane style:max-width={max_width}>
+	<div
+		{...rest}
+		class={class_prop}
+		class:pane
+		style:max-width={max_width}
+		{@attach dialog.register_surface}
+	>
 		{#if close_button}
 			{#if typeof close_button === 'boolean'}
 				<button
