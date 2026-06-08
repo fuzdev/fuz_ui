@@ -14,9 +14,9 @@
 	 * click-outside-to-close treats presses inside the card as inside regardless of
 	 * classes -- `pane={false}` works without further setup.
 	 *
-	 * By default it renders a `close_button` in the surface's top-right corner. The
-	 * surface is a containing block (`position: relative`), so the button -- and any
-	 * absolutely-positioned content in `children` -- anchors to it.
+	 * By default it renders a `close_button` floating just outside the surface's
+	 * top-right corner. The surface is a containing block (`position: relative`) for
+	 * that button and any absolutely-positioned content in `children`.
 	 *
 	 * @module
 	 */
@@ -62,11 +62,14 @@
 		 */
 		max_width?: string;
 		/**
-		 * The close button anchored to the top-right corner of the content surface.
-		 * `true` (the default) renders a `.plain` icon button that closes the dialog;
-		 * `false` removes it. Pass a `Snippet` to render your own, receiving the
-		 * `DialogContext` (e.g. `{close}`). The surface is a containing block
-		 * (`position: relative`), so the button anchors to it.
+		 * The close button floating just outside the content surface's top-right
+		 * corner. `true` (the default) renders an absolutely-positioned `.plain` icon
+		 * button that closes the dialog; `false` removes it. It renders after
+		 * `children`, so a content control (or an `autofocus` element) takes initial
+		 * focus on open rather than the close button. Pass a `Snippet` to render your
+		 * own, receiving the `DialogContext` (e.g. `{close}`); the surface is a
+		 * containing block (`position: relative`), so an absolutely-positioned custom
+		 * button anchors to it.
 		 * @default true
 		 */
 		close_button?: boolean | Snippet<[dialog: DialogContext]>;
@@ -89,11 +92,14 @@
 		style:max-width={max_width}
 		{@attach dialog.register_surface}
 	>
+		{@render children(dialog)}
+		<!-- rendered after `children` so a content control (or an `autofocus` element)
+		takes initial focus on open, not the close button -->
 		{#if close_button}
 			{#if typeof close_button === 'boolean'}
 				<button
 					type="button"
-					class="dialog-close-button plain icon_button"
+					class="dialog-close-button sm plain icon_button"
 					onclick={dialog.close}
 					title="close"
 					aria-label="close"
@@ -104,7 +110,6 @@
 				{@render close_button(dialog)}
 			{/if}
 		{/if}
-		{@render children(dialog)}
 	</div>
 </div>
 
@@ -117,14 +122,17 @@
 		flex-direction: column;
 		align-items: center;
 	}
-	/* the surface is a containing block so absolutely-positioned content -- the
-	close button, and anything in `children` -- anchors to it */
+	/* the surface is a containing block for absolutely-positioned content in
+	`children` (and custom close buttons) */
 	.dialog-content > div {
 		position: relative;
 	}
 	.dialog-close-button {
+		/* out of flow, floating just outside the pane's top-right corner -- offset
+		by the button's own width and height */
 		position: absolute;
 		top: 0;
 		right: 0;
+		transform: translate(calc(100% - 4px), calc(-100% + 4px));
 	}
 </style>

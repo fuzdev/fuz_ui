@@ -13,7 +13,8 @@ refactor: use the native `dialog` element in `Dialog`
 - remove `Dialogs`
 - remove the `DialogParams` type and `to_dialog_params` helper from `dialog.js`
 - add `DialogContent`, the default content surface: a padded, centered `.pane` card that shrinks to its content (`class` defaults to `box p_xl`, `gutter` to `var(--space_xl3)`, `max_width` to `var(--distance_md)`)
-- `DialogContent` renders a `close_button` in the surface's top-right corner by default (a `.plain` icon button that closes the dialog); pass `close_button={false}` to remove it or a `Snippet` to customize it
+- `DialogContent` renders a `close_button` floating just outside the surface's top-right corner by default (an absolutely-positioned `.plain` icon button that closes the dialog); pass `close_button={false}` to remove it or a `Snippet` to customize it. It renders after the content, so it doesn't take initial focus on open
+- add an `onbeforeclose` prop to `Dialog`: called before a user-initiated close (Escape, click-outside, or `close`); return `false` to veto and keep the dialog open (e.g. to confirm discarding unsaved changes). Programmatic close via `show={false}` bypasses it
 - `DialogContent` takes a `pane` prop (default `true`) to toggle the fuz_css `.pane` card class; pass `pane={false}` for a chromeless surface
 - `DialogContent` registers its surface with `Dialog` (via `dialog_context`), so click-outside-to-close detects presses inside the surface by node identity rather than the `.pane` class — `pane={false}` needs no extra `content_selector` setup
 - add `register_surface` to `DialogContext`: an attachment (`{@attach register_surface}`) that registers a content surface so a press inside it isn't an outside-dismiss; `Dialog`'s `content_selector` becomes the fallback for surfaces rendered directly in `children`

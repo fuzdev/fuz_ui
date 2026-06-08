@@ -23,6 +23,8 @@
 	let dialog_nested_2_opened = $state.raw(false);
 	let dialog_nested_3_opened = $state.raw(false);
 	let dialog_no_dismiss_opened = $state.raw(false);
+	let dialog_guarded_opened = $state.raw(false);
+	let dirty = $state.raw(true);
 
 	let selected_layout: DialogLayout = $state.raw('page');
 
@@ -36,6 +38,10 @@
 	const reset_items = () => {
 		items = [];
 	};
+
+	// docs demo for `onbeforeclose`; `confirm` is fine here to illustrate the veto
+	// eslint-disable-next-line no-alert
+	const guard_unsaved = () => !dirty || confirm('Discard unsaved changes?');
 </script>
 
 <TomeContent {tome}>
@@ -69,6 +75,12 @@
 		>
 		<button type="button" class="mb_lg" onclick={() => (dialog_nested_1_opened = true)}
 			>open a dialog containing another dialog</button
+		>
+		<button
+			type="button"
+			class="mb_lg"
+			onclick={() => ((dirty = true), (dialog_guarded_opened = true))}
+			>open a dialog with <code>onbeforeclose</code> (confirm before closing)</button
 		>
 	</section>
 
@@ -130,11 +142,14 @@
 			<code>register_surface</code> from the dialog context).
 		</p>
 		<p>
-			<DeclarationLink name="DialogContent" /> renders a <code>close_button</code> in the surface's
-			top-right corner by default -- a <code>.plain</code> icon button that closes the dialog. Pass
+			<DeclarationLink name="DialogContent" /> renders a <code>close_button</code> floating just
+			outside the surface's top-right corner by default -- a <code>.plain</code> icon button that
+			closes the dialog. It renders after the content, so it doesn't take initial focus when the
+			dialog opens. Pass
 			<code>close_button={'{false}'}</code> to remove it, or a <code>Snippet</code> (receiving the
 			dialog context, e.g. <code>{'{close}'}</code>) to render your own. The surface is a containing
-			block (<code>position: relative</code>), so the button anchors to it.
+			block (<code>position: relative</code>), so an absolutely-positioned custom button anchors to
+			it.
 		</p>
 		<Code
 			content={`<Dialog show={opened} onclose={() => (opened = false)}>
@@ -144,6 +159,25 @@
 		{/snippet}
 		{#snippet children()}
 			<p>custom close button</p>
+		{/snippet}
+	</DialogContent>
+</Dialog>`}
+		/>
+		<p>
+			To intercept a user-initiated close -- <kbd>Escape</kbd>, click-outside, or
+			<code>close</code> -- pass <code>onbeforeclose</code> and return <code>false</code> to keep
+			the dialog open. It's handy for confirming unsaved changes. A programmatic close via
+			<code>show={'{false}'}</code> bypasses it.
+		</p>
+		<Code
+			content={`<Dialog
+	show={opened}
+	onbeforeclose={() => !dirty || confirm('Discard unsaved changes?')}
+	onclose={() => (opened = false)}
+>
+	<DialogContent>
+		{#snippet children({close})}
+			<button onclick={close}>close</button>
 		{/snippet}
 	</DialogContent>
 </Dialog>`}
@@ -174,9 +208,10 @@
 	<Dialog onclose={() => (dialog_overflowing_opened = false)}>
 		<DialogContent>
 			{#snippet children({close})}
-				<!-- the default close button is first in the pane, so `showModal()` focuses it
-				at the top and the dialog opens scrolled to the top -->
-				<h1>attention</h1>
+				<!-- the close button no longer takes initial focus, so focus a top element to
+				open the overflowing dialog scrolled to the top -->
+				<!-- svelte-ignore a11y_autofocus -->
+				<h1 tabindex="-1" autofocus>attention</h1>
 				{#each {length: 120} as _, i (i)}
 					<p>this is a dialog that overflows vertically</p>
 				{/each}
@@ -274,6 +309,24 @@
 					This dialog passes <code>dismissable={'{false}'}</code>, so clicking outside the content
 					does nothing. <kbd>Escape</kbd> and the button still close it.
 				</p>
+				<button type="button" onclick={close}>close</button>
+			{/snippet}
+		</DialogContent>
+	</Dialog>
+{/if}
+{#if dialog_guarded_opened}
+	<Dialog onbeforeclose={guard_unsaved} onclose={() => (dialog_guarded_opened = false)}>
+		<DialogContent>
+			{#snippet children({close})}
+				<h1>unsaved changes</h1>
+				<p>
+					This dialog passes <code>onbeforeclose</code>. While "unsaved changes" is checked, closing
+					via <kbd>Escape</kbd>, click-outside, or the buttons asks for confirmation first.
+				</p>
+				<label class="row gap_sm">
+					<input type="checkbox" bind:checked={dirty} />
+					unsaved changes
+				</label>
 				<button type="button" onclick={close}>close</button>
 			{/snippet}
 		</DialogContent>

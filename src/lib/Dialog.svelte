@@ -26,6 +26,7 @@
 		layout = 'centered',
 		dismissable = true,
 		content_selector = '.pane',
+		onbeforeclose,
 		onclose,
 		children,
 		...rest
@@ -64,6 +65,13 @@
 		 */
 		content_selector?: string;
 		/**
+		 * Called before a user-initiated close (`Escape`, click-outside, or `close`).
+		 * Return `false` to veto and keep the dialog open -- e.g. to confirm
+		 * discarding unsaved changes. Programmatic close via `show={false}` bypasses
+		 * this.
+		 */
+		onbeforeclose?: () => boolean | void;
+		/**
 		 * Called when the dialog closes -- via `Escape`, click-outside, or `close`.
 		 * Use it to sync your own open state, e.g. `onclose={() => (opened = false)}`.
 		 */
@@ -86,6 +94,8 @@
 	// detached node, which doesn't restore focus.
 	const request_close = () => {
 		if (closing) return;
+		// let the consumer veto a user-initiated dismissal (e.g. confirm unsaved changes)
+		if (onbeforeclose?.() === false) return;
 		closing = true;
 		dialog_el?.close();
 		onclose?.();
