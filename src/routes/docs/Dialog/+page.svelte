@@ -113,15 +113,39 @@
 			<code>var(--distance_md)</code>), so narrow content stays narrow and wide content doesn't
 			sprawl. Override the <DeclarationLink name="DialogContent" />'s classes with
 			<code>class</code>
-			(default <code>box p_xl</code>; the <code>pane</code> class is always applied) and the
-			surrounding gutter with <code>gutter</code>. <DeclarationLink name="DialogContent" /> is also optional;
-			render your own content directly in <DeclarationLink name="Dialog" />'s
+			(default <code>box p_xl</code>) and the surrounding gutter with <code>gutter</code>. The
+			fuz_css
+			<code>.pane</code> card class is toggled by the <code>pane</code> prop (default
+			<code>true</code>; pass <code>pane={'{false}'}</code> for a chromeless surface, and set
+			<code>content_selector</code> to match, since click-outside keys on <code>.pane</code>).
+			<DeclarationLink name="DialogContent" /> is also optional; render your own content directly in <DeclarationLink
+				name="Dialog"
+			/>'s
 			<code>children</code> snippet (which also receives the dialog context, e.g.
 			<code>{'{close}'}</code>) when you need a custom layout, multiple <code>.pane</code>s, or non-<code
 				>.pane</code
 			>
 			content (set <code>content_selector</code> to match).
 		</p>
+		<p>
+			<DeclarationLink name="DialogContent" /> renders a <code>close_button</code> in the surface's
+			top-right corner by default -- a <code>.plain</code> icon button that closes the dialog. Pass
+			<code>close_button={'{false}'}</code> to remove it, or a <code>Snippet</code> (receiving the
+			dialog context, e.g. <code>{'{close}'}</code>) to render your own. The surface is a containing
+			block (<code>position: relative</code>), so the button anchors to it.
+		</p>
+		<Code
+			content={`<Dialog show={opened} onclose={() => (opened = false)}>
+	<DialogContent>
+		{#snippet close_button({close})}
+			<button type="button" class="plain icon_button position:absolute right:0 top:0" onclick={close}>✕</button>
+		{/snippet}
+		{#snippet children()}
+			<p>custom close button</p>
+		{/snippet}
+	</DialogContent>
+</Dialog>`}
+		/>
 		<p>
 			The content can be simply a text node, no <code>DialogContent</code> or
 			<code>close</code> needed:
