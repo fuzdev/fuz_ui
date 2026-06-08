@@ -41,14 +41,37 @@
 <TomeContent {tome}>
 	<section>
 		<p>
-			A modal that overlays the entire page, built on the native <MdnLink
-				path="Web/HTML/Element/dialog"
-			/> element. Opening it with <code>showModal()</code> uses the browser's top layer, so it
-			escapes ancestor stacking and overflow contexts without <TomeLink slug="Teleport" />, traps
-			focus, makes the rest of the page <code>inert</code>, closes on <kbd>Escape</kbd>, and
-			restores focus to the previously focused element on close.
+			A <DeclarationLink name="Dialog" /> is a modal that overlays the entire page. It's built on the
+			native
+			<MdnLink path="Web/HTML/Element/dialog" /> element, so opening it with
+			<MdnLink path="Web/API/HTMLDialogElement/showModal">showModal()</MdnLink>
+			puts children in the browser's top layer, escaping ancestor stacking with its bugs and caveats,
+			like cascading styles and overflow hiding, without using <TomeLink slug="Teleport" />. The
+			native element also traps focus, makes the rest of the page inert, closes on
+			<kbd>Escape</kbd>, and restores focus to the previously focused element on close.
 		</p>
+		<aside>
+			Is this truly a simple, accessible, powerful Dialog? Actually simple, finally? You be the
+			judge
+		</aside>
 	</section>
+	<section>
+		<button type="button" class="mb_lg" onclick={() => (opened = true)}> open a dialog </button>
+		<button type="button" class="mb_lg" onclick={() => (dialog_overflowing_opened = true)}
+			>open a dialog that overflows vertically</button
+		>
+		<button type="button" class="mb_lg" onclick={() => (dialog_layout_page_opened = true)}
+			>open a dialog with <code>layout="page"</code> instead of the default
+			<code>layout='centered'</code></button
+		>
+		<button type="button" class="mb_lg" onclick={() => (dialog_no_dismiss_opened = true)}
+			>open a dialog with <code>dismissable={'{false}'}</code> (no click-outside)</button
+		>
+		<button type="button" class="mb_lg" onclick={() => (dialog_nested_1_opened = true)}
+			>open a dialog containing another dialog</button
+		>
+	</section>
+
 	<section>
 		<p>
 			Mounting the component opens the dialog, so the simplest usage gates it with
@@ -99,22 +122,15 @@
 			>
 			content (set <code>content_selector</code> to match).
 		</p>
-	</section>
-	<section>
-		<button type="button" class="mb_lg" onclick={() => (opened = true)}> open a dialog </button>
-		<button type="button" class="mb_lg" onclick={() => (dialog_overflowing_opened = true)}
-			>open a dialog that overflows vertically</button
-		>
-		<button type="button" class="mb_lg" onclick={() => (dialog_layout_page_opened = true)}
-			>open a dialog with <code>layout="page"</code> instead of the default
-			<code>layout='centered'</code></button
-		>
-		<button type="button" class="mb_lg" onclick={() => (dialog_no_dismiss_opened = true)}
-			>open a dialog with <code>dismissable={'{false}'}</code> (no click-outside)</button
-		>
-		<button type="button" class="mb_lg" onclick={() => (dialog_nested_1_opened = true)}
-			>open a dialog containing another dialog</button
-		>
+		<p>
+			The content can be simply a text node, no <code>DialogContent</code> or
+			<code>close</code> needed:
+		</p>
+		<Code
+			content={`{#if opened}
+	<Dialog onclose={() => (opened = false)}>\n\t\thello world\n\t</Dialog>
+{/if}`}
+		/>
 	</section>
 </TomeContent>
 {#if opened}
