@@ -60,7 +60,7 @@ describe('DialogContent', () => {
 		assert.equal(custom.getAttribute('aria-label'), 'close');
 	});
 
-	test('the close_button_attributes bag wires onclick to close the dialog', () => {
+	test('the attrs bag wires onclick to close the dialog', () => {
 		const onclose = vi.fn();
 		mounted = mount_component(DialogCustomCloseHarness as any, {dialog_props: {onclose}});
 		flushSync();
@@ -71,7 +71,7 @@ describe('DialogContent', () => {
 		assert.equal(onclose.mock.calls.length, 1);
 	});
 
-	test('the close_button_attributes bag carries the default placement and styling', () => {
+	test('the attrs bag carries the default placement and styling', () => {
 		mounted = mount_component(DialogCustomCloseHarness as any, {});
 		flushSync();
 		const button = mounted.container.querySelector('[data-testid="custom-close"]');

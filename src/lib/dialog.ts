@@ -23,3 +23,16 @@ export interface DialogContext {
 }
 
 export const dialog_context = create_context<DialogContext>();
+
+/**
+ * The `attrs` a custom `DialogContent` `close_button` snippet receives.
+ * Spread onto a `<button>` to inherit the corner-anchored close button.
+ */
+export interface DialogCloseButtonAttrs {
+	type: 'button';
+	class: string;
+	style: string;
+	onclick: DialogContext['close'];
+	title: string;
+	'aria-label': string;
+}

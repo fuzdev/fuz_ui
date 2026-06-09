@@ -1,8 +1,8 @@
 <script lang="ts">
 	import type {Snippet} from 'svelte';
-	import type {HTMLAttributes, HTMLButtonAttributes} from 'svelte/elements';
+	import type {HTMLAttributes, SvelteHTMLElements} from 'svelte/elements';
 
-	import {dialog_context, type DialogContext} from './dialog.js';
+	import {dialog_context, type DialogContext, type DialogCloseButtonAttrs} from './dialog.js';
 
 	/**
 	 * The default content surface for `Dialog`: a gutter that centers a fuz_css
@@ -70,17 +70,16 @@
 		 * `children`, so a content control (or an `autofocus` element) takes initial
 		 * focus on open rather than the close button.
 		 *
-		 * Pass a `Snippet` to render your own. It receives a `close_button_attributes`
-		 * bag carrying the default's placement, styling, and a11y, plus the
-		 * `DialogContext` (e.g. `{close}`). Spread the bag onto a `<button>` to inherit
-		 * the corner anchoring and override only what differs (e.g. the glyph), or drop
-		 * it to place the button freely. The surface is a containing block
-		 * (`position: relative`), so an absolutely-positioned custom button anchors to it.
+		 * Pass a `Snippet` to render your own. It receives `attrs`
+		 * (`DialogCloseButtonAttrs`) carrying the default's placement, styling, and
+		 * a11y, plus the `DialogContext` (e.g. `{close}`). Spread `attrs` onto a
+		 * `<button>` to inherit the corner anchoring and override only what differs
+		 * (e.g. the glyph), or drop it to place the button freely. The surface is a
+		 * containing block (`position: relative`), so an absolutely-positioned custom
+		 * button anchors to it.
 		 * @default true
 		 */
-		close_button?:
-			| boolean
-			| Snippet<[close_button_attributes: HTMLButtonAttributes, dialog: DialogContext]>;
+		close_button?: boolean | Snippet<[attrs: DialogCloseButtonAttrs, dialog: DialogContext]>;
 		/**
 		 * Rendered inside the content surface. Receives the `DialogContext` (e.g.
 		 * `{close}`) so content can close the dialog without reaching into `Dialog`'s
@@ -91,17 +90,18 @@
 
 	const dialog = dialog_context.get('DialogContent must be rendered inside a Dialog');
 
-	// the default close button's attributes, also handed to a custom `close_button`
-	// snippet so it can inherit corner placement, styling, and a11y by spreading them;
-	// positioning is inline (not a scoped class) so it travels into the consumer's snippet
-	const close_button_attributes: HTMLButtonAttributes = {
+	// the default close button's attributes; `onclick` closes the dialog and the rest
+	// is handed to a custom `close_button` snippet so it can inherit the corner-anchored
+	// button by spreading them. positioning is inline (not a scoped class) so it travels
+	// into the consumer's snippet, which carries its own style scope
+	const close_button_attrs: DialogCloseButtonAttrs = {
 		type: 'button',
 		class: 'sm plain icon_button',
 		style: 'position: absolute; top: 0; right: 0;',
 		onclick: dialog.close,
 		title: 'close',
 		'aria-label': 'close',
-	};
+	} satisfies SvelteHTMLElements['button'];
 </script>
 
 <div class="dialog-content" style:padding={gutter}>
@@ -117,9 +117,9 @@
 		takes initial focus on open, not the close button -->
 		{#if close_button}
 			{#if typeof close_button === 'boolean'}
-				<button {...close_button_attributes}>✕</button>
+				<button {...close_button_attrs}>✕</button>
 			{:else}
-				{@render close_button(close_button_attributes, dialog)}
+				{@render close_button(close_button_attrs, dialog)}
 			{/if}
 		{/if}
 	</div>

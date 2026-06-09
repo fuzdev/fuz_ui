@@ -160,7 +160,8 @@ helpers (`generateImport`, `getDisplayName` from `declaration-helpers.js`).
 ### Component helpers
 
 - `contextmenu_state.svelte.ts` - context menu state management
-- `dialog.ts` - dialog types and `dialog_context` (`DialogContext`, `DialogAlign`)
+- `dialog.ts` - dialog types and `dialog_context` (`DialogContext`, `DialogAlign`,
+  `DialogCloseButtonAttrs`)
 - `alert.ts` - alert utilities
 - `storage.ts` - localStorage utilities with optional `parse_fn` for custom parsing
 - `csp.ts` - Content Security Policy builder utilities

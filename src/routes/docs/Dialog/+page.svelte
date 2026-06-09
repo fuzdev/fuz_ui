@@ -125,9 +125,12 @@
 			<DeclarationLink name="DialogContent" /> adds a close button in the top-right corner, rendered after
 			the content so it doesn't take initial focus. Pass
 			<code>close_button={'{false}'}</code> to remove it, or a <code>Snippet</code> to render your
-			own. The snippet receives a <code>close_button_attributes</code> bag (placement, styling, and
-			a11y) plus the <DeclarationLink name="DialogContext" />; spread the bag to inherit the
-			corner-anchored button and override only the glyph, or drop it to place the button freely:
+			own. The snippet receives <code>attrs</code> (typed <DeclarationLink
+				name="DialogCloseButtonAttrs"
+			/>, the default button's placement, styling, and a11y) plus the <DeclarationLink
+				name="DialogContext"
+			/>; spread <code>attrs</code> to inherit the corner-anchored button and override only the glyph,
+			or drop it to place the button freely:
 		</p>
 		<button type="button" class="mb_lg" onclick={() => (dialog_custom_close_opened = true)}
 			>open a dialog with a custom close button</button
@@ -135,8 +138,8 @@
 		<Code
 			content={`<Dialog show={opened} onclose={() => (opened = false)}>
 	<DialogContent>
-		{#snippet close_button(close_button_attributes)}
-			<button {...close_button_attributes}>×</button>
+		{#snippet close_button(attrs)}
+			<button {...attrs}>×</button>
 		{/snippet}
 		<p>custom close button</p>
 	</DialogContent>
@@ -228,12 +231,12 @@
 {#if dialog_custom_close_opened}
 	<Dialog onclose={() => (dialog_custom_close_opened = false)}>
 		<DialogContent>
-			{#snippet close_button(close_button_attributes)}
-				<button {...close_button_attributes}>×</button>
+			{#snippet close_button(attrs)}
+				<button {...attrs}>×</button>
 			{/snippet}
 			<p>
-				The close button in the top-right is custom: it spreads <code>close_button_attributes</code>
-				to keep the default placement and styling, swapping only the glyph — a lighter
+				The close button in the top-right is custom: it spreads <code>attrs</code> to keep the
+				default placement and styling, swapping only the glyph — a lighter
 				<code>×</code>
 				in place of the default <code>✕</code>.
 			</p>
