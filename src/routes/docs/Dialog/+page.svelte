@@ -102,22 +102,37 @@
 			content, up to <code>max_width</code>. Tune it with <code>class</code> and other forwarded
 			attributes, adjust the surrounding space with <code>gutter</code> and the inner space with
 			<code>padding</code>, and toggle the card style with <code>pane={'{false}'}</code> for an unstyled
-			surface.
+			surface:
 		</p>
+		<Code
+			content={`<Dialog show={opened} onclose={() => (opened = false)}>
+	<!-- the defaults: -->
+	<DialogContent
+		class={undefined}
+		padding="var(--space_xl)"
+		gutter="var(--space_xl3)"
+		max_width="var(--distance_md)"
+		pane={true}
+	>
+		{#snippet children({close})}
+			<button onclick={close}>ok</button>
+		{/snippet}
+	</DialogContent>
+</Dialog>`}
+		/>
 		<p>
-			It adds a close button in the top-right corner, rendered after the content so it doesn't take
-			initial focus. Pass <code>close_button={'{false}'}</code> to remove it, or a
-			<code>Snippet</code> receiving <DeclarationLink name="DialogContext" /> to render your own:
+			<DeclarationLink name="DialogContent" /> adds a close button in the top-right corner, rendered after
+			the content so it doesn't take initial focus. Pass
+			<code>close_button={'{false}'}</code> to remove it, or a <code>Snippet</code> receiving
+			<DeclarationLink name="DialogContext" /> to render your own:
 		</p>
 		<Code
 			content={`<Dialog show={opened} onclose={() => (opened = false)}>
 	<DialogContent>
 		{#snippet close_button({close})}
-			<button type="button" class="plain icon_button position:absolute right:0 top:0" onclick={close}>✕</button>
+			<button type="button" onclick={close}>close</button>
 		{/snippet}
-		{#snippet children()}
-			<p>custom close button</p>
-		{/snippet}
+		<p>custom close button</p>
 	</DialogContent>
 </Dialog>`}
 		/>
@@ -127,7 +142,7 @@
 		</p>
 		<Code
 			content={`{#if opened}
-	<Dialog onclose={() => (opened = false)}>\n\t\thello world\n\t</Dialog>
+	<Dialog onclose={() => (opened = false)}>\n\t\tfreestyle\n\t</Dialog>
 {/if}`}
 		/>
 	</section>
