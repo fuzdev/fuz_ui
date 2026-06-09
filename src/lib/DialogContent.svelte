@@ -84,6 +84,13 @@
 		 * Rendered inside the content surface. Receives the `DialogContext` (e.g.
 		 * `{close}`) so content can close the dialog without reaching into `Dialog`'s
 		 * `children` snippet.
+		 *
+		 * The default `close_button` renders as the surface's last child (so a content
+		 * control or `autofocus` element wins initial focus over it), which means
+		 * universal child-spacing selectors -- `> * + *`, `> :not(:last-child)` -- also
+		 * match the button. Either space flowed content via your own elements or a class
+		 * rather than universal child combinators, or wrap your content in a single
+		 * element so its child selectors no longer see the button.
 		 */
 		children: Snippet<[dialog: DialogContext]>;
 	} = $props();
