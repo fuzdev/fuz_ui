@@ -5,8 +5,9 @@
 	import {dialog_context, type DialogContext, type DialogCloseButtonAttrs} from './dialog.js';
 
 	/**
-	 * The default content surface for `Dialog`: a gutter that centers a fuz_css
-	 * `.pane` card. It reads `close` from `dialog_context` (set by `Dialog`) and
+	 * The default content surface for `Dialog`: a fuz_css `.pane` card with a
+	 * `gutter` margin (the dismiss zone), centered in the viewport by `Dialog`'s
+	 * own layout. It reads `close` from `dialog_context` (set by `Dialog`) and
 	 * passes it to `children`, so content can close the dialog without the consumer
 	 * threading `close` down from `Dialog`'s own `children` snippet.
 	 *
@@ -51,7 +52,7 @@
 		 */
 		pane?: boolean;
 		/**
-		 * The gutter padding between the viewport edges and the `.pane` card: the area
+		 * The gutter around the `.pane` card -- its outer margin, and so the area
 		 * outside the card where a press dismisses the dialog. Set to `''` or `'0'` to remove.
 		 * @default 'var(--space_xl3)'
 		 */
@@ -112,37 +113,28 @@
 	} satisfies SvelteHTMLElements['button'];
 </script>
 
-<div class="dialog-content" style:padding={gutter}>
-	<div
-		{...rest}
-		class:pane
-		style:padding
-		style:max-width={max_width}
-		{@attach dialog.register_surface}
-	>
-		{@render children(dialog)}
-		<!-- rendered after `children` so a content control (or an `autofocus` element)
-		takes initial focus on open, not the close button -->
-		{#if close_button === true}
-			<button {...close_button_attrs}>✕</button>
-		{:else if close_button}
-			{@render close_button(close_button_attrs, dialog)}
-		{/if}
-	</div>
+<!-- The surface is centered by `Dialog`'s `.dialog-wrapper` flex (no wrapper of its own
+needed) and is a containing block (`position: relative`) for the close button and any
+absolutely-positioned content in `children`. `gutter` is the surface's margin -- the
+dismiss zone outside the card, where a press lands on the wrapper and closes the dialog.
+`min-width: 0` lets this flex-item surface shrink below its content's intrinsic width, so
+content with its own overflow (e.g. `Code`) scrolls instead of forcing the card wider. -->
+<div
+	{...rest}
+	class:pane
+	style:padding
+	style:margin={gutter}
+	style:max-width={max_width}
+	style:min-width="0"
+	style:position="relative"
+	{@attach dialog.register_surface}
+>
+	{@render children(dialog)}
+	<!-- rendered after `children` so a content control (or an `autofocus` element)
+	takes initial focus on open, not the close button -->
+	{#if close_button === true}
+		<button {...close_button_attrs}>✕</button>
+	{:else if close_button}
+		{@render close_button(close_button_attrs, dialog)}
+	{/if}
 </div>
-
-<style>
-	.dialog-content {
-		width: 100%;
-		/* center the card and let it shrink to its content (capped by `max_width`);
-		`align-items: center` keeps the flex child from stretching to full width */
-		display: flex;
-		flex-direction: column;
-		align-items: center;
-	}
-	/* the surface is a containing block for absolutely-positioned content in
-	`children` (and custom close buttons) */
-	.dialog-content > div {
-		position: relative;
-	}
-</style>
