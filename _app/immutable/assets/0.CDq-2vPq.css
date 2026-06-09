@@ -70,9 +70,7 @@
 	--disabled_opacity: 60%;
 	--distance_md: 800px;
 	--distance_sm: 320px;
-	--duration_1: 0.08s;
 	--duration_2: 0.2s;
-	--duration_3: 0.5s;
 	--duration_5: 1.5s;
 	--fg_05: var(--darken_05);
 	--fg_10: var(--darken_10);
@@ -88,6 +86,7 @@
 	--font_size_xl3: 4.19rem;
 	--font_size_xl4: 5.33rem;
 	--font_size_xl5: 6.78rem;
+	--font_size_xs: 1rem;
 	--hue_a: 210;
 	--hue_b: 120;
 	--hue_c: 0;
@@ -172,6 +171,7 @@
 	--space_xs2: 0.4rem;
 	--space_xs3: 0.3rem;
 	--space_xs4: 0.2rem;
+	--space_xs5: 0.1rem;
 	--text_05: hsl(var(--tint_hue) var(--tint_saturation) 94%);
 	--text_10: hsl(var(--tint_hue) var(--tint_saturation) 90%);
 	--text_50: hsl(var(--tint_hue) var(--tint_saturation) 50%);
@@ -949,6 +949,10 @@ body {
 	font-weight: bolder;
 }
 
+:where(kbd, samp) {
+	font-family: var(--font_family_mono);
+}
+
 /* Utility Classes */
 
 .box { display: flex;
@@ -995,6 +999,15 @@ body {
 /* A panel is a box embedded into the page, useful for visually isolating content. */
 .panel { border-radius: var(--border_radius, var(--border_radius_xs));
 			background-color: var(--fg_10); }
+/* Smallest sizing, two steps down from the default, cascading to children. Works on individual elements or containers. */
+.xs { --font_size: var(--font_size_xs);
+			--input_height: var(--space_xl3);
+			--input_height_compact: var(--space_xl2);
+			--input_padding_x: var(--space_sm);
+			--chip_padding_x: var(--space_xs3);
+			--icon_size: var(--icon_size_xs);
+			--menuitem_padding: var(--space_xs5) var(--space_xs3);
+			--flow_margin: var(--space_sm); }
 /* Smaller sizing, one step down from the default, cascading to children. Works on individual elements or containers. */
 .sm { --font_size: var(--font_size_sm);
 			--input_height: var(--space_xl4);
@@ -1180,6 +1193,7 @@ These are used as modifiers to buttons.
 .p_md { padding: var(--space_md); }
 .p_lg { padding: var(--space_lg); }
 .p_xl { padding: var(--space_xl); }
+.p_xl3 { padding: var(--space_xl3); }
 .pb_0 { padding-bottom: 0; }
 .pb_xl { padding-bottom: var(--space_xl); }
 .pl_lg { padding-left: var(--space_lg); }
@@ -1209,12 +1223,14 @@ These are used as modifiers to buttons.
 .mb_xl5 { margin-bottom: var(--space_xl5); }
 .mb_xl7 { margin-bottom: var(--space_xl7); }
 .mb_xl9 { margin-bottom: var(--space_xl9); }
+.ml_0 { margin-left: 0; }
 .ml_sm { margin-left: var(--space_sm); }
 .mx_auto { margin-left: auto;	margin-right: auto; }
 .mx_xs3 { margin-left: var(--space_xs3);	margin-right: var(--space_xs3); }
 .my_lg { margin-top: var(--space_lg);	margin-bottom: var(--space_lg); }
 .gap_xs2 { gap: var(--space_xs2); }
 .gap_xs { gap: var(--space_xs); }
+.gap_sm { gap: var(--space_sm); }
 .gap_md { gap: var(--space_md); }
 .gap_lg { gap: var(--space_lg); }
 .gap_xl3 { gap: var(--space_xl3); }
