@@ -55,7 +55,8 @@
 		 */
 		dismissable?: boolean;
 		/**
-		 * Fallback selector for content surfaces rendered directly in `children`.
+		 * Fallback selector for a content surface you render in `children` yourself
+		 * (rather than via `DialogContent`, which self-registers).
 		 * When `dismissable`, a press that isn't inside a registered surface (e.g.
 		 * `DialogContent`, which self-registers) and doesn't match this selector
 		 * closes the dialog. Defaults to the fuz_css `.pane` card; set it to match
@@ -74,6 +75,7 @@
 		/**
 		 * Called when the dialog closes -- via `Escape`, click-outside, or `close`.
 		 * Use it to sync your own open state, e.g. `onclose={() => (opened = false)}`.
+		 * Like `onbeforeclose`, programmatic close via `show={false}` bypasses this.
 		 */
 		onclose?: () => void;
 		/**
