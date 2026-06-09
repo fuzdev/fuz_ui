@@ -7,7 +7,7 @@
  * @module
  */
 
-import type {MdzNode, MdzComponentNode, MdzElementNode} from './mdz.js';
+import type {MdzNode, MdzTextNode, MdzComponentNode, MdzElementNode} from './mdz.js';
 import {slugify} from '@fuzdev/fuz_util/path.js';
 
 // Character codes for performance
@@ -54,6 +54,54 @@ export const MIN_CODEBLOCK_BACKTICKS = 3; // Code blocks require minimum 3 backt
 export const MAX_HEADING_LEVEL = 6; // Headings support levels 1-6
 export const HTTPS_PREFIX_LENGTH = 8; // Length of "https://"
 export const HTTP_PREFIX_LENGTH = 7; // Length of "http://"
+export const H_LOWER = 104; // h
+export const H_UPPER = 72; // H
+
+/**
+ * Lowercase an ASCII letter code; passes other chars through.
+ * Mirrors the `[A-Z] → [a-z]` shift without touching non-ASCII.
+ */
+export const ascii_to_lower = (char_code: number): number =>
+	char_code >= A_UPPER && char_code <= Z_UPPER ? char_code + 32 : char_code;
+
+/**
+ * Case-insensitive URL scheme prefix check. Returns the prefix length
+ * (8 for `https://`, 7 for `http://`) or 0 if neither matches at `pos`.
+ *
+ * URI schemes are case-insensitive per RFC 3986 §3.1, and mobile keyboards
+ * routinely auto-capitalize the first letter of a sentence, producing
+ * `Https://` etc. The original case is preserved in the emitted reference —
+ * browsers normalize schemes themselves.
+ */
+export const match_url_prefix_case_insensitive = (s: string, pos: number): 0 | 7 | 8 => {
+	if (pos + HTTP_PREFIX_LENGTH > s.length) return 0;
+	// h | H
+	if (ascii_to_lower(s.charCodeAt(pos)) !== H_LOWER) return 0;
+	// 'ttps://' (7 chars) or 'ttp://' (6 chars)
+	if (
+		ascii_to_lower(s.charCodeAt(pos + 1)) === 116 /* t */ &&
+		ascii_to_lower(s.charCodeAt(pos + 2)) === 116 /* t */ &&
+		ascii_to_lower(s.charCodeAt(pos + 3)) === 112 /* p */
+	) {
+		if (
+			pos + HTTPS_PREFIX_LENGTH <= s.length &&
+			ascii_to_lower(s.charCodeAt(pos + 4)) === 115 /* s */ &&
+			s.charCodeAt(pos + 5) === COLON &&
+			s.charCodeAt(pos + 6) === SLASH &&
+			s.charCodeAt(pos + 7) === SLASH
+		) {
+			return HTTPS_PREFIX_LENGTH;
+		}
+		if (
+			s.charCodeAt(pos + 4) === COLON &&
+			s.charCodeAt(pos + 5) === SLASH &&
+			s.charCodeAt(pos + 6) === SLASH
+		) {
+			return HTTP_PREFIX_LENGTH;
+		}
+	}
+	return 0;
+};
 
 /**
  * Check if character code is a letter (A-Z, a-z).
@@ -74,24 +122,21 @@ export const is_tag_name_char = (char_code: number): boolean =>
  * Check if character is part of a word for word boundary detection.
  * Used to prevent intraword emphasis with `_` and `~` delimiters.
  *
- * Formatting delimiters (`*`, `_`, `~`) are NOT word characters - they're transparent.
- * Only alphanumeric characters (A-Z, a-z, 0-9) are considered word characters.
+ * Only alphanumeric characters (A-Z, a-z, 0-9) are word characters.
+ * Formatting delimiters (`*`, `_`, `~`) fall outside all three ranges,
+ * so they're naturally excluded without explicit checks.
  *
  * This prevents false positives with snake_case identifiers while allowing
  * adjacent formatting like `**bold**_italic_`.
  */
-export const is_word_char = (char_code: number): boolean => {
-	if (char_code === ASTERISK || char_code === UNDERSCORE || char_code === TILDE) return false;
-	return (
-		(char_code >= A_UPPER && char_code <= Z_UPPER) ||
-		(char_code >= A_LOWER && char_code <= Z_LOWER) ||
-		(char_code >= ZERO && char_code <= NINE)
-	);
-};
+export const is_word_char = (char_code: number): boolean =>
+	(char_code >= A_UPPER && char_code <= Z_UPPER) ||
+	(char_code >= A_LOWER && char_code <= Z_LOWER) ||
+	(char_code >= ZERO && char_code <= NINE);
 
 /**
- * Check if character code is valid in URI path per RFC 3986.
- * Validates against the `pchar` production plus path/query/fragment separators.
+ * Lookup table for valid URI path characters per RFC 3986.
+ * Replaces a 16-comparison chain with a single array access.
  *
  * Valid characters:
  * - unreserved: A-Z a-z 0-9 - . _ ~
@@ -100,44 +145,60 @@ export const is_word_char = (char_code: number): boolean => {
  * - separators: / ? #
  * - percent-encoding: %
  */
+const PATH_CHAR_TABLE: Uint8Array = (() => {
+	const t = new Uint8Array(128);
+	for (let i = A_UPPER; i <= Z_UPPER; i++) t[i] = 1;
+	for (let i = A_LOWER; i <= Z_LOWER; i++) t[i] = 1;
+	for (let i = ZERO; i <= NINE; i++) t[i] = 1;
+	// unreserved: - . _ ~
+	t[HYPHEN] = 1;
+	t[PERIOD] = 1;
+	t[UNDERSCORE] = 1;
+	t[TILDE] = 1;
+	// sub-delims: ! $ & ' ( ) * + , ; =
+	t[EXCLAMATION] = 1;
+	t[DOLLAR] = 1;
+	t[AMPERSAND] = 1;
+	t[APOSTROPHE] = 1;
+	t[LEFT_PAREN] = 1;
+	t[RIGHT_PAREN] = 1;
+	t[ASTERISK] = 1;
+	t[PLUS] = 1;
+	t[COMMA] = 1;
+	t[SEMICOLON] = 1;
+	t[EQUALS] = 1;
+	// path allowed: : @
+	t[COLON] = 1;
+	t[AT] = 1;
+	// separators: / ? #
+	t[SLASH] = 1;
+	t[QUESTION] = 1;
+	t[HASH] = 1;
+	// percent-encoding: %
+	t[PERCENT] = 1;
+	return t;
+})();
+
 export const is_valid_path_char = (char_code: number): boolean =>
-	(char_code >= A_UPPER && char_code <= Z_UPPER) ||
-	(char_code >= A_LOWER && char_code <= Z_LOWER) ||
-	(char_code >= ZERO && char_code <= NINE) ||
-	char_code === HYPHEN ||
-	char_code === PERIOD ||
-	char_code === UNDERSCORE ||
-	char_code === TILDE ||
-	char_code === EXCLAMATION ||
-	char_code === DOLLAR ||
-	char_code === AMPERSAND ||
-	char_code === APOSTROPHE ||
-	char_code === LEFT_PAREN ||
-	char_code === RIGHT_PAREN ||
-	char_code === ASTERISK ||
-	char_code === PLUS ||
-	char_code === COMMA ||
-	char_code === SEMICOLON ||
-	char_code === EQUALS ||
-	char_code === COLON ||
-	char_code === AT ||
-	char_code === SLASH ||
-	char_code === QUESTION ||
-	char_code === HASH ||
-	char_code === PERCENT;
+	char_code < 128 && PATH_CHAR_TABLE[char_code] === 1;
 
 /**
  * Trim trailing punctuation from URL/path per RFC 3986 and GFM rules.
  * - Trims simple trailing: .,;:!?]
  * - Balanced logic for () only (valid in path components)
- * - Invalid chars like [] {} are already stopped by whitelist, but ] trimmed as fallback
+ *
+ * Note on `]`: the mdz parsers (`mdz.ts`, `mdz_stream_parser_url.ts`,
+ * `mdz_lexer.ts`) scan URL/path chars through `is_valid_path_char`, which
+ * already rejects `]` — so it can never reach this function via parser flow.
+ * The `]` branch here is for external callers using this helper directly on
+ * arbitrary URL-ish input (it is part of the published `@fuzdev/fuz_ui`
+ * surface, see `mdz_helpers.test.ts` for direct coverage).
  *
  * Optimized to avoid O(n²) string slicing - tracks end index and slices once at the end.
  */
 export const trim_trailing_punctuation = (url: string): string => {
 	let end = url.length;
 
-	// Trim simple trailing punctuation (] as fallback - whitelist should prevent it)
 	while (end > 0) {
 		const last_char = url.charCodeAt(end - 1);
 		if (
@@ -156,23 +217,26 @@ export const trim_trailing_punctuation = (url: string): string => {
 	}
 
 	// Handle balanced parentheses ONLY (parens are valid in URI path components)
-	// Count parentheses in the trimmed portion
-	let open_count = 0;
-	let close_count = 0;
-	for (let i = 0; i < end; i++) {
-		const char = url.charCodeAt(i);
-		if (char === LEFT_PAREN) open_count++;
-		if (char === RIGHT_PAREN) close_count++;
-	}
+	// Only count parens when the trimmed URL ends with ')' — otherwise the
+	// trailing-paren loop below can't trim anything.
+	if (end > 0 && url.charCodeAt(end - 1) === RIGHT_PAREN) {
+		let open_count = 0;
+		let close_count = 0;
+		for (let i = 0; i < end; i++) {
+			const char = url.charCodeAt(i);
+			if (char === LEFT_PAREN) open_count++;
+			if (char === RIGHT_PAREN) close_count++;
+		}
 
-	// Trim unmatched trailing closing parens
-	while (end > 0 && close_count > open_count) {
-		const last_char = url.charCodeAt(end - 1);
-		if (last_char === RIGHT_PAREN) {
-			end--;
-			close_count--;
-		} else {
-			break;
+		// Trim unmatched trailing closing parens
+		while (end > 0 && close_count > open_count) {
+			const last_char = url.charCodeAt(end - 1);
+			if (last_char === RIGHT_PAREN) {
+				end--;
+				close_count--;
+			} else {
+				break;
+			}
 		}
 	}
 
@@ -247,12 +311,28 @@ export const mdz_heading_id = (nodes: Array<MdzNode>): string =>
 	slugify(mdz_text_content(nodes), false);
 
 /**
+ * Generates a lowercase slug id for a heading from plain text content.
+ * Used by the streaming parser which tracks text content directly
+ * rather than building `MdzNode[]` trees.
+ */
+export const mdz_heading_id_from_text = (text: string): string => slugify(text, false);
+
+/**
  * Check if a string is a URL (`https://` or `http://`).
  * Requires at least one valid character after the protocol.
  * Rejects whitespace and characters that can't start a valid hostname.
  */
-const URL_PATTERN = /^https?:\/\/[^\s)\]}<>.,:/?#!]/;
+const URL_PATTERN = /^https?:\/\/[^\s)\]}<>.,:/?#!]/i;
 export const mdz_is_url = (s: string): boolean => URL_PATTERN.test(s);
+
+/**
+ * Check if a link reference is safe to use as an `href` attribute.
+ * References without a colon are always safe (paths, fragments, queries).
+ * References with a colon must use `http(s)://` — rejects `javascript:`, `data:`, etc.
+ */
+const SAFE_PROTOCOL_PATTERN = /^https?:\/\//i;
+export const mdz_is_safe_reference = (reference: string): boolean =>
+	!reference.includes(':') || SAFE_PROTOCOL_PATTERN.test(reference);
 
 /**
  * Resolves a relative path (`./` or `../`) against a base path.
@@ -282,6 +362,69 @@ export const resolve_relative_path = (reference: string, base: string): string =
 	}
 	if (trailing) segments.push('');
 	return segments.join('/');
+};
+
+/**
+ * Push a node into a children array, coalescing with the previous Text node.
+ * Mutates `prev.content` and `prev.end` when both are Text, avoiding array growth
+ * and an extra allocation. Callers must own `dest` and not retain references to
+ * the prior last element across the call.
+ */
+export const mdz_push_merging_text = (dest: Array<MdzNode>, node: MdzNode): void => {
+	if (node.type === 'Text') {
+		const last = dest[dest.length - 1];
+		if (last?.type === 'Text') {
+			last.content += node.content;
+			last.end = node.end;
+			return;
+		}
+	}
+	dest.push(node);
+};
+
+/**
+ * Return a new array with adjacent Text nodes merged into single nodes.
+ * Fast path: returns the original array when no merging is needed.
+ */
+export const mdz_merge_adjacent_text = (nodes: Array<MdzNode>): Array<MdzNode> => {
+	if (nodes.length <= 1) return nodes;
+
+	let needs_merge = false;
+	for (let i = 1; i < nodes.length; i++) {
+		if (nodes[i - 1]!.type === 'Text' && nodes[i]!.type === 'Text') {
+			needs_merge = true;
+			break;
+		}
+	}
+	if (!needs_merge) return nodes;
+
+	const merged: Array<MdzNode> = [];
+	let pending: MdzTextNode | null = null;
+
+	for (const node of nodes) {
+		if (node.type === 'Text') {
+			if (pending) {
+				pending = {
+					type: 'Text',
+					content: pending.content + node.content,
+					start: pending.start,
+					end: node.end,
+				};
+			} else {
+				pending = {...node};
+			}
+		} else {
+			if (pending) {
+				merged.push(pending);
+				pending = null;
+			}
+			merged.push(node);
+		}
+	}
+
+	if (pending) merged.push(pending);
+
+	return merged;
 };
 
 export const extract_single_tag = (

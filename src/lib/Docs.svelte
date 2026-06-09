@@ -4,31 +4,31 @@
 	import {innerWidth} from 'svelte/reactivity/window';
 	import {page} from '$app/state';
 
-	import type {Library} from './library.svelte.js';
 	import Breadcrumb from './Breadcrumb.svelte';
 	import {Tome, tomes_context} from './tome.js';
 	import DocsPrimaryNav from './DocsPrimaryNav.svelte';
 	import DocsSecondaryNav from './DocsSecondaryNav.svelte';
 	import DocsTertiaryNav from './DocsTertiaryNav.svelte';
 	import Dialog from './Dialog.svelte';
+	import DialogContent from './DialogContent.svelte';
 	import DocsFooter from './DocsFooter.svelte';
+	import {site_context} from './site.svelte.js';
+	import {FUZ_DEV_URL} from './constants.js';
 	import {DocsLinks, docs_links_context} from './docs_helpers.svelte.js';
 
 	const {
 		tomes,
-		library,
-		breadcrumb_children,
 		children,
 	}: {
 		tomes: Array<Tome>;
-		library: Library;
-		breadcrumb_children?: Snippet<[is_primary_nav: boolean]>;
 		children: Snippet;
 	} = $props();
 
+	const site = site_context.get('`Docs` requires `site_context`; set it in your root layout');
+
 	// TODO this API is messy, inconsistent usage of props/context
-	const tomes_by_name = $derived(new Map(tomes.map((t) => [t.name, t])));
-	tomes_context.set(() => tomes_by_name);
+	const tomes_by_slug = $derived(new Map(tomes.map((t) => [t.slug, t])));
+	tomes_context.set(() => tomes_by_slug);
 
 	// TODO @many dialog navs - this is messy to satisfy SSR with the current design that puts the secondary nav in a dialog
 	const TERTIARY_NAV_BREAKPOINT = 1000;
@@ -51,7 +51,7 @@
 <svelte:window onhashchange={() => (show_secondary_nav_dialog = false)} />
 
 <div class="docs" style:--docs_menu_width={docs_menu_width}>
-	<DocsPrimaryNav {library} {breadcrumb_children}>
+	<DocsPrimaryNav>
 		<div class="nav-dialog-toggle">
 			<button class="plain" type="button" onclick={() => toggle_secondary_nav_dialog()}>menu</button
 			>
@@ -69,18 +69,12 @@
 		{/key}
 		<!-- TODO @many dialog navs -->
 		{#if !innerWidth.current || innerWidth.current > TERTIARY_NAV_BREAKPOINT}
-			<DocsTertiaryNav {tomes} {tomes_by_name} />
+			<DocsTertiaryNav {tomes} {tomes_by_slug} />
 		{/if}
 		<section class="box">
-			<DocsFooter {library} root_url="https://www.fuz.dev/">
+			<DocsFooter repo_url={site.repo_url} root_url={FUZ_DEV_URL}>
 				<div class="mb_xl5">
-					<Breadcrumb>
-						{#if breadcrumb_children}
-							{@render breadcrumb_children(false)}
-						{:else}
-							{library.package_json.glyph ?? '🏠'}
-						{/if}
-					</Breadcrumb>
+					<Breadcrumb />
 				</div>
 			</DocsFooter>
 		</section>
@@ -90,21 +84,17 @@
 <!-- TODO this is messy rendering `DocsSecondaryNav` twice to handle responsive states with SSR correctly -->
 {#if show_secondary_nav_dialog && innerWidth.current && innerWidth.current <= TERTIARY_NAV_BREAKPOINT}
 	<Dialog onclose={() => (show_secondary_nav_dialog = false)}>
-		<div class="pane" style:--docs_menu_width={docs_menu_width}>
-			<div class="p_xl pb_0">
-				<Breadcrumb>
-					{#if breadcrumb_children}
-						{@render breadcrumb_children(false)}
-					{:else}
-						{library.package_json.glyph ?? '🏠'}
-					{/if}
-				</Breadcrumb>
+		<DialogContent padding="">
+			<div style:--docs_menu_width={docs_menu_width}>
+				<div class="p_xl pb_0">
+					<Breadcrumb />
+				</div>
+				<div class="px_lg pb_xl">
+					<DocsSecondaryNav {tomes} sidebar={false} />
+					<DocsTertiaryNav {tomes} {tomes_by_slug} sidebar={false} />
+				</div>
 			</div>
-			<div class="px_lg pb_xl">
-				<DocsSecondaryNav {tomes} sidebar={false} />
-				<DocsTertiaryNav {tomes} {tomes_by_name} sidebar={false} />
-			</div>
-		</div>
+		</DialogContent>
 	</Dialog>
 {/if}
 

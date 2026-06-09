@@ -3,7 +3,7 @@
 	import {resolve} from '$app/paths';
 
 	import type {MdzNode} from './mdz.js';
-	import {resolve_relative_path} from './mdz_helpers.js';
+	import {resolve_relative_path, mdz_is_safe_reference} from './mdz_helpers.js';
 	import DocsLink from './DocsLink.svelte';
 	import MdzNodeView from './MdzNodeView.svelte';
 	import {
@@ -18,14 +18,14 @@
 		node: MdzNode;
 	} = $props();
 
-	const components = mdz_components_context.get_maybe();
-	const elements = mdz_elements_context.get_maybe();
+	const get_components = mdz_components_context.get_maybe();
+	const get_elements = mdz_elements_context.get_maybe();
 	const get_mdz_base = mdz_base_context.get_maybe();
 	// TODO make `Code` customizable via context, maybe registered as component Codeblock?
 </script>
 
 {#if node.type === 'Element'}
-	{@const element_config = elements?.get(node.name)}
+	{@const element_config = get_elements?.()?.get(node.name)}
 	{#if element_config !== undefined}
 		<svelte:element this={node.name}>
 			{#if node.children.length > 0}
@@ -36,7 +36,7 @@
 		{@render render_unregistered_tag(node.name, node.children)}
 	{/if}
 {:else if node.type === 'Component'}
-	{@const Component = components?.get(node.name)}
+	{@const Component = get_components?.()?.get(node.name)}
 	{#if Component}
 		<Component>
 			{#if node.children.length > 0}
@@ -58,7 +58,9 @@
 	<s>{@render render_children(node.children)}</s>
 {:else if node.type === 'Link'}
 	{@const {reference} = node}
-	{#if node.link_type === 'internal'}
+	{#if !mdz_is_safe_reference(reference)}
+		{@render render_children(node.children)}
+	{:else if node.link_type === 'internal'}
 		{@const skip_resolve = reference.startsWith('#') || reference.startsWith('?')}
 		{@const mdz_base = get_mdz_base?.()}
 		{#if reference.startsWith('.') && mdz_base}

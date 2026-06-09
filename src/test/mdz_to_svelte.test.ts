@@ -204,16 +204,16 @@ describe('mdz_to_svelte', () => {
 		});
 
 		test('renders external link', () => {
-			const result = convert('[link](https://example.com)');
-			assert.ok(result.markup.includes("href={'https://example.com'}"));
+			const result = convert('[link](https://fuz.dev)');
+			assert.ok(result.markup.includes("href={'https://fuz.dev'}"));
 			assert.ok(result.markup.includes('target="_blank"'));
 			assert.ok(result.markup.includes('rel="noopener"'));
 			assert.ok(!result.imports.has('resolve'));
 		});
 
 		test('renders auto-detected URL', () => {
-			const result = convert('visit https://example.com today');
-			assert.ok(result.markup.includes("href={'https://example.com'}"));
+			const result = convert('visit https://fuz.dev today');
+			assert.ok(result.markup.includes("href={'https://fuz.dev'}"));
 			assert.ok(result.markup.includes('target="_blank"'));
 		});
 
@@ -358,7 +358,7 @@ describe('mdz_to_svelte', () => {
 		});
 
 		test('does not add resolve for external links', () => {
-			const result = convert('[link](https://example.com)');
+			const result = convert('[link](https://fuz.dev)');
 			assert.ok(!result.imports.has('resolve'));
 		});
 
@@ -429,9 +429,9 @@ describe('mdz_to_svelte', () => {
 		});
 
 		test('base does not affect external links', () => {
-			const nodes = mdz_parse('https://example.com');
+			const nodes = mdz_parse('https://fuz.dev');
 			const result = mdz_to_svelte(nodes, {}, new Set(), '/docs/mdz/');
-			assert.ok(result.markup.includes("href={'https://example.com'}"));
+			assert.ok(result.markup.includes("href={'https://fuz.dev'}"));
 			assert.ok(result.markup.includes('target="_blank"'));
 		});
 

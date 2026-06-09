@@ -6,6 +6,7 @@
 
 	import CopyToClipboard from '$lib/CopyToClipboard.svelte';
 	import Dialog from '$lib/Dialog.svelte';
+	import DialogContent from '$lib/DialogContent.svelte';
 	import StyleVariableDetail from '$routes/StyleVariableDetail.svelte';
 
 	// TODO @many add to $lib?
@@ -107,15 +108,15 @@
 </div>
 {#if selected_variable}
 	<Dialog onclose={() => (selected_variable = null)}>
-		{#snippet children(close)}
-			<div class="pane p_md width_atmost_md mx_auto">
+		<DialogContent>
+			{#snippet children({close})}
 				<div class="panel p_lg box">
 					<StyleVariableDetail variable={selected_variable} />
 					<aside>⚠️ This is unfinished and will change.</aside>
 					<button type="button" onclick={close}>ok</button>
 				</div>
-			</div>
-		{/snippet}
+			{/snippet}
+		</DialogContent>
 	</Dialog>
 {/if}
 

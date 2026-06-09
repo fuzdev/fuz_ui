@@ -1,9 +1,0 @@
-{
-	"text": "Function that mutates its argument.",
-	"params": {
-		"obj": "object to modify"
-	},
-	"mutates": [
-		"obj - adds processed field"
-	]
-}

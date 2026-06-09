@@ -2,4 +2,4 @@
 	import Mdz from '@fuzdev/fuz_ui/Mdz.svelte';
 </script>
 
-<Mdz content="visit https://example.com today" />
+<Mdz content="visit https://fuz.dev today" />

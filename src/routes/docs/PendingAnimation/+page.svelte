@@ -1,14 +1,14 @@
 <script lang="ts">
 	import Code from '@fuzdev/fuz_code/Code.svelte';
 
-	import {get_tome_by_name} from '$lib/tome.js';
+	import {tome_get_by_slug} from '$lib/tome.js';
 	import PendingAnimation from '$lib/PendingAnimation.svelte';
 	import TomeContent from '$lib/TomeContent.svelte';
 	import TomeSectionHeader from '$lib/TomeSectionHeader.svelte';
 	import TomeSection from '$lib/TomeSection.svelte';
 
-	const LIBRARY_ITEM_NAME = 'PendingAnimation';
-	const tome = get_tome_by_name(LIBRARY_ITEM_NAME);
+	const TOME_SLUG = 'PendingAnimation';
+	const tome = tome_get_by_slug(TOME_SLUG);
 
 	let turtle_slot = $state.raw('🐢');
 	let turtle_slot_2a = $state.raw('🐸');
@@ -18,7 +18,7 @@
 
 	// Formats boolean html attrs for display, using shorthand when true
 	const to_boolean_attr = (name: 'running' | 'inline', value: boolean): string => {
-		const default_value = name === 'running' ? true : name === 'inline' ? false : undefined; // eslint-disable-line @typescript-eslint/no-unnecessary-condition
+		const default_value = name === 'running' ? true : name === 'inline' ? false : undefined;
 		if (default_value === undefined) throw Error();
 		if (default_value === value) return '';
 		return value ? ' ' + name : ` ${name}={false}`;

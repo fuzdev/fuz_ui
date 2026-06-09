@@ -1,12 +1,12 @@
 <script lang="ts">
-	import {get_tome_by_name} from '$lib/tome.js';
+	import {tome_get_by_slug} from '$lib/tome.js';
 	import TomeContent from '$lib/TomeContent.svelte';
 	import TomeLink from '$lib/TomeLink.svelte';
 	import MdnLink from '$lib/MdnLink.svelte';
 
-	const LIBRARY_ITEM_NAME = 'theming';
+	const TOME_SLUG = 'theming';
 
-	const tome = get_tome_by_name(LIBRARY_ITEM_NAME);
+	const tome = tome_get_by_slug(TOME_SLUG);
 </script>
 
 <TomeContent {tome}>
@@ -14,7 +14,7 @@
 		<p>
 			Fuz bases its theme support on <a href="https://css.fuz.dev/">fuz_css</a>, which is based on
 			semantic HTML and <MdnLink path="Web/CSS/--*">CSS custom properties</MdnLink>. For usage docs
-			see <TomeLink name="ThemeRoot" />.
+			see <TomeLink slug="ThemeRoot" />.
 		</p>
 	</section>
 </TomeContent>

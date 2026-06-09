@@ -1,6 +1,6 @@
 <script lang="ts">
 	import {library_context, type Library} from './library.svelte.js';
-	import {get_tome_by_name, type Tome} from './tome.js';
+	import {tome_get_by_slug, type Tome} from './tome.js';
 	import TomeContent from './TomeContent.svelte';
 	import TomeSection from './TomeSection.svelte';
 	import TomeSectionHeader from './TomeSectionHeader.svelte';
@@ -13,7 +13,7 @@
 	const {
 		module_path: module_path_param,
 		library = library_context.get(),
-		tome = get_tome_by_name('api'),
+		tome = tome_get_by_slug('api'),
 	}: {
 		/**
 		 * The module path parameter from the route (e.g., "lib/Button.svelte").
@@ -54,7 +54,7 @@
 </script>
 
 <svelte:head>
-	<title>{module_name} - API docs - {library.package_json.name}</title>
+	<title>{module_name} - API docs - {library.pkg_json.name}</title>
 </svelte:head>
 
 <TomeContent {tome}>
@@ -115,7 +115,7 @@
 		</TomeSection>
 
 		<!-- Depends on section -->
-		{#if module.dependencies}
+		{#if module.has_dependencies}
 			<TomeSection>
 				<TomeSectionHeader text="Depends on" />
 				<ul>
@@ -129,7 +129,7 @@
 		{/if}
 
 		<!-- Imported by section -->
-		{#if module.dependents}
+		{#if module.has_dependents}
 			<TomeSection>
 				<TomeSectionHeader text="Imported by" />
 				<ul>

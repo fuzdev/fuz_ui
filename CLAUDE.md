@@ -7,18 +7,34 @@ components and TypeScript helpers for building user-friendly websites.
 
 For coding conventions, see Skill(fuz-stack).
 
+## Committing
+
+`git add` and `git commit` are denied by `.claude/settings.local.json` in
+this repo — make the edits and stop, the user commits.
+
 ## Gro commands
 
 ```bash
 gro check     # typecheck, test, lint, format check (run before committing)
 gro typecheck # typecheck only (faster iteration)
 gro test      # run tests with vitest
-gro gen       # regenerate .gen files (library.json, fuz.css)
 gro build     # build for production
 ```
 
 IMPORTANT for AI agents: Do NOT run `gro dev` - the developer will manage the
 dev server.
+
+## Benchmarks
+
+```bash
+npm run benchmark         # run mdz parser benchmarks, compare against baseline
+npm run benchmark:save    # save current results as the new baseline
+npm run benchmark:clean   # remove the local baseline (forces a fresh seed)
+```
+
+Baseline lives at `src/benchmarks/baseline.json` and is **gitignored** —
+local-only. After a fuz_util upgrade that bumps the baseline schema version,
+the next run auto-deletes the stale file with a warning; `--save` re-seeds.
 
 ## Key dependencies
 
@@ -26,6 +42,7 @@ dev server.
 - SvelteKit - application framework
 - fuz_css (@fuzdev/fuz_css) - CSS framework and design system foundation
 - fuz_util (@fuzdev/fuz_util) - utility library
+- svelte-docinfo (svelte-docinfo) - TypeScript/Svelte static analysis
 - Gro (@fuzdev/gro) - build system and CLI
 
 ## Scope
@@ -54,15 +71,13 @@ src/
 ├── lib/              # exportable library code
 │   ├── *.svelte      # UI components (50+)
 │   ├── *.ts          # TypeScript utilities
-│   ├── *.svelte.ts   # Svelte 5 runes and reactive utilities
-│   └── *.gen.ts      # Gro genfiles (code generators)
+│   └── *.svelte.ts   # Svelte 5 runes and reactive utilities
 ├── test/             # test files (not co-located)
 │   └── fixtures/     # fixture-based tests (mdz, tsdoc, ts, svelte)
 └── routes/           # SvelteKit routes
-    ├── docs/         # documentation pages
-    │   ├── tomes.ts  # central documentation registry
-    │   └── api/      # auto-generated API docs
-    └── library.gen.ts # library metadata generator
+    └── docs/         # documentation pages
+        ├── tomes.ts  # central documentation registry
+        └── api/      # auto-generated API docs
 ```
 
 ### Core concepts
@@ -71,12 +86,12 @@ src/
 represents a component or helper with `name`, `category`, `component`, and
 `related` fields. Central registry: `src/routes/docs/tomes.ts`
 
-**Identifier namespacing** - fuz_ui uses domain-prefix naming for its helper
-clusters. See `fuz-stack` for the full naming conventions.
-
-Helper file prefixes: `ts_*` (TypeScript API), `tsdoc_*` (JSDoc parsing),
-`svelte_*` (component analysis), `module_*` (path utilities),
-`package_gen_*` (Gro package generation).
+**svelte-docinfo** - TypeScript/Svelte static analysis is provided by the
+`svelte-docinfo` package. The analyzed modules arrive at runtime via the
+Vite plugin's `virtual:svelte-docinfo` module. fuz_ui consumes source
+utilities (`isTypescript`, `isSvelte`, `isCss`, `isJson` from `source.js`),
+types (`ModuleJson`, `DeclarationJson` from `types.js`), and declaration
+helpers (`generateImport`, `getDisplayName` from `declaration-helpers.js`).
 
 ## Components
 
@@ -93,7 +108,7 @@ Helper file prefixes: `ts_*` (TypeScript API), `tsdoc_*` (JSDoc parsing),
 
 ### Overlays and dialogs
 
-- `Dialog`, `Dialogs` - modal dialogs
+- `Dialog`, `DialogContent` - native `<dialog>` modal and its default content surface
 - `Contextmenu*` - context menu system (Root, Entry, LinkEntry, TextEntry,
   Submenu, Separator)
 
@@ -114,11 +129,14 @@ Helper file prefixes: `ts_*` (TypeScript API), `tsdoc_*` (JSDoc parsing),
 - `Hashlink` - hash anchor links
 - `TomeLink`, `DeclarationLink`, `ModuleLink` - docs navigation
 - `GithubLink`, `MdnLink` - external reference links
+- `ProjectLinks` - @fuzdev ecosystem package grid; add an entry inline and a matching logo in `logos.ts`
 
 ### Documentation
 
-- `PackageDetail`, `PackageSummary` - package info display
+- `LibraryDetail`, `LibrarySummary` - library info display (from a `Library`)
 - `Mdz` - renders mdz (minimal markdown dialect) content
+- `MdzStream`, `MdzStreamNodeView` - streaming mdz renderer (opcode-driven)
+- `MdzRoot` - context provider for mdz (base, components, elements)
 - `ApiIndex`, `ApiModule`, `ApiDeclarationList` - API documentation
 
 ### Utilities
@@ -134,11 +152,16 @@ Helper file prefixes: `ts_*` (TypeScript API), `tsdoc_*` (JSDoc parsing),
 - `theme_state.svelte.ts` - theme and color scheme management (ThemeState class)
 - `context_helpers.ts` - Svelte context utilities (`create_context()`)
 - `mdz.ts` - minimal markdown dialect parser and renderer
+- `mdz_stream_parser.ts` - streaming opcode parser (`MdzStreamParser`)
+- `mdz_opcodes.ts` - opcode type definitions for streaming parser
+- `mdz_opcodes_to_nodes.ts` - opcode-to-MdzNode tree bridge
+- `mdz_stream_state.svelte.ts` - reactive Svelte 5 state (`MdzStreamState`)
 
 ### Component helpers
 
 - `contextmenu_state.svelte.ts` - context menu state management
-- `dialog.ts` - dialog utilities (`to_dialog_params()`, DialogLayout enum)
+- `dialog.ts` - dialog types and `dialog_context` (`DialogContext`, `DialogAlign`,
+  `DialogCloseButtonAttrs`)
 - `alert.ts` - alert utilities
 - `storage.ts` - localStorage utilities with optional `parse_fn` for custom parsing
 - `csp.ts` - Content Security Policy builder utilities
@@ -147,27 +170,38 @@ Helper file prefixes: `ts_*` (TypeScript API), `tsdoc_*` (JSDoc parsing),
 
 ### Library and API generation
 
-- `library.gen.ts` - Gro genfile that orchestrates metadata generation
+Library metadata is built at runtime from two virtual modules. The
+`svelte-docinfo` Vite plugin (`svelte-docinfo/vite.js`, wired in
+`vite.config.ts`) exposes the analyzed modules through
+`virtual:svelte-docinfo`, and `vite_plugin_pkg_json` exposes the curated,
+publish-safe `package.json` subset through `virtual:pkg.json`. The app's
+`src/routes/library.ts` combines them via `library_json_from_modules` (from
+`@fuzdev/fuz_util/library_json.js`) to construct the `LibraryJson`;
+`+layout.svelte` separately uses `virtual:pkg.json` for `SiteState`.
+
+The served `pkg_json` field set defaults to `pkg_json_keys`. To widen it, pass
+a `keys` list to both `vite_plugin_pkg_json` (build-time strip) and
+`library_json_from_modules` (runtime re-strip) — they must match or the runtime
+re-strip drops the extras. See the `vite_plugin_pkg_json` tome for the pattern.
+
+- `vite_plugin_pkg_json.ts` - Vite plugin serving `virtual:pkg.json` (curated
+  `PkgJson` from `@fuzdev/fuz_util/pkg_json.js`)
 - `library.svelte.ts` - `Library` class wrapping library data
-- `declaration.svelte.ts` - `Declaration` class for code declarations
-- `module.svelte.ts` - `Module` class for source files
+- `declaration.svelte.ts` - `Declaration` class for code declarations (uses
+  `generateImport`, `getDisplayName` from `svelte-docinfo/declaration-helpers.js`)
+- `module.svelte.ts` - `Module` class for source files (uses `ModuleJson` from
+  `svelte-docinfo/types.js`)
+- `LibraryDetail.svelte` - library overview component (uses `isTypescript`,
+  `isSvelte`, `isCss`, `isJson` from `svelte-docinfo/source.js`)
 - `library_helpers.ts` - docs URL helpers
-- `vite_plugin_library_well_known.ts` - RFC 8615 `.well-known/` metadata publishing
 
-### TypeScript and Svelte analysis
+Analysis is provided by `svelte-docinfo`. See its CLAUDE.md for the
+full API. Key imports used by fuz_ui:
 
-- `ts_helpers.ts` - TypeScript compiler API utilities (`ts_analyze_declaration`,
-  `ts_analyze_module_exports`, `ts_create_program`)
-- `svelte_helpers.ts` - Svelte component analysis (`svelte_analyze_file`,
-  `svelte_analyze_component`)
-- `tsdoc_helpers.ts` - JSDoc/TSDoc parsing (`tsdoc_parse`,
-  `tsdoc_apply_to_declaration`). Supports `@param`, `@returns`, `@throws`,
-  `@example`, `@deprecated`, `@see`, `@since`, `@nodocs`, `@mutates`
-- `module_helpers.ts` - module path utilities (`module_is_typescript`,
-  `module_is_svelte`, `module_extract_path`)
-- `library_analysis.ts` - unified analysis entry point
-- `library_pipeline.ts` - pipeline orchestration (collect, analyze, validate,
-  transform, output)
+- `source.js` — type predicates: `isTypescript`, `isSvelte`, `isCss`,
+  `isJson`
+- `types.js` — `ModuleJson`, `DeclarationJson` (and their `*Input` variants)
+- `declaration-helpers.js` — `generateImport`, `getDisplayName`
 
 ### Browser and DOM
 
@@ -260,8 +294,12 @@ All contexts use the standardized pattern via `context_helpers.ts`:
 - `tomes_context` - available documentation (Map<string, Tome>)
 - `tome_context` - current documentation page (Tome)
 - `docs_links_context` - documentation navigation (DocsLinks class)
-- `mdz_components_context` - custom mdz components
-- `mdz_base_context` - base path for relative link resolution
+- `mdz_components_context` - custom mdz components (getter)
+- `mdz_elements_context` - allowed HTML elements (getter)
+- `mdz_base_context` - base path for relative link resolution (getter)
+
+All three use getter pattern (`() => value | undefined`). Set via `MdzRoot` component
+or directly with `context.set(() => value)`.
 
 **Contextmenu:**
 
@@ -272,6 +310,9 @@ All contexts use the standardized pattern via `context_helpers.ts`:
 **Other:**
 
 - `selected_variable_context` - style variable selection
+- `site_context` - light site identity (`SiteState`: icon, glyph, repo_url) for app
+  chrome like `Breadcrumb` and `DocsFooter`; set once at the root layout. Distinct
+  from `library_context`, which carries the heavy module/declaration metadata
 
 ## Documentation system
 
@@ -284,8 +325,10 @@ API docs.
 
 **API documentation** - auto-generated from TypeScript/Svelte source with full
 TSDoc support. Two-phase architecture: TSDoc extraction at build time
-(`tsdoc_helpers.ts`), mdz rendering at runtime (`mdz.ts`). Setup requires
-`library.gen.ts` and API routes. See `src/routes/docs/api/` for example routes.
+(via `svelte-docinfo`), mdz rendering at runtime (`mdz.ts`). Setup
+requires the `svelte-docinfo` Vite plugin (which exposes
+`virtual:svelte-docinfo`) and API routes. See `src/routes/docs/api/` for
+example routes.
 
 **Docs layout** - `<Docs>` provides three-column responsive layout with managed
 contexts for navigation.
@@ -360,6 +403,7 @@ For `svelte_preprocess_mdz` fixtures, input files with fake imports need
 
 - [`fuz_css`](../fuz_css/CLAUDE.md) - CSS framework (peer dependency)
 - [`fuz_util`](../fuz_util/CLAUDE.md) - utility functions (peer dependency)
+- [`svelte-docinfo`](../svelte-docinfo/CLAUDE.md) - TypeScript/Svelte static analysis (dependency)
 - [`fuz_template`](../fuz_template/CLAUDE.md) - starter template using fuz_ui
 - [`fuz_blog`](../fuz_blog/CLAUDE.md) - blog template using fuz_ui
 - [`fuz_mastodon`](../fuz_mastodon/CLAUDE.md) - Mastodon components using fuz_ui

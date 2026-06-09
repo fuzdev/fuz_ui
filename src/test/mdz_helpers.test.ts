@@ -12,6 +12,9 @@ import {
 	mdz_text_content,
 	mdz_heading_id,
 	mdz_is_url,
+	mdz_is_safe_reference,
+	match_url_prefix_case_insensitive,
+	ascii_to_lower,
 	resolve_relative_path,
 	extract_single_tag,
 	ASTERISK,
@@ -29,6 +32,8 @@ import {
 	RIGHT_BRACKET,
 	LEFT_PAREN,
 } from '$lib/mdz_helpers.js';
+
+/* eslint-disable no-script-url */
 
 // helper to create nodes with dummy positions
 const text = (content: string): MdzNode => ({type: 'Text', content, start: 0, end: 0});
@@ -181,22 +186,22 @@ describe('is_valid_path_char', () => {
 
 describe('trim_trailing_punctuation', () => {
 	test('trims simple trailing punctuation', () => {
-		assert.equal(trim_trailing_punctuation('https://example.com.'), 'https://example.com');
-		assert.equal(trim_trailing_punctuation('https://example.com,'), 'https://example.com');
-		assert.equal(trim_trailing_punctuation('https://example.com;'), 'https://example.com');
-		assert.equal(trim_trailing_punctuation('https://example.com:'), 'https://example.com');
-		assert.equal(trim_trailing_punctuation('https://example.com!'), 'https://example.com');
-		assert.equal(trim_trailing_punctuation('https://example.com?'), 'https://example.com');
-		assert.equal(trim_trailing_punctuation('https://example.com]'), 'https://example.com');
+		assert.equal(trim_trailing_punctuation('https://fuz.dev.'), 'https://fuz.dev');
+		assert.equal(trim_trailing_punctuation('https://fuz.dev,'), 'https://fuz.dev');
+		assert.equal(trim_trailing_punctuation('https://fuz.dev;'), 'https://fuz.dev');
+		assert.equal(trim_trailing_punctuation('https://fuz.dev:'), 'https://fuz.dev');
+		assert.equal(trim_trailing_punctuation('https://fuz.dev!'), 'https://fuz.dev');
+		assert.equal(trim_trailing_punctuation('https://fuz.dev?'), 'https://fuz.dev');
+		assert.equal(trim_trailing_punctuation('https://fuz.dev]'), 'https://fuz.dev');
 	});
 
 	test('trims multiple trailing punctuation chars', () => {
-		assert.equal(trim_trailing_punctuation('https://example.com..'), 'https://example.com');
-		assert.equal(trim_trailing_punctuation('https://example.com!?'), 'https://example.com');
+		assert.equal(trim_trailing_punctuation('https://fuz.dev..'), 'https://fuz.dev');
+		assert.equal(trim_trailing_punctuation('https://fuz.dev!?'), 'https://fuz.dev');
 	});
 
 	test('returns original string reference when no trimming needed', () => {
-		const url = 'https://example.com/path';
+		const url = 'https://fuz.dev/path';
 		const result = trim_trailing_punctuation(url);
 		assert.ok(result === url, 'should return same string reference');
 	});
@@ -209,15 +214,12 @@ describe('trim_trailing_punctuation', () => {
 	});
 
 	test('trims unmatched trailing closing parens', () => {
-		assert.equal(trim_trailing_punctuation('https://example.com)'), 'https://example.com');
-		assert.equal(trim_trailing_punctuation('https://example.com))'), 'https://example.com');
+		assert.equal(trim_trailing_punctuation('https://fuz.dev)'), 'https://fuz.dev');
+		assert.equal(trim_trailing_punctuation('https://fuz.dev))'), 'https://fuz.dev');
 	});
 
 	test('keeps matched parens but trims excess', () => {
-		assert.equal(
-			trim_trailing_punctuation('https://example.com/(foo))'),
-			'https://example.com/(foo)',
-		);
+		assert.equal(trim_trailing_punctuation('https://fuz.dev/(foo))'), 'https://fuz.dev/(foo)');
 	});
 
 	test('handles empty string', () => {
@@ -229,10 +231,7 @@ describe('trim_trailing_punctuation', () => {
 	});
 
 	test('keeps multiple balanced paren pairs', () => {
-		assert.equal(
-			trim_trailing_punctuation('https://example.com/(a)(b)'),
-			'https://example.com/(a)(b)',
-		);
+		assert.equal(trim_trailing_punctuation('https://fuz.dev/(a)(b)'), 'https://fuz.dev/(a)(b)');
 	});
 
 	test('keeps nested balanced parens', () => {
@@ -243,10 +242,7 @@ describe('trim_trailing_punctuation', () => {
 	});
 
 	test('trims punctuation after parens', () => {
-		assert.equal(
-			trim_trailing_punctuation('https://example.com/(foo).'),
-			'https://example.com/(foo)',
-		);
+		assert.equal(trim_trailing_punctuation('https://fuz.dev/(foo).'), 'https://fuz.dev/(foo)');
 	});
 });
 
@@ -408,10 +404,7 @@ describe('mdz_text_content', () => {
 	});
 
 	test('recurses into Link children, not reference', () => {
-		assert.equal(
-			mdz_text_content([link('https://example.com', [text('click here')])]),
-			'click here',
-		);
+		assert.equal(mdz_text_content([link('https://fuz.dev', [text('click here')])]), 'click here');
 	});
 
 	test('skips Hr nodes interspersed with text', () => {
@@ -443,11 +436,11 @@ describe('mdz_heading_id', () => {
 
 describe('mdz_is_url', () => {
 	test('returns true for valid URLs', () => {
-		assert.equal(mdz_is_url('https://example.com'), true);
+		assert.equal(mdz_is_url('https://fuz.dev'), true);
 		assert.equal(mdz_is_url('https://a'), true);
-		assert.equal(mdz_is_url('http://example.com'), true);
+		assert.equal(mdz_is_url('http://fuz.dev'), true);
 		assert.equal(mdz_is_url('http://a'), true);
-		assert.equal(mdz_is_url('https://example.com/path?query=1#hash'), true);
+		assert.equal(mdz_is_url('https://fuz.dev/path?query=1#hash'), true);
 	});
 
 	test('returns true for IPv6 URLs', () => {
@@ -494,9 +487,141 @@ describe('mdz_is_url', () => {
 
 	test('returns false for non-URLs', () => {
 		assert.equal(mdz_is_url(''), false);
-		assert.equal(mdz_is_url('example.com'), false);
+		assert.equal(mdz_is_url('fuz.dev'), false);
 		assert.equal(mdz_is_url('/path'), false);
-		assert.equal(mdz_is_url('ftp://example.com'), false);
+		assert.equal(mdz_is_url('ftp://fuz.dev'), false);
+	});
+
+	test('scheme match is case-insensitive (RFC 3986)', () => {
+		assert.equal(mdz_is_url('HTTPS://fuz.dev'), true);
+		assert.equal(mdz_is_url('Https://fuz.dev'), true);
+		assert.equal(mdz_is_url('HtTpS://fuz.dev'), true);
+		assert.equal(mdz_is_url('HTTP://fuz.dev'), true);
+		assert.equal(mdz_is_url('Http://fuz.dev'), true);
+		assert.equal(mdz_is_url('HTTPS://'), false);
+		assert.equal(mdz_is_url('HTTP://'), false);
+	});
+});
+
+describe('match_url_prefix_case_insensitive', () => {
+	test('returns 8 for lowercase https://', () => {
+		assert.equal(match_url_prefix_case_insensitive('https://fuz.dev', 0), 8);
+	});
+
+	test('returns 7 for lowercase http://', () => {
+		assert.equal(match_url_prefix_case_insensitive('http://fuz.dev', 0), 7);
+	});
+
+	test('matches HTTPS:// case-insensitively', () => {
+		assert.equal(match_url_prefix_case_insensitive('HTTPS://fuz.dev', 0), 8);
+		assert.equal(match_url_prefix_case_insensitive('Https://fuz.dev', 0), 8);
+		assert.equal(match_url_prefix_case_insensitive('HtTpS://fuz.dev', 0), 8);
+	});
+
+	test('matches HTTP:// case-insensitively', () => {
+		assert.equal(match_url_prefix_case_insensitive('HTTP://fuz.dev', 0), 7);
+		assert.equal(match_url_prefix_case_insensitive('Http://fuz.dev', 0), 7);
+	});
+
+	test('returns 0 for non-http(s) schemes', () => {
+		assert.equal(match_url_prefix_case_insensitive('ftp://fuz.dev', 0), 0);
+		assert.equal(match_url_prefix_case_insensitive('javascript:alert(1)', 0), 0);
+		assert.equal(match_url_prefix_case_insensitive('mailto:a@b.c', 0), 0);
+	});
+
+	test('returns 0 when too short', () => {
+		assert.equal(match_url_prefix_case_insensitive('http:/', 0), 0);
+		assert.equal(match_url_prefix_case_insensitive('h', 0), 0);
+		assert.equal(match_url_prefix_case_insensitive('', 0), 0);
+	});
+
+	test('honors pos offset', () => {
+		assert.equal(match_url_prefix_case_insensitive('see HTTPS://fuz.dev', 4), 8);
+		assert.equal(match_url_prefix_case_insensitive('xx Http://fuz.dev', 3), 7);
+		assert.equal(match_url_prefix_case_insensitive('Https://fuz.dev', 1), 0);
+	});
+
+	test('colon and slashes are literal (only scheme letters case-fold)', () => {
+		assert.equal(match_url_prefix_case_insensitive('https//fuz.dev', 0), 0);
+		assert.equal(match_url_prefix_case_insensitive('https:/fuz.dev', 0), 0);
+	});
+
+	test('rejects schemes with wrong letters or layout', () => {
+		// wrong letters in scheme
+		assert.equal(match_url_prefix_case_insensitive('Httpz://x', 0), 0);
+		assert.equal(match_url_prefix_case_insensitive('ottps://x', 0), 0);
+		assert.equal(match_url_prefix_case_insensitive('hxtps://x', 0), 0);
+		// embedded whitespace or other chars in scheme
+		assert.equal(match_url_prefix_case_insensitive('Htt p://x', 0), 0);
+		assert.equal(match_url_prefix_case_insensitive('h_ttps://x', 0), 0);
+		// backslashes are not forward slashes
+		assert.equal(match_url_prefix_case_insensitive('https:\\\\path', 0), 0);
+		// uppercase H followed by non-scheme letters
+		assert.equal(match_url_prefix_case_insensitive('Hello://world', 0), 0);
+	});
+});
+
+describe('ascii_to_lower', () => {
+	test('lowercases ASCII upper-case letters', () => {
+		assert.equal(ascii_to_lower(65 /* A */), 97 /* a */);
+		assert.equal(ascii_to_lower(72 /* H */), 104 /* h */);
+		assert.equal(ascii_to_lower(90 /* Z */), 122 /* z */);
+	});
+
+	test('passes through non-uppercase chars unchanged', () => {
+		assert.equal(ascii_to_lower(97 /* a */), 97);
+		assert.equal(ascii_to_lower(48 /* 0 */), 48);
+		assert.equal(ascii_to_lower(32 /* space */), 32);
+		assert.equal(ascii_to_lower(91 /* [ */), 91);
+		assert.equal(ascii_to_lower(0xc4 /* Ä, non-ASCII */), 0xc4);
+	});
+});
+
+describe('mdz_is_safe_reference', () => {
+	test('allows empty string', () => {
+		assert.equal(mdz_is_safe_reference(''), true);
+	});
+
+	test('allows paths without colons', () => {
+		assert.equal(mdz_is_safe_reference('/path'), true);
+		assert.equal(mdz_is_safe_reference('/path/to/page'), true);
+		assert.equal(mdz_is_safe_reference('./relative'), true);
+		assert.equal(mdz_is_safe_reference('../parent'), true);
+		assert.equal(mdz_is_safe_reference('#hash'), true);
+		assert.equal(mdz_is_safe_reference('?query=1'), true);
+		assert.equal(mdz_is_safe_reference('docs/page'), true);
+		assert.equal(mdz_is_safe_reference('foo'), true);
+	});
+
+	test('allows http and https URLs', () => {
+		assert.equal(mdz_is_safe_reference('https://fuz.dev'), true);
+		assert.equal(mdz_is_safe_reference('http://fuz.dev'), true);
+		assert.equal(mdz_is_safe_reference('HTTPS://EXAMPLE.COM'), true);
+		assert.equal(mdz_is_safe_reference('Http://Example.Com'), true);
+		assert.equal(mdz_is_safe_reference('https://fuz.dev/path?q=1#h'), true);
+	});
+
+	test('rejects javascript protocol', () => {
+		assert.equal(mdz_is_safe_reference('javascript:alert(1)'), false);
+		assert.equal(mdz_is_safe_reference('JavaScript:alert(1)'), false);
+		assert.equal(mdz_is_safe_reference('JAVASCRIPT:ALERT(1)'), false);
+	});
+
+	test('rejects data protocol', () => {
+		assert.equal(mdz_is_safe_reference('data:text/html,<script>alert(1)</script>'), false);
+		assert.equal(mdz_is_safe_reference('Data:text/html,test'), false);
+	});
+
+	test('rejects vbscript protocol', () => {
+		assert.equal(mdz_is_safe_reference('vbscript:msgbox'), false);
+		assert.equal(mdz_is_safe_reference('VBScript:MsgBox'), false);
+	});
+
+	test('rejects other protocols with colons', () => {
+		assert.equal(mdz_is_safe_reference('ftp://fuz.dev'), false);
+		assert.equal(mdz_is_safe_reference('file:///etc/passwd'), false);
+		assert.equal(mdz_is_safe_reference('blob:http://fuz.dev/uuid'), false);
+		assert.equal(mdz_is_safe_reference('mailto:user@fuz.dev'), false);
 	});
 });
 
@@ -603,7 +728,7 @@ describe('extract_single_tag', () => {
 	});
 
 	test('returns null for Link node (has children but is not a tag)', () => {
-		assert.equal(extract_single_tag([link('https://example.com', [text('link')])]), null);
+		assert.equal(extract_single_tag([link('https://fuz.dev', [text('link')])]), null);
 	});
 
 	test('returns null for mixed component and element', () => {

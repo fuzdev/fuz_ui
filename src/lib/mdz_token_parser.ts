@@ -18,7 +18,12 @@ import type {
 	MdzElementNode,
 	MdzComponentNode,
 } from './mdz.js';
-import {extract_single_tag, mdz_heading_id} from './mdz_helpers.js';
+import {
+	extract_single_tag,
+	mdz_heading_id,
+	mdz_merge_adjacent_text,
+	mdz_push_merging_text,
+} from './mdz_helpers.js';
 import {
 	MdzLexer,
 	type MdzToken,
@@ -124,7 +129,7 @@ class MdzTokenParser {
 			if (node) children.push(node);
 		}
 
-		const merged = this.#merge_adjacent_text(children);
+		const merged = mdz_merge_adjacent_text(children);
 		const end = merged.length > 0 ? merged[merged.length - 1]!.end : start + level + 1;
 
 		return {type: 'Heading', level, id: mdz_heading_id(merged), children: merged, start, end};
@@ -228,7 +233,7 @@ class MdzTokenParser {
 				break;
 			}
 			const node = this.#parse_inline();
-			if (node) children.push(node);
+			if (node) mdz_push_merging_text(children, node);
 		}
 
 		// Unclosed - treat as text
@@ -257,7 +262,7 @@ class MdzTokenParser {
 				break;
 			}
 			const node = this.#parse_inline();
-			if (node) children.push(node);
+			if (node) mdz_push_merging_text(children, node);
 		}
 
 		return {type: 'Text', content: '_', start, end: start + 1};
@@ -285,7 +290,7 @@ class MdzTokenParser {
 				break;
 			}
 			const node = this.#parse_inline();
-			if (node) children.push(node);
+			if (node) mdz_push_merging_text(children, node);
 		}
 
 		return {type: 'Text', content: '~', start, end: start + 1};
@@ -329,7 +334,7 @@ class MdzTokenParser {
 				break;
 			}
 			const node = this.#parse_inline();
-			if (node) children.push(node);
+			if (node) mdz_push_merging_text(children, node);
 		}
 
 		return {type: 'Text', content: '[', start, end: start + 1};
@@ -364,7 +369,7 @@ class MdzTokenParser {
 				return {type: node_type, name: tag_name, children, start, end: t.end};
 			}
 			const node = this.#parse_inline();
-			if (node) children.push(node);
+			if (node) mdz_push_merging_text(children, node);
 		}
 
 		// Unclosed tag
@@ -414,7 +419,7 @@ class MdzTokenParser {
 		}
 
 		// Merge adjacent text nodes
-		const merged = this.#merge_adjacent_text(paragraph_children.slice());
+		const merged = mdz_merge_adjacent_text(paragraph_children.slice());
 		paragraph_children.length = 0;
 
 		if (merged.length === 0) return null;
@@ -425,37 +430,5 @@ class MdzTokenParser {
 			start: merged[0]!.start,
 			end: merged[merged.length - 1]!.end,
 		};
-	}
-
-	#merge_adjacent_text(nodes: Array<MdzNode>): Array<MdzNode> {
-		if (nodes.length <= 1) return nodes;
-
-		const merged: Array<MdzNode> = [];
-		let pending_text: MdzTextNode | null = null;
-
-		for (const node of nodes) {
-			if (node.type === 'Text') {
-				if (pending_text) {
-					pending_text = {
-						type: 'Text',
-						content: pending_text.content + node.content,
-						start: pending_text.start,
-						end: node.end,
-					};
-				} else {
-					pending_text = {...node} as MdzTextNode;
-				}
-			} else {
-				if (pending_text) {
-					merged.push(pending_text);
-					pending_text = null;
-				}
-				merged.push(node);
-			}
-		}
-
-		if (pending_text) merged.push(pending_text);
-
-		return merged;
 	}
 }

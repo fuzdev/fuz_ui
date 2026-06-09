@@ -1,7 +1,0 @@
-{
-	"text": "Function demonstrating dash separator in param descriptions.",
-	"params": {
-		"name": "the user's name",
-		"age": "the user's age"
-	}
-}

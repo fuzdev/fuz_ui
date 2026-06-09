@@ -1,167 +1,177 @@
 <script lang="ts">
 	import type {Snippet} from 'svelte';
-	import {is_editable, swallow} from '@fuzdev/fuz_util/dom.js';
-	import {wait} from '@fuzdev/fuz_util/async.js';
+	import type {SvelteHTMLElements} from 'svelte/elements';
+	import {SvelteSet} from 'svelte/reactivity';
+	import {swallow} from '@fuzdev/fuz_util/dom.js';
 
-	import Teleport from './Teleport.svelte';
-	import type {DialogLayout} from './dialog.js';
+	import {dialog_context, type DialogContext, type DialogAlign} from './dialog.js';
 
-	// TODO use `<dialog>` here instead of `Teleport`
-	// https://developer.mozilla.org/en-US/docs/Web/HTML/Element/dialog
-
-	/*
-
-	This component is a singleton that mounts to a #dialog container element added to the body,
-	using a `Teleport` component to avoid ancestor-caused style issues like overflow and z-index.
-	It adds `.dialog` to the body when mounted to fix scrolling behavior,
-	and adds padding to the body to adjust for any scrollbars.
-	It uses a CSS custom property for this to avoid the high complexity of trying to
-	correctly revert any preexisting values for overflow and padding on the body.
-	We don't want to add restrictions to what users can do to the body on their own!
-
-	*/
+	/**
+	 * This component renders a native `<dialog>` opened with `showModal()`, which
+	 * puts it in the top layer. The top layer escapes ancestor stacking/overflow
+	 * contexts (so no `Teleport` is needed), traps focus, makes the rest of the page
+	 * inert, closes on Escape, and restores focus to the previously focused element
+	 * on close -- all natively. The dim background is the native `::backdrop`.
+	 *
+	 * We render a full-viewport overlay inside the dialog rather than a content-sized
+	 * box, to preserve the scrolling and `align="top"` behaviors. The content
+	 * surface itself is the consumer's -- pair this with `DialogContent` for the
+	 * default `.pane` card and gutter, or render your own surface in `children`.
+	 *
+	 * @module
+	 */
 
 	const {
-		container,
-		layout = 'centered',
-		index = 0,
-		active = true,
+		show = true,
+		align = 'center',
+		dismissable = true,
 		content_selector = '.pane',
+		onbeforeclose,
 		onclose,
 		children,
-	}: {
-		// TODO maybe change this API away from an element to a selector? or remove the API completely?
-		container?: HTMLElement;
+		...rest
+	}: Omit<SvelteHTMLElements['dialog'], 'children' | 'onclose'> & {
 		/**
-		 * @default 'centered'
-		 */
-		layout?: DialogLayout;
-		/**
-		 * index 0 is under 1 is under 2 etc -- the topmost dialog is the last in the array
-		 * @default 0
-		 */
-		index?: number;
-		/**
+		 * Whether the dialog is shown. When the `<dialog>` mounts it opens via
+		 * `showModal()`; when it unmounts it closes.
+		 * Defaults to `true` so the `{#if opened}<Dialog>...</Dialog>{/if}` pattern
+		 * works without passing `show` -- mounting the component opens the dialog.
+		 * Pass `show={opened}` to skip the outer `{#if}` and let the component manage
+		 * its own conditional rendering.
 		 * @default true
 		 */
-		active?: boolean;
+		show?: boolean;
 		/**
-		 * If provided, prevents clicks that would close the dialog
-		 * from bubbling past any elements matching this selector.
+		 * How the content is aligned in the viewport. `center` vertically centers it;
+		 * `top` aligns it to the top and grows downward, which avoids jank when the
+		 * content's height changes.
+		 * @default 'center'
+		 */
+		align?: DialogAlign;
+		/**
+		 * Whether clicking outside the content (see `content_selector`) closes the
+		 * dialog. `Escape` closes it regardless of this.
+		 * @default true
+		 */
+		dismissable?: boolean;
+		/**
+		 * Fallback selector for a content surface you render in `children` yourself
+		 * (rather than via `DialogContent`, which self-registers).
+		 * When `dismissable`, a press that isn't inside a registered surface (e.g.
+		 * `DialogContent`, which self-registers) and doesn't match this selector
+		 * closes the dialog. Defaults to the fuz_css `.pane` card; set it to match
+		 * your surface's outermost element -- with no registered surface and no
+		 * match, presses anywhere close the dialog.
 		 * @default '.pane'
 		 */
-		content_selector?: string | null;
+		content_selector?: string;
+		/**
+		 * Called before a user-initiated close (`Escape`, click-outside, or `close`).
+		 * Return `false` to veto and keep the dialog open -- e.g. to confirm
+		 * discarding unsaved changes. Programmatic close via `show={false}` bypasses
+		 * this.
+		 */
+		onbeforeclose?: () => boolean | void;
+		/**
+		 * Called when the dialog closes -- via `Escape`, click-outside, or `close`.
+		 * Use it to sync your own open state, e.g. `onclose={() => (opened = false)}`.
+		 * Like `onbeforeclose`, programmatic close via `show={false}` bypasses this.
+		 */
 		onclose?: () => void;
-		children: Snippet<[close: (e?: Event) => void]>;
+		/**
+		 * Rendered inside the dialog overlay. Receives the `DialogContext` (e.g.
+		 * `{close}`); pair with `DialogContent` or render your own surface.
+		 */
+		children: Snippet<[dialog: DialogContext]>;
 	} = $props();
 
-	const ROOT_SELECTOR = 'body'; // TODO make configurable
-	const CONTAINER_ID = 'fuz_dialog';
+	let dialog_el: HTMLDialogElement | undefined;
 
-	let container_el: HTMLElement | undefined = $state.raw();
-	$effect(() => {
-		update_container_el(container);
-	});
+	// Guards against a single dismissal firing `onclose` twice. Reset on mount.
+	let closing = false;
 
-	const update_container_el = (container: HTMLElement | undefined): void => {
-		if (container) {
-			container_el = container;
-		} else {
-			const found = document.getElementById(CONTAINER_ID);
-			if (found) {
-				container_el = found;
-			} else {
-				const root_el = document.querySelector(ROOT_SELECTOR);
-				if (!root_el) {
-					throw Error(`Cannot find dialog root element with selector '${ROOT_SELECTOR}'`);
-				}
-				container_el = document.createElement('div');
-				container_el.id = CONTAINER_ID;
-				container_el.style.display = 'contents';
-				root_el.appendChild(container_el);
-			}
-		}
-	};
-
-	let dialog_el: HTMLElement | undefined = $state.raw();
-	let content_el: HTMLElement | undefined = $state.raw();
-
-	const close = (e?: Event) => {
-		if (e) swallow(e);
+	// Closes the native dialog (which restores focus to the trigger) and notifies
+	// the consumer to unmount us. Closing here, while still mounted and connected,
+	// is what makes focus restoration work -- closing on unmount would run on a
+	// detached node, which doesn't restore focus.
+	const request_close = () => {
+		if (closing) return;
+		// let the consumer veto a user-initiated dismissal (e.g. confirm unsaved changes)
+		if (onbeforeclose?.() === false) return;
+		closing = true;
+		dialog_el?.close();
 		onclose?.();
 	};
 
-	// TODO hook into a ui input system
-	const on_window_keydown = (e: KeyboardEvent) => {
-		if (e.key === 'Escape' && !is_editable(e.target)) {
-			// apply hotkey only for the top-most dialog
-			const parent_el = dialog_el?.parentElement;
-			const parents = parent_el?.parentElement?.children;
-			const index = Array.prototype.indexOf.call(parents, parent_el);
-			if (!parents || index === parents.length - 1 || index === -1) {
-				close(e);
-			}
-		}
+	// The `close` passed to children also swallows the triggering event.
+	const close = (e?: Event) => {
+		if (e) swallow(e);
+		request_close();
 	};
 
-	// The dialog isn't "ready" until the teleport moves it.
-	// Rendering the the dialog's children only once it's ready fixes things like `autofocus`.
-	let ready = $state.raw(false);
+	// Content surfaces (e.g. `DialogContent`) register here so a press inside one
+	// isn't an outside-dismiss. Identity-based, so it works regardless of classes;
+	// `content_selector` stays the fallback for surfaces rendered in `children`.
+	const surfaces = new SvelteSet<Element>();
+	const register_surface = (element: Element): (() => void) => {
+		surfaces.add(element);
+		return () => {
+			surfaces.delete(element);
+		};
+	};
+
+	// The context is both passed to `children` and set for descendants (e.g.
+	// `DialogContent`), so either path can close the dialog.
+	const context: DialogContext = {close, register_surface};
+	dialog_context.set(context);
+
+	const setup_dialog = (el: HTMLDialogElement) => {
+		dialog_el = el;
+		closing = false;
+		// Esc (and any platform close request) fires `cancel`. We swallow it and
+		// close the dialog ourselves (above, while connected) so focus is restored,
+		// and so the consumer's state stays in sync and we unmount.
+		const oncancel = (e: Event) => {
+			swallow(e);
+			request_close();
+		};
+		el.addEventListener('cancel', oncancel);
+		if (!el.open) el.showModal();
+		return () => {
+			el.removeEventListener('cancel', oncancel);
+			dialog_el = undefined;
+			// fallback for programmatic unmount (e.g. `show` set false directly)
+			if (el.open) el.close();
+		};
+	};
 </script>
 
-<svelte:window onkeydown={active ? on_window_keydown : undefined} />
-
-<!--
-	The `tabindex` and `el.focus()` fix scrolling with the keyboard,
-	needed because SvelteKit puts `tabindex` on the body,
-	but there's more that needs to be done for accessibility, like focus capture.
-	For more see: https://www.w3.org/TR/wai-aria-practices-1.1/#dialog_modal
-	and https://developer.mozilla.org/en-US/docs/Web/Accessibility/Keyboard-navigable_JavaScript_widgets
--->
-<Teleport
-	to={container_el}
-	onmove={async () => {
-		await wait(); // TODO this is a hack to get animations working, `Teleport` now mounts synchronously?!
-		ready = true;
-		dialog_el?.focus(); // TODO make this more declarative? probably want to focus only after moving though, not on mount, which makes an action trickier
-	}}
->
-	<div
-		class="dialog"
-		class:ready
-		class:layout-page={layout === 'page'}
-		role="dialog"
-		aria-modal="true"
-		bind:this={dialog_el}
-		tabindex="-1"
-		style:z-index={100 + index}
+{#if show}
+	<dialog
+		{...rest}
+		class="dialog {rest.class}"
+		class:align-top={align === 'top'}
+		{@attach setup_dialog}
 	>
-		<div class="dialog-layout">
-			<div
-				class="dialog-wrapper"
-				role="none"
-				onmousedown={(e) => {
-					// Close if clicking outside `content_el` but inside the wrapper
-					const target = e.target as Element;
-					if (
-						content_el &&
-						(content_el === target ||
-							!content_el.contains(target) ||
-							(content_selector && !target.closest(content_selector)))
-					) {
-						close(e);
-					}
-				}}
-			>
-				<div class="dialog-bg" aria-hidden="true"></div>
-				<div class="dialog-content" bind:this={content_el}>
-					<!-- mount the content only after teleporting to avoid issues -->
-					{#if ready}{@render children(close)}{/if}
-				</div>
-			</div>
+		<div
+			class="dialog-wrapper"
+			role="none"
+			onmousedown={(e) => {
+				if (!dismissable) return;
+				const target = e.target as Element;
+				// inside a registered surface (e.g. DialogContent) -> not an outside dismiss
+				for (const surface of surfaces) {
+					if (surface.contains(target)) return;
+				}
+				// fallback for surfaces rendered in `children`: match `content_selector`
+				if (content_selector && target.closest(content_selector)) return;
+				close(e);
+			}}
+		>
+			{@render children(context)}
 		</div>
-	</div>
-</Teleport>
+	</dialog>
+{/if}
 
 <style>
 	.dialog {
@@ -171,51 +181,50 @@
 				var(--shadow_color, var(--shadow_color_umbra)) var(--shadow_alpha_70),
 				transparent
 			);
+		/* reset the user-agent dialog styles; we render a full-viewport overlay */
+		max-width: none;
+		max-height: none;
+		/* width/height are needed despite `inset: 0` to make the dialog element fill the viewport */
+		width: 100%;
+		height: 100%;
+		margin: 0;
+		padding: 0;
+		border: none;
+		background: transparent;
+		color: inherit;
 		position: fixed;
 		inset: 0;
 		overflow: auto;
-		/* this simplifies the code a lot but doesn't prevent scrolling
-		the underlying content when the dialog doesn't overflow, even when `overflow: scroll`
-		TODO check if this behaves as desired after switching to use the `dialog` element */
 		overscroll-behavior: contain;
 	}
+	/* the native backdrop is the dim background; fade it in on open */
+	.dialog::backdrop {
+		background-color: var(--dialog_bg, var(--darken_60));
+		transition: background-color var(--duration_2) ease;
+	}
+	@starting-style {
+		.dialog::backdrop {
+			background-color: transparent;
+		}
+	}
 
+	/* Lock background scroll while a modal dialog is open. `scrollbar-gutter`
+	reserves the scrollbar space so toggling the lock doesn't shift the layout. */
+	:global(html:has(dialog.dialog[open])) {
+		overflow: hidden;
+		scrollbar-gutter: stable;
+	}
+
+	/* `min-height: 100%` (not `height`) makes tall content overflow downward only: the
+	wrapper grows to its content, so the centered top stays reachable in the dialog's
+	scroll. A fixed-height centering box would strand the top above the scroll origin. */
 	.dialog-wrapper {
-		position: relative; /* for the surface */
 		min-height: 100%;
 		display: flex;
 		align-items: center;
 		justify-content: center;
 	}
-	.layout-page .dialog-wrapper {
+	.align-top .dialog-wrapper {
 		align-items: start;
-	}
-
-	.dialog-bg {
-		position: absolute;
-		inset: 0;
-		z-index: 0;
-		opacity: 0;
-		transition: opacity var(--duration_3) ease;
-		background-color: var(--dialog_bg, var(--darken_60));
-	}
-	.ready .dialog-bg {
-		opacity: 1;
-	}
-
-	.dialog-layout {
-		height: 100%;
-		/* makes the content overflow downwards instead of upwards+downwards because it's centered */
-		max-height: 100%;
-	}
-
-	.dialog-content {
-		width: 100%;
-		transform: scale(0.99);
-		transition: transform var(--duration_1) ease;
-		padding: 40px;
-	}
-	.ready .dialog-content {
-		transform: scale(1);
 	}
 </style>

@@ -1,9 +1,0 @@
-{
-	"text": "Function demonstrating mixed see tag formats.",
-	"params": {},
-	"see_also": [
-		"https://fuz.dev/docs",
-		"{@link https://fuz.dev/docs}",
-		"other_module"
-	]
-}

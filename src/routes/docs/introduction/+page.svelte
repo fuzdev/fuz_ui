@@ -4,19 +4,21 @@
 	import TomeSection from '$lib/TomeSection.svelte';
 	import TomeSectionHeader from '$lib/TomeSectionHeader.svelte';
 	import TomeLink from '$lib/TomeLink.svelte';
-	import {get_tome_by_name} from '$lib/tome.js';
+	import {tome_get_by_slug} from '$lib/tome.js';
 
-	const LIBRARY_ITEM_NAME = 'introduction';
+	const TOME_SLUG = 'introduction';
 
-	const tome = get_tome_by_name(LIBRARY_ITEM_NAME);
+	const tome = tome_get_by_slug(TOME_SLUG);
 </script>
 
 <TomeContent {tome}>
 	<section>
 		<p>
-			fuz_ui is a Svelte UI library built on <a href="https://css.fuz.dev/">fuz_css</a>. It provides
-			components, helpers, and a documentation system for building zippy websites. It's in early
-			alpha with breaking changes ahead.
+			fuz_ui is a Svelte UI library with components and helpers for making zippy websites. It's
+			built on <a href="https://css.fuz.dev/">fuz_css</a>
+			and provides a documentation system built on
+			<a href="https://svelte-docinfo.fuz.dev/">svelte-docinfo</a>. It's in early alpha with
+			breaking changes ahead.
 		</p>
 	</section>
 	<TomeSection>
@@ -34,9 +36,9 @@
 		/>
 		<p>See the nav for the available components and other helpers.</p>
 		<p>
-			<TomeLink name="mdz" /> is a markdown dialect enhanced with Svelte components, autolinked identifiers,
+			<TomeLink slug="mdz" /> is a markdown dialect enhanced with Svelte components, autolinked identifiers,
 			and other integrations. To compile static content at build time instead of parsing at runtime with
-			slower dynamic rendering, use <TomeLink name="svelte_preprocess_mdz" />:
+			slower dynamic rendering, use <TomeLink slug="svelte_preprocess_mdz" />:
 		</p>
 		<Code
 			lang="js"

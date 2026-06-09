@@ -24,6 +24,7 @@
 {:else}
 	{#each declarations as declaration (`${declaration.module_path}:${declaration.name}`)}
 		<TomeSection>
+			<!-- Show the bare name; generic parameters are documented in the detail below (generics/type signature). -->
 			<TomeSectionHeader text={declaration.name}>
 				<div class="word-break:break-all">{declaration.name}</div>
 			</TomeSectionHeader>

@@ -1,15 +1,15 @@
 <script lang="ts">
 	import Code from '@fuzdev/fuz_code/Code.svelte';
 
-	import {get_tome_by_name} from '$lib/tome.js';
+	import {tome_get_by_slug} from '$lib/tome.js';
 	import Breadcrumb from '$lib/Breadcrumb.svelte';
 	import TomeContent from '$lib/TomeContent.svelte';
 	import BreadcrumbExample from '$routes/docs/Breadcrumb/BreadcrumbExample.svelte';
 	import TomeSectionHeader from '$lib/TomeSectionHeader.svelte';
 	import TomeSection from '$lib/TomeSection.svelte';
 
-	const LIBRARY_ITEM_NAME = 'Breadcrumb';
-	const tome = get_tome_by_name(LIBRARY_ITEM_NAME);
+	const TOME_SLUG = 'Breadcrumb';
+	const tome = tome_get_by_slug(TOME_SLUG);
 </script>
 
 <!-- eslint-disable svelte/no-useless-mustaches -->
@@ -21,6 +21,22 @@
 		<Code content={`<Breadcrumb />`} />
 		<Breadcrumb />
 	</section>
+	<TomeSection>
+		<TomeSectionHeader text="Default icon from context" />
+		<p>
+			The root link defaults to the <Code inline content="site_context" /> icon, rendered as an
+			<Code inline content="Svg" />. Set the <Code inline content="SiteState" /> once at your app's root
+			layout and every <Code inline content="Breadcrumb" /> picks it up. It falls back to the
+			<Code inline content="site_context" /> glyph, then a bullet.
+		</p>
+		<Code
+			lang="ts"
+			content={`import {SiteState, site_context} from '@fuzdev/fuz_ui/site.svelte.js';
+import {logo_fuz} from '@fuzdev/fuz_ui/logos.js';
+
+site_context.set(new SiteState({icon: logo_fuz, glyph: '🧶'}));`}
+		/>
+	</TomeSection>
 	<TomeSection>
 		<TomeSectionHeader text="With custom icon" />
 		<Code content={`<Breadcrumb>🏠</Breadcrumb>`} />

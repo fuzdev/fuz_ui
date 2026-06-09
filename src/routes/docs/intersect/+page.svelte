@@ -1,7 +1,7 @@
 <script lang="ts">
 	import Code from '@fuzdev/fuz_code/Code.svelte';
 
-	import {get_tome_by_name} from '$lib/tome.js';
+	import {tome_get_by_slug} from '$lib/tome.js';
 	import {intersect} from '$lib/intersect.svelte.js';
 	import TomeContent from '$lib/TomeContent.svelte';
 	import TomeSection from '$lib/TomeSection.svelte';
@@ -10,8 +10,8 @@
 	import ModuleLink from '$lib/ModuleLink.svelte';
 	import DeclarationLink from '$lib/DeclarationLink.svelte';
 
-	const LIBRARY_ITEM_NAME = 'intersect';
-	const tome = get_tome_by_name(LIBRARY_ITEM_NAME);
+	const TOME_SLUG = 'intersect';
+	const tome = tome_get_by_slug(TOME_SLUG);
 
 	const get_initial_count = (): number => {
 		if (typeof window === 'undefined') return 15;

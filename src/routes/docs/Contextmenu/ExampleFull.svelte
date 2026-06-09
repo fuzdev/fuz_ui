@@ -17,6 +17,7 @@
 	import ColorSchemeInput from '$lib/ColorSchemeInput.svelte';
 	import ThemeInput from '$lib/ThemeInput.svelte';
 	import Dialog from '$lib/Dialog.svelte';
+	import DialogContent from '$lib/DialogContent.svelte';
 	import file_contents from '$routes/docs/Contextmenu/ExampleFull.svelte?raw';
 	import TomeSectionHeader from '$lib/TomeSectionHeader.svelte';
 	import TomeSection from '$lib/TomeSection.svelte';
@@ -207,24 +208,22 @@
 
 {#if show_about_dialog}
 	<Dialog onclose={() => (show_about_dialog = false)}>
-		<div class="mx_auto box">
-			<div class="pane p_xl text-align:center">
-				<h1>About Fuz</h1>
-				<blockquote>Svelte UI library</blockquote>
-				<blockquote>
-					free and open source at<br /><GithubLink path="fuzdev/fuz_ui" />
-				</blockquote>
-				<code class="display:block p_md mb_lg"
-					>npm i -D <a href="https://www.npmjs.com/package/@fuzdev/fuz_ui">@fuzdev/fuz_ui</a></code
-				>
-				<div class="p_xl box">
-					<h2>Color scheme</h2>
-					<ColorSchemeInput />
-					<h2>Theme</h2>
-					<ThemeInput />
-				</div>
+		<DialogContent>
+			<h1>About Fuz</h1>
+			<blockquote>Svelte UI library</blockquote>
+			<blockquote>
+				free and open source at<br /><GithubLink path="fuzdev/fuz_ui" />
+			</blockquote>
+			<code class="display:block p_md mb_lg"
+				>npm i -D <a href="https://www.npmjs.com/package/@fuzdev/fuz_ui">@fuzdev/fuz_ui</a></code
+			>
+			<div class="p_xl box">
+				<h2>Color scheme</h2>
+				<ColorSchemeInput />
+				<h2>Theme</h2>
+				<ThemeInput />
 			</div>
-		</div>
+		</DialogContent>
 	</Dialog>
 {/if}
 

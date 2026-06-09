@@ -3,7 +3,7 @@
 	import type {SvelteHTMLElements} from 'svelte/elements';
 
 	import DocsPageLinks from './DocsPageLinks.svelte';
-	import {to_tome_pathname, Tome} from './tome.js';
+	import {tome_to_pathname, Tome} from './tome.js';
 	import {docs_links_context} from './docs_helpers.svelte.js';
 	import {library_context} from './library.svelte.js';
 	import TomeLink from './TomeLink.svelte';
@@ -12,20 +12,20 @@
 
 	const {
 		tomes,
-		tomes_by_name,
+		tomes_by_slug,
 		sidebar = true,
 		...rest
 	}: SvelteHTMLElements['aside'] & {
 		tomes: Array<Tome>;
-		tomes_by_name: Map<string, Tome>;
+		tomes_by_slug: Map<string, Tome>;
 		sidebar?: boolean; // TODO @many dialog navs (this shouldn't exist)
 	} = $props();
 
-	const selected_tome = $derived(tomes.find((t) => to_tome_pathname(t) === page.url.pathname));
+	const selected_tome = $derived(tomes.find((t) => tome_to_pathname(t) === page.url.pathname));
 
 	const tomes_related_to_selected = $derived(
 		selected_tome?.related_tomes
-			.map((name) => tomes_by_name.get(name))
+			.map((slug) => tomes_by_slug.get(slug))
 			.filter((t) => t !== undefined) ?? [],
 	);
 
@@ -57,8 +57,8 @@
 		<section class="related-section">
 			<h4 class="mb_sm">related tomes</h4>
 			<ul class="unstyled">
-				{#each tomes_related_to_selected as tome (tome.name)}
-					<li><TomeLink name={tome.name} class="menuitem" /></li>
+				{#each tomes_related_to_selected as tome (tome.slug)}
+					<li><TomeLink slug={tome.slug} class="menuitem" /></li>
 				{/each}
 			</ul>
 		</section>

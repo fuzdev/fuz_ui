@@ -1,9 +1,21 @@
 import type {LibraryJson} from '@fuzdev/fuz_util/library_json.js';
 import {ensure_start, strip_end} from '@fuzdev/fuz_util/string.js';
+import type {Url} from '@fuzdev/fuz_util/url.js';
 
 import {create_context} from './context_helpers.js';
 import {Declaration} from './declaration.svelte.js';
 import {Module} from './module.svelte.js';
+import {
+	package_is_published,
+	repo_name_parse,
+	repo_url_github_owner,
+	repo_url_parse,
+	url_github_file,
+	url_logo,
+	url_npm_package,
+} from '@fuzdev/fuz_util/package_helpers.js';
+
+export const library_context = create_context<Library>();
 
 /**
  * Normalizes a URL prefix: ensures leading `/`, strips trailing `/`, returns `''` for falsy and non-string values.
@@ -32,30 +44,29 @@ export class Library {
 	 */
 	readonly url_prefix: string;
 
-	readonly package_json = $derived(this.library_json.package_json);
+	readonly pkg_json = $derived(this.library_json.pkg_json);
 	readonly source_json = $derived(this.library_json.source_json);
 
-	readonly name = $derived(this.library_json.name);
-	readonly repo_name = $derived(this.library_json.repo_name);
-	readonly repo_url = $derived(this.library_json.repo_url);
-	readonly owner_name = $derived(this.library_json.owner_name);
-	readonly homepage_url = $derived(this.library_json.homepage_url);
-	readonly logo_url = $derived(this.library_json.logo_url);
-	readonly logo_alt = $derived(this.library_json.logo_alt);
-	readonly npm_url = $derived(this.library_json.npm_url);
-	readonly changelog_url = $derived(this.library_json.changelog_url);
-	readonly published = $derived(this.library_json.published);
+	// Everything below is derived from `pkg_json` — `LibraryJson` stores only the
+	// raw `pkg_json`/`source_json` pair, so derivation lives in exactly one place.
+	readonly name = $derived(this.pkg_json.name);
+	readonly repo_name = $derived(repo_name_parse(this.pkg_json.name));
+	/** Non-null — the constructor rejects a `pkg_json` without a parseable `repository`. */
+	readonly repo_url: Url = $derived(repo_url_parse(this.pkg_json.repository)!);
+	readonly owner_name = $derived(repo_url_github_owner(this.repo_url));
+	readonly homepage_url: Url | null = $derived(this.pkg_json.homepage ?? null);
+	readonly logo_url: Url | null = $derived(url_logo(this.homepage_url, this.pkg_json.logo));
+	readonly logo_alt = $derived(this.pkg_json.logo_alt ?? `logo for ${this.repo_name}`);
+	readonly published = $derived(package_is_published(this.pkg_json));
+	readonly npm_url: Url | null = $derived(this.published ? url_npm_package(this.name) : null);
+	readonly changelog_url: Url | null = $derived(
+		this.published ? url_github_file(this.repo_url, 'CHANGELOG.md') : null,
+	);
 
 	/**
-	 * Organization URL (e.g., 'https://github.com/ryanatkn').
+	 * Organization URL (e.g., 'https://github.com/ryanatkn'), built from `owner_name`.
 	 */
-	readonly org_url = $derived(
-		this.repo_url && this.repo_name
-			? this.repo_url.endsWith('/' + this.repo_name)
-				? this.repo_url.slice(0, -this.repo_name.length - 1)
-				: null
-			: null,
-	);
+	readonly org_url = $derived(this.owner_name ? 'https://github.com/' + this.owner_name : null);
 
 	/**
 	 * All modules as rich `Module` instances.
@@ -89,6 +100,14 @@ export class Library {
 	readonly declaration_by_name = $derived(new Map(this.declarations.map((d) => [d.name, d])));
 
 	constructor(library_json: LibraryJson, url_prefix = '') {
+		// `repo_url` is exposed non-null and several derived URLs depend on it, so
+		// fail loud here rather than letting a missing/unparseable repository surface
+		// as a downstream `null`.
+		if (repo_url_parse(library_json.pkg_json.repository) === null) {
+			throw Error(
+				`failed to construct Library - pkg_json for "${library_json.pkg_json.name}" has no parseable \`repository\``,
+			);
+		}
 		this.library_json = library_json;
 		this.url_prefix = parse_library_url_prefix(url_prefix);
 	}
@@ -115,8 +134,6 @@ export class Library {
 		return library_search_declarations(this.declarations, query);
 	}
 }
-
-export const library_context = create_context<Library>();
 
 /**
  * Search declarations by query string with multi-term AND logic.

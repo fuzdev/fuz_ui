@@ -1,3 +1,12 @@
+<!--
+@component
+
+Renders library metadata (name, description, links, license) and a module index
+with file-type coloring. Uses svelte-docinfo's file type predicates for module classification.
+
+@see `library.svelte.ts` for the `Library` wrapper class
+@see {@link https://github.com/ryanatkn/svelte-docinfo svelte-docinfo} for the analysis library
+-->
 <script lang="ts">
 	import {page} from '$app/state';
 	import {format_url} from '@fuzdev/fuz_util/url.js';
@@ -7,16 +16,12 @@
 	import ImgOrSvg from './ImgOrSvg.svelte';
 	import DeclarationLink from './DeclarationLink.svelte';
 	import ModuleLink from './ModuleLink.svelte';
-	import {url_github_file, repo_url_parse, url_well_known} from './package_helpers.js';
-	import {
-		module_is_typescript,
-		module_is_svelte,
-		module_is_css,
-		module_is_json,
-	} from './module_helpers.js';
+	import {url_github_file} from '@fuzdev/fuz_util/package_helpers.js';
+	import {isTypescript, isSvelte, isCss, isJson} from 'svelte-docinfo/source.js';
 
 	const {
 		library,
+		links_full = false,
 		repo_name,
 		description,
 		tagline,
@@ -25,6 +30,12 @@
 		children,
 	}: {
 		library: Library;
+		/**
+		 * Link the module/declaration index to the library's own deployed docs
+		 * (`url_api_full`) instead of site-local paths. Use when rendering a
+		 * foreign library on a different site, e.g. an aggregator.
+		 */
+		links_full?: boolean;
 		repo_name?: Snippet<[repo_name: string]>;
 		description?: Snippet<[description: string]>;
 		tagline?: Snippet<[description: string]>;
@@ -35,11 +46,10 @@
 
 	// TODO show other data (lines of code)
 
-	const {package_json} = $derived(library);
+	const {pkg_json} = $derived(library);
 
-	const repository_url = $derived(repo_url_parse(package_json.repository));
 	const license_url = $derived(
-		package_json.license && repository_url ? url_github_file(repository_url, 'LICENSE') : null,
+		pkg_json.license ? url_github_file(library.repo_url, 'LICENSE') : null,
 	);
 </script>
 
@@ -56,30 +66,30 @@
 						{@render repo_name(library.repo_name)}
 					{:else}
 						<div class="repo-name">
-							{library.repo_name}{#if package_json.glyph}&nbsp;{package_json.glyph}{/if}
+							{library.repo_name}{#if pkg_json.glyph}&nbsp;{pkg_json.glyph}{/if}
 						</div>
 					{/if}
 				</header>
 				{@render children?.(library)}
-				{#if package_json.description}
+				{#if pkg_json.description}
 					{#if description}
-						{@render description(package_json.description)}
+						{@render description(pkg_json.description)}
 					{:else}
-						<div class="description">{package_json.description}</div>
+						<div class="description">{pkg_json.description}</div>
 					{/if}
 				{/if}
-				{#if package_json.tagline}
+				{#if pkg_json.tagline}
 					{#if tagline}
-						{@render tagline(package_json.tagline)}
+						{@render tagline(pkg_json.tagline)}
 					{:else}
-						<div class="tagline">{package_json.tagline}</div>
+						<div class="tagline">{pkg_json.tagline}</div>
 					{/if}
 				{/if}
 				{#if library.npm_url}
 					{#if npm_url}
 						{@render npm_url(library.npm_url)}
 					{:else}
-						<blockquote class="npm-url">npm i -D {package_json.name}</blockquote>
+						<blockquote class="npm-url">npm i -D {pkg_json.name}</blockquote>
 					{/if}
 				{/if}
 				<!-- TODO accessible HTML -->
@@ -119,35 +129,19 @@
 					{#if library.npm_url}
 						<span class="title">npm</span>
 						<div class="content">
-							<a class="chip" title="npm" href={library.npm_url}>{package_json.name}</a>
+							<a class="chip" title="npm" href={library.npm_url}>{pkg_json.name}</a>
 						</div>
 					{/if}
 					{#if library.changelog_url}
 						<span class="title">version</span>
 						<div class="content">
-							<a class="chip" title="version" href={library.changelog_url}>{package_json.version}</a
-							>
+							<a class="chip" title="version" href={library.changelog_url}>{pkg_json.version}</a>
 						</div>
 					{/if}
 					{#if license_url}
 						<span class="title">license</span>
 						<div class="content">
-							<a class="chip" title="license" href={license_url}>{package_json.license}</a>
-						</div>
-					{/if}
-					{#if library.homepage_url}
-						<span class="title">data</span>
-						<div class="content">
-							<a
-								class="chip"
-								title="data"
-								href={url_well_known(library.homepage_url, 'package.json')}>package.json</a
-							>
-							<a
-								class="chip"
-								title="data"
-								href={url_well_known(library.homepage_url, 'library.json')}>library.json</a
-							>
+							<a class="chip" title="license" href={license_url}>{pkg_json.license}</a>
 						</div>
 					{/if}
 				</section>
@@ -170,14 +164,14 @@
 					<!-- TODO improve rendering and enrich data - start with the type (not just extension - mime?) -->
 					<li
 						class="module"
-						class:ts={module_is_typescript(module.path)}
-						class:svelte={module_is_svelte(module.path)}
-						class:css={module_is_css(module.path)}
-						class:json={module_is_json(module.path)}
+						class:ts={isTypescript(module.path)}
+						class:svelte={isSvelte(module.path)}
+						class:css={isCss(module.path)}
+						class:json={isJson(module.path)}
 					>
 						<div class="module-content">
 							<span class="font_size_xl">
-								<ModuleLink module_path={module.path}>
+								<ModuleLink module_path={module.path} full={links_full}>
 									{module.path}
 								</ModuleLink>
 							</span>
@@ -185,7 +179,7 @@
 								<ul class="declarations unstyled">
 									{#each module.declarations as declaration (declaration.name)}
 										<li>
-											<DeclarationLink name={declaration.name} />
+											<DeclarationLink name={declaration.name} full={links_full} />
 										</li>
 									{/each}
 								</ul>

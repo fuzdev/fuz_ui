@@ -1,5 +1,124 @@
 # @fuzdev/fuz_ui
 
+## 0.201.0
+
+### Minor Changes
+
+- refactor: use the native `<dialog>` element in `Dialog` ([#71](https://github.com/fuzdev/fuz_ui/pull/71))
+  - `Dialog` now renders a native `<dialog>` opened with `showModal()`, so it traps focus, closes on Escape, restores focus, and dims the page natively -- no more `Teleport`
+  - breaking: remove the `active` and `container` props, the `Dialogs` component, and the `DialogParams` type and `to_dialog_params` helper
+  - breaking: pair `Dialog` with the new `DialogContent` (or render your own surface in `children`); the `children` snippet now receives a context object, so destructure `close` from it: `{#snippet children({close})}`
+  - add `Dialog` props `show` (gates rendering), `dismissable` (click-outside-to-close), and `onbeforeclose` (return `false` to veto a close); `<dialog>` attributes forward via rest props
+  - add `DialogContent`, the default content surface: a centered `.pane` card with a floating close button -- `pane={false}` for a chromeless surface, `close_button={false}` to drop the button (or pass a `Snippet` to customize it)
+
+## 0.200.0
+
+### Minor Changes
+
+- feat: improve docs components ([#127](https://github.com/fuzdev/fuz_ui/pull/127))
+
+### Patch Changes
+
+- tweak: reorder project links ([8789a43](https://github.com/fuzdev/fuz_ui/commit/8789a43))
+
+## 0.199.0
+
+### Minor Changes
+
+- feat: add `MdzRoot` context provider; switch `mdz_components_context` and `mdz_elements_context` to the getter pattern with ancestor fallback (`set_mdz_context_with_fallback`) ([#121](https://github.com/fuzdev/fuz_ui/pull/121))
+- feat: add `vite_plugin_pkg_json` serving a curated `PkgJson` as `'virtual:pkg.json'`, with a `keys` option to widen the served field set ([#126](https://github.com/fuzdev/fuz_ui/pull/126))
+- feat: add streaming mdz parser and renderer ([#121](https://github.com/fuzdev/fuz_ui/pull/121))
+- feat: rework `Library` for the slimmed `LibraryJson` (`pkg_json`/`source_json` pair) ([#126](https://github.com/fuzdev/fuz_ui/pull/126))
+
+## 0.198.1
+
+### Patch Changes
+
+- feat: add `svelte-docinfo` ([9b666c5](https://github.com/fuzdev/fuz_ui/commit/9b666c5))
+
+## 0.198.0
+
+### Minor Changes
+
+- fix: library links ([31e7620](https://github.com/fuzdev/fuz_ui/commit/31e7620))
+
+## 0.197.0
+
+### Minor Changes
+
+- feat: add `SiteState` and use it to simplify docs component deps ([ab82e08](https://github.com/fuzdev/fuz_ui/commit/ab82e08))
+
+## 0.196.0
+
+### Minor Changes
+
+- feat: add `svelte-docinfo` and remove well-known and library gen ([fe3cca2](https://github.com/fuzdev/fuz_ui/commit/fe3cca2))
+
+## 0.195.1
+
+### Patch Changes
+
+- fix: broken local peer deps ([d9300e3](https://github.com/fuzdev/fuz_ui/commit/d9300e3))
+
+## 0.195.0
+
+### Minor Changes
+
+- feat: extract `svelte-docinfo` ([#107](https://github.com/fuzdev/fuz_ui/pull/107))
+- bump node@24.14 ([#107](https://github.com/fuzdev/fuz_ui/pull/107))
+
+## 0.194.0
+
+### Minor Changes
+
+- deps: upgrade fuz_css ([b87cbee](https://github.com/fuzdev/fuz_ui/commit/b87cbee))
+- upgrade fuz_css ([#123](https://github.com/fuzdev/fuz_ui/pull/123))
+
+## 0.193.1
+
+### Patch Changes
+
+- fix: change `Spiders` to `pointer-events: none` and support rest args ([0dbbd2f](https://github.com/fuzdev/fuz_ui/commit/0dbbd2f))
+
+## 0.193.0
+
+### Minor Changes
+
+- feat: rename `Tome.name` → `Tome.slug`, add `Tome.title`, prefix tome helpers with `tome_` ([4cbfb3b](https://github.com/fuzdev/fuz_ui/commit/4cbfb3b))
+
+## 0.192.0
+
+### Minor Changes
+
+- use `$state.raw` over `$state` ([69cb802](https://github.com/fuzdev/fuz_ui/commit/69cb802))
+- use kebab-case class names ([dce8fdc](https://github.com/fuzdev/fuz_ui/commit/dce8fdc))
+- feat: improve csp API ([#124](https://github.com/fuzdev/fuz_ui/pull/124))
+  - replace `create_csp_directives` options with three-stage pipeline:
+    `replace_defaults` → `extend` → `overrides`
+  - remove the trust-level surface: `CspTrustLevel`, `CspSourceSpec`,
+    `csp_trust_levels`, `csp_trust_level_value`, `parse_csp_trust_level`,
+    `is_csp_trusted`, `csp_directive_required_trust_defaults`. Migrate
+    `{source, trust}` entries to per-directive arrays under `extend`.
+  - rename `csp_trusted_sources_of_fuzdev` → `csp_directives_of_fuzdev`;
+    now a `Partial<CspDirectives>` scoped to `img-src`, `media-src`,
+    `font-src`, `connect-src`, `frame-src`, and `frame-ancestors`
+    (previously applied to all directives via trust levels — re-add to
+    other directives explicitly if you relied on that).
+  - per-key `undefined` is a no-op in all three stages; per-key `null` in
+    `extend` throws with a pointer to `overrides`
+  - friendlier errors for non-object `extend` entries and non-string
+    source elements
+  - defaults: add `'wasm-unsafe-eval'` to `script-src` and `worker-src`
+    (allows WASM compile; `eval` and `new Function` remain blocked); add
+    `'data:'` to `media-src`
+
+- feat: add `'wasm-unsafe-eval'` to `script-src` and `worker-src` csp defaults ([e1ea601](https://github.com/fuzdev/fuz_ui/commit/e1ea601))
+
+### Patch Changes
+
+- fix: check contextmenu state item count for `select_last` ([8218072](https://github.com/fuzdev/fuz_ui/commit/8218072))
+- fix: preserve `{@link …}` content when reading TSDoc comments ([#124](https://github.com/fuzdev/fuz_ui/pull/124))
+
 ## 0.191.4
 
 ### Patch Changes

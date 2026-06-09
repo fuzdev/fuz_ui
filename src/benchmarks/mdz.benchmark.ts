@@ -17,6 +17,8 @@ import {format_file} from '@fuzdev/gro/format_file.js';
 
 import {mdz_parse} from '../lib/mdz.js';
 import {mdz_parse_lexer} from '../lib/mdz_token_parser.js';
+import {MdzStreamParser} from '../lib/mdz_stream_parser.js';
+import {mdz_opcodes_to_nodes} from '../lib/mdz_opcodes_to_nodes.js';
 
 /* eslint-disable no-console */
 
@@ -33,7 +35,7 @@ const generate_large_input = (): string => {
 		sections.push(`## Section ${i + 1}
 
 This is paragraph ${i + 1} with **bold** and _italic_ text.
-Here's a \`code snippet\` and a [link](https://example.com/${i}).
+Here's a \`code snippet\` and a [link](https://fuz.dev/${i}).
 
 \`\`\`
 code block ${i + 1}
@@ -53,7 +55,7 @@ const inputs = [
 
 This is a _simple_ paragraph with **bold** text and \`inline code\`.
 
-Here's a link: [click here](https://example.com) and an auto-link https://example.com/path.
+Here's a link: [click here](https://fuz.dev) and an auto-link https://fuz.dev/path.
 
 Some ~strikethrough~ text and more _italic_ words.`,
 	},
@@ -79,8 +81,8 @@ function hello() {
 
 ## Links and References
 
-Visit [the docs](https://docs.example.com) for more info.
-Also see https://example.com/api and /internal/path for details.
+Visit [the docs](https://docs.fuz.dev) for more info.
+Also see https://fuz.dev/api and /internal/path for details.
 
 ## Formatting
 
@@ -153,9 +155,27 @@ Functions with Array<string>, Promise<void>, and Map<string, number> in prose.
 	},
 ];
 
+/** Parse via streaming parser (one-shot feed) + tree bridge. */
+const mdz_parse_stream = (content: string): unknown => {
+	const parser = new MdzStreamParser();
+	parser.feed(content);
+	parser.finish();
+	return mdz_opcodes_to_nodes(parser.take_opcodes());
+};
+
+/** Streaming parser opcode generation only (no tree bridge). */
+const mdz_parse_opcodes_only = (content: string): unknown => {
+	const parser = new MdzStreamParser();
+	parser.feed(content);
+	parser.finish();
+	return parser.take_opcodes();
+};
+
 const parsers = [
 	{name: 'single-pass', parse: mdz_parse},
 	{name: 'lexer-based', parse: mdz_parse_lexer},
+	{name: 'streaming', parse: mdz_parse_stream},
+	{name: 'opcodes-only', parse: mdz_parse_opcodes_only},
 ];
 
 // -- Benchmark --
@@ -229,6 +249,24 @@ if (save_baseline) {
 	const formatted = await format_file(content, {filepath: BASELINE_FILE});
 	await writeFile(BASELINE_FILE, formatted);
 	console.log(`\n✓ Baseline saved to ${BASELINE_FILE}`);
-} else if (comparison.baseline_found && comparison.regressions.length > 0) {
-	console.log('\n⚠️  Regressions detected. Run with --save to update baseline if intentional.');
+} else if (comparison.baseline_found) {
+	if (comparison.regressions.length > 0) {
+		console.log('\n⚠️  Regressions detected. Run with --save to update baseline if intentional.');
+	}
+	if (comparison.methodology_changed.length > 0) {
+		console.log(
+			'\n⚠️  Methodology changed on some tasks. Re-run with --save to update the baseline and surface any drift masked by the budget change.',
+		);
+	}
+	// Tally noise warnings across the three Welch-eligible buckets — a
+	// methodology_changed row gets its own banner above, so don't double-count.
+	const noise_count =
+		comparison.regressions.filter((r) => r.noise_warning).length +
+		comparison.improvements.filter((r) => r.noise_warning).length +
+		comparison.unchanged.filter((r) => r.noise_warning).length;
+	if (noise_count > 0) {
+		console.log(
+			`\n⚠️  ${noise_count} task(s) flagged with high measurement noise. Treat their significance calls with skepticism; consider rerunning on quieter hardware.`,
+		);
+	}
 }
