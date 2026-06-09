@@ -4,6 +4,8 @@
 
 	import Alert from '$lib/Alert.svelte';
 	import TomeContent from '$lib/TomeContent.svelte';
+	import TomeSection from '$lib/TomeSection.svelte';
+	import TomeSectionHeader from '$lib/TomeSectionHeader.svelte';
 	import {tome_get_by_slug} from '$lib/tome.js';
 	import Dialog from '$lib/Dialog.svelte';
 	import DialogContent from '$lib/DialogContent.svelte';
@@ -71,7 +73,8 @@
 			<kbd>Escape</kbd>, and restores focus to the previously focused element on close.
 		</p>
 	</section>
-	<section>
+	<TomeSection>
+		<TomeSectionHeader text="Basic usage" />
 		<p>
 			Mounting the component opens the dialog, so the simplest usage guards it with
 			<code>{'{#if}'}</code>. Wrap the content in an optional <DeclarationLink
@@ -108,9 +111,10 @@
 	</DialogContent>
 </Dialog>`}
 		/>
-	</section>
+	</TomeSection>
 
-	<section>
+	<TomeSection>
+		<TomeSectionHeader text="DialogContent" />
 		<p>
 			<DeclarationLink name="DialogContent" /> is a <code>.pane</code> card that shrinks to fit its
 			content, up to <code>max_width</code>. Tune it with <code>class</code> and other forwarded
@@ -160,9 +164,10 @@
 	</Dialog>
 {/if}`}
 		/>
-	</section>
+	</TomeSection>
 
-	<section>
+	<TomeSection>
+		<TomeSectionHeader text="Alignment" />
 		<p>
 			By default the dialog is centered. Pass <code>align="top"</code> to anchor it near the top of the
 			page and grow downward, which avoids the jumpiness of a centered dialog whose content changes height.
@@ -171,13 +176,18 @@
 		<button type="button" class="mb_lg" onclick={() => (dialog_align_top_opened = true)}
 			>open a top-aligned dialog</button
 		>
+	</TomeSection>
+
+	<TomeSection>
+		<TomeSectionHeader text="Overflow" />
 		<p>Tall content scrolls within the dialog rather than the page behind it:</p>
 		<button type="button" class="mb_lg" onclick={() => (dialog_overflowing_opened = true)}
 			>open a dialog that overflows vertically</button
 		>
-	</section>
+	</TomeSection>
 
-	<section>
+	<TomeSection>
+		<TomeSectionHeader text="Dismissing" />
 		<p>
 			Clicking outside the content closes the dialog by default. Pass
 			<code>dismissable={'{false}'}</code> to disable click-outside (<kbd>Escape</kbd> and your own buttons
@@ -186,6 +196,10 @@
 		<button type="button" class="mb_lg" onclick={() => (dialog_no_dismiss_opened = true)}
 			>open a non-dismissable dialog</button
 		>
+	</TomeSection>
+
+	<TomeSection>
+		<TomeSectionHeader text="Guarding close" />
 		<p>
 			To intercept closing, pass <code>onbeforeclose</code> and return <code>false</code> to keep
 			the dialog open, which is useful for confirming unsaved changes. Closing programmatically via
@@ -209,9 +223,10 @@
 	</DialogContent>
 </Dialog>`}
 		/>
-	</section>
+	</TomeSection>
 
-	<section>
+	<TomeSection>
+		<TomeSectionHeader text="Nested dialogs" />
 		<p>
 			Dialogs can open more dialogs, each stacking in the top layer. The deepest level in this demo
 			renders its own multi-pane surface via the bare-children path:
@@ -219,7 +234,7 @@
 		<button type="button" class="mb_lg" onclick={() => (dialog_nested_1_opened = true)}
 			>open nested dialogs</button
 		>
-	</section>
+	</TomeSection>
 </TomeContent>
 {#if opened}
 	<Dialog onclose={() => (opened = false)}>
