@@ -461,3 +461,9 @@ including parameters, props, members, overloads, intersects, and more.
 		{/each}
 	</section>
 {/if}
+
+<style>
+	section section:not(:last-child) {
+		margin-bottom: var(--space_xl4);
+	}
+</style>
