@@ -128,11 +128,9 @@
 		position: relative;
 	}
 	.dialog-close-button {
-		/* out of flow, floating just outside the pane's top-right corner -- offset
-		by the button's own width and height */
+		/* out of flow, floating in the pane's top-right corner */
 		position: absolute;
 		top: 0;
 		right: 0;
-		transform: translate(calc(100% - 4px), calc(-100% + 4px));
 	}
 </style>
