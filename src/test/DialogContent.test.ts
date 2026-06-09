@@ -6,6 +6,7 @@ import {flushSync} from 'svelte';
 
 import './dialog_test_helpers.js'; // polyfills `<dialog>` modal methods for jsdom
 import DialogHarness from './DialogHarness.svelte';
+import DialogCustomCloseHarness from './DialogCustomCloseHarness.svelte';
 import {mount_component, unmount_component, create_mouse_event} from './test_helpers.js';
 
 let mounted: {instance: any; container: HTMLElement} | null = null;
@@ -45,6 +46,52 @@ describe('DialogContent', () => {
 		button.dispatchEvent(create_mouse_event('click'));
 		flushSync();
 		assert.equal(onclose.mock.calls.length, 1);
+	});
+
+	test('a custom close_button snippet replaces the default button', () => {
+		mounted = mount_component(DialogCustomCloseHarness as any, {});
+		flushSync();
+		const {container} = mounted;
+		const custom = container.querySelector('[data-testid="custom-close"]');
+		assert(custom instanceof HTMLButtonElement);
+		// only one close button -- the custom one replaces the default, not in addition to it
+		assert.equal(container.querySelectorAll('button[aria-label="close"]').length, 1);
+		// the bag carries the default's a11y into the custom button
+		assert.equal(custom.getAttribute('aria-label'), 'close');
+	});
+
+	test('the close_button_attributes bag wires onclick to close the dialog', () => {
+		const onclose = vi.fn();
+		mounted = mount_component(DialogCustomCloseHarness as any, {dialog_props: {onclose}});
+		flushSync();
+		const button = mounted.container.querySelector('[data-testid="custom-close"]');
+		assert(button instanceof HTMLButtonElement);
+		button.dispatchEvent(create_mouse_event('click'));
+		flushSync();
+		assert.equal(onclose.mock.calls.length, 1);
+	});
+
+	test('the close_button_attributes bag carries the default placement and styling', () => {
+		mounted = mount_component(DialogCustomCloseHarness as any, {});
+		flushSync();
+		const button = mounted.container.querySelector('[data-testid="custom-close"]');
+		assert(button instanceof HTMLButtonElement);
+		// corner-anchored placement travels as inline style (not a scoped class, which
+		// wouldn't match a consumer-defined snippet)
+		assert(button.getAttribute('style')?.includes('position: absolute'));
+		// global fuz_css icon-button styling rides along too
+		assert(button.classList.contains('icon_button'));
+	});
+
+	test('the close button renders after the content so it does not take initial focus', () => {
+		// the harness defines its snippet/content in markup order content-then-button, but
+		// DialogContent renders `children` before `close_button`, so the button follows in the DOM
+		const container = mount_harness();
+		const content = container.querySelector('[data-testid="content"]');
+		const button = container.querySelector('button[aria-label="close"]');
+		assert(content instanceof HTMLElement);
+		assert(button instanceof HTMLButtonElement);
+		assert((content.compareDocumentPosition(button) & Node.DOCUMENT_POSITION_FOLLOWING) !== 0);
 	});
 
 	test('pane defaults on and is removable with pane={false}', () => {

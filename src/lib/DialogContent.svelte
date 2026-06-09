@@ -1,6 +1,6 @@
 <script lang="ts">
 	import type {Snippet} from 'svelte';
-	import type {HTMLAttributes} from 'svelte/elements';
+	import type {HTMLAttributes, HTMLButtonAttributes} from 'svelte/elements';
 
 	import {dialog_context, type DialogContext} from './dialog.js';
 
@@ -68,13 +68,19 @@
 		 * corner. `true` (the default) renders an absolutely-positioned `.plain` icon
 		 * button that closes the dialog; `false` removes it. It renders after
 		 * `children`, so a content control (or an `autofocus` element) takes initial
-		 * focus on open rather than the close button. Pass a `Snippet` to render your
-		 * own, receiving the `DialogContext` (e.g. `{close}`); the surface is a
-		 * containing block (`position: relative`), so an absolutely-positioned custom
-		 * button anchors to it.
+		 * focus on open rather than the close button.
+		 *
+		 * Pass a `Snippet` to render your own. It receives a `close_button_attributes`
+		 * bag carrying the default's placement, styling, and a11y, plus the
+		 * `DialogContext` (e.g. `{close}`). Spread the bag onto a `<button>` to inherit
+		 * the corner anchoring and override only what differs (e.g. the glyph), or drop
+		 * it to place the button freely. The surface is a containing block
+		 * (`position: relative`), so an absolutely-positioned custom button anchors to it.
 		 * @default true
 		 */
-		close_button?: boolean | Snippet<[dialog: DialogContext]>;
+		close_button?:
+			| boolean
+			| Snippet<[close_button_attributes: HTMLButtonAttributes, dialog: DialogContext]>;
 		/**
 		 * Rendered inside the content surface. Receives the `DialogContext` (e.g.
 		 * `{close}`) so content can close the dialog without reaching into `Dialog`'s
@@ -84,6 +90,18 @@
 	} = $props();
 
 	const dialog = dialog_context.get('DialogContent must be rendered inside a Dialog');
+
+	// the default close button's attributes, also handed to a custom `close_button`
+	// snippet so it can inherit corner placement, styling, and a11y by spreading them;
+	// positioning is inline (not a scoped class) so it travels into the consumer's snippet
+	const close_button_attributes: HTMLButtonAttributes = {
+		type: 'button',
+		class: 'sm plain icon_button',
+		style: 'position: absolute; top: 0; right: 0;',
+		onclick: dialog.close,
+		title: 'close',
+		'aria-label': 'close',
+	};
 </script>
 
 <div class="dialog-content" style:padding={gutter}>
@@ -99,17 +117,9 @@
 		takes initial focus on open, not the close button -->
 		{#if close_button}
 			{#if typeof close_button === 'boolean'}
-				<button
-					type="button"
-					class="dialog-close-button sm plain icon_button"
-					onclick={dialog.close}
-					title="close"
-					aria-label="close"
-				>
-					✕
-				</button>
+				<button {...close_button_attributes}>✕</button>
 			{:else}
-				{@render close_button(dialog)}
+				{@render close_button(close_button_attributes, dialog)}
 			{/if}
 		{/if}
 	</div>
@@ -128,11 +138,5 @@
 	`children` (and custom close buttons) */
 	.dialog-content > div {
 		position: relative;
-	}
-	.dialog-close-button {
-		/* out of flow, floating in the pane's top-right corner */
-		position: absolute;
-		top: 0;
-		right: 0;
 	}
 </style>

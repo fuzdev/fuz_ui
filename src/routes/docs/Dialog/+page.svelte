@@ -17,6 +17,7 @@
 	const tome = tome_get_by_slug(TOME_SLUG);
 
 	let opened = $state.raw(false);
+	let dialog_custom_close_opened = $state.raw(false);
 	let dialog_overflowing_opened = $state.raw(false);
 	let dialog_align_top_opened = $state.raw(false);
 	let dialog_nested_1_opened = $state.raw(false);
@@ -123,14 +124,19 @@
 		<p>
 			<DeclarationLink name="DialogContent" /> adds a close button in the top-right corner, rendered after
 			the content so it doesn't take initial focus. Pass
-			<code>close_button={'{false}'}</code> to remove it, or a <code>Snippet</code> receiving
-			<DeclarationLink name="DialogContext" /> to render your own:
+			<code>close_button={'{false}'}</code> to remove it, or a <code>Snippet</code> to render your
+			own. The snippet receives a <code>close_button_attributes</code> bag (placement, styling, and
+			a11y) plus the <DeclarationLink name="DialogContext" />; spread the bag to inherit the
+			corner-anchored button and override only the glyph, or drop it to place the button freely:
 		</p>
+		<button type="button" class="mb_lg" onclick={() => (dialog_custom_close_opened = true)}
+			>open a dialog with a custom close button</button
+		>
 		<Code
 			content={`<Dialog show={opened} onclose={() => (opened = false)}>
 	<DialogContent>
-		{#snippet close_button({close})}
-			<button type="button" onclick={close}>close</button>
+		{#snippet close_button(close_button_attributes)}
+			<button {...close_button_attributes}>×</button>
 		{/snippet}
 		<p>custom close button</p>
 	</DialogContent>
@@ -142,7 +148,9 @@
 		</p>
 		<Code
 			content={`{#if opened}
-	<Dialog onclose={() => (opened = false)}>\n\t\tfreestyle\n\t</Dialog>
+	<Dialog onclose={() => (opened = false)}>
+		freestyle
+	</Dialog>
 {/if}`}
 		/>
 	</section>
@@ -214,6 +222,21 @@
 				<p>this is a dialog</p>
 				<button type="button" onclick={close}>ok</button>
 			{/snippet}
+		</DialogContent>
+	</Dialog>
+{/if}
+{#if dialog_custom_close_opened}
+	<Dialog onclose={() => (dialog_custom_close_opened = false)}>
+		<DialogContent>
+			{#snippet close_button(close_button_attributes)}
+				<button {...close_button_attributes}>×</button>
+			{/snippet}
+			<p>
+				The close button in the top-right is custom: it spreads <code>close_button_attributes</code>
+				to keep the default placement and styling, swapping only the glyph — a lighter
+				<code>×</code>
+				in place of the default <code>✕</code>.
+			</p>
 		</DialogContent>
 	</Dialog>
 {/if}
