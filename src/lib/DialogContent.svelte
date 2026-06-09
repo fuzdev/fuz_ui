@@ -18,28 +18,30 @@
 	 * top-right corner. The surface is a containing block (`position: relative`) for
 	 * that button and any absolutely-positioned content in `children`.
 	 *
+	 * The surface has no layout of its own -- it's a plain block, so children flow
+	 * top-to-bottom in normal document order. Pass `class` through (e.g. `box` for a
+	 * centered column, `column` for an uncentered one) to add one.
+	 *
 	 * @module
 	 */
 
 	const {
-		class: class_prop = 'box p_xl',
+		padding = 'var(--space_xl)',
 		pane = true,
 		gutter = 'var(--space_xl3)',
 		max_width = 'var(--distance_md)',
 		close_button = true,
 		children,
 		...rest
-	}: Omit<HTMLAttributes<HTMLDivElement>, 'children' | 'class'> & {
+	}: Omit<HTMLAttributes<HTMLDivElement>, 'children'> & {
 		/**
-		 * Classes for the content surface. Defaults to the `box` layout (centered
-		 * column) and comfortable padding; pass your own to replace these. The `pane`
-		 * card class is applied separately, toggled by the `pane` prop. Avoid width
-		 * utilities like `width_atmost_md` here, since they set `width: 100%`, which
-		 * fills the card to `max_width` instead of letting it shrink to its content;
-		 * use `max_width`.
-		 * @default 'box p_xl'
+		 * The content surface's padding, set as an inline style. Defaults to
+		 * `var(--space_xl)` for a comfortable gutter between the card edge and its
+		 * content. Set to `''` or `'0'` for no padding (e.g. a flush image or a
+		 * surface that manages its own spacing).
+		 * @default 'var(--space_xl)'
 		 */
-		class?: string;
+		padding?: string;
 		/**
 		 * Whether to apply the fuz_css `.pane` card class to the content surface --
 		 * its opaque background, shadow, and rounded corners. `true` (the default) is
@@ -87,8 +89,8 @@
 <div class="dialog-content" style:padding={gutter}>
 	<div
 		{...rest}
-		class={class_prop}
 		class:pane
+		style:padding
 		style:max-width={max_width}
 		{@attach dialog.register_surface}
 	>
