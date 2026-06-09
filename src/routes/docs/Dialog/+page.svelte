@@ -80,7 +80,7 @@
 			type="button"
 			class="mb_lg"
 			onclick={() => ((dirty = true), (dialog_guarded_opened = true))}
-			>open a dialog with <code>onbeforeclose</code> (confirm before closing)</button
+			>open a dialog with <code>onbeforeclose</code> to confirm before closing</button
 		>
 	</section>
 
@@ -214,7 +214,7 @@
 					<p>
 						This is a <DeclarationLink name="Dialog" /> with
 						<code
-							>align="<select bind:value={selected_align} style:width="120px"
+							>align="<select class="ml_0" bind:value={selected_align}
 								>{#each dialog_aligns as align (align)}
 									<option value={align}>{align}</option>
 								{/each}
@@ -229,7 +229,7 @@
 					<p>
 						This is a <DeclarationLink name="Dialog" /> with
 						<code
-							>align="<select bind:value={selected_align} style:width="120px"
+							>align="<select class="ml_0" bind:value={selected_align}
 								>{#each dialog_aligns as align (align)}
 									<option value={align}>{align}</option>
 								{/each}
