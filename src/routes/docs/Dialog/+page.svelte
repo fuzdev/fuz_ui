@@ -45,6 +45,19 @@
 	const guard_unsaved = () => !dirty || confirm('Discard unsaved changes?');
 </script>
 
+{#snippet custom_close_button_example()}
+	<Code
+		content={`<Dialog show={opened} onclose={() => (opened = false)}>
+	<DialogContent>
+		{#snippet close_button(attrs)}
+			<button {...attrs} class="xs plain">close</button>
+		{/snippet}
+		<Code content="..." />
+	</DialogContent>
+</Dialog>`}
+	/>
+{/snippet}
+
 <TomeContent {tome}>
 	<section>
 		<p>
@@ -135,16 +148,7 @@
 		<button type="button" class="mb_lg" onclick={() => (dialog_custom_close_opened = true)}
 			>open a dialog with a custom close button</button
 		>
-		<Code
-			content={`<Dialog show={opened} onclose={() => (opened = false)}>
-	<DialogContent>
-		{#snippet close_button(attrs)}
-			<button {...attrs} class="xs plain">close</button>
-		{/snippet}
-		<p>custom close button</p>
-	</DialogContent>
-</Dialog>`}
-		/>
+		{@render custom_close_button_example()}
 		<p>
 			<DeclarationLink name="DialogContent" /> is optional. Pass children directly for full control of
 			the surface:
@@ -238,6 +242,7 @@
 				The close button in the top-right is custom: it spreads <code>attrs</code> to extend the default
 				behavior.
 			</p>
+			{@render custom_close_button_example()}
 		</DialogContent>
 	</Dialog>
 {/if}
