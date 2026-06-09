@@ -86,10 +86,11 @@
 		 * `children` snippet.
 		 *
 		 * The default `close_button` renders as the surface's last child (so a content
-		 * control or `autofocus` element wins initial focus over it), which means
-		 * universal child-spacing selectors -- `> * + *`, `> :not(:last-child)` -- also
-		 * match the button. Either space flowed content via your own elements or a class
-		 * rather than universal child combinators, or wrap your content in a single
+		 * control or `autofocus` element wins initial focus over it). Because it's a
+		 * real child, it throws off universal child-spacing selectors: your content's
+		 * last element is no longer `:last-child` (so `> :not(:last-child)` matches it
+		 * and `> :last-child` skips it), and `> * + *` matches the button itself. Either
+		 * scope spacing to your own elements or a class, or wrap your content in a single
 		 * element so its child selectors no longer see the button.
 		 */
 		children: Snippet<[dialog: DialogContext]>;
