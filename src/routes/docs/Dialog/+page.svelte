@@ -47,19 +47,14 @@
 <TomeContent {tome}>
 	<section>
 		<p>
-			A <DeclarationLink name="Dialog" /> is a modal that overlays the entire page. It's built on the
-			native
+			A <DeclarationLink name="Dialog" /> is a modal that overlays the entire page. It uses the native
 			<MdnLink path="Web/HTML/Element/dialog" /> element, so opening it with
 			<MdnLink path="Web/API/HTMLDialogElement/showModal">showModal()</MdnLink>
-			puts children in the browser's top layer, escaping ancestor stacking with its bugs and caveats,
-			like cascading styles and overflow hiding, without using <TomeLink slug="Teleport" />. The
+			puts children in the browser's top layer, escaping ancestor stacking (which causes bugs and caveats,
+			like cascading styles and overflow hiding), without using <TomeLink slug="Teleport" />. The
 			native element also traps focus, makes the rest of the page inert, closes on
 			<kbd>Escape</kbd>, and restores focus to the previously focused element on close.
 		</p>
-		<aside>
-			Is this truly a simple, accessible, powerful Dialog? Actually simple, finally? You be the
-			judge
-		</aside>
 	</section>
 	<section>
 		<button type="button" class="mb_lg" onclick={() => (opened = true)}> open a dialog </button>

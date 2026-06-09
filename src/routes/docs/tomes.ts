@@ -246,7 +246,7 @@ export const tomes: Array<Tome> = [
 		slug: 'Teleport',
 		category: 'components',
 		Component: Teleport,
-		related_tomes: ['Dialog'],
+		related_tomes: [],
 		related_modules: [],
 		related_declarations: ['Teleport'],
 	},
