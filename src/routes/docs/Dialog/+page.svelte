@@ -125,12 +125,11 @@
 			<DeclarationLink name="DialogContent" /> adds a close button in the top-right corner, rendered after
 			the content so it doesn't take initial focus. Pass
 			<code>close_button={'{false}'}</code> to remove it, or a <code>Snippet</code> to render your
-			own. The snippet receives <code>attrs</code> (typed <DeclarationLink
+			own. The snippet receives <code>attrs</code>, typed <DeclarationLink
 				name="DialogCloseButtonAttrs"
-			/>, the default button's placement, styling, and a11y) plus the <DeclarationLink
-				name="DialogContext"
-			/>; spread <code>attrs</code> to inherit the corner-anchored button and override only the glyph,
-			or drop it to place the button freely:
+			/> — the default button's placement, styling, a11y, and the <code>onclick</code> that closes
+			the dialog — plus the <DeclarationLink name="DialogContext" />. Spread <code>attrs</code> to inherit
+			the corner-anchored button and override only the glyph, or drop it to place the button freely:
 		</p>
 		<button type="button" class="mb_lg" onclick={() => (dialog_custom_close_opened = true)}
 			>open a dialog with a custom close button</button

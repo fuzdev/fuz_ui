@@ -65,18 +65,18 @@
 		max_width?: string;
 		/**
 		 * The close button floating just outside the content surface's top-right
-		 * corner. `true` (the default) renders an absolutely-positioned `.plain` icon
-		 * button that closes the dialog; `false` removes it. It renders after
+		 * corner. `true` (the default) renders an absolutely-positioned `.sm.plain.icon_button`
+		 * that closes the dialog; `false` removes it. It renders after
 		 * `children`, so a content control (or an `autofocus` element) takes initial
 		 * focus on open rather than the close button.
 		 *
 		 * Pass a `Snippet` to render your own. It receives `attrs`
-		 * (`DialogCloseButtonAttrs`) carrying the default's placement, styling, and
-		 * a11y, plus the `DialogContext` (e.g. `{close}`). Spread `attrs` onto a
-		 * `<button>` to inherit the corner anchoring and override only what differs
-		 * (e.g. the glyph), or drop it to place the button freely. The surface is a
-		 * containing block (`position: relative`), so an absolutely-positioned custom
-		 * button anchors to it.
+		 * (`DialogCloseButtonAttrs`) carrying the default's placement, styling, a11y,
+		 * and `onclick` (closes the dialog), plus the `DialogContext` (e.g. `{close}`).
+		 * Spread `attrs` onto a `<button>` to inherit the corner anchoring and override
+		 * only what differs (e.g. the glyph), or drop it to place the button freely. The
+		 * surface is a containing block (`position: relative`), so an absolutely-positioned
+		 * custom button anchors to it.
 		 * @default true
 		 */
 		close_button?: boolean | Snippet<[attrs: DialogCloseButtonAttrs, dialog: DialogContext]>;
@@ -115,12 +115,10 @@
 		{@render children(dialog)}
 		<!-- rendered after `children` so a content control (or an `autofocus` element)
 		takes initial focus on open, not the close button -->
-		{#if close_button}
-			{#if typeof close_button === 'boolean'}
-				<button {...close_button_attrs}>✕</button>
-			{:else}
-				{@render close_button(close_button_attrs, dialog)}
-			{/if}
+		{#if close_button === true}
+			<button {...close_button_attrs}>✕</button>
+		{:else if close_button}
+			{@render close_button(close_button_attrs, dialog)}
 		{/if}
 	</div>
 </div>
