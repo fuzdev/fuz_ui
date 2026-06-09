@@ -86,10 +86,9 @@
 
 	<section>
 		<p>
-			Mounting the component opens the dialog, so the simplest usage gates it with
-			<code>{'{#if}'}</code>. Wrap the content in a <DeclarationLink name="DialogContent" /> for a padded,
-			centered <code>.pane</code> card by default. It reads <code>close</code> from context, so you
-			don't thread it down from <DeclarationLink name="Dialog" />:
+			Mounting the component opens the dialog, so the simplest usage guards it with
+			<code>{'{#if}'}</code>. Wrap the content in <DeclarationLink name="DialogContent" /> to default
+			to a padded, centered <code>.pane</code> card with a close button:
 		</p>
 		<Code
 			content={`<button onclick={() => (opened = true)}>
@@ -108,8 +107,16 @@
 {/if}`}
 		/>
 		<p>
-			Or pass <code>show</code> and let the component manage its own conditional rendering (it
-			defaults to <code>true</code>):
+			<code>DialogContent</code> is optional if you want full control:
+		</p>
+		<Code
+			content={`{#if opened}
+	<Dialog onclose={() => (opened = false)}>\n\t\thello world\n\t</Dialog>
+{/if}`}
+		/>
+		<p>
+			The <code>{'{#if}'}</code> guard isn't required; you can pass <code>show</code> and let the
+			component manage its own rendering (it defaults to <code>true</code>):
 		</p>
 		<Code
 			content={`<Dialog show={opened} onclose={() => (opened = false)}>
@@ -131,25 +138,15 @@
 			<code>true</code>; pass <code>pane={'{false}'}</code> for a chromeless surface --
 			<DeclarationLink name="DialogContent" /> registers its surface with the
 			<DeclarationLink name="Dialog" />, so click-outside-to-close keeps working regardless).
-			<DeclarationLink name="DialogContent" /> is also optional; render your own content directly in <DeclarationLink
-				name="Dialog"
-			/>'s
-			<code>children</code> snippet (which also receives the dialog context, e.g.
-			<code>{'{close}'}</code>) when you need a custom layout, multiple <code>.pane</code>s, or non-<code
-				>.pane</code
-			>
-			content (set <code>content_selector</code> to match, or attach
-			<code>register_surface</code> from the dialog context).
 		</p>
 		<p>
-			<DeclarationLink name="DialogContent" /> renders a <code>close_button</code> floating just
-			outside the surface's top-right corner by default -- a <code>.plain</code> icon button that
-			closes the dialog. It renders after the content, so it doesn't take initial focus when the
-			dialog opens. Pass
-			<code>close_button={'{false}'}</code> to remove it, or a <code>Snippet</code> (receiving the
-			dialog context, e.g. <code>{'{close}'}</code>) to render your own. The surface is a containing
-			block (<code>position: relative</code>), so an absolutely-positioned custom button anchors to
-			it.
+			<DeclarationLink name="DialogContent" /> renders a <code>close_button</code> positioned
+			aboslutely in the surface's top-right corner by default. It renders after the content, so it
+			doesn't take initial focus when the dialog opens. Pass
+			<code>close_button={'{false}'}</code> to remove it, or a <code>Snippet</code> (receiving <DeclarationLink
+				name="DialogContext"
+			/>) to render your own. The surface is a containing block with
+			<code>position: relative</code>.
 		</p>
 		<Code
 			content={`<Dialog show={opened} onclose={() => (opened = false)}>
@@ -164,10 +161,8 @@
 </Dialog>`}
 		/>
 		<p>
-			To intercept a user-initiated close -- <kbd>Escape</kbd>, click-outside, or
-			<code>close</code> -- pass <code>onbeforeclose</code> and return <code>false</code> to keep
-			the dialog open. It's handy for confirming unsaved changes. A programmatic close via
-			<code>show={'{false}'}</code> bypasses it.
+			To intercept closing, pass <code>onbeforeclose</code> and return <code>false</code> to keep
+			the dialog open. Programmatically closing via <code>show={'{false}'}</code> bypasses it.
 		</p>
 		<Code
 			content={`<Dialog
@@ -181,15 +176,6 @@
 		{/snippet}
 	</DialogContent>
 </Dialog>`}
-		/>
-		<p>
-			The content can be simply a text node, no <code>DialogContent</code> or
-			<code>close</code> needed:
-		</p>
-		<Code
-			content={`{#if opened}
-	<Dialog onclose={() => (opened = false)}>\n\t\thello world\n\t</Dialog>
-{/if}`}
 		/>
 	</section>
 </TomeContent>
