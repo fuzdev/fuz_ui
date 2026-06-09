@@ -166,7 +166,7 @@ export const tomes: Array<Tome> = [
 		slug: 'Dialog',
 		category: 'components',
 		Component: Dialog,
-		related_tomes: ['Teleport'],
+		related_tomes: [],
 		related_modules: ['dialog.ts'],
 		related_declarations: ['Dialog', 'DialogContent'],
 	},
