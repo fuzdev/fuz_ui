@@ -139,7 +139,7 @@
 			content={`<Dialog show={opened} onclose={() => (opened = false)}>
 	<DialogContent>
 		{#snippet close_button(attrs)}
-			<button {...attrs}>×</button>
+			<button {...attrs} class="xs plain">close</button>
 		{/snippet}
 		<p>custom close button</p>
 	</DialogContent>
@@ -232,13 +232,11 @@
 	<Dialog onclose={() => (dialog_custom_close_opened = false)}>
 		<DialogContent>
 			{#snippet close_button(attrs)}
-				<button {...attrs}>×</button>
+				<button {...attrs} class="xs plain">close</button>
 			{/snippet}
-			<p>
-				The close button in the top-right is custom: it spreads <code>attrs</code> to keep the
-				default placement and styling, swapping only the glyph — a lighter
-				<code>×</code>
-				in place of the default <code>✕</code>.
+			<p class="mt_lg">
+				The close button in the top-right is custom: it spreads <code>attrs</code> to extend the default
+				behavior.
 			</p>
 		</DialogContent>
 	</Dialog>
