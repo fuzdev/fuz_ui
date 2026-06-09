@@ -50,9 +50,10 @@
 			A <DeclarationLink name="Dialog" /> is a modal that overlays the entire page. It uses the native
 			<MdnLink path="Web/HTML/Element/dialog" /> element, so opening it with
 			<MdnLink path="Web/API/HTMLDialogElement/showModal">showModal()</MdnLink>
-			puts children in the browser's top layer, escaping ancestor stacking (which causes bugs and caveats,
-			like cascading styles and overflow hiding), without using <TomeLink slug="Teleport" />. The
-			native element also traps focus, makes the rest of the page inert, closes on
+			puts children in the browser's top layer, escaping ancestor stacking (avoiding bugs and caveats,
+			like unwanted overflow containment and cascading styles), without using <TomeLink
+				slug="Teleport"
+			/>. The native element also traps focus, makes the rest of the page inert, closes on
 			<kbd>Escape</kbd>, and restores focus to the previously focused element on close.
 		</p>
 	</section>
