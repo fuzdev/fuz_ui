@@ -114,6 +114,7 @@
 		gutter="var(--space_xl3)"
 		max_width="var(--distance_md)"
 		pane={true}
+		close_button={true}
 	>
 		{#snippet children({close})}
 			<button onclick={close}>ok</button>
