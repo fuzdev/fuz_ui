@@ -153,24 +153,22 @@
 		class:align-top={align === 'top'}
 		{@attach setup_dialog}
 	>
-		<div class="dialog-layout">
-			<div
-				class="dialog-wrapper"
-				role="none"
-				onmousedown={(e) => {
-					if (!dismissable) return;
-					const target = e.target as Element;
-					// inside a registered surface (e.g. DialogContent) -> not an outside dismiss
-					for (const surface of surfaces) {
-						if (surface.contains(target)) return;
-					}
-					// fallback for surfaces rendered in `children`: match `content_selector`
-					if (content_selector && target.closest(content_selector)) return;
-					close(e);
-				}}
-			>
-				{@render children(context)}
-			</div>
+		<div
+			class="dialog-wrapper"
+			role="none"
+			onmousedown={(e) => {
+				if (!dismissable) return;
+				const target = e.target as Element;
+				// inside a registered surface (e.g. DialogContent) -> not an outside dismiss
+				for (const surface of surfaces) {
+					if (surface.contains(target)) return;
+				}
+				// fallback for surfaces rendered in `children`: match `content_selector`
+				if (content_selector && target.closest(content_selector)) return;
+				close(e);
+			}}
+		>
+			{@render children(context)}
 		</div>
 	</dialog>
 {/if}
@@ -217,6 +215,9 @@
 		scrollbar-gutter: stable;
 	}
 
+	/* `min-height: 100%` (not `height`) makes tall content overflow downward only: the
+	wrapper grows to its content, so the centered top stays reachable in the dialog's
+	scroll. A fixed-height centering box would strand the top above the scroll origin. */
 	.dialog-wrapper {
 		min-height: 100%;
 		display: flex;
@@ -225,11 +226,5 @@
 	}
 	.align-top .dialog-wrapper {
 		align-items: start;
-	}
-
-	.dialog-layout {
-		height: 100%;
-		/* makes the content overflow downwards instead of upwards+downwards because it's centered */
-		max-height: 100%;
 	}
 </style>
