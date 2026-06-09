@@ -2,22 +2,10 @@
 '@fuzdev/fuz_ui': minor
 ---
 
-refactor: use the native `dialog` element in `Dialog`
+refactor: use the native `<dialog>` element in `Dialog`
 
-- render a native `<dialog>` opened with `showModal()` instead of a teleported `role="dialog"` div
-- remove the `active` prop
-- remove the `container` prop
-- add a `show` prop (default `true`) that gates rendering
-- add a `dismissable` prop (default `true`) to toggle click-outside-to-close
-- forward arbitrary `<dialog>` attributes via rest props
-- remove `Dialogs`
-- remove the `DialogParams` type and `to_dialog_params` helper from `dialog.js`
-- add `DialogContent`, the default content surface: a padded, centered `.pane` card that shrinks to its content (`class` defaults to `box p_xl`, `gutter` to `var(--space_xl3)`, `max_width` to `var(--distance_md)`)
-- `DialogContent` renders a `close_button` floating just outside the surface's top-right corner by default (an absolutely-positioned `.plain` icon button that closes the dialog); pass `close_button={false}` to remove it or a `Snippet` to customize it. It renders after the content, so it doesn't take initial focus on open
-- add an `onbeforeclose` prop to `Dialog`: called before a user-initiated close (Escape, click-outside, or `close`); return `false` to veto and keep the dialog open (e.g. to confirm discarding unsaved changes). Programmatic close via `show={false}` bypasses it
-- `DialogContent` takes a `pane` prop (default `true`) to toggle the fuz_css `.pane` card class; pass `pane={false}` for a chromeless surface
-- `DialogContent` registers its surface with `Dialog` (via `dialog_context`), so click-outside-to-close detects presses inside the surface by node identity rather than the `.pane` class — `pane={false}` needs no extra `content_selector` setup
-- add `register_surface` to `DialogContext`: an attachment (`{@attach register_surface}`) that registers a content surface so a press inside it isn't an outside-dismiss; `Dialog`'s `content_selector` becomes the fallback for surfaces rendered directly in `children`
-- add `dialog_context` (and the `DialogContext` type) to `dialog.js`, set by `Dialog` and read by `DialogContent`, so content can close the dialog without threading `close` through the `children` snippet
-- the `Dialog` and `DialogContent` `children` snippet now receives the `DialogContext` object (e.g. `{close}`) instead of `close` directly; migrate by destructuring: `{#snippet children({close})}`
-- `Dialog` no longer renders the inner content/gutter wrapper; pair it with `DialogContent` (or render your own surface in `children`)
+- `Dialog` now renders a native `<dialog>` opened with `showModal()`, so it traps focus, closes on Escape, restores focus, and dims the page natively -- no more `Teleport`
+- breaking: remove the `active` and `container` props, the `Dialogs` component, and the `DialogParams` type and `to_dialog_params` helper
+- breaking: pair `Dialog` with the new `DialogContent` (or render your own surface in `children`); the `children` snippet now receives a context object, so destructure `close` from it: `{#snippet children({close})}`
+- add `Dialog` props `show` (gates rendering), `dismissable` (click-outside-to-close), and `onbeforeclose` (return `false` to veto a close); `<dialog>` attributes forward via rest props
+- add `DialogContent`, the default content surface: a centered `.pane` card with a floating close button -- `pane={false}` for a chromeless surface, `close_button={false}` to drop the button (or pass a `Snippet` to customize it)
