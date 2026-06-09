@@ -290,7 +290,10 @@ including parameters, props, members, overloads, intersects, and more.
 <!-- generics -->
 {#if declaration.generic_params.length}
 	<section>
-		<h4>generics</h4>
+		<div class="row gap_md">
+			<h4>generics</h4>
+			<TypeLink type={declaration.display_name} />
+		</div>
 		{#each declaration.generic_params as generic (generic)}
 			<section>
 				<h5><code>{generic.name}</code></h5>
