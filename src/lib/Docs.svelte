@@ -10,6 +10,7 @@
 	import DocsSecondaryNav from './DocsSecondaryNav.svelte';
 	import DocsTertiaryNav from './DocsTertiaryNav.svelte';
 	import Dialog from './Dialog.svelte';
+	import DialogContent from './DialogContent.svelte';
 	import DocsFooter from './DocsFooter.svelte';
 	import {site_context} from './site.svelte.js';
 	import {FUZ_DEV_URL} from './constants.js';
@@ -83,15 +84,17 @@
 <!-- TODO this is messy rendering `DocsSecondaryNav` twice to handle responsive states with SSR correctly -->
 {#if show_secondary_nav_dialog && innerWidth.current && innerWidth.current <= TERTIARY_NAV_BREAKPOINT}
 	<Dialog onclose={() => (show_secondary_nav_dialog = false)}>
-		<div class="pane" style:--docs_menu_width={docs_menu_width}>
-			<div class="p_xl pb_0">
-				<Breadcrumb />
+		<DialogContent padding="">
+			<div style:--docs_menu_width={docs_menu_width}>
+				<div class="p_xl pb_0">
+					<Breadcrumb />
+				</div>
+				<div class="px_lg pb_xl">
+					<DocsSecondaryNav {tomes} sidebar={false} />
+					<DocsTertiaryNav {tomes} {tomes_by_slug} sidebar={false} />
+				</div>
 			</div>
-			<div class="px_lg pb_xl">
-				<DocsSecondaryNav {tomes} sidebar={false} />
-				<DocsTertiaryNav {tomes} {tomes_by_slug} sidebar={false} />
-			</div>
-		</div>
+		</DialogContent>
 	</Dialog>
 {/if}
 

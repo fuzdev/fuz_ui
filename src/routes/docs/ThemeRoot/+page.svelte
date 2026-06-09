@@ -6,6 +6,7 @@
 	import TomeContent from '$lib/TomeContent.svelte';
 	import Details from '$lib/Details.svelte';
 	import Dialog from '$lib/Dialog.svelte';
+	import DialogContent from '$lib/DialogContent.svelte';
 	import {tome_get_by_slug} from '$lib/tome.js';
 	import ColorSchemeInput from '$lib/ColorSchemeInput.svelte';
 	import TomeSectionHeader from '$lib/TomeSectionHeader.svelte';
@@ -25,7 +26,6 @@
 	const get_theme_state = theme_state_context.get();
 	const theme_state = $derived(get_theme_state());
 
-	// let show_create_theme_dialog = false;
 	let editing_theme: null | Theme = $state.raw(null);
 </script>
 
@@ -169,9 +169,6 @@
 		<div class="width_atmost_sm mb_lg">
 			<ThemeInput {themes} enable_editing onedit={(t) => (editing_theme = t)} />
 		</div>
-		<!-- <button class="mb_lg" onclick={() => (show_create_theme_dialog = true)} disabled
-				>create a new theme (todo)</button
-			> -->
 		<aside>
 			⚠️ The builtin themes need a lot more work, but the proof of concept seems to work.
 		</aside>
@@ -265,40 +262,16 @@ theme_state.color_scheme; // '${theme_state.color_scheme}'`}
 	</TomeSection>
 </TomeContent>
 
-<!-- TODO enable creating themes -->
-<!-- {#if show_create_theme_dialog}
-	<Dialog onclose={() => (show_create_theme_dialog = false)} let:close>
-		<div class="pane p_md width_atmost_md mx_auto">
-			<div class="theme-editor-wrapper panel">
-				<ThemeForm
-					oncreate={(theme) => {
-						themes = themes.concat(theme);
-						close();
-					}}
-				/>
-			</div>
-		</div>
-	</Dialog>
-{/if} -->
 {#if editing_theme}
 	<Dialog onclose={() => (editing_theme = null)}>
-		<div class="pane p_md width_atmost_md mx_auto">
-			<div class="theme-editor-wrapper panel">
-				<ThemeForm
-					theme={editing_theme}
-					onsave={(theme) => {
-						console.log(`update theme`, theme); // eslint-disable-line no-console
-						alert('todo'); // eslint-disable-line no-alert
-					}}
-				/>
-			</div>
-		</div>
+		<DialogContent>
+			<ThemeForm
+				theme={editing_theme}
+				onsave={(theme) => {
+					console.log(`update theme`, theme); // eslint-disable-line no-console
+					alert('todo'); // eslint-disable-line no-alert
+				}}
+			/>
+		</DialogContent>
 	</Dialog>
 {/if}
-
-<style>
-	.theme-editor-wrapper {
-		width: var(--distance_md);
-		padding: var(--space_lg);
-	}
-</style>
