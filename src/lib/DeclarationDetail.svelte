@@ -62,6 +62,16 @@ including parameters, props, members, overloads, intersects, and more.
 	</section>
 {/snippet}
 
+<!-- A compact parameter row: name (with optional marker) and type, for snippet params and overloads. -->
+{#snippet param_row(param: ParameterJsonInput)}
+	<div class="row gap_md">
+		<code
+			>{param.name}{#if param.optional}?{/if}</code
+		>
+		<TypeLink type={param.type} />
+	</div>
+{/snippet}
+
 <!-- Compact prose metadata for props and members (deprecated, since, examples, see also, throws). -->
 {#snippet doc_extras(item: DocExtras)}
 	<!-- eslint-disable-next-line @typescript-eslint/no-deprecated -->
@@ -102,6 +112,12 @@ including parameters, props, members, overloads, intersects, and more.
 			{/each}
 		</ul>
 	{/if}
+{/snippet}
+
+<!-- A comma-separated inline list of type links (extends, implements, intersects are rarely more than one). -->
+{#snippet type_list(types: Array<string>)}
+	{#each types as type, i (type)}{#if i > 0},
+		{/if}<TypeLink {type} />{/each}
 {/snippet}
 
 <!-- Metadata -->
@@ -211,12 +227,7 @@ including parameters, props, members, overloads, intersects, and more.
 					<section>
 						<h5>snippet parameters</h5>
 						{#each prop.parameters as param (param)}
-							<div class="row gap_md">
-								<code
-									>{param.name}{#if param.optional}?{/if}</code
-								>
-								<TypeLink type={param.type} />
-							</div>
+							{@render param_row(param)}
 						{/each}
 					</section>
 				{/if}
@@ -238,12 +249,7 @@ including parameters, props, members, overloads, intersects, and more.
 				{/if}
 				{#if overload.parameters?.length}
 					{#each overload.parameters as param (param)}
-						<div class="row gap_md">
-							<code
-								>{param.name}{#if param.optional}?{/if}</code
-							>
-							<TypeLink type={param.type} />
-						</div>
+						{@render param_row(param)}
 					{/each}
 				{/if}
 				{#if overload.returnType}
@@ -264,11 +270,9 @@ including parameters, props, members, overloads, intersects, and more.
 {#if declaration.intersects?.length}
 	<section>
 		<h4>intersects</h4>
-		<ul>
-			{#each declaration.intersects as type (type)}
-				<li><TypeLink {type} /></li>
-			{/each}
-		</ul>
+		<div class="row gap_md flex-wrap:wrap">
+			{@render type_list(declaration.intersects)}
+		</div>
 	</section>
 {/if}
 
@@ -286,10 +290,13 @@ including parameters, props, members, overloads, intersects, and more.
 <!-- generics -->
 {#if declaration.generic_params.length}
 	<section>
-		<h4>generics</h4>
+		<div class="row gap_md">
+			<h4>generics</h4>
+			<TypeLink type={declaration.display_name} />
+		</div>
 		{#each declaration.generic_params as generic (generic)}
 			<section>
-				<h4><code>{generic.name}</code></h4>
+				<h5><code>{generic.name}</code></h5>
 				{#if generic.constraint}
 					<div class="row gap_md">
 						<strong>constraint</strong>
@@ -312,27 +319,19 @@ including parameters, props, members, overloads, intersects, and more.
 	<section>
 		<h4>inheritance</h4>
 		{#if declaration.extends_type}
-			<div>
+			<div class="row gap_md flex-wrap:wrap">
 				<strong>extends:</strong>
-				{#if Array.isArray(declaration.extends_type)}
-					<ul>
-						{#each declaration.extends_type as ext (ext)}
-							<li><TypeLink type={ext} /></li>
-						{/each}
-					</ul>
-				{:else}
-					<TypeLink type={declaration.extends_type} />
-				{/if}
+				{@render type_list(
+					Array.isArray(declaration.extends_type)
+						? declaration.extends_type
+						: [declaration.extends_type],
+				)}
 			</div>
 		{/if}
 		{#if declaration.implements_types?.length}
-			<div>
+			<div class="row gap_md flex-wrap:wrap">
 				<strong>implements:</strong>
-				<ul>
-					{#each declaration.implements_types as impl (impl)}
-						<li><TypeLink type={impl} /></li>
-					{/each}
-				</ul>
+				{@render type_list(declaration.implements_types)}
 			</div>
 		{/if}
 	</section>
@@ -465,3 +464,9 @@ including parameters, props, members, overloads, intersects, and more.
 		{/each}
 	</section>
 {/if}
+
+<style>
+	section section:not(:last-child) {
+		margin-bottom: var(--space_xl4);
+	}
+</style>
