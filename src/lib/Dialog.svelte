@@ -4,7 +4,7 @@
 	import {SvelteSet} from 'svelte/reactivity';
 	import {swallow} from '@fuzdev/fuz_util/dom.js';
 
-	import {dialog_context, type DialogContext, type DialogLayout} from './dialog.js';
+	import {dialog_context, type DialogContext, type DialogAlign} from './dialog.js';
 
 	/**
 	 * This component renders a native `<dialog>` opened with `showModal()`, which
@@ -14,7 +14,7 @@
 	 * on close -- all natively. The dim background is the native `::backdrop`.
 	 *
 	 * We render a full-viewport overlay inside the dialog rather than a content-sized
-	 * box, to preserve the scrolling and `layout="page"` behaviors. The content
+	 * box, to preserve the scrolling and `align="top"` behaviors. The content
 	 * surface itself is the consumer's -- pair this with `DialogContent` for the
 	 * default `.pane` card and gutter, or render your own surface in `children`.
 	 *
@@ -23,7 +23,7 @@
 
 	const {
 		show = true,
-		layout = 'centered',
+		align = 'center',
 		dismissable = true,
 		content_selector = '.pane',
 		onbeforeclose,
@@ -42,12 +42,12 @@
 		 */
 		show?: boolean;
 		/**
-		 * How the content is positioned in the viewport. `centered` vertically
-		 * centers it; `page` aligns it to the top and grows downward, which avoids
-		 * jank when the content's height changes.
-		 * @default 'centered'
+		 * How the content is aligned in the viewport. `center` vertically centers it;
+		 * `top` aligns it to the top and grows downward, which avoids jank when the
+		 * content's height changes.
+		 * @default 'center'
 		 */
-		layout?: DialogLayout;
+		align?: DialogAlign;
 		/**
 		 * Whether clicking outside the content (see `content_selector`) closes the
 		 * dialog. `Escape` closes it regardless of this.
@@ -148,7 +148,7 @@
 	<dialog
 		{...rest}
 		class="dialog {rest.class}"
-		class:layout-page={layout === 'page'}
+		class:align-top={align === 'top'}
 		{@attach setup_dialog}
 	>
 		<div class="dialog-layout">
@@ -184,6 +184,7 @@
 		/* reset the user-agent dialog styles; we render a full-viewport overlay */
 		max-width: none;
 		max-height: none;
+		/* width/height are needed despite `inset: 0` to make the dialog element fill the viewport */
 		width: 100%;
 		height: 100%;
 		margin: 0;
@@ -220,7 +221,7 @@
 		align-items: center;
 		justify-content: center;
 	}
-	.layout-page .dialog-wrapper {
+	.align-top .dialog-wrapper {
 		align-items: start;
 	}
 

@@ -10,7 +10,7 @@
 	import TomeLink from '$lib/TomeLink.svelte';
 	import MdnLink from '$lib/MdnLink.svelte';
 	import DeclarationLink from '$lib/DeclarationLink.svelte';
-	import {dialog_layouts, type DialogLayout} from '$lib/dialog.js';
+	import {dialog_aligns, type DialogAlign} from '$lib/dialog.js';
 
 	const TOME_SLUG = 'Dialog';
 
@@ -18,7 +18,7 @@
 
 	let opened = $state.raw(false);
 	let dialog_overflowing_opened = $state.raw(false);
-	let dialog_layout_page_opened = $state.raw(false);
+	let dialog_align_top_opened = $state.raw(false);
 	let dialog_nested_1_opened = $state.raw(false);
 	let dialog_nested_2_opened = $state.raw(false);
 	let dialog_nested_3_opened = $state.raw(false);
@@ -26,7 +26,7 @@
 	let dialog_guarded_opened = $state.raw(false);
 	let dirty = $state.raw(true);
 
-	let selected_layout: DialogLayout = $state.raw('page');
+	let selected_align: DialogAlign = $state.raw('top');
 
 	let items: Array<object> = $state.raw([]);
 	const remove_item = (item: object) => {
@@ -66,9 +66,9 @@
 		<button type="button" class="mb_lg" onclick={() => (dialog_overflowing_opened = true)}
 			>open a dialog that overflows vertically</button
 		>
-		<button type="button" class="mb_lg" onclick={() => (dialog_layout_page_opened = true)}
-			>open a dialog with <code>layout="page"</code> instead of the default
-			<code>layout='centered'</code></button
+		<button type="button" class="mb_lg" onclick={() => (dialog_align_top_opened = true)}
+			>open a dialog with <code>align="top"</code> instead of the default
+			<code>align='center'</code></button
 		>
 		<button type="button" class="mb_lg" onclick={() => (dialog_no_dismiss_opened = true)}
 			>open a dialog with <code>dismissable={'{false}'}</code> (no click-outside)</button
@@ -220,20 +220,17 @@
 		</DialogContent>
 	</Dialog>
 {/if}
-{#if dialog_layout_page_opened}
-	<Dialog
-		onclose={() => ((dialog_layout_page_opened = false), reset_items())}
-		layout={selected_layout}
-	>
+{#if dialog_align_top_opened}
+	<Dialog onclose={() => ((dialog_align_top_opened = false), reset_items())} align={selected_align}>
 		<DialogContent>
 			{#snippet children({close})}
-				{#if selected_layout === 'page'}
+				{#if selected_align === 'top'}
 					<p>
 						This is a <DeclarationLink name="Dialog" /> with
 						<code
-							>layout="<select bind:value={selected_layout} style:width="120px"
-								>{#each dialog_layouts as layout (layout)}
-									<option value={layout}>{layout}</option>
+							>align="<select bind:value={selected_align} style:width="120px"
+								>{#each dialog_aligns as align (align)}
+									<option value={align}>{align}</option>
 								{/each}
 							</select>"</code
 						>.
@@ -242,13 +239,13 @@
 						Instead of being centered by default, the dialog's contents are aligned to the top of
 						the page and grow downward. It's useful when the dialog's contents change in height.
 					</p>
-				{:else if selected_layout === 'centered'}
+				{:else if selected_align === 'center'}
 					<p>
 						This is a <DeclarationLink name="Dialog" /> with
 						<code
-							>layout="<select bind:value={selected_layout} style:width="120px"
-								>{#each dialog_layouts as layout (layout)}
-									<option value={layout}>{layout}</option>
+							>align="<select bind:value={selected_align} style:width="120px"
+								>{#each dialog_aligns as align (align)}
+									<option value={align}>{align}</option>
 								{/each}
 							</select>"</code
 						>, the default value.
@@ -258,7 +255,7 @@
 						height of the content changes as the user does things, leading to a janky experience.
 					</p>
 				{:else}
-					<Alert status="error">eek a bug! unknown layout "{selected_layout}"</Alert>
+					<Alert status="error">eek a bug! unknown align "{selected_align}"</Alert>
 				{/if}
 				<p>
 					<button type="button" onclick={() => add_item()}>add item</button>
@@ -269,7 +266,7 @@
 				{#each items as item (item)}
 					<p transition:slide>
 						<button type="button" onclick={() => remove_item(item)}>✕</button>
-						new stuff appears {#if selected_layout === 'page'}gracefully{:else if selected_layout === 'centered'}ungracefully{/if}
+						new stuff appears {#if selected_align === 'top'}gracefully{:else if selected_align === 'center'}ungracefully{/if}
 					</p>
 				{/each}
 				<button type="button" onclick={close}>close</button>

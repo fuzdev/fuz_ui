@@ -1,7 +1,7 @@
 import {create_context} from './context_helpers.js';
 
-export type DialogLayout = 'centered' | 'page';
-export const dialog_layouts: Array<DialogLayout> = ['centered', 'page'];
+export type DialogAlign = 'center' | 'top';
+export const dialog_aligns: Array<DialogAlign> = ['center', 'top'];
 
 /**
  * Set by `Dialog`, read by `DialogContent`. Lets the content surface close the
@@ -15,7 +15,7 @@ export interface DialogContext {
 	close: (e?: Event) => void;
 	/**
 	 * Registers a content-surface element so a press inside it isn't treated as an
-	 * outside-dismiss -- the surface is known by node identity, independent of any
+	 * outside-dismiss. The surface is known by node identity, independent of any
 	 * class. Use as an attachment on the surface: `{@attach register_surface}`.
 	 * Returns a cleanup that unregisters on unmount.
 	 */

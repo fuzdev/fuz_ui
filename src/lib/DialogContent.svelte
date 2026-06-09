@@ -49,8 +49,8 @@
 		 */
 		pane?: boolean;
 		/**
-		 * The gutter between the viewport edges and the `.pane` card: the area
-		 * outside the card where a press dismisses the dialog. Set to `''` to remove.
+		 * The gutter padding between the viewport edges and the `.pane` card: the area
+		 * outside the card where a press dismisses the dialog. Set to `''` or `'0'` to remove.
 		 * @default 'var(--space_xl3)'
 		 */
 		gutter?: string;
