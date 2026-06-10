@@ -29,12 +29,15 @@
 		<Code content={`<Svg data={icon_add} />`} />
 	</section>
 	<section>
-		<ul
-			class="display:flex flex-wrap:wrap justify-content:center gap_lg text-align:center unstyled"
-		>
+		<ul class="icon_grid text-align:center unstyled">
 			{#each icon_entries as entry (entry.name)}
 				<li>
-					<Svg data={entry.data} size="var(--icon_size_xl3)" />
+					<Svg
+						data={entry.data}
+						width="100%"
+						height="auto"
+						style="max-width: var(--icon_size_xl3)"
+					/>
 					<div class="icon_name">{entry.name}</div>
 				</li>
 			{/each}
@@ -43,8 +46,16 @@
 </TomeContent>
 
 <style>
-	li {
-		margin-bottom: var(--space_xl3);
+	/* Caps at 4 columns at full width, shrinking each cell down to a 150px
+	   minimum before reflowing to fewer columns. */
+	.icon_grid {
+		--icon_grid_gap: var(--space_lg);
+		display: grid;
+		grid-template-columns: repeat(
+			auto-fit,
+			minmax(max(200px, (100% - 3 * var(--icon_grid_gap)) / 4), 1fr)
+		);
+		gap: var(--icon_grid_gap);
 	}
 
 	li :global(svg) {

@@ -597,7 +597,7 @@ export const icon_session = {
 
 // --- Action Types ---
 
-export const icon_action_type_local_call = {
+export const icon_action_local_call = {
 	label: 'local call, lightning bolt to target',
 	paths: [
 		{
@@ -609,7 +609,7 @@ export const icon_action_type_local_call = {
 	],
 } satisfies SvgData;
 
-export const icon_action_type_remote_notification = {
+export const icon_action_remote_notification = {
 	label: 'remote notification, lightning bolt with signal',
 	paths: [
 		{
@@ -620,7 +620,7 @@ export const icon_action_type_remote_notification = {
 	],
 } satisfies SvgData;
 
-export const icon_action_type_request_response = {
+export const icon_action_request_response = {
 	label: 'request response, opposing lightning bolts',
 	paths: [
 		{
