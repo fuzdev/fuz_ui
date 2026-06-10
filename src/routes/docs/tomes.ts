@@ -248,7 +248,7 @@ export const tomes: Array<Tome> = [
 		category: 'components',
 		Component: Svg,
 		related_tomes: ['logos'],
-		related_modules: [],
+		related_modules: ['svg.ts'],
 		related_declarations: ['Svg'],
 	},
 	{

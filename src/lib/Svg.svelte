@@ -4,6 +4,29 @@
 
 	import type {SvgData} from './svg.js';
 
+	/**
+	 * Renders an `SvgData` icon definition to inline `svg` markup, never via `@html`.
+	 *
+	 * ## Security
+	 *
+	 * `SvgData` is rendered structurally into a fixed element set - `svg`, `defs`,
+	 * `linearGradient`/`radialGradient`, `stop`, and `path`. None of these expose a
+	 * navigation or script sink (no `src` or `foreignObject`, and a gradient `href`
+	 * only references another gradient as a template, never a document location),
+	 * and Svelte routes `on*` spread keys through `addEventListener` rather than
+	 * writing inline handler attributes. So even an untrusted `SvgData` cannot
+	 * introduce script execution or navigation - which is why the data is rendered
+	 * through typed fields (`paths`, `gradients`) instead of a raw-markup escape
+	 * hatch.
+	 *
+	 * The one residual: a `style` value (`data.style`, a path's `style`, or a
+	 * gradient's `attrs.style`) can still issue network requests via `url(...)`, so
+	 * sanitize styles if you render untrusted data and that matters. Per-instance
+	 * `svg` attributes come from this component's own props, not from `data`.
+	 *
+	 * @module
+	 */
+
 	const {
 		data,
 		fill,
@@ -44,29 +67,43 @@
 	const final_width = $derived(width ?? size); // TODO @many default value? `100%` or omitted or something else?
 	const final_height = $derived(height ?? size); // TODO @many default value? `100%` or omitted or something else?
 
-	// merge `style` so users don't accidentally clobber any style data - maybe support other attrs or somehow clean this up?
+	// merge `style` so the icon's own style and a per-instance `style` prop don't clobber each other
 	const style = $derived(
-		data.attrs?.style && rest.style
-			? ensure_end(data.attrs.style, ';') + ' ' + rest.style
-			: (data.attrs?.style ?? rest.style),
+		data.style && rest.style
+			? ensure_end(data.style, ';') + ' ' + rest.style
+			: (data.style ?? rest.style),
 	);
-
-	// TODO dont use @html
 </script>
 
 <svg
 	viewBox={data.viewBox ?? '0 0 100 100'}
-	{...data.attrs}
 	{...rest}
 	aria-label={label ?? data.label}
-	class="{data.attrs?.class} {rest.class}"
 	class:inline
 	style:width={final_width}
 	style:height={final_height}
 	style:flex-shrink={shrink ? 1 : 0}
 	{style}
 >
-	{#if data.raw}{@html data.raw}{/if}<!-- eslint-disable-line svelte/no-at-html-tags -->
+	{#if data.gradients}
+		<defs>
+			{#each data.gradients as gradient (gradient.id)}
+				{#if gradient.type === 'radial'}
+					<radialGradient id={gradient.id} {...gradient.attrs}>
+						{#each gradient.stops as stop (stop)}
+							<stop offset={stop.offset} stop-color={stop.color} stop-opacity={stop.opacity} />
+						{/each}
+					</radialGradient>
+				{:else}
+					<linearGradient id={gradient.id} {...gradient.attrs}>
+						{#each gradient.stops as stop (stop)}
+							<stop offset={stop.offset} stop-color={stop.color} stop-opacity={stop.opacity} />
+						{/each}
+					</linearGradient>
+				{/if}
+			{/each}
+		</defs>
+	{/if}
 	{#if data.paths}
 		{#each data.paths as path (path)}
 			<path fill={final_fill} {...path} />

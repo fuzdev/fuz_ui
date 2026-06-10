@@ -73,7 +73,7 @@ export const logo_fuz_css = {
 	label: 'a fuzzy tuft of green moss',
 	fill: '#3db33d',
 	paths: logo_fuz.paths,
-	attrs: {style: 'transform: scaleX(-1) rotate(180deg)'},
+	style: 'transform: scaleX(-1) rotate(180deg)',
 } satisfies SvgData;
 
 export const logo_fuz_ui = {

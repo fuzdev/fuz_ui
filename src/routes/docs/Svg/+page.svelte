@@ -7,10 +7,26 @@
 	import TomeSection from '$lib/TomeSection.svelte';
 	import TomeSectionHeader from '$lib/TomeSectionHeader.svelte';
 	import {logo_fuz, logo_github} from '$lib/logos.js';
-	import DeclarationLink from '$lib/DeclarationLink.svelte';
+	import type {SvgData} from '$lib/svg.js';
 
 	const TOME_SLUG = 'Svg';
 	const tome = tome_get_by_slug(TOME_SLUG);
+
+	const logo_fuz_gradient = {
+		label: 'a friendly green-to-blue gradient spider facing you',
+		fill: 'url(#logo_fuz_gradient)',
+		paths: logo_fuz.paths,
+		gradients: [
+			{
+				type: 'linear',
+				id: 'logo_fuz_gradient',
+				stops: [
+					{offset: '0%', color: '#3db33d'},
+					{offset: '100%', color: '#6199d1'},
+				],
+			},
+		],
+	} satisfies SvgData;
 </script>
 
 <!-- eslint-disable svelte/no-useless-mustaches -->
@@ -20,9 +36,6 @@
 		<!-- TODO make this a generic data-driven helper -->
 		<Code lang="ts" content={`import Svg from '@fuzdev/fuz_ui/Svg.svelte';`} />
 		<Code content={`<Svg data={logo_fuz} />`} />
-		<aside>
-			⚠️ <DeclarationLink name="Svg" /> currently uses <code>@html</code> but for security should not.
-		</aside>
 		<p>Fills available space by default:</p>
 		<Svg data={logo_fuz} />
 	</section>
@@ -66,6 +79,35 @@
 		/>
 		<p class="width_atmost_sm">
 			<span style:--text_color="var(--color_i_50)"><Svg data={logo_github} /></span>
+		</p>
+	</TomeSection>
+	<TomeSection>
+		<TomeSectionHeader text="With gradients" />
+		<p>
+			Define gradients on the data with <code>gradients</code> and reference them by id from a
+			<code>fill</code> or <code>stroke</code>:
+		</p>
+		<Code
+			lang="ts"
+			content={`const logo_fuz_gradient = {
+	label: 'a friendly green-to-blue gradient spider facing you',
+	fill: 'url(#logo_fuz_gradient)',
+	paths: logo_fuz.paths,
+	gradients: [
+		{
+			type: 'linear',
+			id: 'logo_fuz_gradient',
+			stops: [
+				{offset: '0%', color: '#3db33d'},
+				{offset: '100%', color: '#6199d1'},
+			],
+		},
+	],
+} satisfies SvgData;`}
+		/>
+		<Code content={`<Svg data={logo_fuz_gradient} />`} />
+		<p class="width_atmost_sm">
+			<Svg data={logo_fuz_gradient} />
 		</p>
 	</TomeSection>
 </TomeContent>
