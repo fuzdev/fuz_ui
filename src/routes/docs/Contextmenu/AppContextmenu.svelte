@@ -4,6 +4,7 @@
 	import ContextmenuSeparator from '$lib/ContextmenuSeparator.svelte';
 	import Svg from '$lib/Svg.svelte';
 	import {logo_github} from '$lib/logos.js';
+	import {icon_info} from '$lib/icons.js';
 
 	const {
 		toggle_about_dialog,
@@ -18,6 +19,6 @@
 </ContextmenuLinkEntry>
 <ContextmenuSeparator />
 <ContextmenuEntry run={toggle_about_dialog}>
-	{#snippet icon()}?{/snippet}
+	{#snippet icon()}<Svg data={icon_info} size="var(--icon_size_xs)" />{/snippet}
 	About
 </ContextmenuEntry>

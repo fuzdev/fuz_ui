@@ -183,6 +183,13 @@ export const icon_pause = {
 	],
 } satisfies SvgData;
 
+export const icon_stop = {
+	label: 'stop',
+	paths: [
+		{d: 'M30 23H70A7 7 0 0 1 77 30V70A7 7 0 0 1 70 77H30A7 7 0 0 1 23 70V30A7 7 0 0 1 30 23Z'},
+	],
+} satisfies SvgData;
+
 // --- Validation ---
 
 export const icon_checkmark = {

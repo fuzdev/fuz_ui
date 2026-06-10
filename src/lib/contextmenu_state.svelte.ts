@@ -9,6 +9,8 @@ import type {Attachment} from 'svelte/attachments';
 import {Dimensions} from './dimensions.svelte.js';
 import {create_context} from './context_helpers.js';
 import {url_to_root_relative} from './library_helpers.js';
+import {icon_copy} from './icons.js';
+import type {SvgData} from './svg.js';
 
 export const contextmenu_context = create_context<() => ContextmenuState>();
 
@@ -20,7 +22,7 @@ export type ContextmenuParams =
 	| Snippet
 	// TODO maybe this should be generic?
 	| {snippet: 'link'; props: {href: string; icon?: string}}
-	| {snippet: 'text'; props: {content: string; icon: string; run: ContextmenuRun}}
+	| {snippet: 'text'; props: {content: string; icon: SvgData | string; run: ContextmenuRun}}
 	| {snippet: 'separator'; props: SvelteHTMLElements['li']};
 
 export type ContextmenuActivateResult =
@@ -470,7 +472,7 @@ const contextmenu_query_params = (
 				snippet: 'text',
 				props: {
 					content: 'copy text',
-					icon: '📋',
+					icon: icon_copy,
 					run: async () => {
 						await navigator.clipboard.writeText(text);
 					},
