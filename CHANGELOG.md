@@ -1,10 +1,21 @@
 # @fuzdev/fuz_ui
 
+## 0.202.0
+
+### Minor Changes
+
+- security: remove `raw` from `SvgData`, add `style` and `gradient` ([7a57c58](https://github.com/fuzdev/fuz_ui/commit/7a57c58))
+- feat: add svg icons ([#122](https://github.com/fuzdev/fuz_ui/pull/122))
+
+### Patch Changes
+
+- refactor: use `DialogContent` for the `Docs` menu ([237714d](https://github.com/fuzdev/fuz_ui/commit/237714d))
+
 ## 0.201.0
 
 ### Minor Changes
 
-- refactor: use the native `<dialog>` element in `Dialog` ([#71](https://github.com/fuzdev/fuz_ui/pull/71))
+- use the native `<dialog>` element in `Dialog` ([#71](https://github.com/fuzdev/fuz_ui/pull/71)) ([refactor](https://github.com/fuzdev/fuz_ui/commit/refactor))
   - `Dialog` now renders a native `<dialog>` opened with `showModal()`, so it traps focus, closes on Escape, restores focus, and dims the page natively -- no more `Teleport`
   - breaking: remove the `active` and `container` props, the `Dialogs` component, and the `DialogParams` type and `to_dialog_params` helper
   - breaking: pair `Dialog` with the new `DialogContent` (or render your own surface in `children`); the `children` snippet now receives a context object, so destructure `close` from it: `{#snippet children({close})}`
