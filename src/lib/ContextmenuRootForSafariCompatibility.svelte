@@ -50,8 +50,8 @@
 		contextmenu_create_mousedown_handler,
 		contextmenu_calculate_constrained_x,
 		contextmenu_calculate_constrained_y,
-		contextmenu_open_from_event,
 		contextmenu_popover_attachment,
+		contextmenu_resolve_contextmenu_event,
 		ContextmenuBypassTracker,
 		ContextmenuOpenGuard,
 	} from './contextmenu_helpers.js';
@@ -221,16 +221,8 @@
 			swallow(e);
 			return;
 		}
-		if (contextmenu_open_from_event(e, contextmenu, el, open_options)) {
-			// guard the menu from the residual events of the gesture that opened it
-			open_guard.opened();
+		if (contextmenu_resolve_contextmenu_event(e, contextmenu, el, open_guard, open_options)) {
 			reset_all(); // handle touch devices that trigger `'contextmenu'` faster than our longpress
-		} else if (contextmenu.opened && el && !el.contains(e.target as Node | null)) {
-			// The right-click didn't (re)open the menu - invalid target, shift bypass,
-			// or no entries - so close ours and let the system contextmenu show.
-			// Secondary-button presses never close via the mousedown handler;
-			// this is where their gesture resolves.
-			contextmenu.close();
 		}
 	};
 
@@ -377,7 +369,6 @@
 	oncontextmenu={scoped ? undefined : on_window_contextmenu}
 	onmousedown={!contextmenu.opened ? undefined : mousedown}
 	onkeydown={!contextmenu.opened ? undefined : keydown}
-	onmousedowncapture={(e) => open_guard.track_mousedown(e)}
 	onmouseupcapture={(e) => open_guard.track_mouseup(e)}
 	{@attach scoped ? undefined : touch_event_attachment}
 />

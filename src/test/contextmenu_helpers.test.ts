@@ -14,6 +14,7 @@ import {
 	contextmenu_is_valid_target,
 	contextmenu_open_from_event,
 	contextmenu_popover_attachment,
+	contextmenu_resolve_contextmenu_event,
 	contextmenu_resolve_popover_host,
 	CONTEXTMENU_DEFAULT_OPEN_OFFSET_X,
 	CONTEXTMENU_DEFAULT_OPEN_OFFSET_Y,
@@ -500,18 +501,23 @@ describe('ContextmenuOpenGuard', () => {
 	});
 });
 
+const create_button_event = (
+	type: string,
+	button: number,
+	time_stamp: number,
+	init?: {buttons?: number; shiftKey?: boolean},
+): MouseEvent => {
+	const e = create_mouse_event(type, {bubbles: true, cancelable: true, button, ...init});
+	set_event_time(e, time_stamp);
+	return e;
+};
+
 describe('ContextmenuOpenGuard - gesture causality', () => {
 	let guard: ContextmenuOpenGuard;
 
 	beforeEach(() => {
 		guard = new ContextmenuOpenGuard();
 	});
-
-	const create_button_event = (type: string, button: number, time_stamp: number): MouseEvent => {
-		const e = create_mouse_event(type, {bubbles: true, cancelable: true, button});
-		set_event_time(e, time_stamp);
-		return e;
-	};
 
 	test('secondary-button presses always belong to the gesture', () => {
 		assert.strictEqual(
@@ -521,10 +527,9 @@ describe('ContextmenuOpenGuard - gesture causality', () => {
 	});
 
 	test('a press while the secondary button is held belongs to the gesture', () => {
-		guard.track_mousedown(create_button_event('mousedown', 2, 1000));
-
+		// the press's own `buttons` bitmask carries the still-held secondary button
 		assert.strictEqual(
-			guard.press_belongs_to_open_gesture(create_button_event('mousedown', 0, 1022)),
+			guard.press_belongs_to_open_gesture(create_button_event('mousedown', 0, 1022, {buttons: 3})),
 			true,
 		);
 	});
@@ -533,7 +538,6 @@ describe('ContextmenuOpenGuard - gesture causality', () => {
 		// The overlap artifact: a tap-style device registers a primary press during the
 		// right-click; the compositor serializes delivery after the right button's release,
 		// but the hardware timestamps overlap.
-		guard.track_mousedown(create_button_event('mousedown', 2, 1000));
 		guard.track_mouseup(create_button_event('mouseup', 2, 1074));
 
 		assert.strictEqual(
@@ -543,12 +547,20 @@ describe('ContextmenuOpenGuard - gesture causality', () => {
 	});
 
 	test('a sequential press after the secondary release is deliberate, however fast', () => {
-		guard.track_mousedown(create_button_event('mousedown', 2, 1000));
 		guard.track_mouseup(create_button_event('mouseup', 2, 1074));
 
 		// 1ms after the release - a power user's muscle-memory right-then-left click
 		assert.strictEqual(
 			guard.press_belongs_to_open_gesture(create_button_event('mousedown', 0, 1075)),
+			false,
+		);
+	});
+
+	test('non-secondary releases do not set the overlap boundary', () => {
+		guard.track_mouseup(create_button_event('mouseup', 0, 1074));
+
+		assert.strictEqual(
+			guard.press_belongs_to_open_gesture(create_button_event('mousedown', 0, 1022)),
 			false,
 		);
 	});
@@ -579,7 +591,6 @@ describe('ContextmenuOpenGuard - gesture causality', () => {
 	});
 
 	test('a gesture press on the menu blocks the resulting click exactly once', () => {
-		guard.track_mousedown(create_button_event('mousedown', 2, 1000));
 		guard.track_mouseup(create_button_event('mouseup', 2, 1074));
 
 		guard.mousedown_on_menu(create_button_event('mousedown', 0, 1022));
@@ -588,24 +599,167 @@ describe('ContextmenuOpenGuard - gesture causality', () => {
 	});
 
 	test('a deliberate press on the menu does not block', () => {
-		guard.track_mousedown(create_button_event('mousedown', 2, 1000));
 		guard.track_mouseup(create_button_event('mouseup', 2, 1074));
 
 		guard.mousedown_on_menu(create_button_event('mousedown', 0, 1200));
 		assert.strictEqual(guard.consume_blocked_click(), false);
 	});
 
-	test('reset clears the click blocker but preserves physical button tracking', () => {
-		guard.track_mousedown(create_button_event('mousedown', 2, 1000));
+	test('reset clears the click blocker but preserves release tracking', () => {
+		guard.track_mouseup(create_button_event('mouseup', 2, 1074));
 		guard.mousedown_on_menu(create_button_event('mousedown', 0, 1022));
 		guard.reset();
 
 		assert.strictEqual(guard.consume_blocked_click(), false);
-		// the secondary button is still physically down
+		// the release timestamp persists - it mirrors hardware history, not gesture state
 		assert.strictEqual(
-			guard.press_belongs_to_open_gesture(create_button_event('mousedown', 0, 2000)),
+			guard.press_belongs_to_open_gesture(create_button_event('mousedown', 0, 1050)),
 			true,
 		);
+	});
+
+	test('a press after an unresolved right-click still reads as deliberate', () => {
+		// The native menu's pointer grab swallowed the secondary release (and in
+		// Firefox, shift+rightclick suppresses the `contextmenu` event too) - nothing
+		// was tracked, and the next press's own `buttons` shows the button is up.
+		guard.mousedown_on_menu(create_button_event('mousedown', 2, 1000, {buttons: 2}));
+
+		assert.strictEqual(
+			guard.press_belongs_to_open_gesture(create_button_event('mousedown', 0, 5000, {buttons: 1})),
+			false,
+		);
+	});
+
+	test('a non-primary gesture press on the menu does not arm the click blocker', () => {
+		// a right-press on the menu produces no `click` - arming would leave the
+		// blocker to eat the next deliberate click on an entry
+		guard.mousedown_on_menu(create_button_event('mousedown', 2, 1000, {buttons: 2}));
+
+		assert.strictEqual(guard.consume_blocked_click(), false);
+	});
+});
+
+describe('contextmenu_resolve_contextmenu_event', () => {
+	let contextmenu: ContextmenuState;
+	let open_guard: ContextmenuOpenGuard;
+	let target: HTMLElement;
+	let menu_el: HTMLElement;
+	let cleanup: (() => void) | void;
+
+	const test_params = [
+		{snippet: 'text' as const, props: {content: 'Test', icon: '🧪', run: () => undefined}},
+	];
+
+	beforeEach(() => {
+		contextmenu = new ContextmenuState();
+		open_guard = new ContextmenuOpenGuard();
+		target = document.createElement('div');
+		document.body.appendChild(target);
+		cleanup = contextmenu_attachment(test_params)(target);
+		menu_el = document.createElement('ul');
+		document.body.appendChild(menu_el);
+	});
+
+	afterEach(() => {
+		if (cleanup) cleanup();
+		target.remove();
+		menu_el.remove();
+	});
+
+	const dispatch = (event_target: EventTarget, time: number, shift = false): boolean => {
+		const e = create_contextmenu_event(100, 100, {shiftKey: shift});
+		set_event_target(e, event_target);
+		set_event_time(e, time);
+		return contextmenu_resolve_contextmenu_event(e, contextmenu, menu_el, open_guard);
+	};
+
+	test('opens the menu from a valid target', () => {
+		assert.strictEqual(dispatch(target, 1000), true);
+		assert.strictEqual(contextmenu.opened, true);
+	});
+
+	test('a right-click on another valid target reopens there', () => {
+		assert.strictEqual(dispatch(target, 1000), true);
+		assert.strictEqual(contextmenu.target, target);
+
+		const target_2 = document.createElement('div');
+		document.body.appendChild(target_2);
+		const cleanup_2 = contextmenu_attachment(test_params)(target_2);
+
+		assert.strictEqual(dispatch(target_2, 2000), true);
+		assert.strictEqual(contextmenu.opened, true);
+		assert.strictEqual(contextmenu.target, target_2);
+
+		cleanup_2?.();
+		target_2.remove();
+	});
+
+	test('an unhandled right-click outside the open menu closes it for the native menu', () => {
+		assert.strictEqual(dispatch(target, 1000), true);
+
+		// shift bypasses ours, so the native menu shows instead
+		assert.strictEqual(dispatch(target, 2000, true), false);
+		assert.strictEqual(contextmenu.opened, false);
+	});
+
+	// Reproduces right-clicking the open menu: the native contextmenu shows over ours,
+	// and its pointer grab swallows the secondary button's release on platforms where
+	// it opens on mousedown. With no release ever delivered, dismissal must rely on the
+	// next press's own `buttons` state - tracked-flag bookkeeping wedged stuck here.
+	test('right-click on the menu keeps it open and a later press still dismisses', () => {
+		const mousedown = contextmenu_create_mousedown_handler(contextmenu, () => menu_el, open_guard);
+
+		// the opening right-click: contextmenu (swallowed, ours opens), release
+		assert.strictEqual(dispatch(target, 1000), true);
+		open_guard.track_mouseup(create_button_event('mouseup', 2, 1050));
+
+		// right-click ON the menu: ours stays open, the native menu shows,
+		// and its release is never delivered
+		const entry = document.createElement('li');
+		menu_el.appendChild(entry);
+		const right_press = create_button_event('mousedown', 2, 2000, {buttons: 2});
+		set_event_target(right_press, entry);
+		mousedown(right_press);
+		assert.strictEqual(dispatch(entry, 2000), false);
+		assert.strictEqual(contextmenu.opened, true);
+		// the right-press produced no `click`, so it must not arm the click blocker -
+		// the next deliberate click on an entry has to activate it
+		assert.strictEqual(open_guard.consume_blocked_click(), false);
+
+		// a later primary press outside dismisses normally
+		const press = create_button_event('mousedown', 0, 3000, {buttons: 1});
+		set_event_target(press, target);
+		mousedown(press);
+		assert.strictEqual(contextmenu.opened, false);
+	});
+
+	// In Firefox, shift+rightclick never fires a `contextmenu` event at all (a
+	// user-agency feature guaranteeing the native menu), so the gesture can't resolve
+	// in the roots' handlers - the press itself must close the menu.
+	test('shift+rightclick outside the open menu closes it on the press', () => {
+		const mousedown = contextmenu_create_mousedown_handler(contextmenu, () => menu_el, open_guard);
+
+		assert.strictEqual(dispatch(target, 1000), true);
+		open_guard.track_mouseup(create_button_event('mouseup', 2, 1050));
+
+		const press = create_button_event('mousedown', 2, 2000, {buttons: 2, shiftKey: true});
+		set_event_target(press, target);
+		mousedown(press);
+		assert.strictEqual(contextmenu.opened, false);
+	});
+
+	test('shift+rightclick on the menu itself does not close it', () => {
+		const mousedown = contextmenu_create_mousedown_handler(contextmenu, () => menu_el, open_guard);
+
+		assert.strictEqual(dispatch(target, 1000), true);
+		open_guard.track_mouseup(create_button_event('mouseup', 2, 1050));
+
+		const entry = document.createElement('li');
+		menu_el.appendChild(entry);
+		const press = create_button_event('mousedown', 2, 2000, {buttons: 2, shiftKey: true});
+		set_event_target(press, entry);
+		mousedown(press);
+		assert.strictEqual(contextmenu.opened, true);
 	});
 });
 
@@ -666,11 +820,10 @@ describe('contextmenu_popover_attachment', () => {
 		const show_popover = vi.fn();
 		el.showPopover = show_popover;
 
-		const cleanup = contextmenu_popover_attachment(contextmenu)(el);
+		contextmenu_popover_attachment(contextmenu)(el);
 
 		assert.strictEqual(show_popover.mock.calls.length, 1);
 		assert.strictEqual(el.parentNode, document.body);
-		assert.strictEqual(cleanup, undefined);
 	});
 
 	test('reparents into the modal dialog before showing and closes the menu with it', () => {

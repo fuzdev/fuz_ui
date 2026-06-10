@@ -433,6 +433,58 @@ describe('ContextmenuRoot - Reopen Gesture Ordering', () => {
 		assert.strictEqual(contextmenu.opened, true);
 		cleanup();
 	});
+
+	test('shift+rightclick closes the open menu on the press', () => {
+		const {contextmenu, target_a, target_b, dispatch, cleanup} = setup();
+		dispatch(create_contextmenu_event(100, 100), target_a, true, 1000);
+		assert.strictEqual(contextmenu.opened, true);
+
+		// Firefox never fires `contextmenu` for shift+rightclick, so the press itself
+		// must close the menu for the native menu.
+		dispatch(
+			create_mouse_event('mousedown', {
+				bubbles: true,
+				cancelable: true,
+				button: 2,
+				buttons: 2,
+				shiftKey: true,
+			}),
+			target_b,
+			true,
+			1500,
+		);
+		assert.strictEqual(contextmenu.opened, false);
+		cleanup();
+	});
+
+	test('dismissal survives a right-click whose release the native menu swallowed', () => {
+		const {contextmenu, target_a, target_b, dispatch, cleanup} = setup();
+		dispatch(create_contextmenu_event(100, 100), target_a, true, 1000);
+		assert.strictEqual(contextmenu.opened, true);
+
+		// Right-click ON the open menu: the native menu shows over ours, and its
+		// pointer grab eats the right button's mouseup - the page never sees the release.
+		const menu = document.querySelector('.contextmenu');
+		assert.ok(menu);
+		dispatch(
+			create_mouse_event('mousedown', {bubbles: true, cancelable: true, button: 2, buttons: 2}),
+			menu,
+			true,
+			1500,
+		);
+		dispatch(create_contextmenu_event(300, 300), menu, true, 1500);
+		assert.strictEqual(contextmenu.opened, true);
+
+		// the next primary press dismisses - no stale tracked state to wedge
+		dispatch(
+			create_mouse_event('mousedown', {bubbles: true, cancelable: true, button: 0, buttons: 1}),
+			target_b,
+			true,
+			3000,
+		);
+		assert.strictEqual(contextmenu.opened, false);
+		cleanup();
+	});
 });
 
 describe('ContextmenuRoot - Overlapping Press On Open', () => {

@@ -45,8 +45,8 @@
 		contextmenu_create_mousedown_handler,
 		contextmenu_calculate_constrained_x,
 		contextmenu_calculate_constrained_y,
-		contextmenu_open_from_event,
 		contextmenu_popover_attachment,
+		contextmenu_resolve_contextmenu_event,
 		ContextmenuBypassTracker,
 		ContextmenuOpenGuard,
 	} from './contextmenu_helpers.js';
@@ -149,16 +149,7 @@
 	const on_window_contextmenu = (e: MouseEvent) => {
 		// let the system contextmenu through after a tap-then-longpress bypass gesture
 		if (bypass_tracker.consume()) return;
-		if (contextmenu_open_from_event(e, contextmenu, el, open_options)) {
-			// guard the menu from the residual events of the gesture that opened it
-			open_guard.opened();
-		} else if (contextmenu.opened && el && !el.contains(e.target as Node | null)) {
-			// The right-click didn't (re)open the menu - invalid target, shift bypass,
-			// or no entries - so close ours and let the system contextmenu show.
-			// Secondary-button presses never close via the mousedown handler;
-			// this is where their gesture resolves.
-			contextmenu.close();
-		}
+		contextmenu_resolve_contextmenu_event(e, contextmenu, el, open_guard, open_options);
 	};
 
 	/**
@@ -222,7 +213,6 @@
 	oncontextmenu={scoped ? undefined : on_window_contextmenu}
 	onmousedown={!contextmenu.opened ? undefined : mousedown}
 	onkeydown={!contextmenu.opened ? undefined : keydown}
-	onmousedowncapture={(e) => open_guard.track_mousedown(e)}
 	onmouseupcapture={(e) => open_guard.track_mouseup(e)}
 	ontouchstartcapture={scoped ? undefined : touchstart}
 	ontouchendcapture={scoped ? undefined : touchend}

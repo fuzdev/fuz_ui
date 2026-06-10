@@ -118,13 +118,55 @@ export const contextmenu_open_from_event = (
 };
 
 /**
+ * Resolves a `contextmenu` event: opens the menu from the event target when possible
+ * (arming `open_guard` against the gesture's residual events), otherwise lets the
+ * native contextmenu show - closing ours unless the press was on the menu itself.
+ *
+ * Shared by `ContextmenuRoot.svelte` and `ContextmenuRootForSafariCompatibility.svelte`,
+ * after their root-specific bypass and longpress handling.
+ *
+ * @param e - the `contextmenu` event
+ * @param contextmenu - the contextmenu store
+ * @param menu_el - the open menu element, if any
+ * @param open_guard - guard that identifies presses belonging to the gesture that opened the menu
+ * @param options - offsets and entry filtering forwarded to `contextmenu_open`
+ * @returns whether the contextmenu was opened
+ */
+export const contextmenu_resolve_contextmenu_event = (
+	e: MouseEvent,
+	contextmenu: ContextmenuState,
+	menu_el: HTMLElement | undefined,
+	open_guard: ContextmenuOpenGuard,
+	options?: ContextmenuOpenFromEventOptions,
+): boolean => {
+	if (contextmenu_open_from_event(e, contextmenu, menu_el, options)) {
+		// guard the menu from the residual events of the gesture that opened it
+		open_guard.opened();
+		return true;
+	}
+	// The right-click didn't (re)open the menu - a press on the menu itself, an invalid
+	// target, shift bypass, or no entries - so the native contextmenu shows.
+	if (contextmenu.opened && menu_el && !menu_el.contains(e.target as Node | null)) {
+		// Close ours and let the native contextmenu show. Unmodified secondary-button
+		// presses never close via the mousedown handler; this is where their gesture
+		// resolves (shift+rightclick closes on the press - Firefox suppresses its
+		// `contextmenu` event entirely).
+		contextmenu.close();
+	}
+	return false;
+};
+
+/**
  * Creates a `mousedown` handler that closes the contextmenu when pressing outside of
  * the menu element, deferring to `open_guard` for presses that belong to the gesture
  * that opened the menu: gesture presses outside don't close, and gesture presses on the
  * menu arm the click blocker instead of activating the entry under the pointer.
- * Secondary-button presses never close here - their own `contextmenu` event resolves
- * the menu in the roots' handlers (reopening it elsewhere, or closing it when there's
- * nothing to open).
+ *
+ * Secondary-button presses outside the menu never close here - their own `contextmenu`
+ * event resolves the menu in the roots' handlers (reopening it elsewhere, or closing it
+ * when there's nothing to open) - with one exception: shift+rightclick, an explicit
+ * native-menu request whose `contextmenu` event Firefox suppresses entirely, closes on
+ * the press itself.
  *
  * Registered on the window during the bubble phase deliberately -
  * consumers keep the menu open through a press by swallowing the event
@@ -150,6 +192,13 @@ export const contextmenu_create_mousedown_handler =
 		if (menu_el.contains(e.target as Node | null)) {
 			// a press on the menu belonging to the opening gesture must not click-activate
 			open_guard?.mousedown_on_menu(e);
+			return;
+		}
+		// A shift+rightclick is an explicit native-menu request that our handlers may
+		// never see resolve - Firefox suppresses its `contextmenu` event entirely - so
+		// close on the press itself, matching the unsuppressed outcome in other browsers.
+		if (e.button === 2 && e.shiftKey) {
+			contextmenu.close();
 			return;
 		}
 		// Presses belonging to the opening gesture must not close the menu. This includes
@@ -236,11 +285,15 @@ export const contextmenu_popover_attachment =
  * compositor serializes the event stream, but the press's hardware `timeStamp` falls
  * inside the gesture, and its delivery can lag long after the menu opened. Because the
  * open offsets place the first menu item under the pointer, that press's `click` would
- * activate the entry. `track_mousedown`/`track_mouseup` follow the physical secondary
- * button, and `press_belongs_to_open_gesture` identifies overlap presses exactly:
- * a press is part of the gesture iff the secondary button is still down or the press's
- * `timeStamp` predates the secondary button's release. A deliberate right-then-left
- * click - however fast - is sequential in hardware time and is never blocked.
+ * activate the entry. `press_belongs_to_open_gesture` identifies overlap presses
+ * exactly: the press's own `buttons` bitmask shows the secondary button still down
+ * at generation time, or its `timeStamp` predates the release tracked by
+ * `track_mouseup`. No pressed-state is tracked across events deliberately: the native
+ * contextmenu's pointer grab swallows the secondary `mouseup` whenever it opens
+ * (right-click on our menu, shift+rightclick - which in Firefox doesn't even fire
+ * the `contextmenu` event), so a tracked flag wedges stuck, while the judged press's
+ * own `buttons` self-corrects. A deliberate right-then-left click - however fast -
+ * is sequential in hardware time and is never blocked.
  *
  * Plain DOM-event bookkeeping with no reactive state - used only inside event handlers
  * by `ContextmenuRoot.svelte` and `ContextmenuRootForSafariCompatibility.svelte`.
@@ -249,7 +302,6 @@ export class ContextmenuOpenGuard {
 	#touch_active = false;
 	#opened_by_touch = false;
 	#block_next_click = false;
-	#secondary_down = false;
 	#last_secondary_up_time = -Infinity;
 	#last_touch_end_time = -Infinity;
 
@@ -271,20 +323,13 @@ export class ContextmenuOpenGuard {
 	}
 
 	/**
-	 * Tracks the physical secondary button - call from an always-on
-	 * window `mousedown` capture listener.
-	 */
-	track_mousedown(e: MouseEvent): void {
-		if (e.button === 2) this.#secondary_down = true;
-	}
-
-	/**
-	 * Tracks the physical secondary button - call from an always-on
-	 * window `mouseup` capture listener.
+	 * Tracks the physical secondary button's release - call from an always-on
+	 * window `mouseup` capture listener. The release may never be delivered
+	 * (the native contextmenu's pointer grab eats it), which is why
+	 * `press_belongs_to_open_gesture` never depends on it alone.
 	 */
 	track_mouseup(e: MouseEvent): void {
 		if (e.button === 2) {
-			this.#secondary_down = false;
 			this.#last_secondary_up_time = e.timeStamp;
 		}
 	}
@@ -294,21 +339,25 @@ export class ContextmenuOpenGuard {
 	 * rather than being a deliberate response to it:
 	 * secondary-button presses (their own `contextmenu` event resolves them),
 	 * presses during or predating an active touch (synthesized compatibility events),
-	 * and presses overlapping the secondary button in hardware time.
+	 * and presses overlapping the secondary button in hardware time - the press's
+	 * own `buttons` bitmask shows the secondary button still down at generation
+	 * time, or its `timeStamp` predates the release tracked by `track_mouseup`.
 	 */
 	press_belongs_to_open_gesture(e: MouseEvent): boolean {
 		if (e.button === 2) return true;
 		if (this.#touch_active || e.timeStamp <= this.#last_touch_end_time) return true;
-		return this.#secondary_down || e.timeStamp <= this.#last_secondary_up_time;
+		return (e.buttons & 2) !== 0 || e.timeStamp <= this.#last_secondary_up_time;
 	}
 
 	/**
-	 * Handles a `mousedown` that landed on the menu element: when the press belongs to
-	 * the opening gesture, its `click` is blocked from activating the entry that the
-	 * open offsets placed under the pointer.
+	 * Handles a `mousedown` that landed on the menu element: when a primary-button
+	 * press belongs to the opening gesture, its `click` is blocked from activating the
+	 * entry that the open offsets placed under the pointer. Non-primary presses never
+	 * arm the blocker - they produce no `click`, so an armed blocker would linger and
+	 * eat the next deliberate click on the menu.
 	 */
 	mousedown_on_menu(e: MouseEvent): void {
-		if (this.press_belongs_to_open_gesture(e)) {
+		if (e.button === 0 && this.press_belongs_to_open_gesture(e)) {
 			this.#block_next_click = true;
 		}
 	}
@@ -330,7 +379,8 @@ export class ContextmenuOpenGuard {
 
 	/**
 	 * Clears gesture state, including any armed click blocker. Call on `touchcancel`.
-	 * Physical button tracking persists - it mirrors hardware state, not gesture state.
+	 * The secondary release timestamp persists - it mirrors hardware history,
+	 * not gesture state.
 	 */
 	reset(): void {
 		this.#touch_active = false;
