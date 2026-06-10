@@ -27,7 +27,9 @@
 				{#snippet icon()}🐈‍⬛{/snippet}
 				call
 			</ContextmenuEntry>
-			<ContextmenuSeparator />
+			{#if home_cats.length > 0}
+				<ContextmenuSeparator />
+			{/if}
 		{/if}
 		{#each home_cats as cat (cat.name)}
 			<CatContextmenu name={cat.name} icon={cat.icon} position={cat.position} {act} />
