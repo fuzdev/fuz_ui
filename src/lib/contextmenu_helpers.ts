@@ -1,5 +1,6 @@
 import {is_editable, swallow, inside_editable} from '@fuzdev/fuz_util/dom.js';
 import {EMPTY_OBJECT} from '@fuzdev/fuz_util/object.js';
+import type {Attachment} from 'svelte/attachments';
 
 import {
 	contextmenu_open,
@@ -159,9 +160,36 @@ export const contextmenu_create_mousedown_handler =
 	};
 
 /**
- * Shows the contextmenu element as a manual popover, promoting it into the top layer
- * so it stacks above modal `<dialog>` elements (e.g. `Dialog.svelte`) and stays interactive
- * despite the modal's inert-ness - top-layer elements paint in insertion order.
+ * Resolves the element that must host the contextmenu popover for it to stay
+ * interactive: the modal `<dialog>` containing `target`, if any.
+ *
+ * A modal dialog makes every element outside its subtree inert, and the top layer
+ * fixes painting order, not inertness - so a popover shown from outside the dialog
+ * paints above it but receives no pointer or focus events (hit-testing skips inert
+ * elements). Only the topmost modal dialog's subtree is interactive, so the dialog
+ * containing the menu's open target is by construction the one the menu must join.
+ *
+ * @param target - the element the menu was opened from
+ * @returns the modal dialog to reparent the menu into, or `null` when the menu
+ * doesn't need a host
+ */
+export const contextmenu_resolve_popover_host = (
+	target: HTMLElement | SVGElement | undefined,
+): HTMLDialogElement | null =>
+	(target?.closest('dialog:modal') as HTMLDialogElement | null) ?? null;
+
+/**
+ * Creates an attachment that shows the contextmenu element as a manual popover,
+ * promoting it into the top layer so it paints above modal `<dialog>` elements
+ * (e.g. `Dialog.svelte`) - top-layer elements paint in insertion order.
+ *
+ * Painting is only half of it: a modal dialog also makes everything outside its
+ * subtree inert. When the menu opens from inside a modal dialog, the menu element
+ * is reparented into that dialog (see `contextmenu_resolve_popover_host`) so it
+ * escapes the inert-ness and stays interactive - top-layer positioning is relative
+ * to the viewport regardless of ancestors, so the menu's fixed coordinates are
+ * unaffected. The host dialog's `close` also closes the menu, since the menu's DOM
+ * node vanishes with the dialog.
  *
  * No-ops where the Popover API is unavailable (older browsers, jsdom),
  * falling back to `--contextmenu_z_index` stacking - the menu then renders
@@ -170,9 +198,25 @@ export const contextmenu_create_mousedown_handler =
  * Used with the `popover="manual"` attribute - `"manual"` rather than `"auto"`
  * so opening, closing, and keyboard handling stay fully owned by `ContextmenuState`.
  */
-export const contextmenu_popover_attachment = (el: HTMLElement): void => {
-	if (el.showPopover) el.showPopover();
-};
+export const contextmenu_popover_attachment =
+	(contextmenu: ContextmenuState): Attachment<HTMLElement> =>
+	(el) => {
+		if (!el.showPopover) return;
+		const host = contextmenu_resolve_popover_host(contextmenu.target);
+		// reparent before showing - moving a shown popover would hide it
+		if (host) host.appendChild(el);
+		// guard the reactive re-run when the `contextmenu` prop changes identity -
+		// `showPopover()` throws on an already-shown popover
+		if (!el.matches(':popover-open')) el.showPopover();
+		if (!host) return;
+		const onclose = () => {
+			contextmenu.close();
+		};
+		host.addEventListener('close', onclose);
+		return () => {
+			host.removeEventListener('close', onclose);
+		};
+	};
 
 /**
  * Guards the menu from the residual events of the gesture that opened it,

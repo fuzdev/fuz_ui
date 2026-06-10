@@ -262,7 +262,7 @@
 		aria-label="context menu"
 		tabindex="-1"
 		popover="manual"
-		{@attach contextmenu_popover_attachment}
+		{@attach contextmenu_popover_attachment(contextmenu)}
 		bind:this={el}
 		bind:offsetWidth={dimensions.width}
 		bind:offsetHeight={dimensions.height}

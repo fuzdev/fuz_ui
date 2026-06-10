@@ -151,6 +151,14 @@ export class ContextmenuState {
 	params: ReadonlyArray<ContextmenuParams> = $state.raw([]);
 	error: string | undefined = $state.raw();
 
+	/**
+	 * The element the menu was opened from, while opened, else `undefined`.
+	 * Resolves the popover host when the menu opens inside a modal `<dialog>` -
+	 * see `contextmenu_resolve_popover_host`. Deliberately not reactive -
+	 * read it in event handlers and attachments, not in templates.
+	 */
+	target: HTMLElement | SVGElement | undefined = undefined;
+
 	// These arrays use immutable updates (reassignment, not mutation) - readers can depend
 	// on snapshot identity, and `ContextmenuItemsState` documents the publication contract.
 	readonly root_menu: RootMenuState = new RootMenuState();
@@ -186,19 +194,26 @@ export class ContextmenuState {
 		this.layout = layout ?? new Dimensions();
 	}
 
-	open(params: Array<ContextmenuParams>, x: number, y: number): void {
+	open(
+		params: Array<ContextmenuParams>,
+		x: number,
+		y: number,
+		target?: HTMLElement | SVGElement,
+	): void {
 		this.selections = [];
 		this.opened = true;
 		this.error = undefined;
 		this.x = x;
 		this.y = y;
 		this.params = params;
+		this.target = target;
 	}
 
 	close(): void {
 		if (!this.opened) return;
 		this.reset_items(this.root_menu.items);
 		this.opened = false;
+		this.target = undefined;
 	}
 
 	reset_items(items: ReadonlyArray<ItemState>): void {
@@ -464,7 +479,7 @@ export const contextmenu_open = (
 	// No-op if empty
 	if (!params?.length) return false;
 
-	contextmenu.open(params, x, y);
+	contextmenu.open(params, x, y, target);
 
 	// `navigator.vibrate()` works with `ContextmenuRoot` but gets blocked by some browsers
 	// when used with `ContextmenuRootForSafariCompatibility` because its longpress

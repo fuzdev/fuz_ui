@@ -13,6 +13,8 @@ import {
 	contextmenu_create_mousedown_handler,
 	contextmenu_is_valid_target,
 	contextmenu_open_from_event,
+	contextmenu_popover_attachment,
+	contextmenu_resolve_popover_host,
 	CONTEXTMENU_DEFAULT_OPEN_OFFSET_X,
 	CONTEXTMENU_DEFAULT_OPEN_OFFSET_Y,
 } from '$lib/contextmenu_helpers.js';
@@ -377,6 +379,7 @@ describe('contextmenu_open_from_event', () => {
 		assert.strictEqual(contextmenu.opened, true);
 		assert.strictEqual(contextmenu.x, 100 + CONTEXTMENU_DEFAULT_OPEN_OFFSET_X);
 		assert.strictEqual(contextmenu.y, 200 + CONTEXTMENU_DEFAULT_OPEN_OFFSET_Y);
+		assert.strictEqual(contextmenu.target, el);
 		assert.strictEqual(event.defaultPrevented, true);
 	});
 
@@ -603,5 +606,118 @@ describe('ContextmenuOpenGuard - gesture causality', () => {
 			guard.press_belongs_to_open_gesture(create_button_event('mousedown', 0, 2000)),
 			true,
 		);
+	});
+});
+
+describe('contextmenu_resolve_popover_host', () => {
+	test('returns null for an undefined target', () => {
+		assert.strictEqual(contextmenu_resolve_popover_host(undefined), null);
+	});
+
+	test('returns null when the target has no modal dialog ancestor', () => {
+		const dialog = document.createElement('dialog');
+		const target = document.createElement('div');
+		dialog.appendChild(target);
+		document.body.appendChild(dialog);
+
+		// jsdom dialogs never match `:modal`, the same as a closed or non-modal dialog
+		assert.strictEqual(contextmenu_resolve_popover_host(target), null);
+
+		dialog.remove();
+	});
+
+	test('returns the modal dialog containing the target', () => {
+		const dialog = document.createElement('dialog');
+		const target = document.createElement('div');
+		dialog.appendChild(target);
+		// jsdom can't enter the modal state, so stub the selector match
+		const closest = vi.spyOn(target, 'closest').mockReturnValue(dialog);
+
+		assert.strictEqual(contextmenu_resolve_popover_host(target), dialog);
+		assert.strictEqual(closest.mock.calls[0]?.[0], 'dialog:modal');
+	});
+});
+
+describe('contextmenu_popover_attachment', () => {
+	let contextmenu: ContextmenuState;
+	let el: HTMLElement;
+
+	beforeEach(() => {
+		contextmenu = new ContextmenuState();
+		el = document.createElement('ul');
+		document.body.appendChild(el);
+	});
+
+	afterEach(() => {
+		el.remove();
+	});
+
+	test('no-ops without the Popover API', () => {
+		// jsdom has no `showPopover`, exercising the fallback path
+		assert.strictEqual(el.showPopover, undefined);
+
+		const cleanup = contextmenu_popover_attachment(contextmenu)(el);
+
+		assert.strictEqual(cleanup, undefined);
+		assert.strictEqual(el.parentNode, document.body);
+	});
+
+	test('shows the popover in place when the target has no modal dialog host', () => {
+		const show_popover = vi.fn();
+		el.showPopover = show_popover;
+
+		const cleanup = contextmenu_popover_attachment(contextmenu)(el);
+
+		assert.strictEqual(show_popover.mock.calls.length, 1);
+		assert.strictEqual(el.parentNode, document.body);
+		assert.strictEqual(cleanup, undefined);
+	});
+
+	test('reparents into the modal dialog before showing and closes the menu with it', () => {
+		const dialog = document.createElement('dialog');
+		document.body.appendChild(dialog);
+		const target = document.createElement('div');
+		dialog.appendChild(target);
+		vi.spyOn(target, 'closest').mockReturnValue(dialog);
+		contextmenu.open([], 0, 0, target);
+
+		let parent_when_shown: ParentNode | null | undefined;
+		el.showPopover = () => {
+			parent_when_shown = el.parentNode;
+		};
+
+		const cleanup = contextmenu_popover_attachment(contextmenu)(el);
+
+		// reparented before `showPopover` - moving a shown popover would hide it
+		assert.strictEqual(parent_when_shown, dialog);
+		assert.strictEqual(el.parentNode, dialog);
+
+		// the host dialog closing closes the menu
+		assert.strictEqual(contextmenu.opened, true);
+		dialog.dispatchEvent(new Event('close'));
+		assert.strictEqual(contextmenu.opened, false);
+
+		assert.ok(cleanup);
+		cleanup();
+		dialog.remove();
+	});
+
+	test('cleanup unsubscribes from the host dialog close event', () => {
+		const dialog = document.createElement('dialog');
+		document.body.appendChild(dialog);
+		const target = document.createElement('div');
+		dialog.appendChild(target);
+		vi.spyOn(target, 'closest').mockReturnValue(dialog);
+		contextmenu.open([], 0, 0, target);
+		el.showPopover = vi.fn();
+
+		const cleanup = contextmenu_popover_attachment(contextmenu)(el);
+		assert.ok(cleanup);
+		cleanup();
+
+		dialog.dispatchEvent(new Event('close'));
+		assert.strictEqual(contextmenu.opened, true);
+
+		dialog.remove();
 	});
 });

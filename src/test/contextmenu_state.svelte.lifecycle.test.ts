@@ -41,6 +41,15 @@ describe('ContextmenuState - Lifecycle', () => {
 			assert.strictEqual(contextmenu.opened, false);
 		});
 
+		test('open stores the target element and close clears it', () => {
+			const target = {} as HTMLElement; // stand-in, this file runs without a DOM
+			contextmenu.open([], 100, 200, target);
+			assert.strictEqual(contextmenu.target, target);
+
+			contextmenu.close();
+			assert.strictEqual(contextmenu.target, undefined);
+		});
+
 		test('close resets entry states', () => {
 			const entry = add_test_entry(contextmenu.root_menu);
 			entry.promise = Promise.resolve();
