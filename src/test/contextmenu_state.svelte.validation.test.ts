@@ -1,6 +1,7 @@
 import {describe, test, assert, beforeEach} from 'vitest';
 
-import {ContextmenuState, EntryState, SubmenuState} from '$lib/contextmenu_state.svelte.js';
+import {ContextmenuState} from '$lib/contextmenu_state.svelte.js';
+import {add_test_entry, add_test_submenu} from './contextmenu_state_test_helpers.js';
 
 describe('ContextmenuState - Validation', () => {
 	let contextmenu: ContextmenuState;
@@ -16,18 +17,15 @@ describe('ContextmenuState - Validation', () => {
 			});
 
 			test('returns false with single selection at root level', () => {
-				const entry = new EntryState(contextmenu.root_menu, () => () => {});
-				contextmenu.root_menu.items = [...contextmenu.root_menu.items, entry];
+				const entry = add_test_entry(contextmenu.root_menu);
 				contextmenu.select(entry);
 
 				assert.strictEqual(contextmenu.can_collapse, false);
 			});
 
 			test('returns true with nested selection', () => {
-				const submenu = new SubmenuState(contextmenu.root_menu, 2);
-				const entry = new EntryState(submenu, () => () => {});
-				submenu.items = [...submenu.items, entry];
-				contextmenu.root_menu.items = [...contextmenu.root_menu.items, submenu];
+				const submenu = add_test_submenu(contextmenu.root_menu);
+				add_test_entry(submenu);
 
 				contextmenu.select(submenu);
 				contextmenu.expand_selected();
@@ -37,10 +35,8 @@ describe('ContextmenuState - Validation', () => {
 
 			test('returns false after collapsing to root level', () => {
 				$effect.root(() => {
-					const submenu = new SubmenuState(contextmenu.root_menu, 2);
-					const entry = new EntryState(submenu, () => () => {});
-					submenu.items = [...submenu.items, entry];
-					contextmenu.root_menu.items = [...contextmenu.root_menu.items, submenu];
+					const submenu = add_test_submenu(contextmenu.root_menu);
+					add_test_entry(submenu);
 
 					contextmenu.select(submenu);
 					contextmenu.expand_selected();
@@ -52,13 +48,9 @@ describe('ContextmenuState - Validation', () => {
 
 			test('multi-level collapse validation', () => {
 				$effect.root(() => {
-					const submenu1 = new SubmenuState(contextmenu.root_menu, 2);
-					const submenu2 = new SubmenuState(submenu1, 3);
-					const entry = new EntryState(submenu2, () => () => {});
-
-					submenu2.items = [...submenu2.items, entry];
-					submenu1.items = [...submenu1.items, submenu2];
-					contextmenu.root_menu.items = [...contextmenu.root_menu.items, submenu1];
+					const submenu1 = add_test_submenu(contextmenu.root_menu);
+					const submenu2 = add_test_submenu(submenu1);
+					add_test_entry(submenu2);
 
 					// Navigate to depth 3
 					contextmenu.select(submenu1);
@@ -85,26 +77,22 @@ describe('ContextmenuState - Validation', () => {
 			});
 
 			test('returns false when entry is selected', () => {
-				const entry = new EntryState(contextmenu.root_menu, () => () => {});
-				contextmenu.root_menu.items = [...contextmenu.root_menu.items, entry];
+				const entry = add_test_entry(contextmenu.root_menu);
 				contextmenu.select(entry);
 
 				assert.strictEqual(contextmenu.can_expand, false);
 			});
 
 			test('returns true when submenu with items is selected', () => {
-				const submenu = new SubmenuState(contextmenu.root_menu, 2);
-				const entry = new EntryState(submenu, () => () => {});
-				submenu.items = [...submenu.items, entry];
-				contextmenu.root_menu.items = [...contextmenu.root_menu.items, submenu];
+				const submenu = add_test_submenu(contextmenu.root_menu);
+				add_test_entry(submenu);
 				contextmenu.select(submenu);
 
 				assert.strictEqual(contextmenu.can_expand, true);
 			});
 
 			test('returns false when empty submenu is selected', () => {
-				const submenu = new SubmenuState(contextmenu.root_menu, 2);
-				contextmenu.root_menu.items = [...contextmenu.root_menu.items, submenu];
+				const submenu = add_test_submenu(contextmenu.root_menu);
 				contextmenu.select(submenu);
 
 				assert.strictEqual(contextmenu.can_expand, false);
@@ -112,10 +100,8 @@ describe('ContextmenuState - Validation', () => {
 
 			test('returns false after expanding into submenu', () => {
 				$effect.root(() => {
-					const submenu = new SubmenuState(contextmenu.root_menu, 2);
-					const entry = new EntryState(submenu, () => () => {});
-					submenu.items = [...submenu.items, entry];
-					contextmenu.root_menu.items = [...contextmenu.root_menu.items, submenu];
+					const submenu = add_test_submenu(contextmenu.root_menu);
+					add_test_entry(submenu);
 
 					contextmenu.select(submenu);
 					contextmenu.expand_selected();
@@ -127,15 +113,10 @@ describe('ContextmenuState - Validation', () => {
 
 			test('deep submenu expansion validation', () => {
 				$effect.root(() => {
-					const submenu1 = new SubmenuState(contextmenu.root_menu, 2);
-					const submenu2 = new SubmenuState(submenu1, 3);
-					const submenu3 = new SubmenuState(submenu2, 4);
-					const entry = new EntryState(submenu3, () => () => {});
-
-					submenu3.items = [...submenu3.items, entry];
-					submenu2.items = [...submenu2.items, submenu3];
-					submenu1.items = [...submenu1.items, submenu2];
-					contextmenu.root_menu.items = [...contextmenu.root_menu.items, submenu1];
+					const submenu1 = add_test_submenu(contextmenu.root_menu);
+					const submenu2 = add_test_submenu(submenu1);
+					const submenu3 = add_test_submenu(submenu2);
+					add_test_entry(submenu3);
 
 					// At each level, can_expand should be true when submenu is selected
 					contextmenu.select(submenu1);
@@ -160,24 +141,21 @@ describe('ContextmenuState - Validation', () => {
 			});
 
 			test('returns false with single item', () => {
-				const entry = new EntryState(contextmenu.root_menu, () => () => {});
-				contextmenu.root_menu.items = [...contextmenu.root_menu.items, entry];
+				add_test_entry(contextmenu.root_menu);
 
 				assert.strictEqual(contextmenu.can_select_sibling, false);
 			});
 
 			test('returns true with multiple items', () => {
-				const entry1 = new EntryState(contextmenu.root_menu, () => () => {});
-				const entry2 = new EntryState(contextmenu.root_menu, () => () => {});
-				contextmenu.root_menu.items = [...contextmenu.root_menu.items, entry1, entry2];
+				add_test_entry(contextmenu.root_menu);
+				add_test_entry(contextmenu.root_menu);
 
 				assert.strictEqual(contextmenu.can_select_sibling, true);
 			});
 
 			test('returns true with multiple items and selection', () => {
-				const entry1 = new EntryState(contextmenu.root_menu, () => () => {});
-				const entry2 = new EntryState(contextmenu.root_menu, () => () => {});
-				contextmenu.root_menu.items = [...contextmenu.root_menu.items, entry1, entry2];
+				const entry1 = add_test_entry(contextmenu.root_menu);
+				const entry2 = add_test_entry(contextmenu.root_menu);
 
 				contextmenu.select(entry1);
 				assert.strictEqual(contextmenu.can_select_sibling, true);
@@ -187,10 +165,8 @@ describe('ContextmenuState - Validation', () => {
 			});
 
 			test('checks current menu level when in submenu', () => {
-				const submenu = new SubmenuState(contextmenu.root_menu, 2);
-				const entry = new EntryState(submenu, () => () => {});
-				submenu.items = [...submenu.items, entry];
-				contextmenu.root_menu.items = [...contextmenu.root_menu.items, submenu];
+				const submenu = add_test_submenu(contextmenu.root_menu);
+				add_test_entry(submenu);
 
 				contextmenu.select(submenu);
 				contextmenu.expand_selected();
@@ -200,11 +176,9 @@ describe('ContextmenuState - Validation', () => {
 			});
 
 			test('returns true in submenu with multiple items', () => {
-				const submenu = new SubmenuState(contextmenu.root_menu, 2);
-				const entry1 = new EntryState(submenu, () => () => {});
-				const entry2 = new EntryState(submenu, () => () => {});
-				submenu.items = [...submenu.items, entry1, entry2];
-				contextmenu.root_menu.items = [...contextmenu.root_menu.items, submenu];
+				const submenu = add_test_submenu(contextmenu.root_menu);
+				add_test_entry(submenu);
+				add_test_entry(submenu);
 
 				contextmenu.select(submenu);
 				contextmenu.expand_selected();
@@ -219,46 +193,40 @@ describe('ContextmenuState - Validation', () => {
 			});
 
 			test('returns true with enabled entry selected', () => {
-				const entry = new EntryState(contextmenu.root_menu, () => () => {});
-				contextmenu.root_menu.items = [...contextmenu.root_menu.items, entry];
+				const entry = add_test_entry(contextmenu.root_menu);
 				contextmenu.select(entry);
 
 				assert.strictEqual(contextmenu.can_activate, true);
 			});
 
 			test('returns false with disabled entry selected', () => {
-				const entry = new EntryState(
+				const entry = add_test_entry(
 					contextmenu.root_menu,
-					() => () => {},
+					() => {},
 					() => true,
 				);
-				contextmenu.root_menu.items = [...contextmenu.root_menu.items, entry];
 				contextmenu.select(entry);
 
 				assert.strictEqual(contextmenu.can_activate, false);
 			});
 
 			test('returns true when submenu with items is selected', () => {
-				const submenu = new SubmenuState(contextmenu.root_menu, 2);
-				const entry = new EntryState(submenu, () => () => {});
-				submenu.items = [...submenu.items, entry];
-				contextmenu.root_menu.items = [...contextmenu.root_menu.items, submenu];
+				const submenu = add_test_submenu(contextmenu.root_menu);
+				add_test_entry(submenu);
 				contextmenu.select(submenu);
 
 				assert.strictEqual(contextmenu.can_activate, true);
 			});
 
 			test('returns false when empty submenu is selected', () => {
-				const submenu = new SubmenuState(contextmenu.root_menu, 2);
-				contextmenu.root_menu.items = [...contextmenu.root_menu.items, submenu];
+				const submenu = add_test_submenu(contextmenu.root_menu);
 				contextmenu.select(submenu);
 
 				assert.strictEqual(contextmenu.can_activate, false);
 			});
 
 			test('returns true for entry with async action', () => {
-				const entry = new EntryState(contextmenu.root_menu, () => async () => {});
-				contextmenu.root_menu.items = [...contextmenu.root_menu.items, entry];
+				const entry = add_test_entry(contextmenu.root_menu, async () => {});
 				contextmenu.select(entry);
 
 				assert.strictEqual(contextmenu.can_activate, true);
@@ -266,15 +234,14 @@ describe('ContextmenuState - Validation', () => {
 
 			test('evaluates disabled function for entries', () => {
 				let counter = 0;
-				const entry = new EntryState(
+				const entry = add_test_entry(
 					contextmenu.root_menu,
-					() => () => {},
+					() => {},
 					() => {
 						counter++;
 						return false;
 					},
 				);
-				contextmenu.root_menu.items = [...contextmenu.root_menu.items, entry];
 				contextmenu.select(entry);
 
 				// Access the property to trigger evaluation
@@ -287,12 +254,11 @@ describe('ContextmenuState - Validation', () => {
 			test('dynamic disabled state changes', () => {
 				$effect.root(() => {
 					let is_disabled = $state(false);
-					const entry = new EntryState(
+					const entry = add_test_entry(
 						contextmenu.root_menu,
-						() => () => {},
+						() => {},
 						() => is_disabled,
 					);
-					contextmenu.root_menu.items = [...contextmenu.root_menu.items, entry];
 					contextmenu.select(entry);
 
 					// Initially enabled

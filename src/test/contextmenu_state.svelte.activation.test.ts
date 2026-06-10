@@ -1,6 +1,7 @@
 import {describe, test, assert, beforeEach} from 'vitest';
 
 import {ContextmenuState, EntryState, SubmenuState} from '$lib/contextmenu_state.svelte.js';
+import {add_test_entry} from './contextmenu_state_test_helpers.js';
 
 describe('ContextmenuState - Activation', () => {
 	let contextmenu: ContextmenuState;
@@ -24,10 +25,9 @@ describe('ContextmenuState - Activation', () => {
 		});
 
 		test('activate() handles synchronous error and stays open', () => {
-			const entry = new EntryState(contextmenu.root_menu, () => () => {
+			const entry = add_test_entry(contextmenu.root_menu, () => {
 				throw new Error('test error');
 			});
-			contextmenu.root_menu.items = [...contextmenu.root_menu.items, entry];
 
 			contextmenu.open([], 0, 0);
 			const returned = contextmenu.activate(entry);
@@ -87,8 +87,7 @@ describe('ContextmenuState - Activation', () => {
 
 		test('activate() on submenu calls expand_selected', () => {
 			const submenu = new SubmenuState(contextmenu.root_menu, 2);
-			const child = new EntryState(submenu, () => () => {});
-			submenu.items = [...submenu.items, child];
+			const child = add_test_entry(submenu);
 
 			contextmenu.select(submenu);
 			void contextmenu.activate(submenu);
@@ -110,8 +109,7 @@ describe('ContextmenuState - Activation', () => {
 		});
 
 		test('activate_selected() selects first when no selection', () => {
-			const entry = new EntryState(contextmenu.root_menu, () => () => {});
-			contextmenu.root_menu.items = [...contextmenu.root_menu.items, entry];
+			const entry = add_test_entry(contextmenu.root_menu);
 
 			void contextmenu.activate_selected();
 
@@ -236,19 +234,18 @@ describe('ContextmenuState - Activation', () => {
 			let resolve1: any;
 			let resolve2: any;
 
-			const entry1 = new EntryState(contextmenu.root_menu, () => async () => {
+			const entry1 = add_test_entry(contextmenu.root_menu, async () => {
 				activation1_started = true;
 				await new Promise((r) => (resolve1 = r));
 				return {ok: true};
 			});
 
-			const entry2 = new EntryState(contextmenu.root_menu, () => async () => {
+			const entry2 = add_test_entry(contextmenu.root_menu, async () => {
 				activation2_started = true;
 				await new Promise((r) => (resolve2 = r));
 				return {ok: true};
 			});
 
-			contextmenu.root_menu.items = [...contextmenu.root_menu.items, entry1, entry2];
 			contextmenu.open([], 0, 0);
 
 			// Start both activations
@@ -315,10 +312,9 @@ describe('ContextmenuState - Activation', () => {
 			assert.strictEqual(contextmenu.opened, true);
 
 			// Can activate again successfully
-			const entry2 = new EntryState(contextmenu.root_menu, () => () => {
+			const entry2 = add_test_entry(contextmenu.root_menu, () => {
 				return {ok: true};
 			});
-			contextmenu.root_menu.items = [...contextmenu.root_menu.items, entry2];
 
 			void contextmenu.activate(entry2);
 			assert.strictEqual(contextmenu.opened, false);
@@ -358,16 +354,15 @@ describe('ContextmenuState - Activation', () => {
 
 		test('activate() returns false for disabled entries and does not run callback', () => {
 			let ran = false;
-			const disabled_entry = new EntryState(
+			const disabled_entry = add_test_entry(
 				contextmenu.root_menu,
-				() => () => {
+				() => {
 					ran = true;
 					return {ok: true};
 				},
 				() => true, // disabled function returns true
 			);
 
-			contextmenu.root_menu.items = [...contextmenu.root_menu.items, disabled_entry];
 			contextmenu.open([], 0, 0);
 			contextmenu.select(disabled_entry);
 

@@ -111,8 +111,4 @@
 		max-width: var(--contextmenu_width);
 		width: 100%;
 	}
-	/* TODO hacky, needed because the base `.menuitem` added z-index */
-	.menuitem {
-		z-index: unset;
-	}
 </style>

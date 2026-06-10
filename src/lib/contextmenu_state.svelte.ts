@@ -55,26 +55,67 @@ export class EntryState {
 	}
 }
 
-export class SubmenuState {
+/**
+ * Shared `items` state for `SubmenuState` and `RootMenuState`.
+ *
+ * The source of truth is a plain non-reactive array because items register and
+ * unregister from component lifecycles that can interleave within a single batch -
+ * effect teardowns can observe stale signal values mid-batch, so read-copy-write
+ * against the reactive array can lose concurrent registrations (e.g. reopening the
+ * menu while it's open). Every mutation publishes an immutable snapshot, preserving
+ * the reassignment (not mutation) contract for readers.
+ */
+export class ContextmenuItemsState {
+	#items_source: Array<ItemState> = [];
+	#items: ReadonlyArray<ItemState> = $state.raw([]);
+
+	get items(): ReadonlyArray<ItemState> {
+		return this.#items;
+	}
+
+	set items(value: ReadonlyArray<ItemState>) {
+		this.#items_source = [...value];
+		this.#items = value;
+	}
+
+	/**
+	 * Appends `item`, publishing a new immutable `items`.
+	 */
+	add_item(item: ItemState): void {
+		this.#items_source.push(item);
+		this.#items = [...this.#items_source];
+	}
+
+	/**
+	 * Removes `item` if present, publishing a new immutable `items`.
+	 * Safe to call from effect teardown - it reads only the non-reactive source array.
+	 */
+	remove_item(item: ItemState): void {
+		const index = this.#items_source.indexOf(item);
+		if (index === -1) return;
+		this.#items_source.splice(index, 1);
+		this.#items = [...this.#items_source];
+	}
+}
+
+export class SubmenuState extends ContextmenuItemsState {
 	readonly is_menu = true;
 	readonly menu: SubmenuState | RootMenuState;
 	readonly depth: number;
 
 	selected: boolean = $state.raw(false);
-	items: ReadonlyArray<ItemState> = $state.raw([]);
 
 	constructor(menu: SubmenuState | RootMenuState, depth: number) {
+		super();
 		this.menu = menu;
 		this.depth = depth;
 	}
 }
 
-export class RootMenuState {
+export class RootMenuState extends ContextmenuItemsState {
 	readonly is_menu = true;
 	readonly menu = null;
 	readonly depth = 1;
-
-	items: ReadonlyArray<ItemState> = $state.raw([]);
 }
 
 export type ContextmenuRun = () => ContextmenuActivateResult | Promise<ContextmenuActivateResult>;
@@ -326,9 +367,9 @@ export class ContextmenuState {
 	add_entry(run: () => ContextmenuRun, disabled: () => boolean = () => false): EntryState {
 		const menu = contextmenu_submenu_context.get_maybe() ?? this.root_menu;
 		const entry = new EntryState(menu, run, disabled);
-		menu.items = [...menu.items, entry];
+		menu.add_item(entry);
 		onDestroy(() => {
-			menu.items = menu.items.filter((item) => item !== entry);
+			menu.remove_item(entry);
 		});
 		return entry;
 	}
@@ -339,10 +380,10 @@ export class ContextmenuState {
 	add_submenu(): SubmenuState {
 		const menu = contextmenu_submenu_context.get_maybe() ?? this.root_menu;
 		const submenu = new SubmenuState(menu, menu.depth + 1);
-		menu.items = [...menu.items, submenu];
+		menu.add_item(submenu);
 		contextmenu_submenu_context.set(submenu);
 		onDestroy(() => {
-			menu.items = menu.items.filter((item) => item !== submenu);
+			menu.remove_item(submenu);
 		});
 		return submenu;
 	}

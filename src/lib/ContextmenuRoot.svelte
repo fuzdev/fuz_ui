@@ -1,3 +1,8 @@
+<script module lang="ts">
+	// The default entry snippets are shared with `ContextmenuRootForSafariCompatibility.svelte`.
+	export {link_entry_default, text_entry_default, separator_entry_default};
+</script>
+
 <script lang="ts">
 	/**
 	 * This is the default contextmenu root component.
@@ -16,6 +21,7 @@
 	 * instead. That version implements custom touch handlers and longpress detection at the
 	 * cost of significantly more complexity and no vibrate support.
 	 */
+	import {swallow} from '@fuzdev/fuz_util/dom.js';
 	import {DEV} from 'esm-env';
 	import type {ComponentProps, Snippet} from 'svelte';
 
@@ -40,7 +46,9 @@
 		contextmenu_calculate_constrained_x,
 		contextmenu_calculate_constrained_y,
 		contextmenu_open_from_event,
+		contextmenu_popover_attachment,
 		ContextmenuBypassTracker,
+		ContextmenuTouchOpenGuard,
 	} from './contextmenu_helpers.js';
 
 	const {
@@ -128,6 +136,7 @@
 	);
 
 	const bypass_tracker = new ContextmenuBypassTracker();
+	const touch_open_guard = new ContextmenuTouchOpenGuard();
 
 	const open_options = $derived({
 		open_offset_x,
@@ -140,21 +149,28 @@
 	const on_window_contextmenu = (e: MouseEvent) => {
 		// let the system contextmenu through after a tap-then-longpress bypass gesture
 		if (bypass_tracker.consume()) return;
-		contextmenu_open_from_event(e, contextmenu, el, open_options);
+		if (contextmenu_open_from_event(e, contextmenu, el, open_options)) {
+			// when the native longpress `contextmenu` opened during a touch,
+			// guard the release of that gesture from interacting with the menu
+			touch_open_guard.opened();
+		}
 	};
 
 	/**
-	 * Touch event handler for tap-then-longpress bypass detection.
+	 * Touch event handler for tap-then-longpress bypass detection
+	 * and touch-open release guarding.
 	 *
-	 * This allows users to access the native context menu by performing a tap
-	 * followed by a longpress/rightclick within a specified time window.
-	 * The bypass gesture is useful for accessing browser features like text selection
-	 * or the native context menu when the Fuz contextmenu would normally override it.
+	 * The bypass gesture allows users to access the native context menu by performing
+	 * a tap followed by a longpress/rightclick within a specified time window,
+	 * useful for browser features like text selection when the Fuz contextmenu
+	 * would normally override it.
 	 *
 	 * Note: preventDefault is not called as we're only observing touch patterns,
 	 * not intercepting them. The actual bypass happens in on_window_contextmenu.
 	 */
 	const touchstart = (e: TouchEvent): void => {
+		touch_open_guard.touchstart();
+
 		if (!bypass_with_tap_then_longpress) return;
 
 		const {touches, target} = e;
@@ -172,9 +188,19 @@
 	};
 
 	/**
+	 * Swallows the release of a gesture that opened the menu,
+	 * stopping the browser from synthesizing mouse events at the touch point
+	 * (the open offsets place the first menu item there).
+	 */
+	const touchend = (e: TouchEvent): void => {
+		touch_open_guard.touchend(e);
+	};
+
+	/**
 	 * Reset state when touch is cancelled (e.g., when scrolling starts).
 	 */
 	const touchcancel = (): void => {
+		touch_open_guard.reset();
 		bypass_tracker.reset();
 	};
 
@@ -189,8 +215,9 @@
 	oncontextmenu={scoped ? undefined : on_window_contextmenu}
 	onmousedown={!contextmenu.opened ? undefined : mousedown}
 	onkeydown={!contextmenu.opened ? undefined : keydown}
-	ontouchstartcapture={scoped || !bypass_with_tap_then_longpress ? undefined : touchstart}
-	ontouchcancelcapture={scoped || !bypass_with_tap_then_longpress ? undefined : touchcancel}
+	ontouchstartcapture={scoped ? undefined : touchstart}
+	ontouchendcapture={scoped ? undefined : touchend}
+	ontouchcancelcapture={scoped ? undefined : touchcancel}
 />
 
 {#if scoped}
@@ -198,8 +225,9 @@
 		class="contextmenu-root"
 		role="region"
 		oncontextmenu={on_window_contextmenu}
-		ontouchstartcapture={!bypass_with_tap_then_longpress ? undefined : touchstart}
-		ontouchcancelcapture={!bypass_with_tap_then_longpress ? undefined : touchcancel}
+		ontouchstartcapture={touchstart}
+		ontouchendcapture={touchend}
+		ontouchcancelcapture={touchcancel}
 	>
 		{@render children()}
 	</div>
@@ -224,10 +252,17 @@
 		role="menu"
 		aria-label="context menu"
 		tabindex="-1"
+		popover="manual"
+		{@attach contextmenu_popover_attachment}
 		bind:this={el}
 		bind:offsetWidth={dimensions.width}
 		bind:offsetHeight={dimensions.height}
 		style:transform="translate3d({x}px, {y}px, 0)"
+		onclickcapture={(e) => {
+			// blocks a click synthesized from the touch gesture that opened the menu,
+			// which would activate the first item
+			if (touch_open_guard.consume_blocked_click()) swallow(e);
+		}}
 	>
 		<!-- TODO maybe this should be generic? -->
 		{#each contextmenu.params as p (p)}
@@ -266,9 +301,19 @@
 		position: fixed;
 		left: 0;
 		top: 0;
+		/* the z-index is the fallback for browsers without the Popover API,
+		where the menu can't layer over modal dialogs */
 		z-index: var(--contextmenu_z_index, 200);
 		max-width: var(--contextmenu_width);
 		width: 100%;
+		/* reset the UA `[popover]` styles; positioning stays transform-based */
+		right: auto;
+		bottom: auto;
+		margin: 0;
+		padding: 0;
+		color: inherit;
+		/* the UA popover style sets `overflow: auto`, which would clip submenu flyouts */
+		overflow: visible;
 	}
 	.contextmenu,
 	.contextmenu :global(menu.pane) {

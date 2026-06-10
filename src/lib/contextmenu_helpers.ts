@@ -120,9 +120,17 @@ export const contextmenu_open_from_event = (
  * Creates a `mousedown` handler that closes the contextmenu
  * when pressing outside of the menu element.
  *
+ * Registered on the window during the bubble phase deliberately -
+ * consumers keep the menu open through a press by swallowing the event
+ * (e.g. menu controller buttons that use `onmousedowncapture` + `swallow`).
+ *
  * @param contextmenu - the contextmenu store
  * @param get_menu_el - getter for the open menu element, if any
  */
+// TODO consider `popover="auto"` instead of `"manual"` (see `contextmenu_popover_attachment`) -
+// its light dismiss would replace this handler and fix Escape ordering over dialogs
+// via close watchers, but it would break consumers that swallow `mousedown` to keep
+// the menu open through presses on their own controls
 export const contextmenu_create_mousedown_handler =
 	(contextmenu: ContextmenuState, get_menu_el: () => HTMLElement | undefined) =>
 	(e: MouseEvent): void => {
@@ -131,6 +139,92 @@ export const contextmenu_create_mousedown_handler =
 			contextmenu.close();
 		}
 	};
+
+/**
+ * Shows the contextmenu element as a manual popover, promoting it into the top layer
+ * so it stacks above modal `<dialog>` elements (e.g. `Dialog.svelte`) and stays interactive
+ * despite the modal's inert-ness - top-layer elements paint in insertion order.
+ *
+ * No-ops where the Popover API is unavailable (older browsers, jsdom),
+ * falling back to `--contextmenu_z_index` stacking - the menu then renders
+ * beneath and inert to any open modal dialog.
+ *
+ * Used with the `popover="manual"` attribute - `"manual"` rather than `"auto"`
+ * so opening, closing, and keyboard handling stay fully owned by `ContextmenuState`.
+ */
+export const contextmenu_popover_attachment = (el: HTMLElement): void => {
+	if (el.showPopover) el.showPopover();
+};
+
+/**
+ * Guards the release of a touch gesture that opened the contextmenu.
+ *
+ * When the menu opens during a touch (the native longpress `contextmenu` event, or the
+ * Safari-compat custom longpress), the release of that same gesture must not interact
+ * with the menu: an unprevented `touchend` lets the browser synthesize compatibility
+ * mouse events (`mousedown`/`mouseup`/`click`) at the touch point, and the open offsets
+ * place the first menu item exactly there - activating it immediately. `touchend`
+ * swallows the release to stop the synthesis, and `consume_blocked_click` blocks the
+ * next click on the menu as belt and braces (iOS can synthesize the click regardless).
+ *
+ * Plain DOM-event bookkeeping with no reactive state - used only inside event handlers
+ * by `ContextmenuRoot.svelte` and `ContextmenuRootForSafariCompatibility.svelte`.
+ */
+export class ContextmenuTouchOpenGuard {
+	#touch_active = false;
+	#opened_by_touch = false;
+	#block_next_click = false;
+
+	/**
+	 * Begins a new gesture on `touchstart`, clearing stale flags from the previous one.
+	 */
+	touchstart(): void {
+		this.#touch_active = true;
+		this.#opened_by_touch = false;
+		this.#block_next_click = false;
+	}
+
+	/**
+	 * Arms the release guard when the contextmenu opened during an active touch.
+	 * Call after a successful open.
+	 */
+	opened(): void {
+		if (this.#touch_active) this.#opened_by_touch = true;
+	}
+
+	/**
+	 * Handles `touchend`: when the release belongs to the gesture that opened the menu,
+	 * swallows it (stopping mouse event synthesis) and arms the click blocker,
+	 * returning `true`.
+	 */
+	touchend(e: TouchEvent): boolean {
+		this.#touch_active = e.touches.length > 0;
+		if (!this.#opened_by_touch) return false;
+		this.#opened_by_touch = false;
+		swallow(e);
+		this.#block_next_click = true;
+		return true;
+	}
+
+	/**
+	 * Clears all state, including any armed click blocker. Call on `touchcancel`.
+	 */
+	reset(): void {
+		this.#touch_active = false;
+		this.#opened_by_touch = false;
+		this.#block_next_click = false;
+	}
+
+	/**
+	 * Consumes an armed click blocker, returning `true` if the click should be swallowed.
+	 * Call from the menu element's `click` capture handler.
+	 */
+	consume_blocked_click(): boolean {
+		if (!this.#block_next_click) return false;
+		this.#block_next_click = false;
+		return true;
+	}
+}
 
 /**
  * Tracks the tap-then-longpress gesture that bypasses the Fuz contextmenu,

@@ -1,6 +1,7 @@
 import {describe, test, assert, beforeEach} from 'vitest';
 
-import {ContextmenuState, EntryState, SubmenuState} from '$lib/contextmenu_state.svelte.js';
+import {ContextmenuState, EntryState} from '$lib/contextmenu_state.svelte.js';
+import {add_test_entry, add_test_submenu} from './contextmenu_state_test_helpers.js';
 
 describe('ContextmenuState - Lifecycle', () => {
 	let contextmenu: ContextmenuState;
@@ -41,11 +42,10 @@ describe('ContextmenuState - Lifecycle', () => {
 		});
 
 		test('close resets entry states', () => {
-			const entry = new EntryState(contextmenu.root_menu, () => () => {});
+			const entry = add_test_entry(contextmenu.root_menu);
 			entry.promise = Promise.resolve();
 			entry.pending = true;
 			entry.error_message = 'test error';
-			contextmenu.root_menu.items = [...contextmenu.root_menu.items, entry];
 
 			contextmenu.open([], 0, 0); // Must open first, otherwise close() returns early
 			contextmenu.close();
@@ -59,11 +59,10 @@ describe('ContextmenuState - Lifecycle', () => {
 			let resolve: any;
 			const promise = new Promise((r) => (resolve = r));
 
-			const entry = new EntryState(contextmenu.root_menu, () => async () => {
+			const entry = add_test_entry(contextmenu.root_menu, async () => {
 				await promise;
 				return {ok: true};
 			});
-			contextmenu.root_menu.items = [...contextmenu.root_menu.items, entry];
 
 			contextmenu.open([], 0, 0);
 			void contextmenu.activate(entry);
@@ -88,11 +87,9 @@ describe('ContextmenuState - Lifecycle', () => {
 		});
 
 		test('close resets nested submenu items', () => {
-			const submenu = new SubmenuState(contextmenu.root_menu, 2);
-			const entry = new EntryState(submenu, () => () => {});
+			const submenu = add_test_submenu(contextmenu.root_menu);
+			const entry = add_test_entry(submenu);
 			entry.error_message = 'error';
-			submenu.items = [...submenu.items, entry];
-			contextmenu.root_menu.items = [...contextmenu.root_menu.items, submenu];
 
 			contextmenu.open([], 0, 0); // Must open first, otherwise close() returns early
 			contextmenu.close();
@@ -155,11 +152,10 @@ describe('ContextmenuState - Lifecycle', () => {
 		});
 
 		test("opening doesn't leak old state", () => {
-			const entry = new EntryState(contextmenu.root_menu, () => () => {});
+			const entry = add_test_entry(contextmenu.root_menu);
 			entry.error_message = 'old error';
 			entry.selected = true;
 			contextmenu.selections = [...contextmenu.selections, entry];
-			contextmenu.root_menu.items = [...contextmenu.root_menu.items, entry];
 
 			const params = [
 				{snippet: 'text' as const, props: {content: 'New', icon: '🆕', run: () => {}}},
@@ -181,12 +177,11 @@ describe('ContextmenuState - Lifecycle', () => {
 			const promise = new Promise((r) => (resolve = r));
 			let ran_to_completion = false;
 
-			const entry = new EntryState(contextmenu.root_menu, () => async () => {
+			const entry = add_test_entry(contextmenu.root_menu, async () => {
 				await promise;
 				ran_to_completion = true;
 				return {ok: true};
 			});
-			contextmenu.root_menu.items = [...contextmenu.root_menu.items, entry];
 
 			contextmenu.open([], 0, 0);
 			const activation = contextmenu.activate(entry);

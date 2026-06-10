@@ -29,9 +29,14 @@
 		contextmenu_open,
 		contextmenu_check_global_root,
 	} from './contextmenu_state.svelte.js';
-	import ContextmenuLinkEntry from './ContextmenuLinkEntry.svelte';
-	import ContextmenuTextEntry from './ContextmenuTextEntry.svelte';
-	import ContextmenuSeparator from './ContextmenuSeparator.svelte';
+	import type ContextmenuLinkEntry from './ContextmenuLinkEntry.svelte';
+	import type ContextmenuTextEntry from './ContextmenuTextEntry.svelte';
+	import type ContextmenuSeparator from './ContextmenuSeparator.svelte';
+	import {
+		link_entry_default,
+		text_entry_default,
+		separator_entry_default,
+	} from './ContextmenuRoot.svelte';
 	import {
 		CONTEXTMENU_DEFAULT_OPEN_OFFSET_X,
 		CONTEXTMENU_DEFAULT_OPEN_OFFSET_Y,
@@ -46,7 +51,9 @@
 		contextmenu_calculate_constrained_x,
 		contextmenu_calculate_constrained_y,
 		contextmenu_open_from_event,
+		contextmenu_popover_attachment,
 		ContextmenuBypassTracker,
+		ContextmenuTouchOpenGuard,
 	} from './contextmenu_helpers.js';
 
 	const {
@@ -152,12 +159,7 @@
 	let longpress_opened = false;
 
 	const bypass_tracker = new ContextmenuBypassTracker();
-
-	/**
-	 * Blocks the next click event. Set to true when a longpress completes to prevent
-	 * iOS's synthesized click from activating the first menu item.
-	 */
-	let block_next_click = $state.raw(false);
+	const touch_open_guard = new ContextmenuTouchOpenGuard();
 
 	/**
 	 * Adds contextmenu-pending class to body during longpress tracking.
@@ -220,6 +222,9 @@
 			return;
 		}
 		if (contextmenu_open_from_event(e, contextmenu, el, open_options)) {
+			// when the native `contextmenu` opened during a touch,
+			// guard the release of that gesture from interacting with the menu
+			touch_open_guard.opened();
 			reset_all(); // handle touch devices that trigger `'contextmenu'` faster than our longpress
 		}
 	};
@@ -227,7 +232,7 @@
 	// Needed for the iOS workaround. Registered with { passive: false } via $effect (window) or attachment (scoped).
 	const touchstart = (e: TouchEvent): void => {
 		longpress_opened = false;
-		block_next_click = false; // Clear any stale click blocking flag
+		touch_open_guard.touchstart(); // begins a gesture, clearing stale flags
 		const {touches, target} = e;
 		if (
 			contextmenu.opened ||
@@ -260,13 +265,18 @@
 		longpress_timeout = setTimeout(() => {
 			longpress_opened = true;
 			remove_contextmenu_pending_class(); // Tracking complete, menu opening
-			contextmenu_open(
-				target,
-				touch_x + open_offset_x,
-				touch_y + open_offset_y,
-				contextmenu,
-				open_options,
-			);
+			if (
+				contextmenu_open(
+					target,
+					touch_x + open_offset_x,
+					touch_y + open_offset_y,
+					contextmenu,
+					open_options,
+				)
+			) {
+				// guard the release of this gesture from interacting with the menu
+				touch_open_guard.opened();
+			}
 		}, longpress_duration);
 	};
 
@@ -289,13 +299,13 @@
 	};
 	// Needed for the iOS workaround. Registered with { passive: false } via $effect.
 	const touchend = (e: TouchEvent): void => {
+		// Swallow the release of a gesture that opened the menu (custom longpress or
+		// native `contextmenu`), stopping the browser from synthesizing mouse events at
+		// the touch point that would activate the first item, and arming the click
+		// blocker for iOS, which can synthesize the click regardless.
+		touch_open_guard.touchend(e);
 		// Clear longpress timeout if it exists
 		if (longpress_timeout !== null) {
-			if (longpress_opened) {
-				swallow(e);
-				// Block the next click to prevent iOS's synthesized click from activating the first menu item
-				block_next_click = true;
-			}
 			reset_longpress_timeout();
 		}
 		// Clear a pending bypass when the user lifts before the native contextmenu opens.
@@ -307,6 +317,7 @@
 	 * Handle touchcancel - this should reset all state since the gesture was interrupted.
 	 */
 	const touchcancel = (): void => {
+		touch_open_guard.reset();
 		reset_all();
 	};
 
@@ -391,18 +402,17 @@
 		role="menu"
 		aria-label="context menu"
 		tabindex="-1"
+		popover="manual"
+		{@attach contextmenu_popover_attachment}
 		bind:this={el}
 		bind:offsetWidth={dimensions.width}
 		bind:offsetHeight={dimensions.height}
 		style:transform="translate3d({x}px, {y}px, 0)"
-		onclickcapture={block_next_click
-			? (e) => {
-					// iOS synthesizes a click after touchend which
-					// can unintentionally activate the first menu item. This blocks it.
-					block_next_click = false;
-					swallow(e);
-				}
-			: undefined}
+		onclickcapture={(e) => {
+			// iOS synthesizes a click after touchend which
+			// can unintentionally activate the first menu item. This blocks it.
+			if (touch_open_guard.consume_blocked_click()) swallow(e);
+		}}
 	>
 		<!-- TODO maybe this should be generic? -->
 		{#each contextmenu.params as p (p)}
@@ -418,18 +428,6 @@
 		{/each}
 	</ul>
 {/if}
-
-{#snippet link_entry_default(props: ComponentProps<typeof ContextmenuLinkEntry>)}
-	<ContextmenuLinkEntry {...props} />
-{/snippet}
-
-{#snippet text_entry_default(props: ComponentProps<typeof ContextmenuTextEntry>)}
-	<ContextmenuTextEntry {...props} />
-{/snippet}
-
-{#snippet separator_entry_default(props: ComponentProps<typeof ContextmenuSeparator>)}
-	<ContextmenuSeparator {...props} />
-{/snippet}
 
 <style>
 	:global(body.contextmenu-pending) {
@@ -453,9 +451,19 @@
 		position: fixed;
 		left: 0;
 		top: 0;
+		/* the z-index is the fallback for browsers without the Popover API,
+		where the menu can't layer over modal dialogs */
 		z-index: var(--contextmenu_z_index, 200);
 		max-width: var(--contextmenu_width);
 		width: 100%;
+		/* reset the UA `[popover]` styles; positioning stays transform-based */
+		right: auto;
+		bottom: auto;
+		margin: 0;
+		padding: 0;
+		color: inherit;
+		/* the UA popover style sets `overflow: auto`, which would clip submenu flyouts */
+		overflow: visible;
 		/* Re-enable callouts on the menu itself to allow native contextmenu (for dev tools).
 		   Resets the global body blocking. Prevents the menu from being selected. */
 		-webkit-touch-callout: initial !important;

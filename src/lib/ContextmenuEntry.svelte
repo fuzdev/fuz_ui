@@ -67,10 +67,3 @@
 		{#if pending}<PendingAnimation />{:else if error_message}⚠️{/if}
 	</div>
 </li>
-
-<style>
-	/* TODO hacky, needed because the base `.menuitem` added z-index */
-	.menuitem {
-		z-index: unset;
-	}
-</style>

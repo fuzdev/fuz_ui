@@ -107,8 +107,4 @@
 	a:hover .text {
 		text-decoration: underline;
 	}
-	/* TODO hacky, needed because the base `.menuitem` added z-index */
-	.menuitem {
-		z-index: unset;
-	}
 </style>

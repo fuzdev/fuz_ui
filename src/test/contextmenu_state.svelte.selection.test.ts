@@ -1,6 +1,7 @@
 import {describe, test, assert, beforeEach} from 'vitest';
 
 import {ContextmenuState, EntryState, SubmenuState} from '$lib/contextmenu_state.svelte.js';
+import {add_test_entry, add_test_submenu} from './contextmenu_state_test_helpers.js';
 
 describe('ContextmenuState - Selection', () => {
 	let contextmenu: ContextmenuState;
@@ -15,10 +16,9 @@ describe('ContextmenuState - Selection', () => {
 		let entry3: EntryState;
 
 		beforeEach(() => {
-			entry1 = new EntryState(contextmenu.root_menu, () => () => {});
-			entry2 = new EntryState(contextmenu.root_menu, () => () => {});
-			entry3 = new EntryState(contextmenu.root_menu, () => () => {});
-			contextmenu.root_menu.items = [entry1, entry2, entry3];
+			entry1 = add_test_entry(contextmenu.root_menu);
+			entry2 = add_test_entry(contextmenu.root_menu);
+			entry3 = add_test_entry(contextmenu.root_menu);
 		});
 
 		test('select() marks item as selected', () => {
@@ -114,8 +114,7 @@ describe('ContextmenuState - Selection', () => {
 
 		test('collapse_selected() deselects nested item', () => {
 			const submenu = new SubmenuState(contextmenu.root_menu, 2);
-			const nested_entry = new EntryState(submenu, () => () => {});
-			submenu.items = [...submenu.items, nested_entry];
+			const nested_entry = add_test_entry(submenu);
 
 			// Manually set up a nested selection
 			contextmenu.root_menu.items[0]!.selected = true;
@@ -140,8 +139,7 @@ describe('ContextmenuState - Selection', () => {
 
 		test('expand_selected() selects first child of submenu', () => {
 			const submenu = new SubmenuState(contextmenu.root_menu, 2);
-			const child = new EntryState(submenu, () => () => {});
-			submenu.items = [...submenu.items, child];
+			const child = add_test_entry(submenu);
 			contextmenu.root_menu.items = [submenu];
 
 			contextmenu.select(submenu);
@@ -153,8 +151,7 @@ describe('ContextmenuState - Selection', () => {
 		});
 
 		test('collapse_selected() respects can_collapse', () => {
-			const entry = new EntryState(contextmenu.root_menu, () => () => {});
-			contextmenu.root_menu.items = [...contextmenu.root_menu.items, entry];
+			const entry = add_test_entry(contextmenu.root_menu);
 			contextmenu.select(entry);
 
 			// At root level, can_collapse is false
@@ -168,8 +165,7 @@ describe('ContextmenuState - Selection', () => {
 		});
 
 		test('expand_selected() respects can_expand with empty submenu', () => {
-			const empty_submenu = new SubmenuState(contextmenu.root_menu, 2);
-			contextmenu.root_menu.items = [...contextmenu.root_menu.items, empty_submenu];
+			const empty_submenu = add_test_submenu(contextmenu.root_menu);
 			contextmenu.select(empty_submenu);
 
 			// Empty submenu, can_expand is false
@@ -199,12 +195,11 @@ describe('ContextmenuState - Selection', () => {
 		});
 
 		test('selecting disabled items is prevented', () => {
-			const disabled_entry = new EntryState(
+			const disabled_entry = add_test_entry(
 				contextmenu.root_menu,
-				() => () => {},
+				() => {},
 				() => true, // disabled function returns true
 			);
-			contextmenu.root_menu.items = [...contextmenu.root_menu.items, disabled_entry];
 
 			// Select disabled item
 			contextmenu.select(disabled_entry);
@@ -216,11 +211,9 @@ describe('ContextmenuState - Selection', () => {
 
 		test('selection state survives across multiple levels', () => {
 			const submenu1 = new SubmenuState(contextmenu.root_menu, 2);
-			const submenu2 = new SubmenuState(submenu1, 3);
-			const deep_entry = new EntryState(submenu2, () => () => {});
+			const submenu2 = add_test_submenu(submenu1);
+			const deep_entry = add_test_entry(submenu2);
 
-			submenu2.items = [...submenu2.items, deep_entry];
-			submenu1.items = [...submenu1.items, submenu2];
 			contextmenu.root_menu.items = [submenu1];
 
 			// Navigate down
@@ -264,8 +257,7 @@ describe('ContextmenuState - Selection', () => {
 			assert.strictEqual(contextmenu.selections.length, 0);
 
 			// Single item menu
-			const single = new EntryState(contextmenu.root_menu, () => () => {});
-			contextmenu.root_menu.items = [single];
+			const single = add_test_entry(contextmenu.root_menu);
 
 			contextmenu.select_first();
 			assert.strictEqual(single.selected, true);
