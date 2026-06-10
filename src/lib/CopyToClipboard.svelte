@@ -4,6 +4,9 @@
 	import type {SvelteHTMLElements} from 'svelte/elements';
 	import {scale, slide} from 'svelte/transition';
 
+	import {icon_checkmark, icon_copy} from './icons.js';
+	import Svg from './Svg.svelte';
+
 	// TODO @many should this have the Button suffix?
 
 	// TODO add docs entry, see also PasteFromClipboard.svelte
@@ -73,8 +76,8 @@
 	{#if children}
 		{@render children(copied, failed)}
 	{:else if copied}
-		<div in:scale={{duration: 200}}>✓</div>
+		<div in:scale={{duration: 200}}><Svg data={icon_checkmark} /></div>
 	{:else}
-		<div in:slide>⧉</div>
+		<div in:slide><Svg data={icon_copy} /></div>
 	{/if}
 </button>

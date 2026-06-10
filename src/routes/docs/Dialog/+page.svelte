@@ -13,6 +13,8 @@
 	import MdnLink from '$lib/MdnLink.svelte';
 	import DeclarationLink from '$lib/DeclarationLink.svelte';
 	import {dialog_aligns, type DialogAlign} from '$lib/dialog.js';
+	import {icon_remove} from '$lib/icons.js';
+	import Svg from '$lib/Svg.svelte';
 
 	const TOME_SLUG = 'Dialog';
 
@@ -322,7 +324,9 @@
 				</p>
 				{#each items as item (item)}
 					<p transition:slide>
-						<button type="button" onclick={() => remove_item(item)}>✕</button>
+						<button type="button" onclick={() => remove_item(item)}
+							><Svg data={icon_remove} /></button
+						>
 						new stuff appears {#if selected_align === 'top'}gracefully{:else if selected_align === 'center'}ungracefully{/if}
 					</p>
 				{/each}
