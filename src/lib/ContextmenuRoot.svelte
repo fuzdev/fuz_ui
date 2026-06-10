@@ -16,8 +16,6 @@
 	 * instead. That version implements custom touch handlers and longpress detection at the
 	 * cost of significantly more complexity and no vibrate support.
 	 */
-	import {DEV} from 'esm-env';
-
 	import {
 		contextmenu_context,
 		ContextmenuState,
@@ -56,7 +54,7 @@
 
 	contextmenu_context.set(() => contextmenu);
 
-	if (DEV) contextmenu_check_global_root(() => scoped); // TODO @many is this import tree-shaken?
+	contextmenu_check_global_root(() => scoped); // DEV-only internally, eliminated from production bundles
 
 	// The menu element while opened, bound from `ContextmenuMenu.svelte`.
 	let el: HTMLElement | undefined = $state.raw();
@@ -139,9 +137,11 @@
 />
 
 {#if scoped}
+	<!-- A transparent (`display: contents`) event-delegation wrapper. `role="group"` rather
+	than a landmark role - it satisfies the a11y lint without requiring an accessible name. -->
 	<div
 		class="contextmenu-root"
-		role="region"
+		role="group"
 		oncontextmenu={on_window_contextmenu}
 		ontouchstartcapture={touchstart}
 		ontouchendcapture={touchend}

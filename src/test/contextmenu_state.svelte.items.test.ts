@@ -49,12 +49,17 @@ describe('ContextmenuItemsState', () => {
 		assert.strictEqual(menu.items, before);
 	});
 
-	test('assignment publishes the assigned array reference', () => {
-		const assigned = [create_entry()];
+	test('assignment publishes a copy of the assigned array', () => {
+		const entry = create_entry();
+		const assigned = [entry];
 
 		menu.items = assigned;
 
-		assert.strictEqual(menu.items, assigned);
+		assert.deepEqual([...menu.items], [entry]);
+		// a copy, so mutating the caller's array can't mutate the published snapshot
+		assert.notStrictEqual(menu.items, assigned);
+		assigned.push(create_entry());
+		assert.deepEqual([...menu.items], [entry]);
 	});
 
 	test('assignment then add_item composes', () => {

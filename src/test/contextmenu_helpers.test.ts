@@ -8,6 +8,7 @@ import {
 	ContextmenuOpenGuard,
 	contextmenu_calculate_constrained_x,
 	contextmenu_calculate_constrained_y,
+	contextmenu_calculate_submenu_translate,
 	contextmenu_create_keyboard_handlers,
 	contextmenu_create_keydown_handler,
 	contextmenu_create_mousedown_handler,
@@ -145,10 +146,11 @@ describe('contextmenu_calculate_constrained_x', () => {
 		assert.strictEqual(contextmenu_calculate_constrained_x(900, 200, 1000), 800);
 	});
 
-	test('shifts past zero when the menu is larger than the layout', () => {
-		// Current behavior: a menu wider than the layout gets a negative coordinate,
-		// pinning the right edge of the menu to the right edge of the layout.
-		assert.strictEqual(contextmenu_calculate_constrained_x(0, 1200, 1000), -200);
+	test('clamps at zero when the menu is larger than the layout', () => {
+		// A menu wider than the layout pins its left edge to the layout's left edge,
+		// keeping the start of each item visible.
+		assert.strictEqual(contextmenu_calculate_constrained_x(0, 1200, 1000), 0);
+		assert.strictEqual(contextmenu_calculate_constrained_x(500, 1200, 1000), 0);
 	});
 });
 
@@ -165,10 +167,68 @@ describe('contextmenu_calculate_constrained_y', () => {
 		assert.strictEqual(contextmenu_calculate_constrained_y(600, 300, 768), 468);
 	});
 
-	test('shifts past zero when the menu is larger than the layout', () => {
-		// Current behavior: a menu taller than the layout gets a negative coordinate,
-		// pinning the bottom edge of the menu to the bottom edge of the layout.
-		assert.strictEqual(contextmenu_calculate_constrained_y(0, 900, 768), -132);
+	test('clamps at zero when the menu is larger than the layout', () => {
+		// A menu taller than the layout pins its top edge to the layout's top edge,
+		// keeping the first items visible.
+		assert.strictEqual(contextmenu_calculate_constrained_y(0, 900, 768), 0);
+		assert.strictEqual(contextmenu_calculate_constrained_y(400, 900, 768), 0);
+	});
+});
+
+describe('contextmenu_calculate_submenu_translate', () => {
+	// A parent menu 320 wide at x=100 in a 1024x768 layout, submenu 320x200 at y=100.
+	const base = {
+		base_x: 100,
+		base_y: 100,
+		width: 320,
+		height: 200,
+		parent_width: 320,
+		layout_width: 1024,
+		layout_height: 768,
+	};
+
+	test('flies out to the right of the parent menu when it fits', () => {
+		assert.deepEqual(contextmenu_calculate_submenu_translate(base), {x: 320, y: 0});
+	});
+
+	test('flips fully to the left when the right side overflows and the left fits', () => {
+		// right edge would be at 700+320+320=1340 > 1024; left flip needs base_x >= width
+		assert.deepEqual(contextmenu_calculate_submenu_translate({...base, base_x: 700}), {
+			x: -320,
+			y: 0,
+		});
+	});
+
+	test("shifts the left flip right to pin the layout's left edge when it overflows less", () => {
+		// layout 800, base_x=300: overflow_right = 300+320+320-800 = 140,
+		// overflow_left = 320-300 = 20; the left flip overflows less (20 < 140),
+		// so shift it right by the overflow: x = 20 - 320 = -300, landing at x=0
+		assert.deepEqual(
+			contextmenu_calculate_submenu_translate({...base, base_x: 300, layout_width: 800}),
+			{x: -300, y: 0},
+		);
+	});
+
+	test("shifts the right flyout left to pin the layout's right edge when it overflows less", () => {
+		// layout 700, base_x=100: overflow_right = 100+320+320-700 = 40,
+		// overflow_left = 320-100 = 220; the right flyout overflows less (40 < 220),
+		// so shift it left by the overflow: x = 320 - 40 = 280, right edge at 700
+		assert.deepEqual(contextmenu_calculate_submenu_translate({...base, layout_width: 700}), {
+			x: 280,
+			y: 0,
+		});
+	});
+
+	test('shifts up to fit the bottom edge', () => {
+		// bottom would be at 700+200=900 > 768 -> shift up by 132
+		assert.deepEqual(contextmenu_calculate_submenu_translate({...base, base_y: 700}), {
+			x: 320,
+			y: -132,
+		});
+	});
+
+	test('does not shift down when the submenu fits vertically', () => {
+		assert.deepEqual(contextmenu_calculate_submenu_translate({...base, base_y: 0}), {x: 320, y: 0});
 	});
 });
 

@@ -179,14 +179,28 @@ describe('ContextmenuState - Lifecycle', () => {
 			];
 			contextmenu.open(params, 50, 50);
 
-			// Selections array is cleared
+			// Selections are cleared and the items themselves are deselected -
+			// items can survive a reopen-while-open, and a stale `selected` flag
+			// would render a ghost highlight alongside the next selection.
 			assert.strictEqual(contextmenu.selections.length, 0);
-			// Note: The entry.selected flag itself remains true until explicitly deselected
-			// The selections array being empty is what matters for correctness
+			assert.strictEqual(entry.selected, false);
 
 			// Old errors should still exist until explicitly reset
 			// (open doesn't call reset_items, close does)
 			assert.strictEqual(entry.error_message, 'old error');
+		});
+
+		test('close clears selections and deselects items', () => {
+			const entry = add_test_entry(contextmenu.root_menu);
+			contextmenu.open([], 0, 0);
+			contextmenu.select(entry);
+			assert.strictEqual(entry.selected, true);
+			assert.strictEqual(contextmenu.selections.length, 1);
+
+			contextmenu.close();
+
+			assert.strictEqual(entry.selected, false);
+			assert.strictEqual(contextmenu.selections.length, 0);
 		});
 
 		test('closing during activation stops correctly', async () => {

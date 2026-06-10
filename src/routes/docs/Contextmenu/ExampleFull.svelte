@@ -149,7 +149,7 @@
 							<HomeContextmenu {act} {home_cats} {adventure_cats} />
 						{/snippet}
 						<div class="position home">
-							<div class="icon">🏠</div>
+							<div class="icon p_md">🏠</div>
 							<div class="cats">
 								{#each home_cats as { name, icon, position } (name)}
 									<div
@@ -174,7 +174,7 @@
 							<AdventureContextmenu {act} {home_cats} {adventure_cats} />
 						{/snippet}
 						<div class="position adventure">
-							<div class="icon">🌄</div>
+							<div class="icon p_md">🌄</div>
 							<div class="cats">
 								{#each adventure_cats as { name, icon, position } (name)}
 									<div

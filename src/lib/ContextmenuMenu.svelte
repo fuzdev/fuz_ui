@@ -106,37 +106,46 @@
 <!-- TODO animate the contextmenu as it appears somehow, maybe a subtle highlight -->
 <!-- TODO implement focus management per APG: store `document.activeElement` when opening, focus menu on mount, restore focus on close if element `isConnected` -->
 {#if contextmenu.opened}
-	<ul
-		class="contextmenu unstyled pane"
-		role="menu"
-		aria-label="context menu"
-		tabindex="-1"
-		popover="manual"
-		{@attach contextmenu_popover_attachment(contextmenu)}
-		bind:this={el}
-		bind:offsetWidth={dimensions.width}
-		bind:offsetHeight={dimensions.height}
-		style:transform="translate3d({x}px, {y}px, 0)"
-		onclickcapture={(e) => {
-			// blocks a click synthesized from the touch gesture that opened the menu,
-			// which would activate the first item (iOS can synthesize it even when
-			// the release was swallowed)
-			if (open_guard.consume_blocked_click()) swallow(e);
-		}}
-	>
-		<!-- TODO maybe this should be generic? -->
-		{#each contextmenu.params as p (p)}
-			{#if typeof p === 'function'}
-				{@render p()}
-			{:else if p.snippet === 'link'}
-				{@render link_entry?.(p.props)}
-			{:else if p.snippet === 'text'}
-				{@render text_entry?.(p.props)}
-			{:else if p.snippet === 'separator'}
-				{@render separator_entry?.(p.props)}
-			{/if}
-		{/each}
-	</ul>
+	<!-- Keyed on `params` (a fresh array every open) so reopening while open - which swaps
+	`params` without toggling `opened` - remounts the menu: entries register fresh state and
+	the popover attachment re-resolves its host (e.g. a modal dialog opened since the first
+	open). -->
+	{#key contextmenu.params}
+		<ul
+			class="contextmenu unstyled pane"
+			role="menu"
+			aria-label="context menu"
+			tabindex="-1"
+			popover="manual"
+			{@attach contextmenu_popover_attachment(contextmenu)}
+			bind:this={el}
+			bind:offsetWidth={dimensions.width}
+			bind:offsetHeight={dimensions.height}
+			style:transform="translate3d({x}px, {y}px, 0)"
+			onclickcapture={(e) => {
+				// blocks a click synthesized from the touch gesture that opened the menu,
+				// which would activate the first item (iOS can synthesize it even when
+				// the release was swallowed)
+				if (open_guard.consume_blocked_click()) swallow(e);
+			}}
+		>
+			<!-- TODO maybe this should be generic? -->
+			<!-- Index-keyed deliberately: `params` is immutable for the life of the key block
+			above, and identity keys would collide when the same snippet registers on nested
+			elements. -->
+			{#each contextmenu.params as p, i (i)}
+				{#if typeof p === 'function'}
+					{@render p()}
+				{:else if p.snippet === 'link'}
+					{@render link_entry?.(p.props)}
+				{:else if p.snippet === 'text'}
+					{@render text_entry?.(p.props)}
+				{:else if p.snippet === 'separator'}
+					{@render separator_entry?.(p.props)}
+				{/if}
+			{/each}
+		</ul>
+	{/key}
 {/if}
 
 {#snippet link_entry_default(props: ComponentProps<typeof ContextmenuLinkEntry>)}

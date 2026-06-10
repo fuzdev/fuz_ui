@@ -1,7 +1,7 @@
 import {onDestroy, type Snippet} from 'svelte';
 import type {Result} from '@fuzdev/fuz_util/result.js';
 import {is_promise} from '@fuzdev/fuz_util/async.js';
-import {BROWSER} from 'esm-env';
+import {BROWSER, DEV} from 'esm-env';
 import type {SvelteHTMLElements} from 'svelte/elements';
 import {EMPTY_OBJECT} from '@fuzdev/fuz_util/object.js';
 import type {Attachment} from 'svelte/attachments';
@@ -74,8 +74,10 @@ export class ContextmenuItemsState {
 	}
 
 	set items(value: ReadonlyArray<ItemState>) {
+		// copy for the published snapshot too, so callers mutating
+		// their own array can't mutate it in readers' hands
 		this.#items_source = [...value];
-		this.#items = value;
+		this.#items = [...value];
 	}
 
 	/**
@@ -183,6 +185,9 @@ export class ContextmenuState {
 	can_activate = $derived.by(() => {
 		const selected = this.selections.at(-1);
 		if (!selected) return false;
+		// the selected item can unregister out from under the selection
+		// (e.g. its component unmounted) - its action must not run
+		if (!selected.menu.items.includes(selected)) return false;
 		if (selected.is_menu) return selected.items.length > 0;
 		return !selected.disabled();
 	});
@@ -200,7 +205,7 @@ export class ContextmenuState {
 		y: number,
 		target?: HTMLElement | SVGElement,
 	): void {
-		this.selections = [];
+		this.#clear_selections();
 		this.opened = true;
 		this.error = undefined;
 		this.x = x;
@@ -212,8 +217,20 @@ export class ContextmenuState {
 	close(): void {
 		if (!this.opened) return;
 		this.reset_items(this.root_menu.items);
+		this.#clear_selections();
 		this.opened = false;
 		this.target = undefined;
+	}
+
+	/**
+	 * Deselects every selected item and empties `selections`. Items can outlive
+	 * a selection (e.g. surviving a reopen-while-open), so clearing the array
+	 * without deselecting would leave ghost highlights.
+	 */
+	#clear_selections(): void {
+		if (!this.selections.length) return;
+		for (const s of this.selections) s.selected = false;
+		this.selections = [];
 	}
 
 	reset_items(items: ReadonlyArray<ItemState>): void {
@@ -266,6 +283,9 @@ export class ContextmenuState {
 	 */
 	activate(item: ItemState): boolean | Promise<ContextmenuActivateResult> {
 		if (item.is_menu) {
+			// select before expanding - `expand_selected` operates on the selection
+			// tail, and callers aren't required to have selected (hovered) `item` first
+			this.select(item);
 			this.expand_selected();
 			return true;
 		}
@@ -306,10 +326,13 @@ export class ContextmenuState {
 
 	/**
 	 * Activates the selected item, or if none is selected, selects the first.
+	 * Returns `false` without activating when the selected item has unregistered
+	 * out from under the selection (e.g. its component unmounted).
 	 */
 	activate_selected(): void | boolean | Promise<ContextmenuActivateResult> {
 		const selected = this.selections.at(-1);
 		if (selected) {
+			if (!selected.menu.items.includes(selected)) return false;
 			return this.activate(selected);
 		}
 		this.select_first();
@@ -358,6 +381,11 @@ export class ContextmenuState {
 		}
 		const item = this.selections.at(-1)!;
 		const index = item.menu.items.indexOf(item);
+		if (index === -1) {
+			// the selected item unregistered out from under the selection - restart
+			this.select_first();
+			return;
+		}
 		this.select(item.menu.items[index === item.menu.items.length - 1 ? 0 : index + 1]!);
 	}
 
@@ -368,6 +396,11 @@ export class ContextmenuState {
 		}
 		const item = this.selections.at(-1)!;
 		const index = item.menu.items.indexOf(item);
+		if (index === -1) {
+			// the selected item unregistered out from under the selection - restart
+			this.select_last();
+			return;
+		}
 		this.select(item.menu.items[index === 0 ? item.menu.items.length - 1 : index - 1]!);
 	}
 
@@ -456,8 +489,8 @@ export interface ContextmenuOpenOptions {
  * Opens the contextmenu, if appropriate,
  * querying the menu items from the DOM starting at the event target.
  * @param target - the leaf element from which to open the contextmenu
- * @param x - the page X coordinate at which to open the contextmenu, typically the mouse `pageX`
- * @param y - the page Y coordinate at which to open the contextmenu, typically the mouse `pageY`
+ * @param x - the client (viewport) X coordinate at which to open the contextmenu, typically the mouse `clientX` - the menu positions with `fixed`
+ * @param y - the client (viewport) Y coordinate at which to open the contextmenu, typically the mouse `clientY` - the menu positions with `fixed`
  * @param contextmenu - the contextmenu state
  * @param options - optional configuration for filtering entries and haptic feedback
  * @returns a boolean indicating if the menu was opened or not
@@ -551,11 +584,13 @@ const non_scoped_roots: Set<symbol> = new Set();
 
 /**
  * Registers a contextmenu root and warns if multiple non-scoped roots are detected.
- * Only active in development mode. Automatically handles cleanup on unmount.
+ * Only active in development mode - `DEV` is a build-time constant, so production
+ * bundles eliminate the check. Automatically handles cleanup on unmount.
  *
  * @param get_scoped - getter function that returns the current scoped value
  */
 export const contextmenu_check_global_root = (get_scoped: () => boolean): void => {
+	if (!DEV) return;
 	$effect(() => {
 		const id = Symbol('contextmenu_root');
 

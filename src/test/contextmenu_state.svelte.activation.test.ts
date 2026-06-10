@@ -1,7 +1,7 @@
 import {describe, test, assert, beforeEach} from 'vitest';
 
 import {ContextmenuState, EntryState, SubmenuState} from '$lib/contextmenu_state.svelte.js';
-import {add_test_entry} from './contextmenu_state_test_helpers.js';
+import {add_test_entry, add_test_submenu} from './contextmenu_state_test_helpers.js';
 
 describe('ContextmenuState - Activation', () => {
 	let contextmenu: ContextmenuState;
@@ -111,9 +111,24 @@ describe('ContextmenuState - Activation', () => {
 			assert.strictEqual(child.selected, true);
 		});
 
+		test('activate() on an unselected submenu selects it and expands into its first child', () => {
+			const submenu = add_test_submenu(contextmenu.root_menu);
+			const child = add_test_entry(submenu);
+			const other = add_test_entry(contextmenu.root_menu);
+			contextmenu.select(other); // the submenu is not the selection tail
+
+			const result = contextmenu.activate(submenu);
+
+			assert.strictEqual(result, true);
+			assert.deepEqual(contextmenu.selections, [submenu, child]);
+			assert.strictEqual(submenu.selected, true);
+			assert.strictEqual(child.selected, true);
+			assert.strictEqual(other.selected, false);
+		});
+
 		test('activate_selected() activates current selection', () => {
 			let ran = false;
-			const entry = new EntryState(contextmenu.root_menu, () => () => {
+			const entry = add_test_entry(contextmenu.root_menu, () => {
 				ran = true;
 			});
 
@@ -122,6 +137,21 @@ describe('ContextmenuState - Activation', () => {
 			void contextmenu.activate_selected();
 
 			assert.strictEqual(ran, true);
+		});
+
+		test('activate_selected() returns false without running when the selected entry was removed', () => {
+			let ran = false;
+			const entry = add_test_entry(contextmenu.root_menu, () => {
+				ran = true;
+			});
+
+			contextmenu.open([], 0, 0);
+			contextmenu.select(entry);
+			contextmenu.root_menu.remove_item(entry);
+
+			assert.strictEqual(contextmenu.can_activate, false);
+			assert.strictEqual(contextmenu.activate_selected(), false);
+			assert.strictEqual(ran, false);
 		});
 
 		test('activate_selected() selects first when no selection', () => {

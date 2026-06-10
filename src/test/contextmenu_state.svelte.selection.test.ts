@@ -247,6 +247,37 @@ describe('ContextmenuState - Selection', () => {
 			assert.strictEqual(contextmenu.selections.length, 0);
 		});
 
+		test('select_next() falls back to the first item when the selected item was removed', () => {
+			contextmenu.select(entry2);
+			contextmenu.root_menu.remove_item(entry2);
+
+			contextmenu.select_next();
+
+			assert.strictEqual(entry1.selected, true);
+			assert.deepEqual(contextmenu.selections, [entry1]);
+		});
+
+		test('select_previous() falls back to the last item when the selected item was removed', () => {
+			contextmenu.select(entry2);
+			contextmenu.root_menu.remove_item(entry2);
+
+			contextmenu.select_previous();
+
+			assert.strictEqual(entry3.selected, true);
+			assert.deepEqual(contextmenu.selections, [entry3]);
+		});
+
+		test('select_next() and select_previous() are no-ops when the selected item was removed and the menu emptied', () => {
+			contextmenu.select(entry2);
+			contextmenu.root_menu.items = [];
+
+			contextmenu.select_next();
+			assert.deepEqual(contextmenu.selections, [entry2]);
+
+			contextmenu.select_previous();
+			assert.deepEqual(contextmenu.selections, [entry2]);
+		});
+
 		test('keyboard navigation boundary conditions', () => {
 			// Empty menu
 			contextmenu.root_menu.items = [];

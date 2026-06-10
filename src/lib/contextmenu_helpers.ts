@@ -124,17 +124,76 @@ export const contextmenu_create_keydown_handler =
 		handler();
 	};
 
+/**
+ * Constrains the menu's x coordinate to the layout, shifting left to fit the right edge.
+ * Clamps at `0` so a menu wider than the layout pins its left edge - the start of each
+ * item stays visible.
+ */
 export const contextmenu_calculate_constrained_x = (
 	menu_x: number,
 	menu_width: number,
 	layout_width: number,
-): number => menu_x + Math.min(0, layout_width - (menu_x + menu_width));
+): number => Math.max(0, menu_x + Math.min(0, layout_width - (menu_x + menu_width)));
 
+/**
+ * Constrains the menu's y coordinate to the layout, shifting up to fit the bottom edge.
+ * Clamps at `0` so a menu taller than the layout pins its top edge - the first
+ * items stay visible.
+ */
 export const contextmenu_calculate_constrained_y = (
 	menu_y: number,
 	menu_height: number,
 	layout_height: number,
-): number => menu_y + Math.min(0, layout_height - (menu_y + menu_height));
+): number => Math.max(0, menu_y + Math.min(0, layout_height - (menu_y + menu_height)));
+
+export interface ContextmenuSubmenuTranslateOptions {
+	/** The submenu's untranslated viewport x - the parent menu's left edge. */
+	base_x: number;
+	/** The submenu's untranslated viewport y. */
+	base_y: number;
+	/** The submenu's width. */
+	width: number;
+	/** The submenu's height. */
+	height: number;
+	/** The parent menu's width. */
+	parent_width: number;
+	/** The layout's width. */
+	layout_width: number;
+	/** The layout's height. */
+	layout_height: number;
+}
+
+/**
+ * Calculates a submenu flyout's translation so it fits the layout.
+ *
+ * Preference order on the x axis: fly out to the right of the parent menu,
+ * else flip fully to the left of it, else shift to pin whichever side
+ * overflows less. The y axis shifts up only as far as needed to fit the
+ * bottom edge.
+ *
+ * Used by `ContextmenuSubmenu.svelte`.
+ */
+export const contextmenu_calculate_submenu_translate = (
+	options: ContextmenuSubmenuTranslateOptions,
+): {x: number; y: number} => {
+	const {base_x, base_y, width, height, parent_width, layout_width, layout_height} = options;
+	let x: number;
+	const overflow_right = base_x + width + parent_width - layout_width;
+	if (overflow_right <= 0) {
+		x = parent_width;
+	} else {
+		const overflow_left = width - base_x;
+		if (overflow_left <= 0) {
+			x = -width;
+		} else if (overflow_left > overflow_right) {
+			x = parent_width - overflow_right;
+		} else {
+			x = overflow_left - width;
+		}
+	}
+	const y = Math.min(0, layout_height - (base_y + height));
+	return {x, y};
+};
 
 export interface ContextmenuOpenFromEventOptions extends ContextmenuOpenOptions {
 	/**

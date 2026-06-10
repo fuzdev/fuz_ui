@@ -5,7 +5,7 @@
 
 import {describe, test, assert, afterEach} from 'vitest';
 import {flushSync} from 'svelte';
-import {ContextmenuState} from '$lib/contextmenu_state.svelte.js';
+import {ContextmenuState, type ContextmenuActivateResult} from '$lib/contextmenu_state.svelte.js';
 import {unmount_component} from './test_helpers.js';
 import {mount_contextmenu_root, type SharedTestOptions} from './contextmenu_test_helpers.js';
 
@@ -71,6 +71,42 @@ export const create_shared_rendering_tests = (
 
 			const layout = container.querySelector('.contextmenu-layout');
 			assert.strictEqual(layout, null);
+		});
+
+		test('entry renders the pending animation during async activation and the error state on failure', async () => {
+			mounted = mount_contextmenu_root(Component);
+
+			const {container, contextmenu} = mounted;
+
+			let reject!: (error: unknown) => void;
+			const promise = new Promise<ContextmenuActivateResult>((_, r) => (reject = r));
+			contextmenu.open(
+				[{snippet: 'text' as const, props: {content: 'Async', icon: '⏳', run: () => promise}}],
+				100,
+				200,
+			);
+			flushSync();
+
+			const item = container.querySelector('.contextmenu [role="menuitem"]');
+			assert.ok(item);
+			assert.strictEqual(container.querySelector('.pending-animation'), null);
+
+			const entry = contextmenu.root_menu.items[0]!;
+			assert.ok(!entry.is_menu);
+			const activation = contextmenu.activate(entry);
+			flushSync();
+
+			assert.ok(container.querySelector('.pending-animation'));
+
+			reject(new Error('boom'));
+			await activation;
+			flushSync();
+
+			assert.strictEqual(container.querySelector('.pending-animation'), null);
+			// failures keep the menu open and surface the message on the entry
+			assert.strictEqual(contextmenu.opened, true);
+			assert.strictEqual(item.getAttribute('title'), 'Error: boom');
+			assert.ok(item.textContent!.includes('⚠️'));
 		});
 	});
 };

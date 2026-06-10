@@ -10,6 +10,7 @@ import {contextmenu_attachment} from '$lib/contextmenu_state.svelte.js';
 import {
 	unmount_component,
 	create_contextmenu_event,
+	create_keyboard_event,
 	create_mouse_event,
 	create_touch_event,
 	set_event_target,
@@ -103,6 +104,47 @@ describe('ContextmenuRoot - Reopen While Open', () => {
 		assert.strictEqual(contextmenu.root_menu.items.length, 3);
 
 		cleanup();
+	});
+
+	// Reopening from the same target reuses the registered params (same identities),
+	// so this guards both layers that prevent a ghost highlight: `open()` deselects
+	// the previous selection, and the keyed menu remounts entries with fresh state.
+	test('reopening from the same target discards the previous selection highlight', () => {
+		mounted = mount_contextmenu_root(ContextmenuRoot);
+		const {container, contextmenu} = mounted;
+
+		const target = document.createElement('div');
+		container.appendChild(target);
+		const cleanup = contextmenu_attachment([
+			{snippet: 'text' as const, props: {content: 'A1', icon: '🍎', run: () => undefined}},
+			{snippet: 'text' as const, props: {content: 'A2', icon: '🍎', run: () => undefined}},
+		])(target);
+
+		const open_from_target = (x: number, y: number) => {
+			const event = create_contextmenu_event(x, y);
+			set_event_target(event, target);
+			window.dispatchEvent(event);
+			flushSync();
+		};
+
+		open_from_target(100, 100);
+		assert.strictEqual(contextmenu.opened, true);
+
+		// select the first item via keyboard
+		window.dispatchEvent(create_keyboard_event('ArrowDown'));
+		flushSync();
+		assert.ok(container.querySelector('.contextmenu .selected'));
+
+		// while still open, right-click the same target again
+		open_from_target(200, 200);
+
+		assert.strictEqual(contextmenu.opened, true);
+		assert.strictEqual(contextmenu.selections.length, 0);
+		// no ghost highlight from the previous open
+		assert.strictEqual(container.querySelector('.contextmenu .selected'), null);
+
+		cleanup?.();
+		target.remove();
 	});
 
 	test('reopening after close mounts exactly the new entries', () => {

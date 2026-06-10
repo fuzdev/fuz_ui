@@ -18,7 +18,6 @@
 	 * and relies on the standard `contextmenu` event.
 	 */
 	import {swallow} from '@fuzdev/fuz_util/dom.js';
-	import {DEV} from 'esm-env';
 	import {on} from 'svelte/events';
 
 	import {
@@ -73,7 +72,7 @@
 
 	contextmenu_context.set(() => contextmenu);
 
-	if (DEV) contextmenu_check_global_root(() => scoped); // TODO @many is this import tree-shaken?
+	contextmenu_check_global_root(() => scoped); // DEV-only internally, eliminated from production bundles
 
 	// The menu element while opened, bound from `ContextmenuMenu.svelte`.
 	let el: HTMLElement | undefined = $state.raw();
@@ -154,7 +153,7 @@
 		}
 	};
 
-	// Needed for the iOS workaround. Registered with { passive: false } via $effect (window) or attachment (scoped).
+	// Needed for the iOS workaround. Registered non-passively via `touch_event_attachment` (window or scoped element).
 	const touchstart = (e: TouchEvent): void => {
 		longpress_opened = false;
 		open_guard.touchstart(); // begins a gesture, clearing stale flags
@@ -205,7 +204,7 @@
 		}, longpress_duration);
 	};
 
-	// Needed for the iOS workaround. Registered with { passive: false } via $effect (window) or attachment (scoped).
+	// Needed for the iOS workaround. Registered non-passively via `touch_event_attachment` (window or scoped element).
 	const touchmove = (e: TouchEvent): void => {
 		// Exit early if no pending longpress or menu is already open
 		if (longpress_timeout === null || contextmenu.opened) return;
@@ -222,7 +221,7 @@
 		// CRITICAL: Prevent iOS from showing magnifier, text selection, and link callouts
 		e.preventDefault();
 	};
-	// Needed for the iOS workaround. Registered with { passive: false } via $effect.
+	// Needed for the iOS workaround. Registered non-passively via `touch_event_attachment` (window or scoped element).
 	const touchend = (e: TouchEvent): void => {
 		// Swallow the release of a gesture that opened the menu (custom longpress or
 		// native `contextmenu`), stopping the browser from synthesizing mouse events at
@@ -291,9 +290,11 @@
 />
 
 {#if scoped}
+	<!-- A transparent (`display: contents`) event-delegation wrapper. `role="group"` rather
+	than a landmark role - it satisfies the a11y lint without requiring an accessible name. -->
 	<div
 		class="contextmenu-root"
-		role="region"
+		role="group"
 		oncontextmenu={on_window_contextmenu}
 		{@attach touch_event_attachment}
 	>

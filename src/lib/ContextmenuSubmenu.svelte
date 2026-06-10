@@ -1,8 +1,9 @@
 <script lang="ts">
-	import type {Snippet} from 'svelte';
+	import {onDestroy, type Snippet} from 'svelte';
 	import {swallow} from '@fuzdev/fuz_util/dom.js';
 
 	import {contextmenu_context, contextmenu_dimensions_context} from './contextmenu_state.svelte.js';
+	import {contextmenu_calculate_submenu_translate} from './contextmenu_helpers.js';
 	import type {Dimensions} from './dimensions.svelte.js';
 
 	const {
@@ -32,6 +33,10 @@
 
 	let translate_x = $state.raw(0);
 	let translate_y = $state.raw(0);
+	// Measure-and-correct loop: `update_position` reads `translate_x`/`translate_y`
+	// (subtracting them from the measured rect to recover the untranslated base position)
+	// and writes them back, so the effect re-runs after the transform applies -
+	// the second pass measures the same base and writes identical values, settling.
 	$effect(() => {
 		if (el) update_position(el, layout, parent_dimensions);
 	});
@@ -39,23 +44,23 @@
 		const {x, y, width, height} = el.getBoundingClientRect();
 		dimensions.width = width;
 		dimensions.height = height;
-		const base_x = x - translate_x;
-		const base_y = y - translate_y;
-		const overflow_right = base_x + width + parent_dimensions.width - layout.width;
-		if (overflow_right <= 0) {
-			translate_x = parent_dimensions.width;
-		} else {
-			const overflow_left = width - base_x;
-			if (overflow_left <= 0) {
-				translate_x = -width;
-			} else if (overflow_left > overflow_right) {
-				translate_x = parent_dimensions.width - overflow_right;
-			} else {
-				translate_x = overflow_left - width;
-			}
-		}
-		translate_y = Math.min(0, layout.height - (base_y + height));
+		const translate = contextmenu_calculate_submenu_translate({
+			base_x: x - translate_x,
+			base_y: y - translate_y,
+			width,
+			height,
+			parent_width: parent_dimensions.width,
+			layout_width: layout.width,
+			layout_height: layout.height,
+		});
+		translate_x = translate.x;
+		translate_y = translate.y;
 	};
+
+	let select_timeout: NodeJS.Timeout | null = null;
+	onDestroy(() => {
+		if (select_timeout !== null) clearTimeout(select_timeout);
+	});
 </script>
 
 <li role="none" style:--contextmenu_depth={submenu.depth}>
@@ -64,7 +69,6 @@
 		class="menuitem plain selectable"
 		class:selected
 		role="menuitem"
-		aria-label="contextmenu submenmu"
 		aria-haspopup="menu"
 		tabindex="-1"
 		onmouseenter={(e) => {
@@ -73,7 +77,11 @@
 			// fires immediately when the contextmenu appears,
 			// and then the newly mounted selected entry immediately receives a click event.
 			// The timeout ensures the click event is not passed through.
-			setTimeout(() => contextmenu.select(submenu));
+			if (select_timeout !== null) clearTimeout(select_timeout);
+			select_timeout = setTimeout(() => {
+				select_timeout = null;
+				contextmenu.select(submenu);
+			});
 		}}
 		aria-expanded={selected}
 	>
