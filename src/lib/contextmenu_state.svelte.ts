@@ -131,7 +131,7 @@ export interface ContextmenuStateOptions {
 }
 
 /**
- * Creates a contextmenu store.
+ * Manages contextmenu state.
  * See usage with `ContextmenuRoot.svelte` and `Contextmenu.svelte`.
  *
  * @see {@link https://developer.mozilla.org/en-US/docs/Web/API/Element/contextmenu_event}
@@ -238,7 +238,10 @@ export class ContextmenuState {
 		this.error = message;
 	}
 
-	#handle_result(item: EntryState, result: ContextmenuActivateResult): void {
+	/**
+	 * Applies an activation result, returning `false` when it failed.
+	 */
+	#handle_result(item: EntryState, result: ContextmenuActivateResult): boolean {
 		if (typeof result?.ok === 'boolean') {
 			if (result.ok) {
 				if (result.close !== false) {
@@ -246,13 +249,21 @@ export class ContextmenuState {
 				}
 			} else {
 				this.#handle_error(item, to_error_message(result));
+				return false;
 			}
 		} else {
 			// void or undefined - default behavior is to close
 			this.close();
 		}
+		return true;
 	}
 
+	/**
+	 * Activates `item` - expanding submenus, running entries.
+	 *
+	 * @returns for async runs, the activation promise; for sync runs, `false` when the
+	 * activation didn't run (disabled) or failed (a throw or `{ok: false}`), else `true`
+	 */
 	activate(item: ItemState): boolean | Promise<ContextmenuActivateResult> {
 		if (item.is_menu) {
 			this.expand_selected();
@@ -290,8 +301,7 @@ export class ContextmenuState {
 			return item.promise; // async path
 		}
 		// synchronous path
-		this.#handle_result(item, returned);
-		return true;
+		return this.#handle_result(item, returned);
 	}
 
 	/**
@@ -402,12 +412,16 @@ export class ContextmenuState {
 	}
 }
 
+// The dataset attribute is only a crawl marker for `contextmenu_query_params` -
+// the params themselves live in `contextmenu_params_by_element`, keyed by element.
 // The dataset key must not have capital letters or dashes or it'll differ between JS and DOM:
 // https://developer.mozilla.org/en-US/docs/Web/API/HTMLElement/dataset
 const CONTEXTMENU_DATASET_KEY = 'contextmenu';
 const CONTEXTMENU_DOM_QUERY = `a,[data-${CONTEXTMENU_DATASET_KEY}]`;
-const contextmenu_cache: Map<string, ContextmenuParams | Array<ContextmenuParams>> = new Map();
-let cache_key_counter = 0;
+const contextmenu_params_by_element: WeakMap<
+	Element,
+	ContextmenuParams | Array<ContextmenuParams>
+> = new WeakMap();
 
 /**
  * Creates an attachment that sets up contextmenu behavior on an element.
@@ -418,20 +432,14 @@ export const contextmenu_attachment =
 		params: U | null | undefined,
 	): Attachment<HTMLElement | SVGElement> =>
 	(el): undefined | (() => void) => {
-		// TODO could clean up the dataset attr, maybe use a weakmap?
 		if (params == null) return;
 
-		// Only create key once per element, reuse on updates
-		let key = el.dataset[CONTEXTMENU_DATASET_KEY];
-		if (!key) {
-			key = cache_key_counter++ + '';
-			el.dataset[CONTEXTMENU_DATASET_KEY] = key;
-		}
-
-		contextmenu_cache.set(key, params);
+		el.dataset[CONTEXTMENU_DATASET_KEY] = '';
+		contextmenu_params_by_element.set(el, params);
 
 		return () => {
-			contextmenu_cache.delete(key);
+			contextmenu_params_by_element.delete(el);
+			delete el.dataset[CONTEXTMENU_DATASET_KEY];
 		};
 	};
 
@@ -450,7 +458,7 @@ export interface ContextmenuOpenOptions {
  * @param target - the leaf element from which to open the contextmenu
  * @param x - the page X coordinate at which to open the contextmenu, typically the mouse `pageX`
  * @param y - the page Y coordinate at which to open the contextmenu, typically the mouse `pageY`
- * @param contextmenu - the contextmenu store
+ * @param contextmenu - the contextmenu state
  * @param options - optional configuration for filtering entries and haptic feedback
  * @returns a boolean indicating if the menu was opened or not
  */
@@ -499,18 +507,15 @@ const contextmenu_query_params = (
 	// crawl DOM for contextmenu entries
 	let el: HTMLElement | SVGElement | null | undefined = target;
 	while ((el = el?.closest(CONTEXTMENU_DOM_QUERY))) {
-		const cache_key = el.dataset[CONTEXTMENU_DATASET_KEY];
-		if (cache_key) {
-			// the cache entry may be missing when an attachment was nullified
-			// but its dataset attribute remains - treat the element as having no entries
-			const cached = contextmenu_cache.get(cache_key);
-			if (cached !== undefined) {
-				// preserve bubbling order
-				if (Array.isArray(cached)) {
-					(params ??= []).push(...cached);
-				} else {
-					(params ??= []).push(cached);
-				}
+		// Params may be missing when the element matched as a bare `<a>`, or when a
+		// stale marker was left behind - treat the element as having no registered entries.
+		const registered = contextmenu_params_by_element.get(el);
+		if (registered !== undefined) {
+			// preserve bubbling order
+			if (Array.isArray(registered)) {
+				(params ??= []).push(...registered);
+			} else {
+				(params ??= []).push(registered);
 			}
 		}
 		if (el.tagName === 'A') {

@@ -23,11 +23,11 @@ describe('contextmenu_open DOM querying', () => {
 		root.remove();
 	});
 
-	test('returns false without hanging for a stale dataset key', () => {
-		// Simulates an attachment that was nullified or torn down,
-		// leaving its dataset attribute on the element with no corresponding cache entry.
+	test('returns false without hanging for a stale dataset marker', () => {
+		// Simulates a stale marker - the dataset attribute is present
+		// (e.g. set by external code) but no params are registered for the element.
 		const el = document.createElement('div');
-		el.dataset.contextmenu = 'stale_key_with_no_cache_entry';
+		el.dataset.contextmenu = '';
 		root.appendChild(el);
 		const child = document.createElement('span');
 		el.appendChild(child);
@@ -36,11 +36,11 @@ describe('contextmenu_open DOM querying', () => {
 		assert.strictEqual(contextmenu.opened, false);
 	});
 
-	test('collects entries from ancestors above a stale dataset key', () => {
+	test('collects entries from ancestors above a stale dataset marker', () => {
 		const outer = document.createElement('div');
 		root.appendChild(outer);
 		const stale = document.createElement('div');
-		stale.dataset.contextmenu = 'another_stale_key';
+		stale.dataset.contextmenu = '';
 		outer.appendChild(stale);
 		const target = document.createElement('span');
 		stale.appendChild(target);
@@ -57,7 +57,7 @@ describe('contextmenu_open DOM querying', () => {
 		cleanup?.();
 	});
 
-	test('attachment params register and unregister with the cache', () => {
+	test('attachment params register and unregister', () => {
 		const el = document.createElement('div');
 		root.appendChild(el);
 
@@ -65,14 +65,78 @@ describe('contextmenu_open DOM querying', () => {
 			{snippet: 'text' as const, props: {content: 'entry', icon: '🙂', run: () => {}}},
 		];
 		const cleanup = contextmenu_attachment(params)(el);
+		assert.strictEqual(el.dataset.contextmenu, '');
 
 		assert.strictEqual(contextmenu_open(el, 0, 0, contextmenu), true);
 		contextmenu.close();
 
-		// After cleanup the dataset attribute remains but the cache entry is gone,
+		// Cleanup removes both the registration and the crawl marker,
 		// so opening is a no-op instead of hanging or showing stale entries.
 		cleanup?.();
+		assert.strictEqual(el.dataset.contextmenu, undefined);
 		assert.strictEqual(contextmenu_open(el, 0, 0, contextmenu), false);
 		assert.strictEqual(contextmenu.opened, false);
+	});
+});
+
+describe('contextmenu_open entry filtering', () => {
+	let contextmenu: ContextmenuState;
+	let root: HTMLElement;
+
+	const text_param = {
+		snippet: 'text' as const,
+		props: {content: 'entry', icon: '🙂', run: () => {}},
+	};
+	const separator_param = {snippet: 'separator' as const, props: {}};
+
+	beforeEach(() => {
+		contextmenu = new ContextmenuState();
+		root = document.createElement('div');
+		document.body.appendChild(root);
+	});
+
+	afterEach(() => {
+		root.remove();
+	});
+
+	test('separator_enabled: false drops separator params', () => {
+		const el = document.createElement('div');
+		root.appendChild(el);
+		const cleanup = contextmenu_attachment([text_param, separator_param])(el);
+
+		assert.strictEqual(contextmenu_open(el, 0, 0, contextmenu, {separator_enabled: false}), true);
+		assert.deepEqual(contextmenu.params, [text_param]);
+
+		cleanup?.();
+	});
+
+	test('link_enabled: false drops the anchor-derived link param', () => {
+		const anchor = document.createElement('a');
+		anchor.href = '/somewhere';
+		root.appendChild(anchor);
+		const el = document.createElement('span');
+		anchor.appendChild(el);
+		const cleanup = contextmenu_attachment([text_param])(el);
+
+		// sanity: with links enabled the anchor contributes a link param
+		assert.strictEqual(contextmenu_open(el, 0, 0, contextmenu), true);
+		assert.strictEqual(contextmenu.params.length, 2);
+		contextmenu.close();
+
+		assert.strictEqual(contextmenu_open(el, 0, 0, contextmenu, {link_enabled: false}), true);
+		assert.deepEqual(contextmenu.params, [text_param]);
+
+		cleanup?.();
+	});
+
+	test('returns false when filtering removes every param', () => {
+		const el = document.createElement('div');
+		root.appendChild(el);
+		const cleanup = contextmenu_attachment([text_param])(el);
+
+		assert.strictEqual(contextmenu_open(el, 0, 0, contextmenu, {text_enabled: false}), false);
+		assert.strictEqual(contextmenu.opened, false);
+
+		cleanup?.();
 	});
 });

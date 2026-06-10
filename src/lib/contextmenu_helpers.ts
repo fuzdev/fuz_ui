@@ -1,12 +1,16 @@
 import {is_editable, swallow, inside_editable} from '@fuzdev/fuz_util/dom.js';
 import {EMPTY_OBJECT} from '@fuzdev/fuz_util/object.js';
 import type {Attachment} from 'svelte/attachments';
+import type {ComponentProps, Snippet} from 'svelte';
 
 import {
 	contextmenu_open,
 	type ContextmenuOpenOptions,
 	type ContextmenuState,
 } from './contextmenu_state.svelte.js';
+import type ContextmenuLinkEntry from './ContextmenuLinkEntry.svelte';
+import type ContextmenuTextEntry from './ContextmenuTextEntry.svelte';
+import type ContextmenuSeparator from './ContextmenuSeparator.svelte';
 
 // Constants for default prop values
 export const CONTEXTMENU_DEFAULT_OPEN_OFFSET_X = -2;
@@ -15,6 +19,65 @@ export const CONTEXTMENU_DEFAULT_BYPASS_WINDOW = 750;
 export const CONTEXTMENU_DEFAULT_BYPASS_MOVE_TOLERANCE = 11;
 export const CONTEXTMENU_DEFAULT_LONGPRESS_DURATION = 633;
 export const CONTEXTMENU_DEFAULT_LONGPRESS_MOVE_TOLERANCE = 21;
+
+/**
+ * Props shared by `ContextmenuRoot.svelte` and `ContextmenuRootForSafariCompatibility.svelte`.
+ * Defaults are applied identically by both roots.
+ */
+export interface ContextmenuRootBaseProps {
+	contextmenu?: ContextmenuState;
+	/**
+	 * The number of pixels to offset from the pointer X position when opened.
+	 * Useful to ensure the first menu item is immediately under the pointer.
+	 */
+	open_offset_x?: number;
+	/**
+	 * The number of pixels to offset from the pointer Y position when opened.
+	 * Useful to ensure the first menu item is immediately under the pointer.
+	 */
+	open_offset_y?: number;
+	/**
+	 * Whether to detect tap-then-longpress to bypass the Fuz contextmenu.
+	 * This allows access to the system contextmenu by tapping once then rightclicking/long-pressing.
+	 * Setting to `false` disables the gesture.
+	 */
+	bypass_with_tap_then_longpress?: boolean;
+	/**
+	 * The number of milliseconds between taps to detect a gesture that bypasses the Fuz contextmenu.
+	 * Used only when `bypass_with_tap_then_longpress` is true.
+	 * If the duration is too long, it'll detect more false positives and interrupt normal usage,
+	 * but too short and some people will have difficulty performing the gesture.
+	 */
+	bypass_window?: number;
+	/**
+	 * The number of pixels the pointer can be moved between taps to detect a tap-then-longpress.
+	 * Used only when `bypass_with_tap_then_longpress` is true.
+	 */
+	bypass_move_tolerance?: number;
+	/**
+	 * If `true`, wraps `children` with a div and listens to events on it instead of the window.
+	 */
+	scoped?: boolean;
+	/**
+	 * Snippet for rendering link entries.
+	 * Set to `null` to disable automatic link detection.
+	 * Defaults to `link_entry_default` which renders `ContextmenuLinkEntry`.
+	 */
+	link_entry?: Snippet<[ComponentProps<typeof ContextmenuLinkEntry>]> | null;
+	/**
+	 * Snippet for rendering copy text entries.
+	 * Set to `null` to disable automatic copy text detection.
+	 * Defaults to `text_entry_default` which renders `ContextmenuTextEntry`.
+	 */
+	text_entry?: Snippet<[ComponentProps<typeof ContextmenuTextEntry>]> | null;
+	/**
+	 * Snippet for rendering separator entries.
+	 * Set to `null` to disable automatic separator rendering.
+	 * Defaults to `separator_entry_default` which renders `ContextmenuSeparator`.
+	 */
+	separator_entry?: Snippet<[ComponentProps<typeof ContextmenuSeparator>]> | null;
+	children: Snippet;
+}
 
 /**
  * Returns true if valid and narrows the type to HTMLElement | SVGElement.
@@ -83,7 +146,7 @@ export interface ContextmenuOpenFromEventOptions extends ContextmenuOpenOptions 
  * Swallows the event when the menu opens.
  *
  * @param e - the `contextmenu` event
- * @param contextmenu - the contextmenu store
+ * @param contextmenu - the contextmenu state
  * @param menu_el - the open menu element, if any, so events inside it are ignored
  * @param options - offsets and entry filtering forwarded to `contextmenu_open`
  * @returns whether the contextmenu was opened
@@ -126,7 +189,7 @@ export const contextmenu_open_from_event = (
  * after their root-specific bypass and longpress handling.
  *
  * @param e - the `contextmenu` event
- * @param contextmenu - the contextmenu store
+ * @param contextmenu - the contextmenu state
  * @param menu_el - the open menu element, if any
  * @param open_guard - guard that identifies presses belonging to the gesture that opened the menu
  * @param options - offsets and entry filtering forwarded to `contextmenu_open`
@@ -172,7 +235,7 @@ export const contextmenu_resolve_contextmenu_event = (
  * consumers keep the menu open through a press by swallowing the event
  * (e.g. menu controller buttons that use `onmousedowncapture` + `swallow`).
  *
- * @param contextmenu - the contextmenu store
+ * @param contextmenu - the contextmenu state
  * @param get_menu_el - getter for the open menu element, if any
  * @param open_guard - guard that identifies presses belonging to the gesture that opened the menu
  */

@@ -39,9 +39,7 @@ describe('ContextmenuRoot - Reopen While Open', () => {
 
 	/**
 	 * Sets up two contextmenu targets with different text-entry params and opens
-	 * the menu from the first one. Uses `contextmenu_attachment` directly so each
-	 * target gets a unique cache key (`setup_contextmenu_attachment` shares one key,
-	 * which would clobber the first target).
+	 * the menu from the first one.
 	 */
 	const mount_and_open_first_target = () => {
 		mounted = mount_contextmenu_root(ContextmenuRoot);

@@ -16,7 +16,7 @@ import {
 } from '$lib/contextmenu_state.svelte.js';
 
 /**
- * Creates an `EntryState` and registers it in `menu.items` immutably.
+ * Creates an `EntryState` and registers it via `menu.add_item`.
  *
  * Note that `EntryState`'s second constructor arg is a getter returning
  * the run function, so this wraps `run` in a getter for callers.
@@ -32,18 +32,18 @@ export const add_test_entry = (
 	disabled?: () => boolean,
 ): EntryState => {
 	const entry = new EntryState(menu, () => run, disabled);
-	menu.items = [...menu.items, entry];
+	menu.add_item(entry);
 	return entry;
 };
 
 /**
- * Creates a `SubmenuState` at `menu.depth + 1` and registers it in `menu.items` immutably.
+ * Creates a `SubmenuState` at `menu.depth + 1` and registers it via `menu.add_item`.
  *
  * @param menu - the menu to register the submenu in
  * @returns the registered submenu
  */
 export const add_test_submenu = (menu: SubmenuState | RootMenuState): SubmenuState => {
 	const submenu = new SubmenuState(menu, menu.depth + 1);
-	menu.items = [...menu.items, submenu];
+	menu.add_item(submenu);
 	return submenu;
 };

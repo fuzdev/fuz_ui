@@ -20,23 +20,18 @@
 	import {swallow} from '@fuzdev/fuz_util/dom.js';
 	import {DEV} from 'esm-env';
 	import {on} from 'svelte/events';
-	import type {ComponentProps, Snippet} from 'svelte';
 
 	import {
 		contextmenu_context,
-		contextmenu_dimensions_context,
 		ContextmenuState,
 		contextmenu_open,
 		contextmenu_check_global_root,
 	} from './contextmenu_state.svelte.js';
-	import type ContextmenuLinkEntry from './ContextmenuLinkEntry.svelte';
-	import type ContextmenuTextEntry from './ContextmenuTextEntry.svelte';
-	import type ContextmenuSeparator from './ContextmenuSeparator.svelte';
-	import {
+	import ContextmenuMenu, {
 		link_entry_default,
 		text_entry_default,
 		separator_entry_default,
-	} from './ContextmenuRoot.svelte';
+	} from './ContextmenuMenu.svelte';
 	import {
 		CONTEXTMENU_DEFAULT_OPEN_OFFSET_X,
 		CONTEXTMENU_DEFAULT_OPEN_OFFSET_Y,
@@ -45,15 +40,10 @@
 		CONTEXTMENU_DEFAULT_LONGPRESS_DURATION,
 		CONTEXTMENU_DEFAULT_LONGPRESS_MOVE_TOLERANCE,
 		contextmenu_is_valid_target,
-		contextmenu_create_keyboard_handlers,
-		contextmenu_create_keydown_handler,
-		contextmenu_create_mousedown_handler,
-		contextmenu_calculate_constrained_x,
-		contextmenu_calculate_constrained_y,
-		contextmenu_popover_attachment,
 		contextmenu_resolve_contextmenu_event,
 		ContextmenuBypassTracker,
 		ContextmenuOpenGuard,
+		type ContextmenuRootBaseProps,
 	} from './contextmenu_helpers.js';
 
 	const {
@@ -70,8 +60,7 @@
 		text_entry = text_entry_default,
 		separator_entry = separator_entry_default,
 		children,
-	}: {
-		contextmenu?: ContextmenuState;
+	}: ContextmenuRootBaseProps & {
 		/**
 		 * The number of pixels the pointer can be moved without canceling `longpress`.
 		 */
@@ -80,75 +69,14 @@
 		 * The number of milliseconds after a touch starts before opening the Fuz contextmenu.
 		 */
 		longpress_duration?: number;
-		/**
-		 * Whether to detect tap-then-longpress to bypass the Fuz contextmenu.
-		 * This allows access to the system contextmenu by tapping once then long-pressing.
-		 * Setting to `false` disables the gesture.
-		 */
-		bypass_with_tap_then_longpress?: boolean;
-		/**
-		 * The number of milliseconds between taps to detect a gesture that bypasses the Fuz contextmenu.
-		 * Used only when `bypass_with_tap_then_longpress` is true.
-		 * If the duration is too long, it'll detect more false positives and interrupt normal usage,
-		 * but too short and some people will have difficulty performing the gesture.
-		 */
-		bypass_window?: number;
-		/**
-		 * The number of pixels the pointer can be moved between taps to detect a tap-then-longpress.
-		 * Used only when `bypass_with_tap_then_longpress` is true.
-		 */
-		bypass_move_tolerance?: number;
-		/**
-		 * The number of pixels to offset from the pointer X position when opened.
-		 * Useful to ensure the first menu item is immediately under the pointer.
-		 */
-		open_offset_x?: number;
-		/**
-		 * The number of pixels to offset from the pointer Y position when opened.
-		 * Useful to ensure the first menu item is immediately under the pointer.
-		 */
-		open_offset_y?: number;
-		/**
-		 * If `true`, wraps `children` with a div and listens to events on it instead of the window.
-		 */
-		scoped?: boolean;
-		/**
-		 * Snippet for rendering link entries.
-		 * Set to `null` to disable automatic link detection.
-		 * Defaults to `link_entry_default` which renders `ContextmenuLinkEntry`.
-		 */
-		link_entry?: Snippet<[ComponentProps<typeof ContextmenuLinkEntry>]> | null;
-		/**
-		 * Snippet for rendering copy text entries.
-		 * Set to `null` to disable automatic copy text detection.
-		 * Defaults to `text_entry_default` which renders `ContextmenuTextEntry`.
-		 */
-		text_entry?: Snippet<[ComponentProps<typeof ContextmenuTextEntry>]> | null;
-		/**
-		 * Snippet for rendering separator entries.
-		 * Set to `null` to disable automatic separator rendering.
-		 * Defaults to `separator_entry_default` which renders `ContextmenuSeparator`.
-		 */
-		separator_entry?: Snippet<[ComponentProps<typeof ContextmenuSeparator>]> | null;
-		children: Snippet;
 	} = $props();
 
 	contextmenu_context.set(() => contextmenu);
 
 	if (DEV) contextmenu_check_global_root(() => scoped); // TODO @many is this import tree-shaken?
 
+	// The menu element while opened, bound from `ContextmenuMenu.svelte`.
 	let el: HTMLElement | undefined = $state.raw();
-
-	const {layout} = $derived(contextmenu);
-
-	const dimensions = contextmenu_dimensions_context.set();
-
-	const x = $derived(
-		contextmenu_calculate_constrained_x(contextmenu.x, dimensions.width, layout.width),
-	);
-	const y = $derived(
-		contextmenu_calculate_constrained_y(contextmenu.y, dimensions.height, layout.height),
-	);
 
 	// TODO maybe show an indicator fade in at these coordinates
 
@@ -318,14 +246,6 @@
 		reset_all();
 	};
 
-	// Closes the contextmenu on presses outside of it.
-	const mousedown = $derived(
-		contextmenu_create_mousedown_handler(contextmenu, () => el, open_guard),
-	);
-
-	const keyboard_handlers = $derived(contextmenu_create_keyboard_handlers(contextmenu));
-	const keydown = $derived(contextmenu_create_keydown_handler(keyboard_handlers));
-
 	/**
 	 * Creates an attachment that registers touch event listeners with { passive: false }
 	 * to enable preventDefault() on iOS Safari. Works for both window (non-scoped mode) and
@@ -367,9 +287,6 @@
 
 <svelte:window
 	oncontextmenu={scoped ? undefined : on_window_contextmenu}
-	onmousedown={!contextmenu.opened ? undefined : mousedown}
-	onkeydown={!contextmenu.opened ? undefined : keydown}
-	onmouseupcapture={(e) => open_guard.track_mouseup(e)}
 	{@attach scoped ? undefined : touch_event_attachment}
 />
 
@@ -386,48 +303,7 @@
 	{@render children()}
 {/if}
 
-{#if !contextmenu.has_custom_layout}
-	<div
-		class="contextmenu-layout"
-		bind:clientWidth={layout.width}
-		bind:clientHeight={layout.height}
-		aria-hidden="true"
-	></div>
-{/if}
-
-<!-- TODO Maybe animate a subtle highlight around the contextmenu as it appears? -->
-{#if contextmenu.opened}
-	<ul
-		class="contextmenu unstyled pane"
-		role="menu"
-		aria-label="context menu"
-		tabindex="-1"
-		popover="manual"
-		{@attach contextmenu_popover_attachment(contextmenu)}
-		bind:this={el}
-		bind:offsetWidth={dimensions.width}
-		bind:offsetHeight={dimensions.height}
-		style:transform="translate3d({x}px, {y}px, 0)"
-		onclickcapture={(e) => {
-			// iOS synthesizes a click after touchend which
-			// can unintentionally activate the first menu item. This blocks it.
-			if (open_guard.consume_blocked_click()) swallow(e);
-		}}
-	>
-		<!-- TODO maybe this should be generic? -->
-		{#each contextmenu.params as p (p)}
-			{#if typeof p === 'function'}
-				{@render p()}
-			{:else if p.snippet === 'link'}
-				{@render link_entry?.(p.props)}
-			{:else if p.snippet === 'text'}
-				{@render text_entry?.(p.props)}
-			{:else if p.snippet === 'separator'}
-				{@render separator_entry?.(p.props)}
-			{/if}
-		{/each}
-	</ul>
-{/if}
+<ContextmenuMenu bind:el {contextmenu} {open_guard} {link_entry} {text_entry} {separator_entry} />
 
 <style>
 	:global(body.contextmenu-pending) {
@@ -441,46 +317,5 @@
 
 	.contextmenu-root {
 		display: contents;
-	}
-	.contextmenu {
-		--icon_size: var(--icon_size_xs);
-		/* TODO maybe make this responsive or a max of the page width
-		minus some space to tap items covered by the menu on the side,
-		or consider a totally different design for small screens (more dialog-like)  */
-		--contextmenu_width: 320px;
-		position: fixed;
-		left: 0;
-		top: 0;
-		/* the z-index is the fallback for browsers without the Popover API,
-		where the menu can't layer over modal dialogs */
-		z-index: var(--contextmenu_z_index, 200);
-		max-width: var(--contextmenu_width);
-		width: 100%;
-		/* reset the UA `[popover]` styles; positioning stays transform-based */
-		right: auto;
-		bottom: auto;
-		margin: 0;
-		padding: 0;
-		color: inherit;
-		/* the UA popover style sets `overflow: auto`, which would clip submenu flyouts */
-		overflow: visible;
-		/* Re-enable callouts on the menu itself to allow native contextmenu (for dev tools).
-		   Resets the global body blocking. Prevents the menu from being selected. */
-		-webkit-touch-callout: initial !important;
-	}
-	/* TODO hacky */
-	.contextmenu,
-	.contextmenu :global(menu.pane) {
-		border: var(--contextmenu_border_width, var(--border_width))
-			var(--contextmenu_border_style, var(--border_style))
-			var(--contextmenu_border_color, var(--border_color));
-		border-radius: var(--contextmenu_border_radius, var(--border_radius_xs));
-	}
-
-	/* TODO better way to do this? */
-	.contextmenu-layout {
-		z-index: -200;
-		position: fixed;
-		inset: 0;
 	}
 </style>

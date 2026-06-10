@@ -39,6 +39,22 @@ describe('ContextmenuState - Activation', () => {
 			assert.strictEqual(contextmenu.opened, true);
 		});
 
+		test('activate() returns false for a synchronous failed result and stays open', () => {
+			const entry = add_test_entry(contextmenu.root_menu, () => ({
+				ok: false as const,
+				message: 'sync failure',
+			}));
+
+			contextmenu.open([], 0, 0);
+			const returned = contextmenu.activate(entry);
+
+			// A failed result reports the same as a synchronous throw.
+			assert.strictEqual(returned, false);
+			assert.strictEqual(entry.error_message, 'sync failure');
+			assert.strictEqual(contextmenu.error, 'sync failure');
+			assert.strictEqual(contextmenu.opened, true);
+		});
+
 		test('activate() handles async success and closes', async () => {
 			let resolved = false;
 			const entry = new EntryState(contextmenu.root_menu, () => async () => {

@@ -109,8 +109,9 @@ helpers (`generateImport`, `getDisplayName` from `declaration-helpers.js`).
 ### Overlays and dialogs
 
 - `Dialog`, `DialogContent` - native `<dialog>` modal and its default content surface
-- `Contextmenu*` - context menu system (Root, Entry, LinkEntry, TextEntry,
-  Submenu, Separator)
+- `Contextmenu*` - context menu system (Root, Menu, Entry, LinkEntry, TextEntry,
+  Submenu, Separator); `ContextmenuMenu` is the open-menu surface shared by the
+  two roots, which own gesture detection
 
 ### Forms and inputs
 

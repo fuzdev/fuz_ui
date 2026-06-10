@@ -55,7 +55,6 @@ export const setup_contextmenu_attachment = async (
 	element: HTMLElement | SVGElement,
 	params: Array<any>,
 ): Promise<(() => void) | void> => {
-	element.dataset.contextmenu = 'test';
 	const {contextmenu_attachment} = await import('$lib/contextmenu_state.svelte.js');
 	const attachment = contextmenu_attachment(params);
 	return attachment(element);

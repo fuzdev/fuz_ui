@@ -637,6 +637,31 @@ describe('ContextmenuOpenGuard - gesture causality', () => {
 
 		assert.strictEqual(guard.consume_blocked_click(), false);
 	});
+
+	test('a partial release of a multi-touch keeps the gesture active', () => {
+		guard.touchstart();
+
+		// one finger lifts while another remains down
+		const partial = create_touch_event('touchend', [{clientX: 0, clientY: 0}]);
+		set_event_time(partial, 1000);
+		guard.touchend(partial);
+
+		// a press during the remaining touch still belongs to the gesture
+		assert.strictEqual(
+			guard.press_belongs_to_open_gesture(create_button_event('mousedown', 0, 2000)),
+			true,
+		);
+
+		// the final release ends the gesture
+		const final_release = create_touch_event('touchend', []);
+		set_event_time(final_release, 3000);
+		guard.touchend(final_release);
+
+		assert.strictEqual(
+			guard.press_belongs_to_open_gesture(create_button_event('mousedown', 0, 3001)),
+			false,
+		);
+	});
 });
 
 describe('contextmenu_resolve_contextmenu_event', () => {
@@ -824,6 +849,18 @@ describe('contextmenu_popover_attachment', () => {
 
 		assert.strictEqual(show_popover.mock.calls.length, 1);
 		assert.strictEqual(el.parentNode, document.body);
+	});
+
+	test('does not call showPopover again when the popover is already shown', () => {
+		// the attachment re-runs when the `contextmenu` prop changes identity -
+		// `showPopover()` throws on an already-shown popover
+		const show_popover = vi.fn();
+		el.showPopover = show_popover;
+		vi.spyOn(el, 'matches').mockReturnValue(true);
+
+		contextmenu_popover_attachment(contextmenu)(el);
+
+		assert.strictEqual(show_popover.mock.calls.length, 0);
 	});
 
 	test('reparents into the modal dialog before showing and closes the menu with it', () => {

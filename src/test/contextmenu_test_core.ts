@@ -160,7 +160,6 @@ export const create_shared_core_tests = (
 
 					// Setup a target with contextmenu data
 					const target = document.createElement('div');
-					target.dataset.contextmenu = 'test';
 					menu_el.appendChild(target);
 
 					const {contextmenu_attachment} = await import('$lib/contextmenu_state.svelte.js');
