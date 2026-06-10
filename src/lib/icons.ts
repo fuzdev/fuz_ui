@@ -224,6 +224,15 @@ export const icon_download = {
 	],
 } satisfies SvgData;
 
+export const icon_upload = {
+	label: 'upload arrow',
+	paths: [
+		{
+			d: 'M50 10l25 30h-20v36a2 2 0 0 1-2 2h-6a2 2 0 0 1-2-2v-36h-20zM17 80h66a2 2 0 0 1 2 2v6a2 2 0 0 1-2 2h-66a2 2 0 0 1-2-2v-6a2 2 0 0 1 2-2z',
+		},
+	],
+} satisfies SvgData;
+
 export const icon_error = {
 	label: 'error, double exclamation',
 	paths: [
@@ -455,7 +464,7 @@ export const icon_capability = {
 	label: 'capability, wrench',
 	paths: [
 		{
-			d: 'M77.7 14.5A20 20 0 1 0 85.5 22.3L70.5 37.3A5.6 5.6 0 0 1 62.7 29.5zM49.3 34.5Q50 40.1 46.1 44L17.1 73.1A7 7 0 0 0 26.9 82.9L56 53.9Q59.9 50 65.5 50.7z',
+			d: 'M73.8 12.9A20 20 0 1 0 87.1 26.2Q86 23.2 83.2 26L75.4 33.8A6.6 6.6 0 0 1 66.2 24.6L74 16.8Q76.8 14 73.8 12.9zM49.3 34.5Q50 40.1 46.1 44L17.1 73.1A7 7 0 0 0 26.9 82.9L56 53.9Q59.9 50 65.5 50.7z',
 		},
 	],
 } satisfies SvgData;
@@ -582,9 +591,11 @@ export const icon_session = {
 // --- Action Types ---
 
 export const icon_action_type_local_call = {
-	label: 'local call, arrow to target',
+	label: 'local call, lightning bolt to target',
 	paths: [
-		{d: 'M12 45h23v-15l20 20-20 20v-15h-23a2 2 0 0 1-2-2v-6a2 2 0 0 1 2-2z'},
+		{
+			d: 'M6.5 48.2L34.5 61 29.7 54.5 51.2 56.8 46.9 51.2 62.4 48.2 34.7 41.1 39.2 47.2 15.1 39 19.8 45.6z',
+		},
 		{
 			d: 'M66 50a14 14 0 1 1 28 0 14 14 0 1 1-28 0zM71 50a9 9 0 1 0 18 0 9 9 0 1 0-18 0zM77 50a3 3 0 1 1 6 0 3 3 0 1 1-6 0z',
 		},
@@ -592,19 +603,21 @@ export const icon_action_type_local_call = {
 } satisfies SvgData;
 
 export const icon_action_type_remote_notification = {
-	label: 'remote notification, arrow with signal',
+	label: 'remote notification, lightning bolt with signal',
 	paths: [
-		{d: 'M12 45h23v-15l20 20-20 20v-15h-23a2 2 0 0 1-2-2v-6a2 2 0 0 1 2-2z'},
+		{
+			d: 'M6.5 48.2L34.5 61 29.7 54.5 51.2 56.8 46.9 51.2 62.4 48.2 34.7 41.1 39.2 47.2 15.1 39 19.8 45.6z',
+		},
 		{d: 'M70 33a19 19 0 0 1 0 34 16 16 0 0 0 0-34z'},
 		{d: 'M78 27a27 27 0 0 1 0 46 24 24 0 0 0 0-46z'},
 	],
 } satisfies SvgData;
 
 export const icon_action_type_request_response = {
-	label: 'request response, bidirectional arrows',
+	label: 'request response, opposing lightning bolts',
 	paths: [
 		{
-			d: 'M12 30h23v-15l20 20-20 20v-15h-23a2 2 0 0 1-2-2v-6a2 2 0 0 1 2-2zM88 60h-23v-15l-20 20 20 20v-15h23a2 2 0 0 0 2-2v-6a2 2 0 0 0-2-2z',
+			d: 'M36.4 22.1L13.5 44.1 21.3 42.4 10.4 62.7 17.2 60.9 13.5 77.7 31.2 53.4 23.9 55.1 41.1 34.8 33.3 36.6zM82.9 76.4L79.9 42.9 76.7 51 68 29.4 65.5 36.5 55.2 23.6 62.9 53.7 65.8 46.1 70.9 73.4 74 65.3z',
 		},
 	],
 } satisfies SvgData;
