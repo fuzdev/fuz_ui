@@ -9,6 +9,7 @@ import {on} from 'svelte/events';
 import {
 	unmount_component,
 	create_contextmenu_event,
+	create_keyboard_event,
 	create_touch_event,
 	set_event_target,
 } from './test_helpers.js';
@@ -163,6 +164,49 @@ export const create_shared_link_entry_tests = (
 
 				// Should NOT be prevented - browser can show native menu
 				assert.strictEqual(ctxmenu.defaultPrevented, false);
+			});
+
+			test('keyboard selection highlights the link entry', async () => {
+				mounted = mount_contextmenu_root(Component);
+
+				const {container, contextmenu} = mounted;
+
+				const target = document.createElement('div');
+				container.appendChild(target);
+
+				await setup_contextmenu_attachment(target, [
+					{snippet: 'link', props: {href: 'https://ui.fuz.dev/'}},
+				]);
+
+				// Open menu
+				if (requires_longpress) {
+					const touchstart = create_touch_event('touchstart', [
+						{clientX: 100, clientY: 200, target},
+					]);
+					set_event_target(touchstart, target);
+					window.dispatchEvent(touchstart);
+
+					// Trigger longpress to open contextmenu
+					vi.advanceTimersByTime(CONTEXTMENU_DEFAULT_LONGPRESS_DURATION);
+					await tick();
+				} else {
+					const event = create_contextmenu_event(100, 200);
+					set_event_target(event, target);
+					target.dispatchEvent(event);
+				}
+
+				flushSync();
+				assert.strictEqual(contextmenu.opened, true);
+
+				const link = container.querySelector('a[href="https://ui.fuz.dev/"]');
+				assert.ok(link, 'link entry should be rendered');
+				assert.strictEqual(link.classList.contains('selected'), false);
+
+				// Arrow down selects the first (only) item - the link entry must show it
+				window.dispatchEvent(create_keyboard_event('ArrowDown'));
+				flushSync();
+
+				assert.strictEqual(link.classList.contains('selected'), true);
 			});
 
 			test('multiple link entries each handle contextmenu independently', async () => {

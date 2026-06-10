@@ -4,7 +4,8 @@
 	const {...rest}: SvelteHTMLElements['li'] = $props();
 </script>
 
-<li role="separator" aria-orientation="vertical" {...rest} class:contextmenu-separator={true}></li>
+<!-- `aria-orientation` is omitted - it defaults to horizontal, correct for a vertical menu's rule -->
+<li role="separator" {...rest} class:contextmenu-separator={true}></li>
 
 <style>
 	.contextmenu-separator {

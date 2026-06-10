@@ -1,6 +1,7 @@
 import {describe, test, assert, beforeEach} from 'vitest';
 
 import {ContextmenuState, EntryState, SubmenuState} from '$lib/contextmenu_state.svelte.js';
+import {add_test_entry} from './contextmenu_state_test_helpers.js';
 
 describe('ContextmenuState - Immutability', () => {
 	let contextmenu: ContextmenuState;
@@ -60,12 +61,10 @@ describe('ContextmenuState - Immutability', () => {
 
 	describe('selections array immutability', () => {
 		let entry1: EntryState;
-		let entry2: EntryState;
 
 		beforeEach(() => {
-			entry1 = new EntryState(contextmenu.root_menu, () => () => {});
-			entry2 = new EntryState(contextmenu.root_menu, () => () => {});
-			contextmenu.root_menu.items = [entry1, entry2];
+			entry1 = add_test_entry(contextmenu.root_menu);
+			add_test_entry(contextmenu.root_menu); // sibling so select_next/select_previous can move
 		});
 
 		test('select creates new selections array reference', () => {
@@ -105,8 +104,7 @@ describe('ContextmenuState - Immutability', () => {
 
 		test('collapse_selected creates new selections array reference', () => {
 			const submenu = new SubmenuState(contextmenu.root_menu, 2);
-			const nested_entry = new EntryState(submenu, () => () => {});
-			submenu.items = [nested_entry];
+			add_test_entry(submenu);
 			contextmenu.root_menu.items = [submenu];
 
 			contextmenu.select(submenu);
@@ -120,8 +118,7 @@ describe('ContextmenuState - Immutability', () => {
 
 		test('expand_selected creates new selections array reference', () => {
 			const submenu = new SubmenuState(contextmenu.root_menu, 2);
-			const nested_entry = new EntryState(submenu, () => () => {});
-			submenu.items = [nested_entry];
+			add_test_entry(submenu);
 			contextmenu.root_menu.items = [submenu];
 
 			contextmenu.select(submenu);
@@ -178,9 +175,8 @@ describe('ContextmenuState - Immutability', () => {
 		});
 
 		test('captured selections reference unaffected by subsequent selections', () => {
-			const entry1 = new EntryState(contextmenu.root_menu, () => () => {});
-			const entry2 = new EntryState(contextmenu.root_menu, () => () => {});
-			contextmenu.root_menu.items = [entry1, entry2];
+			const entry1 = add_test_entry(contextmenu.root_menu);
+			const entry2 = add_test_entry(contextmenu.root_menu);
 
 			contextmenu.select(entry1);
 			const captured_selections = contextmenu.selections;
@@ -200,11 +196,7 @@ describe('ContextmenuState - Immutability', () => {
 		});
 
 		test('iterating items while modifying selections is safe', () => {
-			const entries = Array.from(
-				{length: 5},
-				() => new EntryState(contextmenu.root_menu, () => () => {}),
-			);
-			contextmenu.root_menu.items = entries;
+			for (let i = 0; i < 5; i++) add_test_entry(contextmenu.root_menu);
 
 			// Capture items reference before iteration
 			const items_snapshot = contextmenu.root_menu.items;
@@ -225,8 +217,7 @@ describe('ContextmenuState - Immutability', () => {
 		});
 
 		test('rapid state changes maintain reference integrity', () => {
-			const entry = new EntryState(contextmenu.root_menu, () => () => {});
-			contextmenu.root_menu.items = [entry];
+			const entry = add_test_entry(contextmenu.root_menu);
 
 			const refs: Array<any> = [];
 
@@ -250,8 +241,7 @@ describe('ContextmenuState - Immutability', () => {
 
 	describe('operations that preserve references', () => {
 		test('select with same item preserves selections reference', () => {
-			const entry = new EntryState(contextmenu.root_menu, () => () => {});
-			contextmenu.root_menu.items = [entry];
+			const entry = add_test_entry(contextmenu.root_menu);
 
 			contextmenu.select(entry);
 			const ref = contextmenu.selections;
@@ -276,8 +266,7 @@ describe('ContextmenuState - Immutability', () => {
 		});
 
 		test('collapse when cannot collapse preserves selections reference', () => {
-			const entry = new EntryState(contextmenu.root_menu, () => () => {});
-			contextmenu.root_menu.items = [entry];
+			const entry = add_test_entry(contextmenu.root_menu);
 
 			contextmenu.select(entry);
 			const ref = contextmenu.selections;
@@ -289,8 +278,7 @@ describe('ContextmenuState - Immutability', () => {
 		});
 
 		test('expand when cannot expand preserves selections reference', () => {
-			const entry = new EntryState(contextmenu.root_menu, () => () => {});
-			contextmenu.root_menu.items = [entry];
+			const entry = add_test_entry(contextmenu.root_menu);
 
 			contextmenu.select(entry);
 			const ref = contextmenu.selections;

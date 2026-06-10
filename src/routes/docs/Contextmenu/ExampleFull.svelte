@@ -2,6 +2,7 @@
 	import {flip} from 'svelte/animate';
 	import {crossfade} from 'svelte/transition';
 	import {quintOut} from 'svelte/easing';
+	import {SvelteSet} from 'svelte/reactivity';
 	import Code from '@fuzdev/fuz_code/Code.svelte';
 
 	import Contextmenu from '$lib/Contextmenu.svelte';
@@ -40,6 +41,9 @@
 	const ben_cat = $derived({name: ben, icon: ben_icon, position: ben_position});
 
 	let swapped = $state.raw(false);
+
+	// cats wiggling because a swap had nothing to reorder
+	const shaking_cats: SvelteSet<string> = new SvelteSet();
 
 	// TODO this is weird but `animate:` needs an `each`?
 	const locate_cats = (
@@ -109,7 +113,15 @@
 				break;
 			}
 			case 'cat_be_or_do': {
-				swapped = !swapped;
+				const cats_here = item.position === 'home' ? home_cats : adventure_cats;
+				if (cats_here.length > 1) {
+					swapped = !swapped;
+				} else {
+					// swapping is invisible with a single cat, so shake it as feedback
+					for (const cat of cats_here) {
+						shaking_cats.add(cat.name);
+					}
+				}
 				break;
 			}
 		}
@@ -149,7 +161,7 @@
 							<HomeContextmenu {act} {home_cats} {adventure_cats} />
 						{/snippet}
 						<div class="position home">
-							<div class="icon">🏠</div>
+							<div class="icon p_md">🏠</div>
 							<div class="cats">
 								{#each home_cats as { name, icon, position } (name)}
 									<div
@@ -158,12 +170,17 @@
 										out:send={{key: name}}
 										animate:flip
 									>
-										<Contextmenu>
-											{#snippet entries()}
-												<CatContextmenu {act} {name} {icon} {position} />
-											{/snippet}
-											<CatView {name} {icon} />
-										</Contextmenu>
+										<div
+											class:shaking={shaking_cats.has(name)}
+											onanimationend={() => shaking_cats.delete(name)}
+										>
+											<Contextmenu>
+												{#snippet entries()}
+													<CatContextmenu {act} {name} {icon} {position} />
+												{/snippet}
+												<CatView {name} {icon} />
+											</Contextmenu>
+										</div>
 									</div>
 								{/each}
 							</div>
@@ -174,7 +191,7 @@
 							<AdventureContextmenu {act} {home_cats} {adventure_cats} />
 						{/snippet}
 						<div class="position adventure">
-							<div class="icon">🌄</div>
+							<div class="icon p_md">🌄</div>
 							<div class="cats">
 								{#each adventure_cats as { name, icon, position } (name)}
 									<div
@@ -183,12 +200,17 @@
 										out:send={{key: name}}
 										animate:flip
 									>
-										<Contextmenu>
-											{#snippet entries()}
-												<CatContextmenu {act} {name} {icon} {position} />
-											{/snippet}
-											<CatView {name} {icon} />
-										</Contextmenu>
+										<div
+											class:shaking={shaking_cats.has(name)}
+											onanimationend={() => shaking_cats.delete(name)}
+										>
+											<Contextmenu>
+												{#snippet entries()}
+													<CatContextmenu {act} {name} {icon} {position} />
+												{/snippet}
+												<CatView {name} {icon} />
+											</Contextmenu>
+										</div>
 									</div>
 								{/each}
 							</div>
@@ -248,6 +270,28 @@
 	.cat-wrapper {
 		display: flex;
 		flex-direction: column;
-		width: 130px;
+		width: 160px;
+	}
+	/* `--duration_3` has no fallback so `prefers-reduced-motion` disables the animation */
+	.shaking {
+		animation: shake var(--duration_3) ease-in-out;
+	}
+	@keyframes shake {
+		0%,
+		100% {
+			transform: translateX(0);
+		}
+		20% {
+			transform: translateX(-6px) rotate(-2deg);
+		}
+		40% {
+			transform: translateX(5px) rotate(2deg);
+		}
+		60% {
+			transform: translateX(-4px) rotate(-1deg);
+		}
+		80% {
+			transform: translateX(3px) rotate(1deg);
+		}
 	}
 </style>

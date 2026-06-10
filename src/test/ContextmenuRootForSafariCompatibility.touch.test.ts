@@ -1498,3 +1498,81 @@ describe('ContextmenuRootForSafariCompatibility - Touch Event Handling', () => {
 		});
 	});
 });
+
+describe('ContextmenuRootForSafariCompatibility - Synthesized Click After Native Contextmenu Open', () => {
+	let mounted: ReturnType<typeof mount_contextmenu_root> | null = null;
+
+	beforeEach(() => {
+		vi.useFakeTimers();
+	});
+
+	afterEach(async () => {
+		if (mounted) {
+			await unmount_component(mounted.instance, mounted.container);
+			mounted = null;
+		}
+		vi.useRealTimers();
+	});
+
+	// When the device fires the native `contextmenu` event before the custom longpress
+	// completes ("faster than our longpress"), the release of that gesture must be guarded
+	// just like the custom-longpress path (see `ContextmenuOpenGuard`).
+	test('release after a native-contextmenu open does not activate the first item', async () => {
+		mounted = mount_contextmenu_root(ContextmenuRootForSafariCompatibility);
+		const {container, contextmenu} = mounted;
+
+		let activated = false;
+		const target = document.createElement('div');
+		container.appendChild(target);
+		const cleanup = await setup_contextmenu_attachment(target, [
+			{
+				snippet: 'text',
+				props: {
+					content: 'First',
+					icon: '🧪',
+					run: () => {
+						activated = true;
+					},
+				},
+			},
+		]);
+
+		// Finger down starts the custom longpress timer.
+		const touchstart = create_touch_event('touchstart', [{clientX: 100, clientY: 200, target}]);
+		set_event_target(touchstart, target);
+		window.dispatchEvent(touchstart);
+
+		// The device fires the native `contextmenu` before the custom longpress completes.
+		vi.advanceTimersByTime(100);
+		const contextmenu_event = create_contextmenu_event(100, 200);
+		set_event_target(contextmenu_event, target);
+		window.dispatchEvent(contextmenu_event);
+		flushSync();
+		assert.strictEqual(contextmenu.opened, true);
+
+		// The release of the same gesture.
+		const touchend = create_touch_event('touchend', []);
+		set_event_target(touchend, target);
+		window.dispatchEvent(touchend);
+
+		// When `touchend` isn't `preventDefault`ed, the browser synthesizes compatibility
+		// mouse events at the touch point - the open offsets put the first item there.
+		if (!touchend.defaultPrevented) {
+			const item = container.querySelector('.contextmenu [role="menuitem"]');
+			assert.ok(item);
+			const click = create_mouse_event('click', {bubbles: true, cancelable: true});
+			set_event_target(click, item);
+			item.dispatchEvent(click);
+		}
+
+		// Entry activation defers through a timeout.
+		vi.runAllTimers();
+		flushSync();
+
+		assert.strictEqual(activated, false, 'the opening release must not activate the first item');
+		assert.strictEqual(contextmenu.opened, true, 'menu should stay open after the opening release');
+
+		cleanup?.();
+		target.remove();
+	});
+});

@@ -98,7 +98,7 @@
 							<button
 								type="button"
 								class="border_bottom_left_radius_0 border_bottom_right_radius_0 {selected_hue_class}"
-								disabled={!contextmenu.can_select_previous}
+								disabled={!contextmenu.can_select_sibling}
 								onmousedowncapture={(e) => {
 									swallow(e);
 									contextmenu.select_previous();
@@ -136,7 +136,7 @@
 							<button
 								type="button"
 								class="border_top_left_radius_0 border_top_right_radius_0 {selected_hue_class}"
-								disabled={!contextmenu.can_select_next}
+								disabled={!contextmenu.can_select_sibling}
 								onmousedowncapture={(e) => {
 									swallow(e);
 									contextmenu.select_next();

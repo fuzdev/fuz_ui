@@ -29,7 +29,8 @@ export const create_shared_scoped_tests = (
 
 			const scoped_div = container.querySelector('.contextmenu-root');
 			assert.ok(scoped_div);
-			assert.strictEqual(scoped_div.getAttribute('role'), 'region');
+			// `group` rather than a landmark role - no accessible name required
+			assert.strictEqual(scoped_div.getAttribute('role'), 'group');
 		});
 
 		test('scoped=false does not wrap children', () => {

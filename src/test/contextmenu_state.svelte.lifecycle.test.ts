@@ -1,6 +1,7 @@
 import {describe, test, assert, beforeEach} from 'vitest';
 
-import {ContextmenuState, EntryState, SubmenuState} from '$lib/contextmenu_state.svelte.js';
+import {ContextmenuState, EntryState} from '$lib/contextmenu_state.svelte.js';
+import {add_test_entry, add_test_submenu} from './contextmenu_state_test_helpers.js';
 
 describe('ContextmenuState - Lifecycle', () => {
 	let contextmenu: ContextmenuState;
@@ -40,12 +41,28 @@ describe('ContextmenuState - Lifecycle', () => {
 			assert.strictEqual(contextmenu.opened, false);
 		});
 
+		test('open stores the target element and close clears it', () => {
+			const target = {} as HTMLElement; // stand-in, this file runs without a DOM
+			contextmenu.open([], 100, 200, target);
+			assert.strictEqual(contextmenu.target, target);
+
+			contextmenu.close();
+			assert.strictEqual(contextmenu.target, undefined);
+		});
+
+		test('reopen without a target clears the stored target', () => {
+			const target = {} as HTMLElement;
+			contextmenu.open([], 100, 200, target);
+
+			contextmenu.open([], 50, 60);
+			assert.strictEqual(contextmenu.target, undefined);
+		});
+
 		test('close resets entry states', () => {
-			const entry = new EntryState(contextmenu.root_menu, () => () => {});
+			const entry = add_test_entry(contextmenu.root_menu);
 			entry.promise = Promise.resolve();
 			entry.pending = true;
 			entry.error_message = 'test error';
-			contextmenu.root_menu.items = [...contextmenu.root_menu.items, entry];
 
 			contextmenu.open([], 0, 0); // Must open first, otherwise close() returns early
 			contextmenu.close();
@@ -59,11 +76,10 @@ describe('ContextmenuState - Lifecycle', () => {
 			let resolve: any;
 			const promise = new Promise((r) => (resolve = r));
 
-			const entry = new EntryState(contextmenu.root_menu, () => async () => {
+			const entry = add_test_entry(contextmenu.root_menu, async () => {
 				await promise;
 				return {ok: true};
 			});
-			contextmenu.root_menu.items = [...contextmenu.root_menu.items, entry];
 
 			contextmenu.open([], 0, 0);
 			void contextmenu.activate(entry);
@@ -88,11 +104,9 @@ describe('ContextmenuState - Lifecycle', () => {
 		});
 
 		test('close resets nested submenu items', () => {
-			const submenu = new SubmenuState(contextmenu.root_menu, 2);
-			const entry = new EntryState(submenu, () => () => {});
+			const submenu = add_test_submenu(contextmenu.root_menu);
+			const entry = add_test_entry(submenu);
 			entry.error_message = 'error';
-			submenu.items = [...submenu.items, entry];
-			contextmenu.root_menu.items = [...contextmenu.root_menu.items, submenu];
 
 			contextmenu.open([], 0, 0); // Must open first, otherwise close() returns early
 			contextmenu.close();
@@ -155,25 +169,38 @@ describe('ContextmenuState - Lifecycle', () => {
 		});
 
 		test("opening doesn't leak old state", () => {
-			const entry = new EntryState(contextmenu.root_menu, () => () => {});
+			const entry = add_test_entry(contextmenu.root_menu);
 			entry.error_message = 'old error';
 			entry.selected = true;
 			contextmenu.selections = [...contextmenu.selections, entry];
-			contextmenu.root_menu.items = [...contextmenu.root_menu.items, entry];
 
 			const params = [
 				{snippet: 'text' as const, props: {content: 'New', icon: '🆕', run: () => {}}},
 			];
 			contextmenu.open(params, 50, 50);
 
-			// Selections array is cleared
+			// Selections are cleared and the items themselves are deselected -
+			// items can survive a reopen-while-open, and a stale `selected` flag
+			// would render a ghost highlight alongside the next selection.
 			assert.strictEqual(contextmenu.selections.length, 0);
-			// Note: The entry.selected flag itself remains true until explicitly deselected
-			// The selections array being empty is what matters for correctness
+			assert.strictEqual(entry.selected, false);
 
 			// Old errors should still exist until explicitly reset
 			// (open doesn't call reset_items, close does)
 			assert.strictEqual(entry.error_message, 'old error');
+		});
+
+		test('close clears selections and deselects items', () => {
+			const entry = add_test_entry(contextmenu.root_menu);
+			contextmenu.open([], 0, 0);
+			contextmenu.select(entry);
+			assert.strictEqual(entry.selected, true);
+			assert.strictEqual(contextmenu.selections.length, 1);
+
+			contextmenu.close();
+
+			assert.strictEqual(entry.selected, false);
+			assert.strictEqual(contextmenu.selections.length, 0);
 		});
 
 		test('closing during activation stops correctly', async () => {
@@ -181,12 +208,11 @@ describe('ContextmenuState - Lifecycle', () => {
 			const promise = new Promise((r) => (resolve = r));
 			let ran_to_completion = false;
 
-			const entry = new EntryState(contextmenu.root_menu, () => async () => {
+			const entry = add_test_entry(contextmenu.root_menu, async () => {
 				await promise;
 				ran_to_completion = true;
 				return {ok: true};
 			});
-			contextmenu.root_menu.items = [...contextmenu.root_menu.items, entry];
 
 			contextmenu.open([], 0, 0);
 			const activation = contextmenu.activate(entry);

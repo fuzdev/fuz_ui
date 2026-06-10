@@ -35,6 +35,8 @@
 		() => disabled_prop,
 	);
 
+	// keyboard selection, like `ContextmenuEntry` - distinct from `current_page` below
+	const {selected} = $derived(entry);
 	const disabled = $derived(entry.disabled());
 
 	// TODO move or upstream? rename? `print_url`?
@@ -47,7 +49,7 @@
 	const external = $derived(!(text[0] === '.' || (text[0] === '/' && text[1] !== '/')));
 	const rel = $derived(external ? external_rel : undefined);
 
-	const selected = $derived(page.url.pathname === href);
+	const current_page = $derived(page.url.pathname === href);
 </script>
 
 <li role="none">
@@ -60,6 +62,7 @@
 		class:disabled
 		role="menuitem"
 		aria-disabled={disabled}
+		aria-current={current_page ? 'page' : undefined}
 		tabindex="-1"
 		{href}
 		{rel}
@@ -107,8 +110,8 @@
 	a:hover .text {
 		text-decoration: underline;
 	}
-	/* TODO hacky, needed because the base `.menuitem` added z-index */
-	.menuitem {
-		z-index: unset;
+	/* Mark the current page distinctly from the keyboard selection highlight. */
+	a[aria-current='page'] .text {
+		font-weight: 700;
 	}
 </style>

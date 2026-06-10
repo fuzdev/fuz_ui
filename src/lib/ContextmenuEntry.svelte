@@ -1,5 +1,5 @@
 <script lang="ts">
-	import type {Snippet} from 'svelte';
+	import {onDestroy, type Snippet} from 'svelte';
 	import {swallow} from '@fuzdev/fuz_util/dom.js';
 
 	import PendingAnimation from './PendingAnimation.svelte';
@@ -28,6 +28,11 @@
 
 	const {selected, pending, error_message} = $derived(entry);
 	const disabled = $derived(entry.disabled());
+
+	let activate_timeout: NodeJS.Timeout | null = null;
+	onDestroy(() => {
+		if (activate_timeout !== null) clearTimeout(activate_timeout);
+	});
 </script>
 
 <!-- disabling the a11y warning because a parent element handles keyboard events -->
@@ -37,7 +42,6 @@
 	class:selected
 	class:disabled
 	role="menuitem"
-	aria-label="contextmenu entry"
 	aria-disabled={disabled}
 	tabindex="-1"
 	title={error_message ? `Error: ${error_message}` : undefined}
@@ -46,7 +50,11 @@
 		: () => {
 				// This timeout lets event handlers react to the current DOM
 				// before the item's changes are applied.
-				setTimeout(() => contextmenu.activate(entry));
+				if (activate_timeout !== null) clearTimeout(activate_timeout);
+				activate_timeout = setTimeout(() => {
+					activate_timeout = null;
+					void contextmenu.activate(entry);
+				});
 			}}
 	onmouseenter={disabled
 		? undefined
@@ -67,10 +75,3 @@
 		{#if pending}<PendingAnimation />{:else if error_message}⚠️{/if}
 	</div>
 </li>
-
-<style>
-	/* TODO hacky, needed because the base `.menuitem` added z-index */
-	.menuitem {
-		z-index: unset;
-	}
-</style>
