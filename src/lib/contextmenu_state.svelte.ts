@@ -439,7 +439,7 @@ export const contextmenu_attachment =
 
 		return () => {
 			contextmenu_params_by_element.delete(el);
-			delete el.dataset[CONTEXTMENU_DATASET_KEY];
+			delete el.dataset[CONTEXTMENU_DATASET_KEY]; // eslint-disable-line @typescript-eslint/no-dynamic-delete
 		};
 	};
 
