@@ -53,7 +53,7 @@
 				if (activate_timeout !== null) clearTimeout(activate_timeout);
 				activate_timeout = setTimeout(() => {
 					activate_timeout = null;
-					contextmenu.activate(entry);
+					void contextmenu.activate(entry);
 				});
 			}}
 	onmouseenter={disabled
