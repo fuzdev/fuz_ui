@@ -106,7 +106,7 @@ export const create_shared_rendering_tests = (
 			// failures keep the menu open and surface the message on the entry
 			assert.strictEqual(contextmenu.opened, true);
 			assert.strictEqual(item.getAttribute('title'), 'Error: boom');
-			assert.ok(item.textContent!.includes('⚠️'));
+			assert.ok(item.textContent.includes('⚠️'));
 		});
 	});
 };
