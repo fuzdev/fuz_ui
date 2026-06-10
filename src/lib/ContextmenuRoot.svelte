@@ -210,7 +210,9 @@
 	};
 
 	// Closes the contextmenu on presses outside of it.
-	const mousedown = $derived(contextmenu_create_mousedown_handler(contextmenu, () => el, open_guard));
+	const mousedown = $derived(
+		contextmenu_create_mousedown_handler(contextmenu, () => el, open_guard),
+	);
 
 	const keyboard_handlers = $derived(contextmenu_create_keyboard_handlers(contextmenu));
 	const keydown = $derived(contextmenu_create_keydown_handler(keyboard_handlers));

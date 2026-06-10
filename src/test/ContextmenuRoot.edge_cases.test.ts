@@ -405,13 +405,19 @@ describe('ContextmenuRoot - Reopen Gesture Ordering', () => {
 	test('touch longpress reopen survives a reversed synthesized burst', () => {
 		const {contextmenu, target_a, target_b, dispatch, cleanup} = setup();
 		// first longpress open at A
-		dispatch(create_touch_event('touchstart', [{clientX: 100, clientY: 100, target: target_a}]), target_a);
+		dispatch(
+			create_touch_event('touchstart', [{clientX: 100, clientY: 100, target: target_a}]),
+			target_a,
+		);
 		dispatch(create_contextmenu_event(100, 100), target_a);
 		assert.strictEqual(contextmenu.opened, true);
 		dispatch(create_touch_event('touchend', []), target_a);
 
 		// quick second longpress at B with the contextmenu before the synthesized mousedown
-		dispatch(create_touch_event('touchstart', [{clientX: 300, clientY: 300, target: target_b}]), target_b);
+		dispatch(
+			create_touch_event('touchstart', [{clientX: 300, clientY: 300, target: target_b}]),
+			target_b,
+		);
 		dispatch(create_contextmenu_event(300, 300), target_b, false, 1500);
 		dispatch(
 			create_mouse_event('mousedown', {bubbles: true, cancelable: true, button: 0}),
@@ -468,7 +474,11 @@ describe('ContextmenuRoot - Overlapping Press On Open', () => {
 		])(target);
 
 		// the opening right-click: press, contextmenu, release
-		const right_down = create_mouse_event('mousedown', {bubbles: true, cancelable: true, button: 2});
+		const right_down = create_mouse_event('mousedown', {
+			bubbles: true,
+			cancelable: true,
+			button: 2,
+		});
 		set_event_time(right_down, 1000);
 		set_event_target(right_down, target);
 		window.dispatchEvent(right_down);
