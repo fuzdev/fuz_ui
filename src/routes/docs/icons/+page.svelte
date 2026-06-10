@@ -10,7 +10,7 @@
 	const tome = tome_get_by_slug('icons');
 
 	const icon_entries: Array<{name: string; data: SvgData}> = Object.entries(icons).map(
-		([key, data]) => ({name: key.slice('icon_'.length), data: data as SvgData}),
+		([key, data]) => ({name: key.slice('icon_'.length), data}),
 	);
 </script>
 

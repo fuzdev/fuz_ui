@@ -1,4 +1,4 @@
-import type {SvgData} from './Svg.svelte';
+import type {SvgData} from './svg.js';
 
 // SVG icon data for replacing character glyphs with scalable vector icons.
 // Each export uses the `icon_` prefix and conforms to `SvgData`.
@@ -10,7 +10,7 @@ export const icon_unknown = {
 	label: 'unknown, double question mark',
 	paths: [
 		{
-			d: 'M5 30a20 20 0 0 1 20-22 20 20 0 0 1 20 22c0 10-7 14-9 20l0 10-14 0 0-10c0-8 7-12 7-20a5 5 0 0 0-5-7 5 5 0 0 0-5 7zm16 46a8 8 0 1 0 16 0 8 8 0 0 0-16 0zM55 30a20 20 0 0 1 20-22 20 20 0 0 1 20 22c0 10-7 14-9 20l0 10-14 0 0-10c0-8 7-12 7-20a5 5 0 0 0-5-7 5 5 0 0 0-5 7zm16 46a8 8 0 1 0 16 0 8 8 0 0 0-16 0z',
+			d: 'M5 34a20 20 0 0 1 20-22 20 20 0 0 1 20 22c0 10-7 14-9 20l0 10-14 0 0-10c0-8 7-12 7-20a5 5 0 0 0-5-7 5 5 0 0 0-5 7zm16 46a8 8 0 1 0 16 0 8 8 0 0 0-16 0zM55 34a20 20 0 0 1 20-22 20 20 0 0 1 20 22c0 10-7 14-9 20l0 10-14 0 0-10c0-8 7-12 7-20a5 5 0 0 0-5-7 5 5 0 0 0-5 7zm16 46a8 8 0 1 0 16 0 8 8 0 0 0-16 0z',
 		},
 	],
 } satisfies SvgData;
@@ -19,7 +19,7 @@ export const icon_important = {
 	label: 'important, question and exclamation',
 	paths: [
 		{
-			d: 'M5 30a20 20 0 0 1 20-22 20 20 0 0 1 20 22c0 10-7 14-9 20l0 10-14 0 0-10c0-8 7-12 7-20a5 5 0 0 0-5-7 5 5 0 0 0-5 7zm16 46a8 8 0 1 0 16 0 8 8 0 0 0-16 0zM63 8L79 8 76 56 66 56zM63 76a8 8 0 1 0 16 0 8 8 0 0 0-16 0z',
+			d: 'M13 34a20 20 0 0 1 20-22 20 20 0 0 1 20 22c0 10-7 14-9 20l0 10-14 0 0-10c0-8 7-12 7-20a5 5 0 0 0-5-7 5 5 0 0 0-5 7zm16 46a8 8 0 1 0 16 0 8 8 0 0 0-16 0zM71 12L87 12 84 60 74 60zM71 80a8 8 0 1 0 16 0 8 8 0 0 0-16 0z',
 		},
 	],
 } satisfies SvgData;
@@ -49,6 +49,15 @@ export const icon_remove = {
 	],
 } satisfies SvgData;
 
+export const icon_close = {
+	label: 'close, thin x mark',
+	paths: [
+		{
+			d: 'M20.5 11.5L11.5 20.5 45 50 11.5 79.5 20.5 88.5 50 55 79.5 88.5 88.5 79.5 55 50 88.5 20.5 79.5 11.5 50 45z',
+		},
+	],
+} satisfies SvgData;
+
 export const icon_delete = {
 	label: 'delete, x in concave frame',
 	paths: [
@@ -71,7 +80,7 @@ export const icon_restore = {
 	label: 'restore, redo arrow',
 	paths: [
 		{
-			d: 'M65 20l20 20-20 20v-12a30 30 0 0 0-30 30h-12a42 42 0 0 1 42-42z',
+			d: 'M61 20l20 20-20 20v-12a30 30 0 0 0-30 30h-12a42 42 0 0 1 42-42z',
 		},
 	],
 } satisfies SvgData;
@@ -87,12 +96,16 @@ export const icon_cancel = {
 
 export const icon_drag = {
 	label: 'drag handle, three horizontal lines',
-	paths: [{d: 'M20 25h60v8h-60zm0 17q30-1 60 0v8h-60zm0 17h60v8h-60z'}],
+	paths: [
+		{
+			d: 'M22 29h56a2 2 0 0 1 2 2v4a2 2 0 0 1-2 2h-56a2 2 0 0 1-2-2v-4a2 2 0 0 1 2-2zm0 17h56a2 2 0 0 1 2 2v4a2 2 0 0 1-2 2h-56a2 2 0 0 1-2-2v-4a2 2 0 0 1 2-2zm0 17h56a2 2 0 0 1 2 2v4a2 2 0 0 1-2 2h-56a2 2 0 0 1-2-2v-4a2 2 0 0 1 2-2z',
+		},
+	],
 } satisfies SvgData;
 
 export const icon_copy = {
 	label: 'copy, overlapping squares',
-	paths: [{d: 'M10 30h45v45h-45zm7 7v31h31v-31z'}, {d: 'M30 10h45v45h-45zm7 7v31h31v-31z'}],
+	paths: [{d: 'M18 38h45v45h-45zm7 7v31h31v-31z'}, {d: 'M38 18h45v45h-45zm7 7v31h31v-31z'}],
 } satisfies SvgData;
 
 export const icon_paste = {
@@ -108,21 +121,21 @@ export const icon_reset = {
 	label: 'reset, undo arrow',
 	paths: [
 		{
-			d: 'M35 20l-20 20 20 20v-12a30 30 0 0 1 30 30h12a42 42 0 0 0-42-42z',
+			d: 'M39 20l-20 20 20 20v-12a30 30 0 0 1 30 30h12a42 42 0 0 0-42-42z',
 		},
 	],
 } satisfies SvgData;
 
 export const icon_refresh = {
 	label: 'refresh, circular arrow',
-	paths: [{d: 'M50 15a35 35 0 1 0 25 10l-7 7a24 24 0 1 1-18-6v10l17-17-17-17v13z'}],
+	paths: [{d: 'M50 21a35 35 0 1 0 25 10l-7 7a24 24 0 1 1-18-6v10l17-17-17-17v13z'}],
 } satisfies SvgData;
 
 export const icon_connect = {
 	label: 'connect, link',
 	paths: [
 		{
-			d: 'M30 40a15 15 0 0 0-15 15 15 15 0 0 0 15 15h10v10h-10a25 25 0 0 1-25-25 25 25 0 0 1 25-25h10v10zm30-10h10a25 25 0 0 1 25 25 25 25 0 0 1-25 25h-10v-10h10a15 15 0 0 0 15-15 15 15 0 0 0-15-15h-10zm-25 20h30v10h-30z',
+			d: 'M30 35a15 15 0 0 0-15 15 15 15 0 0 0 15 15h10v10h-10a25 25 0 0 1-25-25 25 25 0 0 1 25-25h10v10zm30-10h10a25 25 0 0 1 25 25 25 25 0 0 1-25 25h-10v-10h10a15 15 0 0 0 15-15 15 15 0 0 0-15-15h-10zm-25 20h30v10h-30z',
 		},
 	],
 } satisfies SvgData;
@@ -131,19 +144,22 @@ export const icon_disconnect = {
 	label: 'disconnect, broken link',
 	paths: [
 		{
-			d: 'M30 40a15 15 0 0 0-15 15 15 15 0 0 0 15 15h10v10h-10a25 25 0 0 1-25-25 25 25 0 0 1 25-25h10v10zm30-10h10a25 25 0 0 1 25 25 25 25 0 0 1-25 25h-10v-10h10a15 15 0 0 0 15-15 15 15 0 0 0-15-15h-10zM46 48l-4-8h8l4 8zM54 62l4 8h-8l-4-8z',
+			d: 'M30 35a15 15 0 0 0-15 15 15 15 0 0 0 15 15h10v10h-10a25 25 0 0 1-25-25 25 25 0 0 1 25-25h10v10zm30-10h10a25 25 0 0 1 25 25 25 25 0 0 1-25 25h-10v-10h10a15 15 0 0 0 15-15 15 15 0 0 0-15-15h-10zM46 43l-4-8h8l4 8zM54 57l4 8h-8l-4-8z',
 		},
 	],
 } satisfies SvgData;
 
 export const icon_retry = {
-	label: 'retry, counterclockwise arrow',
-	paths: [{d: 'M50 15a35 35 0 1 1-25 10l7 7a24 24 0 1 0 18-6v10l-17-17 17-17v13z'}],
+	label: 'retry, counterclockwise arrow around dot',
+	paths: [
+		{d: 'M50 21a35 35 0 1 1-25 10l7 7a24 24 0 1 0 18-6v10l-17-17 17-17v13z'},
+		{d: 'M42 56a8 8 0 1 0 16 0 8 8 0 1 0-16 0z'},
+	],
 } satisfies SvgData;
 
 export const icon_placeholder = {
 	label: 'placeholder, return arrow',
-	paths: [{d: 'M75 15v40h-40v15l-25-20 25-20v15h30v-30z'}],
+	paths: [{d: 'M83 22v40h-40v15l-25-20 25-20v15h30v-30z'}],
 } satisfies SvgData;
 
 export const icon_send = {
@@ -155,12 +171,16 @@ export const icon_send = {
 
 export const icon_play = {
 	label: 'play',
-	paths: [{d: 'M26 10l54 40-55 40z'}],
+	paths: [{d: 'M27 10l53 40-53 40z'}],
 } satisfies SvgData;
 
 export const icon_pause = {
 	label: 'pause',
-	paths: [{d: 'M25 15h15v70h-15zm35 1h15v69h-15z'}],
+	paths: [
+		{
+			d: 'M27 15h11a2 2 0 0 1 2 2v66a2 2 0 0 1-2 2h-11a2 2 0 0 1-2-2v-66a2 2 0 0 1 2-2zm35 0h11a2 2 0 0 1 2 2v66a2 2 0 0 1-2 2h-11a2 2 0 0 1-2-2v-66a2 2 0 0 1 2-2z',
+		},
+	],
 } satisfies SvgData;
 
 // --- Validation ---
@@ -197,14 +217,18 @@ export const icon_xmark_heavy = {
 
 export const icon_download = {
 	label: 'download arrow',
-	paths: [{d: 'M45 10v40h-20l25 30 25-30h-20v-40zm-30 70v10h70v-10z'}],
+	paths: [
+		{
+			d: 'M45 12a2 2 0 0 1 2-2h6a2 2 0 0 1 2 2v38h20l-25 30-25-30h20zM17 80h66a2 2 0 0 1 2 2v6a2 2 0 0 1-2 2h-66a2 2 0 0 1-2-2v-6a2 2 0 0 1 2-2z',
+		},
+	],
 } satisfies SvgData;
 
 export const icon_error = {
 	label: 'error, double exclamation',
 	paths: [
 		{
-			d: 'M20 8L36 8 33 56 23 56zM21 70a7 7 0 1 0 14 0 7 7 0 0 0-14 0zM64 8L80 8 77 56 67 56zM65 70a7 7 0 1 0 14 0 7 7 0 0 0-14 0z',
+			d: 'M20 18L36 18 33 66 23 66zM21 80a7 7 0 1 0 14 0 7 7 0 0 0-14 0zM64 18L80 18 77 66 67 66zM65 80a7 7 0 1 0 14 0 7 7 0 0 0-14 0z',
 		},
 	],
 } satisfies SvgData;
@@ -233,7 +257,7 @@ export const icon_double_chevron_left = {
 	label: 'double chevron left',
 	paths: [
 		{
-			d: 'M15 50l18-28 5 4-12 24 12 24-5 4zm30 0l18-28 5 4-12 24 12 24-5 4z',
+			d: 'M23 50l18-28 5 4-12 24 12 24-5 4zm30 0l18-28 5 4-12 24 12 24-5 4z',
 		},
 	],
 } satisfies SvgData;
@@ -242,7 +266,7 @@ export const icon_double_chevron_right = {
 	label: 'double chevron right',
 	paths: [
 		{
-			d: 'M85 50l-18-28-5 4 12 24-12 24 5 4zm-30 0l-18-28-5 4 12 24-12 24 5 4z',
+			d: 'M77 50l-18-28-5 4 12 24-12 24 5 4zm-30 0l-18-28-5 4 12 24-12 24 5 4z',
 		},
 	],
 } satisfies SvgData;
@@ -253,7 +277,7 @@ export const icon_edit = {
 	label: 'edit, pencil',
 	paths: [
 		{
-			d: 'M58 14l20 20-45 45-20-20zM13 59L10 82 33 79zM58 14l10-10 20 20-10 10z',
+			d: 'M58 20l20 20-45 45-20-20zM13 65L10 88 33 85zM58 20L64.5 13.5A5 5 0 0 1 71.5 13.5L84.5 26.5A5 5 0 0 1 84.5 33.5L78 40z',
 		},
 	],
 } satisfies SvgData;
@@ -262,7 +286,7 @@ export const icon_sort = {
 	label: 'sort, up and down arrows',
 	paths: [
 		{
-			d: 'M30 40l-20-25h12v-10h16v10h12zm40 20l20 25h-12v10h-16v-10h-12z',
+			d: 'M30 40l-20-25h12v-8a2 2 0 0 1 2-2h12a2 2 0 0 1 2 2v8h12zm40 20l20 25h-12v8a2 2 0 0 1-2 2h-12a2 2 0 0 1-2-2v-8h-12z',
 		},
 	],
 } satisfies SvgData;
@@ -282,16 +306,16 @@ export const icon_thread = {
 	label: 'thread, broken stacked lines',
 	paths: [
 		{
-			d: 'M15 20h30v10h-30zm40 0h30v10h-30zm-40 20h30v10h-30zm40 0h30v10h-30zm-40 20h30v10h-30zm40 0h30v10h-30z',
+			d: 'M17 25h26a2 2 0 0 1 2 2v6a2 2 0 0 1-2 2h-26a2 2 0 0 1-2-2v-6a2 2 0 0 1 2-2zm40 0h26a2 2 0 0 1 2 2v6a2 2 0 0 1-2 2h-26a2 2 0 0 1-2-2v-6a2 2 0 0 1 2-2zm-40 20h26a2 2 0 0 1 2 2v6a2 2 0 0 1-2 2h-26a2 2 0 0 1-2-2v-6a2 2 0 0 1 2-2zm40 0h26a2 2 0 0 1 2 2v6a2 2 0 0 1-2 2h-26a2 2 0 0 1-2-2v-6a2 2 0 0 1 2-2zm-40 20h26a2 2 0 0 1 2 2v6a2 2 0 0 1-2 2h-26a2 2 0 0 1-2-2v-6a2 2 0 0 1 2-2zm40 0h26a2 2 0 0 1 2 2v6a2 2 0 0 1-2 2h-26a2 2 0 0 1-2-2v-6a2 2 0 0 1 2-2z',
 		},
 	],
 } satisfies SvgData;
 
 export const icon_turn = {
-	label: 'turn, speech bracket',
+	label: 'turn, indented reply',
 	paths: [
 		{
-			d: 'M20 15h60v10h-60zm20 20h40v10h-40zm-20-5v35h10v-30h50v-5z',
+			d: 'M22 25h56a2 2 0 0 1 2 2v6a2 2 0 0 1-2 2h-56a2 2 0 0 1-2-2v-6a2 2 0 0 1 2-2zm20 20h36a2 2 0 0 1 2 2v6a2 2 0 0 1-2 2h-36a2 2 0 0 1-2-2v-6a2 2 0 0 1 2-2zM22 45h6a2 2 0 0 1 2 2v26a2 2 0 0 1-2 2h-6a2 2 0 0 1-2-2v-26a2 2 0 0 1 2-2z',
 		},
 	],
 } satisfies SvgData;
@@ -309,7 +333,7 @@ export const icon_list = {
 	label: 'list, bulleted lines',
 	paths: [
 		{
-			d: 'M15 20a4 4 0 1 0 0 8 4 4 0 0 0 0-8zm12 0h58v8h-58zm-12 18a4 4 0 1 0 0 8 4 4 0 0 0 0-8zm12 0h58v8h-58zm-12 18a4 4 0 1 0 0 8 4 4 0 0 0 0-8zm12 0h58v8h-58zm-12 18a4 4 0 1 0 0 8 4 4 0 0 0 0-8zm12 0h58v8h-58z',
+			d: 'M17 20a4 4 0 1 0 0 8 4 4 0 0 0 0-8zm14 0h54a2 2 0 0 1 2 2v4a2 2 0 0 1-2 2h-54a2 2 0 0 1-2-2v-4a2 2 0 0 1 2-2zm-14 18a4 4 0 1 0 0 8 4 4 0 0 0 0-8zm14 0h54a2 2 0 0 1 2 2v4a2 2 0 0 1-2 2h-54a2 2 0 0 1-2-2v-4a2 2 0 0 1 2-2zm-14 18a4 4 0 1 0 0 8 4 4 0 0 0 0-8zm14 0h54a2 2 0 0 1 2 2v4a2 2 0 0 1-2 2h-54a2 2 0 0 1-2-2v-4a2 2 0 0 1 2-2zm-14 18a4 4 0 1 0 0 8 4 4 0 0 0 0-8zm14 0h54a2 2 0 0 1 2 2v4a2 2 0 0 1-2 2h-54a2 2 0 0 1-2-2v-4a2 2 0 0 1 2-2z',
 		},
 	],
 } satisfies SvgData;
@@ -343,14 +367,18 @@ export const icon_create_directory = {
 
 export const icon_prompt = {
 	label: 'prompt, chevron with cursor',
-	paths: [{d: 'M8 23l32 27-32 27-3-10 17-17-17-17zm37 42h40v10h-40z'}],
+	paths: [
+		{
+			d: 'M13 23l32 27-32 27-3-10 17-17-17-17zM52 65h36a2 2 0 0 1 2 2v6a2 2 0 0 1-2 2h-36a2 2 0 0 1-2-2v-6a2 2 0 0 1 2-2z',
+		},
+	],
 } satisfies SvgData;
 
 export const icon_part = {
 	label: 'part, dashed vertical line',
 	paths: [
 		{
-			d: 'M45 10h10v15h-10zm0 22h10v15h-10zm0 22h10v15h-10zm0 22h10v15h-10z',
+			d: 'M47 10h6a2 2 0 0 1 2 2v11a2 2 0 0 1-2 2h-6a2 2 0 0 1-2-2v-11a2 2 0 0 1 2-2zm0 22h6a2 2 0 0 1 2 2v11a2 2 0 0 1-2 2h-6a2 2 0 0 1-2-2v-11a2 2 0 0 1 2-2zm0 22h6a2 2 0 0 1 2 2v11a2 2 0 0 1-2 2h-6a2 2 0 0 1-2-2v-11a2 2 0 0 1 2-2zm0 22h6a2 2 0 0 1 2 2v11a2 2 0 0 1-2 2h-6a2 2 0 0 1-2-2v-11a2 2 0 0 1 2-2z',
 		},
 	],
 } satisfies SvgData;
@@ -375,7 +403,7 @@ export const icon_model = {
 
 export const icon_action = {
 	label: 'action, lightning bolt',
-	paths: [{d: 'M56 3L25 47h18l-6 50 37-52h-18z'}],
+	paths: [{d: 'M70 2L26 40 41 37 20 72 33 69 26 98 60 56 46 59 79 24 64 27z'}],
 } satisfies SvgData;
 
 export const icon_view = {
@@ -400,7 +428,7 @@ export const icon_log = {
 	label: 'log, scroll',
 	paths: [
 		{
-			d: 'M20 10h50a10 10 0 0 1 10 10v60a10 10 0 0 1-10 10h-50a10 10 0 0 1-10-10v-60a10 10 0 0 1 10-10zm5 15v50h40v-50zm5 8h30v6h-30zm0 14h30v6h-30zm0 14h20v6h-20z',
+			d: 'M25 10h50a10 10 0 0 1 10 10v60a10 10 0 0 1-10 10h-50a10 10 0 0 1-10-10v-60a10 10 0 0 1 10-10zm5 15v50h40v-50zm5 8h30v6h-30zm0 14h30v6h-30zm0 14h20v6h-20z',
 		},
 	],
 } satisfies SvgData;
@@ -427,7 +455,7 @@ export const icon_capability = {
 	label: 'capability, wrench',
 	paths: [
 		{
-			d: 'M72 8a28 28 0 0 0-25 40l-30 30a8 8 0 0 0 0 11l4 4a8 8 0 0 0 11 0l30-30a28 28 0 0 0 38-32q-4 6-10 8q-5 2-10 0q-5-2-8-8l0-13q2-6 5-10a28 28 0 0 0-5 0z',
+			d: 'M77.7 14.5A20 20 0 1 0 85.5 22.3L70.5 37.3A5.6 5.6 0 0 1 62.7 29.5zM49.3 34.5Q50 40.1 46.1 44L17.1 73.1A7 7 0 0 0 26.9 82.9L56 53.9Q59.9 50 65.5 50.7z',
 		},
 	],
 } satisfies SvgData;
@@ -445,7 +473,7 @@ export const icon_domain = {
 	label: 'domain, diamond',
 	paths: [
 		{
-			d: 'M50 18l50 32-50 32-50-32zm0 12l-32 20 32 20 32-20z',
+			d: 'M50 20l42 30-42 30-42-30zm0 12l-25 18 25 18 25-18z',
 		},
 	],
 } satisfies SvgData;
@@ -494,7 +522,7 @@ export const icon_terminal = {
 	label: 'terminal, command prompt',
 	paths: [
 		{
-			d: 'M5 5h90v90h-90zm8 8v74h74v-74zm12 15l20 20-20 20-7-7 13-13-13-13zm25 35h30v8h-30z',
+			d: 'M5 5h90v90h-90zm8 8v74h74v-74zm12 15l20 20-20 20-7-7 13-13-13-13zM52 63h26a2 2 0 0 1 2 2v4a2 2 0 0 1-2 2h-26a2 2 0 0 1-2-2v-4a2 2 0 0 1 2-2z',
 		},
 	],
 } satisfies SvgData;
@@ -503,7 +531,7 @@ export const icon_workspace = {
 	label: 'workspace, grid',
 	paths: [
 		{
-			d: 'M10 10h35v35h-35zm45 0h35v35h-35zm-45 45h35v35h-35zm46 0h34v35h-34z',
+			d: 'M13 10h29a3 3 0 0 1 3 3v29a3 3 0 0 1-3 3h-29a3 3 0 0 1-3-3v-29a3 3 0 0 1 3-3zm45 0h29a3 3 0 0 1 3 3v29a3 3 0 0 1-3 3h-29a3 3 0 0 1-3-3v-29a3 3 0 0 1 3-3zm-45 45h29a3 3 0 0 1 3 3v29a3 3 0 0 1-3 3h-29a3 3 0 0 1-3-3v-29a3 3 0 0 1 3-3zm45 0h29a3 3 0 0 1 3 3v29a3 3 0 0 1-3 3h-29a3 3 0 0 1-3-3v-29a3 3 0 0 1 3-3z',
 		},
 	],
 } satisfies SvgData;
@@ -520,11 +548,11 @@ export const icon_idea = {
 // --- Communication ---
 
 export const icon_ping = {
-	label: 'ping, circular arrow',
+	label: 'ping, sonar pulse',
 	paths: [
-		{
-			d: 'M50 15a35 35 0 1 1-25 10l7 7a24 24 0 1 0 18-6v10l-17-17 17-17v13z',
-		},
+		{d: 'M21 50a9 9 0 1 0 18 0 9 9 0 1 0-18 0z'},
+		{d: 'M48 33a19 19 0 0 1 0 34 16 16 0 0 0 0-34z'},
+		{d: 'M61 27a27 27 0 0 1 0 46 24 24 0 0 0 0-46z'},
 	],
 } satisfies SvgData;
 
@@ -532,14 +560,14 @@ export const icon_heartbeat = {
 	label: 'heartbeat, pulse line',
 	paths: [
 		{
-			d: 'M5 50h25l8-20 12 40 12-40 8 20h25v8h-30l-5-12-12 40-12-40-5 12h-26z',
+			d: 'M5 42h25l8-20 12 40 12-40 8 20h25v8h-30l-5-12-12 40-12-40-5 12h-26z',
 		},
 	],
 } satisfies SvgData;
 
 export const icon_response = {
 	label: 'response, reply arrow',
-	paths: [{d: 'M40 20l-30 30 30 30v-20h30c10 0 15 5 15 15v15h10v-15c0-20-10-30-25-30h-30z'}],
+	paths: [{d: 'M37 15l-30 30 30 30v-20h30c10 0 15 5 15 15v15h10v-15c0-20-10-30-25-30h-30z'}],
 } satisfies SvgData;
 
 export const icon_session = {
@@ -556,15 +584,17 @@ export const icon_session = {
 export const icon_action_type_local_call = {
 	label: 'local call, arrow to target',
 	paths: [
-		{d: 'M10 45h25v-15l20 20-20 20v-15h-25z'},
-		{d: 'M66 50a14 14 0 1 1 28 0 14 14 0 1 1-28 0zM71 50a9 9 0 1 0 18 0 9 9 0 1 0-18 0zM77 50a3 3 0 1 1 6 0 3 3 0 1 1-6 0z'},
+		{d: 'M12 45h23v-15l20 20-20 20v-15h-23a2 2 0 0 1-2-2v-6a2 2 0 0 1 2-2z'},
+		{
+			d: 'M66 50a14 14 0 1 1 28 0 14 14 0 1 1-28 0zM71 50a9 9 0 1 0 18 0 9 9 0 1 0-18 0zM77 50a3 3 0 1 1 6 0 3 3 0 1 1-6 0z',
+		},
 	],
 } satisfies SvgData;
 
 export const icon_action_type_remote_notification = {
 	label: 'remote notification, arrow with signal',
 	paths: [
-		{d: 'M10 45h25v-15l20 20-20 20v-15h-25z'},
+		{d: 'M12 45h23v-15l20 20-20 20v-15h-23a2 2 0 0 1-2-2v-6a2 2 0 0 1 2-2z'},
 		{d: 'M70 33a19 19 0 0 1 0 34 16 16 0 0 0 0-34z'},
 		{d: 'M78 27a27 27 0 0 1 0 46 24 24 0 0 0 0-46z'},
 	],
@@ -574,7 +604,7 @@ export const icon_action_type_request_response = {
 	label: 'request response, bidirectional arrows',
 	paths: [
 		{
-			d: 'M10 30h25v-15l20 20-20 20v-15h-25zM90 60h-25v-15l-20 20 20 20v-15h25z',
+			d: 'M12 30h23v-15l20 20-20 20v-15h-23a2 2 0 0 1-2-2v-6a2 2 0 0 1 2-2zM88 60h-23v-15l-20 20 20 20v-15h23a2 2 0 0 0 2-2v-6a2 2 0 0 0-2-2z',
 		},
 	],
 } satisfies SvgData;
@@ -585,19 +615,19 @@ export const icon_external_link = {
 	label: 'external link, arrow out of box',
 	paths: [
 		{
-			d: 'M70 5h25v25l-10-10-30 30-7-7 30-30zm-50 10h30v10h-30v50h50v-30h10v35a5 5 0 0 1-5 5h-60a5 5 0 0 1-5-5v-60a5 5 0 0 1 5-5z',
+			d: 'M70 10h25v25l-10-10-30 30-7-7 30-30zm-50 10h30v10h-30v50h50v-30h10v35a5 5 0 0 1-5 5h-60a5 5 0 0 1-5-5v-60a5 5 0 0 1 5-5z',
 		},
 	],
 } satisfies SvgData;
 
 export const icon_arrow_right = {
 	label: 'arrow right',
-	paths: [{d: 'M10 45h55v-15l25 20-25 20v-15h-55z'}],
+	paths: [{d: 'M12 45h53v-15l25 20-25 20v-15h-53a2 2 0 0 1-2-2v-6a2 2 0 0 1 2-2z'}],
 } satisfies SvgData;
 
 export const icon_arrow_left = {
 	label: 'arrow left',
-	paths: [{d: 'M90 45h-55v-15l-25 20 25 20v-15h55z'}],
+	paths: [{d: 'M88 45h-53v-15l-25 20 25 20v-15h53a2 2 0 0 0 2-2v-6a2 2 0 0 0-2-2z'}],
 } satisfies SvgData;
 
 // --- Backend ---
@@ -606,7 +636,7 @@ export const icon_backend = {
 	label: 'backend, server',
 	paths: [
 		{
-			d: 'M15 10h70v25h-70zm8 7a5 5 0 1 0 0 10 5 5 0 0 0 0-10zm15 0h30v10h-30zm-23 23h70v25h-70zm8 7a5 5 0 1 0 0 10 5 5 0 0 0 0-10zm15 0h30v10h-30zm-23 23h70v25h-70zm8 7a5 5 0 1 0 0 10 5 5 0 0 0 0-10zm15 0h30v10h-30z',
+			d: 'M18 7.5h64a3 3 0 0 1 3 3v19a3 3 0 0 1-3 3h-64a3 3 0 0 1-3-3v-19a3 3 0 0 1 3-3zM23 14.5a5 5 0 1 0 0 10 5 5 0 0 0 0-10zM38 14.5v10h30v-10zM18 37.5h64a3 3 0 0 1 3 3v19a3 3 0 0 1-3 3h-64a3 3 0 0 1-3-3v-19a3 3 0 0 1 3-3zM23 44.5a5 5 0 1 0 0 10 5 5 0 0 0 0-10zM38 44.5v10h30v-10zM18 67.5h64a3 3 0 0 1 3 3v19a3 3 0 0 1-3 3h-64a3 3 0 0 1-3-3v-19a3 3 0 0 1 3-3zM23 74.5a5 5 0 1 0 0 10 5 5 0 0 0 0-10zM38 74.5v10h30v-10z',
 		},
 	],
 } satisfies SvgData;

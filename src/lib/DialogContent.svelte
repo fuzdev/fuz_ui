@@ -3,6 +3,8 @@
 	import type {HTMLAttributes, SvelteHTMLElements} from 'svelte/elements';
 
 	import {dialog_context, type DialogContext, type DialogCloseButtonAttrs} from './dialog.js';
+	import {icon_close} from './icons.js';
+	import Svg from './Svg.svelte';
 
 	/**
 	 * The default content surface for `Dialog`: a fuz_css `.pane` card with a
@@ -133,7 +135,7 @@ content with its own overflow (e.g. `Code`) scrolls instead of forcing the card 
 	<!-- rendered after `children` so a content control (or an `autofocus` element)
 	takes initial focus on open, not the close button -->
 	{#if close_button === true}
-		<button {...close_button_attrs}>✕</button>
+		<button {...close_button_attrs}><Svg data={icon_close} /></button>
 	{:else if close_button}
 		{@render close_button(close_button_attrs, dialog)}
 	{/if}
