@@ -308,3 +308,10 @@ export const run_update_task = async <TInput = string, TOutput = any>(
 	log.info(`done! generated: ${generated_count}, skipped: ${skipped_count}`);
 	return {generated_count, skipped_count};
 };
+
+/**
+ * Overrides an event's readonly `timeStamp`, for testing time-based guards.
+ */
+export const set_event_time = (event: Event, time_stamp: number): void => {
+	Object.defineProperty(event, 'timeStamp', {value: time_stamp, configurable: true});
+};

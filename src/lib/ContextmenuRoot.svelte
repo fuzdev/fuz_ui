@@ -48,7 +48,7 @@
 		contextmenu_open_from_event,
 		contextmenu_popover_attachment,
 		ContextmenuBypassTracker,
-		ContextmenuTouchOpenGuard,
+		ContextmenuOpenGuard,
 	} from './contextmenu_helpers.js';
 
 	const {
@@ -136,7 +136,7 @@
 	);
 
 	const bypass_tracker = new ContextmenuBypassTracker();
-	const touch_open_guard = new ContextmenuTouchOpenGuard();
+	const open_guard = new ContextmenuOpenGuard();
 
 	const open_options = $derived({
 		open_offset_x,
@@ -150,9 +150,14 @@
 		// let the system contextmenu through after a tap-then-longpress bypass gesture
 		if (bypass_tracker.consume()) return;
 		if (contextmenu_open_from_event(e, contextmenu, el, open_options)) {
-			// when the native longpress `contextmenu` opened during a touch,
-			// guard the release of that gesture from interacting with the menu
-			touch_open_guard.opened();
+			// guard the menu from the residual events of the gesture that opened it
+			open_guard.opened();
+		} else if (contextmenu.opened && el && !el.contains(e.target as Node | null)) {
+			// The right-click didn't (re)open the menu - invalid target, shift bypass,
+			// or no entries - so close ours and let the system contextmenu show.
+			// Secondary-button presses never close via the mousedown handler;
+			// this is where their gesture resolves.
+			contextmenu.close();
 		}
 	};
 
@@ -169,7 +174,7 @@
 	 * not intercepting them. The actual bypass happens in on_window_contextmenu.
 	 */
 	const touchstart = (e: TouchEvent): void => {
-		touch_open_guard.touchstart();
+		open_guard.touchstart();
 
 		if (!bypass_with_tap_then_longpress) return;
 
@@ -193,19 +198,19 @@
 	 * (the open offsets place the first menu item there).
 	 */
 	const touchend = (e: TouchEvent): void => {
-		touch_open_guard.touchend(e);
+		open_guard.touchend(e);
 	};
 
 	/**
 	 * Reset state when touch is cancelled (e.g., when scrolling starts).
 	 */
 	const touchcancel = (): void => {
-		touch_open_guard.reset();
+		open_guard.reset();
 		bypass_tracker.reset();
 	};
 
 	// Closes the contextmenu on presses outside of it.
-	const mousedown = $derived(contextmenu_create_mousedown_handler(contextmenu, () => el));
+	const mousedown = $derived(contextmenu_create_mousedown_handler(contextmenu, () => el, open_guard));
 
 	const keyboard_handlers = $derived(contextmenu_create_keyboard_handlers(contextmenu));
 	const keydown = $derived(contextmenu_create_keydown_handler(keyboard_handlers));
@@ -215,6 +220,8 @@
 	oncontextmenu={scoped ? undefined : on_window_contextmenu}
 	onmousedown={!contextmenu.opened ? undefined : mousedown}
 	onkeydown={!contextmenu.opened ? undefined : keydown}
+	onmousedowncapture={(e) => open_guard.track_mousedown(e)}
+	onmouseupcapture={(e) => open_guard.track_mouseup(e)}
 	ontouchstartcapture={scoped ? undefined : touchstart}
 	ontouchendcapture={scoped ? undefined : touchend}
 	ontouchcancelcapture={scoped ? undefined : touchcancel}
@@ -261,7 +268,7 @@
 		onclickcapture={(e) => {
 			// blocks a click synthesized from the touch gesture that opened the menu,
 			// which would activate the first item
-			if (touch_open_guard.consume_blocked_click()) swallow(e);
+			if (open_guard.consume_blocked_click()) swallow(e);
 		}}
 	>
 		<!-- TODO maybe this should be generic? -->

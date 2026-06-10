@@ -117,8 +117,13 @@ export const contextmenu_open_from_event = (
 };
 
 /**
- * Creates a `mousedown` handler that closes the contextmenu
- * when pressing outside of the menu element.
+ * Creates a `mousedown` handler that closes the contextmenu when pressing outside of
+ * the menu element, deferring to `open_guard` for presses that belong to the gesture
+ * that opened the menu: gesture presses outside don't close, and gesture presses on the
+ * menu arm the click blocker instead of activating the entry under the pointer.
+ * Secondary-button presses never close here - their own `contextmenu` event resolves
+ * the menu in the roots' handlers (reopening it elsewhere, or closing it when there's
+ * nothing to open).
  *
  * Registered on the window during the bubble phase deliberately -
  * consumers keep the menu open through a press by swallowing the event
@@ -126,18 +131,31 @@ export const contextmenu_open_from_event = (
  *
  * @param contextmenu - the contextmenu store
  * @param get_menu_el - getter for the open menu element, if any
+ * @param open_guard - guard that identifies presses belonging to the gesture that opened the menu
  */
 // TODO consider `popover="auto"` instead of `"manual"` (see `contextmenu_popover_attachment`) -
 // its light dismiss would replace this handler and fix Escape ordering over dialogs
 // via close watchers, but it would break consumers that swallow `mousedown` to keep
 // the menu open through presses on their own controls
 export const contextmenu_create_mousedown_handler =
-	(contextmenu: ContextmenuState, get_menu_el: () => HTMLElement | undefined) =>
+	(
+		contextmenu: ContextmenuState,
+		get_menu_el: () => HTMLElement | undefined,
+		open_guard?: ContextmenuOpenGuard,
+	) =>
 	(e: MouseEvent): void => {
 		const menu_el = get_menu_el();
-		if (menu_el && !menu_el.contains(e.target as Node | null)) {
-			contextmenu.close();
+		if (!menu_el) return;
+		if (menu_el.contains(e.target as Node | null)) {
+			// a press on the menu belonging to the opening gesture must not click-activate
+			open_guard?.mousedown_on_menu(e);
+			return;
 		}
+		// Presses belonging to the opening gesture must not close the menu. This includes
+		// all secondary-button presses - their own `contextmenu` event resolves the menu
+		// (reopening it elsewhere, or closing it when there's nothing to open).
+		if (open_guard?.press_belongs_to_open_gesture(e)) return;
+		contextmenu.close();
 	};
 
 /**
@@ -157,23 +175,39 @@ export const contextmenu_popover_attachment = (el: HTMLElement): void => {
 };
 
 /**
- * Guards the release of a touch gesture that opened the contextmenu.
+ * Guards the menu from the residual events of the gesture that opened it,
+ * using exact gesture causality - no timing heuristics or tunable windows.
  *
- * When the menu opens during a touch (the native longpress `contextmenu` event, or the
- * Safari-compat custom longpress), the release of that same gesture must not interact
- * with the menu: an unprevented `touchend` lets the browser synthesize compatibility
- * mouse events (`mousedown`/`mouseup`/`click`) at the touch point, and the open offsets
- * place the first menu item exactly there - activating it immediately. `touchend`
- * swallows the release to stop the synthesis, and `consume_blocked_click` blocks the
- * next click on the menu as belt and braces (iOS can synthesize the click regardless).
+ * Touch: when the menu opens during a touch (the native longpress `contextmenu` event,
+ * or the Safari-compat custom longpress), the release of that same gesture must not
+ * interact with the menu - an unprevented `touchend` lets the browser synthesize
+ * compatibility mouse events (`mousedown`/`mouseup`/`click`) at the touch point, and the
+ * open offsets place the first menu item exactly there, activating it immediately.
+ * `touchend` swallows the release to stop the synthesis, and `consume_blocked_click`
+ * blocks the next click on the menu as belt and braces (iOS can synthesize the click
+ * regardless).
+ *
+ * Mouse: tap-style input devices (e.g. some touchpads) can register an overlapping
+ * primary-button press during the right-click gesture that opened the menu - the
+ * compositor serializes the event stream, but the press's hardware `timeStamp` falls
+ * inside the gesture, and its delivery can lag long after the menu opened. Because the
+ * open offsets place the first menu item under the pointer, that press's `click` would
+ * activate the entry. `track_mousedown`/`track_mouseup` follow the physical secondary
+ * button, and `press_belongs_to_open_gesture` identifies overlap presses exactly:
+ * a press is part of the gesture iff the secondary button is still down or the press's
+ * `timeStamp` predates the secondary button's release. A deliberate right-then-left
+ * click - however fast - is sequential in hardware time and is never blocked.
  *
  * Plain DOM-event bookkeeping with no reactive state - used only inside event handlers
  * by `ContextmenuRoot.svelte` and `ContextmenuRootForSafariCompatibility.svelte`.
  */
-export class ContextmenuTouchOpenGuard {
+export class ContextmenuOpenGuard {
 	#touch_active = false;
 	#opened_by_touch = false;
 	#block_next_click = false;
+	#secondary_down = false;
+	#last_secondary_up_time = -Infinity;
+	#last_touch_end_time = -Infinity;
 
 	/**
 	 * Begins a new gesture on `touchstart`, clearing stale flags from the previous one.
@@ -185,11 +219,54 @@ export class ContextmenuTouchOpenGuard {
 	}
 
 	/**
-	 * Arms the release guard when the contextmenu opened during an active touch.
+	 * Arms the touch release guard for the gesture that just opened the menu.
 	 * Call after a successful open.
 	 */
 	opened(): void {
 		if (this.#touch_active) this.#opened_by_touch = true;
+	}
+
+	/**
+	 * Tracks the physical secondary button - call from an always-on
+	 * window `mousedown` capture listener.
+	 */
+	track_mousedown(e: MouseEvent): void {
+		if (e.button === 2) this.#secondary_down = true;
+	}
+
+	/**
+	 * Tracks the physical secondary button - call from an always-on
+	 * window `mouseup` capture listener.
+	 */
+	track_mouseup(e: MouseEvent): void {
+		if (e.button === 2) {
+			this.#secondary_down = false;
+			this.#last_secondary_up_time = e.timeStamp;
+		}
+	}
+
+	/**
+	 * Returns `true` when a press belongs to the gesture that opened the menu
+	 * rather than being a deliberate response to it:
+	 * secondary-button presses (their own `contextmenu` event resolves them),
+	 * presses during or predating an active touch (synthesized compatibility events),
+	 * and presses overlapping the secondary button in hardware time.
+	 */
+	press_belongs_to_open_gesture(e: MouseEvent): boolean {
+		if (e.button === 2) return true;
+		if (this.#touch_active || e.timeStamp <= this.#last_touch_end_time) return true;
+		return this.#secondary_down || e.timeStamp <= this.#last_secondary_up_time;
+	}
+
+	/**
+	 * Handles a `mousedown` that landed on the menu element: when the press belongs to
+	 * the opening gesture, its `click` is blocked from activating the entry that the
+	 * open offsets placed under the pointer.
+	 */
+	mousedown_on_menu(e: MouseEvent): void {
+		if (this.press_belongs_to_open_gesture(e)) {
+			this.#block_next_click = true;
+		}
 	}
 
 	/**
@@ -199,6 +276,7 @@ export class ContextmenuTouchOpenGuard {
 	 */
 	touchend(e: TouchEvent): boolean {
 		this.#touch_active = e.touches.length > 0;
+		this.#last_touch_end_time = e.timeStamp;
 		if (!this.#opened_by_touch) return false;
 		this.#opened_by_touch = false;
 		swallow(e);
@@ -207,7 +285,8 @@ export class ContextmenuTouchOpenGuard {
 	}
 
 	/**
-	 * Clears all state, including any armed click blocker. Call on `touchcancel`.
+	 * Clears gesture state, including any armed click blocker. Call on `touchcancel`.
+	 * Physical button tracking persists - it mirrors hardware state, not gesture state.
 	 */
 	reset(): void {
 		this.#touch_active = false;

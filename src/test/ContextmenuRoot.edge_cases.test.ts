@@ -13,6 +13,7 @@ import {
 	create_mouse_event,
 	create_touch_event,
 	set_event_target,
+	set_event_time,
 } from './test_helpers.js';
 import {mount_contextmenu_root} from './contextmenu_test_helpers.js';
 
@@ -138,7 +139,7 @@ describe('ContextmenuRoot - Synthesized Click After Touch Open', () => {
 	// On touch devices this root opens from the native longpress `contextmenu` event;
 	// the release of that same gesture must not interact with the menu - an unprevented
 	// `touchend` lets the browser synthesize a `click` at the touch point, which the open
-	// offsets place on the first menu item (see `ContextmenuTouchOpenGuard`).
+	// offsets place on the first menu item (see `ContextmenuOpenGuard`).
 	test('touch-opened menu does not activate the first item on release', () => {
 		vi.useFakeTimers();
 		mounted = mount_contextmenu_root(ContextmenuRoot);
@@ -275,5 +276,300 @@ describe('ContextmenuRoot - Blocked Click After Touch Open', () => {
 
 		cleanup?.();
 		target.remove();
+	});
+});
+
+describe('ContextmenuRoot - Reopen Gesture Ordering', () => {
+	let mounted: ReturnType<typeof mount_contextmenu_root> | null = null;
+
+	afterEach(async () => {
+		vi.useRealTimers();
+		if (mounted) {
+			await unmount_component(mounted.instance, mounted.container);
+			mounted = null;
+		}
+	});
+
+	const setup = () => {
+		vi.useFakeTimers();
+		mounted = mount_contextmenu_root(ContextmenuRoot);
+		flushSync();
+		const {container, contextmenu} = mounted;
+		const target_a = document.createElement('div');
+		container.appendChild(target_a);
+		const cleanup_a = contextmenu_attachment([
+			{snippet: 'text' as const, props: {content: 'A', icon: '🍎', run: () => undefined}},
+		])(target_a);
+		const target_b = document.createElement('div');
+		container.appendChild(target_b);
+		const cleanup_b = contextmenu_attachment([
+			{snippet: 'text' as const, props: {content: 'B', icon: '🍌', run: () => undefined}},
+		])(target_b);
+		const dispatch = (e: Event, target: Element, flush = true, time_stamp?: number) => {
+			if (time_stamp !== undefined) set_event_time(e, time_stamp);
+			set_event_target(e, target);
+			window.dispatchEvent(e);
+			if (flush) flushSync();
+		};
+		return {
+			contextmenu,
+			target_a,
+			target_b,
+			dispatch,
+			cleanup: () => {
+				cleanup_a?.();
+				cleanup_b?.();
+				target_a.remove();
+				target_b.remove();
+			},
+		};
+	};
+
+	test('reopens when the gesture mousedown precedes the contextmenu event', () => {
+		const {contextmenu, target_a, target_b, dispatch, cleanup} = setup();
+		dispatch(create_contextmenu_event(100, 100), target_a, true, 1000);
+		assert.strictEqual(contextmenu.opened, true);
+
+		// Secondary-button presses never close via the mousedown handler -
+		// the gesture's own contextmenu event resolves the menu by reopening it.
+		dispatch(
+			create_mouse_event('mousedown', {bubbles: true, cancelable: true, button: 2}),
+			target_b,
+			true,
+			1500,
+		);
+		assert.strictEqual(contextmenu.opened, true);
+		dispatch(create_contextmenu_event(300, 300), target_b, true, 1500);
+
+		vi.runAllTimers();
+		flushSync();
+		assert.strictEqual(contextmenu.opened, true);
+		assert.strictEqual(contextmenu.x, 298); // reopened at the new spot
+		cleanup();
+	});
+
+	test('stays open when the gesture mousedown arrives after the contextmenu event', () => {
+		const {contextmenu, target_a, target_b, dispatch, cleanup} = setup();
+		dispatch(create_contextmenu_event(100, 100), target_a, true, 1000);
+		assert.strictEqual(contextmenu.opened, true);
+
+		// Same-burst ordering (synthesized longpress bursts; platform variations):
+		// the contextmenu event reopens at B, then the gesture's own mousedown is
+		// dispatched before the menu re-renders under the pointer - it must not close
+		// the menu it just opened (see `ContextmenuOpenGuard.press_belongs_to_open_gesture`).
+		dispatch(create_contextmenu_event(300, 300), target_b, false, 1500);
+		dispatch(
+			create_mouse_event('mousedown', {bubbles: true, cancelable: true, button: 2}),
+			target_b,
+			false,
+			1505,
+		);
+		flushSync();
+
+		assert.strictEqual(contextmenu.opened, true);
+		cleanup();
+	});
+
+	test('a later outside press still closes the reopened menu', () => {
+		const {contextmenu, target_a, target_b, dispatch, cleanup} = setup();
+		dispatch(create_contextmenu_event(100, 100), target_a, true, 1000);
+		dispatch(create_contextmenu_event(300, 300), target_b, false, 1500);
+		dispatch(
+			create_mouse_event('mousedown', {bubbles: true, cancelable: true, button: 2}),
+			target_b,
+			false,
+			1505,
+		);
+		flushSync();
+		assert.strictEqual(contextmenu.opened, true);
+
+		// the right button releases, completing the opening gesture
+		dispatch(
+			create_mouse_event('mouseup', {bubbles: true, cancelable: true, button: 2}),
+			target_b,
+			true,
+			1550,
+		);
+
+		// a sequential press after the release closes normally - however fast
+		dispatch(
+			create_mouse_event('mousedown', {bubbles: true, cancelable: true}),
+			target_a,
+			true,
+			1551,
+		);
+		assert.strictEqual(contextmenu.opened, false);
+		cleanup();
+	});
+
+	test('touch longpress reopen survives a reversed synthesized burst', () => {
+		const {contextmenu, target_a, target_b, dispatch, cleanup} = setup();
+		// first longpress open at A
+		dispatch(create_touch_event('touchstart', [{clientX: 100, clientY: 100, target: target_a}]), target_a);
+		dispatch(create_contextmenu_event(100, 100), target_a);
+		assert.strictEqual(contextmenu.opened, true);
+		dispatch(create_touch_event('touchend', []), target_a);
+
+		// quick second longpress at B with the contextmenu before the synthesized mousedown
+		dispatch(create_touch_event('touchstart', [{clientX: 300, clientY: 300, target: target_b}]), target_b);
+		dispatch(create_contextmenu_event(300, 300), target_b, false, 1500);
+		dispatch(
+			create_mouse_event('mousedown', {bubbles: true, cancelable: true, button: 0}),
+			target_b,
+			false,
+			1510,
+		);
+		flushSync();
+		dispatch(create_touch_event('touchend', []), target_b);
+
+		vi.runAllTimers();
+		flushSync();
+		assert.strictEqual(contextmenu.opened, true);
+		cleanup();
+	});
+});
+
+describe('ContextmenuRoot - Overlapping Press On Open', () => {
+	let mounted: ReturnType<typeof mount_contextmenu_root> | null = null;
+
+	afterEach(async () => {
+		vi.useRealTimers();
+		if (mounted) {
+			await unmount_component(mounted.instance, mounted.container);
+			mounted = null;
+		}
+	});
+
+	// Reproduces a tap-style input device registering an overlapping left-button press
+	// during the right-click that opened the menu: the press's hardware timestamp falls
+	// within the opening gesture, it's delivered after the menu opened, and it lands on
+	// the first item because the open offsets place it under the pointer. Its click must
+	// not activate the entry (see `ContextmenuOpenGuard.mousedown_on_menu`).
+	test('a click from a press overlapping the opening gesture does not activate the first item', () => {
+		vi.useFakeTimers();
+		mounted = mount_contextmenu_root(ContextmenuRoot);
+		flushSync();
+		const {container, contextmenu} = mounted;
+
+		let activated = false;
+		const target = document.createElement('div');
+		container.appendChild(target);
+		const cleanup = contextmenu_attachment([
+			{
+				snippet: 'text' as const,
+				props: {
+					content: 'First',
+					icon: '🧪',
+					run: () => {
+						activated = true;
+					},
+				},
+			},
+		])(target);
+
+		// the opening right-click: press, contextmenu, release
+		const right_down = create_mouse_event('mousedown', {bubbles: true, cancelable: true, button: 2});
+		set_event_time(right_down, 1000);
+		set_event_target(right_down, target);
+		window.dispatchEvent(right_down);
+
+		const ctx = create_contextmenu_event(100, 100);
+		set_event_time(ctx, 1000);
+		set_event_target(ctx, target);
+		window.dispatchEvent(ctx);
+		flushSync();
+		assert.strictEqual(contextmenu.opened, true);
+
+		const right_up = create_mouse_event('mouseup', {bubbles: true, cancelable: true, button: 2});
+		set_event_time(right_up, 1074);
+		set_event_target(right_up, target);
+		window.dispatchEvent(right_up);
+
+		const item = container.querySelector('.contextmenu [role="menuitem"]');
+		assert.ok(item);
+
+		// The overlapping press: its hardware timestamp (1022) falls inside the right
+		// press (1000-1074); the compositor delivers it after the release,
+		// landing on the first item under the pointer.
+		const md = create_mouse_event('mousedown', {bubbles: true, cancelable: true, button: 0});
+		set_event_time(md, 1022);
+		set_event_target(md, item);
+		window.dispatchEvent(md);
+
+		const click = create_mouse_event('click', {bubbles: true, cancelable: true});
+		set_event_time(click, 1106);
+		set_event_target(click, item);
+		item.dispatchEvent(click);
+		assert.strictEqual(click.defaultPrevented, true, 'the gesture click is blocked');
+
+		vi.runAllTimers();
+		flushSync();
+		assert.strictEqual(activated, false, 'the overlapping press must not activate the entry');
+		assert.strictEqual(contextmenu.opened, true);
+
+		// a later deliberate press and click activates normally
+		const md2 = create_mouse_event('mousedown', {bubbles: true, cancelable: true, button: 0});
+		set_event_time(md2, 1400);
+		set_event_target(md2, item);
+		window.dispatchEvent(md2);
+
+		const click2 = create_mouse_event('click', {bubbles: true, cancelable: true});
+		set_event_time(click2, 1480);
+		set_event_target(click2, item);
+		item.dispatchEvent(click2);
+
+		vi.runAllTimers();
+		flushSync();
+		assert.strictEqual(activated, true, 'later clicks activate normally');
+
+		cleanup?.();
+		target.remove();
+	});
+});
+
+describe('ContextmenuRoot - Contextmenu On Entryless Target', () => {
+	let mounted: ReturnType<typeof mount_contextmenu_root> | null = null;
+
+	afterEach(async () => {
+		if (mounted) {
+			await unmount_component(mounted.instance, mounted.container);
+			mounted = null;
+		}
+	});
+
+	// Secondary-button presses don't close via the mousedown handler, so the
+	// contextmenu event resolves the gesture: right-clicking where there's nothing
+	// to open closes our menu and lets the system contextmenu show.
+	test('right-clicking a target with no entries closes the open menu', () => {
+		mounted = mount_contextmenu_root(ContextmenuRoot);
+		flushSync();
+		const {container, contextmenu} = mounted;
+
+		const target = document.createElement('div');
+		container.appendChild(target);
+		const cleanup = contextmenu_attachment([
+			{snippet: 'text' as const, props: {content: 'A', icon: '🍎', run: () => undefined}},
+		])(target);
+		const bare = document.createElement('div');
+		container.appendChild(bare);
+
+		const ctx_a = create_contextmenu_event(100, 100);
+		set_event_target(ctx_a, target);
+		window.dispatchEvent(ctx_a);
+		flushSync();
+		assert.strictEqual(contextmenu.opened, true);
+
+		const ctx_bare = create_contextmenu_event(300, 300);
+		set_event_target(ctx_bare, bare);
+		window.dispatchEvent(ctx_bare);
+		flushSync();
+
+		assert.strictEqual(contextmenu.opened, false);
+		// the system contextmenu is allowed through
+		assert.strictEqual(ctx_bare.defaultPrevented, false);
+
+		cleanup?.();
+		target.remove();
+		bare.remove();
 	});
 });

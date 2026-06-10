@@ -38,17 +38,23 @@
 	</ul>
 	<h4>ContextmenuRootForSafariCompatibility</h4>
 	<ul>
-		<li>opt-in for iOS</li>
+		<li>opt-in hacky alternative when iOS support is needed</li>
 		<li>
-			some browsers (including mobile Chrome) block <code>navigator.vibrate</code> haptic feedback due
-			to the timeout-based gesture detection (because it's not a direct user action)
+			implements custom longpress detection to work around iOS Safari's lacking
+			<a href="https://bugs.webkit.org/show_bug.cgi?id=213953"
+				><code>contextmenu</code> event support</a
+			>
 		</li>
 		<li>
-			implements custom longpress detection to work around iOS Safari's lack of
-			<code>contextmenu</code> event support
+			degraded experience because some browsers (including mobile Chrome) block <code
+				>navigator.vibrate</code
+			> haptic feedback due to the timeout-based gesture detection (because it's not a direct user action)
 		</li>
 		<li>works on all devices including iOS Safari</li>
-		<li>more complex implementation with custom touch event handling and gesture detection</li>
+		<li>
+			more complex implementation with custom touch event handling and gesture detection, may cause
+			edge case UX problems on some devices
+		</li>
 		<li>a longpress is cancelled if you move the touch past a threshold before it triggers</li>
 		<li>opt into this version only if you need iOS Safari support</li>
 	</ul>

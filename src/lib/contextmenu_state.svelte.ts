@@ -151,10 +151,8 @@ export class ContextmenuState {
 	params: ReadonlyArray<ContextmenuParams> = $state.raw([]);
 	error: string | undefined = $state.raw();
 
-	// These arrays use immutable updates (reassignment, not mutation).
-	// If you need reactivity, use `$contextmenu` in a reactive statement to react to all changes, and
-	// then access the immutable `contextmenu.root_menu` and `contextmenu.selections`.
-	// See `ContextmenuEntry.svelte` and `ContextmenuSubmenu.svelte` for reactive usage examples.
+	// These arrays use immutable updates (reassignment, not mutation) - readers can depend
+	// on snapshot identity, and `ContextmenuItemsState` documents the publication contract.
 	readonly root_menu: RootMenuState = new RootMenuState();
 	selections: ReadonlyArray<ItemState> = $state.raw([]);
 

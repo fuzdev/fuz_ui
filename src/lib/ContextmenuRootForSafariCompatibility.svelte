@@ -53,7 +53,7 @@
 		contextmenu_open_from_event,
 		contextmenu_popover_attachment,
 		ContextmenuBypassTracker,
-		ContextmenuTouchOpenGuard,
+		ContextmenuOpenGuard,
 	} from './contextmenu_helpers.js';
 
 	const {
@@ -159,7 +159,7 @@
 	let longpress_opened = false;
 
 	const bypass_tracker = new ContextmenuBypassTracker();
-	const touch_open_guard = new ContextmenuTouchOpenGuard();
+	const open_guard = new ContextmenuOpenGuard();
 
 	/**
 	 * Adds contextmenu-pending class to body during longpress tracking.
@@ -222,17 +222,22 @@
 			return;
 		}
 		if (contextmenu_open_from_event(e, contextmenu, el, open_options)) {
-			// when the native `contextmenu` opened during a touch,
-			// guard the release of that gesture from interacting with the menu
-			touch_open_guard.opened();
+			// guard the menu from the residual events of the gesture that opened it
+			open_guard.opened();
 			reset_all(); // handle touch devices that trigger `'contextmenu'` faster than our longpress
+		} else if (contextmenu.opened && el && !el.contains(e.target as Node | null)) {
+			// The right-click didn't (re)open the menu - invalid target, shift bypass,
+			// or no entries - so close ours and let the system contextmenu show.
+			// Secondary-button presses never close via the mousedown handler;
+			// this is where their gesture resolves.
+			contextmenu.close();
 		}
 	};
 
 	// Needed for the iOS workaround. Registered with { passive: false } via $effect (window) or attachment (scoped).
 	const touchstart = (e: TouchEvent): void => {
 		longpress_opened = false;
-		touch_open_guard.touchstart(); // begins a gesture, clearing stale flags
+		open_guard.touchstart(); // begins a gesture, clearing stale flags
 		const {touches, target} = e;
 		if (
 			contextmenu.opened ||
@@ -275,7 +280,7 @@
 				)
 			) {
 				// guard the release of this gesture from interacting with the menu
-				touch_open_guard.opened();
+				open_guard.opened();
 			}
 		}, longpress_duration);
 	};
@@ -303,7 +308,7 @@
 		// native `contextmenu`), stopping the browser from synthesizing mouse events at
 		// the touch point that would activate the first item, and arming the click
 		// blocker for iOS, which can synthesize the click regardless.
-		touch_open_guard.touchend(e);
+		open_guard.touchend(e);
 		// Clear longpress timeout if it exists
 		if (longpress_timeout !== null) {
 			reset_longpress_timeout();
@@ -317,12 +322,12 @@
 	 * Handle touchcancel - this should reset all state since the gesture was interrupted.
 	 */
 	const touchcancel = (): void => {
-		touch_open_guard.reset();
+		open_guard.reset();
 		reset_all();
 	};
 
 	// Closes the contextmenu on presses outside of it.
-	const mousedown = $derived(contextmenu_create_mousedown_handler(contextmenu, () => el));
+	const mousedown = $derived(contextmenu_create_mousedown_handler(contextmenu, () => el, open_guard));
 
 	const keyboard_handlers = $derived(contextmenu_create_keyboard_handlers(contextmenu));
 	const keydown = $derived(contextmenu_create_keydown_handler(keyboard_handlers));
@@ -370,6 +375,8 @@
 	oncontextmenu={scoped ? undefined : on_window_contextmenu}
 	onmousedown={!contextmenu.opened ? undefined : mousedown}
 	onkeydown={!contextmenu.opened ? undefined : keydown}
+	onmousedowncapture={(e) => open_guard.track_mousedown(e)}
+	onmouseupcapture={(e) => open_guard.track_mouseup(e)}
 	{@attach scoped ? undefined : touch_event_attachment}
 />
 
@@ -411,7 +418,7 @@
 		onclickcapture={(e) => {
 			// iOS synthesizes a click after touchend which
 			// can unintentionally activate the first menu item. This blocks it.
-			if (touch_open_guard.consume_blocked_click()) swallow(e);
+			if (open_guard.consume_blocked_click()) swallow(e);
 		}}
 	>
 		<!-- TODO maybe this should be generic? -->

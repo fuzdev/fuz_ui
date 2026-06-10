@@ -1516,7 +1516,7 @@ describe('ContextmenuRootForSafariCompatibility - Synthesized Click After Native
 
 	// When the device fires the native `contextmenu` event before the custom longpress
 	// completes ("faster than our longpress"), the release of that gesture must be guarded
-	// just like the custom-longpress path (see `ContextmenuTouchOpenGuard`).
+	// just like the custom-longpress path (see `ContextmenuOpenGuard`).
 	test('release after a native-contextmenu open does not activate the first item', async () => {
 		mounted = mount_contextmenu_root(ContextmenuRootForSafariCompatibility);
 		const {container, contextmenu} = mounted;

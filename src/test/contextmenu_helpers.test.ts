@@ -5,7 +5,7 @@ import {describe, test, assert, beforeEach, afterEach, vi} from 'vitest';
 
 import {
 	ContextmenuBypassTracker,
-	ContextmenuTouchOpenGuard,
+	ContextmenuOpenGuard,
 	contextmenu_calculate_constrained_x,
 	contextmenu_calculate_constrained_y,
 	contextmenu_create_keyboard_handlers,
@@ -23,6 +23,7 @@ import {
 	create_mouse_event,
 	create_touch_event,
 	set_event_target,
+	set_event_time,
 } from './test_helpers.js';
 import {add_test_entry} from './contextmenu_state_test_helpers.js';
 
@@ -422,11 +423,11 @@ describe('contextmenu_open_from_event', () => {
 	});
 });
 
-describe('ContextmenuTouchOpenGuard', () => {
-	let guard: ContextmenuTouchOpenGuard;
+describe('ContextmenuOpenGuard', () => {
+	let guard: ContextmenuOpenGuard;
 
 	beforeEach(() => {
-		guard = new ContextmenuTouchOpenGuard();
+		guard = new ContextmenuOpenGuard();
 	});
 
 	test('guards the release of a gesture that opened the menu', () => {
@@ -493,5 +494,114 @@ describe('ContextmenuTouchOpenGuard', () => {
 		assert.strictEqual(guard.touchend(touchend), false);
 		assert.strictEqual(touchend.defaultPrevented, false);
 		assert.strictEqual(guard.consume_blocked_click(), false);
+	});
+});
+
+describe('ContextmenuOpenGuard - gesture causality', () => {
+	let guard: ContextmenuOpenGuard;
+
+	beforeEach(() => {
+		guard = new ContextmenuOpenGuard();
+	});
+
+	const create_button_event = (type: string, button: number, time_stamp: number): MouseEvent => {
+		const e = create_mouse_event(type, {bubbles: true, cancelable: true, button});
+		set_event_time(e, time_stamp);
+		return e;
+	};
+
+	test('secondary-button presses always belong to the gesture', () => {
+		assert.strictEqual(
+			guard.press_belongs_to_open_gesture(create_button_event('mousedown', 2, 1000)),
+			true,
+		);
+	});
+
+	test('a press while the secondary button is held belongs to the gesture', () => {
+		guard.track_mousedown(create_button_event('mousedown', 2, 1000));
+
+		assert.strictEqual(
+			guard.press_belongs_to_open_gesture(create_button_event('mousedown', 0, 1022)),
+			true,
+		);
+	});
+
+	test('a press whose timestamp predates the secondary release belongs to the gesture', () => {
+		// The overlap artifact: a tap-style device registers a primary press during the
+		// right-click; the compositor serializes delivery after the right button's release,
+		// but the hardware timestamps overlap.
+		guard.track_mousedown(create_button_event('mousedown', 2, 1000));
+		guard.track_mouseup(create_button_event('mouseup', 2, 1074));
+
+		assert.strictEqual(
+			guard.press_belongs_to_open_gesture(create_button_event('mousedown', 0, 1022)),
+			true,
+		);
+	});
+
+	test('a sequential press after the secondary release is deliberate, however fast', () => {
+		guard.track_mousedown(create_button_event('mousedown', 2, 1000));
+		guard.track_mouseup(create_button_event('mouseup', 2, 1074));
+
+		// 1ms after the release - a power user's muscle-memory right-then-left click
+		assert.strictEqual(
+			guard.press_belongs_to_open_gesture(create_button_event('mousedown', 0, 1075)),
+			false,
+		);
+	});
+
+	test('presses during an active touch belong to the gesture', () => {
+		guard.touchstart();
+
+		assert.strictEqual(
+			guard.press_belongs_to_open_gesture(create_button_event('mousedown', 0, 1000)),
+			true,
+		);
+	});
+
+	test('presses predating the last touch end belong to the gesture', () => {
+		guard.touchstart();
+		const touchend = create_touch_event('touchend', []);
+		set_event_time(touchend, 1100);
+		guard.touchend(touchend);
+
+		assert.strictEqual(
+			guard.press_belongs_to_open_gesture(create_button_event('mousedown', 0, 1080)),
+			true,
+		);
+		assert.strictEqual(
+			guard.press_belongs_to_open_gesture(create_button_event('mousedown', 0, 1101)),
+			false,
+		);
+	});
+
+	test('a gesture press on the menu blocks the resulting click exactly once', () => {
+		guard.track_mousedown(create_button_event('mousedown', 2, 1000));
+		guard.track_mouseup(create_button_event('mouseup', 2, 1074));
+
+		guard.mousedown_on_menu(create_button_event('mousedown', 0, 1022));
+		assert.strictEqual(guard.consume_blocked_click(), true);
+		assert.strictEqual(guard.consume_blocked_click(), false);
+	});
+
+	test('a deliberate press on the menu does not block', () => {
+		guard.track_mousedown(create_button_event('mousedown', 2, 1000));
+		guard.track_mouseup(create_button_event('mouseup', 2, 1074));
+
+		guard.mousedown_on_menu(create_button_event('mousedown', 0, 1200));
+		assert.strictEqual(guard.consume_blocked_click(), false);
+	});
+
+	test('reset clears the click blocker but preserves physical button tracking', () => {
+		guard.track_mousedown(create_button_event('mousedown', 2, 1000));
+		guard.mousedown_on_menu(create_button_event('mousedown', 0, 1022));
+		guard.reset();
+
+		assert.strictEqual(guard.consume_blocked_click(), false);
+		// the secondary button is still physically down
+		assert.strictEqual(
+			guard.press_belongs_to_open_gesture(create_button_event('mousedown', 0, 2000)),
+			true,
+		);
 	});
 });
