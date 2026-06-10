@@ -29,7 +29,7 @@
 		</p>
 		<p>
 			The API is designed to read as an audit log: every user-added source is named at exactly one
-			site in the source code. There's no implicit promotion of sources across directives — if you
+			site in the source code. There's no implicit promotion of sources across directives. If you
 			want a domain on <code>script-src</code>, you write <code>script-src</code>. Library defaults
 			are inherited unless you opt out via <code>replace_defaults</code>.
 		</p>
@@ -97,7 +97,7 @@ const csp_blank = create_csp_directives({
 
 	<TomeSection>
 		<TomeSectionHeader text="Pipeline" />
-		<p>Three stages run in order. Each is independent — use the one that matches your intent.</p>
+		<p>Three stages run in order, and each is independent. Use the one that matches your intent.</p>
 		<ol>
 			<li>
 				<strong
@@ -106,7 +106,7 @@ const csp_blank = create_csp_directives({
 				>
 				— the starting state. Omitted, it's
 				<DeclarationLink name="csp_directive_value_defaults" />. Provided, it
-				<em>replaces the library defaults wholesale</em> — exactly the directives you list, nothing
+				<em>replaces the library defaults wholesale</em>: exactly the directives you list, nothing
 				inherited. <code>{'{}'}</code> starts blank; <code>null</code> throws (avoid the null/undefined
 				footgun where a conditional silently disables defaults).
 			</li>
@@ -114,7 +114,7 @@ const csp_blank = create_csp_directives({
 				<strong><code>extend</code></strong> — sources to append per directive, layered left to
 				right. Values append (and deduplicate) to the result of <code>replace_defaults</code> and
 				prior entries. Boolean directives (e.g. <code>upgrade-insecure-requests</code>) are excluded
-				by the type — only array-typed directives can be extended. Compose multiple shared maps in
+				by the type. Only array-typed directives can be extended. Compose multiple shared maps in
 				one array.
 			</li>
 			<li>
@@ -128,7 +128,7 @@ const csp_blank = create_csp_directives({
 		<TomeSectionHeader text="Adding sources via extend" />
 		<p>
 			<code>extend</code> is the common path: take a starting state and add per-directive sources. Sources
-			land only on the directives you name — there's no cross-directive promotion.
+			land only on the directives you name. There's no cross-directive promotion.
 		</p>
 		<Code
 			lang="ts"
@@ -160,10 +160,10 @@ create_csp_directives({
 });`}
 		/>
 		<p>
-			Default-deny directives (those whose default value is <code>['none']</code> — including
+			Default-deny directives (those whose default value is <code>['none']</code>, including
 			<code>default-src</code>, <code>object-src</code>, <code>base-uri</code>,
 			<code>script-src-attr</code>, and <code>child-src</code>) cannot be extended. Attempting to
-			<code>extend</code> them throws — opting in must go through <code>replace_defaults</code> or
+			<code>extend</code> them throws. Opting in must go through <code>replace_defaults</code> or
 			<code>overrides</code> so the opt-in is visible at the call site. Note that
 			<code>overrides</code> cannot rescue an <code>extend</code> for a default-deny directive in
 			the same call: extend runs first and throws before <code>overrides</code> would replace the
@@ -176,7 +176,7 @@ create_csp_directives({
 		<TomeSectionHeader text="Replacing values via overrides" />
 		<p>
 			The final-pass <code>overrides</code> option replaces a directive's value or removes it
-			entirely. Highest precedence — wins over <code>replace_defaults</code> and
+			entirely. Highest precedence. Wins over <code>replace_defaults</code> and
 			<code>extend</code>.
 		</p>
 		<Code
@@ -205,7 +205,7 @@ create_csp_directives({
 		<p>
 			<code>replace_defaults</code> sets the starting state. The default is the library's curated
 			<DeclarationLink name="csp_directive_value_defaults" />. To use your own foundation, pass a
-			complete map. <strong>Anything you don't list is absent from the starting state</strong> —
+			complete map. <strong>Anything you don't list is absent from the starting state</strong>,
 			including security defaults like <code>default-src: ['none']</code>. Use <code>extend</code>
 			and <code>overrides</code> for per-directive tweaks while keeping the library defaults.
 		</p>
@@ -231,7 +231,7 @@ create_csp_directives({replace_defaults: {}, overrides: {/* ... */}});`}
 		<p>
 			Use <code>overrides</code> for tweaks (replace one directive while keeping the library
 			defaults), and <code>replace_defaults</code> for full ownership of the starting state.
-			<code>null</code> is rejected (top-level or per-key) — omit the option for library defaults,
+			<code>null</code> is rejected (top-level or per-key). Omit the option for library defaults,
 			pass <code>{'{}'}</code> to start blank, or use <code>overrides</code> to remove a specific directive.
 		</p>
 	</TomeSection>
@@ -248,17 +248,17 @@ create_csp_directives({replace_defaults: {}, overrides: {/* ... */}});`}
 				<code>overrides</code> throw with the offending name.
 			</li>
 			<li>
-				Extending a directive whose current value is <code>['none']</code> throws — opt in via
+				Extending a directive whose current value is <code>['none']</code> throws. Opt in via
 				<code>replace_defaults</code> or <code>overrides</code> instead.
 			</li>
 			<li>
-				<code>null</code> for <code>replace_defaults</code> (top-level or per-key) throws — omit the
+				<code>null</code> for <code>replace_defaults</code> (top-level or per-key) throws. Omit the
 				option for library defaults, pass <code>{'{}'}</code> to start blank, or use
 				<code>overrides</code> to remove a specific directive.
 			</li>
 			<li>
 				<code>null</code> per-key in <code>extend</code> throws with a pointer to
-				<code>overrides</code> — <code>extend</code> only appends, so removal lives on
+				<code>overrides</code>. <code>extend</code> only appends, so removal lives on
 				<code>overrides</code>.
 			</li>
 			<li>
@@ -276,12 +276,12 @@ create_csp_directives({replace_defaults: {}, overrides: {/* ... */}});`}
 				invalid CSP that browsers reject).
 			</li>
 			<li>
-				The output is validated to ensure no directive ends up with an empty array — use
+				The output is validated to ensure no directive ends up with an empty array. Use
 				<code>['none']</code> to forbid all sources, or omit the directive entirely. Empty arrays
 				can be silently dropped or fall back to <code>default-src</code>, widening the policy.
 			</li>
 			<li>
-				Source arrays are validated to contain only strings — non-string elements (slipped through
+				Source arrays are validated to contain only strings. Non-string elements (slipped through
 				via <code>as any</code>) would render as <code>undefined</code> or
 				<code>[object Object]</code> in the emitted header.
 			</li>

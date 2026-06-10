@@ -3,8 +3,8 @@
  * Provides helpers for mounting contextmenu components and setting up actions.
  */
 
-import type {Component} from 'svelte';
-import {ContextmenuState} from '$lib/contextmenu_state.svelte.js';
+import {flushSync, type Component} from 'svelte';
+import {contextmenu_attachment, ContextmenuState} from '$lib/contextmenu_state.svelte.js';
 import {mount_component} from './test_helpers.js';
 
 /**
@@ -47,6 +47,11 @@ export const mount_contextmenu_root = <TProps extends Record<string, any>>(
  * Setup contextmenu attachment on an element with test params.
  * This registers the element so it responds to contextmenu events.
  *
+ * Flushes pending Svelte effects so a freshly mounted root's window listeners
+ * (e.g. the Safari-compat root's touch listener attachment) are live before the
+ * test dispatches events. Async only for call-site compatibility - the many
+ * existing `await`ed usages.
+ *
  * @param element - the HTML or SVG element to setup
  * @param params - array of contextmenu params (entries, snippets, etc.)
  * @returns cleanup function to call when done
@@ -55,10 +60,8 @@ export const setup_contextmenu_attachment = async (
 	element: HTMLElement | SVGElement,
 	params: Array<any>,
 ): Promise<(() => void) | void> => {
-	element.dataset.contextmenu = 'test';
-	const {contextmenu_attachment} = await import('$lib/contextmenu_state.svelte.js');
-	const attachment = contextmenu_attachment(params);
-	return attachment(element);
+	flushSync();
+	return contextmenu_attachment(params)(element);
 };
 
 /**

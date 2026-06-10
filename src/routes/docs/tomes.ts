@@ -10,6 +10,7 @@ import Dialog from '$routes/docs/Dialog/+page.svelte';
 import Teleport from '$routes/docs/Teleport/+page.svelte';
 import Alert from '$routes/docs/Alert/+page.svelte';
 import Docs from '$routes/docs/Docs/+page.svelte';
+import Library from '$routes/docs/Library/+page.svelte';
 import Contextmenu from '$routes/docs/Contextmenu/+page.svelte';
 import Redirect from '$routes/docs/Redirect/+page.svelte';
 import HueInput from '$routes/docs/HueInput/+page.svelte';
@@ -17,10 +18,12 @@ import Breadcrumb from '$routes/docs/Breadcrumb/+page.svelte';
 import Card from '$routes/docs/Card/+page.svelte';
 import Svg from '$routes/docs/Svg/+page.svelte';
 import csp from '$routes/docs/csp/+page.svelte';
+import icons from '$routes/docs/icons/+page.svelte';
 import logos from '$routes/docs/logos/+page.svelte';
 import theming from '$routes/docs/theming/+page.svelte';
 import api from '$routes/docs/api/+page.svelte';
 import intersect from '$routes/docs/intersect/+page.svelte';
+import vite_plugin_pkg_json from '$routes/docs/vite_plugin_pkg_json/+page.svelte';
 
 // TODO maybe decouple `related` from `Tome` to get bidirectionality for free
 
@@ -54,6 +57,14 @@ export const tomes: Array<Tome> = [
 		related_declarations: [],
 	},
 	{
+		slug: 'vite_plugin_pkg_json',
+		category: 'helpers',
+		Component: vite_plugin_pkg_json,
+		related_tomes: ['LibraryDetail'],
+		related_modules: ['vite_plugin_pkg_json.ts'],
+		related_declarations: ['vite_plugin_pkg_json'],
+	},
+	{
 		slug: 'csp',
 		category: 'helpers',
 		Component: csp,
@@ -67,6 +78,14 @@ export const tomes: Array<Tome> = [
 		Component: intersect,
 		related_tomes: [],
 		related_modules: ['intersect.svelte.ts'],
+		related_declarations: [],
+	},
+	{
+		slug: 'icons',
+		category: 'helpers',
+		Component: icons,
+		related_tomes: ['logos', 'Svg'],
+		related_modules: ['icons.ts'],
 		related_declarations: [],
 	},
 	{
@@ -121,9 +140,9 @@ export const tomes: Array<Tome> = [
 		slug: 'Dialog',
 		category: 'components',
 		Component: Dialog,
-		related_tomes: ['Teleport'],
+		related_tomes: [],
 		related_modules: ['dialog.ts'],
-		related_declarations: ['Dialog', 'Dialogs'],
+		related_declarations: ['Dialog', 'DialogContent'],
 	},
 	{
 		slug: 'HueInput',
@@ -137,9 +156,17 @@ export const tomes: Array<Tome> = [
 		slug: 'Docs',
 		category: 'components',
 		Component: Docs,
-		related_tomes: [],
+		related_tomes: ['Library', 'LibraryDetail', 'LibrarySummary'],
 		related_modules: [],
 		related_declarations: ['Docs'],
+	},
+	{
+		slug: 'Library',
+		category: 'components',
+		Component: Library,
+		related_tomes: ['Docs', 'LibraryDetail', 'LibrarySummary', 'api'],
+		related_modules: [],
+		related_declarations: ['Library'],
 	},
 	{
 		slug: 'LibraryDetail',
@@ -186,14 +213,14 @@ export const tomes: Array<Tome> = [
 		category: 'components',
 		Component: Svg,
 		related_tomes: ['logos'],
-		related_modules: [],
+		related_modules: ['svg.ts'],
 		related_declarations: ['Svg'],
 	},
 	{
 		slug: 'Teleport',
 		category: 'components',
 		Component: Teleport,
-		related_tomes: ['Dialog'],
+		related_tomes: [],
 		related_modules: [],
 		related_declarations: ['Teleport'],
 	},

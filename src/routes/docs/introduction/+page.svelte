@@ -15,7 +15,7 @@
 		<p>
 			fuz_ui is a Svelte UI library with components and helpers for making zippy websites. It's
 			built on <a href="https://css.fuz.dev/">fuz_css</a>
-			and provides includes a documentation system built on
+			and provides a documentation system built on
 			<a href="https://svelte-docinfo.fuz.dev/">svelte-docinfo</a>. It's in early alpha with
 			breaking changes ahead.
 		</p>
@@ -35,9 +35,9 @@
 		/>
 		<p>See the nav for the available components and other helpers.</p>
 		<p>
-			<a href="https://mdz.fuz.dev/">mdz</a> is a markdown dialect enhanced with Svelte components, autolinked
-			identifiers, and other integrations. To compile static content at build time instead of parsing
-			at runtime with slower dynamic rendering, use its
+			<a href="https://mdz.fuz.dev/">mdz</a> is a markdown dialect enhanced with Svelte components,
+			autolinked identifiers, and other integrations. To compile static content at build time
+			instead of parsing at runtime with slower dynamic rendering, use its
 			<a href="https://mdz.fuz.dev/docs/svelte_preprocess_mdz">preprocessor</a>:
 		</p>
 		<Code

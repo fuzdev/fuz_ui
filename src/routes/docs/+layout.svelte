@@ -6,6 +6,7 @@
 	import {selected_variable_context} from '$lib/style_variable_helpers.svelte.js';
 	import StyleVariableDetail from '$routes/StyleVariableDetail.svelte';
 	import Dialog from '$lib/Dialog.svelte';
+	import DialogContent from '$lib/DialogContent.svelte';
 	import {Library, library_context} from '$lib/library.svelte.js';
 	import {library_json} from '$routes/library.js';
 
@@ -26,14 +27,14 @@
 
 {#if selected_variable.value}
 	<Dialog onclose={() => (selected_variable.value = null)}>
-		{#snippet children(close)}
-			<div class="pane p_md width_atmost_md mx_auto">
+		<DialogContent>
+			{#snippet children({close})}
 				<div class="panel p_lg box">
 					<StyleVariableDetail variable={selected_variable.value} />
 					<aside>⚠️ This is unfinished and will change.</aside>
 					<button type="button" onclick={close}>ok</button>
 				</div>
-			</div>
-		{/snippet}
+			{/snippet}
+		</DialogContent>
 	</Dialog>
 {/if}

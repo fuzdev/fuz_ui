@@ -2,6 +2,7 @@
 	import {flip} from 'svelte/animate';
 	import {crossfade} from 'svelte/transition';
 	import {quintOut} from 'svelte/easing';
+	import {SvelteSet} from 'svelte/reactivity';
 	import Code from '@fuzdev/fuz_code/Code.svelte';
 
 	import Contextmenu from '$lib/Contextmenu.svelte';
@@ -17,6 +18,7 @@
 	import ColorSchemeInput from '$lib/ColorSchemeInput.svelte';
 	import ThemeInput from '$lib/ThemeInput.svelte';
 	import Dialog from '$lib/Dialog.svelte';
+	import DialogContent from '$lib/DialogContent.svelte';
 	import file_contents from '$routes/docs/Contextmenu/ExampleFull.svelte?raw';
 	import TomeSectionHeader from '$lib/TomeSectionHeader.svelte';
 	import TomeSection from '$lib/TomeSection.svelte';
@@ -39,6 +41,9 @@
 	const ben_cat = $derived({name: ben, icon: ben_icon, position: ben_position});
 
 	let swapped = $state.raw(false);
+
+	// cats wiggling because a swap had nothing to reorder
+	const shaking_cats: SvelteSet<string> = new SvelteSet();
 
 	// TODO this is weird but `animate:` needs an `each`?
 	const locate_cats = (
@@ -108,7 +113,15 @@
 				break;
 			}
 			case 'cat_be_or_do': {
-				swapped = !swapped;
+				const cats_here = item.position === 'home' ? home_cats : adventure_cats;
+				if (cats_here.length > 1) {
+					swapped = !swapped;
+				} else {
+					// swapping is invisible with a single cat, so shake it as feedback
+					for (const cat of cats_here) {
+						shaking_cats.add(cat.name);
+					}
+				}
 				break;
 			}
 		}
@@ -148,7 +161,7 @@
 							<HomeContextmenu {act} {home_cats} {adventure_cats} />
 						{/snippet}
 						<div class="position home">
-							<div class="icon">🏠</div>
+							<div class="icon p_md">🏠</div>
 							<div class="cats">
 								{#each home_cats as { name, icon, position } (name)}
 									<div
@@ -157,12 +170,17 @@
 										out:send={{key: name}}
 										animate:flip
 									>
-										<Contextmenu>
-											{#snippet entries()}
-												<CatContextmenu {act} {name} {icon} {position} />
-											{/snippet}
-											<CatView {name} {icon} />
-										</Contextmenu>
+										<div
+											class:shaking={shaking_cats.has(name)}
+											onanimationend={() => shaking_cats.delete(name)}
+										>
+											<Contextmenu>
+												{#snippet entries()}
+													<CatContextmenu {act} {name} {icon} {position} />
+												{/snippet}
+												<CatView {name} {icon} />
+											</Contextmenu>
+										</div>
 									</div>
 								{/each}
 							</div>
@@ -173,7 +191,7 @@
 							<AdventureContextmenu {act} {home_cats} {adventure_cats} />
 						{/snippet}
 						<div class="position adventure">
-							<div class="icon">🌄</div>
+							<div class="icon p_md">🌄</div>
 							<div class="cats">
 								{#each adventure_cats as { name, icon, position } (name)}
 									<div
@@ -182,12 +200,17 @@
 										out:send={{key: name}}
 										animate:flip
 									>
-										<Contextmenu>
-											{#snippet entries()}
-												<CatContextmenu {act} {name} {icon} {position} />
-											{/snippet}
-											<CatView {name} {icon} />
-										</Contextmenu>
+										<div
+											class:shaking={shaking_cats.has(name)}
+											onanimationend={() => shaking_cats.delete(name)}
+										>
+											<Contextmenu>
+												{#snippet entries()}
+													<CatContextmenu {act} {name} {icon} {position} />
+												{/snippet}
+												<CatView {name} {icon} />
+											</Contextmenu>
+										</div>
 									</div>
 								{/each}
 							</div>
@@ -207,24 +230,22 @@
 
 {#if show_about_dialog}
 	<Dialog onclose={() => (show_about_dialog = false)}>
-		<div class="mx_auto box">
-			<div class="pane p_xl text-align:center">
-				<h1>About Fuz</h1>
-				<blockquote>Svelte UI library</blockquote>
-				<blockquote>
-					free and open source at<br /><GithubLink path="fuzdev/fuz_ui" />
-				</blockquote>
-				<code class="display:block p_md mb_lg"
-					>npm i -D <a href="https://www.npmjs.com/package/@fuzdev/fuz_ui">@fuzdev/fuz_ui</a></code
-				>
-				<div class="p_xl box">
-					<h2>Color scheme</h2>
-					<ColorSchemeInput />
-					<h2>Theme</h2>
-					<ThemeInput />
-				</div>
+		<DialogContent>
+			<h1>About Fuz</h1>
+			<blockquote>Svelte UI library</blockquote>
+			<blockquote>
+				free and open source at<br /><GithubLink path="fuzdev/fuz_ui" />
+			</blockquote>
+			<code class="display:block p_md mb_lg"
+				>npm i -D <a href="https://www.npmjs.com/package/@fuzdev/fuz_ui">@fuzdev/fuz_ui</a></code
+			>
+			<div class="p_xl box">
+				<h2>Color scheme</h2>
+				<ColorSchemeInput />
+				<h2>Theme</h2>
+				<ThemeInput />
 			</div>
-		</div>
+		</DialogContent>
 	</Dialog>
 {/if}
 
@@ -249,6 +270,28 @@
 	.cat-wrapper {
 		display: flex;
 		flex-direction: column;
-		width: 130px;
+		width: 160px;
+	}
+	/* `--duration_3` has no fallback so `prefers-reduced-motion` disables the animation */
+	.shaking {
+		animation: shake var(--duration_3) ease-in-out;
+	}
+	@keyframes shake {
+		0%,
+		100% {
+			transform: translateX(0);
+		}
+		20% {
+			transform: translateX(-6px) rotate(-2deg);
+		}
+		40% {
+			transform: translateX(5px) rotate(2deg);
+		}
+		60% {
+			transform: translateX(-4px) rotate(-1deg);
+		}
+		80% {
+			transform: translateX(3px) rotate(1deg);
+		}
 	}
 </style>

@@ -4,6 +4,8 @@
 	import {tome_get_by_slug} from '$lib/tome.js';
 	import LibrarySummary from '$lib/LibrarySummary.svelte';
 	import TomeContent from '$lib/TomeContent.svelte';
+	import DeclarationLink from '$lib/DeclarationLink.svelte';
+	import TomeLink from '$lib/TomeLink.svelte';
 	import {library_context} from '$lib/library.svelte.js';
 
 	const TOME_SLUG = 'LibrarySummary';
@@ -17,10 +19,11 @@
 <TomeContent {tome}>
 	<section>
 		<p>
-			This is a component related to <a
-				href="https://github.com/fuzdev/gro/blob/main/src/docs/package_json.md#public-packages"
-				>Gro's public packages</a
-			> features.
+			<DeclarationLink name="LibrarySummary" /> renders a compact card for a library and its repo. See
+			the <TomeLink slug="Library">Library</TomeLink> for how to construct one from <TomeLink
+				slug="vite_plugin_pkg_json"
+			/>
+			and <a href="https://svelte-docinfo.fuz.dev/"><code>virtual:svelte-docinfo</code></a>:
 		</p>
 		<Code
 			lang="ts"

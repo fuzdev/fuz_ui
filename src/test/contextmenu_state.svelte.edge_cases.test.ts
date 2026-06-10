@@ -6,6 +6,7 @@ import {
 	SubmenuState,
 	RootMenuState,
 } from '$lib/contextmenu_state.svelte.js';
+import {add_test_entry} from './contextmenu_state_test_helpers.js';
 
 describe('ContextmenuState - Edge Cases', () => {
 	let contextmenu: ContextmenuState;
@@ -15,15 +16,17 @@ describe('ContextmenuState - Edge Cases', () => {
 	});
 
 	describe('error handling', () => {
-		test('synchronous errors display correctly', () => {
-			const entry = new EntryState(contextmenu.root_menu, () => () => {
+		test('synchronous errors display correctly and keep the menu open', () => {
+			const entry = add_test_entry(contextmenu.root_menu, () => {
 				throw new Error('sync error');
 			});
 
+			contextmenu.open([], 0, 0);
 			void contextmenu.activate(entry);
 
 			assert.strictEqual(entry.error_message, 'sync error');
 			assert.strictEqual(contextmenu.error, 'sync error');
+			assert.strictEqual(contextmenu.opened, true);
 		});
 
 		test('async errors display correctly', async () => {
@@ -53,29 +56,29 @@ describe('ContextmenuState - Edge Cases', () => {
 		});
 
 		test('error state cleared on successful action', async () => {
-			const failing_entry = new EntryState(contextmenu.root_menu, () => () => {
+			const failing_entry = add_test_entry(contextmenu.root_menu, () => {
 				throw new Error('initial error');
 			});
-			const success_entry = new EntryState(contextmenu.root_menu, () => () => {
+			const success_entry = add_test_entry(contextmenu.root_menu, () => {
 				return {ok: true};
 			});
 
-			contextmenu.root_menu.items = [...contextmenu.root_menu.items, failing_entry, success_entry];
 			contextmenu.open([], 0, 0);
 
 			void contextmenu.activate(failing_entry);
 			assert.strictEqual(contextmenu.error, 'initial error');
+			assert.strictEqual(contextmenu.opened, true);
 
 			void contextmenu.activate(success_entry);
-			// Error is still in entry, but menu closed
+			// The successful activation closes the menu, resetting entry errors
 			assert.strictEqual(contextmenu.opened, false);
+			assert.strictEqual(failing_entry.error_message, null);
 		});
 
 		test('error state cleared on menu close', () => {
-			const entry = new EntryState(contextmenu.root_menu, () => async () => {
+			const entry = add_test_entry(contextmenu.root_menu, async () => {
 				throw new Error('error to clear');
 			});
-			contextmenu.root_menu.items = [...contextmenu.root_menu.items, entry];
 
 			contextmenu.open([], 0, 0);
 
@@ -95,10 +98,9 @@ describe('ContextmenuState - Edge Cases', () => {
 		});
 
 		test('error state cleared on new menu open', async () => {
-			const entry = new EntryState(contextmenu.root_menu, () => async () => {
+			const entry = add_test_entry(contextmenu.root_menu, async () => {
 				throw new Error('old error');
 			});
-			contextmenu.root_menu.items = [...contextmenu.root_menu.items, entry];
 
 			contextmenu.open([], 0, 0);
 			await contextmenu.activate(entry);
@@ -109,7 +111,9 @@ describe('ContextmenuState - Edge Cases', () => {
 			// Note: Opening doesn't reset entry errors - close() does
 			contextmenu.open([], 50, 50);
 
-			// Error message persists until close() or reset_items() is called
+			// The state-level error is cleared for the fresh menu
+			assert.strictEqual(contextmenu.error, undefined);
+			// Entry error message persists until close() or reset_items() is called
 			assert.strictEqual(entry.error_message, 'old error');
 		});
 	});
@@ -184,8 +188,7 @@ describe('ContextmenuState - Edge Cases', () => {
 		});
 
 		test('single item menus', () => {
-			const entry = new EntryState(contextmenu.root_menu, () => () => {});
-			contextmenu.root_menu.items = [...contextmenu.root_menu.items, entry];
+			const entry = add_test_entry(contextmenu.root_menu);
 
 			contextmenu.select_next();
 			assert.strictEqual(entry.selected, true);
@@ -212,8 +215,7 @@ describe('ContextmenuState - Edge Cases', () => {
 			}
 
 			// Add entry at deepest level
-			const deepest_entry = new EntryState(current_menu, () => () => {});
-			current_menu.items = [...current_menu.items, deepest_entry];
+			const deepest_entry = add_test_entry(current_menu);
 
 			// Verify structure depth
 			let walker: any = deepest_entry;
@@ -242,11 +244,7 @@ describe('ContextmenuState - Edge Cases', () => {
 		});
 
 		test('concurrent selections', () => {
-			const entries = Array.from(
-				{length: 10},
-				() => new EntryState(contextmenu.root_menu, () => () => {}),
-			);
-			contextmenu.root_menu.items = [...contextmenu.root_menu.items, ...entries];
+			const entries = Array.from({length: 10}, () => add_test_entry(contextmenu.root_menu));
 
 			// Rapid selections
 			for (let i = 0; i < 100; i++) {
@@ -259,15 +257,12 @@ describe('ContextmenuState - Edge Cases', () => {
 		});
 
 		test('concurrent activations', async () => {
-			const entries = Array.from(
-				{length: 3},
-				() =>
-					new EntryState(contextmenu.root_menu, () => async () => {
-						await new Promise((resolve) => setTimeout(resolve, 10));
-						return {ok: true};
-					}),
+			const entries = Array.from({length: 3}, () =>
+				add_test_entry(contextmenu.root_menu, async () => {
+					await new Promise((resolve) => setTimeout(resolve, 10));
+					return {ok: true};
+				}),
 			);
-			contextmenu.root_menu.items = [...contextmenu.root_menu.items, ...entries];
 
 			contextmenu.open([], 0, 0);
 
@@ -308,11 +303,7 @@ describe('ContextmenuState - Edge Cases', () => {
 		});
 
 		test('state mutations during iteration', () => {
-			const entries = Array.from(
-				{length: 5},
-				() => new EntryState(contextmenu.root_menu, () => () => {}),
-			);
-			contextmenu.root_menu.items = [...contextmenu.root_menu.items, ...entries];
+			for (let i = 0; i < 5; i++) add_test_entry(contextmenu.root_menu);
 
 			// Iterate and mutate
 			contextmenu.root_menu.items.forEach((entry, i) => {

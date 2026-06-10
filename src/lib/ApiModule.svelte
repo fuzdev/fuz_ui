@@ -67,7 +67,7 @@
 </script>
 
 <svelte:head>
-	<title>{module_name} - API docs - {library.package_json.name}</title>
+	<title>{module_name} - API docs - {library.pkg_json.name}</title>
 </svelte:head>
 
 <TomeContent {tome}>
@@ -128,7 +128,7 @@
 		</TomeSection>
 
 		<!-- Depends on section -->
-		{#if module.dependencies}
+		{#if module.has_dependencies}
 			<TomeSection>
 				<TomeSectionHeader text="Depends on" />
 				<ul>
@@ -142,7 +142,7 @@
 		{/if}
 
 		<!-- Imported by section -->
-		{#if module.dependents}
+		{#if module.has_dependents}
 			<TomeSection>
 				<TomeSectionHeader text="Imported by" />
 				<ul>

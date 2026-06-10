@@ -1,5 +1,46 @@
 # @fuzdev/fuz_ui
 
+## 0.202.0
+
+### Minor Changes
+
+- security: remove `raw` from `SvgData`, add `style` and `gradient` ([7a57c58](https://github.com/fuzdev/fuz_ui/commit/7a57c58))
+- feat: add svg icons ([#122](https://github.com/fuzdev/fuz_ui/pull/122))
+
+### Patch Changes
+
+- refactor: use `DialogContent` for the `Docs` menu ([237714d](https://github.com/fuzdev/fuz_ui/commit/237714d))
+
+## 0.201.0
+
+### Minor Changes
+
+- use the native `<dialog>` element in `Dialog` ([#71](https://github.com/fuzdev/fuz_ui/pull/71)) ([refactor](https://github.com/fuzdev/fuz_ui/commit/refactor))
+  - `Dialog` now renders a native `<dialog>` opened with `showModal()`, so it traps focus, closes on Escape, restores focus, and dims the page natively -- no more `Teleport`
+  - breaking: remove the `active` and `container` props, the `Dialogs` component, and the `DialogParams` type and `to_dialog_params` helper
+  - breaking: pair `Dialog` with the new `DialogContent` (or render your own surface in `children`); the `children` snippet now receives a context object, so destructure `close` from it: `{#snippet children({close})}`
+  - add `Dialog` props `show` (gates rendering), `dismissable` (click-outside-to-close), and `onbeforeclose` (return `false` to veto a close); `<dialog>` attributes forward via rest props
+  - add `DialogContent`, the default content surface: a centered `.pane` card with a floating close button -- `pane={false}` for a chromeless surface, `close_button={false}` to drop the button (or pass a `Snippet` to customize it)
+
+## 0.200.0
+
+### Minor Changes
+
+- feat: improve docs components ([#127](https://github.com/fuzdev/fuz_ui/pull/127))
+
+### Patch Changes
+
+- tweak: reorder project links ([8789a43](https://github.com/fuzdev/fuz_ui/commit/8789a43))
+
+## 0.199.0
+
+### Minor Changes
+
+- feat: add `MdzRoot` context provider; switch `mdz_components_context` and `mdz_elements_context` to the getter pattern with ancestor fallback (`set_mdz_context_with_fallback`) ([#121](https://github.com/fuzdev/fuz_ui/pull/121))
+- feat: add `vite_plugin_pkg_json` serving a curated `PkgJson` as `'virtual:pkg.json'`, with a `keys` option to widen the served field set ([#126](https://github.com/fuzdev/fuz_ui/pull/126))
+- feat: add streaming mdz parser and renderer ([#121](https://github.com/fuzdev/fuz_ui/pull/121))
+- feat: rework `Library` for the slimmed `LibraryJson` (`pkg_json`/`source_json` pair) ([#126](https://github.com/fuzdev/fuz_ui/pull/126))
+
 ## 0.198.1
 
 ### Patch Changes

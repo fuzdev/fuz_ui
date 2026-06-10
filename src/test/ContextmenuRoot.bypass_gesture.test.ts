@@ -648,6 +648,48 @@ describe('ContextmenuRoot - Tap-Then-Longpress Bypass Gesture', () => {
 		target.remove();
 	});
 
+	test('lifting before the native contextmenu fires discards the pending bypass', async () => {
+		mounted = mount_contextmenu_root(ContextmenuRoot, undefined, {
+			bypass_with_tap_then_longpress: true,
+		});
+
+		const {contextmenu} = mounted;
+
+		const target = document.createElement('div');
+		document.body.appendChild(target);
+
+		await setup_contextmenu_attachment(target, [
+			{snippet: 'text', props: {content: 'Test', icon: '🧪', run: () => undefined}},
+		]);
+
+		// Tap, then a second touch arms the bypass...
+		const touchstart1 = create_touch_event('touchstart', [{clientX: 100, clientY: 200, target}]);
+		set_event_target(touchstart1, target);
+		window.dispatchEvent(touchstart1);
+		window.dispatchEvent(create_touch_event('touchend', []));
+
+		vi.advanceTimersByTime(200);
+		const touchstart2 = create_touch_event('touchstart', [{clientX: 100, clientY: 200, target}]);
+		set_event_target(touchstart2, target);
+		window.dispatchEvent(touchstart2);
+
+		// ...but the finger lifts before the native contextmenu fires. No native menu
+		// appeared, so the pending bypass must be discarded instead of lingering to eat
+		// an unrelated future right-click.
+		window.dispatchEvent(create_touch_event('touchend', []));
+
+		// A later right-click opens ours normally.
+		vi.advanceTimersByTime(100);
+		const contextEvent = create_contextmenu_event(100, 200);
+		set_event_target(contextEvent, target);
+		window.dispatchEvent(contextEvent);
+
+		assert.strictEqual(contextEvent.defaultPrevented, true);
+		assert.strictEqual(contextmenu.opened, true);
+
+		target.remove();
+	});
+
 	test('contextmenu works normally after bypass is consumed', async () => {
 		const custom_bypass_window = 600;
 		mounted = mount_contextmenu_root(ContextmenuRoot, undefined, {

@@ -6,6 +6,7 @@ import {
 	SubmenuState,
 	RootMenuState,
 } from '$lib/contextmenu_state.svelte.js';
+import {add_test_entry, add_test_submenu} from './contextmenu_state_test_helpers.js';
 
 describe('ContextmenuState - Structure', () => {
 	let contextmenu: ContextmenuState;
@@ -174,10 +175,9 @@ describe('ContextmenuState - Structure', () => {
 
 		test('recursively resets submenu items', () => {
 			const submenu = new SubmenuState(contextmenu.root_menu, 2);
-			const entry = new EntryState(submenu, () => () => {});
+			const entry = add_test_entry(submenu);
 			entry.promise = Promise.resolve();
 			entry.error_message = 'error';
-			submenu.items = [...submenu.items, entry];
 
 			contextmenu.reset_items([submenu]);
 
@@ -192,11 +192,9 @@ describe('ContextmenuState - Structure', () => {
 
 		test('handles deeply nested structure', () => {
 			const submenu1 = new SubmenuState(contextmenu.root_menu, 2);
-			const submenu2 = new SubmenuState(submenu1, 3);
-			const entry = new EntryState(submenu2, () => () => {});
+			const submenu2 = add_test_submenu(submenu1);
+			const entry = add_test_entry(submenu2);
 			entry.error_message = 'error';
-			submenu2.items = [...submenu2.items, entry];
-			submenu1.items = [...submenu1.items, submenu2];
 
 			contextmenu.reset_items([submenu1]);
 
@@ -205,11 +203,10 @@ describe('ContextmenuState - Structure', () => {
 
 		test('reset preserves structure', () => {
 			const submenu = new SubmenuState(contextmenu.root_menu, 2);
-			const entry1 = new EntryState(submenu, () => () => {});
-			const entry2 = new EntryState(submenu, () => () => {});
+			const entry1 = add_test_entry(submenu);
+			const entry2 = add_test_entry(submenu);
 			entry1.error_message = 'error1';
 			entry2.error_message = 'error2';
-			submenu.items = [...submenu.items, entry1, entry2];
 
 			contextmenu.reset_items([submenu]);
 

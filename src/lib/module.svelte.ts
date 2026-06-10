@@ -2,7 +2,7 @@ import type {ModuleJsonInput} from 'svelte-docinfo/types.js';
 
 import {Declaration} from './declaration.svelte.js';
 import type {Library} from './library.svelte.js';
-import {url_github_file} from './package_helpers.js';
+import {url_github_file} from '@fuzdev/fuz_util/package_helpers.js';
 
 /**
  * Rich runtime representation of a module with computed properties.
@@ -89,6 +89,10 @@ export class Module {
 	 * Modules that import this (paths relative to src/lib).
 	 */
 	dependents = $derived(this.module_json.dependents ?? []);
+
+	has_dependencies: boolean = $derived(this.dependencies.length > 0);
+
+	has_dependents: boolean = $derived(this.dependents.length > 0);
 
 	constructor(library: Library, module_json: ModuleJsonInput) {
 		this.library = library;

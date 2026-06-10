@@ -42,7 +42,8 @@ export const create_api_search = (library: Library): ApiSearchState => {
 	const all_declarations = $derived(library.declarations);
 	const filtered_declarations = $derived.by(() => {
 		const items = query.trim() ? library.search_declarations(query) : all_declarations;
-		return items.sort((a, b) => a.name.localeCompare(b.name));
+		// spread before sort — `items` may be the shared source array
+		return [...items].sort((a, b) => a.name.localeCompare(b.name));
 	});
 
 	return {
@@ -83,7 +84,8 @@ export const create_module_declaration_search = (
 
 	const filtered = $derived.by(() => {
 		const trimmed_query = query.trim();
-		if (!trimmed_query) return all.sort((a, b) => a.name.localeCompare(b.name));
+		// spread before sort — `all` is the shared source array
+		if (!trimmed_query) return [...all].sort((a, b) => a.name.localeCompare(b.name));
 
 		const terms = trimmed_query.toLowerCase().split(/\s+/);
 

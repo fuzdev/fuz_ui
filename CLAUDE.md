@@ -99,9 +99,10 @@ helpers (`generateImport`, `getDisplayName` from `declaration-helpers.js`).
 
 ### Overlays and dialogs
 
-- `Dialog`, `Dialogs` - modal dialogs
-- `Contextmenu*` - context menu system (Root, Entry, LinkEntry, TextEntry,
-  Submenu, Separator)
+- `Dialog`, `DialogContent` - native `<dialog>` modal and its default content surface
+- `Contextmenu*` - context menu system (Root, Menu, Entry, LinkEntry, TextEntry,
+  Submenu, Separator); `ContextmenuMenu` is the open-menu surface shared by the
+  two roots, which own gesture detection
 
 ### Forms and inputs
 
@@ -124,7 +125,7 @@ helpers (`generateImport`, `getDisplayName` from `declaration-helpers.js`).
 
 ### Documentation
 
-- `PackageDetail`, `PackageSummary` - package info display
+- `LibraryDetail`, `LibrarySummary` - library info display (from a `Library`)
 - `ApiIndex`, `ApiModule`, `ApiDeclarationList` - API documentation; render TSDoc
   prose as mdz via `@fuzdev/mdz`, injecting `DocsLink` (inline code) and fuz_code's
   `Code` (code blocks)
@@ -147,7 +148,8 @@ mdz itself (`Mdz`, `MdzRoot`, `MdzStream`, the preprocessor) lives in `@fuzdev/m
 ### Component helpers
 
 - `contextmenu_state.svelte.ts` - context menu state management
-- `dialog.ts` - dialog utilities (`to_dialog_params()`, DialogLayout enum)
+- `dialog.ts` - dialog types and `dialog_context` (`DialogContext`, `DialogAlign`,
+  `DialogCloseButtonAttrs`)
 - `alert.ts` - alert utilities
 - `storage.ts` - localStorage utilities with optional `parse_fn` for custom parsing
 - `csp.ts` - Content Security Policy builder utilities
@@ -156,13 +158,22 @@ mdz itself (`Mdz`, `MdzRoot`, `MdzStream`, the preprocessor) lives in `@fuzdev/m
 
 ### Library and API generation
 
-Library metadata is built at runtime from svelte-docinfo's analysis. The
+Library metadata is built at runtime from two virtual modules. The
 `svelte-docinfo` Vite plugin (`svelte-docinfo/vite.js`, wired in
-`vite.config.ts`) exposes the analyzed modules through the
-`virtual:svelte-docinfo` module; the app's `+layout.svelte` passes them to
-`library_json_from_modules` (from `@fuzdev/fuz_util/library_json.js`) to
-construct the `LibraryJson`.
+`vite.config.ts`) exposes the analyzed modules through
+`virtual:svelte-docinfo`, and `vite_plugin_pkg_json` exposes the curated,
+publish-safe `package.json` subset through `virtual:pkg.json`. The app's
+`src/routes/library.ts` combines them via `library_json_from_modules` (from
+`@fuzdev/fuz_util/library_json.js`) to construct the `LibraryJson`;
+`+layout.svelte` separately uses `virtual:pkg.json` for `SiteState`.
 
+The served `pkg_json` field set defaults to `pkg_json_keys`. To widen it, pass
+a `keys` list to both `vite_plugin_pkg_json` (build-time strip) and
+`library_json_from_modules` (runtime re-strip) — they must match or the runtime
+re-strip drops the extras. See the `vite_plugin_pkg_json` tome for the pattern.
+
+- `vite_plugin_pkg_json.ts` - Vite plugin serving `virtual:pkg.json` (curated
+  `PkgJson` from `@fuzdev/fuz_util/pkg_json.js`)
 - `library.svelte.ts` - `Library` class wrapping library data
 - `declaration.svelte.ts` - `Declaration` class for code declarations (uses
   `generateImport`, `getDisplayName` from `svelte-docinfo/declaration-helpers.js`)

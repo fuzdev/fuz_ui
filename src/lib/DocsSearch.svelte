@@ -1,6 +1,9 @@
 <script lang="ts">
 	import type {SvelteHTMLElements} from 'svelte/elements';
 
+	import {icon_close} from './icons.js';
+	import Svg from './Svg.svelte';
+
 	let {
 		placeholder = 'search modules and declarations...',
 		module_count,
@@ -71,7 +74,7 @@
 			title="clear search"
 			aria-label="clear search"
 		>
-			🗙
+			<Svg data={icon_close} />
 		</button>
 	{/if}
 </label>
