@@ -6,6 +6,7 @@
 import {describe, test, assert, afterEach} from 'vitest';
 import {flushSync} from 'svelte';
 
+import {contextmenu_attachment} from '$lib/contextmenu_state.svelte.js';
 import {
 	unmount_component,
 	create_contextmenu_event,
@@ -162,11 +163,9 @@ export const create_shared_core_tests = (
 					const target = document.createElement('div');
 					menu_el.appendChild(target);
 
-					const {contextmenu_attachment} = await import('$lib/contextmenu_state.svelte.js');
-					const attachment = contextmenu_attachment([
+					contextmenu_attachment([
 						{snippet: 'text', props: {content: 'Test', icon: '🧪', run: () => undefined}},
-					]);
-					attachment(target);
+					])(target);
 
 					// Try to open another contextmenu from within the existing menu
 					const event = create_contextmenu_event(150, 250);

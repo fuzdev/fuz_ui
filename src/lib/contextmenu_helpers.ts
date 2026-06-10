@@ -25,6 +25,10 @@ export const CONTEXTMENU_DEFAULT_LONGPRESS_MOVE_TOLERANCE = 21;
  * Defaults are applied identically by both roots.
  */
 export interface ContextmenuRootBaseProps {
+	/**
+	 * The contextmenu state. Each root defaults to its own new instance -
+	 * pass one to control or observe the menu externally.
+	 */
 	contextmenu?: ContextmenuState;
 	/**
 	 * The number of pixels to offset from the pointer X position when opened.
@@ -76,6 +80,9 @@ export interface ContextmenuRootBaseProps {
 	 * Defaults to `separator_entry_default` which renders `ContextmenuSeparator`.
 	 */
 	separator_entry?: Snippet<[ComponentProps<typeof ContextmenuSeparator>]> | null;
+	/**
+	 * The content the root listens over for contextmenu gestures.
+	 */
 	children: Snippet;
 }
 

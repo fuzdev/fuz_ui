@@ -41,6 +41,9 @@
 		separator_entry,
 		el = $bindable(),
 	}: {
+		/**
+		 * The contextmenu state owned by the root.
+		 */
 		contextmenu: ContextmenuState;
 		/**
 		 * Guards the menu from the residual events of the gesture that opened it.

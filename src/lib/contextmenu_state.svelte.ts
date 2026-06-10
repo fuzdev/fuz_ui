@@ -428,8 +428,8 @@ const contextmenu_params_by_element: WeakMap<
  * @param params - contextmenu parameters or nullish to disable
  */
 export const contextmenu_attachment =
-	<T extends ContextmenuParams, U extends T | Array<T>>(
-		params: U | null | undefined,
+	(
+		params: ContextmenuParams | Array<ContextmenuParams> | null | undefined,
 	): Attachment<HTMLElement | SVGElement> =>
 	(el): undefined | (() => void) => {
 		if (params == null) return;
