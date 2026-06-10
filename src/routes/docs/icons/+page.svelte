@@ -1,8 +1,9 @@
 <script lang="ts">
 	import Code from '@fuzdev/fuz_code/Code.svelte';
-	import {get_tome_by_name} from '$lib/tome.js';
+	import {tome_get_by_slug} from '$lib/tome.js';
 	import TomeContent from '$lib/TomeContent.svelte';
 	import TomeLink from '$lib/TomeLink.svelte';
+	import type {SvgData} from '$lib/svg.js';
 	import Svg from '$lib/Svg.svelte';
 	import {
 		icon_unknown,
@@ -81,13 +82,11 @@
 		icon_backend,
 	} from '$lib/icons.js';
 
-	const LIBRARY_ITEM_NAME = 'icons';
-
-	const tome = get_tome_by_name(LIBRARY_ITEM_NAME);
+	const tome = tome_get_by_slug('icons');
 
 	const icon_entries: Array<{
 		name: string;
-		data: import('$lib/Svg.svelte').SvgData;
+		data: SvgData;
 	}> = [
 		{name: 'unknown', data: icon_unknown},
 		{name: 'important', data: icon_important},
@@ -170,7 +169,7 @@
 	<section>
 		<p>
 			Fuz includes a number of icons available as data that can be mounted with the <TomeLink
-				name="Svg"
+				slug="Svg"
 			/>
 			component. Only the ones you use are included in your bundle.
 		</p>
