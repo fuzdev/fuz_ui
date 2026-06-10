@@ -79,6 +79,12 @@ export class RootMenuState {
 
 export type ContextmenuRun = () => ContextmenuActivateResult | Promise<ContextmenuActivateResult>;
 
+/** Extracts a string `message` property from a thrown value or failed result, if present. */
+const to_error_message = (value: unknown): string | undefined => {
+	const message = (value as {message?: unknown} | null | undefined)?.message;
+	return typeof message === 'string' ? message : undefined;
+};
+
 export interface ContextmenuStateOptions {
 	layout?: Dimensions; // TODO consider making this a prop on `ContextmenuRoot`, and being assigned here
 }
@@ -118,12 +124,11 @@ export class ContextmenuState {
 		return !!selected?.is_menu && selected.items.length > 0;
 	});
 
-	can_select_next = $derived.by(() => {
-		const menu = this.selections.at(-1)?.menu ?? this.root_menu;
-		return menu.items.length > 1;
-	});
-
-	can_select_previous = $derived.by(() => {
+	/**
+	 * Whether `select_next` and `select_previous` can move the selection -
+	 * the selected menu has more than one item.
+	 */
+	can_select_sibling = $derived.by(() => {
 		const menu = this.selections.at(-1)?.menu ?? this.root_menu;
 		return menu.items.length > 1;
 	});
@@ -145,6 +150,7 @@ export class ContextmenuState {
 	open(params: Array<ContextmenuParams>, x: number, y: number): void {
 		this.selections = [];
 		this.opened = true;
+		this.error = undefined;
 		this.x = x;
 		this.y = y;
 		this.params = params;
@@ -168,75 +174,75 @@ export class ContextmenuState {
 		}
 	}
 
+	/**
+	 * Sets the error state for a failed activation.
+	 * `error_message` falls back to `'unknown error'` so the entry always displays something,
+	 * while `error` keeps the raw message so external consumers can detect its absence.
+	 */
+	#handle_error(item: EntryState, message: string | undefined): void {
+		item.error_message = message ?? 'unknown error';
+		this.error = message;
+	}
+
+	#handle_result(item: EntryState, result: ContextmenuActivateResult): void {
+		if (typeof result?.ok === 'boolean') {
+			if (result.ok) {
+				if (result.close !== false) {
+					this.close();
+				}
+			} else {
+				this.#handle_error(item, to_error_message(result));
+			}
+		} else {
+			// void or undefined - default behavior is to close
+			this.close();
+		}
+	}
+
 	activate(item: ItemState): boolean | Promise<ContextmenuActivateResult> {
 		if (item.is_menu) {
 			this.expand_selected();
-		} else {
-			if (item.disabled()) return false;
-			let returned;
-			try {
-				returned = item.run()();
-			} catch (error) {
-				const message = typeof error?.message === 'string' ? error.message : undefined;
-				item.error_message = message ?? 'unknown error';
-				this.error = message;
-			}
-			if (is_promise(returned)) {
-				item.pending = true;
-				item.error_message = null;
-				const promise = (item.promise = returned
-					.then(
-						(result) => {
-							if (promise !== item.promise) return;
-							if (typeof result?.ok === 'boolean') {
-								if (result.ok) {
-									if (result.close !== false) {
-										this.close();
-									}
-								} else {
-									const message = typeof result.message === 'string' ? result.message : undefined;
-									item.error_message = message ?? 'unknown error';
-									this.error = message;
-								}
-							} else {
-								// void or undefined - default behavior is to close
-								this.close();
-							}
-							return result;
-						},
-						(err) => {
-							if (promise !== item.promise) return;
-							const message = typeof err?.message === 'string' ? err.message : undefined;
-							item.error_message = message ?? 'unknown error';
-							this.error = message;
-						},
-					)
-					.finally(() => {
-						if (promise !== item.promise) return;
-						item.pending = false;
-						item.promise = null;
-					}));
-				return item.promise; // async path
-			}
-			// synchronous path
-			if (typeof returned?.ok === 'boolean') {
-				if (returned.ok) {
-					if (returned.close !== false) {
-						this.close();
-					}
-				} else {
-					const message = typeof returned.message === 'string' ? returned.message : undefined;
-					item.error_message = message ?? 'unknown error';
-					this.error = message;
-				}
-			} else {
-				// void or undefined - default behavior is to close
-				this.close();
-			}
+			return true;
 		}
+		if (item.disabled()) return false;
+		let returned;
+		try {
+			returned = item.run()();
+		} catch (error) {
+			// keep the menu open so the entry displays the error, matching the async failure path
+			this.#handle_error(item, to_error_message(error));
+			return false;
+		}
+		if (is_promise(returned)) {
+			item.pending = true;
+			item.error_message = null;
+			const promise = (item.promise = returned
+				.then(
+					(result) => {
+						if (promise !== item.promise) return;
+						this.#handle_result(item, result);
+						return result;
+					},
+					(err) => {
+						if (promise !== item.promise) return;
+						this.#handle_error(item, to_error_message(err));
+					},
+				)
+				.finally(() => {
+					if (promise !== item.promise) return;
+					item.pending = false;
+					item.promise = null;
+				}));
+			return item.promise; // async path
+		}
+		// synchronous path
+		this.#handle_result(item, returned);
 		return true;
 	}
 
+	/**
+	 * Activates the selected item, or if none is selected, selects the first.
+	 */
 	activate_selected(): void | boolean | Promise<ContextmenuActivateResult> {
 		const selected = this.selections.at(-1);
 		if (selected) {
@@ -250,7 +256,7 @@ export class ContextmenuState {
 	// Could be improved but it's fine because we're using mutation and the N is very small,
 	// and it allows us to have a single code path for the various selection methods.
 	/**
-	 * Activates the selected entry, or if none, selects the first.
+	 * Selects `item` and its ancestor menus, deselecting everything else.
 	 */
 	// TODO implement focus management per APG: call .focus() on the selected item's DOM element (requires storing element refs in EntryState/SubmenuState)
 	select(item: ItemState): void {
@@ -321,9 +327,8 @@ export class ContextmenuState {
 		const menu = contextmenu_submenu_context.get_maybe() ?? this.root_menu;
 		const entry = new EntryState(menu, run, disabled);
 		menu.items = [...menu.items, entry];
-		// TODO messy, runs more than needed
 		onDestroy(() => {
-			menu.items = [];
+			menu.items = menu.items.filter((item) => item !== entry);
 		});
 		return entry;
 	}
@@ -336,9 +341,8 @@ export class ContextmenuState {
 		const submenu = new SubmenuState(menu, menu.depth + 1);
 		menu.items = [...menu.items, submenu];
 		contextmenu_submenu_context.set(submenu);
-		// TODO messy, runs more than needed
 		onDestroy(() => {
-			menu.items = [];
+			menu.items = menu.items.filter((item) => item !== submenu);
 		});
 		return submenu;
 	}
@@ -440,19 +444,19 @@ const contextmenu_query_params = (
 	let params: null | Array<ContextmenuParams> = null;
 	// crawl DOM for contextmenu entries
 	let el: HTMLElement | SVGElement | null | undefined = target;
-	let cache_key: string, cached: ContextmenuParams | Array<ContextmenuParams> | undefined;
 	while ((el = el?.closest(CONTEXTMENU_DOM_QUERY))) {
-		if ((cache_key = el.dataset[CONTEXTMENU_DATASET_KEY]!)) {
-			params ??= [];
-			cached = contextmenu_cache.get(cache_key);
-			if (cached === undefined) {
-				continue;
-			}
-			// preserve bubbling order
-			if (Array.isArray(cached)) {
-				(params ??= []).push(...cached);
-			} else {
-				(params ??= []).push(cached);
+		const cache_key = el.dataset[CONTEXTMENU_DATASET_KEY];
+		if (cache_key) {
+			// the cache entry may be missing when an attachment was nullified
+			// but its dataset attribute remains - treat the element as having no entries
+			const cached = contextmenu_cache.get(cache_key);
+			if (cached !== undefined) {
+				// preserve bubbling order
+				if (Array.isArray(cached)) {
+					(params ??= []).push(...cached);
+				} else {
+					(params ??= []).push(cached);
+				}
 			}
 		}
 		if (el.tagName === 'A') {

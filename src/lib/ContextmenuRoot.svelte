@@ -16,7 +16,6 @@
 	 * instead. That version implements custom touch handlers and longpress detection at the
 	 * cost of significantly more complexity and no vibrate support.
 	 */
-	import {swallow} from '@fuzdev/fuz_util/dom.js';
 	import {DEV} from 'esm-env';
 	import type {ComponentProps, Snippet} from 'svelte';
 
@@ -24,7 +23,6 @@
 		contextmenu_context,
 		contextmenu_dimensions_context,
 		ContextmenuState,
-		contextmenu_open,
 		contextmenu_check_global_root,
 	} from './contextmenu_state.svelte.js';
 	import ContextmenuLinkEntry from './ContextmenuLinkEntry.svelte';
@@ -38,8 +36,11 @@
 		contextmenu_is_valid_target,
 		contextmenu_create_keyboard_handlers,
 		contextmenu_create_keydown_handler,
+		contextmenu_create_mousedown_handler,
 		contextmenu_calculate_constrained_x,
 		contextmenu_calculate_constrained_y,
+		contextmenu_open_from_event,
+		ContextmenuBypassTracker,
 	} from './contextmenu_helpers.js';
 
 	const {
@@ -126,45 +127,20 @@
 		contextmenu_calculate_constrained_y(contextmenu.y, dimensions.height, layout.height),
 	);
 
-	// State for tap-then-longpress bypass detection.
-	// These values are `undefined` when unused, and `null` after being reset.
-	let touch_x: number | undefined | null = $state.raw();
-	let touch_y: number | undefined | null = $state.raw();
-	let first_tap_time: number | undefined | null = $state.raw();
-	let longpress_bypass: boolean | undefined = $state.raw();
-	let tap_tracking_timeout: NodeJS.Timeout | undefined | null = $state.raw();
+	const bypass_tracker = new ContextmenuBypassTracker();
+
+	const open_options = $derived({
+		open_offset_x,
+		open_offset_y,
+		link_enabled: link_entry !== null,
+		text_enabled: text_entry !== null,
+		separator_enabled: separator_entry !== null,
+	});
 
 	const on_window_contextmenu = (e: MouseEvent) => {
-		// Handle the tap-then-longpress bypass gesture
-		if (longpress_bypass) {
-			// Clear all tap tracking state after consuming the bypass
-			longpress_bypass = false;
-			first_tap_time = null;
-			touch_x = null;
-			touch_y = null;
-			if (tap_tracking_timeout != null) {
-				clearTimeout(tap_tracking_timeout);
-				tap_tracking_timeout = null;
-			}
-			return;
-		}
-		const {target} = e;
-		if (!contextmenu_is_valid_target(target, e.shiftKey)) {
-			return;
-		}
-		// Don't open contextmenu when clicking on the menu itself
-		if (el?.contains(target)) {
-			return;
-		}
-		if (
-			contextmenu_open(target, e.clientX + open_offset_x, e.clientY + open_offset_y, contextmenu, {
-				link_enabled: link_entry !== null,
-				text_enabled: text_entry !== null,
-				separator_enabled: separator_entry !== null,
-			})
-		) {
-			swallow(e);
-		}
+		// let the system contextmenu through after a tap-then-longpress bypass gesture
+		if (bypass_tracker.consume()) return;
+		contextmenu_open_from_event(e, contextmenu, el, open_options);
 	};
 
 	/**
@@ -187,77 +163,23 @@
 			touches.length !== 1 ||
 			!contextmenu_is_valid_target(target, e.shiftKey)
 		) {
-			// Reset all state if conditions aren't met
-			first_tap_time = null;
-			touch_x = null;
-			touch_y = null;
-			longpress_bypass = false;
-			if (tap_tracking_timeout != null) {
-				clearTimeout(tap_tracking_timeout);
-				tap_tracking_timeout = null;
-			}
+			bypass_tracker.reset();
 			return;
 		}
 
 		const {clientX, clientY} = touches[0]!;
-
-		// Check if this is a tap-then-longpress gesture
-		if (
-			first_tap_time != null &&
-			performance.now() - first_tap_time < bypass_window &&
-			Math.hypot(clientX - touch_x!, clientY - touch_y!) < bypass_move_tolerance
-		) {
-			// This is a tap-then-longpress - set bypass flag and clear tap tracking
-			longpress_bypass = true;
-			first_tap_time = null;
-			touch_x = null;
-			touch_y = null;
-			if (tap_tracking_timeout != null) {
-				clearTimeout(tap_tracking_timeout);
-				tap_tracking_timeout = null;
-			}
-			return;
-		}
-
-		// Record this tap for potential future bypass detection
-		first_tap_time = performance.now();
-		touch_x = clientX;
-		touch_y = clientY;
-
-		// Set timeout to clear stale tap tracking after the detection window expires
-		if (tap_tracking_timeout != null) {
-			clearTimeout(tap_tracking_timeout);
-		}
-		tap_tracking_timeout = setTimeout(() => {
-			first_tap_time = null;
-			touch_x = null;
-			touch_y = null;
-			tap_tracking_timeout = null;
-		}, bypass_window);
+		bypass_tracker.track(clientX, clientY, bypass_window, bypass_move_tolerance);
 	};
 
 	/**
 	 * Reset state when touch is cancelled (e.g., when scrolling starts).
 	 */
 	const touchcancel = (): void => {
-		// Reset all bypass detection state
-		first_tap_time = null;
-		touch_x = null;
-		touch_y = null;
-		longpress_bypass = false;
-		if (tap_tracking_timeout != null) {
-			clearTimeout(tap_tracking_timeout);
-			tap_tracking_timeout = null;
-		}
+		bypass_tracker.reset();
 	};
 
-	// Passive listener that runs during the event's `capture` phase
-	// so that things like the Dialog don't eat the events and prevent the contextmenu from closing.
-	const mousedown = (e: MouseEvent) => {
-		if (el && !el.contains(e.target as any)) {
-			contextmenu.close();
-		}
-	};
+	// Closes the contextmenu on presses outside of it.
+	const mousedown = $derived(contextmenu_create_mousedown_handler(contextmenu, () => el));
 
 	const keyboard_handlers = $derived(contextmenu_create_keyboard_handlers(contextmenu));
 	const keydown = $derived(contextmenu_create_keydown_handler(keyboard_handlers));

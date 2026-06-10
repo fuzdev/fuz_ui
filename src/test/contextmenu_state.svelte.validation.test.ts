@@ -154,16 +154,16 @@ describe('ContextmenuState - Validation', () => {
 			});
 		});
 
-		describe('can_select_next', () => {
+		describe('can_select_sibling', () => {
 			test('returns false with empty menu', () => {
-				assert.strictEqual(contextmenu.can_select_next, false);
+				assert.strictEqual(contextmenu.can_select_sibling, false);
 			});
 
 			test('returns false with single item', () => {
 				const entry = new EntryState(contextmenu.root_menu, () => () => {});
 				contextmenu.root_menu.items = [...contextmenu.root_menu.items, entry];
 
-				assert.strictEqual(contextmenu.can_select_next, false);
+				assert.strictEqual(contextmenu.can_select_sibling, false);
 			});
 
 			test('returns true with multiple items', () => {
@@ -171,16 +171,19 @@ describe('ContextmenuState - Validation', () => {
 				const entry2 = new EntryState(contextmenu.root_menu, () => () => {});
 				contextmenu.root_menu.items = [...contextmenu.root_menu.items, entry1, entry2];
 
-				assert.strictEqual(contextmenu.can_select_next, true);
+				assert.strictEqual(contextmenu.can_select_sibling, true);
 			});
 
 			test('returns true with multiple items and selection', () => {
 				const entry1 = new EntryState(contextmenu.root_menu, () => () => {});
 				const entry2 = new EntryState(contextmenu.root_menu, () => () => {});
 				contextmenu.root_menu.items = [...contextmenu.root_menu.items, entry1, entry2];
-				contextmenu.select(entry1);
 
-				assert.strictEqual(contextmenu.can_select_next, true);
+				contextmenu.select(entry1);
+				assert.strictEqual(contextmenu.can_select_sibling, true);
+
+				contextmenu.select(entry2);
+				assert.strictEqual(contextmenu.can_select_sibling, true);
 			});
 
 			test('checks current menu level when in submenu', () => {
@@ -193,7 +196,7 @@ describe('ContextmenuState - Validation', () => {
 				contextmenu.expand_selected();
 
 				// Only one item in submenu
-				assert.strictEqual(contextmenu.can_select_next, false);
+				assert.strictEqual(contextmenu.can_select_sibling, false);
 			});
 
 			test('returns true in submenu with multiple items', () => {
@@ -206,50 +209,7 @@ describe('ContextmenuState - Validation', () => {
 				contextmenu.select(submenu);
 				contextmenu.expand_selected();
 
-				assert.strictEqual(contextmenu.can_select_next, true);
-			});
-		});
-
-		describe('can_select_previous', () => {
-			test('returns false with empty menu', () => {
-				assert.strictEqual(contextmenu.can_select_previous, false);
-			});
-
-			test('returns false with single item', () => {
-				const entry = new EntryState(contextmenu.root_menu, () => () => {});
-				contextmenu.root_menu.items = [...contextmenu.root_menu.items, entry];
-
-				assert.strictEqual(contextmenu.can_select_previous, false);
-			});
-
-			test('returns true with multiple items', () => {
-				const entry1 = new EntryState(contextmenu.root_menu, () => () => {});
-				const entry2 = new EntryState(contextmenu.root_menu, () => () => {});
-				contextmenu.root_menu.items = [...contextmenu.root_menu.items, entry1, entry2];
-
-				assert.strictEqual(contextmenu.can_select_previous, true);
-			});
-
-			test('returns true with multiple items and selection', () => {
-				const entry1 = new EntryState(contextmenu.root_menu, () => () => {});
-				const entry2 = new EntryState(contextmenu.root_menu, () => () => {});
-				contextmenu.root_menu.items = [...contextmenu.root_menu.items, entry1, entry2];
-				contextmenu.select(entry2);
-
-				assert.strictEqual(contextmenu.can_select_previous, true);
-			});
-
-			test('checks current menu level when in submenu', () => {
-				const submenu = new SubmenuState(contextmenu.root_menu, 2);
-				const entry = new EntryState(submenu, () => () => {});
-				submenu.items = [...submenu.items, entry];
-				contextmenu.root_menu.items = [...contextmenu.root_menu.items, submenu];
-
-				contextmenu.select(submenu);
-				contextmenu.expand_selected();
-
-				// Only one item in submenu
-				assert.strictEqual(contextmenu.can_select_previous, false);
+				assert.strictEqual(contextmenu.can_select_sibling, true);
 			});
 		});
 

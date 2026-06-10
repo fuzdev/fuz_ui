@@ -23,15 +23,20 @@ describe('ContextmenuState - Activation', () => {
 			assert.strictEqual(contextmenu.opened, false);
 		});
 
-		test('activate() handles synchronous error', () => {
+		test('activate() handles synchronous error and stays open', () => {
 			const entry = new EntryState(contextmenu.root_menu, () => () => {
 				throw new Error('test error');
 			});
+			contextmenu.root_menu.items = [...contextmenu.root_menu.items, entry];
 
-			void contextmenu.activate(entry);
+			contextmenu.open([], 0, 0);
+			const returned = contextmenu.activate(entry);
 
+			assert.strictEqual(returned, false);
 			assert.strictEqual(entry.error_message, 'test error');
 			assert.strictEqual(contextmenu.error, 'test error');
+			// Matches the async failure path - the menu stays open to display the error.
+			assert.strictEqual(contextmenu.opened, true);
 		});
 
 		test('activate() handles async success and closes', async () => {
