@@ -5,6 +5,9 @@
 	import {page} from '$app/state';
 
 	import {contextmenu_context} from './contextmenu_state.svelte.js';
+	import {icon_external_link, icon_link} from './icons.js';
+	import type {SvgData} from './svg.js';
+	import Svg from './Svg.svelte';
 
 	const {
 		href,
@@ -14,7 +17,7 @@
 		external_rel = 'noreferrer', // TODO smarter defaults
 	}: {
 		href: string;
-		icon?: string | Snippet; // TODO @many rethink this API, add svg icon fallback
+		icon?: SvgData | string | Snippet;
 		children?: Snippet; // TODO @many rethink this API
 		disabled?: boolean;
 		external_rel?: string;
@@ -39,13 +42,13 @@
 	const {selected} = $derived(entry);
 	const disabled = $derived(entry.disabled());
 
-	// TODO move or upstream? rename? `print_url`?
-	const format_url = (url: string, host: string = location.host): string => {
+	// TODO move or upstream?
+	const print_url = (url: string, host: string = location.host): string => {
 		const formatted = strip_start(strip_start(url, 'https://'), 'http://');
 		return formatted.startsWith(host + '/') ? strip_start(formatted, host) : formatted;
 	};
 
-	const text = $derived(format_url(href));
+	const text = $derived(print_url(href));
 	const external = $derived(!(text[0] === '.' || (text[0] === '/' && text[1] !== '/')));
 	const rel = $derived(external ? external_rel : undefined);
 
@@ -53,6 +56,9 @@
 </script>
 
 <li role="none">
+	<!-- `deselectable` is a hack to recover `cursor: pointer` when selected: these links always
+	     navigate, but `.menuitem.selected` forces `cursor: default`. The real fix is a `.menuitem`
+	     semantics cleanup (selected-as-active vs selected-as-highlight) - TODO @many -->
 	<!-- TODO -next-line doesnt work? -->
 	<!-- eslint-disable svelte/no-navigation-without-resolve -->
 	<a
@@ -60,6 +66,7 @@
 		class="menuitem plain"
 		class:selected
 		class:disabled
+		class:deselectable={!disabled}
 		role="menuitem"
 		aria-disabled={disabled}
 		aria-current={current_page ? 'page' : undefined}
@@ -84,10 +91,18 @@
 	>
 		<div class="content">
 			<div class="icon">
-				{#if typeof icon === 'string'}
-					{icon}
-				{:else if icon}
-					{@render icon()}
+				{#if icon}
+					{#if typeof icon === 'string'}
+						{icon}
+					{:else if typeof icon === 'object'}
+						<!-- `SvgData` is a plain object; detect it positively by shape rather than
+						     introspecting the snippet (whose runtime form is opaque/unsupported). -->
+						<Svg data={icon} />
+					{:else}
+						{@render icon()}
+					{/if}
+				{:else}
+					<Svg data={external ? icon_external_link : icon_link} />
 				{/if}
 			</div>
 			<div class="title">
