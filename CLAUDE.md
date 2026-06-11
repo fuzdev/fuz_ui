@@ -288,7 +288,13 @@ All contexts use the standardized pattern via `context_helpers.ts`:
 **Core:**
 
 - `theme_state_context` - theme state (ThemeState class)
-- `library_context` - library API metadata (Library class)
+- `library_context` - library API metadata (getter of a Library, `() => Library`);
+  set with a closure over reactive state, e.g. `library_context.set(() => library)`.
+  Components with a `library` prop (`LibraryDetail`, `ApiIndex`, `ApiModule`)
+  project the prop into this context for their subtree, so link components
+  (`ModuleLink`, `DeclarationLink`, `DocsLink`, `TypeLink`) resolve against the
+  rendered library — aggregators rendering a foreign library don't set the
+  context themselves
 
 **Documentation:**
 

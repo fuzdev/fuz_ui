@@ -19,7 +19,9 @@
 		display_text?: string | null;
 		children?: Snippet<[Declaration | undefined, Module | undefined]>;
 	} = $props();
-	const library = library_context.get();
+
+	const get_library = library_context.get();
+	const library = $derived(get_library());
 
 	// Try to find as declaration first, then module
 	const declaration = $derived(library.declaration_by_name.get(reference));

@@ -1,5 +1,5 @@
 <script lang="ts">
-	import {library_context, type Library} from './library.svelte.js';
+	import {set_library_context_with_fallback, type Library} from './library.svelte.js';
 	import {tome_get_by_slug, type Tome} from './tome.js';
 	import TomeContent from './TomeContent.svelte';
 	import TomeLink from './TomeLink.svelte';
@@ -9,13 +9,13 @@
 	import {create_api_search} from './api_search.svelte.js';
 
 	const {
-		library = library_context.get(),
+		library: library_prop,
 		tome = tome_get_by_slug('api'),
 		minimal = false,
 	}: {
 		/**
 		 * The library instance to render API docs for.
-		 * Defaults to getting from library_context.
+		 * Defaults to getting from `library_context`.
 		 */
 		library?: Library;
 		/**
@@ -29,6 +29,9 @@
 		 */
 		minimal?: boolean;
 	} = $props();
+
+	const get_library = set_library_context_with_fallback(() => library_prop, 'ApiIndex');
+	const library = $derived(get_library());
 
 	const search = $derived(create_api_search(library));
 </script>

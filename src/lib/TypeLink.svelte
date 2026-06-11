@@ -13,7 +13,8 @@
 		hash?: string;
 	} = $props();
 
-	const library = library_context.get();
+	const get_library = library_context.get();
+	const library = $derived(get_library());
 
 	// TODO is not extensible
 	// TODO maybe better name?

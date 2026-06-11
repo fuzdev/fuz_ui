@@ -15,7 +15,49 @@ import {
 	url_npm_package,
 } from '@fuzdev/fuz_util/package_helpers.js';
 
-export const library_context = create_context<Library>();
+/**
+ * Holds a getter to the active `Library` for the current subtree.
+ *
+ * The getter form keeps consumers reactive when the library changes without
+ * requiring a remount — set it with a closure over reactive state, e.g.
+ * `library_context.set(() => library)`. Components that accept a `library`
+ * prop (`LibraryDetail`, `ApiIndex`, `ApiModule`) project the prop into this
+ * context for their subtree, so descendants like `ModuleLink`,
+ * `DeclarationLink`, and TSDoc-rendered `DocsLink` resolve against the same
+ * library — including when an aggregator renders a foreign library that
+ * differs from the site-level context.
+ */
+export const library_context = create_context<() => Library>();
+
+/**
+ * Sets `library_context` for the component's subtree to a getter that prefers
+ * the component's `library` prop and falls back to the ancestor's value,
+ * returning the resolved getter.
+ *
+ * Pass `get_library_prop` as a getter (not a snapshot) so prop changes remain
+ * reactive. The ancestor lookup happens once at component init, before the
+ * projection — the fallback sees the parent value, not the projection.
+ *
+ * @param get_library_prop - Getter for the component's `library` prop. A thunk so the prop stays reactive.
+ * @param component_name - Used in the error when neither the prop nor the context provides a library.
+ * @returns getter for the resolved library; read it lazily, e.g. `$derived(get_library())`
+ * @initializes
+ */
+export const set_library_context_with_fallback = (
+	get_library_prop: () => Library | undefined,
+	component_name: string,
+): (() => Library) => {
+	const get_outer = library_context.get_maybe();
+	const get_library = (): Library => {
+		const value = get_library_prop() ?? get_outer?.();
+		if (!value) {
+			throw Error(`${component_name} requires a \`library\` prop or a set \`library_context\``);
+		}
+		return value;
+	};
+	library_context.set(get_library);
+	return get_library;
+};
 
 /**
  * Normalizes a URL prefix: ensures leading `/`, strips trailing `/`, returns `''` for falsy and non-string values.

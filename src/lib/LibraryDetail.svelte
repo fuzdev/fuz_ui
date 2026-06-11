@@ -12,7 +12,7 @@ with file-type coloring. Uses svelte-docinfo's file type predicates for module c
 	import {format_url} from '@fuzdev/fuz_util/url.js';
 	import type {Snippet} from 'svelte';
 
-	import type {Library} from './library.svelte.js';
+	import {library_context, type Library} from './library.svelte.js';
 	import ImgOrSvg from './ImgOrSvg.svelte';
 	import DeclarationLink from './DeclarationLink.svelte';
 	import ModuleLink from './ModuleLink.svelte';
@@ -43,6 +43,8 @@ with file-type coloring. Uses svelte-docinfo's file type predicates for module c
 		homepage_url?: Snippet<[homepage_url: string]>;
 		children?: Snippet<[library: Library]>;
 	} = $props();
+
+	library_context.set(() => library);
 
 	// TODO show other data (lines of code)
 

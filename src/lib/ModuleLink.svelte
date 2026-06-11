@@ -25,7 +25,8 @@
 		full?: boolean;
 	} = $props();
 
-	const library = library_context.get();
+	const get_library = library_context.get();
+	const library = $derived(get_library());
 
 	const module = $derived(library.module_by_path.get(module_path));
 

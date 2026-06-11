@@ -33,7 +33,8 @@
 		full?: boolean;
 	} = $props();
 
-	const library = library_context.get();
+	const get_library = library_context.get();
+	const library = $derived(get_library());
 
 	const declaration = $derived(
 		module_path === undefined
