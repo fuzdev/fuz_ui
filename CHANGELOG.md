@@ -1,5 +1,11 @@
 # @fuzdev/fuz_ui
 
+## 0.203.1
+
+### Patch Changes
+
+- feat: accept svg data and strings for the `ContextmenuEntry` and `ContextmenuSubmenu` `icon`, rendered via the new shared `ContextmenuIcon`, and make the `ContextmenuTextEntry` `icon` optional ([0afb926](https://github.com/fuzdev/fuz_ui/commit/0afb926))
+
 ## 0.203.0
 
 ### Minor Changes
