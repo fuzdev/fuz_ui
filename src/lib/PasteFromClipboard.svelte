@@ -6,6 +6,7 @@
 	const {
 		onclipboardtext,
 		onerror,
+		onclick,
 		children,
 		...rest
 	}: SvelteHTMLElements['button'] & {
@@ -21,7 +22,8 @@
 	title="paste from clipboard"
 	{...rest}
 	class="paste-from-clipboard {rest.class}"
-	onclick={async () => {
+	onclick={async (e) => {
+		onclick?.(e); // before the await, so it stays in the user gesture context
 		try {
 			const text = await navigator.clipboard.readText();
 			onclipboardtext(text);

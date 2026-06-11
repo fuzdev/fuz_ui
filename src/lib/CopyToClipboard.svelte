@@ -17,6 +17,7 @@
 		allow_copying_empty_string,
 		icon_button = true,
 		oncopy,
+		onclick,
 		disabled: disabled_prop,
 		children,
 		...rest
@@ -70,7 +71,10 @@
 	class:copied
 	class:failed
 	class:color_c={failed}
-	onclick={copy}
+	onclick={(e) => {
+		onclick?.(e); // before the internal handler, which is async
+		void copy(e);
+	}}
 	disabled={disabled_prop ?? (allow_copying_empty_string ? text === null : !text)}
 >
 	{#if children}

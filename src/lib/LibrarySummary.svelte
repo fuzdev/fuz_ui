@@ -1,6 +1,7 @@
 <script lang="ts">
 	import {page} from '$app/state';
 	import type {Snippet} from 'svelte';
+	import type {SvelteHTMLElements} from 'svelte/elements';
 	import {format_url} from '@fuzdev/fuz_util/url.js';
 
 	import type {Library} from './library.svelte.js';
@@ -15,7 +16,8 @@
 		npm_url,
 		homepage_url,
 		children,
-	}: {
+		...rest
+	}: SvelteHTMLElements['div'] & {
 		library: Library;
 		repo_name?: Snippet<[repo_name: string]>;
 		logo?: Snippet<[logo_url: string, logo_alt: string]>;
@@ -29,7 +31,7 @@
 	const {pkg_json} = $derived(library);
 </script>
 
-<div class="library-summary">
+<div {...rest} class="library-summary {rest.class}">
 	<!-- TODO maybe continue this snippet pattern, or maybe simplify? -->
 	<header class="box mb_lg">
 		{#if repo_name}

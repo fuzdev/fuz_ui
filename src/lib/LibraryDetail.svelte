@@ -10,7 +10,9 @@ with file-type coloring. Uses svelte-docinfo's file type predicates for module c
 <script lang="ts">
 	import {page} from '$app/state';
 	import {format_url} from '@fuzdev/fuz_util/url.js';
+	import type {OmitStrict} from '@fuzdev/fuz_util/types.js';
 	import type {Snippet} from 'svelte';
+	import type {SvelteHTMLElements} from 'svelte/elements';
 
 	import {library_context, type Library} from './library.svelte.js';
 	import ImgOrSvg from './ImgOrSvg.svelte';
@@ -28,7 +30,8 @@ with file-type coloring. Uses svelte-docinfo's file type predicates for module c
 		npm_url,
 		homepage_url,
 		children,
-	}: {
+		...rest
+	}: OmitStrict<SvelteHTMLElements['div'], 'children'> & {
 		library: Library;
 		/**
 		 * Link the module/declaration index to the library's own deployed docs
@@ -57,7 +60,7 @@ with file-type coloring. Uses svelte-docinfo's file type predicates for module c
 
 <!-- eslint-disable svelte/no-navigation-without-resolve -->
 
-<div class="library-detail">
+<div {...rest} class="library-detail {rest.class}">
 	<!-- TODO maybe continue this snippet pattern, or maybe simplify? -->
 	<div class="info">
 		<div class="display:flex flex:1">

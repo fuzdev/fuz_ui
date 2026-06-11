@@ -8,7 +8,6 @@
 		pending,
 		onclick,
 		running,
-		title: title_prop,
 		disabled: disabled_prop,
 		animation,
 		children,
@@ -33,7 +32,6 @@
 	{...rest}
 	class="pending-button {rest.class}"
 	disabled={disabled_prop ?? pending}
-	title={title_prop}
 	class:pending
 	{onclick}
 >

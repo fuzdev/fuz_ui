@@ -1,5 +1,7 @@
 <script lang="ts">
 	import type {Snippet} from 'svelte';
+	import type {HTMLAttributes, SvelteHTMLElements} from 'svelte/elements';
+	import type {OmitStrict} from '@fuzdev/fuz_util/types.js';
 
 	import ModuleLink from './ModuleLink.svelte';
 	import DeclarationLink from './DeclarationLink.svelte';
@@ -11,12 +13,21 @@
 		reference,
 		hash,
 		display_text,
+		a_attrs,
+		code_attrs,
 		children: children_prop,
-	}: {
+		...rest
+	}: // generic element attrs, the common denominator of the rendered roots -
+	// assignable to the anchor rest of `DeclarationLink`/`ModuleLink` and exact for `<code>`
+	OmitStrict<HTMLAttributes<HTMLElement>, 'children'> & {
 		reference: string;
 		/** URL fragment to append, with or without the `#`. */
 		hash?: string;
 		display_text?: string | null;
+		/** Anchor attributes, applied only when the reference resolves to a declaration or module link. */
+		a_attrs?: SvelteHTMLElements['a'];
+		/** Code attributes, applied only to the fallback `<code>` when the reference doesn't resolve. */
+		code_attrs?: SvelteHTMLElements['code'];
 		children?: Snippet<[Declaration | undefined, Module | undefined]>;
 	} = $props();
 
@@ -29,15 +40,15 @@
 </script>
 
 {#if declaration}
-	<DeclarationLink name={reference} {hash}>
+	<DeclarationLink {...rest} {...a_attrs} name={reference} {hash}>
 		{@render children()}
 	</DeclarationLink>
 {:else if module}
-	<ModuleLink module_path={module.path} {hash}>
+	<ModuleLink {...rest} {...a_attrs} module_path={module.path} {hash}>
 		{@render children()}
 	</ModuleLink>
 {:else}
-	<code>{@render children()}</code>
+	<code {...rest} {...code_attrs}>{@render children()}</code>
 {/if}
 
 {#snippet children()}{#if children_prop}{@render children_prop(

@@ -1,6 +1,6 @@
 <script lang="ts">
 	import type {Snippet} from 'svelte';
-	import type {SvelteHTMLElements} from 'svelte/elements';
+	import type {HTMLAttributes, SvelteHTMLElements} from 'svelte/elements';
 
 	import {alert_status_options, type AlertStatus} from './alert.js';
 
@@ -18,21 +18,28 @@
 		onclick,
 		disabled,
 		icon,
+		button_attrs,
+		div_attrs,
 		children,
 		...rest
-	}: SvelteHTMLElements['div'] &
-		SvelteHTMLElements['button'] & {
-			status?: AlertStatus;
-			color?: string;
-			// TODO this API is a mess in part because of the types, maybe an explicit `AlertButton` is better,
-			// or rethink the design because `role="alert"` can't be put on buttons.
-			// $props must be destructured, so we can't use a union with narrowing right?
-			// so `disabled` only makes sense if `onclick` is defined, and we dont get the other HTMLButtonElement attributes
-			onclick?: (() => void) | undefined;
-			disabled?: boolean;
-			icon?: string | Snippet<[icon: string]> | null | undefined; // TODO experimenting with this, gets complex in the impl
-			children: Snippet;
-		} = $props();
+	}: // generic element attrs, the common denominator of the rendered roots -
+	// branch-specific attributes go in `button_attrs`/`div_attrs`
+	HTMLAttributes<HTMLElement> & {
+		status?: AlertStatus;
+		color?: string;
+		// TODO maybe an explicit `AlertButton` is better,
+		// or rethink the design because `role="alert"` can't be put on buttons -
+		// `disabled` and `button_attrs` only make sense when `onclick` is defined
+		/** Renders the alert as a `<button>` when provided. */
+		onclick?: (() => void) | undefined;
+		disabled?: boolean;
+		icon?: string | Snippet<[icon: string]> | null | undefined; // TODO experimenting with this, gets complex in the impl
+		/** Button attributes, applied only when `onclick` renders the alert as a `<button>`. */
+		button_attrs?: SvelteHTMLElements['button'];
+		/** Div attributes, applied only when the alert renders as a `<div>` (no `onclick`). */
+		div_attrs?: SvelteHTMLElements['div'];
+		children: Snippet;
+	} = $props();
 
 	const options = $derived(alert_status_options[status]);
 	// TODO change this to use the hue and put transparency on the borders, or add a borderColor option
@@ -47,15 +54,22 @@
 	<button
 		type="button"
 		{...rest}
-		class="alert {rest.class}"
+		{...button_attrs}
+		class="alert {rest.class} {button_attrs?.class}"
 		style:--text_color={final_color}
 		{onclick}
-		{disabled}
+		disabled={disabled ?? button_attrs?.disabled}
 	>
 		{@render content()}
 	</button>
 {:else}
-	<div role="alert" {...rest} class="alert panel {rest.class}" style:--text_color={final_color}>
+	<div
+		role="alert"
+		{...rest}
+		{...div_attrs}
+		class="alert panel {rest.class} {div_attrs?.class}"
+		style:--text_color={final_color}
+	>
 		{@render content()}
 	</div>
 {/if}
