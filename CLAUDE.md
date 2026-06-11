@@ -73,7 +73,7 @@ src/
 │   ├── *.ts          # TypeScript utilities
 │   └── *.svelte.ts   # Svelte 5 runes and reactive utilities
 ├── test/             # test files (not co-located)
-│   └── fixtures/     # fixture-based tests (mdz, tsdoc, ts, svelte)
+│   └── fixtures/     # fixture-based tests (mdz, svelte_preprocess_mdz)
 └── routes/           # SvelteKit routes
     └── docs/         # documentation pages
         ├── tomes.ts  # central documentation registry
@@ -370,13 +370,12 @@ regenerate with update tasks.
 
 ### Fixture categories
 
-| Category                          | Input file     | Tests                               |
-| --------------------------------- | -------------- | ----------------------------------- |
-| `fixtures/mdz/`                   | `input.mdz`    | mdz parser (`mdz_parse`)            |
-| `fixtures/tsdoc/`                 | `input.ts`     | TSDoc/JSDoc parsing (`tsdoc_parse`) |
-| `fixtures/ts/`                    | `input.ts`     | TypeScript declaration analysis     |
-| `fixtures/svelte/`                | `input.svelte` | Svelte component analysis           |
-| `fixtures/svelte_preprocess_mdz/` | `input.svelte` | mdz preprocessor transforms         |
+| Category                          | Input file     | Tests                       |
+| --------------------------------- | -------------- | --------------------------- |
+| `fixtures/mdz/`                   | `input.mdz`    | mdz parser (`mdz_parse`)    |
+| `fixtures/svelte_preprocess_mdz/` | `input.svelte` | mdz preprocessor transforms |
+
+TypeScript/Svelte/TSDoc analysis fixtures live in `svelte-docinfo`, not here.
 
 ### Regenerating fixtures
 
@@ -384,16 +383,13 @@ regenerate with update tasks.
 gro src/test/fixtures/update                        # all categories
 gro src/test/fixtures/mdz/update                    # mdz only
 gro src/test/fixtures/svelte_preprocess_mdz/update  # preprocessor only
-gro src/test/fixtures/tsdoc/update                  # tsdoc only
-gro src/test/fixtures/ts/update                     # ts only
-gro src/test/fixtures/svelte/update                 # svelte only
 ```
 
 ### Adding a fixture
 
 1. Create a new directory under the appropriate category (e.g.
    `fixtures/mdz/my_new_case/`)
-2. Add the input file (`input.mdz`, `input.ts`, or `input.svelte`)
+2. Add the input file (`input.mdz` or `input.svelte`)
 3. Run the category's update task to generate `expected.json`
 4. Run `gro test` to verify
 

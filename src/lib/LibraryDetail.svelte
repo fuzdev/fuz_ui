@@ -175,11 +175,15 @@ with file-type coloring. Uses svelte-docinfo's file type predicates for module c
 									{module.path}
 								</ModuleLink>
 							</span>
-							{#if module.declarations.length > 0}
+							{#if module.has_declarations}
 								<ul class="declarations unstyled">
 									{#each module.declarations as declaration (declaration.name)}
 										<li>
-											<DeclarationLink name={declaration.name} full={links_full} />
+											<DeclarationLink
+												name={declaration.name}
+												module_path={module.path}
+												full={links_full}
+											/>
 										</li>
 									{/each}
 								</ul>

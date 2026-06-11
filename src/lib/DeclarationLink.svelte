@@ -8,6 +8,7 @@
 
 	const {
 		name,
+		module_path,
 		hash,
 		full = false,
 		children,
@@ -15,6 +16,13 @@
 		...rest
 	}: SvelteHTMLElements['a'] & {
 		name: string;
+		/**
+		 * Module path of the declaration's defining module. When provided,
+		 * resolution is scoped to that module's declarations — exact even when
+		 * names collide across modules. Without it, resolution falls back to the
+		 * library-wide by-name map.
+		 */
+		module_path?: string;
 		/** URL fragment to append, with or without the `#`. */
 		hash?: string;
 		/**
@@ -27,7 +35,11 @@
 
 	const library = library_context.get();
 
-	const declaration = $derived(library.declaration_by_name.get(name));
+	const declaration = $derived(
+		module_path === undefined
+			? library.declaration_by_name.get(name)
+			: library.module_by_path.get(module_path)?.get_declaration_by_name(name),
+	);
 
 	// When linking a foreign library's docs, prefer its full URL; fall back to
 	// the site-local path if `homepage_url` is unavailable.

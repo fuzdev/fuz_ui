@@ -6,6 +6,7 @@
 	import TomeSectionHeader from './TomeSectionHeader.svelte';
 	import DocsSearch from './DocsSearch.svelte';
 	import ModuleLink from './ModuleLink.svelte';
+	import DeclarationLink from './DeclarationLink.svelte';
 	import Mdz from './Mdz.svelte';
 	import ApiDeclarationList from './ApiDeclarationList.svelte';
 	import {create_module_declaration_search} from './api_search.svelte.js';
@@ -89,30 +90,77 @@
 				<Mdz content={module.module_comment} />
 			</section>
 		{/if}
-		<!-- Declarations section -->
-		<TomeSection>
-			<TomeSectionHeader text="Declarations" />
-
+		{#if source_url}
 			<section>
-				{#if search.all.length > 1}
-					<DocsSearch
-						placeholder="search declarations in this module..."
-						declaration_count={search.all.length}
-						filtered_declaration_count={search.query.trim() ? search.filtered.length : undefined}
-						bind:search_query={search.query}
-					/>
-				{/if}
-
-				{#if source_url}
-					<p>
-						<!-- eslint-disable-next-line svelte/no-navigation-without-resolve -->
-						<a href={source_url} class="chip" target="_blank" rel="noopener">view source</a>
-					</p>
-				{/if}
+				<!-- eslint-disable-next-line svelte/no-navigation-without-resolve -->
+				<a href={source_url} class="chip" target="_blank" rel="noopener">view source</a>
 			</section>
+		{/if}
+		<!-- Declarations section -->
+		{#if module.has_declarations}
+			<TomeSection>
+				<TomeSectionHeader text="Declarations" />
 
-			<ApiDeclarationList declarations={search.filtered} search_query={search.query} />
-		</TomeSection>
+				{#if search.all.length > 1}
+					<section>
+						<DocsSearch
+							placeholder="search declarations in this module..."
+							declaration_count={search.all.length}
+							filtered_declaration_count={search.query.trim() ? search.filtered.length : undefined}
+							bind:search_query={search.query}
+						/>
+					</section>
+				{/if}
+
+				<ApiDeclarationList declarations={search.filtered} search_query={search.query} />
+			</TomeSection>
+		{/if}
+
+		<!-- Re-exports section -->
+		{#if module.has_any_re_exports}
+			<TomeSection>
+				<TomeSectionHeader text="Re-exports" />
+				<ul class="unstyled">
+					{#each module.star_exports as star_path (star_path)}
+						<li class="mb_lg">
+							<p class="mb_sm">everything from <ModuleLink module_path={star_path} /></p>
+						</li>
+					{/each}
+					{#each module.external_star_exports as specifier (specifier)}
+						<li class="mb_lg">
+							<p class="mb_sm">everything from <code>{specifier}</code></p>
+						</li>
+					{/each}
+					{#each module.re_exports_by_module as [from_path, entries] (from_path)}
+						<li class="mb_lg">
+							<p class="mb_sm">from <ModuleLink module_path={from_path} /></p>
+							<div class="row gap_md flex-wrap:wrap">
+								{#each entries as entry (entry.name)}
+									<DeclarationLink name={entry.name} module_path={from_path}>
+										{#if entry.typeOnly}<small>type</small>
+										{/if}{entry.name}
+									</DeclarationLink>
+								{/each}
+							</div>
+						</li>
+					{/each}
+					{#each module.external_re_exports_by_specifier as [specifier, entries] (specifier)}
+						<li class="mb_lg">
+							<p class="mb_sm">from <code>{specifier}</code></p>
+							<div class="row gap_md flex-wrap:wrap">
+								{#each entries as entry (entry.name)}
+									<span class="chip">
+										{#if entry.typeOnly}<small>type</small>
+										{/if}{#if entry.originalName}<small>{entry.originalName} as</small>
+										{/if}{entry.name}
+									</span>
+								{/each}
+							</div>
+						</li>
+					{/each}
+				</ul>
+			</TomeSection>
+		{/if}
 
 		<!-- Depends on section -->
 		{#if module.has_dependencies}
