@@ -5,13 +5,15 @@
 	import {contextmenu_context, contextmenu_dimensions_context} from './contextmenu_state.svelte.js';
 	import {contextmenu_calculate_submenu_translate} from './contextmenu_helpers.js';
 	import type {Dimensions} from './dimensions.svelte.js';
+	import type {SvgData} from './svg.js';
+	import ContextmenuIcon from './ContextmenuIcon.svelte';
 
 	const {
 		icon,
 		menu,
 		children,
 	}: {
-		icon?: Snippet;
+		icon?: SvgData | string | Snippet;
 		menu: Snippet;
 		children: Snippet;
 	} = $props();
@@ -87,7 +89,7 @@
 	>
 		<div class="content">
 			<div class="icon">
-				{@render icon?.()}
+				<ContextmenuIcon {icon} />
 			</div>
 			<div class="title">{@render children()}</div>
 		</div>

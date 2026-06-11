@@ -18,15 +18,11 @@
 	const cat_to_call_home = $derived(to_cats_label(adventure_cats));
 </script>
 
-<ContextmenuSubmenu>
-	{#snippet icon()}🏠{/snippet}
+<ContextmenuSubmenu icon="🏠">
 	home
 	{#snippet menu()}
 		{#if cat_to_call_home}
-			<ContextmenuEntry run={() => act({type: 'call_cats_home'})}>
-				{#snippet icon()}🐈‍⬛{/snippet}
-				call
-			</ContextmenuEntry>
+			<ContextmenuEntry run={() => act({type: 'call_cats_home'})} icon="🐈‍⬛">call</ContextmenuEntry>
 			{#if home_cats.length > 0}
 				<ContextmenuSeparator />
 			{/if}
@@ -35,14 +31,15 @@
 			<CatContextmenu name={cat.name} icon={cat.icon} position={cat.position} {act} />
 		{/each}
 		{#if !cat_to_call_home}
-			<ContextmenuEntry run={() => act({type: 'cat_be_or_do', name: null, position: 'home'})}>
-				{#snippet icon()}🏠{/snippet}
+			<ContextmenuEntry
+				run={() => act({type: 'cat_be_or_do', name: null, position: 'home'})}
+				icon="🏠"
+			>
 				be
 			</ContextmenuEntry>
-			<ContextmenuEntry run={() => act({type: 'call_cats_adventure'})}>
-				{#snippet icon()}🦋{/snippet}
-				leave
-			</ContextmenuEntry>
+			<ContextmenuEntry run={() => act({type: 'call_cats_adventure'})} icon="🦋"
+				>leave</ContextmenuEntry
+			>
 		{/if}
 	{/snippet}
 </ContextmenuSubmenu>

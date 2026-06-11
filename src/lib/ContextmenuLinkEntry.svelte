@@ -8,6 +8,7 @@
 	import {icon_external_link, icon_link} from './icons.js';
 	import type {SvgData} from './svg.js';
 	import Svg from './Svg.svelte';
+	import ContextmenuIcon from './ContextmenuIcon.svelte';
 
 	const {
 		href,
@@ -92,15 +93,7 @@
 		<div class="content">
 			<div class="icon">
 				{#if icon}
-					{#if typeof icon === 'string'}
-						{icon}
-					{:else if typeof icon === 'object'}
-						<!-- `SvgData` is a plain object; detect it positively by shape rather than
-						     introspecting the snippet (whose runtime form is opaque/unsupported). -->
-						<Svg data={icon} />
-					{:else}
-						{@render icon()}
-					{/if}
+					<ContextmenuIcon {icon} />
 				{:else}
 					<Svg data={external ? icon_external_link : icon_link} />
 				{/if}

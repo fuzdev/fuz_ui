@@ -110,8 +110,9 @@ helpers (`generateImport`, `getDisplayName` from `declaration-helpers.js`).
 
 - `Dialog`, `DialogContent` - native `<dialog>` modal and its default content surface
 - `Contextmenu*` - context menu system (Root, Menu, Entry, LinkEntry, TextEntry,
-  Submenu, Separator); `ContextmenuMenu` is the open-menu surface shared by the
-  two roots, which own gesture detection
+  Submenu, Separator, Icon); `ContextmenuMenu` is the open-menu surface shared by
+  the two roots, which own gesture detection, and `ContextmenuIcon` renders the
+  shared `icon` prop (string, `SvgData`, or snippet)
 
 ### Forms and inputs
 

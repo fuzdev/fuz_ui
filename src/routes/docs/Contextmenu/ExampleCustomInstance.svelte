@@ -31,8 +31,7 @@
 		<TomeSectionHeader text="Custom instance" />
 		<Contextmenu>
 			{#snippet entries()}
-				<ContextmenuSubmenu>
-					{#snippet icon()}🎨{/snippet}
+				<ContextmenuSubmenu icon="🎨">
 					select color
 					{#snippet menu()}
 						<ContextmenuEntry
