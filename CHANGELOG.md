@@ -1,15 +1,48 @@
 # @fuzdev/fuz_ui
 
+## 0.203.0
+
+### Minor Changes
+
+- icons: rename `icon_action_local_call`, `icon_action_request_response`, and `icon_action_remote_notification`, dropping `_type` ([4d1ce37](https://github.com/fuzdev/fuz_ui/commit/4d1ce37))
+- feat: refactor contextmenu ([#128](https://github.com/fuzdev/fuz_ui/pull/128))
+- feat: scope library docs resolution to the rendered library ([143e243](https://github.com/fuzdev/fuz_ui/commit/143e243))
+
+  Breaking: `library_context` now holds a getter (`() => Library`) instead of a `Library`, so consumers stay reactive when the library changes without remounting. Migrate setters:
+
+  ```diff
+  -const library = library_context.set(new Library(library_json));
+  +const library = new Library(library_json);
+  +library_context.set(() => library);
+  ```
+
+  and getters:
+
+  ```diff
+  -const library = library_context.get();
+  +const get_library = library_context.get();
+  +const library = $derived(get_library());
+  ```
+
+  `LibraryDetail`, `ApiIndex`, and `ApiModule` now project their `library` prop into `library_context` for their subtree, so `ModuleLink`/`DeclarationLink`/`DocsLink` descendants resolve against the rendered library. Aggregators rendering a foreign library no longer need to set the context themselves or key the component on the library.
+
+### Patch Changes
+
+- feat: add `icon_link` ([ffc29ba](https://github.com/fuzdev/fuz_ui/commit/ffc29ba))
+- fix: add optional `module_path` to `DeclarationLink` ([c05bd9a](https://github.com/fuzdev/fuz_ui/commit/c05bd9a))
+- feat: accept svg for the `ContextmenuTextEntry` `icon` ([6233949](https://github.com/fuzdev/fuz_ui/commit/6233949))
+- feat: support svg in `ContextmenuLinkEntry.svelte` ([ffc29ba](https://github.com/fuzdev/fuz_ui/commit/ffc29ba))
+
 ## 0.202.0
 
 ### Minor Changes
 
-- security: remove `raw` from `SvgData`, add `style` and `gradient` ([7a57c58](https://github.com/fuzdev/fuz_ui/commit/7a57c58))
+- remove `raw` from `SvgData`, add `style` and `gradient` ([7a57c58](https://github.com/fuzdev/fuz_ui/commit/7a57c58)) ([security](https://github.com/fuzdev/fuz_ui/commit/security))
 - feat: add svg icons ([#122](https://github.com/fuzdev/fuz_ui/pull/122))
 
 ### Patch Changes
 
-- refactor: use `DialogContent` for the `Docs` menu ([237714d](https://github.com/fuzdev/fuz_ui/commit/237714d))
+- use `DialogContent` for the `Docs` menu ([237714d](https://github.com/fuzdev/fuz_ui/commit/237714d)) ([refactor](https://github.com/fuzdev/fuz_ui/commit/refactor))
 
 ## 0.201.0
 
