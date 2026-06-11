@@ -1,1 +1,0 @@
-import"./DsnmJJEf.js";import{p as m,g as o,a as c,h as _,b as d,c as i}from"./z1P-VEAx.js";import{s as e,m as r,a as f,b as l}from"./BOstmXT2.js";function x(n,t){m(t,!0),e(r,()=>t.base),e(f,()=>t.components),e(l,()=>t.elements);var a=o(),s=c(a);_(s,()=>t.children),d(n,a),i()}export{x as M};
