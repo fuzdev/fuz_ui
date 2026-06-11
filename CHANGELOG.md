@@ -1,5 +1,15 @@
 # @fuzdev/fuz_ui
 
+## 0.204.0
+
+### Minor Changes
+
+- feat: fix mixed types for `Alert` and `Card` ([c13d52f](https://github.com/fuzdev/fuz_ui/commit/c13d52f))
+
+### Patch Changes
+
+- feat: support rest props in the appropriate components ([c13d52f](https://github.com/fuzdev/fuz_ui/commit/c13d52f))
+
 ## 0.203.1
 
 ### Patch Changes
