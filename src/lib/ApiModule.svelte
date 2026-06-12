@@ -4,7 +4,7 @@
 	import {
 		mdz_code_context,
 		mdz_codeblock_context,
-		set_mdz_context_with_fallback,
+		mdz_set_context_with_fallback,
 	} from '@fuzdev/mdz/mdz_contexts.js';
 
 	import {set_library_context_with_fallback, type Library} from './library.svelte.js';
@@ -45,8 +45,8 @@
 
 	// render mdz inline `code` as API-linking `DocsLink` and fenced blocks as syntax-highlighted
 	// `Code`, matching the rest of the docs — the injection mdz core leaves open
-	set_mdz_context_with_fallback(mdz_code_context, () => DocsLink);
-	set_mdz_context_with_fallback(mdz_codeblock_context, () => Code);
+	mdz_set_context_with_fallback(mdz_code_context, () => DocsLink);
+	mdz_set_context_with_fallback(mdz_codeblock_context, () => Code);
 
 	// normalize module_path to string (could be array from [...module_path] route param)
 	const module_path = $derived(

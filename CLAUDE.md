@@ -207,7 +207,7 @@ render TSDoc prose, wiring the rendering seam so inline code links API identifie
 
 All of fuz_ui's mdz is dynamic TSDoc prose, so the injection happens at **runtime**:
 `ApiModule` / `DeclarationDetail` set `mdz_code_context` / `mdz_codeblock_context`
-(via `set_mdz_context_with_fallback`) before rendering `<Mdz>`. The plain
+(via `mdz_set_context_with_fallback`) before rendering `<Mdz>`. The plain
 `svelte_preprocess_mdz()` in `svelte.config.js` is the standard ecosystem
 preprocessor (it precompiles any static `<Mdz>` content to plain markup); fuz_ui
 authors no static mdz, so it's effectively a pass-through and needs no injection

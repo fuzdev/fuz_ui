@@ -12,11 +12,11 @@ including parameters, props, members, overloads, intersects, and more.
 <script lang="ts">
 	import Code from '@fuzdev/fuz_code/Code.svelte';
 	import Mdz from '@fuzdev/mdz/Mdz.svelte';
-	import {tsdoc_see_to_mdz} from '@fuzdev/mdz/tsdoc_mdz.js';
+	import {mdz_from_tsdoc} from '@fuzdev/mdz/tsdoc_mdz.js';
 	import {
 		mdz_code_context,
 		mdz_codeblock_context,
-		set_mdz_context_with_fallback,
+		mdz_set_context_with_fallback,
 	} from '@fuzdev/mdz/mdz_contexts.js';
 	import type {ParameterJsonInput} from 'svelte-docinfo/types.js';
 
@@ -29,8 +29,8 @@ including parameters, props, members, overloads, intersects, and more.
 
 	// render mdz inline `code` as API-linking `DocsLink` and fenced blocks as syntax-highlighted
 	// `Code`, matching the rest of the docs — the injection mdz core leaves open
-	set_mdz_context_with_fallback(mdz_code_context, () => DocsLink);
-	set_mdz_context_with_fallback(mdz_codeblock_context, () => Code);
+	mdz_set_context_with_fallback(mdz_code_context, () => DocsLink);
+	mdz_set_context_with_fallback(mdz_codeblock_context, () => Code);
 
 	// Optional prose metadata shared by component props and nested members,
 	// rendered in a compact form (the top-level declaration uses prominent
@@ -105,7 +105,7 @@ including parameters, props, members, overloads, intersects, and more.
 		<p><strong>see also</strong></p>
 		<ul>
 			{#each item.seeAlso as ref (ref)}
-				<li><Mdz content={tsdoc_see_to_mdz(ref)} /></li>
+				<li><Mdz content={mdz_from_tsdoc(ref)} /></li>
 			{/each}
 		</ul>
 	{/if}
@@ -403,7 +403,7 @@ including parameters, props, members, overloads, intersects, and more.
 		<ul>
 			{#each declaration.see_also as ref (ref)}
 				<li>
-					<Mdz content={tsdoc_see_to_mdz(ref)} />
+					<Mdz content={mdz_from_tsdoc(ref)} />
 				</li>
 			{/each}
 		</ul>
