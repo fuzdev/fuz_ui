@@ -1,3 +1,0 @@
-```ts
-function foo() {
-// Missing closing fence - entire thing is plain text with literal backticks

@@ -23,9 +23,7 @@ import logos from '$routes/docs/logos/+page.svelte';
 import theming from '$routes/docs/theming/+page.svelte';
 import api from '$routes/docs/api/+page.svelte';
 import intersect from '$routes/docs/intersect/+page.svelte';
-import svelte_preprocess_mdz from '$routes/docs/svelte_preprocess_mdz/+page.svelte';
 import vite_plugin_pkg_json from '$routes/docs/vite_plugin_pkg_json/+page.svelte';
-import mdz from '$routes/docs/mdz/+page.svelte';
 
 // TODO maybe decouple `related` from `Tome` to get bidirectionality for free
 
@@ -38,7 +36,7 @@ export const tomes: Array<Tome> = [
 		slug: 'introduction',
 		category: 'guide',
 		Component: introduction,
-		related_tomes: ['api', 'svelte_preprocess_mdz'],
+		related_tomes: ['api'],
 		related_modules: [],
 		related_declarations: [],
 	},
@@ -59,18 +57,10 @@ export const tomes: Array<Tome> = [
 		related_declarations: [],
 	},
 	{
-		slug: 'svelte_preprocess_mdz',
-		category: 'helpers',
-		Component: svelte_preprocess_mdz,
-		related_tomes: ['mdz'],
-		related_modules: ['svelte_preprocess_mdz.ts', 'mdz_to_svelte.ts'],
-		related_declarations: ['svelte_preprocess_mdz', 'mdz_to_svelte', 'MdzPrecompiled'],
-	},
-	{
 		slug: 'vite_plugin_pkg_json',
 		category: 'helpers',
 		Component: vite_plugin_pkg_json,
-		related_tomes: ['svelte_preprocess_mdz', 'LibraryDetail'],
+		related_tomes: ['LibraryDetail'],
 		related_modules: ['vite_plugin_pkg_json.ts'],
 		related_declarations: ['vite_plugin_pkg_json'],
 	},
@@ -105,31 +95,6 @@ export const tomes: Array<Tome> = [
 		related_tomes: ['LibraryDetail', 'LibrarySummary', 'Svg'],
 		related_modules: ['logos.ts'],
 		related_declarations: [],
-	},
-	{
-		slug: 'mdz',
-		category: 'helpers',
-		Component: mdz,
-		related_tomes: ['svelte_preprocess_mdz'],
-		related_modules: [
-			'mdz.ts',
-			'mdz_stream_parser.ts',
-			'mdz_stream_state.svelte.ts',
-			'mdz_opcodes.ts',
-			'mdz_opcodes_to_nodes.ts',
-		],
-		related_declarations: [
-			'Mdz',
-			'MdzRoot',
-			'MdzNodeView',
-			'MdzStream',
-			'MdzStreamNodeView',
-			'MdzStreamParser',
-			'MdzStreamState',
-			'MdzOpcode',
-			'mdz_parse',
-			'mdz_opcodes_to_nodes',
-		],
 	},
 	{
 		slug: 'Alert',

@@ -1,25 +1,12 @@
 import {vitePreprocess} from '@sveltejs/vite-plugin-svelte';
 import adapter from '@sveltejs/adapter-static';
+import {svelte_preprocess_mdz} from '@fuzdev/mdz/svelte_preprocess_mdz.js';
 import {svelte_preprocess_fuz_code} from '@fuzdev/fuz_code/svelte_preprocess_fuz_code.js';
 import {execSync} from 'node:child_process';
 
-// Self-referencing import from dist — unavailable on first build after clean checkout,
-// but subsequent builds use the preprocessor for static Mdz compilation.
-/** @type {Array<import('svelte/compiler').PreprocessorGroup>} */
-let fuz_mdz_preprocessors = [];
-try {
-	const {svelte_preprocess_mdz} = await import('@fuzdev/fuz_ui/svelte_preprocess_mdz.js');
-	fuz_mdz_preprocessors = [
-		svelte_preprocess_mdz({
-			component_imports: ['$lib/Mdz.svelte'],
-			compiled_component_import: '$lib/MdzPrecompiled.svelte',
-		}),
-	];
-} catch {}
-
 // fuz_ui's own CSP — hand-rolled because self-import-from-dist is fragile during builds.
 // Kept in sync with `create_csp_directives({extend: [csp_directives_of_fuzdev]})` by
-// `src/test/svelte_config.csp.test.ts`. TODO swap to the helper once the dist round-trip settles.
+// `src/test/csp.svelte_config.test.ts`. TODO swap to the helper once the dist round-trip settles.
 const csp_fuzdev_extensions = /** @type {const} */ ([
 	'https://*.fuz.dev/',
 	'https://*.zzz.software/',
@@ -27,7 +14,7 @@ const csp_fuzdev_extensions = /** @type {const} */ ([
 
 /** @type {import('@sveltejs/kit').Config} */
 export default {
-	preprocess: [...fuz_mdz_preprocessors, svelte_preprocess_fuz_code(), vitePreprocess()],
+	preprocess: [svelte_preprocess_mdz(), svelte_preprocess_fuz_code(), vitePreprocess()],
 	compilerOptions: {runes: true},
 	vitePlugin: {inspector: true},
 	kit: {

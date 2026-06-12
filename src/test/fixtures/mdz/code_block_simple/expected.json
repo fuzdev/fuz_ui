@@ -1,9 +1,0 @@
-[
-	{
-		"type": "Codeblock",
-		"lang": null,
-		"content": "function hello() {\n  console.log(\"world\");\n}",
-		"start": 0,
-		"end": 52
-	}
-]

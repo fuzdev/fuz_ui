@@ -3,7 +3,6 @@
 	import TomeContent from '$lib/TomeContent.svelte';
 	import TomeSection from '$lib/TomeSection.svelte';
 	import TomeSectionHeader from '$lib/TomeSectionHeader.svelte';
-	import TomeLink from '$lib/TomeLink.svelte';
 	import {tome_get_by_slug} from '$lib/tome.js';
 
 	const TOME_SLUG = 'introduction';
@@ -36,14 +35,15 @@
 		/>
 		<p>See the nav for the available components and other helpers.</p>
 		<p>
-			<TomeLink slug="mdz" /> is a markdown dialect enhanced with Svelte components, autolinked identifiers,
-			and other integrations. To compile static content at build time instead of parsing at runtime with
-			slower dynamic rendering, use <TomeLink slug="svelte_preprocess_mdz" />:
+			<a href="https://mdz.fuz.dev/">mdz</a> is a markdown dialect enhanced with Svelte components,
+			autolinked identifiers, and other integrations. To compile static content at build time
+			instead of parsing at runtime with slower dynamic rendering, use its
+			<a href="https://mdz.fuz.dev/docs/svelte_preprocess_mdz">preprocessor</a>:
 		</p>
 		<Code
 			lang="js"
 			content={`// svelte.config.js
-import {svelte_preprocess_mdz} from '@fuzdev/fuz_ui/svelte_preprocess_mdz.js';
+import {svelte_preprocess_mdz} from '@fuzdev/mdz/svelte_preprocess_mdz.js';
 
 export default {
   preprocess: [
