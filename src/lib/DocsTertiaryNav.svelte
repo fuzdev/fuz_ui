@@ -29,7 +29,8 @@
 			.filter((t) => t !== undefined) ?? [],
 	);
 
-	const library = library_context.get();
+	const get_library = library_context.get();
+	const library = $derived(get_library());
 
 	const modules_related_to_selected = $derived(
 		selected_tome?.related_modules

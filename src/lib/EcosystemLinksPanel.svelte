@@ -1,17 +1,19 @@
 <script lang="ts">
 	import type {Snippet} from 'svelte';
+	import type {SvelteHTMLElements} from 'svelte/elements';
 
 	import EcosystemLinks from './EcosystemLinks.svelte';
 	import ProjectLinks from './ProjectLinks.svelte';
 
 	const {
 		children,
-	}: {
+		...rest
+	}: SvelteHTMLElements['section'] & {
 		children?: Snippet;
 	} = $props();
 </script>
 
-<section class="panel p_lg">
+<section {...rest} class="panel p_lg {rest.class}">
 	{#if children}
 		{@render children()}
 	{:else}

@@ -145,8 +145,9 @@ export class Declaration {
 	/**
 	 * Other modules that also export this declaration (re-export paths
 	 * relative to src/lib). Absent when only exported from its defining module.
+	 * The back-link of those modules' `Module.re_exports` edges.
 	 */
-	also_exported_from = $derived(field<Array<string>>(this.declaration_json, 'alsoExportedFrom'));
+	also_exported_from = $derived(this.declaration_json.alsoExportedFrom);
 
 	/**
 	 * Mutation documentation from `@mutates` tags, mapping parameter names to descriptions.

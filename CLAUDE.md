@@ -64,7 +64,6 @@ src/
 │   ├── *.ts          # TypeScript utilities
 │   └── *.svelte.ts   # Svelte 5 runes and reactive utilities
 ├── test/             # test files (not co-located)
-│   └── fixtures/     # fixture-based tests (tsdoc, ts, svelte)
 └── routes/           # SvelteKit routes
     └── docs/         # documentation pages
         ├── tomes.ts  # central documentation registry
@@ -101,8 +100,9 @@ helpers (`generateImport`, `getDisplayName` from `declaration-helpers.js`).
 
 - `Dialog`, `DialogContent` - native `<dialog>` modal and its default content surface
 - `Contextmenu*` - context menu system (Root, Menu, Entry, LinkEntry, TextEntry,
-  Submenu, Separator); `ContextmenuMenu` is the open-menu surface shared by the
-  two roots, which own gesture detection
+  Submenu, Separator, Icon); `ContextmenuMenu` is the open-menu surface shared by
+  the two roots, which own gesture detection, and `ContextmenuIcon` renders the
+  shared `icon` prop (string, `SvgData`, or snippet)
 
 ### Forms and inputs
 
@@ -220,7 +220,13 @@ All contexts use the standardized pattern via `context_helpers.ts`:
 **Core:**
 
 - `theme_state_context` - theme state (ThemeState class)
-- `library_context` - library API metadata (Library class)
+- `library_context` - library API metadata (getter of a Library, `() => Library`);
+  set with a closure over reactive state, e.g. `library_context.set(() => library)`.
+  Components with a `library` prop (`LibraryDetail`, `ApiIndex`, `ApiModule`)
+  project the prop into this context for their subtree, so link components
+  (`ModuleLink`, `DeclarationLink`, `DocsLink`, `TypeLink`) resolve against the
+  rendered library — aggregators rendering a foreign library don't set the
+  context themselves
 
 **Documentation:**
 
@@ -269,8 +275,6 @@ contexts for navigation.
 
 - **Early alpha** - API will change
 - **SvelteKit dependency** - Some components require SvelteKit
-- **Fixture tests** - Never manually edit `expected.json` (see Fixture tests
-  section below)
 - **Contextmenu focus** - APG-compliant focus management not yet implemented
 - **Color optimization** - Build-time color optimization not implemented
 
@@ -281,7 +285,6 @@ contexts for navigation.
 - Prettier with tabs, 100 char width
 - Node >= 22.15
 - Tests in `src/test/` (not co-located)
-- Fixture-based tests (see below)
 
 ### Code style
 
@@ -293,38 +296,9 @@ contexts for navigation.
 
 ## Fixture tests
 
-Fixture-based tests compare parser/analyzer output against expected JSON.
-Each fixture is a directory with an input file and `expected.json`.
-
-**Never manually edit `expected.json`** — create or modify input files and
-regenerate with update tasks.
-
-### Fixture categories
-
-| Category          | Input file     | Tests                               |
-| ----------------- | -------------- | ----------------------------------- |
-| `fixtures/tsdoc/` | `input.ts`     | TSDoc/JSDoc parsing (`tsdoc_parse`) |
-| `fixtures/ts/`    | `input.ts`     | TypeScript declaration analysis     |
-| `fixtures/svelte/` | `input.svelte` | Svelte component analysis           |
-
-(mdz and `svelte_preprocess_mdz` fixtures moved to `@fuzdev/mdz`.)
-
-### Regenerating fixtures
-
-```bash
-gro src/test/fixtures/update                        # all categories
-gro src/test/fixtures/tsdoc/update                  # tsdoc only
-gro src/test/fixtures/ts/update                     # ts only
-gro src/test/fixtures/svelte/update                 # svelte only
-```
-
-### Adding a fixture
-
-1. Create a new directory under the appropriate category (e.g.
-   `fixtures/ts/my_new_case/`)
-2. Add the input file (`input.ts` or `input.svelte`)
-3. Run the category's update task to generate `expected.json`
-4. Run `gro test` to verify
+fuz_ui has no fixture-based tests — they moved with their code: mdz and
+`svelte_preprocess_mdz` fixtures live in `@fuzdev/mdz`, and TypeScript/Svelte/TSDoc
+analysis fixtures live in `svelte-docinfo`.
 
 ## Related projects
 

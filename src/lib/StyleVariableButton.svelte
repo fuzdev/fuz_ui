@@ -8,6 +8,7 @@
 		name,
 		inline = false,
 		plain = true,
+		onclick,
 		children,
 		...rest
 	}: SvelteHTMLElements['button'] & {
@@ -32,7 +33,10 @@
 	{...rest}
 	class:inline
 	class:plain
-	onclick={() => (selected_variable.value = variable)}
+	onclick={(e) => {
+		selected_variable.value = variable;
+		onclick?.(e);
+	}}
 	>{#if children}{@render children()}{:else}<span class="font_family_mono">{name}</span
 		>{/if}</button
 >

@@ -17,7 +17,7 @@ including parameters, props, members, overloads, intersects, and more.
 		mdz_code_context,
 		mdz_codeblock_context,
 		set_mdz_context_with_fallback,
-	} from '@fuzdev/mdz/mdz_components.js';
+	} from '@fuzdev/mdz/mdz_contexts.js';
 	import type {ParameterJsonInput} from 'svelte-docinfo/types.js';
 
 	import type {Declaration} from './declaration.svelte.js';

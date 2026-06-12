@@ -1,7 +1,8 @@
 <script lang="ts">
 	import {page} from '$app/state';
+	import {DEV} from 'esm-env';
 	import type {Snippet} from 'svelte';
-	import type {SvelteHTMLElements} from 'svelte/elements';
+	import type {HTMLAttributes, SvelteHTMLElements} from 'svelte/elements';
 
 	// TODO think through Alert+Card APIs together, one can be a button and the other a link atm
 
@@ -10,20 +11,37 @@
 		tag,
 		align = 'left',
 		icon,
+		a_attrs,
 		children,
 		...rest
-	}: SvelteHTMLElements['div'] &
-		SvelteHTMLElements['a'] & {
-			tag?: string | undefined;
-			align?: 'left' | 'right' | 'above' | 'below';
-			icon?: string | Snippet;
-			children: Snippet;
-		} = $props();
+	}: // generic element attrs, the common denominator of the rendered roots -
+	// branch-specific attributes go in `a_attrs`
+	HTMLAttributes<HTMLElement> & {
+		/** Renders the card as an `<a>` when provided. */
+		href?: string | undefined;
+		tag?: string | undefined;
+		align?: 'left' | 'right' | 'above' | 'below';
+		icon?: string | Snippet;
+		/** Anchor attributes, applied only when `href` renders the card as an `<a>`. */
+		a_attrs?: SvelteHTMLElements['a'];
+		children: Snippet;
+	} = $props();
 
 	const link = $derived(!!href);
 	const selected = $derived(link && page.url.pathname === href);
 	const final_tag = $derived(tag ?? (link ? 'a' : 'div'));
-	const inferred_attrs = $derived(link ? {href} : undefined);
+	const inferred_attrs = $derived(link ? {...a_attrs, href} : undefined);
+
+	if (DEV) {
+		$effect(() => {
+			if (href && final_tag !== 'a') {
+				// eslint-disable-next-line no-console
+				console.error(
+					`Card received href "${href}" with tag "${final_tag}" - href renders only on an anchor`,
+				);
+			}
+		});
+	}
 
 	const left = $derived(align === 'left');
 	const right = $derived(align === 'right');
@@ -37,7 +55,7 @@
 	this={final_tag}
 	{...rest}
 	{...inferred_attrs}
-	class="card {rest.class}"
+	class="card {rest.class} {inferred_attrs?.class}"
 	class:link
 	class:selected
 	class:left

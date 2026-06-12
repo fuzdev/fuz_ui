@@ -1,14 +1,17 @@
 <script lang="ts">
+	import type {SvelteHTMLElements} from 'svelte/elements';
+
 	import {FUZ_DEV_URL} from './constants.js';
 
 	const {
 		selected,
-	}: {
+		...rest
+	}: SvelteHTMLElements['ul'] & {
 		selected?: 'fuz.dev';
 	} = $props();
 </script>
 
-<ul>
+<ul {...rest}>
 	<li>
 		<!-- eslint-disable-next-line svelte/no-navigation-without-resolve -->
 		<a rel="me" href={FUZ_DEV_URL} class:selected={selected === 'fuz.dev'}>fuz.dev</a>

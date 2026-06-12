@@ -20,7 +20,7 @@
 	const hash = $derived(page.url.hash.slice(1));
 </script>
 
-<DocsList {...rest} {expand_width} class="docs-page-links">
+<DocsList {...rest} {expand_width} class="docs-page-links {rest.class}">
 	<h4 class="mb_sm">on this page</h4>
 	{#if sidebar}
 		<div class="sidebar-wrapper">{@render content()}</div>

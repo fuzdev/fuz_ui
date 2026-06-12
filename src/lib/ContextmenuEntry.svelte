@@ -4,6 +4,8 @@
 
 	import PendingAnimation from './PendingAnimation.svelte';
 	import {contextmenu_context, type ContextmenuRun} from './contextmenu_state.svelte.js';
+	import type {SvgData} from './svg.js';
+	import ContextmenuIcon from './ContextmenuIcon.svelte';
 
 	const {
 		run,
@@ -12,7 +14,7 @@
 		disabled: disabled_prop = false,
 	}: {
 		run: ContextmenuRun;
-		icon?: string | Snippet;
+		icon?: SvgData | string | Snippet;
 		children: Snippet;
 		disabled?: boolean;
 	} = $props();
@@ -65,11 +67,7 @@
 >
 	<div class="content">
 		<div class="icon">
-			{#if typeof icon === 'string'}
-				{icon}
-			{:else if icon}
-				{@render icon()}
-			{/if}
+			<ContextmenuIcon {icon} />
 		</div>
 		<div class="title">{@render children()}</div>
 		{#if pending}<PendingAnimation />{:else if error_message}⚠️{/if}

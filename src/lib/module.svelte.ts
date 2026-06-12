@@ -1,8 +1,33 @@
-import type {ModuleJsonInput} from 'svelte-docinfo/types.js';
+import type {
+	ModuleJsonInput,
+	ReExportJsonInput,
+	ExternalReExportJsonInput,
+} from 'svelte-docinfo/types.js';
 
 import {Declaration} from './declaration.svelte.js';
 import type {Library} from './library.svelte.js';
 import {url_github_file} from '@fuzdev/fuz_util/package_helpers.js';
+
+/**
+ * Groups entries by a string key, with groups sorted by key. Entries within
+ * each group keep their input order.
+ */
+const group_sorted = <T>(
+	entries: Array<T>,
+	get_key: (entry: T) => string,
+): Map<string, Array<T>> => {
+	const by_key: Map<string, Array<T>> = new Map();
+	for (const entry of entries) {
+		const key = get_key(entry);
+		let group = by_key.get(key);
+		if (!group) {
+			group = [];
+			by_key.set(key, group);
+		}
+		group.push(entry);
+	}
+	return new Map([...by_key].sort(([a], [b]) => a.localeCompare(b)));
+};
 
 /**
  * Rich runtime representation of a module with computed properties.
@@ -76,7 +101,11 @@ export class Module {
 			: undefined,
 	);
 
-	has_declarations: boolean = $derived((this.module_json.declarations?.length ?? 0) > 0);
+	/**
+	 * Whether the module has renderable declarations (after the default-export
+	 * filter in `declarations`).
+	 */
+	has_declarations: boolean = $derived(this.declarations.length > 0);
 
 	has_module_comment: boolean = $derived(!!this.module_comment);
 
@@ -93,6 +122,72 @@ export class Module {
 	has_dependencies: boolean = $derived(this.dependencies.length > 0);
 
 	has_dependents: boolean = $derived(this.dependents.length > 0);
+
+	/**
+	 * Same-name re-export edges in this module's source (`ModuleJson.reExports`)
+	 * — the forward view of declarations' `alsoExportedFrom`, sorted by name
+	 * then module. Renamed re-exports appear as declarations with `aliasOf`
+	 * instead, and star exports in `star_exports`.
+	 */
+	re_exports = $derived(this.module_json.reExports ?? []);
+
+	has_re_exports: boolean = $derived(this.re_exports.length > 0);
+
+	/**
+	 * Modules fully re-exported via `export * from './module'`
+	 * (`ModuleJson.starExports`), in source order. Star-projected symbols are
+	 * not materialized as declarations or `re_exports` edges — this is their
+	 * sole encoding.
+	 */
+	star_exports = $derived(this.module_json.starExports ?? []);
+
+	has_star_exports: boolean = $derived(this.star_exports.length > 0);
+
+	/**
+	 * Re-export edges grouped by canonical module path, groups sorted by path.
+	 * Entries within each group keep their name-sorted serialized order.
+	 */
+	re_exports_by_module: Map<string, Array<ReExportJsonInput>> = $derived(
+		group_sorted(this.re_exports, (entry) => entry.module),
+	);
+
+	/**
+	 * Re-exports whose immediate target is an external package
+	 * (`ModuleJson.externalReExports`) — `export {x} from 'pkg'` and
+	 * `export * as ns from 'pkg'` forms, sorted by name then specifier.
+	 */
+	external_re_exports = $derived(this.module_json.externalReExports ?? []);
+
+	has_external_re_exports: boolean = $derived(this.external_re_exports.length > 0);
+
+	/**
+	 * External re-exports grouped by package specifier, groups sorted by
+	 * specifier. Entries within each group keep their name-sorted serialized
+	 * order.
+	 */
+	external_re_exports_by_specifier: Map<string, Array<ExternalReExportJsonInput>> = $derived(
+		group_sorted(this.external_re_exports, (entry) => entry.specifier),
+	);
+
+	/**
+	 * External packages fully re-exported via `export * from 'pkg'`
+	 * (`ModuleJson.externalStarExports`), in source order. The projected
+	 * names are unknown — the package isn't analyzed.
+	 */
+	external_star_exports = $derived(this.module_json.externalStarExports ?? []);
+
+	has_external_star_exports: boolean = $derived(this.external_star_exports.length > 0);
+
+	/**
+	 * Whether the module re-exports anything in any form — same-name edges,
+	 * star exports, or the external variants of both.
+	 */
+	has_any_re_exports: boolean = $derived(
+		this.has_re_exports ||
+			this.has_star_exports ||
+			this.has_external_re_exports ||
+			this.has_external_star_exports,
+	);
 
 	constructor(library: Library, module_json: ModuleJsonInput) {
 		this.library = library;

@@ -5,29 +5,30 @@
 
 	const {
 		name = 'Cat',
-		icon: icon_text = '😺',
+		icon = '😺',
 		position,
 		act,
 	}: {
 		name?: string;
-		icon?: string | null;
+		icon?: string;
 		position: CatPosition;
 		act: (item: HistoryItem) => void;
 	} = $props();
 </script>
 
-<ContextmenuSubmenu>
-	{#snippet icon()}{icon_text}{/snippet}
+<ContextmenuSubmenu {icon}>
 	{name}
 	{#snippet menu()}
 		<ContextmenuEntry
 			run={() => act({type: position === 'adventure' ? 'cat_go_home' : 'cat_go_adventure', name})}
+			icon={position === 'adventure' ? '🏠' : '🌄'}
 		>
-			{#snippet icon()}{#if position === 'adventure'}🏠{:else}🌄{/if}{/snippet}
 			{#if position === 'adventure'}go home{:else}go adventure{/if}
 		</ContextmenuEntry>
-		<ContextmenuEntry run={() => act({type: 'cat_be_or_do', name, position})}>
-			{#snippet icon()}{#if position === 'adventure'}🌄{:else}🏠{/if}{/snippet}
+		<ContextmenuEntry
+			run={() => act({type: 'cat_be_or_do', name, position})}
+			icon={position === 'adventure' ? '🌄' : '🏠'}
+		>
 			{#if position === 'adventure'}do adventure{:else}be home{/if}
 		</ContextmenuEntry>
 	{/snippet}

@@ -29,7 +29,7 @@
 
 <!-- eslint-disable svelte/no-navigation-without-resolve -->
 
-<DocsList {...rest} {expand_width} margin={false} class="docs-menu">
+<DocsList {...rest} {expand_width} margin={false} class="docs-menu {rest.class}">
 	<ul class="unstyled">
 		{#each Object.entries(tomes_by_category) as [category, tomes] (category)}
 			<li class="category">

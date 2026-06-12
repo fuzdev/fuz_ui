@@ -1,5 +1,6 @@
 <script lang="ts">
 	import type {Snippet} from 'svelte';
+	import type {SvelteHTMLElements} from 'svelte/elements';
 	import {page} from '$app/state';
 	import {resolve} from '$app/paths';
 
@@ -13,7 +14,8 @@
 		docs_path = DOCS_PATH_DEFAULT,
 		header,
 		children,
-	}: {
+		...rest
+	}: SvelteHTMLElements['section'] & {
 		tome: Tome;
 		docs_path?: string;
 		header?: Snippet;
@@ -30,7 +32,8 @@
 </script>
 
 <section
-	class="tome-content width_atmost_md mb_xl9"
+	{...rest}
+	class="tome-content width_atmost_md mb_xl9 {rest.class}"
 	{@attach intersect(() =>
 		at_root
 			? ({intersecting}) => {

@@ -10,7 +10,9 @@
 		svg_attrs,
 		img_attrs,
 		...rest
-	}: SvelteHTMLElements['img'] &
+	}: // the intersection makes rest shared attributes valid for whichever branch renders -
+	// branch-specific attributes go in `svg_attrs`/`img_attrs`
+	SvelteHTMLElements['img'] &
 		SvelteHTMLElements['svg'] & {
 			src: string;
 			label?: string;
@@ -28,7 +30,6 @@
 			height?: string;
 			svg_attrs?: SvelteHTMLElements['svg'];
 			img_attrs?: SvelteHTMLElements['img'];
-			/** Shared attributes for both img and svg. */
 		} = $props();
 
 	const final_width = $derived(width ?? size);
@@ -38,9 +39,9 @@
 {#if src.endsWith('.svg')}
 	<svg
 		role="img"
-		{...rest as SvelteHTMLElements['svg']}
+		{...rest}
 		{...svg_attrs}
-		aria-label={label}
+		aria-label={label ?? svg_attrs?.['aria-label'] ?? rest['aria-label']}
 		style:width={final_width}
 		style:height={final_height}
 	>
@@ -51,7 +52,7 @@
 		{...rest}
 		{...img_attrs}
 		{src}
-		alt={label}
+		alt={label ?? img_attrs?.alt ?? rest.alt}
 		style:width={final_width}
 		style:height={final_height}
 	/>

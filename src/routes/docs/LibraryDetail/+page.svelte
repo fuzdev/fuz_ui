@@ -11,7 +11,8 @@
 	const TOME_SLUG = 'LibraryDetail';
 	const tome = tome_get_by_slug(TOME_SLUG);
 
-	const library = library_context.get();
+	const get_library = library_context.get();
+	const library = $derived(get_library());
 </script>
 
 <!-- eslint-disable svelte/no-useless-mustaches -->
@@ -26,6 +27,14 @@
 		</p>
 		<Code lang="ts" content={`import LibraryDetail from '@fuzdev/fuz_ui/LibraryDetail.svelte';`} />
 		<Code content={`<LibraryDetail {library} />`} />
+		<p>
+			It projects its <code>library</code> prop into <DeclarationLink name="library_context" /> for its
+			subtree, so the module and declaration links resolve against the rendered library even when it differs
+			from the site's own. When rendering a foreign library, pass
+			<code>links_full</code> so the links point at the library's deployed docs instead of site-local
+			paths:
+		</p>
+		<Code content={`<LibraryDetail library={foreign_library} links_full />`} />
 	</section>
 	<section>
 		<LibraryDetail {library} />
