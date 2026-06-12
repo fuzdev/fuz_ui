@@ -48,7 +48,6 @@
 	set_mdz_context_with_fallback(mdz_code_context, () => DocsLink);
 	set_mdz_context_with_fallback(mdz_codeblock_context, () => Code);
 
-
 	// normalize module_path to string (could be array from [...module_path] route param)
 	const module_path = $derived(
 		Array.isArray(module_path_param) ? module_path_param.join('/') : module_path_param,
