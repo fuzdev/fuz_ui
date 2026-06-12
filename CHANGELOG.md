@@ -1,5 +1,12 @@
 # @fuzdev/fuz_ui
 
+## 0.205.0
+
+### Minor Changes
+
+- feat: extract mdz ([#125](https://github.com/fuzdev/fuz_ui/pull/125))
+- fix: bump peer deps and make `@fuzdev/fuz_util` a required peer (was optional) ([#125](https://github.com/fuzdev/fuz_ui/pull/125))
+
 ## 0.204.0
 
 ### Minor Changes
