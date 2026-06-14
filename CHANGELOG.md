@@ -1,5 +1,11 @@
 # @fuzdev/fuz_ui
 
+## 0.205.1
+
+### Patch Changes
+
+- fix: migrate to class composition for SSR compat ([5176d04](https://github.com/fuzdev/fuz_ui/commit/5176d04))
+
 ## 0.205.0
 
 ### Minor Changes
