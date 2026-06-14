@@ -73,6 +73,7 @@
 	--duration_2: 0.2s;
 	--duration_3: 0.5s;
 	--duration_5: 1.5s;
+	--duration_6: 3s;
 	--fg_05: var(--darken_05);
 	--fg_10: var(--darken_10);
 	--fg_20: var(--darken_20);
@@ -87,6 +88,7 @@
 	--font_size_xl3: 4.19rem;
 	--font_size_xl4: 5.33rem;
 	--font_size_xl5: 6.78rem;
+	--font_size_xl6: 8.62rem;
 	--font_size_xs: 1rem;
 	--hue_a: 210;
 	--hue_b: 120;
@@ -103,6 +105,7 @@
 	--icon_size_sm: 32px;
 	--icon_size_xl: 128px;
 	--icon_size_xl2: 192px;
+	--icon_size_xl3: 256px;
 	--icon_size_xs: 18px;
 	--input_fill: var(--bg_80);
 	--input_height: var(--space_xl5);
@@ -167,6 +170,7 @@
 	--space_xl5: 4.2rem;
 	--space_xl6: 5.4rem;
 	--space_xl7: 6.9rem;
+	--space_xl8: 8.7rem;
 	--space_xl9: 11.1rem;
 	--space_xs: 0.6rem;
 	--space_xs2: 0.4rem;
@@ -178,6 +182,7 @@
 	--text_50: hsl(var(--tint_hue) var(--tint_saturation) 50%);
 	--text_70: hsl(var(--tint_hue) var(--tint_saturation) 32%);
 	--text_80: hsl(var(--tint_hue) var(--tint_saturation) 21%);
+	--text_90: hsl(var(--tint_hue) var(--tint_saturation) 13%);
 	--text_color: var(--text_80);
 	--text_decoration: none;
 	--text_decoration_hover: underline;
@@ -246,6 +251,7 @@
 	--text_10: hsl(var(--tint_hue) var(--tint_saturation) 14%);
 	--text_70: hsl(var(--tint_hue) var(--tint_saturation) 69%);
 	--text_80: hsl(var(--tint_hue) var(--tint_saturation) 80%);
+	--text_90: hsl(var(--tint_hue) var(--tint_saturation) 87%);
 }
 
 /* Base Styles */
