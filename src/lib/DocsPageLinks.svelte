@@ -36,16 +36,17 @@
 				<li
 					role="none"
 					transition:slide
-					class:pl_xl={item.depth === 2}
-					class:pl_xl2={item.depth === 3}
-					class:pl_xl3={item.depth >= 4}
+					class={{pl_xl: item.depth === 2, pl_xl2: item.depth === 3, pl_xl3: item.depth >= 4}}
 				>
 					<a
-						class="menuitem"
-						href="#{item.fragment}"
-						class:selected={item.fragment === hash}
-						class:highlighted={docs_links.fragments_onscreen.has(item.fragment)}
-						><div class="ellipsis">{item.text}</div></a
+						class={[
+							'menuitem',
+							{
+								selected: item.fragment === hash,
+								highlighted: docs_links.fragments_onscreen.has(item.fragment),
+							},
+						]}
+						href="#{item.fragment}"><div class="ellipsis">{item.text}</div></a
 					>
 				</li>
 			{/each}

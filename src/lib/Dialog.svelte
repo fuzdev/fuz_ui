@@ -149,8 +149,7 @@
 {#if show}
 	<dialog
 		{...rest}
-		class="dialog {rest.class}"
-		class:align-top={align === 'top'}
+		class={['dialog', rest.class, {'align-top': align === 'top'}]}
 		{@attach setup_dialog}
 	>
 		<div

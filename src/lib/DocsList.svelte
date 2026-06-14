@@ -14,7 +14,7 @@
 	} = $props();
 </script>
 
-<div {...rest} class="docs-list {rest.class}" class:expand-width={expand_width} class:margin>
+<div {...rest} class={['docs-list', rest.class, {'expand-width': expand_width, margin}]}>
 	{@render children()}
 </div>
 

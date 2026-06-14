@@ -31,8 +31,7 @@
 <button
 	type="button"
 	{...rest}
-	class:inline
-	class:plain
+	class={[rest.class, {inline, plain}]}
 	onclick={(e) => {
 		selected_variable.value = variable;
 		onclick?.(e);

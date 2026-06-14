@@ -5,7 +5,7 @@
 </script>
 
 <!-- `aria-orientation` is omitted - it defaults to horizontal, correct for a vertical menu's rule -->
-<li role="separator" {...rest} class:contextmenu-separator={true}></li>
+<li role="separator" {...rest} class={['contextmenu-separator', rest.class]}></li>
 
 <style>
 	.contextmenu-separator {

@@ -79,7 +79,7 @@
 	viewBox={data.viewBox ?? '0 0 100 100'}
 	{...rest}
 	aria-label={label ?? data.label ?? rest['aria-label']}
-	class:inline
+	class={[rest.class, {inline}]}
 	style:width={final_width}
 	style:height={final_height}
 	style:flex-shrink={shrink ? 1 : 0}

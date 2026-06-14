@@ -60,7 +60,7 @@
 </script>
 
 <header>
-	<svelte:element this={final_tag} {...rest} class:tome-section-header={true}>
+	<svelte:element this={final_tag} {...rest} class={['tome-section-header', rest.class]}>
 		<div class="flex:1">
 			{#if children}
 				{@render children()}

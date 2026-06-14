@@ -40,9 +40,7 @@
 <!-- disabling the a11y warning because a parent element handles keyboard events -->
 <!-- svelte-ignore a11y_click_events_have_key_events -->
 <li
-	class="menuitem plain selectable deselectable"
-	class:selected
-	class:disabled
+	class={['menuitem plain selectable deselectable', {selected, disabled}]}
 	role="menuitem"
 	aria-disabled={disabled}
 	tabindex="-1"

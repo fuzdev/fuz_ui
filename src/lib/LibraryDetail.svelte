@@ -106,8 +106,7 @@ with file-type coloring. Uses svelte-docinfo's file type predicates for module c
 							<span class="title">homepage</span>
 							<div class="content">
 								<a
-									class="chip"
-									class:selected={library.homepage_url === page.url.href}
+									class={['chip', {selected: library.homepage_url === page.url.href}]}
 									href={library.homepage_url}
 								>
 									{#if library.logo_url}
@@ -168,11 +167,15 @@ with file-type coloring. Uses svelte-docinfo's file type predicates for module c
 				{#each library.modules as module (module.path)}
 					<!-- TODO improve rendering and enrich data - start with the type (not just extension - mime?) -->
 					<li
-						class="module"
-						class:ts={isTypescript(module.path)}
-						class:svelte={isSvelte(module.path)}
-						class:css={isCss(module.path)}
-						class:json={isJson(module.path)}
+						class={[
+							'module',
+							{
+								ts: isTypescript(module.path),
+								svelte: isSvelte(module.path),
+								css: isCss(module.path),
+								json: isJson(module.path),
+							},
+						]}
 					>
 						<div class="module-content">
 							<span class="font_size_xl">

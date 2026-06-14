@@ -64,10 +64,7 @@
 	<!-- eslint-disable svelte/no-navigation-without-resolve -->
 	<a
 		bind:this={anchor_el}
-		class="menuitem plain"
-		class:selected
-		class:disabled
-		class:deselectable={!disabled}
+		class={['menuitem plain', {selected, disabled, deselectable: !disabled}]}
 		role="menuitem"
 		aria-disabled={disabled}
 		aria-current={current_page ? 'page' : undefined}

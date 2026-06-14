@@ -30,9 +30,8 @@
 	bind:this={el}
 	type="button"
 	{...rest}
-	class="pending-button {rest.class}"
+	class={['pending-button', rest.class, {pending}]}
 	disabled={disabled_prop ?? pending}
-	class:pending
 	{onclick}
 >
 	<span class="content">

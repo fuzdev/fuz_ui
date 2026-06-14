@@ -68,8 +68,7 @@
 <li role="none" style:--contextmenu_depth={submenu.depth}>
 	<!-- disabling the a11y warning because a parent element handles keyboard events -->
 	<div
-		class="menuitem plain selectable"
-		class:selected
+		class={['menuitem plain selectable', {selected}]}
 		role="menuitem"
 		aria-haspopup="menu"
 		tabindex="-1"

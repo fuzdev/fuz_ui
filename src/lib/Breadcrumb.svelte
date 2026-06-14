@@ -61,14 +61,14 @@
 
 <div {...rest} class="breadcrumb {rest.class}">
 	<!-- eslint-disable-next-line svelte/no-navigation-without-resolve -->
-	<a href={root_path} class:selected={root_path === final_base_path + final_selected_path}
+	<a href={root_path} class={{selected: root_path === final_base_path + final_selected_path}}
 		>{#if children}{@render children()}{:else if icon_data}<Svg
 				data={icon_data}
 				size="1em"
 			/>{:else if glyph_text}{glyph_text}{:else}•{/if}</a
 	>{#each path_pieces as path_piece (path_piece)}{#if path_piece.type === 'piece'}<!-- eslint-disable-next-line svelte/no-navigation-without-resolve --><a
 				href={final_base_path + path_piece.path}
-				class:selected={path_piece.path === final_selected_path}>{path_piece.name}</a
+				class={{selected: path_piece.path === final_selected_path}}>{path_piece.name}</a
 			>{:else}<span class="separator"
 				>{#if separator}{@render separator()}{:else}/{/if}</span
 			>{/if}{/each}

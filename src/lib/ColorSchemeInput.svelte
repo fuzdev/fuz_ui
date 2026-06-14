@@ -22,12 +22,11 @@ https://developer.mozilla.org/en-US/docs/Web/Accessibility/ARIA/Roles/menubar_ro
 		{@const selected = color_scheme === value.color_scheme}
 		<button
 			type="button"
-			class="color-scheme color_a"
+			class={['color-scheme color_a', {selected}]}
 			role="menuitemradio"
 			title={selected
 				? `${color_scheme} color scheme is selected`
 				: `select ${color_scheme} color scheme`}
-			class:selected
 			aria-checked={selected}
 			onclick={(e) => {
 				swallow(e);

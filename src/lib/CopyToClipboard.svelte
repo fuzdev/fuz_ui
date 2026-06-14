@@ -66,11 +66,11 @@
 	type="button"
 	title="copy to clipboard"
 	{...rest}
-	class="copy-to-clipboard {rest.class}"
-	class:icon_button={children ? false : icon_button}
-	class:copied
-	class:failed
-	class:color_c={failed}
+	class={[
+		'copy-to-clipboard',
+		rest.class,
+		{icon_button: children ? false : icon_button, copied, failed, color_c: failed},
+	]}
 	onclick={(e) => {
 		onclick?.(e); // before the internal handler, which is async
 		void copy(e);

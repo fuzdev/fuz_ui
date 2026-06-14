@@ -123,7 +123,7 @@ dismiss zone outside the card, where a press lands on the wrapper and closes the
 content with its own overflow (e.g. `Code`) scrolls instead of forcing the card wider. -->
 <div
 	{...rest}
-	class:pane
+	class={[rest.class, {pane}]}
 	style:padding
 	style:margin={gutter}
 	style:max-width={max_width}

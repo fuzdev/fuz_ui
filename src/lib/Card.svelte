@@ -55,13 +55,7 @@
 	this={final_tag}
 	{...rest}
 	{...inferred_attrs}
-	class="card {rest.class} {inferred_attrs?.class}"
-	class:link
-	class:selected
-	class:left
-	class:right
-	class:above
-	class:below
+	class={['card', rest.class, inferred_attrs?.class, {link, selected, left, right, above, below}]}
 >
 	{#if align === 'left' || align === 'above'}
 		{@render icon_snippet()}

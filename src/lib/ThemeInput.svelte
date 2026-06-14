@@ -35,11 +35,10 @@
 		<li class="row" role="none">
 			<button
 				type="button"
-				class="theme-button color_a"
+				class={['theme-button color_a', {selected}]}
 				role="menuitemradio"
 				aria-label="{theme.name} theme"
 				aria-checked={selected}
-				class:selected
 				onclick={(e) => {
 					swallow(e);
 					if (select?.(theme) !== false) {

@@ -20,7 +20,7 @@
 </script>
 
 {#if enabled}
-	<div {...rest} class="docs-primary-nav {rest.class}" class:scrolled>
+	<div {...rest} class={['docs-primary-nav', rest.class, {scrolled}]}>
 		<div class="background" aria-hidden="true"></div>
 		<div class="content">
 			<nav aria-label="Primary nav">

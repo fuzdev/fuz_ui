@@ -39,7 +39,7 @@
 					{#each tomes as item (item)}
 						{@const pathname = tome_to_pathname(item)}
 						<li role="none" transition:slide>
-							<a class="menuitem" href={pathname} class:selected={pathname === page.url.pathname}
+							<a class={['menuitem', {selected: pathname === page.url.pathname}]} href={pathname}
 								><div class="ellipsis">{tome_to_title(item)}</div></a
 							>
 						</li>
