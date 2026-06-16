@@ -2,9 +2,9 @@
 	import {page} from '$app/state';
 	import type {Snippet} from 'svelte';
 	import type {SvelteHTMLElements} from 'svelte/elements';
-	import {format_url} from '@fuzdev/fuz_util/url.js';
+	import {format_url} from '@fuzdev/fuz_util/url.ts';
 
-	import type {Library} from './library.svelte.js';
+	import type {Library} from './library.svelte.ts';
 	import ImgOrSvg from './ImgOrSvg.svelte';
 
 	const {

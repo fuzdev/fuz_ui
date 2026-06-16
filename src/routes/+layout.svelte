@@ -9,8 +9,8 @@
 	import Spiders from '$lib/Spiders.svelte';
 	import pkg_json from 'virtual:pkg.json';
 
-	import {SiteState, site_context} from '$lib/site.svelte.js';
-	import {logo_fuz_ui} from '$lib/logos.js';
+	import {SiteState, site_context} from '$lib/site.svelte.ts';
+	import {logo_fuz_ui} from '$lib/logos.ts';
 
 	const {
 		children,

@@ -3,7 +3,7 @@
 	import type {HTMLAttributes, SvelteHTMLElements} from 'svelte/elements';
 
 	import DeclarationLink from './DeclarationLink.svelte';
-	import {library_context} from './library.svelte.js';
+	import {library_context} from './library.svelte.ts';
 
 	const {
 		type,

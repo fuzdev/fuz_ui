@@ -20,7 +20,7 @@
 		contextmenu_context,
 		ContextmenuState,
 		contextmenu_check_global_root,
-	} from './contextmenu_state.svelte.js';
+	} from './contextmenu_state.svelte.ts';
 	import ContextmenuMenu, {
 		link_entry_default,
 		text_entry_default,
@@ -36,7 +36,7 @@
 		ContextmenuBypassTracker,
 		ContextmenuOpenGuard,
 		type ContextmenuRootBaseProps,
-	} from './contextmenu_helpers.js';
+	} from './contextmenu_helpers.ts';
 
 	const {
 		contextmenu = new ContextmenuState(),

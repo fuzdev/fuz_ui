@@ -1,13 +1,13 @@
 <script lang="ts">
-	import {parse_path_pieces} from '@fuzdev/fuz_util/path.js';
+	import {parse_path_pieces} from '@fuzdev/fuz_util/path.ts';
 	import {resolve} from '$app/paths';
 	import {page} from '$app/state';
 	import type {Snippet} from 'svelte';
-	import {strip_start, ensure_end} from '@fuzdev/fuz_util/string.js';
+	import {strip_start, ensure_end} from '@fuzdev/fuz_util/string.ts';
 	import type {SvelteHTMLElements} from 'svelte/elements';
 
 	import Svg from './Svg.svelte';
-	import {site_context} from './site.svelte.js';
+	import {site_context} from './site.svelte.ts';
 
 	const {
 		path,

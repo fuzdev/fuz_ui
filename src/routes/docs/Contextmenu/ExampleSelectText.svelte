@@ -1,11 +1,11 @@
 <script lang="ts">
 	import ContextmenuEntry from '$lib/ContextmenuEntry.svelte';
 	import Contextmenu from '$lib/Contextmenu.svelte';
-	import {ContextmenuState} from '$lib/contextmenu_state.svelte.js';
+	import {ContextmenuState} from '$lib/contextmenu_state.svelte.ts';
 	import MdnLink from '$lib/MdnLink.svelte';
 	import TomeSectionHeader from '$lib/TomeSectionHeader.svelte';
 	import TomeSection from '$lib/TomeSection.svelte';
-	import {selected_contextmenu_root_component_context} from '$routes/docs/Contextmenu/selected_root_component.svelte.js';
+	import {selected_contextmenu_root_component_context} from './selected_root_component.svelte.ts';
 
 	const selected = selected_contextmenu_root_component_context.get();
 	const ContextmenuRootComponent = $derived(selected.component);

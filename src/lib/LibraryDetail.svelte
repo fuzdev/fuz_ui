@@ -9,16 +9,16 @@ with file-type coloring. Uses svelte-docinfo's file type predicates for module c
 -->
 <script lang="ts">
 	import {page} from '$app/state';
-	import {format_url} from '@fuzdev/fuz_util/url.js';
-	import type {OmitStrict} from '@fuzdev/fuz_util/types.js';
+	import {format_url} from '@fuzdev/fuz_util/url.ts';
+	import type {OmitStrict} from '@fuzdev/fuz_util/types.ts';
 	import type {Snippet} from 'svelte';
 	import type {SvelteHTMLElements} from 'svelte/elements';
 
-	import {library_context, type Library} from './library.svelte.js';
+	import {library_context, type Library} from './library.svelte.ts';
 	import ImgOrSvg from './ImgOrSvg.svelte';
 	import DeclarationLink from './DeclarationLink.svelte';
 	import ModuleLink from './ModuleLink.svelte';
-	import {url_github_file} from '@fuzdev/fuz_util/package_helpers.js';
+	import {url_github_file} from '@fuzdev/fuz_util/package_helpers.ts';
 	import {isTypescript, isSvelte, isCss, isJson} from 'svelte-docinfo/source.js';
 
 	const {

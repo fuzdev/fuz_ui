@@ -4,9 +4,9 @@ import type {
 	ExternalReExportJsonInput,
 } from 'svelte-docinfo/types.js';
 
-import {Declaration} from './declaration.svelte.js';
-import type {Library} from './library.svelte.js';
-import {url_github_file} from '@fuzdev/fuz_util/package_helpers.js';
+import {Declaration} from './declaration.svelte.ts';
+import type {Library} from './library.svelte.ts';
+import {url_github_file} from '@fuzdev/fuz_util/package_helpers.ts';
 
 /**
  * Groups entries by a string key, with groups sorted by key. Entries within

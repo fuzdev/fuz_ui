@@ -4,8 +4,8 @@
  */
 
 import {flushSync, type Component} from 'svelte';
-import {contextmenu_attachment, ContextmenuState} from '$lib/contextmenu_state.svelte.js';
-import {mount_component} from './test_helpers.js';
+import {contextmenu_attachment, ContextmenuState} from '$lib/contextmenu_state.svelte.ts';
+import {mount_component} from './test_helpers.ts';
 
 /**
  * Create a test contextmenu with standard layout dimensions.

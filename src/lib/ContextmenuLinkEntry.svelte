@@ -1,12 +1,12 @@
 <script lang="ts">
-	import {strip_start} from '@fuzdev/fuz_util/string.js';
-	import {swallow} from '@fuzdev/fuz_util/dom.js';
+	import {strip_start} from '@fuzdev/fuz_util/string.ts';
+	import {swallow} from '@fuzdev/fuz_util/dom.ts';
 	import type {Snippet} from 'svelte';
 	import {page} from '$app/state';
 
-	import {contextmenu_context} from './contextmenu_state.svelte.js';
-	import {icon_external_link, icon_link} from './icons.js';
-	import type {SvgData} from './svg.js';
+	import {contextmenu_context} from './contextmenu_state.svelte.ts';
+	import {icon_external_link, icon_link} from './icons.ts';
+	import type {SvgData} from './svg.ts';
 	import Svg from './Svg.svelte';
 	import ContextmenuIcon from './ContextmenuIcon.svelte';
 

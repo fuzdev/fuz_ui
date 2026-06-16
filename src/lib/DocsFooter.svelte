@@ -1,10 +1,10 @@
 <script lang="ts">
-	import {format_url, type Url} from '@fuzdev/fuz_util/url.js';
+	import {format_url, type Url} from '@fuzdev/fuz_util/url.ts';
 	import type {Snippet} from 'svelte';
 	import type {SvelteHTMLElements} from 'svelte/elements';
 
 	import Svg from './Svg.svelte';
-	import {logo_github} from './logos.js';
+	import {logo_github} from './logos.ts';
 
 	const {
 		repo_url,

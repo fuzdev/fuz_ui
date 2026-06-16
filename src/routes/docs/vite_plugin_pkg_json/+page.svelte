@@ -1,8 +1,8 @@
 <script lang="ts">
 	import Code from '@fuzdev/fuz_code/Code.svelte';
-	import {pkg_json_keys} from '@fuzdev/fuz_util/pkg_json.js';
+	import {pkg_json_keys} from '@fuzdev/fuz_util/pkg_json.ts';
 
-	import {tome_get_by_slug} from '$lib/tome.js';
+	import {tome_get_by_slug} from '$lib/tome.ts';
 	import TomeContent from '$lib/TomeContent.svelte';
 	import TomeSection from '$lib/TomeSection.svelte';
 	import TomeSectionHeader from '$lib/TomeSectionHeader.svelte';

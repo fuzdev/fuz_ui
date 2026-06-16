@@ -1,10 +1,10 @@
 <script lang="ts">
 	import {onDestroy, type Snippet} from 'svelte';
-	import {swallow} from '@fuzdev/fuz_util/dom.js';
+	import {swallow} from '@fuzdev/fuz_util/dom.ts';
 
 	import PendingAnimation from './PendingAnimation.svelte';
-	import {contextmenu_context, type ContextmenuRun} from './contextmenu_state.svelte.js';
-	import type {SvgData} from './svg.js';
+	import {contextmenu_context, type ContextmenuRun} from './contextmenu_state.svelte.ts';
+	import type {SvgData} from './svg.ts';
 	import ContextmenuIcon from './ContextmenuIcon.svelte';
 
 	const {

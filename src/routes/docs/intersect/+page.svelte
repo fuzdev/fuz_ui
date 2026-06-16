@@ -1,8 +1,8 @@
 <script lang="ts">
 	import Code from '@fuzdev/fuz_code/Code.svelte';
 
-	import {tome_get_by_slug} from '$lib/tome.js';
-	import {intersect} from '$lib/intersect.svelte.js';
+	import {tome_get_by_slug} from '$lib/tome.ts';
+	import {intersect} from '$lib/intersect.svelte.ts';
 	import TomeContent from '$lib/TomeContent.svelte';
 	import TomeSection from '$lib/TomeSection.svelte';
 	import TomeSectionHeader from '$lib/TomeSectionHeader.svelte';

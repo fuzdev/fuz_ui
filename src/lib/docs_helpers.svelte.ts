@@ -1,14 +1,14 @@
 import {resolve} from '$app/paths';
 import {SvelteMap, SvelteSet} from 'svelte/reactivity';
-import {ensure_end, ensure_start} from '@fuzdev/fuz_util/string.js';
+import {ensure_end, ensure_start} from '@fuzdev/fuz_util/string.ts';
 
-import {create_context} from './context_helpers.js';
+import {create_context} from './context_helpers.ts';
 
 export const docs_links_context = create_context<DocsLinks>();
 
 /**
  * Convert a string to a URL-safe fragment identifier, preserving case.
- * Unlike `slugify` from `@fuzdev/fuz_util/path.js` which lowercases,
+ * Unlike `slugify` from `@fuzdev/fuz_util/path.ts` which lowercases,
  * this keeps the original casing so API declarations like `AsyncStatus`
  * and `async_status` produce distinct fragment IDs.
  * Used by the `Tome` documentation system for heading and section anchors.

@@ -8,8 +8,8 @@
 	import Contextmenu from '$lib/Contextmenu.svelte';
 	import ContextmenuEntry from '$lib/ContextmenuEntry.svelte';
 	import Details from '$lib/Details.svelte';
-	import RootComponentSelector from '$routes/docs/Contextmenu/RootComponentSelector.svelte';
-	import {selected_contextmenu_root_component_context} from '$routes/docs/Contextmenu/selected_root_component.svelte.js';
+	import RootComponentSelector from './RootComponentSelector.svelte';
+	import {selected_contextmenu_root_component_context} from './selected_root_component.svelte.ts';
 
 	/* eslint-disable no-alert */
 

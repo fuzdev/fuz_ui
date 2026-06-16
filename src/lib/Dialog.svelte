@@ -2,9 +2,9 @@
 	import type {Snippet} from 'svelte';
 	import type {SvelteHTMLElements} from 'svelte/elements';
 	import {SvelteSet} from 'svelte/reactivity';
-	import {swallow} from '@fuzdev/fuz_util/dom.js';
+	import {swallow} from '@fuzdev/fuz_util/dom.ts';
 
-	import {dialog_context, type DialogContext, type DialogAlign} from './dialog.js';
+	import {dialog_context, type DialogContext, type DialogAlign} from './dialog.ts';
 
 	/**
 	 * This component renders a native `<dialog>` opened with `showModal()`, which

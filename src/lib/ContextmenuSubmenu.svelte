@@ -1,11 +1,11 @@
 <script lang="ts">
 	import {onDestroy, type Snippet} from 'svelte';
-	import {swallow} from '@fuzdev/fuz_util/dom.js';
+	import {swallow} from '@fuzdev/fuz_util/dom.ts';
 
-	import {contextmenu_context, contextmenu_dimensions_context} from './contextmenu_state.svelte.js';
-	import {contextmenu_calculate_submenu_translate} from './contextmenu_helpers.js';
-	import type {Dimensions} from './dimensions.svelte.js';
-	import type {SvgData} from './svg.js';
+	import {contextmenu_context, contextmenu_dimensions_context} from './contextmenu_state.svelte.ts';
+	import {contextmenu_calculate_submenu_translate} from './contextmenu_helpers.ts';
+	import type {Dimensions} from './dimensions.svelte.ts';
+	import type {SvgData} from './svg.ts';
 	import ContextmenuIcon from './ContextmenuIcon.svelte';
 
 	const {

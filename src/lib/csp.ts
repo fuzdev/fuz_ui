@@ -1,4 +1,4 @@
-import type {Defined} from '@fuzdev/fuz_util/types.js';
+import type {Defined} from '@fuzdev/fuz_util/types.ts';
 
 // TODO schemas, but I may be moving to ArkType from Zod if precompilation looks good
 

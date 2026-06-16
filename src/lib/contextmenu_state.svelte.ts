@@ -1,16 +1,16 @@
 import {onDestroy, type Snippet} from 'svelte';
-import type {Result} from '@fuzdev/fuz_util/result.js';
-import {is_promise} from '@fuzdev/fuz_util/async.js';
+import type {Result} from '@fuzdev/fuz_util/result.ts';
+import {is_promise} from '@fuzdev/fuz_util/async.ts';
 import {BROWSER, DEV} from 'esm-env';
 import type {SvelteHTMLElements} from 'svelte/elements';
-import {EMPTY_OBJECT} from '@fuzdev/fuz_util/object.js';
+import {EMPTY_OBJECT} from '@fuzdev/fuz_util/object.ts';
 import type {Attachment} from 'svelte/attachments';
 
-import {Dimensions} from './dimensions.svelte.js';
-import {create_context} from './context_helpers.js';
-import {url_to_root_relative} from './library_helpers.js';
-import {icon_copy} from './icons.js';
-import type {SvgData} from './svg.js';
+import {Dimensions} from './dimensions.svelte.ts';
+import {create_context} from './context_helpers.ts';
+import {url_to_root_relative} from './library_helpers.ts';
+import {icon_copy} from './icons.ts';
+import type {SvgData} from './svg.ts';
 
 export const contextmenu_context = create_context<() => ContextmenuState>();
 

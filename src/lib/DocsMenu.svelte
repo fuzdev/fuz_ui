@@ -5,7 +5,7 @@
 	import type {SvelteHTMLElements} from 'svelte/elements';
 
 	import DocsList from './DocsList.svelte';
-	import {tome_to_pathname, tome_to_title, type Tome} from './tome.js';
+	import {tome_to_pathname, tome_to_title, type Tome} from './tome.ts';
 	import DocsMenuHeader from './DocsMenuHeader.svelte';
 
 	const {

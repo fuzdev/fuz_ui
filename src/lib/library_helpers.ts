@@ -4,12 +4,12 @@
  * Runtime UI helpers for building URLs in the library documentation system.
  * These depend on fuz_ui's documentation paths and SvelteKit's runtime state.
  *
- * For generic package/repository URL helpers, see `@fuzdev/fuz_util/package_helpers.js`.
+ * For generic package/repository URL helpers, see `@fuzdev/fuz_util/package_helpers.ts`.
  *
  * @module
  */
 
-import {ensure_end, strip_start} from '@fuzdev/fuz_util/string.js';
+import {ensure_end, strip_start} from '@fuzdev/fuz_util/string.ts';
 import {page} from '$app/state';
 
 /**

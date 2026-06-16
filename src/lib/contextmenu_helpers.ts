@@ -1,5 +1,5 @@
-import {is_editable, swallow, inside_editable} from '@fuzdev/fuz_util/dom.js';
-import {EMPTY_OBJECT} from '@fuzdev/fuz_util/object.js';
+import {is_editable, swallow, inside_editable} from '@fuzdev/fuz_util/dom.ts';
+import {EMPTY_OBJECT} from '@fuzdev/fuz_util/object.ts';
 import type {Attachment} from 'svelte/attachments';
 import type {ComponentProps, Snippet} from 'svelte';
 
@@ -7,7 +7,7 @@ import {
 	contextmenu_open,
 	type ContextmenuOpenOptions,
 	type ContextmenuState,
-} from './contextmenu_state.svelte.js';
+} from './contextmenu_state.svelte.ts';
 import type ContextmenuLinkEntry from './ContextmenuLinkEntry.svelte';
 import type ContextmenuTextEntry from './ContextmenuTextEntry.svelte';
 import type ContextmenuSeparator from './ContextmenuSeparator.svelte';

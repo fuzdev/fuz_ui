@@ -1,4 +1,4 @@
-import type {SvgData} from './svg.js';
+import type {SvgData} from './svg.ts';
 
 // SVG icon data for replacing character glyphs with scalable vector icons.
 // Each export uses the `icon_` prefix and conforms to `SvgData`.

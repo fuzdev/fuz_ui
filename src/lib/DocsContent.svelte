@@ -2,8 +2,8 @@
 	import type {Snippet} from 'svelte';
 	import type {SvelteHTMLElements} from 'svelte/elements';
 
-	import type {Library} from './library.svelte.js';
-	import type {Tome} from './tome.js';
+	import type {Library} from './library.svelte.ts';
+	import type {Tome} from './tome.ts';
 	import LibrarySummary from './LibrarySummary.svelte';
 
 	const {

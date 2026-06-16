@@ -5,8 +5,8 @@ import {
 	parse_csp_directive,
 	csp_directive_specs,
 	csp_directive_spec_by_name,
-} from '$lib/csp.js';
-import {src, srcs} from './csp_test_helpers.js';
+} from '$lib/csp.ts';
+import {src, srcs} from './csp_test_helpers.ts';
 
 const A = src('a.fuz.dev');
 

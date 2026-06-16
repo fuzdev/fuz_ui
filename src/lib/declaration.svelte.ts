@@ -9,8 +9,8 @@ import type {
 } from 'svelte-docinfo/types.js';
 import {generateImport, getDisplayName} from 'svelte-docinfo/declaration-helpers.js';
 
-import type {Module} from './module.svelte.js';
-import {url_github_file} from '@fuzdev/fuz_util/package_helpers.js';
+import type {Module} from './module.svelte.ts';
+import {url_github_file} from '@fuzdev/fuz_util/package_helpers.ts';
 
 // The `virtual:svelte-docinfo` module is serialized with svelte-docinfo's
 // `compactReplacer`, which strips empty default arrays — so the runtime data

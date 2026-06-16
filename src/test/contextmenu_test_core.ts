@@ -6,19 +6,19 @@
 import {describe, test, assert, afterEach} from 'vitest';
 import {flushSync} from 'svelte';
 
-import {contextmenu_attachment} from '$lib/contextmenu_state.svelte.js';
+import {contextmenu_attachment} from '$lib/contextmenu_state.svelte.ts';
 import {
 	unmount_component,
 	create_contextmenu_event,
 	create_mouse_event,
 	create_keyboard_event,
 	set_event_target,
-} from './test_helpers.js';
+} from './test_helpers.ts';
 import {
 	mount_contextmenu_root,
 	setup_contextmenu_attachment,
 	type SharedTestOptions,
-} from './contextmenu_test_helpers.js';
+} from './contextmenu_test_helpers.ts';
 
 export const create_shared_core_tests = (
 	Component: any,

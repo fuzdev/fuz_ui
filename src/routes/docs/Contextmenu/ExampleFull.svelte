@@ -9,20 +9,20 @@
 	import Details from '$lib/Details.svelte';
 	import GithubLink from '$lib/GithubLink.svelte';
 	import ContextmenuTextEntry from '$lib/ContextmenuTextEntry.svelte';
-	import CatContextmenu from '$routes/docs/Contextmenu/CatContextmenu.svelte';
-	import AppContextmenu from '$routes/docs/Contextmenu/AppContextmenu.svelte';
-	import HomeContextmenu from '$routes/docs/Contextmenu/HomeContextmenu.svelte';
-	import AdventureContextmenu from '$routes/docs/Contextmenu/AdventureContextmenu.svelte';
-	import CatView from '$routes/docs/Contextmenu/CatView.svelte';
-	import type {Cat, CatPosition, HistoryItem} from '$routes/docs/Contextmenu/helpers.js';
+	import CatContextmenu from './CatContextmenu.svelte';
+	import AppContextmenu from './AppContextmenu.svelte';
+	import HomeContextmenu from './HomeContextmenu.svelte';
+	import AdventureContextmenu from './AdventureContextmenu.svelte';
+	import CatView from './CatView.svelte';
+	import type {Cat, CatPosition, HistoryItem} from './helpers.ts';
 	import ColorSchemeInput from '$lib/ColorSchemeInput.svelte';
 	import ThemeInput from '$lib/ThemeInput.svelte';
 	import Dialog from '$lib/Dialog.svelte';
 	import DialogContent from '$lib/DialogContent.svelte';
-	import file_contents from '$routes/docs/Contextmenu/ExampleFull.svelte?raw';
+	import file_contents from './ExampleFull.svelte?raw';
 	import TomeSectionHeader from '$lib/TomeSectionHeader.svelte';
 	import TomeSection from '$lib/TomeSection.svelte';
-	import {selected_contextmenu_root_component_context} from '$routes/docs/Contextmenu/selected_root_component.svelte.js';
+	import {selected_contextmenu_root_component_context} from './selected_root_component.svelte.ts';
 
 	const selected = selected_contextmenu_root_component_context.get();
 	const ContextmenuRootComponent = $derived(selected.component);

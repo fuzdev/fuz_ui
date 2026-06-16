@@ -1,8 +1,8 @@
 <script lang="ts">
-	import {ensure_end} from '@fuzdev/fuz_util/string.js';
+	import {ensure_end} from '@fuzdev/fuz_util/string.ts';
 	import type {SvelteHTMLElements} from 'svelte/elements';
 
-	import type {SvgData} from './svg.js';
+	import type {SvgData} from './svg.ts';
 
 	/**
 	 * Renders an `SvgData` icon definition to inline `svg` markup, never via `@html`.

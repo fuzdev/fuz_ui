@@ -1,10 +1,10 @@
 <script lang="ts">
-	import {swallow} from '@fuzdev/fuz_util/dom.js';
-	import type {Theme} from '@fuzdev/fuz_css/theme.js';
-	import {default_themes} from '@fuzdev/fuz_css/themes.js';
+	import {swallow} from '@fuzdev/fuz_util/dom.ts';
+	import type {Theme} from '@fuzdev/fuz_css/theme.ts';
+	import {default_themes} from '@fuzdev/fuz_css/themes.ts';
 	import type {SvelteHTMLElements} from 'svelte/elements';
 
-	import {theme_state_context} from './theme_state.svelte.js';
+	import {theme_state_context} from './theme_state.svelte.ts';
 
 	const get_theme_state = theme_state_context.get();
 

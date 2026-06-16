@@ -3,9 +3,9 @@
 	import {DEV} from 'esm-env';
 	import type {SvelteHTMLElements} from 'svelte/elements';
 
-	import {tome_context, tome_to_title} from './tome.js';
+	import {tome_context, tome_to_title} from './tome.ts';
 	import Hashlink from './Hashlink.svelte';
-	import {docs_links_context, to_docs_path_info} from './docs_helpers.svelte.js';
+	import {docs_links_context, to_docs_path_info} from './docs_helpers.svelte.ts';
 
 	// eslint-disable-next-line @typescript-eslint/no-duplicate-type-constituents
 	const props: SvelteHTMLElements['h1'] | SvelteHTMLElements['h2'] = $props();

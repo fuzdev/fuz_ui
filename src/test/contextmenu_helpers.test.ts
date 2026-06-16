@@ -19,8 +19,8 @@ import {
 	contextmenu_resolve_popover_host,
 	CONTEXTMENU_DEFAULT_OPEN_OFFSET_X,
 	CONTEXTMENU_DEFAULT_OPEN_OFFSET_Y,
-} from '$lib/contextmenu_helpers.js';
-import {ContextmenuState, contextmenu_attachment} from '$lib/contextmenu_state.svelte.js';
+} from '$lib/contextmenu_helpers.ts';
+import {ContextmenuState, contextmenu_attachment} from '$lib/contextmenu_state.svelte.ts';
 import {
 	create_contextmenu_event,
 	create_keyboard_event,
@@ -28,8 +28,8 @@ import {
 	create_touch_event,
 	set_event_target,
 	set_event_time,
-} from './test_helpers.js';
-import {add_test_entry} from './contextmenu_state_test_helpers.js';
+} from './test_helpers.ts';
+import {add_test_entry} from './contextmenu_state_test_helpers.ts';
 
 describe('ContextmenuBypassTracker', () => {
 	const BYPASS_WINDOW = 750;

@@ -5,16 +5,16 @@
 	import {page} from '$app/state';
 
 	import Breadcrumb from './Breadcrumb.svelte';
-	import {Tome, tomes_context} from './tome.js';
+	import {Tome, tomes_context} from './tome.ts';
 	import DocsPrimaryNav from './DocsPrimaryNav.svelte';
 	import DocsSecondaryNav from './DocsSecondaryNav.svelte';
 	import DocsTertiaryNav from './DocsTertiaryNav.svelte';
 	import Dialog from './Dialog.svelte';
 	import DialogContent from './DialogContent.svelte';
 	import DocsFooter from './DocsFooter.svelte';
-	import {site_context} from './site.svelte.js';
-	import {FUZ_DEV_URL} from './constants.js';
-	import {DocsLinks, docs_links_context} from './docs_helpers.svelte.js';
+	import {site_context} from './site.svelte.ts';
+	import {FUZ_DEV_URL} from './constants.ts';
+	import {DocsLinks, docs_links_context} from './docs_helpers.svelte.ts';
 
 	const {
 		tomes,

@@ -10,7 +10,7 @@
 		section_depth_context,
 		section_id_context,
 	} from './TomeSection.svelte';
-	import {docs_links_context, docs_slugify, type DocsLinkTag} from './docs_helpers.svelte.js';
+	import {docs_links_context, docs_slugify, type DocsLinkTag} from './docs_helpers.svelte.ts';
 
 	const {
 		text,

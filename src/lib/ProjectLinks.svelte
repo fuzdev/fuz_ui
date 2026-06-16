@@ -1,6 +1,6 @@
 <script lang="ts">
 	import Svg from './Svg.svelte';
-	import type {SvgData} from './svg.js';
+	import type {SvgData} from './svg.ts';
 	import {
 		// TODO when fuz.dev is ready
 		// logo_fuz,
@@ -16,7 +16,7 @@
 		logo_fuz_docs,
 		logo_svelte_docinfo,
 		logo_fuz_app,
-	} from './logos.js';
+	} from './logos.ts';
 
 	// TODO refactor
 	interface ProjectItem {

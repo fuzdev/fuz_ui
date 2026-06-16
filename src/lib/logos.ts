@@ -1,4 +1,4 @@
-import type {SvgData} from './svg.js';
+import type {SvgData} from './svg.ts';
 
 // TODO these can be optimized during builds, helpers and gen files?
 

@@ -5,11 +5,11 @@
 	import Card from '$lib/Card.svelte';
 	import GithubLink from '$lib/GithubLink.svelte';
 	import ProjectLinks from '$lib/ProjectLinks.svelte';
-	import {site_context} from '$lib/site.svelte.js';
+	import {site_context} from '$lib/site.svelte.ts';
 	import Svg from '$lib/Svg.svelte';
-	import {logo_fuz_ui} from '$lib/logos.js';
-	import {FUZ_DEV_URL, MAIN_HEADER_MARGIN_TOP} from '$lib/constants.js';
-	import {DOCS_PATH} from '$lib/docs_helpers.svelte.js';
+	import {logo_fuz_ui} from '$lib/logos.ts';
+	import {FUZ_DEV_URL, MAIN_HEADER_MARGIN_TOP} from '$lib/constants.ts';
+	import {DOCS_PATH} from '$lib/docs_helpers.svelte.ts';
 
 	const site = site_context.get();
 </script>

@@ -1,5 +1,5 @@
-import type {Declaration} from './declaration.svelte.js';
-import type {ContextmenuParams} from './contextmenu_state.svelte.js';
+import type {Declaration} from './declaration.svelte.ts';
+import type {ContextmenuParams} from './contextmenu_state.svelte.ts';
 
 // TODO @many expand contextmenus for docs
 

@@ -1,9 +1,9 @@
 <script lang="ts">
 	import type {Snippet} from 'svelte';
 
-	import type {SvgData} from './svg.js';
+	import type {SvgData} from './svg.ts';
 	import ContextmenuEntry from './ContextmenuEntry.svelte';
-	import type {ContextmenuRun} from './contextmenu_state.svelte.js';
+	import type {ContextmenuRun} from './contextmenu_state.svelte.ts';
 
 	const {
 		run,

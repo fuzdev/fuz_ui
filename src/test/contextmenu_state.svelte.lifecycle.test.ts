@@ -1,7 +1,7 @@
 import {describe, test, assert, beforeEach} from 'vitest';
 
-import {ContextmenuState, EntryState} from '$lib/contextmenu_state.svelte.js';
-import {add_test_entry, add_test_submenu} from './contextmenu_state_test_helpers.js';
+import {ContextmenuState, EntryState} from '$lib/contextmenu_state.svelte.ts';
+import {add_test_entry, add_test_submenu} from './contextmenu_state_test_helpers.ts';
 
 describe('ContextmenuState - Lifecycle', () => {
 	let contextmenu: ContextmenuState;

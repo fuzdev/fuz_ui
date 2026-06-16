@@ -1,4 +1,4 @@
-import {create_context} from '$lib/context_helpers.js';
+import {create_context} from '$lib/context_helpers.ts';
 import ContextmenuRoot from '$lib/ContextmenuRoot.svelte';
 import ContextmenuRootForSafariCompatibility from '$lib/ContextmenuRootForSafariCompatibility.svelte';
 

@@ -1,6 +1,6 @@
-import type {StyleVariable} from '@fuzdev/fuz_css/variable.js';
+import type {StyleVariable} from '@fuzdev/fuz_css/variable.ts';
 
-import {create_context} from './context_helpers.js';
+import {create_context} from './context_helpers.ts';
 
 export const selected_variable_context = create_context(() => new SelectedStyleVariable(null));
 

@@ -1,7 +1,7 @@
 <script lang="ts">
 	import ContextmenuEntry from '$lib/ContextmenuEntry.svelte';
 	import ContextmenuSubmenu from '$lib/ContextmenuSubmenu.svelte';
-	import type {CatPosition, HistoryItem} from '$routes/docs/Contextmenu/helpers.js';
+	import type {CatPosition, HistoryItem} from './helpers.ts';
 
 	const {
 		name = 'Cat',

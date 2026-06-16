@@ -2,7 +2,7 @@
 	import type {SvelteHTMLElements} from 'svelte/elements';
 
 	import DocsMenu from './DocsMenu.svelte';
-	import {Tome} from './tome.js';
+	import {Tome} from './tome.ts';
 
 	const {
 		tomes,

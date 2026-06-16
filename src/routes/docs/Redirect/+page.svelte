@@ -1,7 +1,7 @@
 <script lang="ts">
 	import Code from '@fuzdev/fuz_code/Code.svelte';
 
-	import {tome_get_by_slug} from '$lib/tome.js';
+	import {tome_get_by_slug} from '$lib/tome.ts';
 	import Redirect from '$lib/Redirect.svelte';
 	import MdnLink from '$lib/MdnLink.svelte';
 	import TomeContent from '$lib/TomeContent.svelte';

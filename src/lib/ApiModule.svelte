@@ -5,10 +5,10 @@
 		mdz_code_context,
 		mdz_codeblock_context,
 		mdz_set_context_with_fallback,
-	} from '@fuzdev/mdz/mdz_contexts.js';
+	} from '@fuzdev/mdz/mdz_contexts.ts';
 
-	import {set_library_context_with_fallback, type Library} from './library.svelte.js';
-	import {tome_get_by_slug, type Tome} from './tome.js';
+	import {set_library_context_with_fallback, type Library} from './library.svelte.ts';
+	import {tome_get_by_slug, type Tome} from './tome.ts';
 	import TomeContent from './TomeContent.svelte';
 	import TomeSection from './TomeSection.svelte';
 	import TomeSectionHeader from './TomeSectionHeader.svelte';
@@ -17,7 +17,7 @@
 	import DocsLink from './DocsLink.svelte';
 	import DeclarationLink from './DeclarationLink.svelte';
 	import ApiDeclarationList from './ApiDeclarationList.svelte';
-	import {create_module_declaration_search} from './api_search.svelte.js';
+	import {create_module_declaration_search} from './api_search.svelte.ts';
 
 	const {
 		module_path: module_path_param,

@@ -6,14 +6,14 @@
 	import TomeContent from '$lib/TomeContent.svelte';
 	import TomeSection from '$lib/TomeSection.svelte';
 	import TomeSectionHeader from '$lib/TomeSectionHeader.svelte';
-	import {tome_get_by_slug} from '$lib/tome.js';
+	import {tome_get_by_slug} from '$lib/tome.ts';
 	import Dialog from '$lib/Dialog.svelte';
 	import DialogContent from '$lib/DialogContent.svelte';
 	import TomeLink from '$lib/TomeLink.svelte';
 	import MdnLink from '$lib/MdnLink.svelte';
 	import DeclarationLink from '$lib/DeclarationLink.svelte';
-	import {dialog_aligns, type DialogAlign} from '$lib/dialog.js';
-	import {icon_remove} from '$lib/icons.js';
+	import {dialog_aligns, type DialogAlign} from '$lib/dialog.ts';
+	import {icon_remove} from '$lib/icons.ts';
 	import Svg from '$lib/Svg.svelte';
 
 	const TOME_SLUG = 'Dialog';

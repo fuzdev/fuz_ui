@@ -164,7 +164,7 @@ Library metadata is built at runtime from two virtual modules. The
 `virtual:svelte-docinfo`, and `vite_plugin_pkg_json` exposes the curated,
 publish-safe `package.json` subset through `virtual:pkg.json`. The app's
 `src/routes/library.ts` combines them via `library_json_from_modules` (from
-`@fuzdev/fuz_util/library_json.js`) to construct the `LibraryJson`;
+`@fuzdev/fuz_util/library_json.ts`) to construct the `LibraryJson`;
 `+layout.svelte` separately uses `virtual:pkg.json` for `SiteState`.
 
 The served `pkg_json` field set defaults to `pkg_json_keys`. To widen it, pass
@@ -173,7 +173,7 @@ a `keys` list to both `vite_plugin_pkg_json` (build-time strip) and
 re-strip drops the extras. See the `vite_plugin_pkg_json` tome for the pattern.
 
 - `vite_plugin_pkg_json.ts` - Vite plugin serving `virtual:pkg.json` (curated
-  `PkgJson` from `@fuzdev/fuz_util/pkg_json.js`)
+  `PkgJson` from `@fuzdev/fuz_util/pkg_json.ts`)
 - `library.svelte.ts` - `Library` class wrapping library data
 - `declaration.svelte.ts` - `Declaration` class for code declarations (uses
   `generateImport`, `getDisplayName` from `svelte-docinfo/declaration-helpers.js`)

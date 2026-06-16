@@ -2,10 +2,10 @@
 	import Code from '@fuzdev/fuz_code/Code.svelte';
 
 	import GithubLink from '$lib/GithubLink.svelte';
-	import {tome_get_by_slug} from '$lib/tome.js';
+	import {tome_get_by_slug} from '$lib/tome.ts';
 	import TomeContent from '$lib/TomeContent.svelte';
 	import MdnLink from '$lib/MdnLink.svelte';
-	import {csp_directive_specs} from '$lib/csp.js';
+	import {csp_directive_specs} from '$lib/csp.ts';
 	import TomeSectionHeader from '$lib/TomeSectionHeader.svelte';
 	import TomeSection from '$lib/TomeSection.svelte';
 	import DeclarationLink from '$lib/DeclarationLink.svelte';

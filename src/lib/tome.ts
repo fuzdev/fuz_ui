@@ -1,10 +1,10 @@
 import {resolve} from '$app/paths';
 import type {Component} from 'svelte';
 import {z} from 'zod';
-import {ensure_start} from '@fuzdev/fuz_util/string.js';
+import {ensure_start} from '@fuzdev/fuz_util/string.ts';
 
-import {create_context} from './context_helpers.js';
-import {DOCS_PATH_DEFAULT} from './docs_helpers.svelte.js';
+import {create_context} from './context_helpers.ts';
+import {DOCS_PATH_DEFAULT} from './docs_helpers.svelte.ts';
 
 export const tomes_context = create_context<() => Map<string, Tome>>();
 

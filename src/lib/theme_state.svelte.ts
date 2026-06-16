@@ -1,9 +1,9 @@
-import {color_schemes, type ColorScheme, type Theme} from '@fuzdev/fuz_css/theme.js';
-import {default_themes} from '@fuzdev/fuz_css/themes.js';
+import {color_schemes, type ColorScheme, type Theme} from '@fuzdev/fuz_css/theme.ts';
+import {default_themes} from '@fuzdev/fuz_css/themes.ts';
 import {BROWSER} from 'esm-env';
 
-import {create_context} from './context_helpers.js';
-import {load_from_storage, save_to_storage} from './storage.js';
+import {create_context} from './context_helpers.ts';
+import {load_from_storage, save_to_storage} from './storage.ts';
 
 export interface ThemeStateJson {
 	theme: Theme;

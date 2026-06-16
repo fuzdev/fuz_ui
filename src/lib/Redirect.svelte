@@ -1,6 +1,6 @@
 <script lang="ts">
 	import {page} from '$app/state';
-	import {strip_start} from '@fuzdev/fuz_util/string.js';
+	import {strip_start} from '@fuzdev/fuz_util/string.ts';
 	import {goto} from '$app/navigation';
 	import {onMount, type Snippet} from 'svelte';
 

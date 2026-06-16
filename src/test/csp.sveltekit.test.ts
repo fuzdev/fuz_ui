@@ -1,9 +1,9 @@
 import {test, assert, describe} from 'vitest';
 import type {KitConfig} from '@sveltejs/kit';
-import type {Defined} from '@fuzdev/fuz_util/types.js';
+import type {Defined} from '@fuzdev/fuz_util/types.ts';
 
-import {create_csp_directives, type CspDirectives} from '$lib/csp.js';
-import {src} from './csp_test_helpers.js';
+import {create_csp_directives, type CspDirectives} from '$lib/csp.ts';
+import {src} from './csp_test_helpers.ts';
 
 // SvelteKit-specific tests only — real-world scenarios (Stripe, analytics, Google Fonts,
 // CDN, hash/nonce) and conditional patterns are covered in csp.integration.test.ts.

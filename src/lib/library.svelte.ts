@@ -1,10 +1,10 @@
-import type {LibraryJson} from '@fuzdev/fuz_util/library_json.js';
-import {ensure_start, strip_end} from '@fuzdev/fuz_util/string.js';
-import type {Url} from '@fuzdev/fuz_util/url.js';
+import type {LibraryJson} from '@fuzdev/fuz_util/library_json.ts';
+import {ensure_start, strip_end} from '@fuzdev/fuz_util/string.ts';
+import type {Url} from '@fuzdev/fuz_util/url.ts';
 
-import {create_context} from './context_helpers.js';
-import {Declaration} from './declaration.svelte.js';
-import {Module} from './module.svelte.js';
+import {create_context} from './context_helpers.ts';
+import {Declaration} from './declaration.svelte.ts';
+import {Module} from './module.svelte.ts';
 import {
 	package_is_published,
 	repo_name_parse,
@@ -13,7 +13,7 @@ import {
 	url_github_file,
 	url_logo,
 	url_npm_package,
-} from '@fuzdev/fuz_util/package_helpers.js';
+} from '@fuzdev/fuz_util/package_helpers.ts';
 
 /**
  * Holds a getter to the active `Library` for the current subtree.

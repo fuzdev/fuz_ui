@@ -1,10 +1,10 @@
 <script lang="ts">
-	import {ensure_start, strip_start} from '@fuzdev/fuz_util/string.js';
+	import {ensure_start, strip_start} from '@fuzdev/fuz_util/string.ts';
 	import type {SvelteHTMLElements} from 'svelte/elements';
 	import {DEV} from 'esm-env';
 
 	import Svg from './Svg.svelte';
-	import {logo_github} from './logos.js';
+	import {logo_github} from './logos.ts';
 
 	const {
 		path,

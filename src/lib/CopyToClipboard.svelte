@@ -1,10 +1,10 @@
 <script lang="ts">
-	import type {OmitStrict} from '@fuzdev/fuz_util/types.js';
+	import type {OmitStrict} from '@fuzdev/fuz_util/types.ts';
 	import type {Snippet} from 'svelte';
 	import type {SvelteHTMLElements} from 'svelte/elements';
 	import {scale, slide} from 'svelte/transition';
 
-	import {icon_checkmark, icon_copy} from './icons.js';
+	import {icon_checkmark, icon_copy} from './icons.ts';
 	import Svg from './Svg.svelte';
 
 	// TODO @many should this have the Button suffix?

@@ -1,5 +1,5 @@
 <script lang="ts">
-	import type {Module} from './module.svelte.js';
+	import type {Module} from './module.svelte.ts';
 	import ModuleLink from './ModuleLink.svelte';
 	import TomeSection from './TomeSection.svelte';
 	import TomeSectionHeader from './TomeSectionHeader.svelte';

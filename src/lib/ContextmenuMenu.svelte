@@ -13,13 +13,13 @@
 	 * the roots own gesture detection, i.e. how the menu opens. Holds no gesture
 	 * state of its own; the `open_guard` it consults is owned and armed by the root.
 	 */
-	import {swallow} from '@fuzdev/fuz_util/dom.js';
+	import {swallow} from '@fuzdev/fuz_util/dom.ts';
 	import type {ComponentProps, Snippet} from 'svelte';
 
 	import {
 		contextmenu_dimensions_context,
 		type ContextmenuState,
-	} from './contextmenu_state.svelte.js';
+	} from './contextmenu_state.svelte.ts';
 	import ContextmenuLinkEntry from './ContextmenuLinkEntry.svelte';
 	import ContextmenuTextEntry from './ContextmenuTextEntry.svelte';
 	import ContextmenuSeparator from './ContextmenuSeparator.svelte';
@@ -31,7 +31,7 @@
 		contextmenu_calculate_constrained_y,
 		contextmenu_popover_attachment,
 		type ContextmenuOpenGuard,
-	} from './contextmenu_helpers.js';
+	} from './contextmenu_helpers.ts';
 
 	let {
 		contextmenu,

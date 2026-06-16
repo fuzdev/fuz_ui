@@ -1,16 +1,16 @@
 <script lang="ts">
 	import Code from '@fuzdev/fuz_code/Code.svelte';
 	import {slide} from 'svelte/transition';
-	import {swallow} from '@fuzdev/fuz_util/dom.js';
+	import {swallow} from '@fuzdev/fuz_util/dom.ts';
 
 	import ContextmenuEntry from '$lib/ContextmenuEntry.svelte';
 	import ContextmenuSubmenu from '$lib/ContextmenuSubmenu.svelte';
 	import Contextmenu from '$lib/Contextmenu.svelte';
-	import {ContextmenuState} from '$lib/contextmenu_state.svelte.js';
+	import {ContextmenuState} from '$lib/contextmenu_state.svelte.ts';
 	import TomeSectionHeader from '$lib/TomeSectionHeader.svelte';
 	import TomeSection from '$lib/TomeSection.svelte';
 	import Glyph from '$lib/Glyph.svelte';
-	import {selected_contextmenu_root_component_context} from '$routes/docs/Contextmenu/selected_root_component.svelte.js';
+	import {selected_contextmenu_root_component_context} from './selected_root_component.svelte.ts';
 
 	const selected = selected_contextmenu_root_component_context.get();
 	const ContextmenuRootComponent = $derived(selected.component);

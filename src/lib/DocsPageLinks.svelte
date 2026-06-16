@@ -4,7 +4,7 @@
 	import type {SvelteHTMLElements} from 'svelte/elements';
 
 	import DocsList from './DocsList.svelte';
-	import {docs_links_context} from './docs_helpers.svelte.js';
+	import {docs_links_context} from './docs_helpers.svelte.ts';
 
 	const {
 		sidebar = true,

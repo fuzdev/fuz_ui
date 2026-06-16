@@ -2,7 +2,7 @@
 	import type {Snippet} from 'svelte';
 	import type {SvelteHTMLElements} from 'svelte/elements';
 
-	import {contextmenu_attachment} from './contextmenu_state.svelte.js';
+	import {contextmenu_attachment} from './contextmenu_state.svelte.ts';
 
 	/* eslint-disable @typescript-eslint/no-unnecessary-type-assertion */
 

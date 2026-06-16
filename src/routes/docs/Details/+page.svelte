@@ -3,7 +3,7 @@
 
 	import TomeContent from '$lib/TomeContent.svelte';
 	import Details from '$lib/Details.svelte';
-	import {tome_get_by_slug} from '$lib/tome.js';
+	import {tome_get_by_slug} from '$lib/tome.ts';
 	import MdnLink from '$lib/MdnLink.svelte';
 	import TomeSectionHeader from '$lib/TomeSectionHeader.svelte';
 	import TomeSection from '$lib/TomeSection.svelte';

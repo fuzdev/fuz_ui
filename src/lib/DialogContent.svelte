@@ -2,8 +2,8 @@
 	import type {Snippet} from 'svelte';
 	import type {HTMLAttributes, SvelteHTMLElements} from 'svelte/elements';
 
-	import {dialog_context, type DialogContext, type DialogCloseButtonAttrs} from './dialog.js';
-	import {icon_close} from './icons.js';
+	import {dialog_context, type DialogContext, type DialogCloseButtonAttrs} from './dialog.ts';
+	import {icon_close} from './icons.ts';
 	import Svg from './Svg.svelte';
 
 	/**

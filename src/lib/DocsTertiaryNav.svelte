@@ -3,9 +3,9 @@
 	import type {SvelteHTMLElements} from 'svelte/elements';
 
 	import DocsPageLinks from './DocsPageLinks.svelte';
-	import {tome_to_pathname, Tome} from './tome.js';
-	import {docs_links_context} from './docs_helpers.svelte.js';
-	import {library_context} from './library.svelte.js';
+	import {tome_to_pathname, Tome} from './tome.ts';
+	import {docs_links_context} from './docs_helpers.svelte.ts';
+	import {library_context} from './library.svelte.ts';
 	import TomeLink from './TomeLink.svelte';
 	import ModuleLink from './ModuleLink.svelte';
 	import DeclarationLink from './DeclarationLink.svelte';

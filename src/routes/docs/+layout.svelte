@@ -2,13 +2,13 @@
 	import type {Snippet} from 'svelte';
 
 	import Docs from '$lib/Docs.svelte';
-	import {tomes} from '$routes/docs/tomes.js';
-	import {selected_variable_context} from '$lib/style_variable_helpers.svelte.js';
+	import {tomes} from './tomes.ts';
+	import {selected_variable_context} from '$lib/style_variable_helpers.svelte.ts';
 	import StyleVariableDetail from '$routes/StyleVariableDetail.svelte';
 	import Dialog from '$lib/Dialog.svelte';
 	import DialogContent from '$lib/DialogContent.svelte';
-	import {Library, library_context} from '$lib/library.svelte.js';
-	import {library_json} from '$routes/library.js';
+	import {Library, library_context} from '$lib/library.svelte.ts';
+	import {library_json} from '$routes/library.ts';
 
 	const {
 		children,

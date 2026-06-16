@@ -3,7 +3,7 @@
  */
 import {vi} from 'vitest';
 
-import {create_shared_edge_case_tests} from './contextmenu_test_edge_cases.js';
+import {create_shared_edge_case_tests} from './contextmenu_test_edge_cases.ts';
 import ContextmenuRootForSafariCompatibility from '$lib/ContextmenuRootForSafariCompatibility.svelte';
 
 // ResizeObserver is not currently available in jsdom

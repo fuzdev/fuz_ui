@@ -1,7 +1,7 @@
 <script lang="ts">
 	import type {SvelteHTMLElements} from 'svelte/elements';
 
-	import {icon_close} from './icons.js';
+	import {icon_close} from './icons.ts';
 	import Svg from './Svg.svelte';
 
 	let {

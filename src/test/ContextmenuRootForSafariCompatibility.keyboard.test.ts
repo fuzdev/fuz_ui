@@ -3,7 +3,7 @@
  */
 import {vi} from 'vitest';
 
-import {create_shared_keyboard_tests} from './contextmenu_test_keyboard.js';
+import {create_shared_keyboard_tests} from './contextmenu_test_keyboard.ts';
 import ContextmenuRootForSafariCompatibility from '$lib/ContextmenuRootForSafariCompatibility.svelte';
 
 // ResizeObserver is not currently available in jsdom

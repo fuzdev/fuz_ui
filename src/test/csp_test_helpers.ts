@@ -1,4 +1,4 @@
-import type {CspSource} from '$lib/csp.js';
+import type {CspSource} from '$lib/csp.ts';
 
 /**
  * Casts a string to `CspSource` for tests. The `CspSource` template-literal

@@ -5,8 +5,8 @@ import {
 	EntryState,
 	SubmenuState,
 	RootMenuState,
-} from '$lib/contextmenu_state.svelte.js';
-import {add_test_entry} from './contextmenu_state_test_helpers.js';
+} from '$lib/contextmenu_state.svelte.ts';
+import {add_test_entry} from './contextmenu_state_test_helpers.ts';
 
 describe('ContextmenuState - Edge Cases', () => {
 	let contextmenu: ContextmenuState;

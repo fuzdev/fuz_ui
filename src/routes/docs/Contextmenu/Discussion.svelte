@@ -3,7 +3,7 @@
 	import TomeSectionHeader from '$lib/TomeSectionHeader.svelte';
 	import TomeSection from '$lib/TomeSection.svelte';
 	import DeclarationLink from '$lib/DeclarationLink.svelte';
-	import RootComponentSelector from '$routes/docs/Contextmenu/RootComponentSelector.svelte';
+	import RootComponentSelector from './RootComponentSelector.svelte';
 </script>
 
 <TomeSection>

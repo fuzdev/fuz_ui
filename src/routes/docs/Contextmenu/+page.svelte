@@ -1,15 +1,15 @@
 <script lang="ts">
 	import TomeContent from '$lib/TomeContent.svelte';
-	import {tome_get_by_slug} from '$lib/tome.js';
-	import Introduction from '$routes/docs/Contextmenu/Introduction.svelte';
-	import Discussion from '$routes/docs/Contextmenu/Discussion.svelte';
-	import ExampleFull from '$routes/docs/Contextmenu/ExampleFull.svelte';
-	import ExampleBasic from '$routes/docs/Contextmenu/ExampleBasic.svelte';
-	import ExampleCustomInstance from '$routes/docs/Contextmenu/ExampleCustomInstance.svelte';
-	import ExampleSelectText from '$routes/docs/Contextmenu/ExampleSelectText.svelte';
-	import ExampleDisableDefaultBehaviors from '$routes/docs/Contextmenu/ExampleDisableDefaultBehaviors.svelte';
-	import ExampleDefaultBehaviors from '$routes/docs/Contextmenu/ExampleDefaultBehaviors.svelte';
-	import {selected_contextmenu_root_component_context} from '$routes/docs/Contextmenu/selected_root_component.svelte.js';
+	import {tome_get_by_slug} from '$lib/tome.ts';
+	import Introduction from './Introduction.svelte';
+	import Discussion from './Discussion.svelte';
+	import ExampleFull from './ExampleFull.svelte';
+	import ExampleBasic from './ExampleBasic.svelte';
+	import ExampleCustomInstance from './ExampleCustomInstance.svelte';
+	import ExampleSelectText from './ExampleSelectText.svelte';
+	import ExampleDisableDefaultBehaviors from './ExampleDisableDefaultBehaviors.svelte';
+	import ExampleDefaultBehaviors from './ExampleDefaultBehaviors.svelte';
+	import {selected_contextmenu_root_component_context} from './selected_root_component.svelte.ts';
 
 	const TOME_SLUG = 'Contextmenu';
 

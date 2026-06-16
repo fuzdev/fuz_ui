@@ -1,11 +1,11 @@
 <script lang="ts">
 	import Code from '@fuzdev/fuz_code/Code.svelte';
-	import {tome_get_by_slug} from '$lib/tome.js';
+	import {tome_get_by_slug} from '$lib/tome.ts';
 	import TomeContent from '$lib/TomeContent.svelte';
 	import TomeLink from '$lib/TomeLink.svelte';
-	import type {SvgData} from '$lib/svg.js';
+	import type {SvgData} from '$lib/svg.ts';
 	import Svg from '$lib/Svg.svelte';
-	import * as icons from '$lib/icons.js';
+	import * as icons from '$lib/icons.ts';
 
 	const tome = tome_get_by_slug('icons');
 

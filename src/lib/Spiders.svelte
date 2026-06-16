@@ -6,12 +6,12 @@
 </script>
 
 <script lang="ts">
-	import {random_int, shuffle} from '@fuzdev/fuz_util/random.js';
-	import {create_random_alea} from '@fuzdev/fuz_util/random_alea.js';
+	import {random_int, shuffle} from '@fuzdev/fuz_util/random.ts';
+	import {create_random_alea} from '@fuzdev/fuz_util/random_alea.ts';
 	import type {SvelteHTMLElements} from 'svelte/elements';
 
 	import Svg from './Svg.svelte';
-	import {logo_fuz} from './logos.js';
+	import {logo_fuz} from './logos.ts';
 
 	const {
 		spiders = [

@@ -1,7 +1,7 @@
 <script lang="ts">
 	import type {SvelteHTMLElements} from 'svelte/elements';
 
-	import {FUZ_DEV_URL} from './constants.js';
+	import {FUZ_DEV_URL} from './constants.ts';
 
 	const {
 		selected,

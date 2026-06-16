@@ -4,9 +4,9 @@
 import {describe, test, assert, afterEach, vi} from 'vitest';
 import {flushSync} from 'svelte';
 
-import {create_shared_edge_case_tests} from './contextmenu_test_edge_cases.js';
+import {create_shared_edge_case_tests} from './contextmenu_test_edge_cases.ts';
 import ContextmenuRoot from '$lib/ContextmenuRoot.svelte';
-import {contextmenu_attachment} from '$lib/contextmenu_state.svelte.js';
+import {contextmenu_attachment} from '$lib/contextmenu_state.svelte.ts';
 import {
 	unmount_component,
 	create_contextmenu_event,
@@ -15,8 +15,8 @@ import {
 	create_touch_event,
 	set_event_target,
 	set_event_time,
-} from './test_helpers.js';
-import {mount_contextmenu_root} from './contextmenu_test_helpers.js';
+} from './test_helpers.ts';
+import {mount_contextmenu_root} from './contextmenu_test_helpers.ts';
 
 // ResizeObserver is not currently available in jsdom
 class ResizeObserverMock {

@@ -1,5 +1,5 @@
 <script lang="ts">
-	import type {Declaration} from './declaration.svelte.js';
+	import type {Declaration} from './declaration.svelte.ts';
 	import DeclarationDetail from './DeclarationDetail.svelte';
 	import TomeSection from './TomeSection.svelte';
 	import TomeSectionHeader from './TomeSectionHeader.svelte';

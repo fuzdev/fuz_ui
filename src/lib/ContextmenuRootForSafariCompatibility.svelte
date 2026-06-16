@@ -17,7 +17,7 @@
 	 * Otherwise, use the default `ContextmenuRoot.svelte` which is much simpler
 	 * and relies on the standard `contextmenu` event.
 	 */
-	import {swallow} from '@fuzdev/fuz_util/dom.js';
+	import {swallow} from '@fuzdev/fuz_util/dom.ts';
 	import {on} from 'svelte/events';
 
 	import {
@@ -25,7 +25,7 @@
 		ContextmenuState,
 		contextmenu_open,
 		contextmenu_check_global_root,
-	} from './contextmenu_state.svelte.js';
+	} from './contextmenu_state.svelte.ts';
 	import ContextmenuMenu, {
 		link_entry_default,
 		text_entry_default,
@@ -43,7 +43,7 @@
 		ContextmenuBypassTracker,
 		ContextmenuOpenGuard,
 		type ContextmenuRootBaseProps,
-	} from './contextmenu_helpers.js';
+	} from './contextmenu_helpers.ts';
 
 	const {
 		contextmenu = new ContextmenuState(),

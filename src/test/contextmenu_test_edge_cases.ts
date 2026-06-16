@@ -5,12 +5,12 @@
 
 import {describe, test, assert, afterEach} from 'vitest';
 import {flushSync} from 'svelte';
-import {unmount_component, create_contextmenu_event, set_event_target} from './test_helpers.js';
+import {unmount_component, create_contextmenu_event, set_event_target} from './test_helpers.ts';
 import {
 	mount_contextmenu_root,
 	setup_contextmenu_attachment,
 	type SharedTestOptions,
-} from './contextmenu_test_helpers.js';
+} from './contextmenu_test_helpers.ts';
 
 export const create_shared_edge_case_tests = (
 	Component: any,

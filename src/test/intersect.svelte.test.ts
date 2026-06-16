@@ -4,7 +4,7 @@
 import {test, assert, describe, beforeEach, afterEach, vi} from 'vitest';
 import {flushSync} from 'svelte';
 
-import {intersect} from '$lib/intersect.svelte.js';
+import {intersect} from '$lib/intersect.svelte.ts';
 
 // Mock IntersectionObserver
 let observer_callback: IntersectionObserverCallback | null = null;

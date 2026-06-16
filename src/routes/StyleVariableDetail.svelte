@@ -1,5 +1,5 @@
 <script lang="ts">
-	import type {StyleVariable} from '@fuzdev/fuz_css/variable.js';
+	import type {StyleVariable} from '@fuzdev/fuz_css/variable.ts';
 
 	const {
 		variable,

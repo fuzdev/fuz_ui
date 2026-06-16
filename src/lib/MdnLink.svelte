@@ -1,9 +1,9 @@
 <script lang="ts">
-	import {ensure_start, strip_end, strip_start} from '@fuzdev/fuz_util/string.js';
+	import {ensure_start, strip_end, strip_start} from '@fuzdev/fuz_util/string.ts';
 	import type {SvelteHTMLElements} from 'svelte/elements';
 
 	import Svg from './Svg.svelte';
-	import {logo_mdn} from './logos.js';
+	import {logo_mdn} from './logos.ts';
 
 	const {
 		path,

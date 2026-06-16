@@ -1,5 +1,5 @@
 <script lang="ts">
-	import {is_iframed} from '@fuzdev/fuz_util/dom.js';
+	import {is_iframed} from '@fuzdev/fuz_util/dom.ts';
 	import type {Snippet} from 'svelte';
 	import {scrollY} from 'svelte/reactivity/window';
 	import type {SvelteHTMLElements} from 'svelte/elements';

@@ -1,5 +1,5 @@
 <script lang="ts">
-	import type {Hue} from '@fuzdev/fuz_util/colors.js';
+	import type {Hue} from '@fuzdev/fuz_util/colors.ts';
 	import type {Snippet} from 'svelte';
 	import type {SvelteHTMLElements} from 'svelte/elements';
 

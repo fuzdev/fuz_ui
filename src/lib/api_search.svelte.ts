@@ -1,6 +1,6 @@
-import type {Declaration} from './declaration.svelte.js';
-import type {Library} from './library.svelte.js';
-import type {Module} from './module.svelte.js';
+import type {Declaration} from './declaration.svelte.ts';
+import type {Library} from './library.svelte.ts';
+import type {Module} from './module.svelte.ts';
 
 export interface DeclarationSearchState {
 	query: string;

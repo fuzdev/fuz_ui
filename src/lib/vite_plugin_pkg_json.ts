@@ -21,7 +21,7 @@
  *
  * ```ts
  * // vite.config.ts
- * import {vite_plugin_pkg_json} from '@fuzdev/fuz_ui/vite_plugin_pkg_json.js';
+ * import {vite_plugin_pkg_json} from '@fuzdev/fuz_ui/vite_plugin_pkg_json.ts';
  * export default defineConfig({plugins: [vite_plugin_pkg_json(), sveltekit()]});
  * ```
  *
@@ -34,7 +34,7 @@
  *
  * ```ts
  * // src/routes/pkg_json_keys.ts
- * import {pkg_json_keys} from '@fuzdev/fuz_util/pkg_json.js';
+ * import {pkg_json_keys} from '@fuzdev/fuz_util/pkg_json.ts';
  * export const pkg_json_keys_custom = [...pkg_json_keys, 'keywords'] as const;
  *
  * // vite.config.ts        → vite_plugin_pkg_json({keys: pkg_json_keys_custom})
@@ -47,8 +47,8 @@
 import {readFileSync} from 'node:fs';
 import {join} from 'node:path';
 import type {Plugin, Rollup} from 'vite';
-import type {PackageJson} from '@fuzdev/fuz_util/package_json.js';
-import {pkg_json_from_package_json, pkg_json_keys} from '@fuzdev/fuz_util/pkg_json.js';
+import type {PackageJson} from '@fuzdev/fuz_util/package_json.ts';
+import {pkg_json_from_package_json, pkg_json_keys} from '@fuzdev/fuz_util/pkg_json.ts';
 
 const VIRTUAL_ID = 'virtual:pkg.json';
 /**

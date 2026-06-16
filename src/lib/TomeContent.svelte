@@ -5,9 +5,9 @@
 	import {resolve} from '$app/paths';
 
 	import TomeHeader from './TomeHeader.svelte';
-	import {tome_context, type Tome} from './tome.js';
-	import {DOCS_PATH_DEFAULT, docs_links_context} from './docs_helpers.svelte.js';
-	import {intersect} from './intersect.svelte.js';
+	import {tome_context, type Tome} from './tome.ts';
+	import {DOCS_PATH_DEFAULT, docs_links_context} from './docs_helpers.svelte.ts';
+	import {intersect} from './intersect.svelte.ts';
 
 	const {
 		tome,

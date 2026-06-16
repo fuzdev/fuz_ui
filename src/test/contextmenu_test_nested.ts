@@ -11,13 +11,13 @@ import {
 	create_contextmenu_event,
 	create_touch_event,
 	set_event_target,
-} from './test_helpers.js';
+} from './test_helpers.ts';
 import {
 	mount_contextmenu_root,
 	setup_contextmenu_attachment,
 	type SharedTestOptions,
-} from './contextmenu_test_helpers.js';
-import {CONTEXTMENU_DEFAULT_LONGPRESS_DURATION} from '$lib/contextmenu_helpers.js';
+} from './contextmenu_test_helpers.ts';
+import {CONTEXTMENU_DEFAULT_LONGPRESS_DURATION} from '$lib/contextmenu_helpers.ts';
 
 export const create_shared_nested_tests = (
 	Component: any,

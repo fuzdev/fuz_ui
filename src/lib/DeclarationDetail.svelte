@@ -12,15 +12,15 @@ including parameters, props, members, overloads, intersects, and more.
 <script lang="ts">
 	import Code from '@fuzdev/fuz_code/Code.svelte';
 	import Mdz from '@fuzdev/mdz/Mdz.svelte';
-	import {mdz_from_tsdoc} from '@fuzdev/mdz/tsdoc_mdz.js';
+	import {mdz_from_tsdoc} from '@fuzdev/mdz/tsdoc_mdz.ts';
 	import {
 		mdz_code_context,
 		mdz_codeblock_context,
 		mdz_set_context_with_fallback,
-	} from '@fuzdev/mdz/mdz_contexts.js';
+	} from '@fuzdev/mdz/mdz_contexts.ts';
 	import type {ParameterJsonInput} from 'svelte-docinfo/types.js';
 
-	import type {Declaration} from './declaration.svelte.js';
+	import type {Declaration} from './declaration.svelte.ts';
 	import TypeLink from './TypeLink.svelte';
 	import ModuleLink from './ModuleLink.svelte';
 	import DocsLink from './DocsLink.svelte';
