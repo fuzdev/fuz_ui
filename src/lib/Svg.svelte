@@ -30,7 +30,7 @@
 	const {
 		data,
 		fill,
-		size = 'var(--font_size, auto)',
+		size = 'var(--font_size, 1em)',
 		width,
 		height,
 		label,
