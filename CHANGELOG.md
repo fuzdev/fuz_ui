@@ -1,5 +1,11 @@
 # @fuzdev/fuz_ui
 
+## 0.205.4
+
+### Patch Changes
+
+- fix: revert `Svg` size change ([fd14472](https://github.com/fuzdev/fuz_ui/commit/fd14472))
+
 ## 0.205.3
 
 ### Patch Changes
