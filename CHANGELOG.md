@@ -1,5 +1,11 @@
 # @fuzdev/fuz_ui
 
+## 0.205.3
+
+### Patch Changes
+
+- fix: bump gro to fix published imports ([419bf30](https://github.com/fuzdev/fuz_ui/commit/419bf30))
+
 ## 0.205.2
 
 ### Patch Changes
