@@ -1,5 +1,11 @@
 # @fuzdev/fuz_ui
 
+## 0.205.2
+
+### Patch Changes
+
+- fix: `Svg` fallback size ([fe436a7](https://github.com/fuzdev/fuz_ui/commit/fe436a7))
+
 ## 0.205.1
 
 ### Patch Changes
