@@ -1,1 +1,0 @@
-import{an as s,ao as a}from"./Du9vwFlh.js";function u(e){const o=Symbol(),n=()=>{const t=a(o);return t===void 0?e?.():t};return{get:t=>{const r=n();if(r===void 0)throw Error(t??"context value is not set");return r},get_maybe:n,set:(t=e?.())=>s(o,t)}}export{u as c};

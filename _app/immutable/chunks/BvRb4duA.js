@@ -1,1 +1,0 @@
-import{z as v,E as y,B as l,A as o,C as T,F as f,G as p,H as A,I as i,J as m,K as E}from"./Du9vwFlh.js";function g(d,_,e){var s;o&&(s=E,T());var r=new l(d);v(()=>{var a=_()??null;if(o){var h=f(s),c=h===m,u=a!==null;if(c!==u){var t=p();A(t),r.anchor=t,i(!1),r.ensure(a,a&&(n=>e(n,a))),i(!0);return}}r.ensure(a,a&&(n=>e(n,a)))},y)}export{g as c};
