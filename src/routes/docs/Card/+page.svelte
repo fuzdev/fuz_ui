@@ -103,25 +103,21 @@
 	<section>
 		<Code
 			content={`<Card align="above">
-  align<br />
-  icon above
+  align icon above
 </Card>`}
 		/>
 		<Card align="above">
-			align<br />
-			icon above
+			align icon above
 		</Card>
 	</section>
 	<section>
 		<Code
 			content={`<Card align="below">
-  align<br />
-  icon below
+  align icon below
 </Card>`}
 		/>
 		<Card align="below">
-			align<br />
-			icon below
+			align icon below
 		</Card>
 	</section>
 </TomeContent>
