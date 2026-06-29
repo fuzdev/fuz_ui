@@ -1,1 +1,0 @@
-import{t as e}from"../chunks/CyrHtPoF2.js";export{e as component};
