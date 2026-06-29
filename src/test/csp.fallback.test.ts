@@ -43,7 +43,9 @@ describe('directive spec fallback relationships', () => {
 					assert.ok(fallback_spec);
 					assert.ok(
 						fallback_spec.fallback_of?.includes(spec.name),
-						`${fallback_name} should list ${spec.name} in fallback_of (bidirectional with ${spec.name}.fallback)`,
+						`${fallback_name} should list ${spec.name} in fallback_of (bidirectional with ${
+							spec.name
+						}.fallback)`,
 					);
 				}
 			}
@@ -53,7 +55,9 @@ describe('directive spec fallback relationships', () => {
 					assert.ok(child_spec);
 					assert.ok(
 						child_spec.fallback?.includes(spec.name),
-						`${fallback_of_name} should list ${spec.name} in fallback (bidirectional with ${spec.name}.fallback_of)`,
+						`${fallback_of_name} should list ${spec.name} in fallback (bidirectional with ${
+							spec.name
+						}.fallback_of)`,
 					);
 				}
 			}

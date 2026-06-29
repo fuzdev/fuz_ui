@@ -147,7 +147,9 @@ export class Library {
 		// as a downstream `null`.
 		if (repo_url_parse(library_json.pkg_json.repository) === null) {
 			throw Error(
-				`failed to construct Library - pkg_json for "${library_json.pkg_json.name}" has no parseable \`repository\``,
+				`failed to construct Library - pkg_json for "${
+					library_json.pkg_json.name
+				}" has no parseable \`repository\``,
 			);
 		}
 		this.library_json = library_json;

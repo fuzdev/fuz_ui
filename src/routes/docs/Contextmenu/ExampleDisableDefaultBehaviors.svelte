@@ -40,7 +40,9 @@
 	</p>
 
 	<Code
-		content={`<${root_component_name}${link_entry_disabled ? ' link_entry={null}' : ''}${text_entry_disabled ? ' text_entry={null}' : ''}>`}
+		content={`<${root_component_name}${link_entry_disabled ? ' link_entry={null}' : ''}${
+			text_entry_disabled ? ' text_entry={null}' : ''
+		}>`}
 	/>
 
 	<fieldset>
@@ -98,8 +100,8 @@
 		</ul>
 	{:else}
 		<p>
-			<strong>Expected:</strong> no behaviors defined. The system contextmenu will show, bypassing the
-			Fuz contextmenu.
+			<strong>Expected:</strong> no behaviors defined. The system contextmenu will show, bypassing
+			the Fuz contextmenu.
 		</p>
 	{/if}
 </TomeSection>

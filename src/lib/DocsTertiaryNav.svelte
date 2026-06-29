@@ -95,9 +95,7 @@
 		z-index: 1;
 		width: var(--docs_sidebar_width);
 		height: calc(100% - var(--docs_primary_nav_height));
-		padding: var(
-			--docs_secondary_nav_padding
-		); /* needed with `overflow: auto` to avoid cutting off outline */
+		padding: var(--docs_secondary_nav_padding); /* needed with `overflow: auto` to avoid cutting off outline */
 		overflow: auto;
 		scrollbar-width: thin;
 		background-color: var(--shade_10);

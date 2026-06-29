@@ -151,8 +151,8 @@
 		<TomeSectionHeader text="count: 1" />
 		<p>
 			Disconnects after the first intersection cycle (enter and leave). A <code>count</code> of
-			<code>0</code> disables observation. Negative or <code>undefined</code> never disconnects. (the
-			default)
+			<code>0</code> disables observation. Negative or <code>undefined</code> never disconnects.
+			(the default)
 		</p>
 		<Code
 			content={`<div {@attach intersect(() => ({
@@ -220,8 +220,8 @@
 		<p>
 			Try different parameter combinations. Positive <code>count</code> values disconnect after N
 			cycles.
-			<code>0</code> disables observation. Negative or <code>undefined</code> never disconnects. (the
-			default)
+			<code>0</code> disables observation. Negative or <code>undefined</code> never disconnects.
+			(the default)
 		</p>
 		<div class="controls">
 			<label>

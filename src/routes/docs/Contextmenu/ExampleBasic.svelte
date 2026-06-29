@@ -65,8 +65,8 @@
 					>
 				</div>
 				<aside class="mt_lg">
-					The <code>scoped</code> prop is only needed when mounting a contextmenu inside a specific element
-					instead of the entire page.
+					The <code>scoped</code> prop is only needed when mounting a contextmenu inside a specific
+					element instead of the entire page.
 				</aside>
 			</div>
 		</Contextmenu>

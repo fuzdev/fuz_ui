@@ -44,21 +44,30 @@
 		</p>
 		<p>Set size with custom properties:</p>
 		<Code
-			content={`<PendingAnimation --font_size="var(--font_size_xl5)"${to_boolean_attr('running', running)} />`}
+			content={`<PendingAnimation --font_size="var(--font_size_xl5)"${to_boolean_attr(
+				'running',
+				running,
+			)} />`}
 		/>
 		<div class="mb_lg align_items_flex_start" role="none">
 			<PendingAnimation --font_size="var(--font_size_xl5)" {running} />
 		</div>
 		<p>Set size with classes:</p>
 		<Code
-			content={`<PendingAnimation attrs={{class: 'font_size_xl3'}}${to_boolean_attr('running', running)} />`}
+			content={`<PendingAnimation attrs={{class: 'font_size_xl3'}}${to_boolean_attr(
+				'running',
+				running,
+			)} />`}
 		/>
 		<div class="align_items_flex_start" role="none">
 			<PendingAnimation class="font_size_xl3" {running} />
 		</div>
 		<p>Size is inherited by default:</p>
 		<Code
-			content={`<div class="font_size_xl4"><PendingAnimation${to_boolean_attr('running', running)} /></div>`}
+			content={`<div class="font_size_xl4"><PendingAnimation${to_boolean_attr(
+				'running',
+				running,
+			)} /></div>`}
 		/>
 		<div class="font_size_xl4 align_items_flex_start" role="none">
 			<PendingAnimation {running} />
@@ -68,7 +77,10 @@
 	<TomeSection>
 		<TomeSectionHeader text="With inline">With <code>inline</code></TomeSectionHeader>
 		<Code
-			content={`<PendingAnimation${to_boolean_attr('inline', inline)}${to_boolean_attr('running', running)} />`}
+			content={`<PendingAnimation${to_boolean_attr('inline', inline)}${to_boolean_attr(
+				'running',
+				running,
+			)} />`}
 		/>
 		<p>
 			with
@@ -83,7 +95,10 @@
 	<TomeSection>
 		<TomeSectionHeader text="With custom children" />
 		<Code
-			content={`<PendingAnimation --font_size="var(--font_size_xl6)"${to_boolean_attr('running', running)}>
+			content={`<PendingAnimation --font_size="var(--font_size_xl6)"${to_boolean_attr(
+				'running',
+				running,
+			)}>
 	{${turtle_slot}}
 </PendingAnimation>`}
 		/>
@@ -145,7 +160,10 @@
 	<TomeSection>
 		<TomeSectionHeader text="With custom duration" />
 		<Code
-			content={`<PendingAnimation --animation_duration="var(--duration_6)" --font_size="var(--font_size_xl4)"${to_boolean_attr('running', running)} />`}
+			content={`<PendingAnimation --animation_duration="var(--duration_6)" --font_size="var(--font_size_xl4)"${to_boolean_attr(
+				'running',
+				running,
+			)} />`}
 		/>
 		<PendingAnimation
 			{running}

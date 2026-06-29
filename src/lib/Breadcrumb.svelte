@@ -66,7 +66,8 @@
 				data={icon_data}
 				size="1em"
 			/>{:else if glyph_text}{glyph_text}{:else}•{/if}</a
-	>{#each path_pieces as path_piece (path_piece)}{#if path_piece.type === 'piece'}<!-- eslint-disable-next-line svelte/no-navigation-without-resolve --><a
+	>{#each path_pieces as path_piece (path_piece)}{#if path_piece.type ===
+			'piece'}<!-- eslint-disable-next-line svelte/no-navigation-without-resolve --><a
 				href={final_base_path + path_piece.path}
 				class={{selected: path_piece.path === final_selected_path}}>{path_piece.name}</a
 			>{:else}<span class="separator"

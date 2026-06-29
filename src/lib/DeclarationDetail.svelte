@@ -142,7 +142,10 @@ including parameters, props, members, overloads, intersects, and more.
 
 <!-- chips -->
 <!-- eslint-disable-next-line @typescript-eslint/no-deprecated -->
-{#if declaration.is_deprecated || declaration.reactivity || declaration.accepts_children || declaration.alias_of}
+{#if declaration.is_deprecated ||
+	declaration.reactivity ||
+	declaration.accepts_children ||
+	declaration.alias_of}
 	<p class="row gap_md flex-wrap:wrap">
 		<!-- eslint-disable-next-line @typescript-eslint/no-deprecated -->
 		{#if declaration.is_deprecated}
@@ -453,7 +456,8 @@ including parameters, props, members, overloads, intersects, and more.
 					</div>
 				{/if}
 				<!-- parameters for methods and constructors -->
-				{#if (member.kind === 'function' || member.kind === 'constructor') && member.parameters?.length}
+				{#if (member.kind === 'function' || member.kind === 'constructor') &&
+					member.parameters?.length}
 					<section>
 						{#each member.parameters as param (param)}
 							{@render param_detail(param)}

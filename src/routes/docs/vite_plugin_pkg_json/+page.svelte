@@ -36,11 +36,11 @@
 <TomeContent {tome}>
 	<section>
 		<p>
-			<DeclarationLink name="vite_plugin_pkg_json" /> is a Vite plugin that serves a publish-safe subset
-			of your <code>package.json</code> as the virtual module
+			<DeclarationLink name="vite_plugin_pkg_json" /> is a Vite plugin that serves a publish-safe
+			subset of your <code>package.json</code> as the virtual module
 			<Code lang="ts" content="'virtual:pkg.json'" inline />. The default export is typed
-			<a href="https://util.fuz.dev/docs/api#PkgJson"><code>PkgJson</code></a> from fuz_util, and contains
-			package identity plus Fuz extension fields, with everything else excluded.
+			<a href="https://util.fuz.dev/docs/api#PkgJson"><code>PkgJson</code></a> from fuz_util, and
+			contains package identity plus Fuz extension fields, with everything else excluded.
 		</p>
 		<p>
 			The plugin strips <code>package.json</code> to the allowlist and serves only that, so info
@@ -89,8 +89,8 @@ export default defineConfig({
 			fuz_ui has optional patterns that leverage the feature. One example is adding <DeclarationLink
 				name="SiteState"
 			/> at the root layout, so
-			<code>glyph</code> and <code>repo_url</code> come from <code>package.json</code> instead of being
-			hardcoded:
+			<code>glyph</code> and <code>repo_url</code> come from <code>package.json</code> instead of
+			being hardcoded:
 		</p>
 		<Code
 			lang="ts"
@@ -144,7 +144,7 @@ export const library_json = library_json_from_modules(pkg_json, modules);`}
 		</p>
 		<Code
 			lang="ts"
-			content={`// src/routes/pkg_json_keys.ts — one shared const for all three sites
+			content={`// src/routes/pkg_json_keys.ts has one shared const for all three sites
 import {pkg_json_keys} from '@fuzdev/fuz_util/pkg_json.js';
 
 export const custom_keys = [...pkg_json_keys, 'keywords'] as const;`}

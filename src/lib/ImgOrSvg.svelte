@@ -10,8 +10,7 @@
 		svg_attrs,
 		img_attrs,
 		...rest
-	}: // the intersection makes rest shared attributes valid for whichever branch renders -
-	// branch-specific attributes go in `svg_attrs`/`img_attrs`
+	}: // the intersection makes rest shared attributes valid for whichever branch renders - // branch-specific attributes go in `svg_attrs`/`img_attrs`
 	SvelteHTMLElements['img'] &
 		SvelteHTMLElements['svg'] & {
 			src: string;

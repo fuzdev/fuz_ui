@@ -104,7 +104,9 @@ export const vite_plugin_pkg_json = (options: VitePluginPkgJsonOptions = {}): Pl
 		} catch (err) {
 			// ctx.error throws, so this never returns
 			return ctx.error(
-				`vite_plugin_pkg_json: failed to read or parse ${package_json_path}: ${(err as Error).message}`,
+				`vite_plugin_pkg_json: failed to read or parse ${package_json_path}: ${
+					(err as Error).message
+				}`,
 			);
 		}
 		if (raw.name === undefined) {

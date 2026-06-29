@@ -31,12 +31,13 @@
 		When you rightclick inside a <DeclarationLink name="ContextmenuRoot" />, or longpress on touch
 		devices, it searches the DOM tree for behaviors defined with <DeclarationLink
 			name="Contextmenu"
-		/> starting from the target element up to the root. If any behaviors are found, the Fuz contextmenu
-		opens, showing all contextually available actions. If no behaviors are found, the default system contextmenu
-		opens.
+		/> starting from the target element up to the root. If any behaviors are found, the Fuz
+		contextmenu opens, showing all contextually available actions. If no behaviors are found, the
+		default system contextmenu opens.
 	</p>
 	<p>
-		Here's a <code>{root_component_name}</code> with a <DeclarationLink name="Contextmenu" /> inside another
+		Here's a <code>{root_component_name}</code> with a <DeclarationLink name="Contextmenu" /> inside
+		another
 		<DeclarationLink name="Contextmenu" />:
 	</p>
 	<ContextmenuRootComponent scoped>
@@ -90,8 +91,8 @@
 		need to hunt for specific parent elements to find the desired action, unlike many systems --
 		instead, all actions in the tree are available, improving UX convenience and predictability at
 		the cost of more noisy menus. Developers can opt out of this inheritance behavior by simply not
-		nesting <DeclarationLink name="Contextmenu" /> declarations, and submenus are useful for managing
-		complexity.
+		nesting <DeclarationLink name="Contextmenu" /> declarations, and submenus are useful for
+		managing complexity.
 	</p>
 	<h4>Mouse and keyboard:</h4>
 	<ul>

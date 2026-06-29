@@ -22,8 +22,7 @@
 		div_attrs,
 		children,
 		...rest
-	}: // generic element attrs, the common denominator of the rendered roots -
-	// branch-specific attributes go in `button_attrs`/`div_attrs`
+	}: // generic element attrs, the common denominator of the rendered roots - // branch-specific attributes go in `button_attrs`/`div_attrs`
 	HTMLAttributes<HTMLElement> & {
 		status?: AlertStatus;
 		color?: string;
@@ -33,7 +32,11 @@
 		/** Renders the alert as a `<button>` when provided. */
 		onclick?: (() => void) | undefined;
 		disabled?: boolean;
-		icon?: string | Snippet<[icon: string]> | null | undefined; // TODO experimenting with this, gets complex in the impl
+		icon?:
+			| string
+			| Snippet<[icon: string]>
+			| null
+			| undefined; // TODO experimenting with this, gets complex in the impl
 		/** Button attributes, applied only when `onclick` renders the alert as a `<button>`. */
 		button_attrs?: SvelteHTMLElements['button'];
 		/** Div attributes, applied only when the alert renders as a `<div>` (no `onclick`). */

@@ -106,9 +106,7 @@
   align icon above
 </Card>`}
 		/>
-		<Card align="above">
-			align icon above
-		</Card>
+		<Card align="above">align icon above</Card>
 	</section>
 	<section>
 		<Code
@@ -116,8 +114,6 @@
   align icon below
 </Card>`}
 		/>
-		<Card align="below">
-			align icon below
-		</Card>
+		<Card align="below">align icon below</Card>
 	</section>
 </TomeContent>

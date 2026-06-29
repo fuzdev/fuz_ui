@@ -24,8 +24,8 @@
 				path="https://developer.mozilla.org/en-US/docs/Mozilla/Add-ons/WebExtensions/ContentSecurityPolicy"
 				>Content Security Policies</MdnLink
 			> with the
-			<DeclarationLink name="create_csp_directives" /> helper. Fuz also provides related helpers, types,
-			and CSP data.
+			<DeclarationLink name="create_csp_directives" /> helper. Fuz also provides related helpers,
+			types, and CSP data.
 		</p>
 		<p>
 			The API is designed to read as an audit log: every user-added source is named at exactly one
@@ -107,8 +107,8 @@ const csp_blank = create_csp_directives({
 				— the starting state. Omitted, it's
 				<DeclarationLink name="csp_directive_value_defaults" />. Provided, it
 				<em>replaces the library defaults wholesale</em>: exactly the directives you list, nothing
-				inherited. <code>{'{}'}</code> starts blank; <code>null</code> throws (avoid the null/undefined
-				footgun where a conditional silently disables defaults).
+				inherited. <code>{'{}'}</code> starts blank; <code>null</code> throws (avoid the
+				null/undefined footgun where a conditional silently disables defaults).
 			</li>
 			<li>
 				<strong><code>extend</code></strong> — sources to append per directive, layered left to
@@ -127,8 +127,8 @@ const csp_blank = create_csp_directives({
 	<TomeSection>
 		<TomeSectionHeader text="Adding sources via extend" />
 		<p>
-			<code>extend</code> is the common path: take a starting state and add per-directive sources. Sources
-			land only on the directives you name. There's no cross-directive promotion.
+			<code>extend</code> is the common path: take a starting state and add per-directive sources.
+			Sources land only on the directives you name. There's no cross-directive promotion.
 		</p>
 		<Code
 			lang="ts"
@@ -232,15 +232,16 @@ create_csp_directives({replace_defaults: {}, overrides: {/* ... */}});`}
 			Use <code>overrides</code> for tweaks (replace one directive while keeping the library
 			defaults), and <code>replace_defaults</code> for full ownership of the starting state.
 			<code>null</code> is rejected (top-level or per-key). Omit the option for library defaults,
-			pass <code>{'{}'}</code> to start blank, or use <code>overrides</code> to remove a specific directive.
+			pass <code>{'{}'}</code> to start blank, or use <code>overrides</code> to remove a specific
+			directive.
 		</p>
 	</TomeSection>
 
 	<TomeSection>
 		<TomeSectionHeader text="Validation" />
 		<p>
-			<DeclarationLink name="create_csp_directives" /> validates inputs and outputs at build time. Misconfigurations
-			throw rather than producing a silently broken policy.
+			<DeclarationLink name="create_csp_directives" /> validates inputs and outputs at build time.
+			Misconfigurations throw rather than producing a silently broken policy.
 		</p>
 		<ul>
 			<li>
@@ -272,8 +273,8 @@ create_csp_directives({replace_defaults: {}, overrides: {/* ... */}});`}
 				<code>TypeError</code>.
 			</li>
 			<li>
-				The output is validated to ensure <code>'none'</code> never appears alongside other tokens (an
-				invalid CSP that browsers reject).
+				The output is validated to ensure <code>'none'</code> never appears alongside other tokens
+				(an invalid CSP that browsers reject).
 			</li>
 			<li>
 				The output is validated to ensure no directive ends up with an empty array. Use

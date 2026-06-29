@@ -20,8 +20,8 @@
 <TomeContent {tome}>
 	<section>
 		<p>
-			<DeclarationLink name="LibrarySummary" /> renders a compact card for a library and its repo. See
-			the <TomeLink slug="Library">Library</TomeLink> for how to construct one from <TomeLink
+			<DeclarationLink name="LibrarySummary" /> renders a compact card for a library and its repo.
+			See the <TomeLink slug="Library">Library</TomeLink> for how to construct one from <TomeLink
 				slug="vite_plugin_pkg_json"
 			/>
 			and <a href="https://svelte-docinfo.fuz.dev/"><code>virtual:svelte-docinfo</code></a>:

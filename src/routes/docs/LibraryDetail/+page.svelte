@@ -20,19 +20,20 @@
 <TomeContent {tome}>
 	<section>
 		<p>
-			<DeclarationLink name="LibraryDetail" /> renders the full metadata for a library and its repo, including
-			its module and declaration index. See the <TomeLink slug="Library" /> for how to construct one from
+			<DeclarationLink name="LibraryDetail" /> renders the full metadata for a library and its repo,
+			including its module and declaration index. See the <TomeLink slug="Library" /> for how to
+			construct one from
 			<TomeLink slug="vite_plugin_pkg_json" />
 			and <a href="https://svelte-docinfo.fuz.dev/"><code>virtual:svelte-docinfo</code></a>:
 		</p>
 		<Code lang="ts" content={`import LibraryDetail from '@fuzdev/fuz_ui/LibraryDetail.svelte';`} />
 		<Code content={`<LibraryDetail {library} />`} />
 		<p>
-			It projects its <code>library</code> prop into <DeclarationLink name="library_context" /> for its
-			subtree, so the module and declaration links resolve against the rendered library even when it differs
-			from the site's own. When rendering a foreign library, pass
-			<code>links_full</code> so the links point at the library's deployed docs instead of site-local
-			paths:
+			It projects its <code>library</code> prop into <DeclarationLink name="library_context" /> for
+			its subtree, so the module and declaration links resolve against the rendered library even
+			when it differs from the site's own. When rendering a foreign library, pass
+			<code>links_full</code> so the links point at the library's deployed docs instead of
+			site-local paths:
 		</p>
 		<Code content={`<LibraryDetail library={foreign_library} links_full />`} />
 	</section>

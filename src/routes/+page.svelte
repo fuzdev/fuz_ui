@@ -28,13 +28,8 @@
 						fuz_ui is a Svelte UI library with components and helpers for making zippy websites.
 						It's built on <a href="https://css.fuz.dev/">fuz_css</a>
 						and provides a documentation system built on
-						<a href="https://svelte-docinfo.fuz.dev/">svelte-docinfo</a>. It's in early alpha with
-						breaking changes ahead.
-					</p>
-					<p>
-						Compared to most UI libraries, fuz_ui has fewer features and more opinions, but the
-						eventual goal is to be fully-featured with high flexibility. Fuz emphasizes capability
-						and efficiency and tries to be simple for those goals.
+						<a href="https://svelte-docinfo.fuz.dev/">svelte-docinfo</a>. fuz_ui emphasizes
+						capability and efficiency and tries to be simple for those goals.
 					</p>
 					<p>
 						<!-- eslint-disable-next-line svelte/no-navigation-without-resolve -->

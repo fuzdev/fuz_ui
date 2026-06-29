@@ -64,8 +64,8 @@
 			<div class="panel p_md">
 				<p class="mb_md">
 					The <code>{root_component_name}</code> prop <code>contextmenu</code> accepts a custom
-					<code>ContextmenuState</code> instance, allowing you to observe its reactive state and control
-					it programmatically.
+					<code>ContextmenuState</code> instance, allowing you to observe its reactive state and
+					control it programmatically.
 				</p>
 				<Code lang="ts" content={`const contextmenu = new ContextmenuState();`} />
 				<Code
@@ -75,8 +75,8 @@
 					Try opening the contextmenu on this panel, then use the navigation buttons below to cycle
 					through entries -- just like the arrow keys. The color entries return <code
 						>{'{ok: true, close: false}'}</code
-					> to keep the menu open after activation, allowing you to select multiple colors using the activate
-					button (↵).
+					> to keep the menu open after activation, allowing you to select multiple colors using the
+					activate button (↵).
 				</p>
 				<div class="mb_md {selected_color_class}">
 					<p>Reactive state:</p>

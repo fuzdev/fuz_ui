@@ -14,8 +14,7 @@
 		a_attrs,
 		children,
 		...rest
-	}: // generic element attrs, the common denominator of the rendered roots -
-	// branch-specific attributes go in `a_attrs`
+	}: // generic element attrs, the common denominator of the rendered roots - // branch-specific attributes go in `a_attrs`
 	HTMLAttributes<HTMLElement> & {
 		/** Renders the card as an `<a>` when provided. */
 		href?: string | undefined;

@@ -72,7 +72,8 @@
 
 	const selected_theme_name = $derived(theme_state.theme.name);
 	const style = $derived(
-		selected_theme_name === DEFAULT_THEME.name // TODO @many proper equality check, won't work when we allow editing, need an id or unique names and a deep equality check
+		selected_theme_name ===
+		DEFAULT_THEME.name // TODO @many proper equality check, won't work when we allow editing, need an id or unique names and a deep equality check
 			? null
 			: render_theme_style(theme_state.theme),
 	);

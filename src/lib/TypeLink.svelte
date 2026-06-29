@@ -11,8 +11,7 @@
 		a_attrs,
 		code_attrs,
 		...rest
-	}: // generic element attrs, the common denominator of the rendered roots -
-	// assignable to the anchor rest of `DeclarationLink` and the code rest of `Code`
+	}: // generic element attrs, the common denominator of the rendered roots - // assignable to the anchor rest of `DeclarationLink` and the code rest of `Code`
 	HTMLAttributes<HTMLElement> & {
 		type: string;
 		/** URL fragment to append, with or without the `#`. */

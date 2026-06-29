@@ -140,7 +140,9 @@ export const create_csp_directives = (options: CreateCspDirectivesOptions = {}):
 				}
 				if (!Array.isArray(value)) {
 					throw new Error(
-						`Cannot extend directive '${directive}': value must be an array of sources, got ${typeof value}.`,
+						`Cannot extend directive '${directive}': value must be an array of sources, got ${
+							typeof value
+						}.`,
 					);
 				}
 				if (!value.length) return;
@@ -198,7 +200,9 @@ export const create_csp_directives = (options: CreateCspDirectivesOptions = {}):
 			const v = (value as Array<unknown>)[i];
 			if (typeof v !== 'string') {
 				throw new Error(
-					`Directive '${key}' has a non-string source at index ${i}: got ${v === null ? 'null' : typeof v}.`,
+					`Directive '${key}' has a non-string source at index ${i}: got ${
+						v === null ? 'null' : typeof v
+					}.`,
 				);
 			}
 		}

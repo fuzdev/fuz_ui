@@ -82,7 +82,9 @@
 </div>
 <!-- TODO @many dialog navs - instead of a dialog, probably use a popover (new component) -->
 <!-- TODO this is messy rendering `DocsSecondaryNav` twice to handle responsive states with SSR correctly -->
-{#if show_secondary_nav_dialog && innerWidth.current && innerWidth.current <= TERTIARY_NAV_BREAKPOINT}
+{#if show_secondary_nav_dialog &&
+	innerWidth.current &&
+	innerWidth.current <= TERTIARY_NAV_BREAKPOINT}
 	<Dialog onclose={() => (show_secondary_nav_dialog = false)}>
 		<DialogContent padding="">
 			<div style:--docs_menu_width={docs_menu_width}>

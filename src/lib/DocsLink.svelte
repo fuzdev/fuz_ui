@@ -17,8 +17,7 @@
 		code_attrs,
 		children: children_prop,
 		...rest
-	}: // generic element attrs, the common denominator of the rendered roots -
-	// assignable to the anchor rest of `DeclarationLink`/`ModuleLink` and exact for `<code>`
+	}: // generic element attrs, the common denominator of the rendered roots - // assignable to the anchor rest of `DeclarationLink`/`ModuleLink` and exact for `<code>`
 	OmitStrict<HTMLAttributes<HTMLElement>, 'children'> & {
 		reference: string;
 		/** URL fragment to append, with or without the `#`. */
