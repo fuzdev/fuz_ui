@@ -1,1 +1,0 @@
-import{t as e}from"../chunks/WIypWsN_2.js";export{e as component};
