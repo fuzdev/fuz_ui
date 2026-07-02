@@ -1,5 +1,11 @@
 # @fuzdev/fuz_ui
 
+## 0.206.0
+
+### Minor Changes
+
+- deps: bump mdz peer dep to 0.2 ([5d98b75](https://github.com/fuzdev/fuz_ui/commit/5d98b75))
+
 ## 0.205.4
 
 ### Patch Changes
