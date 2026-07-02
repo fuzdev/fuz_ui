@@ -31,7 +31,7 @@
 	// TODO ideally this wouldn't duplicate metadata like descriptions, but adding fuz_gitops to this repo is heavy
 	// prettier-ignore
 	const project_items: Array<ProjectItem> = [
-		{name: 'fuz_app', url: 'https://app.fuz.dev/', logo: logo_fuz_app, description: 'fullstack app library', glyph: '🗝', color_class: 'color_j_50'},
+		{name: 'fuz_app', url: 'https://app.fuz.dev/', logo: logo_fuz_app, description: '[pre-alpha] fullstack app library', glyph: '🗝', color_class: 'color_j_50'},
 		{name: 'fuz_css', url: 'https://css.fuz.dev/', logo: logo_fuz_css, description: 'CSS framework and design system', glyph: '🌿', color_class: 'color_b_50'},
 		{name: 'fuz_ui', url: 'https://ui.fuz.dev/', logo: logo_fuz_ui, description: 'Svelte UI library', glyph: '🧶', color_class: 'color_c_50'},
 		{name: 'fuz_template', url: 'https://template.fuz.dev/', logo: logo_fuz_template, description: 'a static web app and Node library template with TypeScript, Svelte, SvelteKit, Vite, esbuild, Fuz, and Gro', glyph: '❄', color_class: 'color_h_50'},
