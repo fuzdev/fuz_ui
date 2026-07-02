@@ -1,0 +1,1 @@
+import{t as e}from"../chunks/DDg-AMae.js";export{e as component};
