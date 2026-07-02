@@ -1,5 +1,11 @@
 # @fuzdev/fuz_ui
 
+## 0.206.1
+
+### Patch Changes
+
+- fix: add `[pre-alpha]` caveat to fuz_app in `ProjectLinks` ([82e4b4c](https://github.com/fuzdev/fuz_ui/commit/82e4b4c))
+
 ## 0.206.0
 
 ### Minor Changes
