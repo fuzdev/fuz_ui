@@ -33,7 +33,11 @@ dev server.
 - mdz (@fuzdev/mdz) - markdown dialect (parser, renderer, preprocessor) rendered
   throughout the docs; `DocsLink` (inline code) and fuz_code's `Code` (code
   blocks) are injected into its rendering seam (optional peer)
-- svelte-docinfo (svelte-docinfo) - TypeScript/Svelte static analysis
+- fuz_code (@fuzdev/fuz_code) - syntax highlighting; provides the `Code`
+  injected into mdz code blocks (optional peer)
+- svelte-docinfo (svelte-docinfo) - TypeScript/Svelte static analysis (dev
+  dependency; types + a few runtime helpers), plus a Vite plugin exposing the
+  analyzed modules via `virtual:svelte-docinfo`
 - Gro (@fuzdev/gro) - build system and CLI
 
 ## Scope
@@ -78,18 +82,17 @@ represents a component or helper with `name`, `category`, `component`, and
 
 **svelte-docinfo** - TypeScript/Svelte static analysis is provided by the
 `svelte-docinfo` package. The analyzed modules arrive at runtime via the
-Vite plugin's `virtual:svelte-docinfo` module. fuz_ui consumes source
-utilities (`isTypescript`, `isSvelte`, `isCss`, `isJson` from `source.js`),
-types (`ModuleJson`, `DeclarationJson` from `types.js`), and declaration
-helpers (`generateImport`, `getDisplayName` from `declaration-helpers.js`).
+Vite plugin's `virtual:svelte-docinfo` module. The specific imports fuz_ui
+consumes are listed under [Library and API generation](#library-and-api-generation).
 
 ## Components
 
 ### Layout and structure
 
 - `Card`, `Details`, `Breadcrumb`, `Teleport`
-- `Docs`, `DocsContent`, `DocsList`, `DocsMenu` - documentation layout
-- `TomeContent`, `TomeHeader`, `TomeSection` - tome layout
+
+(Docs-system layout and tome components are cataloged under
+[Documentation & API system](#documentation--api-system).)
 
 ### Feedback and alerts
 
@@ -119,16 +122,55 @@ helpers (`generateImport`, `getDisplayName` from `declaration-helpers.js`).
 ### Navigation links
 
 - `Hashlink` - hash anchor links
-- `TomeLink`, `DeclarationLink`, `ModuleLink` - docs navigation
 - `GithubLink`, `MdnLink` - external reference links
 - `ProjectLinks` - @fuzdev ecosystem package grid; add an entry inline and a matching logo in `logos.ts`
 
-### Documentation
+### Documentation & API system
 
-- `LibraryDetail`, `LibrarySummary` - library info display (from a `Library`)
-- `ApiIndex`, `ApiModule`, `ApiDeclarationList` - API documentation; render TSDoc
-  prose as mdz via `@fuzdev/mdz`, injecting `DocsLink` (inline code) and fuz_code's
-  `Code` (code blocks)
+The complete docs-component catalog. Consumers import only a handful when
+adopting the docs system — the fuz-stack skill's documentation-system reference
+lists that adoption subset; the full set below is fuz_ui inventory. API
+components render TSDoc prose as mdz via `@fuzdev/mdz`, injecting `DocsLink`
+(inline code) and fuz_code's `Code` (code blocks).
+
+Docs layout:
+
+- `Docs` — three-column layout; sets `tomes_context` + `docs_links_context`
+- `DocsPrimaryNav` — top bar with breadcrumb and menu toggle
+- `DocsSecondaryNav` — left sidebar; tome list grouped by category
+- `DocsTertiaryNav` — right sidebar; section headers within the current page
+- `DocsContent` — content wrapper for docs pages
+- `DocsFooter` — footer with library info and breadcrumb
+- `DocsSearch` — search input for filtering modules and declarations
+- `DocsMenu` — navigation menu for tomes
+- `DocsLink` — docs navigation link; also mdz's injected inline-code renderer
+- `DocsList` — list component for docs navigation
+- `DocsPageLinks` — links section within a docs page
+- `DocsMenuHeader` — header within the docs navigation menu
+
+Tome:
+
+- `TomeContent` — individual tome page wrapper; sets `tome_context`
+- `TomeHeader` — default header rendered by `TomeContent`
+- `TomeSection` — section container with depth tracking + intersection
+- `TomeSectionHeader` — section heading with hashlink (auto h2/h3/h4)
+- `TomeLink` — cross-reference link to another tome
+
+API:
+
+- `ApiIndex` — API overview with search; lists all modules and declarations
+- `ApiModule` — single module's declarations with full detail
+- `ApiModulesList` — module listing within the API index
+- `ApiDeclarationList` — declaration listing within a module
+- `DeclarationDetail` — full detail view of a single declaration
+- `DeclarationLink` — link to a declaration in API docs
+- `ModuleLink` — link to a module in API docs
+- `TypeLink` — link to a type reference
+
+Library metadata:
+
+- `LibrarySummary` — compact package metadata card
+- `LibraryDetail` — expanded package info with file-type breakdown (from a `Library`)
 
 mdz itself (`Mdz`, `MdzRoot`, `MdzStream`, the preprocessor) lives in `@fuzdev/mdz`.
 
@@ -183,13 +225,10 @@ re-strip drops the extras. See the `vite_plugin_pkg_json` tome for the pattern.
   `isSvelte`, `isCss`, `isJson` from `svelte-docinfo/source.js`)
 - `library_helpers.ts` - docs URL helpers
 
-Analysis is provided by `svelte-docinfo`. See its CLAUDE.md for the
-full API. Key imports used by fuz_ui:
-
-- `source.js` — type predicates: `isTypescript`, `isSvelte`, `isCss`,
-  `isJson`
-- `types.js` — `ModuleJson`, `DeclarationJson` (and their `*Input` variants)
-- `declaration-helpers.js` — `generateImport`, `getDisplayName`
+The `svelte-docinfo` imports above resolve to its `source.js` (type
+predicates), `types.js` (`ModuleJson`, `DeclarationJson`, and their `*Input`
+variants), and `declaration-helpers.js` (`generateImport`, `getDisplayName`);
+see its CLAUDE.md for the full API.
 
 ### Browser and DOM
 
@@ -254,22 +293,18 @@ above).
 
 ## Documentation system
 
-Fuz provides a documentation system combining manual tomes with auto-generated
-API docs.
+Fuz combines manual tomes with auto-generated API docs, laid out by `<Docs>`
+(the three-column responsive layout from the component catalog above).
 
 **Tomes** - manual documentation pages. Define in `tomes.ts`, create matching
 `+page.svelte` wrapping content in `<TomeContent>`. Categories: "guide",
 "helpers", "components". See `src/routes/docs/tomes.ts` for examples.
 
 **API documentation** - auto-generated from TypeScript/Svelte source with full
-TSDoc support. Two-phase architecture: TSDoc extraction at build time
-(via `svelte-docinfo`), mdz rendering at runtime (via `@fuzdev/mdz`). Setup
-requires the `svelte-docinfo` Vite plugin (which exposes
-`virtual:svelte-docinfo`) and API routes. See `src/routes/docs/api/` for
-example routes.
-
-**Docs layout** - `<Docs>` provides three-column responsive layout with managed
-contexts for navigation.
+TSDoc support (build-time extraction, runtime mdz rendering — see
+[mdz rendering](#mdz-rendering)). Setup requires the `svelte-docinfo` Vite
+plugin (exposing `virtual:svelte-docinfo`) and API routes; see
+`src/routes/docs/api/` for example routes.
 
 ## Known limitations
 
@@ -305,8 +340,8 @@ analysis fixtures live in `svelte-docinfo`.
 - [`fuz_css`](../fuz_css/CLAUDE.md) - CSS framework (peer dependency)
 - [`fuz_util`](../fuz_util/CLAUDE.md) - utility functions (peer dependency)
 - [`mdz`](../mdz/CLAUDE.md) - markdown dialect rendered throughout the docs (optional peer)
-- [`fuz_code`](../fuz_code/CLAUDE.md) - syntax highlighting injected into mdz code blocks (peer)
-- [`svelte-docinfo`](../svelte-docinfo/CLAUDE.md) - TypeScript/Svelte static analysis (dependency)
+- [`fuz_code`](../fuz_code/CLAUDE.md) - syntax highlighting injected into mdz code blocks (optional peer)
+- [`svelte-docinfo`](../svelte-docinfo/CLAUDE.md) - TypeScript/Svelte static analysis (dev dependency; types + a few runtime helpers)
 - [`fuz_template`](../fuz_template/CLAUDE.md) - starter template using fuz_ui
 - [`fuz_blog`](../fuz_blog/CLAUDE.md) - blog template using fuz_ui
 - [`fuz_mastodon`](../fuz_mastodon/CLAUDE.md) - Mastodon components using fuz_ui
