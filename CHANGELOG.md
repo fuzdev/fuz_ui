@@ -1,5 +1,12 @@
 # @fuzdev/fuz_ui
 
+## 0.206.4
+
+### Patch Changes
+
+- fix: `CopyToClipboard` icons ([b9f74ce](https://github.com/fuzdev/fuz_ui/commit/b9f74ce))
+- design: remove the animation from `DocsPageLinks` and `DocsMenu` items ([8948175](https://github.com/fuzdev/fuz_ui/commit/8948175))
+
 ## 0.206.3
 
 ### Patch Changes
