@@ -1,5 +1,11 @@
 # @fuzdev/fuz_ui
 
+## 0.206.2
+
+### Patch Changes
+
+- chore: hide fuz_docs until it's more developed ([5fe3872](https://github.com/fuzdev/fuz_ui/commit/5fe3872))
+
 ## 0.206.1
 
 ### Patch Changes
