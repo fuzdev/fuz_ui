@@ -1,0 +1,1 @@
+import{t as e}from"../chunks/KTaC-8is2.js";export{e as component};

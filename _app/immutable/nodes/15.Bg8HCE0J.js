@@ -1,0 +1,1 @@
+import{t as e}from"../chunks/BSbi-F0_.js";export{e as component};
