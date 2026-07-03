@@ -1,6 +1,5 @@
 <script lang="ts">
 	import {page} from '$app/state';
-	import {slide} from 'svelte/transition';
 	import type {SvelteHTMLElements} from 'svelte/elements';
 
 	import DocsList from './DocsList.svelte';
@@ -35,7 +34,6 @@
 			{#each docs_links.docs_links as item (item.id)}
 				<li
 					role="none"
-					transition:slide
 					class={{pl_xl: item.depth === 2, pl_xl2: item.depth === 3, pl_xl3: item.depth >= 4}}
 				>
 					<a

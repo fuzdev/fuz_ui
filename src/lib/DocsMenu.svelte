@@ -1,6 +1,5 @@
 <script lang="ts">
 	import {page} from '$app/state';
-	import {slide} from 'svelte/transition';
 	import type {Snippet} from 'svelte';
 	import type {SvelteHTMLElements} from 'svelte/elements';
 
@@ -38,7 +37,7 @@
 				<ul class="unstyled">
 					{#each tomes as item (item)}
 						{@const pathname = tome_to_pathname(item)}
-						<li role="none" transition:slide>
+						<li role="none">
 							<a class={['menuitem', {selected: pathname === page.url.pathname}]} href={pathname}
 								><div class="ellipsis">{tome_to_title(item)}</div></a
 							>
