@@ -1,0 +1,1 @@
+const t=["name","version","private","description","tagline","glyph","logo","logo_alt","license","homepage","repository","funding","exports"],p=(e,s=t)=>{const n={};for(const o of s)e[o]!==void 0&&(n[o]=e[o]);return n};export{p as a,t as p};

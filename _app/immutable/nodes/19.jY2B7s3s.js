@@ -1,1 +1,0 @@
-import{t as e}from"../chunks/COne4izZ.js";export{e as component};

@@ -1,1 +1,0 @@
-var e=[`name`,`version`,`private`,`description`,`tagline`,`glyph`,`logo`,`logo_alt`,`license`,`homepage`,`repository`,`funding`,`exports`],t=(t,n=e)=>{let r={};for(let e of n)t[e]!==void 0&&(r[e]=t[e]);return r};export{e as n,t};

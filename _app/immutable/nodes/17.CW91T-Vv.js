@@ -1,1 +1,0 @@
-import{t as e}from"../chunks/BjccrUrI.js";export{e as component};
