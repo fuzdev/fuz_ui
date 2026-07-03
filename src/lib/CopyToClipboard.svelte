@@ -80,8 +80,8 @@
 	{#if children}
 		{@render children(copied, failed)}
 	{:else if copied}
-		<div in:scale={{duration: 200}}><Svg data={icon_checkmark} /></div>
+		<div style:width="100%" in:scale={{duration: 200}}><Svg data={icon_checkmark} /></div>
 	{:else}
-		<div in:slide><Svg data={icon_copy} /></div>
+		<div style:width="100%" in:slide><Svg data={icon_copy} /></div>
 	{/if}
 </button>
