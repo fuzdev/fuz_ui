@@ -1,5 +1,11 @@
 # @fuzdev/fuz_ui
 
+## 0.206.3
+
+### Patch Changes
+
+- fix: unpublished fuz_docs changes ([632344f](https://github.com/fuzdev/fuz_ui/commit/632344f))
+
 ## 0.206.2
 
 ### Patch Changes
