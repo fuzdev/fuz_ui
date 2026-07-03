@@ -1,3 +1,0 @@
-import{Dt as e,Et as t,St as n,U as r,V as i,dt as a,lt as o,xt as s,z as c}from"./CRyl_OFM.js";import"./xihTtKlq.js";import{n as l}from"./C5AMshqY.js";import{t as u}from"./3hIksLTY.js";import{t as d}from"./CpTB3237.js";import{t as f}from"./Bvgj6OQq.js";var p=i(`<section><p>Fuz bases its theme support on <a href="https://css.fuz.dev/">fuz_css</a>, which is based on
-			semantic HTML and <!>. For usage docs
-			see <!>.</p></section>`);function m(i,m){n(m,!0);let h=l(`theming`);d(i,{get tome(){return h},children:(n,i)=>{var s=p(),l=o(s),d=a(o(l),3);f(d,{path:`Web/CSS/--*`,children:(e,n)=>{t(),c(e,r(`CSS custom properties`))},$$slots:{default:!0}}),u(a(d,2),{slug:`ThemeRoot`}),t(),e(l),e(s),c(n,s)},$$slots:{default:!0}}),s()}export{m as t};

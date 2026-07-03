@@ -1,1 +1,0 @@
-import{t as e}from"../chunks/D62MGMTh2.js";export{e as component};
