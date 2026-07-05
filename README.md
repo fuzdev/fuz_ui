@@ -8,7 +8,8 @@ fuz_ui is a Svelte UI library with components and helpers for making zippy
 websites. It's built on [fuz_css](https://css.fuz.dev/)
 and provides a documentation system built on
 [svelte-docinfo](https://svelte-docinfo.fuz.dev/).
-fuz_ui emphasizes capability and efficiency and tries to be simple for those goals.
+fuz_ui emphasizes capability and efficiency and tries to be simple for those goals,
+while following idiomatic Svelte patterns.
 
 To learn more see [the docs](https://ui.fuz.dev/docs) and [contributing.md](contributing.md).
 Feel free to take the ideas and code for your own purposes.
