@@ -28,14 +28,8 @@ The Svelte components and helpers:
 
 ## Usage
 
-> ⚠️ Expect a lot of breaking changes. If you want to help stabilize the API,
-> thank you see [contributing.md](contributing.md), your input is appreciated.
->
-> If you feel comfortable looking at the source code,
-> fuz_ui is ready to use in your own projects,
-> with the major caveat that there will be a lot of breaking changes ahead.
-> The code is significantly incomplete but I think it's stable enough to use
-> if you're willing to keep up with the relatively fast-moving changelog.
+> ⚠️ Expect breaking changes. If you want to help stabilize the API,
+> please see [contributing.md](contributing.md) and thank you.
 
 ```bash
 npm i -D @fuzdev/fuz_ui
