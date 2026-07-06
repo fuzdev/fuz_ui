@@ -157,6 +157,11 @@ export const logo_fuz_util = {
 		},
 	],
 } satisfies SvgData;
+export const logo_tsv = {
+	label: 'a pixelated orange quill drawing a straight line',
+	fill: '#f4672f',
+	paths: [{d: 'M68.75 0h12.5v31.25h-12.5ZM62.5 6.25h6.25v37.5h-6.25ZM81.25 6.25h6.25v18.75h-6.25ZM56.25 12.5h6.25v18.75h-6.25ZM50 18.75h6.25v37.5h-6.25ZM43.75 25h6.25v37.5h-6.25ZM68.75 31.25h6.25v6.25h-6.25ZM37.5 37.5h6.25v12.5h-6.25ZM56.25 37.5h6.25v12.5h-6.25ZM31.25 43.75h6.25v25h-6.25ZM25 50h6.25v25h-6.25ZM37.5 56.25h6.25v6.25h-6.25ZM18.75 62.5h6.25v18.75h-6.25ZM12.5 68.75h6.25v25h-6.25ZM6.25 81.25h6.25v12.5h-6.25ZM18.75 87.5h75v6.25h-75Z'}],
+} satisfies SvgData;
 
 export const logo_github = {
 	label: 'the GitHub logo, an octocat silhouette',
