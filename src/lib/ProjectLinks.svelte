@@ -13,9 +13,9 @@
 		logo_fuz_css,
 		logo_fuz_util,
 		logo_gro,
-		logo_fuz_docs,
 		logo_svelte_docinfo,
 		logo_fuz_app,
+		logo_tsv,
 	} from './logos.ts';
 
 	// TODO refactor
@@ -42,6 +42,7 @@
 		{name: 'svelte-docinfo', url: 'https://svelte-docinfo.fuz.dev/', logo: logo_svelte_docinfo, description: 'static analysis for TypeScript and Svelte', glyph: '📜', color_class: 'color_i_50'},
 		{name: 'fuz_util', url: 'https://util.fuz.dev/', logo: logo_fuz_util, description: 'utility belt for JS', glyph: '🦕', color_class: 'color_f_50'},
 		{name: 'gro', url: 'https://github.com/fuzdev/gro', logo: logo_gro, description: 'task runner and toolkit extending SvelteKit', glyph: '🌰', color_class: 'color_f_50'},
+		{name: 'tsv', url: 'https://tsv.fuz.dev/', logo: logo_tsv, description: 'a parser and formatter for TypeScript and Svelte', glyph: '🪶', color_class: 'color_h_50'},
 	];
 </script>
 
