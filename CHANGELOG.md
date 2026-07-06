@@ -1,5 +1,11 @@
 # @fuzdev/fuz_ui
 
+## 0.206.5
+
+### Patch Changes
+
+- feat: add `logo_tsv` ([#132](https://github.com/fuzdev/fuz_ui/pull/132))
+
 ## 0.206.4
 
 ### Patch Changes
