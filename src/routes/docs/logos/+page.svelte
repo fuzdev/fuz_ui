@@ -17,6 +17,7 @@
 		logo_fuz_template,
 		logo_fuz_util,
 		logo_fuz_ui,
+		logo_tsv,
 	} from '$lib/logos.ts';
 
 	const TOME_SLUG = 'logos';
@@ -96,6 +97,12 @@
 					><Svg data={logo_gro} size="var(--icon_size_xl3)" /></a
 				>
 				<Code content={`<Svg data={logo_gro} />`} />
+			</li>
+			<li>
+				<a class="box" href="https://tsv.fuz.dev/"
+					><Svg data={logo_tsv} size="var(--icon_size_xl3)" /></a
+				>
+				<Code content={`<Svg data={logo_tsv} />`} />
 			</li>
 			<li>
 				<a class="box" href="https://github.com/"
