@@ -23,7 +23,7 @@
 		<TomeSectionHeader text="With bind:value">With <code>bind:value</code></TomeSectionHeader>
 		<Code content={`<HueInput bind:value />`} />
 		<HueInput bind:value />
-		<div class="mt_md" style:--text_color="hsl({value} 62% 31%)">
+		<div class="mt_md" style:--text_color="oklch(0.45 0.11 {value})">
 			<code>bind:value === {value}</code>
 		</div>
 	</TomeSection>

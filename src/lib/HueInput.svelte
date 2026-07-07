@@ -67,12 +67,12 @@
 
 <style>
 	.hue-input {
-		--outline_color: hsl(var(--hue) 50% 60%);
+		--outline_color: oklch(0.65 0.13 var(--hue));
 		/* TODO @many figure these variables out so they're easily customized (similar pattern in a lot of places) */
-		/* --thumb_background_color: hsl(var(--hue) 50% 50%); */
+		/* --thumb_background_color: oklch(0.6 0.13 var(--hue)); */
 	}
 	.preview {
-		background-color: hsl(var(--hue) 50% 50%);
+		background-color: oklch(0.6 0.13 var(--hue));
 		height: var(--space_xl5);
 		margin: 0;
 		display: flex;
@@ -86,22 +86,14 @@
 	}
 	.minimap-wrapper {
 		padding: 0 var(--input_padding_x);
-		background: hsl(0 50% 50%) 0%;
 	}
 	.minimap {
+		/* sweep the OKLCH hue circle at constant lightness/chroma so the strip
+			matches what the hue knobs actually produce */
 		background: linear-gradient(
-			90deg,
-			hsl(0 50% 50%) 0%,
-			hsl(36 50% 50%) 10%,
-			hsl(72 50% 50%) 20%,
-			hsl(108 50% 50%) 30%,
-			hsl(144 50% 50%) 40%,
-			hsl(180 50% 50%) 50%,
-			hsl(216 50% 50%) 60%,
-			hsl(252 50% 50%) 70%,
-			hsl(288 50% 50%) 80%,
-			hsl(324 50% 50%) 90%,
-			hsl(360 50% 50%) 100%
+			90deg in oklch longer hue,
+			oklch(0.6 0.13 0) 0%,
+			oklch(0.6 0.13 360) 100%
 		);
 		height: var(--space_lg);
 	}

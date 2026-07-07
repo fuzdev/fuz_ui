@@ -35,7 +35,7 @@
 		<li class="row" role="none">
 			<button
 				type="button"
-				class={['theme-button color_a', {selected}]}
+				class={['theme-button palette_a', {selected}]}
 				role="menuitemradio"
 				aria-label="{theme.name} theme"
 				aria-checked={selected}

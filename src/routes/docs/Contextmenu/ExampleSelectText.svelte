@@ -56,7 +56,7 @@ Try selecting text and then opening the contextmenu on it.`;
 						> entry.
 					</p>
 					<p>
-						Try <button type="button" onclick={select_text} class:color_a={toggled}
+						Try <button type="button" onclick={select_text} class:palette_a={toggled}
 							>selecting text</button
 						> and then opening the contextmenu on it.
 					</p>

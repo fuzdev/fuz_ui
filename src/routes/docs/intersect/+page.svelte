@@ -300,7 +300,7 @@
 	}
 	.demo-list li {
 		padding: var(--space_lg);
-		background-color: hsl(var(--hue_g) 50% 80% / 0.3);
+		background-color: oklch(0.83 0.08 var(--hue_g) / 0.3);
 		font-weight: 700;
 		transition: background-color var(--duration_2);
 		border-bottom: var(--border_width_1) var(--border_style) var(--border_color);
@@ -309,7 +309,7 @@
 		border-bottom: none;
 	}
 	.demo-list li:global(.intersecting) {
-		color: var(--color_f_50);
-		background-color: hsl(var(--hue_f) 50% 80% / 0.15);
+		color: var(--palette_f_50);
+		background-color: oklch(0.83 0.06 var(--hue_f) / 0.15);
 	}
 </style>
