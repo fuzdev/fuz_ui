@@ -41,14 +41,14 @@ Try selecting text and then opening the contextmenu on it.`;
 
 <ContextmenuRootComponent {contextmenu} scoped>
 	<TomeSection>
-		<div class:color_d_5={highlighted}>
+		<div class:palette_d_50={highlighted}>
 			<TomeSectionHeader text="Select text" />
 		</div>
 		<Contextmenu>
 			{#snippet entries()}
 				<ContextmenuEntry run={() => void (toggled = !toggled)}>Toggle something</ContextmenuEntry>
 			{/snippet}
-			<div class="panel p_md" class:color_g_5={highlighted}>
+			<div class="panel p_md" class:palette_g_50={highlighted}>
 				<div bind:this={text_el} class="mb_lg">
 					<p>
 						When the Fuz contextmenu opens and the user has selected text, the menu includes a <code
@@ -64,7 +64,7 @@ Try selecting text and then opening the contextmenu on it.`;
 				<label>
 					<input type="text" placeholder="paste text here?" bind:value />
 				</label>
-				<p class:color_g_5={highlighted}>
+				<p class:palette_g_50={highlighted}>
 					Opening the contextmenu on an <code>input</code> or <code>textarea</code> opens the
 					browser's default contextmenu.
 				</p>

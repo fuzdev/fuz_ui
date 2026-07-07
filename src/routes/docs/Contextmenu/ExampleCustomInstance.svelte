@@ -20,8 +20,11 @@
 
 	let selected_color: 'f' | 'g' | 'j' | undefined = $state.raw();
 
-	const selected_color_class = $derived(selected_color ? `color_${selected_color}_5` : undefined);
-	const selected_hue_class = $derived(selected_color ? `color_${selected_color}` : undefined);
+	// @fuz-classes palette_f_50 palette_g_50 palette_j_50 palette_f palette_g palette_j
+	const selected_color_class = $derived(
+		selected_color ? `palette_${selected_color}_50` : undefined,
+	);
+	const selected_hue_class = $derived(selected_color ? `palette_${selected_color}` : undefined);
 </script>
 
 <!-- eslint-disable svelte/no-useless-mustaches -->
@@ -87,7 +90,7 @@
 							<code> {contextmenu.x} && contextmenu.y === {contextmenu.y}</code>
 						</li>
 						{#if contextmenu.error}
-							<li class="color_error">Error: <code>{contextmenu.error}</code></li>
+							<li class="palette_c_50">Error: <code>{contextmenu.error}</code></li>
 						{/if}
 					</ul>
 				</div>
