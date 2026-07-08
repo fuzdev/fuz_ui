@@ -1,5 +1,11 @@
 # @fuzdev/fuz_ui
 
+## 0.206.6
+
+### Patch Changes
+
+- fix: `ProjectLinks.svelte` repo descriptions ([815bca4](https://github.com/fuzdev/fuz_ui/commit/815bca4))
+
 ## 0.206.5
 
 ### Patch Changes
