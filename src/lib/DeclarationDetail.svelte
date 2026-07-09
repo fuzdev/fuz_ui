@@ -301,7 +301,10 @@ including parameters, props, members, overloads, intersects, and more.
 		<h4>returns</h4>
 		<Code lang="ts" content={declaration.return_type} />
 		{#if declaration.return_description}
-			<DocMdz content={declaration.return_description} nodes={declaration.return_description_nodes} />
+			<DocMdz
+				content={declaration.return_description}
+				nodes={declaration.return_description_nodes}
+			/>
 		{/if}
 	</section>
 {/if}

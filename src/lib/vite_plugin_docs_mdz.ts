@@ -38,36 +38,36 @@ import {mdz_from_tsdoc} from '@fuzdev/mdz/tsdoc_mdz.js';
 /** svelte-docinfo's resolved virtual id (the `\0` marker is Rollup's "mine"). */
 const RESOLVED_DOCINFO_ID = '\0virtual:svelte-docinfo';
 
-/** String fields whose value is markdown — each gains a `${key}Nodes` sibling. */
+/** Markdown string fields — each gains a `${key}Nodes: MdzNode[]` sibling. */
 const MARKDOWN_STRING_KEYS = new Set(['docComment', 'description', 'returnDescription']);
+/** Markdown string-array fields — each gains a `${key}Nodes: MdzNode[][]` sibling. */
+const MARKDOWN_LIST_KEYS = new Set(['examples', 'seeAlso']);
 
 /**
- * Recursively copy `value`, adding pre-parsed `*Nodes` siblings next to every
+ * Recursively copy `value`, adding a pre-parsed `*Nodes` sibling next to every
  * markdown-bearing field. Handles arbitrary nesting (modules → declarations →
  * parameters/props/overloads/members) without hard-coding paths — the field
- * names are the same at every level.
+ * names are the same at every level. Which fields carry markdown is implicitly
+ * shared with the reader (`DeclarationDetail.svelte`); a field rendered there
+ * but missing here simply falls back to runtime parsing via `DocMdz`.
  */
 const augment = (value: unknown): unknown => {
 	if (Array.isArray(value)) return value.map(augment);
 	if (value === null || typeof value !== 'object') return value;
-	const obj = value as Record<string, unknown>;
 	const out: Record<string, unknown> = {};
-	for (const [key, v] of Object.entries(obj)) {
+	for (const [key, v] of Object.entries(value)) {
 		out[key] = augment(v);
 		if (MARKDOWN_STRING_KEYS.has(key) && typeof v === 'string' && v.length > 0) {
 			out[`${key}Nodes`] = mdz_parse(v);
+		} else if (MARKDOWN_LIST_KEYS.has(key) && Array.isArray(v) && v.length > 0) {
+			// `seeAlso` refs go through the `@see` bridge first, matching the
+			// runtime `<Mdz content={mdz_from_tsdoc(ref)}>`
+			const to_tree =
+				key === 'seeAlso'
+					? (s: string): Array<MdzNode> => mdz_parse(mdz_from_tsdoc(s))
+					: (s: string): Array<MdzNode> => mdz_parse(s);
+			out[`${key}Nodes`] = (v as Array<string>).map(to_tree);
 		}
-	}
-	// `examples: string[]` → `examplesNodes: MdzNode[][]`
-	if (Array.isArray(obj.examples) && obj.examples.length > 0) {
-		out.examplesNodes = (obj.examples as Array<string>).map((s): Array<MdzNode> => mdz_parse(s));
-	}
-	// `seeAlso: string[]` → `seeAlsoNodes: MdzNode[][]`, via the same `@see`
-	// bridge the runtime uses (`<Mdz content={mdz_from_tsdoc(ref)}>`)
-	if (Array.isArray(obj.seeAlso) && obj.seeAlso.length > 0) {
-		out.seeAlsoNodes = (obj.seeAlso as Array<string>).map((s): Array<MdzNode> =>
-			mdz_parse(mdz_from_tsdoc(s)),
-		);
 	}
 	return out;
 };
@@ -87,21 +87,30 @@ export const vite_plugin_docs_mdz = (): Plugin => ({
 		// index-based, not a regex, so string values containing `;` are safe.
 		const prefix = 'export const modules = ';
 		const json_start = code.indexOf(prefix);
-		if (json_start === -1) return undefined; // unexpected shape — leave untouched
-		const value_start = json_start + prefix.length;
-		const value_end = code.indexOf(';\nexport const diagnostics =', value_start);
-		if (value_end === -1) return undefined;
-
-		let modules: unknown;
-		try {
-			modules = JSON.parse(code.slice(value_start, value_end));
-		} catch {
-			return undefined; // not the JSON shape we expect
+		const value_start = json_start === -1 ? -1 : json_start + prefix.length;
+		const value_end =
+			value_start === -1 ? -1 : code.indexOf(';\nexport const diagnostics =', value_start);
+		if (value_end === -1) {
+			// Anchors gone → svelte-docinfo changed its emitted module shape. Warn
+			// (don't fail the build) so the drift is visible; the docs still render,
+			// parsing markdown at runtime via `DocMdz`'s fallback.
+			this.warn(
+				'could not locate the `modules` export in virtual:svelte-docinfo; ' +
+					'markdown will be parsed at runtime. svelte-docinfo may have changed its module format.',
+			);
+			return undefined;
 		}
-		const augmented = JSON.stringify(augment(modules));
-		return {
-			code: code.slice(0, value_start) + augmented + code.slice(value_end),
-			map: null,
-		};
+		try {
+			const modules = JSON.parse(code.slice(value_start, value_end));
+			const augmented = JSON.stringify(augment(modules));
+			return {code: code.slice(0, value_start) + augmented + code.slice(value_end), map: null};
+		} catch (err) {
+			// A malformed slice or an unexpected mdz_parse failure degrades to
+			// runtime parsing rather than breaking the build.
+			this.warn(
+				`failed to pre-parse markdown fields (${(err as Error).message}); parsing at runtime.`,
+			);
+			return undefined;
+		}
 	},
 });
