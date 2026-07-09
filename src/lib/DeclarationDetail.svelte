@@ -11,8 +11,10 @@ including parameters, props, members, overloads, intersects, and more.
 -->
 <script lang="ts">
 	import Code from '@fuzdev/fuz_code/Code.svelte';
-	import Mdz from '@fuzdev/mdz/Mdz.svelte';
 	import {mdz_from_tsdoc} from '@fuzdev/mdz/tsdoc_mdz.ts';
+
+	import DocMdz from './DocMdz.svelte';
+	import {field_nodes, list_nodes} from './declaration.svelte.ts';
 	import {
 		mdz_code_context,
 		mdz_codeblock_context,
@@ -53,7 +55,7 @@ including parameters, props, members, overloads, intersects, and more.
 			>
 		</h4>
 		{#if param.description}
-			<Mdz content={param.description} />
+			<DocMdz content={param.description} nodes={field_nodes(param, 'description')} />
 		{/if}
 		<div class="row gap_md mb_sm">
 			<strong>type</strong>
@@ -97,15 +99,15 @@ including parameters, props, members, overloads, intersects, and more.
 		<p><strong>since</strong> {item.since}</p>
 	{/if}
 	{#if item.examples?.length}
-		{#each item.examples as example (example)}
-			<Mdz content={example} />
+		{#each item.examples as example, i (example)}
+			<DocMdz content={example} nodes={list_nodes(item, 'examples')?.[i]} />
 		{/each}
 	{/if}
 	{#if item.seeAlso?.length}
 		<p><strong>see also</strong></p>
 		<ul>
-			{#each item.seeAlso as ref (ref)}
-				<li><Mdz content={mdz_from_tsdoc(ref)} /></li>
+			{#each item.seeAlso as ref, i (ref)}
+				<li><DocMdz content={mdz_from_tsdoc(ref)} nodes={list_nodes(item, 'seeAlso')?.[i]} /></li>
 			{/each}
 		</ul>
 	{/if}
@@ -194,7 +196,7 @@ including parameters, props, members, overloads, intersects, and more.
 
 <!-- documentation -->
 {#if declaration.has_documentation}
-	<Mdz content={declaration.doc_comment!} />
+	<DocMdz content={declaration.doc_comment} nodes={declaration.doc_comment_nodes} />
 {/if}
 
 <!-- parameters -->
@@ -217,7 +219,7 @@ including parameters, props, members, overloads, intersects, and more.
 					>
 				</h4>
 				{#if prop.description}
-					<Mdz content={prop.description} />
+					<DocMdz content={prop.description} nodes={field_nodes(prop, 'description')} />
 				{/if}
 				<div class="row gap_md mb_sm">
 					<strong>type</strong>
@@ -259,7 +261,7 @@ including parameters, props, members, overloads, intersects, and more.
 			<section>
 				<Code lang="ts" content={overload.typeSignature} />
 				{#if overload.docComment}
-					<Mdz content={overload.docComment} />
+					<DocMdz content={overload.docComment} nodes={field_nodes(overload, 'docComment')} />
 				{/if}
 				{#if overload.parameters?.length}
 					{#each overload.parameters as param (param)}
@@ -272,7 +274,10 @@ including parameters, props, members, overloads, intersects, and more.
 						<TypeLink type={overload.returnType} />
 					</div>
 					{#if overload.returnDescription}
-						<Mdz content={overload.returnDescription} />
+						<DocMdz
+							content={overload.returnDescription}
+							nodes={field_nodes(overload, 'returnDescription')}
+						/>
 					{/if}
 				{/if}
 			</section>
@@ -296,7 +301,7 @@ including parameters, props, members, overloads, intersects, and more.
 		<h4>returns</h4>
 		<Code lang="ts" content={declaration.return_type} />
 		{#if declaration.return_description}
-			<Mdz content={declaration.return_description} />
+			<DocMdz content={declaration.return_description} nodes={declaration.return_description_nodes} />
 		{/if}
 	</section>
 {/if}
@@ -393,8 +398,8 @@ including parameters, props, members, overloads, intersects, and more.
 {#if declaration.examples.length}
 	<section>
 		<h4>examples</h4>
-		{#each declaration.examples as example (example)}
-			<Mdz content={example} />
+		{#each declaration.examples as example, i (example)}
+			<DocMdz content={example} nodes={declaration.examples_nodes?.[i]} />
 		{/each}
 	</section>
 {/if}
@@ -404,9 +409,9 @@ including parameters, props, members, overloads, intersects, and more.
 	<section>
 		<h4>see also</h4>
 		<ul>
-			{#each declaration.see_also as ref (ref)}
+			{#each declaration.see_also as ref, i (ref)}
 				<li>
-					<Mdz content={mdz_from_tsdoc(ref)} />
+					<DocMdz content={mdz_from_tsdoc(ref)} nodes={declaration.see_also_nodes?.[i]} />
 				</li>
 			{/each}
 		</ul>
@@ -425,7 +430,7 @@ including parameters, props, members, overloads, intersects, and more.
 					>
 				</h4>
 				{#if member.docComment}
-					<Mdz content={member.docComment} />
+					<DocMdz content={member.docComment} nodes={field_nodes(member, 'docComment')} />
 				{/if}
 				{#if member.typeSignature}
 					<p class="row gap_md">
@@ -471,7 +476,10 @@ including parameters, props, members, overloads, intersects, and more.
 						<TypeLink type={member.returnType} />
 					</div>
 					{#if member.returnDescription}
-						<Mdz content={member.returnDescription} />
+						<DocMdz
+							content={member.returnDescription}
+							nodes={field_nodes(member, 'returnDescription')}
+						/>
 					{/if}
 				{/if}
 				{@render doc_extras(member)}

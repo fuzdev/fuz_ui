@@ -9,6 +9,8 @@ import type {
 } from 'svelte-docinfo/types.js';
 import {generateImport, getDisplayName} from 'svelte-docinfo/declaration-helpers.js';
 
+import type {MdzNode} from '@fuzdev/mdz/mdz.js';
+
 import type {Module} from './module.svelte.ts';
 import {url_github_file} from '@fuzdev/fuz_util/package_helpers.ts';
 
@@ -22,6 +24,21 @@ import {url_github_file} from '@fuzdev/fuz_util/package_helpers.ts';
 // At runtime the field is present or undefined; TypeScript needs the cast.
 const field = <T>(decl: DeclarationJsonInput, key: string): T | undefined =>
 	(decl as Record<string, unknown>)[key] as T | undefined;
+
+// Pre-parsed markdown trees. `vite_plugin_docs_mdz` adds a `${key}Nodes` sibling
+// next to each markdown string field (e.g. `descriptionNodes` for `description`,
+// `examplesNodes` for `examples`) so the docs render `<Mdz nodes={…}>` instead
+// of parsing on the client. `undefined` when the build step didn't run (a plain
+// `vite dev` without the plugin) or the source field was empty — callers fall
+// back to the raw string via `DocMdz`.
+
+/** Read the `*Nodes` sibling of a single markdown string field. */
+export const field_nodes = (obj: unknown, key: string): Array<MdzNode> | undefined =>
+	(obj as Record<string, Array<MdzNode> | undefined> | null | undefined)?.[`${key}Nodes`];
+
+/** Read the `*Nodes` sibling of a string-array field (`examples`/`seeAlso`). */
+export const list_nodes = (obj: unknown, key: string): Array<Array<MdzNode>> | undefined =>
+	(obj as Record<string, Array<Array<MdzNode>> | undefined> | null | undefined)?.[`${key}Nodes`];
 
 /**
  * Rich runtime representation of an exported declaration.
@@ -114,6 +131,12 @@ export class Declaration {
 	since = $derived(this.declaration_json.since);
 	examples = $derived(this.declaration_json.examples ?? []);
 	see_also = $derived(this.declaration_json.seeAlso ?? []);
+
+	// Build-time pre-parsed trees for the markdown getters above (see `field_nodes`).
+	doc_comment_nodes = $derived(field_nodes(this.declaration_json, 'docComment'));
+	return_description_nodes = $derived(field_nodes(this.declaration_json, 'returnDescription'));
+	examples_nodes = $derived(list_nodes(this.declaration_json, 'examples'));
+	see_also_nodes = $derived(list_nodes(this.declaration_json, 'seeAlso'));
 	/**
 	 * Nested members for classes, interfaces, types, and enums.
 	 */
