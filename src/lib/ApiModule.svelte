@@ -1,12 +1,12 @@
 <script lang="ts">
 	import Code from '@fuzdev/fuz_code/Code.svelte';
-	import Mdz from '@fuzdev/mdz/Mdz.svelte';
 	import {
 		mdz_code_context,
 		mdz_codeblock_context,
 		mdz_set_context_with_fallback,
 	} from '@fuzdev/mdz/mdz_contexts.ts';
 
+	import DocMdz from './DocMdz.svelte';
 	import {set_library_context_with_fallback, type Library} from './library.svelte.ts';
 	import {tome_get_by_slug, type Tome} from './tome.ts';
 	import TomeContent from './TomeContent.svelte';
@@ -93,7 +93,10 @@
 						<li>
 							<h3><ModuleLink module_path={child_module.path} /></h3>
 							{#if child_module.module_comment}
-								<Mdz content={child_module.module_comment} />
+								<DocMdz
+									content={child_module.module_comment}
+									nodes={child_module.module_comment_nodes}
+								/>
 							{/if}
 						</li>
 					{/each}
@@ -103,7 +106,7 @@
 	{:else}
 		{#if module.module_comment}
 			<section>
-				<Mdz content={module.module_comment} />
+				<DocMdz content={module.module_comment} nodes={module.module_comment_nodes} />
 			</section>
 		{/if}
 		{#if source_url}

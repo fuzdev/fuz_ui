@@ -17,7 +17,7 @@
  * re-runs its `load` and then this `transform` with the fresh data.
  *
  * **Sibling, not replace.** For each markdown string field (`docComment`,
- * `description`, `returnDescription`) it adds a `*Nodes` sibling
+ * `description`, `returnDescription`, `moduleComment`) it adds a `*Nodes` sibling
  * (`docCommentNodes: MdzNode[]`, …); for the string-array fields it adds
  * `examplesNodes: MdzNode[][]` and `seeAlsoNodes: MdzNode[][]` (the latter via
  * `mdz_from_tsdoc`, matching the runtime `<Mdz content={mdz_from_tsdoc(ref)}>`).
@@ -38,8 +38,22 @@ import {mdz_from_tsdoc} from '@fuzdev/mdz/tsdoc_mdz.js';
 /** svelte-docinfo's resolved virtual id (the `\0` marker is Rollup's "mine"). */
 const RESOLVED_DOCINFO_ID = '\0virtual:svelte-docinfo';
 
-/** Markdown string fields — each gains a `${key}Nodes: MdzNode[]` sibling. */
-const MARKDOWN_STRING_KEYS = new Set(['docComment', 'description', 'returnDescription']);
+/**
+ * Markdown string fields — each gains a `${key}Nodes: MdzNode[]` sibling. Must
+ * cover every markdown string field rendered through `DocMdz`/`<Mdz>`:
+ * `docComment`/`description`/`returnDescription` (declarations, params, props,
+ * members, overloads — `DeclarationDetail.svelte`) plus `moduleComment` (module
+ * docs — `ApiModule.svelte`). A field rendered but missing here isn't broken —
+ * it silently falls back to runtime parsing; a field here but never rendered is
+ * wasted payload. `propertyDescriptions` is deliberately absent: nothing renders
+ * it as markdown.
+ */
+const MARKDOWN_STRING_KEYS = new Set([
+	'docComment',
+	'description',
+	'returnDescription',
+	'moduleComment',
+]);
 /** Markdown string-array fields — each gains a `${key}Nodes: MdzNode[][]` sibling. */
 const MARKDOWN_LIST_KEYS = new Set(['examples', 'seeAlso']);
 
@@ -84,7 +98,10 @@ export const vite_plugin_docs_mdz = (): Plugin => ({
 		if (id !== RESOLVED_DOCINFO_ID) return undefined;
 		// svelte-docinfo's `load` emits `export const modules = <json>;\nexport
 		// const diagnostics = …`. Slice out the `modules` JSON by those anchors —
-		// index-based, not a regex, so string values containing `;` are safe.
+		// index-based, not a regex, so string values containing `;` are safe. The
+		// end anchor carries a real newline, which JSON escapes to `\n` inside
+		// string values, so it can only match between the emitted statements —
+		// doc-comment content can't spoof it.
 		const prefix = 'export const modules = ';
 		const json_start = code.indexOf(prefix);
 		const value_start = json_start === -1 ? -1 : json_start + prefix.length;

@@ -24,6 +24,7 @@ import theming from './theming/+page.svelte';
 import api from './api/+page.svelte';
 import intersect from './intersect/+page.svelte';
 import vite_plugin_pkg_json from './vite_plugin_pkg_json/+page.svelte';
+import vite_plugin_docs_mdz from './vite_plugin_docs_mdz/+page.svelte';
 
 // TODO maybe decouple `related` from `Tome` to get bidirectionality for free
 
@@ -60,9 +61,17 @@ export const tomes: Array<Tome> = [
 		slug: 'vite_plugin_pkg_json',
 		category: 'helpers',
 		Component: vite_plugin_pkg_json,
-		related_tomes: ['LibraryDetail'],
+		related_tomes: ['LibraryDetail', 'vite_plugin_docs_mdz'],
 		related_modules: ['vite_plugin_pkg_json.ts'],
 		related_declarations: ['vite_plugin_pkg_json'],
+	},
+	{
+		slug: 'vite_plugin_docs_mdz',
+		category: 'helpers',
+		Component: vite_plugin_docs_mdz,
+		related_tomes: ['api', 'vite_plugin_pkg_json'],
+		related_modules: ['vite_plugin_docs_mdz.ts'],
+		related_declarations: ['vite_plugin_docs_mdz'],
 	},
 	{
 		slug: 'csp',

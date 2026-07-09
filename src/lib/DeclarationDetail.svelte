@@ -14,7 +14,7 @@ including parameters, props, members, overloads, intersects, and more.
 	import {mdz_from_tsdoc} from '@fuzdev/mdz/tsdoc_mdz.ts';
 
 	import DocMdz from './DocMdz.svelte';
-	import {field_nodes, list_nodes} from './declaration.svelte.ts';
+	import {field_nodes, list_nodes, type Declaration} from './declaration.svelte.ts';
 	import {
 		mdz_code_context,
 		mdz_codeblock_context,
@@ -22,7 +22,6 @@ including parameters, props, members, overloads, intersects, and more.
 	} from '@fuzdev/mdz/mdz_contexts.ts';
 	import type {ParameterJsonInput} from 'svelte-docinfo/types.js';
 
-	import type {Declaration} from './declaration.svelte.ts';
 	import TypeLink from './TypeLink.svelte';
 	import ModuleLink from './ModuleLink.svelte';
 	import DocsLink from './DocsLink.svelte';

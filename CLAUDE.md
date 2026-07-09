@@ -216,6 +216,10 @@ re-strip drops the extras. See the `vite_plugin_pkg_json` tome for the pattern.
 
 - `vite_plugin_pkg_json.ts` - Vite plugin serving `virtual:pkg.json` (curated
   `PkgJson` from `@fuzdev/fuz_util/pkg_json.ts`)
+- `vite_plugin_docs_mdz.ts` - Vite plugin that pre-parses svelte-docinfo's
+  markdown fields to `MdzNode` trees (`*Nodes` siblings on `virtual:svelte-docinfo`),
+  so API-docs pages render pre-parsed instead of parsing per `<Mdz>` mount (see
+  [mdz rendering](#mdz-rendering))
 - `library.svelte.ts` - `Library` class wrapping library data
 - `declaration.svelte.ts` - `Declaration` class for code declarations (uses
   `generateImport`, `getDisplayName` from `svelte-docinfo/declaration-helpers.js`)
@@ -251,6 +255,14 @@ All of fuz_ui's mdz is dynamic TSDoc prose, so the injection happens at **runtim
 preprocessor (it precompiles any static `<Mdz>` content to plain markup); fuz_ui
 authors no static mdz, so it's effectively a pass-through and needs no injection
 options.
+
+The markdown **parsing** (not rendering) is moved to build time by
+`vite_plugin_docs_mdz`: it pre-parses svelte-docinfo's markdown fields
+(`docComment`, `description`, `returnDescription`, `moduleComment`, `examples`,
+`seeAlso`) to `MdzNode` trees and adds them as `*Nodes` siblings, which the
+`DocMdz` wrapper prefers (`<Mdz nodes={…}>`), falling back to parsing the raw
+string when the plugin didn't run. Rendering and the injection seam above stay
+at runtime; only the parse moves. Requires the `nodes` prop from `@fuzdev/mdz`.
 
 ## Context system
 

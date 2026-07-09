@@ -4,7 +4,7 @@ import type {
 	ExternalReExportJsonInput,
 } from 'svelte-docinfo/types.js';
 
-import {Declaration} from './declaration.svelte.ts';
+import {Declaration, field_nodes} from './declaration.svelte.ts';
 import type {Library} from './library.svelte.ts';
 import {url_github_file} from '@fuzdev/fuz_util/package_helpers.ts';
 
@@ -65,6 +65,11 @@ export class Module {
 	path_import = $derived('./' + this.path);
 
 	module_comment = $derived(this.module_json.moduleComment);
+
+	// Build-time pre-parsed tree for `module_comment` (the `moduleCommentNodes`
+	// sibling from `vite_plugin_docs_mdz`); `undefined` when the plugin didn't run
+	// or the comment was empty, so `DocMdz` falls back to the raw string.
+	module_comment_nodes = $derived(field_nodes(this.module_json, 'moduleComment'));
 
 	/**
 	 * Array of `Declaration` instances. Filters out default exports.
