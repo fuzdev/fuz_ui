@@ -97,11 +97,13 @@ export default defineConfig({
 	<TomeSection>
 		<TomeSectionHeader text="Payload trade-off" />
 		<p>
-			Pre-parsed JSON is larger than the raw markdown string it replaces -- roughly double
-			uncompressed, and the trees ship in the same client chunk as the rest of the library metadata.
-			The win is trading that payload for zero client-side parse work across every declaration on
-			every page load and every client-side navigation. For a docs-heavy library the parse savings
-			are worth the bytes; if they aren't for your case, the plugin is opt-in -- drop it and the
+			Pre-parsed JSON is several times the size of the raw markdown string it replaces -- roughly
+			3-5x for a typical doc comment, and more for short one-line fields (a bare
+			<code>@param</code> description), where the per-node type and offset bookkeeping dominates.
+			The trees ship in the same client chunk as the rest of the library metadata. The win is
+			trading that payload for zero client-side parse work across every declaration on every page
+			load and every client-side navigation. For a docs-heavy library the parse savings are worth
+			the bytes; if they aren't for your case, the plugin is opt-in -- drop it and the
 			<code>DocMdz</code> fallback parses at runtime instead.
 		</p>
 	</TomeSection>

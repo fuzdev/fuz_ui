@@ -22,8 +22,10 @@
  * `examplesNodes: MdzNode[][]` and `seeAlsoNodes: MdzNode[][]` (the latter via
  * `mdz_from_tsdoc`, matching the runtime `<Mdz content={mdz_from_tsdoc(ref)}>`).
  * The raw strings stay, so nothing that reads them as strings breaks; the trade
- * is payload size (pre-parsed JSON is ~2–5× the raw string) for client parse
- * CPU. `declaration.svelte.ts` surfaces the `*Nodes` fields and
+ * is payload size (pre-parsed JSON runs ~3–5× the raw string for a typical doc
+ * comment, and higher for short one-line fields, where the per-node
+ * `type`/`start`/`end` bookkeeping dominates) for client parse CPU.
+ * `declaration.svelte.ts` surfaces the `*Nodes` fields and
  * `DeclarationDetail.svelte` passes them to `<Mdz nodes={…}>`.
  *
  * Registered after `svelte_docinfo()` in `vite.config.ts`.
