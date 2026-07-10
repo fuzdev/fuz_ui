@@ -1,5 +1,11 @@
 # @fuzdev/fuz_ui
 
+## 0.206.7
+
+### Patch Changes
+
+- feat: tweak `HueInput` height and padding ([a4330fe](https://github.com/fuzdev/fuz_ui/commit/a4330fe))
+
 ## 0.206.6
 
 ### Patch Changes
