@@ -47,7 +47,7 @@
 	<label class="unstyled">
 		{#if children}<div class="title">{@render children()}</div>{/if}
 		<div class="preview">
-			hue
+			hue:
 			<input type="number" step="0" class="hue" {value} oninput={on_input_event} />
 		</div>
 	</label>
@@ -73,14 +73,16 @@
 	}
 	.preview {
 		background-color: hsl(var(--hue) 50% 50%);
-		height: var(--space_xl5);
+		/* mirror the `min-height: var(--input_height)` that fuz_css gives the sibling inputs,
+		so the preview tracks their height even when `--input_height` is customized */
+		min-height: var(--input_height);
 		margin: 0;
 		display: flex;
 		flex-direction: row;
 		align-items: center;
 		font-weight: 700;
 		color: var(--shade_00);
-		padding-left: var(--space_xl);
+		padding-left: var(--space_xl2);
 		border-top-left-radius: var(--border_radius, var(--border_radius_md));
 		border-top-right-radius: var(--border_radius, var(--border_radius_md));
 	}
@@ -114,13 +116,11 @@
 		width: 10rem;
 		min-width: 10rem;
 		margin-left: var(--space_lg);
-		font-size: var(--font_size_lg);
+		font-size: var(--font_size_md);
 		text-align: center;
 		background-color: transparent;
 		border: none;
 		border-radius: var(--border_radius, var(--border_radius_md));
-		/* TODO why is this necessary? */
-		height: var(--input_height);
 		color: var(--shade_00);
 	}
 </style>
