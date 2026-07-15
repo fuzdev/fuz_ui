@@ -159,7 +159,7 @@ export const logo_fuz_util = {
 } satisfies SvgData;
 
 export const logo_tsv = {
-	label: 'a pixelated orange quill drawing a straight line',
+	label: 'a pixelated orange quill drawing a precise line',
 	fill: '#f4672f',
 	paths: [
 		{

@@ -20,8 +20,11 @@
 
 	let selected_color: 'f' | 'g' | 'j' | undefined = $state.raw();
 
-	const selected_color_class = $derived(selected_color ? `color_${selected_color}_5` : undefined);
-	const selected_hue_class = $derived(selected_color ? `color_${selected_color}` : undefined);
+	// @fuz-classes palette_f_50 palette_g_50 palette_j_50 palette_f palette_g palette_j
+	const selected_color_class = $derived(
+		selected_color ? `palette_${selected_color}_50` : undefined,
+	);
+	const selected_hue_class = $derived(selected_color ? `palette_${selected_color}` : undefined);
 </script>
 
 <!-- eslint-disable svelte/no-useless-mustaches -->
@@ -38,19 +41,19 @@
 							run={() => {
 								selected_color = 'f';
 								return {ok: true, close: false};
-							}}><span class="color_f_50">option f</span></ContextmenuEntry
+							}}><span class="palette_f_50">option f</span></ContextmenuEntry
 						>
 						<ContextmenuEntry
 							run={() => {
 								selected_color = 'g';
 								return {ok: true, close: false};
-							}}><span class="color_g_50">option g</span></ContextmenuEntry
+							}}><span class="palette_g_50">option g</span></ContextmenuEntry
 						>
 						<ContextmenuEntry
 							run={() => {
 								selected_color = 'j';
 								return {ok: true, close: false};
-							}}><span class="color_j_50">option j</span></ContextmenuEntry
+							}}><span class="palette_j_50">option j</span></ContextmenuEntry
 						>
 						<ContextmenuEntry
 							run={() => {
@@ -87,7 +90,7 @@
 							<code> {contextmenu.x} && contextmenu.y === {contextmenu.y}</code>
 						</li>
 						{#if contextmenu.error}
-							<li class="color_error">Error: <code>{contextmenu.error}</code></li>
+							<li class="palette_c_50">Error: <code>{contextmenu.error}</code></li>
 						{/if}
 					</ul>
 				</div>

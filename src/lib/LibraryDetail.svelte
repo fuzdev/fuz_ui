@@ -282,16 +282,16 @@ with file-type coloring. Uses svelte-docinfo's file type predicates for module c
 	}
 	/* TODO probably add variables/classes for these */
 	.ts {
-		--link_color: var(--color_a_50);
+		--link_color: var(--palette_a_50);
 	}
 	.svelte {
-		--link_color: var(--color_h_50);
+		--link_color: var(--palette_h_50);
 	}
 	.css {
-		--link_color: var(--color_b_50);
+		--link_color: var(--palette_b_50);
 	}
 	.json {
-		--link_color: var(--color_f_50);
+		--link_color: var(--palette_f_50);
 	}
 	/* TODO extract */
 	.declarations {

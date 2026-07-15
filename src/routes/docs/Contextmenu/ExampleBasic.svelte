@@ -53,14 +53,14 @@
 </${root_component_name}>
 ...markup without contextmenu behavior...`}
 				/>
-				<div><code class:color_g_5={greeted}>greeted = {greeted}</code></div>
+				<div><code class:palette_g_50={greeted}>greeted = {greeted}</code></div>
 				<div>
-					<code class:color_e_5={greeted_icon_snippet}
+					<code class:palette_e_50={greeted_icon_snippet}
 						>greeted_icon_snippet = {greeted_icon_snippet}</code
 					>
 				</div>
 				<div>
-					<code class:color_d_5={greeted_icon_string}
+					<code class:palette_d_50={greeted_icon_string}
 						>greeted_icon_string = {greeted_icon_string}</code
 					>
 				</div>
