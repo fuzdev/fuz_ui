@@ -7,10 +7,13 @@ import {execSync} from 'node:child_process';
 // fuz_ui's own CSP — hand-rolled because self-import-from-dist is fragile during builds.
 // Kept in sync with `create_csp_directives({extend: [csp_directives_of_fuzdev]})` by
 // `src/test/csp.svelte_config.test.ts`. TODO swap to the helper once the dist round-trip settles.
-const csp_fuzdev_extensions = /** @type {const} */ [
+// the parens are load-bearing — a JSDoc cast only applies to a parenthesized expression,
+// and without them these widen to `string[]` and stop matching kit's `Csp.Source`
+// prettier-ignore
+const csp_fuzdev_extensions = /** @type {const} */ ([
 	'https://*.fuz.dev/',
 	'https://*.zzz.software/',
-];
+]);
 
 /** @type {import('@sveltejs/kit').Config} */
 export default {
