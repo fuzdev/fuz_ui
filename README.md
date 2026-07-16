@@ -36,8 +36,8 @@ The Svelte components and helpers:
 npm i -D @fuzdev/fuz_ui
 ```
 
-Fuz uses my style framework [fuz_css](https://github.com/fuzdev/fuz_css).
-Import modules at their full paths:
+Fuz uses [fuz_css](https://github.com/fuzdev/fuz_css), a semantic-first CSS
+framework and design system. Import modules at their full paths:
 
 ```ts
 // fuz_css has one main plain CSS stylesheet:

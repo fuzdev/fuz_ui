@@ -32,7 +32,7 @@
 	// prettier-ignore
 	const project_items: Array<ProjectItem> = [
 		{name: 'fuz_app', url: 'https://app.fuz.dev/', logo: logo_fuz_app, description: '[pre-alpha] fullstack app library', glyph: '🗝', color_class: 'color_j_50'},
-		{name: 'fuz_css', url: 'https://css.fuz.dev/', logo: logo_fuz_css, description: 'CSS framework and design system for semantic HTML', glyph: '🌿', color_class: 'color_b_50'},
+		{name: 'fuz_css', url: 'https://css.fuz.dev/', logo: logo_fuz_css, description: 'semantic-first CSS framework and design system', glyph: '🌿', color_class: 'color_b_50'},
 		{name: 'fuz_ui', url: 'https://ui.fuz.dev/', logo: logo_fuz_ui, description: 'Svelte UI library', glyph: '🧶', color_class: 'color_c_50'},
 		{name: 'fuz_template', url: 'https://template.fuz.dev/', logo: logo_fuz_template, description: 'a static web app and Node library template with TypeScript, Svelte, SvelteKit, Vite, esbuild, Gro, and Fuz', glyph: '❄', color_class: 'color_h_50'},
 		{name: 'fuz_blog', url: 'https://blog.fuz.dev/', logo: logo_fuz_blog, description: 'blog software from scratch with SvelteKit', glyph: '🖊️', color_class: 'color_e_50'},

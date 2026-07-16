@@ -28,7 +28,7 @@ dev server.
 
 - Svelte 5 - component framework
 - SvelteKit - application framework
-- fuz_css (@fuzdev/fuz_css) - CSS framework and design system foundation
+- fuz_css (@fuzdev/fuz_css) - semantic-first CSS framework and design system
 - fuz_util (@fuzdev/fuz_util) - utility library
 - mdz (@fuzdev/mdz) - markdown dialect (parser, renderer, preprocessor) rendered
   throughout the docs; `DocsLink` (inline code) and fuz_code's `Code` (code
