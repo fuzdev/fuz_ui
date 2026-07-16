@@ -4,18 +4,20 @@ import type {SvgData} from './svg.ts';
 
 /*
 
-Logo colors are the midpoint between the light and dark versions of color variant 5:
+Logo colors are frozen brand values — originally derived as the midpoint
+between the light and dark mid-stops of fuz_css's pre-OKLCH palette
+(today's `--palette_X_50`), and deliberately not re-derived since:
 
 ```css
---color_a: #6199d1;
---color_b: #3db33d;
---color_c: #d93636;
---color_d: #8866cc;
---color_e: #d8bc31;
---color_f: #84522a; // TODO this one isn't the midpoint bc fuz_css's color needs tweaking, too light in dark mode
---color_g: #e55d95;
---color_h: #f4672f;
---color_i: #36e2e2;
+#6199d1 (blue, a)
+#3db33d (green, b)
+#d93636 (red, c)
+#8866cc (purple, d)
+#d8bc31 (yellow, e)
+#84522a (brown, f)
+#e55d95 (pink, g)
+#f4672f (orange, h)
+#36e2e2 (cyan, i)
 ```
 */
 
