@@ -1,8 +1,8 @@
 <script lang="ts">
-	import {flip} from 'svelte/animate';
-	import {crossfade} from 'svelte/transition';
-	import {quintOut} from 'svelte/easing';
-	import {SvelteSet} from 'svelte/reactivity';
+	import { flip } from 'svelte/animate';
+	import { crossfade } from 'svelte/transition';
+	import { quintOut } from 'svelte/easing';
+	import { SvelteSet } from 'svelte/reactivity';
 	import Code from '@fuzdev/fuz_code/Code.svelte';
 
 	import Contextmenu from '$lib/Contextmenu.svelte';
@@ -14,7 +14,7 @@
 	import HomeContextmenu from './HomeContextmenu.svelte';
 	import AdventureContextmenu from './AdventureContextmenu.svelte';
 	import CatView from './CatView.svelte';
-	import type {Cat, CatPosition, HistoryItem} from './helpers.ts';
+	import type { Cat, CatPosition, HistoryItem } from './helpers.ts';
 	import ColorSchemeInput from '$lib/ColorSchemeInput.svelte';
 	import ThemeInput from '$lib/ThemeInput.svelte';
 	import Dialog from '$lib/Dialog.svelte';
@@ -22,7 +22,7 @@
 	import file_contents from './ExampleFull.svelte?raw';
 	import TomeSectionHeader from '$lib/TomeSectionHeader.svelte';
 	import TomeSection from '$lib/TomeSection.svelte';
-	import {selected_contextmenu_root_component_context} from './selected_root_component.svelte.ts';
+	import { selected_contextmenu_root_component_context } from './selected_root_component.svelte.ts';
 
 	const selected = selected_contextmenu_root_component_context.get();
 	const ContextmenuRootComponent = $derived(selected.component);
@@ -37,8 +37,8 @@
 	const alyssa_icon = $derived(alyssa_position === ben_position ? '😺' : '😾');
 	const ben_icon = $derived(alyssa_position === ben_position ? '😸' : '😿');
 
-	const alyssa_cat = $derived({name: alyssa, icon: alyssa_icon, position: alyssa_position});
-	const ben_cat = $derived({name: ben, icon: ben_icon, position: ben_position});
+	const alyssa_cat = $derived({ name: alyssa, icon: alyssa_icon, position: alyssa_position });
+	const ben_cat = $derived({ name: ben, icon: ben_icon, position: ben_position });
 
 	let swapped = $state.raw(false);
 
@@ -48,8 +48,8 @@
 	// TODO this is weird but `animate:` needs an `each`?
 	const locate_cats = (
 		cats: Array<Cat>,
-		swapped: boolean,
-	): {home_cats: Array<Cat>; adventure_cats: Array<Cat>} => {
+		swapped: boolean
+	): { home_cats: Array<Cat>; adventure_cats: Array<Cat> } => {
 		const home_cats: Array<Cat> = [];
 		const adventure_cats: Array<Cat> = [];
 		for (const cat of cats) {
@@ -60,17 +60,17 @@
 				list.push(cat);
 			}
 		}
-		return {home_cats, adventure_cats};
+		return { home_cats, adventure_cats };
 	};
 
-	const {home_cats, adventure_cats} = $derived(locate_cats([alyssa_cat, ben_cat], swapped));
+	const { home_cats, adventure_cats } = $derived(locate_cats([alyssa_cat, ben_cat], swapped));
 
 	// const cats = [alyssa, ben];
 	// TODO use these
 	// const catMoods = ['😼', '😾', '😺', '😸', '😻'];
 
 	const can_reset = $derived(
-		alyssa_position !== INITIAL_POSITION || ben_position !== INITIAL_POSITION,
+		alyssa_position !== INITIAL_POSITION || ben_position !== INITIAL_POSITION
 	);
 
 	// reset the tome's state
@@ -138,9 +138,9 @@
 				css: (t) => `
 					transform: ${transform} scale(${t});
 					opacity: ${t}
-				`,
+				`
 			};
-		},
+		}
 	});
 </script>
 
@@ -166,8 +166,8 @@
 								{#each home_cats as { name, icon, position } (name)}
 									<div
 										class="cat-wrapper"
-										in:receive={{key: name}}
-										out:send={{key: name}}
+										in:receive={{ key: name }}
+										out:send={{ key: name }}
 										animate:flip
 									>
 										<div
@@ -196,8 +196,8 @@
 								{#each adventure_cats as { name, icon, position } (name)}
 									<div
 										class="cat-wrapper"
-										in:receive={{key: name}}
-										out:send={{key: name}}
+										in:receive={{ key: name }}
+										out:send={{ key: name }}
 										animate:flip
 									>
 										<div

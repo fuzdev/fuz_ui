@@ -1,7 +1,7 @@
-import {describe, test, assert, beforeEach} from 'vitest';
+import { describe, test, assert, beforeEach } from 'vitest';
 
-import {ContextmenuState, EntryState} from '$lib/contextmenu_state.svelte.ts';
-import {add_test_entry, add_test_submenu} from './contextmenu_state_test_helpers.ts';
+import { ContextmenuState, EntryState } from '$lib/contextmenu_state.svelte.ts';
+import { add_test_entry, add_test_submenu } from './contextmenu_state_test_helpers.ts';
 
 describe('ContextmenuState - Lifecycle', () => {
 	let contextmenu: ContextmenuState;
@@ -13,7 +13,7 @@ describe('ContextmenuState - Lifecycle', () => {
 	describe('open and close', () => {
 		test('open sets state correctly', () => {
 			const params = [
-				{snippet: 'text' as const, props: {content: 'Test', icon: '🧪', run: () => {}}},
+				{ snippet: 'text' as const, props: { content: 'Test', icon: '🧪', run: () => {} } }
 			];
 			contextmenu.open(params, 100, 200);
 
@@ -78,7 +78,7 @@ describe('ContextmenuState - Lifecycle', () => {
 
 			const entry = add_test_entry(contextmenu.root_menu, async () => {
 				await promise;
-				return {ok: true};
+				return { ok: true };
 			});
 
 			contextmenu.open([], 0, 0);
@@ -94,7 +94,7 @@ describe('ContextmenuState - Lifecycle', () => {
 			assert.strictEqual(contextmenu.opened, false);
 
 			// Resolve the promise after close
-			resolve({ok: true});
+			resolve({ ok: true });
 		});
 
 		test('close does nothing when already closed', () => {
@@ -115,9 +115,15 @@ describe('ContextmenuState - Lifecycle', () => {
 		});
 
 		test('rapid open/close sequences maintain consistency', () => {
-			const params1 = [{snippet: 'text' as const, props: {content: 'A', icon: '1', run: () => {}}}];
-			const params2 = [{snippet: 'text' as const, props: {content: 'B', icon: '2', run: () => {}}}];
-			const params3 = [{snippet: 'text' as const, props: {content: 'C', icon: '3', run: () => {}}}];
+			const params1 = [
+				{ snippet: 'text' as const, props: { content: 'A', icon: '1', run: () => {} } }
+			];
+			const params2 = [
+				{ snippet: 'text' as const, props: { content: 'B', icon: '2', run: () => {} } }
+			];
+			const params3 = [
+				{ snippet: 'text' as const, props: { content: 'C', icon: '3', run: () => {} } }
+			];
 
 			// Rapid sequence: open, close, open, close, open
 			contextmenu.open(params1, 10, 10);
@@ -145,10 +151,10 @@ describe('ContextmenuState - Lifecycle', () => {
 
 		test('opening while already open replaces content', () => {
 			const params1 = [
-				{snippet: 'text' as const, props: {content: 'First', icon: '1', run: () => {}}},
+				{ snippet: 'text' as const, props: { content: 'First', icon: '1', run: () => {} } }
 			];
 			const params2 = [
-				{snippet: 'text' as const, props: {content: 'Second', icon: '2', run: () => {}}},
+				{ snippet: 'text' as const, props: { content: 'Second', icon: '2', run: () => {} } }
 			];
 
 			contextmenu.open(params1, 100, 100);
@@ -175,7 +181,7 @@ describe('ContextmenuState - Lifecycle', () => {
 			contextmenu.selections = [...contextmenu.selections, entry];
 
 			const params = [
-				{snippet: 'text' as const, props: {content: 'New', icon: '🆕', run: () => {}}},
+				{ snippet: 'text' as const, props: { content: 'New', icon: '🆕', run: () => {} } }
 			];
 			contextmenu.open(params, 50, 50);
 
@@ -211,7 +217,7 @@ describe('ContextmenuState - Lifecycle', () => {
 			const entry = add_test_entry(contextmenu.root_menu, async () => {
 				await promise;
 				ran_to_completion = true;
-				return {ok: true};
+				return { ok: true };
 			});
 
 			contextmenu.open([], 0, 0);
@@ -225,7 +231,7 @@ describe('ContextmenuState - Lifecycle', () => {
 			assert.strictEqual(entry.pending, false);
 
 			// Resolve the activation
-			resolve({ok: true});
+			resolve({ ok: true });
 			await activation;
 
 			// Activation completed but menu stayed closed

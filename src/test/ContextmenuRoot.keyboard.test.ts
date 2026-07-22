@@ -1,9 +1,9 @@
 /**
  * @vitest-environment jsdom
  */
-import {vi} from 'vitest';
+import { vi } from 'vitest';
 
-import {create_shared_keyboard_tests} from './contextmenu_test_keyboard.ts';
+import { create_shared_keyboard_tests } from './contextmenu_test_keyboard.ts';
 import ContextmenuRoot from '$lib/ContextmenuRoot.svelte';
 
 // ResizeObserver is not currently available in jsdom

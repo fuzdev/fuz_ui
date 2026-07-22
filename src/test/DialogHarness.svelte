@@ -6,8 +6,8 @@
 
 	const {
 		dialog_props = {},
-		content_props = {},
-	}: {dialog_props?: Record<string, any>; content_props?: Record<string, any>} = $props();
+		content_props = {}
+	}: { dialog_props?: Record<string, any>; content_props?: Record<string, any> } = $props();
 </script>
 
 <Dialog {...dialog_props}>

@@ -1,17 +1,17 @@
 <script lang="ts">
-	import {onDestroy, type Snippet} from 'svelte';
-	import {swallow} from '@fuzdev/fuz_util/dom.ts';
+	import { onDestroy, type Snippet } from 'svelte';
+	import { swallow } from '@fuzdev/fuz_util/dom.ts';
 
 	import PendingAnimation from './PendingAnimation.svelte';
-	import {contextmenu_context, type ContextmenuRun} from './contextmenu_state.svelte.ts';
-	import type {SvgData} from './svg.ts';
+	import { contextmenu_context, type ContextmenuRun } from './contextmenu_state.svelte.ts';
+	import type { SvgData } from './svg.ts';
 	import ContextmenuIcon from './ContextmenuIcon.svelte';
 
 	const {
 		run,
 		icon,
 		children,
-		disabled: disabled_prop = false,
+		disabled: disabled_prop = false
 	}: {
 		run: ContextmenuRun;
 		icon?: SvgData | string | Snippet;
@@ -25,10 +25,10 @@
 	// add_entry registers on the current instance at init — not reactive to contextmenu getter changes
 	const entry = get_contextmenu().add_entry(
 		() => run,
-		() => disabled_prop,
+		() => disabled_prop
 	);
 
-	const {selected, pending, error_message} = $derived(entry);
+	const { selected, pending, error_message } = $derived(entry);
 	const disabled = $derived(entry.disabled());
 
 	let activate_timeout: NodeJS.Timeout | null = null;
@@ -40,7 +40,7 @@
 <!-- disabling the a11y warning because a parent element handles keyboard events -->
 <!-- svelte-ignore a11y_click_events_have_key_events -->
 <li
-	class={['menuitem plain selectable deselectable', {selected, disabled}]}
+	class={['menuitem plain selectable deselectable', { selected, disabled }]}
 	role="menuitem"
 	aria-disabled={disabled}
 	tabindex="-1"

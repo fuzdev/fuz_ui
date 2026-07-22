@@ -1,13 +1,13 @@
 <script lang="ts">
-	import {resolve} from '$app/paths';
+	import { resolve } from '$app/paths';
 	import Code from '@fuzdev/fuz_code/Code.svelte';
 
-	import {tome_get_by_slug} from '$lib/tome.ts';
+	import { tome_get_by_slug } from '$lib/tome.ts';
 	import Card from '$lib/Card.svelte';
 	import TomeContent from '$lib/TomeContent.svelte';
 	import TomeSectionHeader from '$lib/TomeSectionHeader.svelte';
 	import TomeSection from '$lib/TomeSection.svelte';
-	import {DOCS_PATH} from '$lib/docs_helpers.svelte.ts';
+	import { DOCS_PATH } from '$lib/docs_helpers.svelte.ts';
 
 	const TOME_SLUG = 'Card';
 	const tome = tome_get_by_slug(TOME_SLUG);

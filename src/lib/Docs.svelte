@@ -1,24 +1,24 @@
 <script lang="ts">
-	import type {Snippet} from 'svelte';
-	import {onNavigate} from '$app/navigation';
-	import {innerWidth} from 'svelte/reactivity/window';
-	import {page} from '$app/state';
+	import type { Snippet } from 'svelte';
+	import { onNavigate } from '$app/navigation';
+	import { innerWidth } from 'svelte/reactivity/window';
+	import { page } from '$app/state';
 
 	import Breadcrumb from './Breadcrumb.svelte';
-	import {Tome, tomes_context} from './tome.ts';
+	import { Tome, tomes_context } from './tome.ts';
 	import DocsPrimaryNav from './DocsPrimaryNav.svelte';
 	import DocsSecondaryNav from './DocsSecondaryNav.svelte';
 	import DocsTertiaryNav from './DocsTertiaryNav.svelte';
 	import Dialog from './Dialog.svelte';
 	import DialogContent from './DialogContent.svelte';
 	import DocsFooter from './DocsFooter.svelte';
-	import {site_context} from './site.svelte.ts';
-	import {FUZ_DEV_URL} from './constants.ts';
-	import {DocsLinks, docs_links_context} from './docs_helpers.svelte.ts';
+	import { site_context } from './site.svelte.ts';
+	import { FUZ_DEV_URL } from './constants.ts';
+	import { DocsLinks, docs_links_context } from './docs_helpers.svelte.ts';
 
 	const {
 		tomes,
-		children,
+		children
 	}: {
 		tomes: Array<Tome>;
 		children: Snippet;
@@ -82,9 +82,7 @@
 </div>
 <!-- TODO @many dialog navs - instead of a dialog, probably use a popover (new component) -->
 <!-- TODO this is messy rendering `DocsSecondaryNav` twice to handle responsive states with SSR correctly -->
-{#if show_secondary_nav_dialog &&
-	innerWidth.current &&
-	innerWidth.current <= TERTIARY_NAV_BREAKPOINT}
+{#if show_secondary_nav_dialog && innerWidth.current && innerWidth.current <= TERTIARY_NAV_BREAKPOINT}
 	<Dialog onclose={() => (show_secondary_nav_dialog = false)}>
 		<DialogContent padding="">
 			<div style:--docs_menu_width={docs_menu_width}>

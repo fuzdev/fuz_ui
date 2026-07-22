@@ -1,4 +1,4 @@
-import type {SvelteHTMLElements} from 'svelte/elements';
+import type { SvelteHTMLElements } from 'svelte/elements';
 
 /**
  * A structured icon definition rendered by `Svg.svelte`. Rendering is purely
@@ -11,7 +11,7 @@ export interface SvgData {
 	 * List of svg `path` attribute objects, spread onto each `path` element. The
 	 * `d` attribute is required; a per-path `fill` overrides the resolved `fill`.
 	 */
-	paths?: Array<{d: string} & SvelteHTMLElements['path']> | null;
+	paths?: Array<{ d: string } & SvelteHTMLElements['path']> | null;
 	/**
 	 * Inline `style` applied to the root `svg` element, merged with any `style`
 	 * passed as a component prop. Travels with the icon definition - per-instance

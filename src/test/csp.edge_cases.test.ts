@@ -1,16 +1,16 @@
-import {test, assert, describe} from 'vitest';
+import { test, assert, describe } from 'vitest';
 
-import {create_csp_directives, csp_directive_specs} from '$lib/csp.ts';
-import {src} from './csp_test_helpers.ts';
+import { create_csp_directives, csp_directive_specs } from '$lib/csp.ts';
+import { src } from './csp_test_helpers.ts';
 
 const A = src('a.fuz.dev');
 
 describe('extreme array sizes', () => {
 	test('handles very large source arrays in extend', () => {
-		const many_sources = Array.from({length: 1000}, (_, i) => src(`source${i}.fuz.dev`));
+		const many_sources = Array.from({ length: 1000 }, (_, i) => src(`source${i}.fuz.dev`));
 
 		const csp = create_csp_directives({
-			extend: [{'img-src': many_sources}],
+			extend: [{ 'img-src': many_sources }]
 		});
 
 		// 4 starting sources + 1000 extended
@@ -20,12 +20,12 @@ describe('extreme array sizes', () => {
 	});
 
 	test('handles many extend layers', () => {
-		const many_layers = Array.from({length: 100}, (_, i) => ({
-			'img-src': [src(`trusted${i}.fuz.dev`)],
+		const many_layers = Array.from({ length: 100 }, (_, i) => ({
+			'img-src': [src(`trusted${i}.fuz.dev`)]
 		}));
 
 		const csp = create_csp_directives({
-			extend: many_layers,
+			extend: many_layers
 		});
 
 		assert.include(csp['img-src']!, src('trusted0.fuz.dev'));
@@ -36,7 +36,7 @@ describe('extreme array sizes', () => {
 		const long_url = src('https://' + 'a'.repeat(1000) + '.fuz.dev');
 
 		const csp = create_csp_directives({
-			extend: [{'img-src': [long_url]}],
+			extend: [{ 'img-src': [long_url] }]
 		});
 
 		assert.include(csp['img-src']!, long_url);
@@ -48,7 +48,7 @@ describe('unusual option combinations', () => {
 		const csp = create_csp_directives({
 			replace_defaults: {},
 			extend: [],
-			overrides: {},
+			overrides: {}
 		});
 
 		assert.deepEqual(csp, {});
@@ -57,28 +57,28 @@ describe('unusual option combinations', () => {
 	test('blank replace_defaults exercises full pipeline (extend + overrides)', () => {
 		const csp = create_csp_directives({
 			replace_defaults: {},
-			extend: [{'script-src': ['self', A]}],
+			extend: [{ 'script-src': ['self', A] }],
 			overrides: {
-				'connect-src': ['self'],
-			},
+				'connect-src': ['self']
+			}
 		});
 
 		assert.deepEqual(csp, {
 			'script-src': ['self', A],
-			'connect-src': ['self'],
+			'connect-src': ['self']
 		});
 	});
 });
 
 describe('memory and reference safety', () => {
 	test('modifying input options does not affect future calls', () => {
-		const layer: any = {'script-src': ['self', src('first.fuz.dev')]};
+		const layer: any = { 'script-src': ['self', src('first.fuz.dev')] };
 
-		const csp1 = create_csp_directives({extend: [layer]});
+		const csp1 = create_csp_directives({ extend: [layer] });
 
 		layer['script-src'].push(src('modified.fuz.dev'));
 
-		const csp2 = create_csp_directives({extend: [layer]});
+		const csp2 = create_csp_directives({ extend: [layer] });
 
 		assert.notInclude(csp1['script-src']! as Array<any>, src('modified.fuz.dev'));
 		assert.include(csp2['script-src']!, src('modified.fuz.dev'));
@@ -91,8 +91,8 @@ describe('boolean directive edge cases', () => {
 		// covered in csp.overrides.test.ts. The null-removal of a boolean is only here.
 		const csp = create_csp_directives({
 			overrides: {
-				'upgrade-insecure-requests': null,
-			},
+				'upgrade-insecure-requests': null
+			}
 		});
 
 		assert.notProperty(csp, 'upgrade-insecure-requests');
@@ -105,7 +105,7 @@ describe('directive name properties', () => {
 			assert.strictEqual(spec.name, spec.name.toLowerCase(), `${spec.name} should be lowercase`);
 			assert.ok(
 				/^[a-z-]+$/.test(spec.name),
-				`${spec.name} should only contain lowercase letters and hyphens`,
+				`${spec.name} should only contain lowercase letters and hyphens`
 			);
 		}
 	});
@@ -120,12 +120,12 @@ describe('directive name properties', () => {
 
 describe('concurrent calls', () => {
 	test('multiple simultaneous calls produce independent results', () => {
-		const promises = Array.from({length: 10}, (_, i) =>
+		const promises = Array.from({ length: 10 }, (_, i) =>
 			Promise.resolve(
 				create_csp_directives({
-					extend: [{'img-src': [src(`source${i}.fuz.dev`)]}],
-				}),
-			),
+					extend: [{ 'img-src': [src(`source${i}.fuz.dev`)] }]
+				})
+			)
 		);
 
 		return Promise.all(promises).then((results) => {

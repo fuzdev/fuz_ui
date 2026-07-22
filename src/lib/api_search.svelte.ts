@@ -1,6 +1,6 @@
-import type {Declaration} from './declaration.svelte.ts';
-import type {Library} from './library.svelte.ts';
-import type {Module} from './module.svelte.ts';
+import type { Declaration } from './declaration.svelte.ts';
+import type { Library } from './library.svelte.ts';
+import type { Module } from './module.svelte.ts';
 
 export interface DeclarationSearchState {
 	query: string;
@@ -59,7 +59,7 @@ export const create_api_search = (library: Library): ApiSearchState => {
 			},
 			get filtered() {
 				return filtered_modules;
-			},
+			}
 		},
 		declarations: {
 			get all() {
@@ -67,8 +67,8 @@ export const create_api_search = (library: Library): ApiSearchState => {
 			},
 			get filtered() {
 				return filtered_declarations;
-			},
-		},
+			}
+		}
 	};
 };
 
@@ -76,7 +76,7 @@ export const create_api_search = (library: Library): ApiSearchState => {
  * Creates search state for module-specific declaration lists.
  */
 export const create_module_declaration_search = (
-	declarations: Array<Declaration>,
+	declarations: Array<Declaration>
 ): DeclarationSearchState => {
 	let query = $state.raw('');
 
@@ -96,9 +96,7 @@ export const create_module_declaration_search = (
 
 			return terms.every(
 				(term) =>
-					name_lower.includes(term) ||
-					kind_lower.includes(term) ||
-					module_path_lower.includes(term),
+					name_lower.includes(term) || kind_lower.includes(term) || module_path_lower.includes(term)
 			);
 		});
 
@@ -117,6 +115,6 @@ export const create_module_declaration_search = (
 		},
 		get filtered() {
 			return filtered;
-		},
+		}
 	};
 };

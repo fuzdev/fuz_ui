@@ -1,10 +1,10 @@
-import type {LibraryJson} from '@fuzdev/fuz_util/library_json.ts';
-import {ensure_start, strip_end} from '@fuzdev/fuz_util/string.ts';
-import type {Url} from '@fuzdev/fuz_util/url.ts';
+import type { LibraryJson } from '@fuzdev/fuz_util/library_json.ts';
+import { ensure_start, strip_end } from '@fuzdev/fuz_util/string.ts';
+import type { Url } from '@fuzdev/fuz_util/url.ts';
 
-import {create_context} from './context_helpers.ts';
-import {Declaration} from './declaration.svelte.ts';
-import {Module} from './module.svelte.ts';
+import { create_context } from './context_helpers.ts';
+import { Declaration } from './declaration.svelte.ts';
+import { Module } from './module.svelte.ts';
 import {
 	package_is_published,
 	repo_name_parse,
@@ -12,7 +12,7 @@ import {
 	repo_url_parse,
 	url_github_file,
 	url_logo,
-	url_npm_package,
+	url_npm_package
 } from '@fuzdev/fuz_util/package_helpers.ts';
 
 /**
@@ -45,7 +45,7 @@ export const library_context = create_context<() => Library>();
  */
 export const set_library_context_with_fallback = (
 	get_library_prop: () => Library | undefined,
-	component_name: string,
+	component_name: string
 ): (() => Library) => {
 	const get_outer = library_context.get_maybe();
 	const get_library = (): Library => {
@@ -102,7 +102,7 @@ export class Library {
 	readonly published = $derived(package_is_published(this.pkg_json));
 	readonly npm_url: Url | null = $derived(this.published ? url_npm_package(this.name) : null);
 	readonly changelog_url: Url | null = $derived(
-		this.published ? url_github_file(this.repo_url, 'CHANGELOG.md') : null,
+		this.published ? url_github_file(this.repo_url, 'CHANGELOG.md') : null
 	);
 
 	/**
@@ -116,14 +116,14 @@ export class Library {
 	readonly modules = $derived(
 		this.source_json.modules
 			? this.source_json.modules.map((module_json) => new Module(this, module_json))
-			: [],
+			: []
 	);
 
 	/**
 	 * All modules sorted alphabetically by path.
 	 */
 	readonly modules_sorted = $derived(
-		[...this.modules].sort((a, b) => a.path.localeCompare(b.path)),
+		[...this.modules].sort((a, b) => a.path.localeCompare(b.path))
 	);
 
 	/**
@@ -149,7 +149,7 @@ export class Library {
 			throw Error(
 				`failed to construct Library - pkg_json for "${
 					library_json.pkg_json.name
-				}" has no parseable \`repository\``,
+				}" has no parseable \`repository\``
 			);
 		}
 		this.library_json = library_json;
@@ -184,7 +184,7 @@ export class Library {
  */
 const library_search_declarations = (
 	declarations: Array<Declaration>,
-	query: string,
+	query: string
 ): Array<Declaration> => {
 	if (!query.trim()) return [];
 
@@ -208,7 +208,7 @@ const library_search_declarations = (
 				total_score += term_best;
 			}
 
-			return {declaration, score: total_score};
+			return { declaration, score: total_score };
 		})
 		.filter((r) => r !== null)
 		.sort((a, b) => b.score - a.score || a.declaration.name.localeCompare(b.declaration.name))

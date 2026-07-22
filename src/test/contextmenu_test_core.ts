@@ -3,29 +3,29 @@
  * Tests opening, closing, event handling, and basic interactions.
  */
 
-import {describe, test, assert, afterEach} from 'vitest';
-import {flushSync} from 'svelte';
+import { describe, test, assert, afterEach } from 'vitest';
+import { flushSync } from 'svelte';
 
-import {contextmenu_attachment} from '$lib/contextmenu_state.svelte.ts';
+import { contextmenu_attachment } from '$lib/contextmenu_state.svelte.ts';
 import {
 	unmount_component,
 	create_contextmenu_event,
 	create_mouse_event,
 	create_keyboard_event,
-	set_event_target,
+	set_event_target
 } from './test_helpers.ts';
 import {
 	mount_contextmenu_root,
 	setup_contextmenu_attachment,
-	type SharedTestOptions,
+	type SharedTestOptions
 } from './contextmenu_test_helpers.ts';
 
 export const create_shared_core_tests = (
 	Component: any,
 	component_name: string,
-	options: SharedTestOptions = {},
+	options: SharedTestOptions = {}
 ): void => {
-	const {requires_longpress = false} = options;
+	const { requires_longpress = false } = options;
 
 	describe(`${component_name} - Core Functionality`, () => {
 		let mounted: ReturnType<typeof mount_contextmenu_root> | null = null;
@@ -45,13 +45,13 @@ export const create_shared_core_tests = (
 				async () => {
 					mounted = mount_contextmenu_root(Component);
 
-					const {container, contextmenu} = mounted;
+					const { container, contextmenu } = mounted;
 
 					const target = document.createElement('div');
 					container.appendChild(target);
 
 					await setup_contextmenu_attachment(target, [
-						{snippet: 'text', props: {content: 'Test', icon: '🧪', run: () => undefined}},
+						{ snippet: 'text', props: { content: 'Test', icon: '🧪', run: () => undefined } }
 					]);
 
 					const event = create_contextmenu_event(100, 200);
@@ -63,7 +63,7 @@ export const create_shared_core_tests = (
 					assert.strictEqual(contextmenu.x, 98); // 100 + offset_x (-2)
 					assert.strictEqual(contextmenu.y, 198); // 200 + offset_y (-2)
 					assert.strictEqual(event.defaultPrevented, true);
-				},
+				}
 			);
 
 			test(
@@ -73,15 +73,15 @@ export const create_shared_core_tests = (
 				() => {
 					mounted = mount_contextmenu_root(Component);
 
-					const {contextmenu} = mounted;
+					const { contextmenu } = mounted;
 
-					const event = create_contextmenu_event(100, 200, {shiftKey: true});
+					const event = create_contextmenu_event(100, 200, { shiftKey: true });
 
 					window.dispatchEvent(event);
 
 					assert.strictEqual(contextmenu.opened, false);
 					assert.strictEqual(event.defaultPrevented, false);
-				},
+				}
 			);
 
 			test(
@@ -91,7 +91,7 @@ export const create_shared_core_tests = (
 				() => {
 					mounted = mount_contextmenu_root(Component);
 
-					const {container, contextmenu} = mounted;
+					const { container, contextmenu } = mounted;
 
 					const input = document.createElement('input');
 					container.appendChild(input);
@@ -102,13 +102,13 @@ export const create_shared_core_tests = (
 					window.dispatchEvent(event);
 
 					assert.strictEqual(contextmenu.opened, false);
-				},
+				}
 			);
 
 			test('rightclick on textarea prevents opening', () => {
 				mounted = mount_contextmenu_root(Component);
 
-				const {container, contextmenu} = mounted;
+				const { container, contextmenu } = mounted;
 
 				const textarea = document.createElement('textarea');
 				container.appendChild(textarea);
@@ -128,7 +128,7 @@ export const create_shared_core_tests = (
 				() => {
 					mounted = mount_contextmenu_root(Component);
 
-					const {container, contextmenu} = mounted;
+					const { container, contextmenu } = mounted;
 
 					const div = document.createElement('div');
 					div.contentEditable = 'true';
@@ -140,7 +140,7 @@ export const create_shared_core_tests = (
 					window.dispatchEvent(event);
 
 					assert.strictEqual(contextmenu.opened, false);
-				},
+				}
 			);
 
 			test(
@@ -150,7 +150,7 @@ export const create_shared_core_tests = (
 				async () => {
 					mounted = mount_contextmenu_root(Component);
 
-					const {container, contextmenu} = mounted;
+					const { container, contextmenu } = mounted;
 
 					// Open menu first
 					contextmenu.open([(() => undefined) as any], 100, 200);
@@ -164,7 +164,7 @@ export const create_shared_core_tests = (
 					menu_el.appendChild(target);
 
 					contextmenu_attachment([
-						{snippet: 'text', props: {content: 'Test', icon: '🧪', run: () => undefined}},
+						{ snippet: 'text', props: { content: 'Test', icon: '🧪', run: () => undefined } }
 					])(target);
 
 					// Try to open another contextmenu from within the existing menu
@@ -177,7 +177,7 @@ export const create_shared_core_tests = (
 					assert.strictEqual(contextmenu.x, 100);
 					assert.strictEqual(contextmenu.y, 200);
 					assert.strictEqual(event.defaultPrevented, false);
-				},
+				}
 			);
 
 			test(
@@ -185,16 +185,16 @@ export const create_shared_core_tests = (
 				async () => {
 					mounted = mount_contextmenu_root(Component, undefined, {
 						open_offset_x: 10,
-						open_offset_y: 20,
+						open_offset_y: 20
 					});
 
-					const {container, contextmenu} = mounted;
+					const { container, contextmenu } = mounted;
 
 					const target = document.createElement('div');
 					container.appendChild(target);
 
 					await setup_contextmenu_attachment(target, [
-						{snippet: 'text', props: {content: 'Test', icon: '🧪', run: () => undefined}},
+						{ snippet: 'text', props: { content: 'Test', icon: '🧪', run: () => undefined } }
 					]);
 
 					const event = create_contextmenu_event(100, 200);
@@ -205,7 +205,7 @@ export const create_shared_core_tests = (
 					assert.strictEqual(contextmenu.x, 110); // 100 + 10
 					assert.strictEqual(contextmenu.y, 220); // 200 + 20
 					assert.strictEqual(event.defaultPrevented, true);
-				},
+				}
 			);
 		});
 
@@ -217,7 +217,7 @@ export const create_shared_core_tests = (
 				() => {
 					mounted = mount_contextmenu_root(Component);
 
-					const {contextmenu} = mounted;
+					const { contextmenu } = mounted;
 
 					// Open the menu first
 					contextmenu.open([], 100, 200);
@@ -230,7 +230,7 @@ export const create_shared_core_tests = (
 					window.dispatchEvent(event);
 
 					assert.strictEqual(contextmenu.opened, false);
-				},
+				}
 			);
 
 			test(
@@ -240,7 +240,7 @@ export const create_shared_core_tests = (
 				() => {
 					mounted = mount_contextmenu_root(Component);
 
-					const {container, contextmenu} = mounted;
+					const { container, contextmenu } = mounted;
 
 					contextmenu.open([(() => undefined) as any], 100, 200);
 					flushSync(); // Wait for DOM to update
@@ -254,13 +254,13 @@ export const create_shared_core_tests = (
 					window.dispatchEvent(event);
 
 					assert.strictEqual(contextmenu.opened, true);
-				},
+				}
 			);
 
 			test(requires_longpress ? 'closes on Escape key' : 'Escape key closes contextmenu', () => {
 				mounted = mount_contextmenu_root(Component);
 
-				const {contextmenu} = mounted;
+				const { contextmenu } = mounted;
 
 				contextmenu.open([], 100, 200);
 

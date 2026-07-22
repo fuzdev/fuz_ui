@@ -1,4 +1,4 @@
-import {create_context} from './context_helpers.ts';
+import { create_context } from './context_helpers.ts';
 
 export type DialogAlign = 'center' | 'top';
 export const dialog_aligns: Array<DialogAlign> = ['center', 'top'];

@@ -1,5 +1,5 @@
-import type {Attachment} from 'svelte/attachments';
-import {deep_equal} from '@fuzdev/fuz_util/deep_equal.ts';
+import type { Attachment } from 'svelte/attachments';
+import { deep_equal } from '@fuzdev/fuz_util/deep_equal.ts';
 
 export interface IntersectParams {
 	/**
@@ -34,7 +34,7 @@ export type IntersectParamsOrCallback = OnIntersect | IntersectParams;
  */
 export const intersect =
 	(
-		get_params: () => IntersectParamsOrCallback | null | undefined,
+		get_params: () => IntersectParamsOrCallback | null | undefined
 	): Attachment<HTMLElement | SVGElement> =>
 	(el) => {
 		// State that persists across callback changes
@@ -53,7 +53,7 @@ export const intersect =
 			const observer_to_disconnect = observer;
 			observer.disconnect();
 			if (current_ondisconnect) {
-				current_ondisconnect({intersecting, intersections, el, observer: observer_to_disconnect});
+				current_ondisconnect({ intersecting, intersections, el, observer: observer_to_disconnect });
 			}
 			observer = null;
 		};
@@ -112,7 +112,7 @@ export const intersect =
 				observer = new IntersectionObserver((entries) => {
 					intersecting = entries[0]!.isIntersecting;
 					if (current_onintersect && observer) {
-						current_onintersect({intersecting, intersections, el, observer, disconnect});
+						current_onintersect({ intersecting, intersections, el, observer, disconnect });
 					}
 					if (intersecting) {
 						intersections++;

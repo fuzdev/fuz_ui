@@ -8,18 +8,18 @@ with file-type coloring. Uses svelte-docinfo's file type predicates for module c
 @see {@link https://github.com/ryanatkn/svelte-docinfo svelte-docinfo} for the analysis library
 -->
 <script lang="ts">
-	import {page} from '$app/state';
-	import {format_url} from '@fuzdev/fuz_util/url.ts';
-	import type {OmitStrict} from '@fuzdev/fuz_util/types.ts';
-	import type {Snippet} from 'svelte';
-	import type {SvelteHTMLElements} from 'svelte/elements';
+	import { page } from '$app/state';
+	import { format_url } from '@fuzdev/fuz_util/url.ts';
+	import type { OmitStrict } from '@fuzdev/fuz_util/types.ts';
+	import type { Snippet } from 'svelte';
+	import type { SvelteHTMLElements } from 'svelte/elements';
 
-	import {library_context, type Library} from './library.svelte.ts';
+	import { library_context, type Library } from './library.svelte.ts';
 	import ImgOrSvg from './ImgOrSvg.svelte';
 	import DeclarationLink from './DeclarationLink.svelte';
 	import ModuleLink from './ModuleLink.svelte';
-	import {url_github_file} from '@fuzdev/fuz_util/package_helpers.ts';
-	import {isTypescript, isSvelte, isCss, isJson} from 'svelte-docinfo/source.js';
+	import { url_github_file } from '@fuzdev/fuz_util/package_helpers.ts';
+	import { isTypescript, isSvelte, isCss, isJson } from 'svelte-docinfo/source.js';
 
 	const {
 		library,
@@ -51,10 +51,10 @@ with file-type coloring. Uses svelte-docinfo's file type predicates for module c
 
 	// TODO show other data (lines of code)
 
-	const {pkg_json} = $derived(library);
+	const { pkg_json } = $derived(library);
 
 	const license_url = $derived(
-		pkg_json.license ? url_github_file(library.repo_url, 'LICENSE') : null,
+		pkg_json.license ? url_github_file(library.repo_url, 'LICENSE') : null
 	);
 </script>
 
@@ -106,7 +106,7 @@ with file-type coloring. Uses svelte-docinfo's file type predicates for module c
 							<span class="title">homepage</span>
 							<div class="content">
 								<a
-									class={['chip', {selected: library.homepage_url === page.url.href}]}
+									class={['chip', { selected: library.homepage_url === page.url.href }]}
 									href={library.homepage_url}
 								>
 									{#if library.logo_url}
@@ -173,8 +173,8 @@ with file-type coloring. Uses svelte-docinfo's file type predicates for module c
 								ts: isTypescript(module.path),
 								svelte: isSvelte(module.path),
 								css: isCss(module.path),
-								json: isJson(module.path),
-							},
+								json: isJson(module.path)
+							}
 						]}
 					>
 						<div class="module-content">

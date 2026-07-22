@@ -1,4 +1,4 @@
-import type {Tome} from '$lib/tome.ts';
+import type { Tome } from '$lib/tome.ts';
 import introduction from './introduction/+page.svelte';
 import ThemeRoot from './ThemeRoot/+page.svelte';
 import PendingAnimation from './PendingAnimation/+page.svelte';
@@ -38,7 +38,7 @@ export const tomes: Array<Tome> = [
 		Component: introduction,
 		related_tomes: ['api'],
 		related_modules: [],
-		related_declarations: [],
+		related_declarations: []
 	},
 	{
 		slug: 'theming',
@@ -46,7 +46,7 @@ export const tomes: Array<Tome> = [
 		Component: theming,
 		related_tomes: ['ThemeRoot'],
 		related_modules: ['theme_state.svelte.ts'],
-		related_declarations: ['ThemeRoot', 'ThemeState'],
+		related_declarations: ['ThemeRoot', 'ThemeState']
 	},
 	{
 		slug: 'api',
@@ -54,7 +54,7 @@ export const tomes: Array<Tome> = [
 		Component: api,
 		related_tomes: [],
 		related_modules: [],
-		related_declarations: [],
+		related_declarations: []
 	},
 	{
 		slug: 'vite_plugin_pkg_json',
@@ -62,7 +62,7 @@ export const tomes: Array<Tome> = [
 		Component: vite_plugin_pkg_json,
 		related_tomes: ['LibraryDetail'],
 		related_modules: ['vite_plugin_pkg_json.ts'],
-		related_declarations: ['vite_plugin_pkg_json'],
+		related_declarations: ['vite_plugin_pkg_json']
 	},
 	{
 		slug: 'csp',
@@ -70,7 +70,7 @@ export const tomes: Array<Tome> = [
 		Component: csp,
 		related_tomes: [],
 		related_modules: ['csp.ts'],
-		related_declarations: [],
+		related_declarations: []
 	},
 	{
 		slug: 'intersect',
@@ -78,7 +78,7 @@ export const tomes: Array<Tome> = [
 		Component: intersect,
 		related_tomes: [],
 		related_modules: ['intersect.svelte.ts'],
-		related_declarations: [],
+		related_declarations: []
 	},
 	{
 		slug: 'icons',
@@ -86,7 +86,7 @@ export const tomes: Array<Tome> = [
 		Component: icons,
 		related_tomes: ['logos', 'Svg'],
 		related_modules: ['icons.ts'],
-		related_declarations: [],
+		related_declarations: []
 	},
 	{
 		slug: 'logos',
@@ -94,7 +94,7 @@ export const tomes: Array<Tome> = [
 		Component: logos,
 		related_tomes: ['LibraryDetail', 'LibrarySummary', 'Svg'],
 		related_modules: ['logos.ts'],
-		related_declarations: [],
+		related_declarations: []
 	},
 	{
 		slug: 'Alert',
@@ -102,7 +102,7 @@ export const tomes: Array<Tome> = [
 		Component: Alert,
 		related_tomes: ['Card'],
 		related_modules: [],
-		related_declarations: ['Alert'],
+		related_declarations: ['Alert']
 	},
 	{
 		slug: 'Breadcrumb',
@@ -110,7 +110,7 @@ export const tomes: Array<Tome> = [
 		Component: Breadcrumb,
 		related_tomes: ['Redirect'],
 		related_modules: [],
-		related_declarations: ['Breadcrumb'],
+		related_declarations: ['Breadcrumb']
 	},
 	{
 		slug: 'Card',
@@ -118,7 +118,7 @@ export const tomes: Array<Tome> = [
 		Component: Card,
 		related_tomes: ['Alert'],
 		related_modules: [],
-		related_declarations: ['Card'],
+		related_declarations: ['Card']
 	},
 	{
 		slug: 'Contextmenu',
@@ -126,7 +126,7 @@ export const tomes: Array<Tome> = [
 		Component: Contextmenu,
 		related_tomes: [],
 		related_modules: ['contextmenu_helpers.ts', 'contextmenu_state.svelte.ts'],
-		related_declarations: ['Contextmenu', 'ContextmenuRoot', 'ContextmenuEntry'],
+		related_declarations: ['Contextmenu', 'ContextmenuRoot', 'ContextmenuEntry']
 	},
 	{
 		slug: 'Details',
@@ -134,7 +134,7 @@ export const tomes: Array<Tome> = [
 		Component: Details,
 		related_tomes: [],
 		related_modules: [],
-		related_declarations: ['Details'],
+		related_declarations: ['Details']
 	},
 	{
 		slug: 'Dialog',
@@ -142,7 +142,7 @@ export const tomes: Array<Tome> = [
 		Component: Dialog,
 		related_tomes: [],
 		related_modules: ['dialog.ts'],
-		related_declarations: ['Dialog', 'DialogContent'],
+		related_declarations: ['Dialog', 'DialogContent']
 	},
 	{
 		slug: 'HueInput',
@@ -150,7 +150,7 @@ export const tomes: Array<Tome> = [
 		Component: HueInput,
 		related_tomes: [], // TODO externals?
 		related_modules: [],
-		related_declarations: ['HueInput'],
+		related_declarations: ['HueInput']
 	},
 	{
 		slug: 'Docs',
@@ -158,7 +158,7 @@ export const tomes: Array<Tome> = [
 		Component: Docs,
 		related_tomes: ['Library', 'LibraryDetail', 'LibrarySummary'],
 		related_modules: [],
-		related_declarations: ['Docs'],
+		related_declarations: ['Docs']
 	},
 	{
 		slug: 'Library',
@@ -166,7 +166,7 @@ export const tomes: Array<Tome> = [
 		Component: Library,
 		related_tomes: ['Docs', 'LibraryDetail', 'LibrarySummary', 'api'],
 		related_modules: [],
-		related_declarations: ['Library'],
+		related_declarations: ['Library']
 	},
 	{
 		slug: 'LibraryDetail',
@@ -174,7 +174,7 @@ export const tomes: Array<Tome> = [
 		Component: LibraryDetail,
 		related_tomes: ['api', 'logos', 'LibrarySummary'],
 		related_modules: [],
-		related_declarations: ['LibraryDetail'],
+		related_declarations: ['LibraryDetail']
 	},
 	{
 		slug: 'LibrarySummary',
@@ -182,7 +182,7 @@ export const tomes: Array<Tome> = [
 		Component: LibrarySummary,
 		related_tomes: ['api', 'logos', 'LibraryDetail'],
 		related_modules: [],
-		related_declarations: ['LibrarySummary'],
+		related_declarations: ['LibrarySummary']
 	},
 	{
 		slug: 'PendingAnimation',
@@ -190,7 +190,7 @@ export const tomes: Array<Tome> = [
 		Component: PendingAnimation,
 		related_tomes: ['PendingButton'],
 		related_modules: [],
-		related_declarations: ['PendingAnimation'],
+		related_declarations: ['PendingAnimation']
 	},
 	{
 		slug: 'PendingButton',
@@ -198,7 +198,7 @@ export const tomes: Array<Tome> = [
 		Component: PendingButton,
 		related_tomes: ['PendingAnimation'],
 		related_modules: [],
-		related_declarations: ['PendingButton'],
+		related_declarations: ['PendingButton']
 	},
 	{
 		slug: 'Redirect',
@@ -206,7 +206,7 @@ export const tomes: Array<Tome> = [
 		Component: Redirect,
 		related_tomes: ['Breadcrumb'],
 		related_modules: [],
-		related_declarations: ['Redirect'],
+		related_declarations: ['Redirect']
 	},
 	{
 		slug: 'Svg',
@@ -214,7 +214,7 @@ export const tomes: Array<Tome> = [
 		Component: Svg,
 		related_tomes: ['logos'],
 		related_modules: ['svg.ts'],
-		related_declarations: ['Svg'],
+		related_declarations: ['Svg']
 	},
 	{
 		slug: 'Teleport',
@@ -222,7 +222,7 @@ export const tomes: Array<Tome> = [
 		Component: Teleport,
 		related_tomes: [],
 		related_modules: [],
-		related_declarations: ['Teleport'],
+		related_declarations: ['Teleport']
 	},
 	{
 		slug: 'ThemeRoot',
@@ -230,6 +230,6 @@ export const tomes: Array<Tome> = [
 		Component: ThemeRoot,
 		related_tomes: ['theming'],
 		related_modules: [],
-		related_declarations: ['ThemeRoot'],
-	},
+		related_declarations: ['ThemeRoot']
+	}
 ];

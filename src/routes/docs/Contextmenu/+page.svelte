@@ -1,6 +1,6 @@
 <script lang="ts">
 	import TomeContent from '$lib/TomeContent.svelte';
-	import {tome_get_by_slug} from '$lib/tome.ts';
+	import { tome_get_by_slug } from '$lib/tome.ts';
 	import Introduction from './Introduction.svelte';
 	import Discussion from './Discussion.svelte';
 	import ExampleFull from './ExampleFull.svelte';
@@ -9,7 +9,7 @@
 	import ExampleSelectText from './ExampleSelectText.svelte';
 	import ExampleDisableDefaultBehaviors from './ExampleDisableDefaultBehaviors.svelte';
 	import ExampleDefaultBehaviors from './ExampleDefaultBehaviors.svelte';
-	import {selected_contextmenu_root_component_context} from './selected_root_component.svelte.ts';
+	import { selected_contextmenu_root_component_context } from './selected_root_component.svelte.ts';
 
 	const TOME_SLUG = 'Contextmenu';
 

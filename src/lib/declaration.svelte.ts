@@ -5,12 +5,12 @@ import type {
 	ParameterJsonInput,
 	ComponentPropJsonInput,
 	OverloadJsonInput,
-	Reactivity,
+	Reactivity
 } from 'svelte-docinfo/types.js';
-import {generateImport, getDisplayName} from 'svelte-docinfo/declaration-helpers.js';
+import { generateImport, getDisplayName } from 'svelte-docinfo/declaration-helpers.js';
 
-import type {Module} from './module.svelte.ts';
-import {url_github_file} from '@fuzdev/fuz_util/package_helpers.ts';
+import type { Module } from './module.svelte.ts';
+import { url_github_file } from '@fuzdev/fuz_util/package_helpers.ts';
 
 // The `virtual:svelte-docinfo` module is serialized with svelte-docinfo's
 // `compactReplacer`, which strips empty default arrays — so the runtime data
@@ -56,9 +56,9 @@ export class Declaration {
 			? url_github_file(
 					this.library.repo_url,
 					`src/lib/${this.module_path}`,
-					this.declaration_json.sourceLine,
+					this.declaration_json.sourceLine
 				)
-			: undefined,
+			: undefined
 	);
 
 	/**
@@ -75,8 +75,8 @@ export class Declaration {
 		generateImport(
 			this.declaration_json as DeclarationJson,
 			this.module_path,
-			this.library.pkg_json.name,
-		),
+			this.library.pkg_json.name
+		)
 	);
 
 	/**
@@ -85,7 +85,7 @@ export class Declaration {
 	url_api_full = $derived(
 		this.library.homepage_url
 			? `${this.library.homepage_url.replace(/\/$/, '')}/docs/api/${this.module_path}#${this.name}`
-			: undefined,
+			: undefined
 	);
 
 	/**
@@ -96,8 +96,8 @@ export class Declaration {
 	display_name = $derived(
 		getDisplayName({
 			...this.declaration_json,
-			genericParams: this.declaration_json.genericParams ?? [],
-		} as DeclarationJson),
+			genericParams: this.declaration_json.genericParams ?? []
+		} as DeclarationJson)
 	);
 
 	type_signature = $derived(this.declaration_json.typeSignature);

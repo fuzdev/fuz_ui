@@ -1,10 +1,10 @@
 <script lang="ts">
-	import {swallow} from '@fuzdev/fuz_util/dom.ts';
-	import type {Theme} from '@fuzdev/fuz_css/theme.ts';
-	import {default_themes} from '@fuzdev/fuz_css/themes.ts';
-	import type {SvelteHTMLElements} from 'svelte/elements';
+	import { swallow } from '@fuzdev/fuz_util/dom.ts';
+	import type { Theme } from '@fuzdev/fuz_css/theme.ts';
+	import { default_themes } from '@fuzdev/fuz_css/themes.ts';
+	import type { SvelteHTMLElements } from 'svelte/elements';
 
-	import {theme_state_context} from './theme_state.svelte.ts';
+	import { theme_state_context } from './theme_state.svelte.ts';
 
 	const get_theme_state = theme_state_context.get();
 
@@ -19,7 +19,7 @@
 		onedit,
 		...rest
 	}: SvelteHTMLElements['menu'] & {
-		selected_theme?: {theme: Theme};
+		selected_theme?: { theme: Theme };
 		themes?: Array<Theme>;
 		enable_editing?: boolean;
 		select?: ((theme: Theme) => void | boolean) | null;
@@ -35,7 +35,7 @@
 		<li class="row" role="none">
 			<button
 				type="button"
-				class={['theme-button color_a', {selected}]}
+				class={['theme-button color_a', { selected }]}
 				role="menuitemradio"
 				aria-label="{theme.name} theme"
 				aria-checked={selected}

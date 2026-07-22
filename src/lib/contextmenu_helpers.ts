@@ -1,12 +1,12 @@
-import {is_editable, swallow, inside_editable} from '@fuzdev/fuz_util/dom.ts';
-import {EMPTY_OBJECT} from '@fuzdev/fuz_util/object.ts';
-import type {Attachment} from 'svelte/attachments';
-import type {ComponentProps, Snippet} from 'svelte';
+import { is_editable, swallow, inside_editable } from '@fuzdev/fuz_util/dom.ts';
+import { EMPTY_OBJECT } from '@fuzdev/fuz_util/object.ts';
+import type { Attachment } from 'svelte/attachments';
+import type { ComponentProps, Snippet } from 'svelte';
 
 import {
 	contextmenu_open,
 	type ContextmenuOpenOptions,
-	type ContextmenuState,
+	type ContextmenuState
 } from './contextmenu_state.svelte.ts';
 import type ContextmenuLinkEntry from './ContextmenuLinkEntry.svelte';
 import type ContextmenuTextEntry from './ContextmenuTextEntry.svelte';
@@ -91,7 +91,7 @@ export interface ContextmenuRootBaseProps {
  */
 export const contextmenu_is_valid_target = (
 	target: EventTarget | null,
-	shiftKey: boolean,
+	shiftKey: boolean
 ): target is HTMLElement | SVGElement =>
 	!shiftKey &&
 	(target instanceof HTMLElement || target instanceof SVGElement) &&
@@ -101,7 +101,7 @@ export const contextmenu_is_valid_target = (
 // TODO maybe bind these to the contextmenu instance instead of including the function wrapper
 // TODO customize
 export const contextmenu_create_keyboard_handlers = (
-	contextmenu: ContextmenuState,
+	contextmenu: ContextmenuState
 ): Map<string, () => void> =>
 	new Map([
 		['Escape', () => contextmenu.close()],
@@ -112,7 +112,7 @@ export const contextmenu_create_keyboard_handlers = (
 		['Home', () => contextmenu.select_first()],
 		['End', () => contextmenu.select_last()],
 		[' ', () => contextmenu.activate_selected()],
-		['Enter', () => contextmenu.activate_selected()],
+		['Enter', () => contextmenu.activate_selected()]
 	]);
 
 export const contextmenu_create_keydown_handler =
@@ -132,7 +132,7 @@ export const contextmenu_create_keydown_handler =
 export const contextmenu_calculate_constrained_x = (
 	menu_x: number,
 	menu_width: number,
-	layout_width: number,
+	layout_width: number
 ): number => Math.max(0, menu_x + Math.min(0, layout_width - (menu_x + menu_width)));
 
 /**
@@ -143,7 +143,7 @@ export const contextmenu_calculate_constrained_x = (
 export const contextmenu_calculate_constrained_y = (
 	menu_y: number,
 	menu_height: number,
-	layout_height: number,
+	layout_height: number
 ): number => Math.max(0, menu_y + Math.min(0, layout_height - (menu_y + menu_height)));
 
 export interface ContextmenuSubmenuTranslateOptions {
@@ -174,9 +174,9 @@ export interface ContextmenuSubmenuTranslateOptions {
  * Used by `ContextmenuSubmenu.svelte`.
  */
 export const contextmenu_calculate_submenu_translate = (
-	options: ContextmenuSubmenuTranslateOptions,
-): {x: number; y: number} => {
-	const {base_x, base_y, width, height, parent_width, layout_width, layout_height} = options;
+	options: ContextmenuSubmenuTranslateOptions
+): { x: number; y: number } => {
+	const { base_x, base_y, width, height, parent_width, layout_width, layout_height } = options;
 	let x: number;
 	const overflow_right = base_x + width + parent_width - layout_width;
 	if (overflow_right <= 0) {
@@ -192,7 +192,7 @@ export const contextmenu_calculate_submenu_translate = (
 		}
 	}
 	const y = Math.min(0, layout_height - (base_y + height));
-	return {x, y};
+	return { x, y };
 };
 
 export interface ContextmenuOpenFromEventOptions extends ContextmenuOpenOptions {
@@ -221,13 +221,13 @@ export const contextmenu_open_from_event = (
 	e: MouseEvent,
 	contextmenu: ContextmenuState,
 	menu_el: HTMLElement | undefined,
-	options?: ContextmenuOpenFromEventOptions,
+	options?: ContextmenuOpenFromEventOptions
 ): boolean => {
 	const {
 		open_offset_x = CONTEXTMENU_DEFAULT_OPEN_OFFSET_X,
-		open_offset_y = CONTEXTMENU_DEFAULT_OPEN_OFFSET_Y,
+		open_offset_y = CONTEXTMENU_DEFAULT_OPEN_OFFSET_Y
 	} = options ?? EMPTY_OBJECT;
-	const {target} = e;
+	const { target } = e;
 	if (!contextmenu_is_valid_target(target, e.shiftKey)) return false;
 	// don't open the contextmenu when clicking on the menu itself
 	if (menu_el?.contains(target)) return false;
@@ -237,7 +237,7 @@ export const contextmenu_open_from_event = (
 			e.clientX + open_offset_x,
 			e.clientY + open_offset_y,
 			contextmenu,
-			options,
+			options
 		)
 	) {
 		return false;
@@ -266,7 +266,7 @@ export const contextmenu_resolve_contextmenu_event = (
 	contextmenu: ContextmenuState,
 	menu_el: HTMLElement | undefined,
 	open_guard: ContextmenuOpenGuard,
-	options?: ContextmenuOpenFromEventOptions,
+	options?: ContextmenuOpenFromEventOptions
 ): boolean => {
 	if (contextmenu_open_from_event(e, contextmenu, menu_el, options)) {
 		// guard the menu from the residual events of the gesture that opened it
@@ -313,7 +313,7 @@ export const contextmenu_create_mousedown_handler =
 	(
 		contextmenu: ContextmenuState,
 		get_menu_el: () => HTMLElement | undefined,
-		open_guard?: ContextmenuOpenGuard,
+		open_guard?: ContextmenuOpenGuard
 	) =>
 	(e: MouseEvent): void => {
 		const menu_el = get_menu_el();
@@ -352,7 +352,7 @@ export const contextmenu_create_mousedown_handler =
  * doesn't need a host
  */
 export const contextmenu_resolve_popover_host = (
-	target: HTMLElement | SVGElement | undefined,
+	target: HTMLElement | SVGElement | undefined
 ): HTMLDialogElement | null =>
 	(target?.closest('dialog:modal') as HTMLDialogElement | null) ?? null;
 

@@ -1,4 +1,4 @@
-import type {Defined} from '@fuzdev/fuz_util/types.ts';
+import type { Defined } from '@fuzdev/fuz_util/types.ts';
 
 // TODO schemas, but I may be moving to ArkType from Zod if precompilation looks good
 
@@ -87,12 +87,12 @@ export interface CreateCspDirectivesOptions {
  * Things like rendering to a string are out of scope and left to SvelteKit.
  */
 export const create_csp_directives = (options: CreateCspDirectivesOptions = {}): CspDirectives => {
-	const {replace_defaults = csp_directive_value_defaults, extend, overrides} = options;
+	const { replace_defaults = csp_directive_value_defaults, extend, overrides } = options;
 
 	if (replace_defaults === null) {
 		throw new Error(
 			`Invalid value 'null' for options.replace_defaults. ` +
-				`Omit the option to use library defaults, or pass {} to start with no directives.`,
+				`Omit the option to use library defaults, or pass {} to start with no directives.`
 		);
 	}
 
@@ -114,7 +114,7 @@ export const create_csp_directives = (options: CreateCspDirectivesOptions = {}):
 		if (value === null) {
 			throw new Error(
 				`Invalid value 'null' for directive '${directive}' in options.replace_defaults. ` +
-					`Omit the key instead, or use \`overrides: { '${directive}': null }\` to remove.`,
+					`Omit the key instead, or use \`overrides: { '${directive}': null }\` to remove.`
 			);
 		}
 
@@ -135,14 +135,12 @@ export const create_csp_directives = (options: CreateCspDirectivesOptions = {}):
 					throw new Error(
 						`Cannot extend directive '${directive}' with null. ` +
 							`extend can only append sources — to remove a directive from the output, ` +
-							`use \`overrides: { '${directive}': null }\`.`,
+							`use \`overrides: { '${directive}': null }\`.`
 					);
 				}
 				if (!Array.isArray(value)) {
 					throw new Error(
-						`Cannot extend directive '${directive}': value must be an array of sources, got ${
-							typeof value
-						}.`,
+						`Cannot extend directive '${directive}': value must be an array of sources, got ${typeof value}.`
 					);
 				}
 				if (!value.length) return;
@@ -153,7 +151,7 @@ export const create_csp_directives = (options: CreateCspDirectivesOptions = {}):
 							`The pipeline runs replace_defaults → extend → overrides, so an \`overrides\` ` +
 							`entry for '${directive}' cannot rescue this — extend sees the ['none'] starting ` +
 							`value first. Opt in via \`replace_defaults: { '${directive}': [...] }\` or move ` +
-							`the sources into \`overrides: { '${directive}': [...] }\`.`,
+							`the sources into \`overrides: { '${directive}': [...] }\`.`
 					);
 				}
 				if (current === undefined) {
@@ -184,13 +182,13 @@ export const create_csp_directives = (options: CreateCspDirectivesOptions = {}):
 		if (!Array.isArray(value)) {
 			throw new Error(
 				`Directive '${key}' has an invalid value: expected an array of sources or a boolean, ` +
-					`got ${value === null ? 'null' : typeof value}.`,
+					`got ${value === null ? 'null' : typeof value}.`
 			);
 		}
 		if (value.length === 0) {
 			throw new Error(
 				`Directive '${key}' has an empty array. ` +
-					`Use ['none'] to forbid all sources, or omit the directive entirely.`,
+					`Use ['none'] to forbid all sources, or omit the directive entirely.`
 			);
 		}
 		// Element-level type check — the `CspSource` template-string type gates this at the
@@ -202,14 +200,14 @@ export const create_csp_directives = (options: CreateCspDirectivesOptions = {}):
 				throw new Error(
 					`Directive '${key}' has a non-string source at index ${i}: got ${
 						v === null ? 'null' : typeof v
-					}.`,
+					}.`
 				);
 			}
 		}
 		if (value.length > 1 && (value as Array<unknown>).includes('none')) {
 			throw new Error(
 				`Directive '${key}' has 'none' alongside other tokens (${value.join(', ')}). ` +
-					`'none' must appear alone in CSP.`,
+					`'none' must appear alone in CSP.`
 			);
 		}
 	}
@@ -241,7 +239,7 @@ const is_none = (value: unknown): boolean =>
 const for_each_directive = <V>(
 	source: Record<string, V>,
 	source_label: 'replace_defaults' | 'extend' | 'overrides',
-	fn: (directive: CspDirective, value: V) => void,
+	fn: (directive: CspDirective, value: V) => void
 ): void => {
 	if (source === null || typeof source !== 'object') {
 		const got = source === null ? 'null' : typeof source;
@@ -294,7 +292,7 @@ export const csp_directive_value_defaults: Partial<{
 	'worker-src': ['self', 'blob:', 'wasm-unsafe-eval'], // Web workers
 	'object-src': ['none'], // Block plugins (Flash, Java, etc.)
 	'base-uri': ['none'], // Prevent base tag hijacking
-	'upgrade-insecure-requests': true, // Upgrade http to https
+	'upgrade-insecure-requests': true // Upgrade http to https
 };
 
 export interface CspDirectiveSpec {
@@ -328,128 +326,128 @@ export const csp_directive_specs: Array<CspDirectiveSpec> = [
 			'child-src',
 			'connect-src',
 			'worker-src',
-			'object-src',
-		],
+			'object-src'
+		]
 	},
 	{
 		name: 'script-src',
 		fallback: ['default-src'],
-		fallback_of: ['script-src-elem', 'script-src-attr', 'worker-src'],
+		fallback_of: ['script-src-elem', 'script-src-attr', 'worker-src']
 	},
 	{
 		name: 'script-src-elem',
 		fallback: ['script-src', 'default-src'],
-		fallback_of: null,
+		fallback_of: null
 	},
 	{
 		name: 'script-src-attr',
 		fallback: ['script-src', 'default-src'],
-		fallback_of: null,
+		fallback_of: null
 	},
 	{
 		name: 'style-src',
 		fallback: ['default-src'],
-		fallback_of: ['style-src-elem', 'style-src-attr'],
+		fallback_of: ['style-src-elem', 'style-src-attr']
 	},
 	{
 		name: 'style-src-elem',
 		fallback: ['style-src', 'default-src'],
-		fallback_of: null,
+		fallback_of: null
 	},
 	{
 		name: 'style-src-attr',
 		fallback: ['style-src', 'default-src'],
-		fallback_of: null,
+		fallback_of: null
 	},
 	{
 		name: 'img-src',
 		fallback: ['default-src'],
-		fallback_of: null,
+		fallback_of: null
 	},
 	{
 		name: 'media-src',
 		fallback: ['default-src'],
-		fallback_of: null,
+		fallback_of: null
 	},
 	{
 		name: 'font-src',
 		fallback: ['default-src'],
-		fallback_of: null,
+		fallback_of: null
 	},
 	{
 		name: 'manifest-src',
 		fallback: ['default-src'],
-		fallback_of: null,
+		fallback_of: null
 	},
 	{
 		name: 'child-src',
 		fallback: ['default-src'],
-		fallback_of: ['frame-src', 'worker-src'],
+		fallback_of: ['frame-src', 'worker-src']
 	},
 	{
 		name: 'connect-src',
 		fallback: ['default-src'],
-		fallback_of: null,
+		fallback_of: null
 	},
 	{
 		name: 'frame-src',
 		fallback: ['child-src'],
-		fallback_of: null,
+		fallback_of: null
 	},
 	{
 		name: 'frame-ancestors',
 		fallback: null,
-		fallback_of: null,
+		fallback_of: null
 	},
 	{
 		name: 'form-action',
 		fallback: null,
-		fallback_of: null,
+		fallback_of: null
 	},
 	{
 		name: 'worker-src',
 		fallback: ['child-src', 'script-src', 'default-src'],
-		fallback_of: null,
+		fallback_of: null
 	},
 	{
 		name: 'object-src',
 		fallback: ['default-src'],
-		fallback_of: null,
+		fallback_of: null
 	},
 	{
 		name: 'base-uri',
 		fallback: null,
-		fallback_of: null,
+		fallback_of: null
 	},
 	{
 		name: 'upgrade-insecure-requests',
 		fallback: null,
-		fallback_of: null,
+		fallback_of: null
 	},
 	{
 		name: 'report-to',
 		fallback: null,
-		fallback_of: null,
+		fallback_of: null
 	},
 	{
 		name: 'require-trusted-types-for',
 		fallback: null,
-		fallback_of: null,
+		fallback_of: null
 	},
 	{
 		name: 'trusted-types',
 		fallback: null,
-		fallback_of: null,
+		fallback_of: null
 	},
 	{
 		name: 'sandbox',
 		fallback: null,
-		fallback_of: null,
-	},
+		fallback_of: null
+	}
 ];
 
 export const csp_directive_spec_by_name: Map<CspDirective, CspDirectiveSpec> = new Map(
-	csp_directive_specs.map((s) => [s.name, s]),
+	csp_directive_specs.map((s) => [s.name, s])
 );
 
 // CSP types from SvelteKit, adapted with changes from @sveltejs/kit/src/types/private.d.ts
@@ -482,12 +480,7 @@ export const csp_directive_spec_by_name: Map<CspDirective, CspDirectiveSpec> = n
 // SOFTWARE.
 export type CspActionSource = 'strict-dynamic' | 'report-sample';
 export type CspBaseSource =
-	| 'self'
-	| 'unsafe-eval'
-	| 'unsafe-hashes'
-	| 'unsafe-inline'
-	| 'wasm-unsafe-eval'
-	| 'none';
+	'self' | 'unsafe-eval' | 'unsafe-hashes' | 'unsafe-inline' | 'wasm-unsafe-eval' | 'none';
 export type CspCryptoSource = `${'nonce' | 'sha256' | 'sha384' | 'sha512'}-${string}`;
 export type CspFrameSource = CspHostSource | CspSchemeSource | 'self' | 'none';
 export type CspHostNameScheme = `${string}.${string}` | 'localhost';
@@ -495,12 +488,7 @@ export type CspHostSource = `${CspHostProtocolSchemes}${CspHostNameScheme}${CspP
 export type CspHostProtocolSchemes = `${string}://` | '';
 export type CspPortScheme = `:${number}` | '' | ':*';
 export type CspSchemeSource =
-	| 'http:'
-	| 'https:'
-	| 'data:'
-	| 'mediastream:'
-	| 'blob:'
-	| 'filesystem:';
+	'http:' | 'https:' | 'data:' | 'mediastream:' | 'blob:' | 'filesystem:';
 export type CspSource = CspHostSource | CspSchemeSource | CspCryptoSource | CspBaseSource;
 export type CspSources = Array<CspSource>;
 

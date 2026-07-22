@@ -1,10 +1,10 @@
 <script lang="ts">
-	import type {Snippet} from 'svelte';
-	import type {SvelteHTMLElements} from 'svelte/elements';
-	import {SvelteSet} from 'svelte/reactivity';
-	import {swallow} from '@fuzdev/fuz_util/dom.ts';
+	import type { Snippet } from 'svelte';
+	import type { SvelteHTMLElements } from 'svelte/elements';
+	import { SvelteSet } from 'svelte/reactivity';
+	import { swallow } from '@fuzdev/fuz_util/dom.ts';
 
-	import {dialog_context, type DialogContext, type DialogAlign} from './dialog.ts';
+	import { dialog_context, type DialogContext, type DialogAlign } from './dialog.ts';
 
 	/**
 	 * This component renders a native `<dialog>` opened with `showModal()`, which
@@ -122,7 +122,7 @@
 
 	// The context is both passed to `children` and set for descendants (e.g.
 	// `DialogContent`), so either path can close the dialog.
-	const context: DialogContext = {close, register_surface};
+	const context: DialogContext = { close, register_surface };
 	dialog_context.set(context);
 
 	const setup_dialog = (el: HTMLDialogElement) => {
@@ -149,7 +149,7 @@
 {#if show}
 	<dialog
 		{...rest}
-		class={['dialog', rest.class, {'align-top': align === 'top'}]}
+		class={['dialog', rest.class, { 'align-top': align === 'top' }]}
 		{@attach setup_dialog}
 	>
 		<div

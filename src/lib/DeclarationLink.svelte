@@ -1,10 +1,10 @@
 <script lang="ts">
-	import type {SvelteHTMLElements} from 'svelte/elements';
-	import {ensure_start} from '@fuzdev/fuz_util/string.ts';
+	import type { SvelteHTMLElements } from 'svelte/elements';
+	import { ensure_start } from '@fuzdev/fuz_util/string.ts';
 
-	import {library_context} from './library.svelte.ts';
-	import {contextmenu_attachment} from './contextmenu_state.svelte.ts';
-	import {create_declaration_contextmenu} from './declaration_contextmenu.ts';
+	import { library_context } from './library.svelte.ts';
+	import { contextmenu_attachment } from './contextmenu_state.svelte.ts';
+	import { create_declaration_contextmenu } from './declaration_contextmenu.ts';
 
 	const {
 		name,
@@ -39,7 +39,7 @@
 	const declaration = $derived(
 		module_path === undefined
 			? library.declaration_by_name.get(name)
-			: library.module_by_path.get(module_path)?.get_declaration_by_name(name),
+			: library.module_by_path.get(module_path)?.get_declaration_by_name(name)
 	);
 
 	// When linking a foreign library's docs, prefer its full URL; fall back to
@@ -47,7 +47,7 @@
 	const url_api = $derived((full && declaration?.url_api_full) || declaration?.url_api);
 
 	const contextmenu_entries = $derived(
-		declaration ? create_declaration_contextmenu(declaration) : undefined,
+		declaration ? create_declaration_contextmenu(declaration) : undefined
 	);
 </script>
 

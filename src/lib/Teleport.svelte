@@ -1,10 +1,10 @@
 <script lang="ts">
-	import {onDestroy, type Snippet} from 'svelte';
+	import { onDestroy, type Snippet } from 'svelte';
 
 	const {
 		to,
 		onmove,
-		children,
+		children
 	}: {
 		/**
 		 * Defaults to `undefined` to lessen friction with SSR.

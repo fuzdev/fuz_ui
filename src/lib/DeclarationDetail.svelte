@@ -12,20 +12,20 @@ including parameters, props, members, overloads, intersects, and more.
 <script lang="ts">
 	import Code from '@fuzdev/fuz_code/Code.svelte';
 	import Mdz from '@fuzdev/mdz/Mdz.svelte';
-	import {mdz_from_tsdoc} from '@fuzdev/mdz/tsdoc_mdz.ts';
+	import { mdz_from_tsdoc } from '@fuzdev/mdz/tsdoc_mdz.ts';
 	import {
 		mdz_code_context,
 		mdz_codeblock_context,
-		mdz_set_context_with_fallback,
+		mdz_set_context_with_fallback
 	} from '@fuzdev/mdz/mdz_contexts.ts';
-	import type {ParameterJsonInput} from 'svelte-docinfo/types.js';
+	import type { ParameterJsonInput } from 'svelte-docinfo/types.js';
 
-	import type {Declaration} from './declaration.svelte.ts';
+	import type { Declaration } from './declaration.svelte.ts';
 	import TypeLink from './TypeLink.svelte';
 	import ModuleLink from './ModuleLink.svelte';
 	import DocsLink from './DocsLink.svelte';
 
-	const {declaration}: {declaration: Declaration} = $props();
+	const { declaration }: { declaration: Declaration } = $props();
 
 	// render mdz inline `code` as API-linking `DocsLink` and fenced blocks as syntax-highlighted
 	// `Code`, matching the rest of the docs — the injection mdz core leaves open
@@ -40,7 +40,7 @@ including parameters, props, members, overloads, intersects, and more.
 		since?: string;
 		examples?: Array<string>;
 		seeAlso?: Array<string>;
-		throws?: Array<{type?: string; description: string}>;
+		throws?: Array<{ type?: string; description: string }>;
 	}
 </script>
 
@@ -142,10 +142,7 @@ including parameters, props, members, overloads, intersects, and more.
 
 <!-- chips -->
 <!-- eslint-disable-next-line @typescript-eslint/no-deprecated -->
-{#if declaration.is_deprecated ||
-	declaration.reactivity ||
-	declaration.accepts_children ||
-	declaration.alias_of}
+{#if declaration.is_deprecated || declaration.reactivity || declaration.accepts_children || declaration.alias_of}
 	<p class="row gap_md flex-wrap:wrap">
 		<!-- eslint-disable-next-line @typescript-eslint/no-deprecated -->
 		{#if declaration.is_deprecated}
@@ -338,7 +335,7 @@ including parameters, props, members, overloads, intersects, and more.
 				{@render type_list(
 					Array.isArray(declaration.extends_type)
 						? declaration.extends_type
-						: [declaration.extends_type],
+						: [declaration.extends_type]
 				)}
 			</div>
 		{/if}
@@ -456,8 +453,7 @@ including parameters, props, members, overloads, intersects, and more.
 					</div>
 				{/if}
 				<!-- parameters for methods and constructors -->
-				{#if (member.kind === 'function' || member.kind === 'constructor') &&
-					member.parameters?.length}
+				{#if (member.kind === 'function' || member.kind === 'constructor') && member.parameters?.length}
 					<section>
 						{#each member.parameters as param (param)}
 							{@render param_detail(param)}

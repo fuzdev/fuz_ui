@@ -1,14 +1,14 @@
 <script lang="ts">
-	import {page} from '$app/state';
-	import {strip_start} from '@fuzdev/fuz_util/string.ts';
-	import {goto} from '$app/navigation';
-	import {onMount, type Snippet} from 'svelte';
+	import { page } from '$app/state';
+	import { strip_start } from '@fuzdev/fuz_util/string.ts';
+	import { goto } from '$app/navigation';
+	import { onMount, type Snippet } from 'svelte';
 
 	const {
 		host = '',
 		path = page.url.pathname,
 		auto = true,
-		children,
+		children
 	}: {
 		/**
 		 * The target host to redirect to. Defaults to `''` (relative URL).
@@ -28,7 +28,7 @@
 	const url = $derived(host + path);
 
 	onMount(() => {
-		if (auto) void goto(url, {replaceState: true}); // eslint-disable-line svelte/no-navigation-without-resolve
+		if (auto) void goto(url, { replaceState: true }); // eslint-disable-line svelte/no-navigation-without-resolve
 	});
 </script>
 

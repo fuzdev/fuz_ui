@@ -1,4 +1,4 @@
-import type {CspDirectives} from './csp.ts';
+import type { CspDirectives } from './csp.ts';
 
 /**
  * Per-directive sources that allow full interop between fuzdev/sister sites
@@ -19,7 +19,7 @@ export const csp_directives_of_fuzdev: Partial<CspDirectives> = {
 	'font-src': ['https://*.fuz.dev/', 'https://*.zzz.software/'],
 	'connect-src': ['https://*.fuz.dev/', 'https://*.zzz.software/'],
 	'frame-src': ['https://*.fuz.dev/', 'https://*.zzz.software/'],
-	'frame-ancestors': ['https://*.fuz.dev/', 'https://*.zzz.software/'],
+	'frame-ancestors': ['https://*.fuz.dev/', 'https://*.zzz.software/']
 	// `child-src` is intentionally omitted — it defaults to `['none']`, and `extend` cannot
 	// append to a `'none'`-valued directive. Including it here would break the common
 	// `create_csp_directives({extend: [csp_directives_of_fuzdev]})` call. `frame-src` is its

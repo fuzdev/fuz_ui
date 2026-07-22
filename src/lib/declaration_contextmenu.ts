@@ -1,10 +1,10 @@
-import type {Declaration} from './declaration.svelte.ts';
-import type {ContextmenuParams} from './contextmenu_state.svelte.ts';
+import type { Declaration } from './declaration.svelte.ts';
+import type { ContextmenuParams } from './contextmenu_state.svelte.ts';
 
 // TODO @many expand contextmenus for docs
 
 export const create_declaration_contextmenu = (
-	declaration: Declaration,
+	declaration: Declaration
 ): Array<ContextmenuParams> => {
 	const entries: Array<ContextmenuParams> = [];
 
@@ -13,8 +13,8 @@ export const create_declaration_contextmenu = (
 		entries.push({
 			snippet: 'link',
 			props: {
-				href: declaration.url_github,
-			},
+				href: declaration.url_github
+			}
 		});
 	}
 

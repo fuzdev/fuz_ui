@@ -20,7 +20,7 @@ if (typeof HTMLDialogElement !== 'undefined') {
 				if (value) this.setAttribute('open', '');
 				else this.removeAttribute('open');
 			},
-			configurable: true,
+			configurable: true
 		});
 	}
 

@@ -1,19 +1,19 @@
 <script lang="ts">
-	import {slide} from 'svelte/transition';
+	import { slide } from 'svelte/transition';
 	import Code from '@fuzdev/fuz_code/Code.svelte';
 
 	import Alert from '$lib/Alert.svelte';
 	import TomeContent from '$lib/TomeContent.svelte';
 	import TomeSection from '$lib/TomeSection.svelte';
 	import TomeSectionHeader from '$lib/TomeSectionHeader.svelte';
-	import {tome_get_by_slug} from '$lib/tome.ts';
+	import { tome_get_by_slug } from '$lib/tome.ts';
 	import Dialog from '$lib/Dialog.svelte';
 	import DialogContent from '$lib/DialogContent.svelte';
 	import TomeLink from '$lib/TomeLink.svelte';
 	import MdnLink from '$lib/MdnLink.svelte';
 	import DeclarationLink from '$lib/DeclarationLink.svelte';
-	import {dialog_aligns, type DialogAlign} from '$lib/dialog.ts';
-	import {icon_remove} from '$lib/icons.ts';
+	import { dialog_aligns, type DialogAlign } from '$lib/dialog.ts';
+	import { icon_remove } from '$lib/icons.ts';
 	import Svg from '$lib/Svg.svelte';
 
 	const TOME_SLUG = 'Dialog';
@@ -65,12 +65,11 @@
 <TomeContent {tome}>
 	<section>
 		<p>
-			A <DeclarationLink name="Dialog" /> is a modal that overlays the entire page. It uses the
-			native
+			A <DeclarationLink name="Dialog" /> is a modal that overlays the entire page. It uses the native
 			<MdnLink path="Web/HTML/Element/dialog" /> element, so opening it with
 			<MdnLink path="Web/API/HTMLDialogElement/showModal">showModal()</MdnLink>
-			puts children in the browser's top layer, escaping ancestor stacking (avoiding bugs and
-			caveats, like unwanted overflow containment and cascading styles, without using <TomeLink
+			puts children in the browser's top layer, escaping ancestor stacking (avoiding bugs and caveats,
+			like unwanted overflow containment and cascading styles, without using <TomeLink
 				slug="Teleport"
 			/>). The native element also traps focus, makes the rest of the page inert, closes on
 			<kbd>Escape</kbd>, and restores focus to the previously focused element on close.
@@ -122,8 +121,8 @@
 			<DeclarationLink name="DialogContent" /> is a <code>.pane</code> card that shrinks to fit its
 			content, up to <code>max_width</code>. Tune it with <code>class</code> and other forwarded
 			attributes, adjust the surrounding space with <code>gutter</code> and the inner space with
-			<code>padding</code>, and toggle the card style with <code>pane={'{false}'}</code> for an
-			unstyled surface:
+			<code>padding</code>, and toggle the card style with <code>pane={'{false}'}</code> for an unstyled
+			surface:
 		</p>
 		<Code
 			content={`<Dialog show={opened} onclose={() => (opened = false)}>
@@ -143,23 +142,23 @@
 </Dialog>`}
 		/>
 		<p>
-			<DeclarationLink name="DialogContent" /> adds a close button in the top-right corner, rendered
-			after the content so it doesn't take initial focus. Pass
+			<DeclarationLink name="DialogContent" /> adds a close button in the top-right corner, rendered after
+			the content so it doesn't take initial focus. Pass
 			<code>close_button={'{false}'}</code> to remove it, or a snippet to render your own. The
 			snippet receives <code>attrs</code> with type <DeclarationLink
 				name="DialogCloseButtonAttrs"
 			/> with the default button's placement, styling, a11y, and the <code>onclick</code> that
-			closes the dialog, plus the <DeclarationLink name="DialogContext" />. Spread <code>attrs</code
-			> to inherit the corner-anchored button and override only the glyph, or ignore it to place the
-			button freely:
+			closes the dialog, plus the <DeclarationLink name="DialogContext" />. Spread
+			<code>attrs</code> to inherit the corner-anchored button and override only the glyph, or ignore
+			it to place the button freely:
 		</p>
 		<button type="button" class="mb_lg" onclick={() => (dialog_custom_close_opened = true)}
 			>open a dialog with a custom close button</button
 		>
 		{@render custom_close_button_example()}
 		<p>
-			<DeclarationLink name="DialogContent" /> is optional. Pass children directly for full control
-			of the surface:
+			<DeclarationLink name="DialogContent" /> is optional. Pass children directly for full control of
+			the surface:
 		</p>
 		<Code
 			content={`{#if opened}
@@ -173,9 +172,9 @@
 	<TomeSection>
 		<TomeSectionHeader text="Alignment" />
 		<p>
-			By default the dialog is centered. Pass <code>align="top"</code> to anchor it near the top of
-			the page and grow downward, which avoids the jumpiness of a centered dialog whose content
-			changes height. Add and remove items in the demo to compare:
+			By default the dialog is centered. Pass <code>align="top"</code> to anchor it near the top of the
+			page and grow downward, which avoids the jumpiness of a centered dialog whose content changes height.
+			Add and remove items in the demo to compare:
 		</p>
 		<button type="button" class="mb_lg" onclick={() => (dialog_align_top_opened = true)}
 			>open a top-aligned dialog</button
@@ -194,8 +193,8 @@
 		<TomeSectionHeader text="Dismissing" />
 		<p>
 			Clicking outside the content closes the dialog by default. Pass
-			<code>dismissable={'{false}'}</code> to disable click-outside (<kbd>Escape</kbd> and your own
-			buttons still close it):
+			<code>dismissable={'{false}'}</code> to disable click-outside (<kbd>Escape</kbd> and your own buttons
+			still close it):
 		</p>
 		<button type="button" class="mb_lg" onclick={() => (dialog_no_dismiss_opened = true)}
 			>open a non-dismissable dialog</button
@@ -243,7 +242,7 @@
 {#if opened}
 	<Dialog onclose={() => (opened = false)}>
 		<DialogContent>
-			{#snippet children({close})}
+			{#snippet children({ close })}
 				<h1>attention</h1>
 				<p>this is a dialog</p>
 				<button type="button" onclick={close}>ok</button>
@@ -258,8 +257,8 @@
 				<button {...attrs} class="xs plain">close</button>
 			{/snippet}
 			<p class="mt_lg">
-				The close button in the top-right is custom: it spreads <code>attrs</code> to extend the
-				default behavior.
+				The close button in the top-right is custom: it spreads <code>attrs</code> to extend the default
+				behavior.
 			</p>
 			{@render custom_close_button_example()}
 		</DialogContent>
@@ -268,12 +267,12 @@
 {#if dialog_overflowing_opened}
 	<Dialog onclose={() => (dialog_overflowing_opened = false)}>
 		<DialogContent>
-			{#snippet children({close})}
+			{#snippet children({ close })}
 				<!-- the close button no longer takes initial focus, so focus a top element to
 				open the overflowing dialog scrolled to the top -->
 				<!-- svelte-ignore a11y_autofocus -->
 				<h1 tabindex="-1" autofocus>attention</h1>
-				{#each {length: 120} as _, i (i)}
+				{#each { length: 120 } as _, i (i)}
 					<p>this is a dialog that overflows vertically</p>
 				{/each}
 				<button type="button" onclick={close}>close</button>
@@ -284,7 +283,7 @@
 {#if dialog_align_top_opened}
 	<Dialog onclose={() => ((dialog_align_top_opened = false), reset_items())} align={selected_align}>
 		<DialogContent>
-			{#snippet children({close})}
+			{#snippet children({ close })}
 				{#if selected_align === 'top'}
 					<p>
 						This is a <DeclarationLink name="Dialog" /> with
@@ -329,8 +328,7 @@
 						<button type="button" onclick={() => remove_item(item)}
 							><Svg data={icon_remove} /></button
 						>
-						new stuff appears {#if selected_align === 'top'}gracefully{:else if selected_align ===
-							'center'}ungracefully{/if}
+						new stuff appears {#if selected_align === 'top'}gracefully{:else if selected_align === 'center'}ungracefully{/if}
 					</p>
 				{/each}
 				<button type="button" onclick={close}>close</button>
@@ -364,7 +362,7 @@
 {#if dialog_no_dismiss_opened}
 	<Dialog onclose={() => (dialog_no_dismiss_opened = false)} dismissable={false}>
 		<DialogContent>
-			{#snippet children({close})}
+			{#snippet children({ close })}
 				<h1>no click-outside</h1>
 				<p>
 					This dialog passes <code>dismissable={'{false}'}</code>, so clicking outside the content
@@ -378,7 +376,7 @@
 {#if dialog_guarded_opened}
 	<Dialog onbeforeclose={guard_unsaved} onclose={() => (dialog_guarded_opened = false)}>
 		<DialogContent>
-			{#snippet children({close})}
+			{#snippet children({ close })}
 				<h1>unsaved changes</h1>
 				<p>
 					This dialog passes <code>onbeforeclose</code>. While "unsaved changes" is checked, closing

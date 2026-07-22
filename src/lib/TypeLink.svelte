@@ -1,9 +1,9 @@
 <script lang="ts">
 	import Code from '@fuzdev/fuz_code/Code.svelte';
-	import type {HTMLAttributes, SvelteHTMLElements} from 'svelte/elements';
+	import type { HTMLAttributes, SvelteHTMLElements } from 'svelte/elements';
 
 	import DeclarationLink from './DeclarationLink.svelte';
-	import {library_context} from './library.svelte.ts';
+	import { library_context } from './library.svelte.ts';
 
 	const {
 		type,

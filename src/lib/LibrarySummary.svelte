@@ -1,10 +1,10 @@
 <script lang="ts">
-	import {page} from '$app/state';
-	import type {Snippet} from 'svelte';
-	import type {SvelteHTMLElements} from 'svelte/elements';
-	import {format_url} from '@fuzdev/fuz_util/url.ts';
+	import { page } from '$app/state';
+	import type { Snippet } from 'svelte';
+	import type { SvelteHTMLElements } from 'svelte/elements';
+	import { format_url } from '@fuzdev/fuz_util/url.ts';
 
-	import type {Library} from './library.svelte.ts';
+	import type { Library } from './library.svelte.ts';
 	import ImgOrSvg from './ImgOrSvg.svelte';
 
 	const {
@@ -28,7 +28,7 @@
 		children?: Snippet;
 	} = $props();
 
-	const {pkg_json} = $derived(library);
+	const { pkg_json } = $derived(library);
 </script>
 
 <div {...rest} class="library-summary {rest.class}">
@@ -83,7 +83,7 @@
 			<div class="mb_lg">
 				<!-- eslint-disable svelte/no-navigation-without-resolve -->
 				<a
-					class={['chip', {selected: library.homepage_url === page.url.href}]}
+					class={['chip', { selected: library.homepage_url === page.url.href }]}
 					href={library.homepage_url}>{format_url(library.homepage_url)}</a
 				>
 				<!-- eslint-enable svelte/no-navigation-without-resolve -->

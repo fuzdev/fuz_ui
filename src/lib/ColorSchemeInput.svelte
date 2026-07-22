@@ -1,9 +1,9 @@
 <script lang="ts">
-	import {swallow} from '@fuzdev/fuz_util/dom.ts';
-	import {color_schemes, type ColorScheme} from '@fuzdev/fuz_css/theme.ts';
-	import type {SvelteHTMLElements} from 'svelte/elements';
+	import { swallow } from '@fuzdev/fuz_util/dom.ts';
+	import { color_schemes, type ColorScheme } from '@fuzdev/fuz_css/theme.ts';
+	import type { SvelteHTMLElements } from 'svelte/elements';
 
-	import {theme_state_context} from './theme_state.svelte.ts';
+	import { theme_state_context } from './theme_state.svelte.ts';
 
 	const get_theme_state = theme_state_context.get();
 
@@ -11,7 +11,7 @@
 		value = get_theme_state(),
 		...rest
 	}: SvelteHTMLElements['menu'] & {
-		value?: {color_scheme: ColorScheme};
+		value?: { color_scheme: ColorScheme };
 	} = $props();
 </script>
 
@@ -22,7 +22,7 @@ https://developer.mozilla.org/en-US/docs/Web/Accessibility/ARIA/Roles/menubar_ro
 		{@const selected = color_scheme === value.color_scheme}
 		<button
 			type="button"
-			class={['color-scheme color_a', {selected}]}
+			class={['color-scheme color_a', { selected }]}
 			role="menuitemradio"
 			title={selected
 				? `${color_scheme} color scheme is selected`

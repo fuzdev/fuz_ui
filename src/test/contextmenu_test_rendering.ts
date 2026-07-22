@@ -3,16 +3,16 @@
  * Tests DOM rendering, lifecycle, and layout element behavior.
  */
 
-import {describe, test, assert, afterEach} from 'vitest';
-import {flushSync} from 'svelte';
-import {ContextmenuState, type ContextmenuActivateResult} from '$lib/contextmenu_state.svelte.ts';
-import {unmount_component} from './test_helpers.ts';
-import {mount_contextmenu_root, type SharedTestOptions} from './contextmenu_test_helpers.ts';
+import { describe, test, assert, afterEach } from 'vitest';
+import { flushSync } from 'svelte';
+import { ContextmenuState, type ContextmenuActivateResult } from '$lib/contextmenu_state.svelte.ts';
+import { unmount_component } from './test_helpers.ts';
+import { mount_contextmenu_root, type SharedTestOptions } from './contextmenu_test_helpers.ts';
 
 export const create_shared_rendering_tests = (
 	Component: any,
 	component_name: string,
-	_options: SharedTestOptions = {},
+	_options: SharedTestOptions = {}
 ): void => {
 	describe(`${component_name} - Rendering`, () => {
 		let mounted: ReturnType<typeof mount_contextmenu_root> | null = null;
@@ -27,7 +27,7 @@ export const create_shared_rendering_tests = (
 		test('contextmenu not rendered when closed', () => {
 			mounted = mount_contextmenu_root(Component);
 
-			const {container} = mounted;
+			const { container } = mounted;
 
 			const menu = container.querySelector('.contextmenu');
 			assert.strictEqual(menu, null);
@@ -36,7 +36,7 @@ export const create_shared_rendering_tests = (
 		test('contextmenu rendered when opened', () => {
 			mounted = mount_contextmenu_root(Component);
 
-			const {container, contextmenu} = mounted;
+			const { container, contextmenu } = mounted;
 
 			contextmenu.open([(() => undefined) as any], 100, 200);
 			flushSync(); // Wait for DOM to update
@@ -54,7 +54,7 @@ export const create_shared_rendering_tests = (
 		test('contextmenu_layout rendered when no custom layout', () => {
 			mounted = mount_contextmenu_root(Component);
 
-			const {container} = mounted;
+			const { container } = mounted;
 
 			const layout = container.querySelector('.contextmenu-layout');
 			assert.ok(layout);
@@ -62,12 +62,12 @@ export const create_shared_rendering_tests = (
 		});
 
 		test('contextmenu-layout not rendered with custom layout', () => {
-			const custom_layout = {width: 800, height: 600};
-			const cm = new ContextmenuState({layout: custom_layout});
+			const custom_layout = { width: 800, height: 600 };
+			const cm = new ContextmenuState({ layout: custom_layout });
 
 			mounted = mount_contextmenu_root(Component, cm);
 
-			const {container} = mounted;
+			const { container } = mounted;
 
 			const layout = container.querySelector('.contextmenu-layout');
 			assert.strictEqual(layout, null);
@@ -76,14 +76,14 @@ export const create_shared_rendering_tests = (
 		test('entry renders the pending animation during async activation and the error state on failure', async () => {
 			mounted = mount_contextmenu_root(Component);
 
-			const {container, contextmenu} = mounted;
+			const { container, contextmenu } = mounted;
 
 			let reject!: (error: unknown) => void;
 			const promise = new Promise<ContextmenuActivateResult>((_, r) => (reject = r));
 			contextmenu.open(
-				[{snippet: 'text' as const, props: {content: 'Async', icon: '⏳', run: () => promise}}],
+				[{ snippet: 'text' as const, props: { content: 'Async', icon: '⏳', run: () => promise } }],
 				100,
-				200,
+				200
 			);
 			flushSync();
 

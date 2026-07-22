@@ -1,10 +1,10 @@
 /**
  * @vitest-environment jsdom
  */
-import {test, assert, describe, beforeEach, afterEach, vi} from 'vitest';
-import {flushSync} from 'svelte';
+import { test, assert, describe, beforeEach, afterEach, vi } from 'vitest';
+import { flushSync } from 'svelte';
 
-import {intersect} from '$lib/intersect.svelte.ts';
+import { intersect } from '$lib/intersect.svelte.ts';
 
 // Mock IntersectionObserver
 let observer_callback: IntersectionObserverCallback | null = null;
@@ -48,7 +48,7 @@ const trigger_intersection = (isIntersecting: boolean): void => {
 	if (!observer_callback) throw new Error('No observer callback');
 	const entry = {
 		isIntersecting,
-		target: observed_elements[0],
+		target: observed_elements[0]
 	} as IntersectionObserverEntry;
 	observer_callback([entry], observer_callback as any);
 };
@@ -175,7 +175,7 @@ describe('intersect', () => {
 		test('accepts params object with onintersect', () => {
 			effect_cleanup = $effect.root(() => {
 				const onintersect = vi.fn();
-				cleanup = intersect(() => ({onintersect}))(el);
+				cleanup = intersect(() => ({ onintersect }))(el);
 				flushSync();
 
 				trigger_intersection(true);
@@ -187,8 +187,8 @@ describe('intersect', () => {
 		test('accepts params object with options', () => {
 			effect_cleanup = $effect.root(() => {
 				const callback = vi.fn();
-				const options = {threshold: 0.5};
-				cleanup = intersect(() => ({onintersect: callback, options}))(el);
+				const options = { threshold: 0.5 };
+				cleanup = intersect(() => ({ onintersect: callback, options }))(el);
 				flushSync();
 
 				assert.deepEqual(observer_options, options);
@@ -199,7 +199,7 @@ describe('intersect', () => {
 			effect_cleanup = $effect.root(() => {
 				const onintersect = vi.fn();
 				const ondisconnect = vi.fn();
-				cleanup = intersect(() => ({onintersect, ondisconnect}))(el);
+				cleanup = intersect(() => ({ onintersect, ondisconnect }))(el);
 				flushSync();
 
 				trigger_intersection(true);
@@ -218,7 +218,7 @@ describe('intersect', () => {
 		test('disconnects after count intersections when leaving viewport', () => {
 			effect_cleanup = $effect.root(() => {
 				const callback = vi.fn();
-				cleanup = intersect(() => ({onintersect: callback, count: 2}))(el);
+				cleanup = intersect(() => ({ onintersect: callback, count: 2 }))(el);
 				flushSync();
 
 				// First intersection
@@ -236,7 +236,7 @@ describe('intersect', () => {
 		test('count of 0 disables observer', () => {
 			effect_cleanup = $effect.root(() => {
 				const callback = vi.fn();
-				cleanup = intersect(() => ({onintersect: callback, count: 0}))(el);
+				cleanup = intersect(() => ({ onintersect: callback, count: 0 }))(el);
 				flushSync();
 
 				assert.strictEqual(observer_callback, null, 'observer should not be created');
@@ -246,7 +246,7 @@ describe('intersect', () => {
 		test('count of 1 disconnects after first intersection cycle', () => {
 			effect_cleanup = $effect.root(() => {
 				const callback = vi.fn();
-				cleanup = intersect(() => ({onintersect: callback, count: 1}))(el);
+				cleanup = intersect(() => ({ onintersect: callback, count: 1 }))(el);
 				flushSync();
 
 				trigger_intersection(true);
@@ -260,7 +260,7 @@ describe('intersect', () => {
 		test('negative count never disconnects', () => {
 			effect_cleanup = $effect.root(() => {
 				const callback = vi.fn();
-				cleanup = intersect(() => ({onintersect: callback, count: -1}))(el);
+				cleanup = intersect(() => ({ onintersect: callback, count: -1 }))(el);
 				flushSync();
 
 				// Multiple intersection cycles
@@ -276,7 +276,7 @@ describe('intersect', () => {
 		test('undefined count never disconnects', () => {
 			effect_cleanup = $effect.root(() => {
 				const callback = vi.fn();
-				cleanup = intersect(() => ({onintersect: callback, count: undefined}))(el);
+				cleanup = intersect(() => ({ onintersect: callback, count: undefined }))(el);
 				flushSync();
 
 				// Multiple intersection cycles
@@ -363,7 +363,7 @@ describe('intersect', () => {
 				assert.strictEqual(
 					observer_callback,
 					first_observer_callback,
-					'observer callback should be the same',
+					'observer callback should be the same'
 				);
 				assert.strictEqual(observer_options, first_options, 'observer options should be the same');
 			});
@@ -394,7 +394,7 @@ describe('intersect', () => {
 				assert.strictEqual(
 					callback2.mock.calls[0]![0].intersections,
 					1,
-					'count should be preserved',
+					'count should be preserved'
 				);
 			});
 		});
@@ -433,12 +433,12 @@ describe('intersect', () => {
 
 				cleanup = intersect(() => ({
 					onintersect: callback,
-					options: {threshold},
+					options: { threshold }
 				}))(el);
 				flushSync();
 
 				const first_observer_callback = observer_callback;
-				assert.deepEqual(observer_options, {threshold: 0.5});
+				assert.deepEqual(observer_options, { threshold: 0.5 });
 
 				// Change options
 				threshold = 0.8;
@@ -448,9 +448,9 @@ describe('intersect', () => {
 				assert.notStrictEqual(
 					observer_callback,
 					first_observer_callback,
-					'observer should be recreated',
+					'observer should be recreated'
 				);
-				assert.deepEqual(observer_options, {threshold: 0.8});
+				assert.deepEqual(observer_options, { threshold: 0.8 });
 			});
 		});
 
@@ -461,7 +461,7 @@ describe('intersect', () => {
 
 				cleanup = intersect(() => ({
 					onintersect: callback,
-					options: {threshold},
+					options: { threshold }
 				}))(el);
 				flushSync();
 
@@ -479,7 +479,7 @@ describe('intersect', () => {
 				assert.strictEqual(
 					callback.mock.calls[2]![0].intersections,
 					0,
-					'count should be reset to 0',
+					'count should be reset to 0'
 				);
 			});
 		});
@@ -491,7 +491,7 @@ describe('intersect', () => {
 
 				cleanup = intersect(() => ({
 					onintersect: callback,
-					options: has_options ? {threshold: 0.5} : undefined,
+					options: has_options ? { threshold: 0.5 } : undefined
 				}))(el);
 				flushSync();
 
@@ -503,7 +503,7 @@ describe('intersect', () => {
 				flushSync();
 
 				assert.notStrictEqual(observer_callback, first_observer_callback);
-				assert.deepEqual(observer_options, {threshold: 0.5});
+				assert.deepEqual(observer_options, { threshold: 0.5 });
 			});
 		});
 
@@ -514,12 +514,12 @@ describe('intersect', () => {
 
 				cleanup = intersect(() => ({
 					onintersect: callback,
-					options: has_options ? {threshold: 0.5} : undefined,
+					options: has_options ? { threshold: 0.5 } : undefined
 				}))(el);
 				flushSync();
 
 				const first_observer_callback = observer_callback;
-				assert.deepEqual(observer_options, {threshold: 0.5});
+				assert.deepEqual(observer_options, { threshold: 0.5 });
 
 				// Remove options
 				has_options = false;
@@ -563,7 +563,7 @@ describe('intersect', () => {
 
 		test('calling disconnect from callback disconnects observer', () => {
 			effect_cleanup = $effect.root(() => {
-				const callback = vi.fn(({disconnect}) => {
+				const callback = vi.fn(({ disconnect }) => {
 					disconnect();
 				});
 				cleanup = intersect(() => callback)(el);
@@ -582,7 +582,7 @@ describe('intersect', () => {
 				let count = $state(2);
 				const callback = vi.fn();
 
-				cleanup = intersect(() => ({onintersect: callback, count}))(el);
+				cleanup = intersect(() => ({ onintersect: callback, count }))(el);
 				flushSync();
 
 				const first_observer_callback = observer_callback;
@@ -605,7 +605,7 @@ describe('intersect', () => {
 
 				cleanup = intersect(() => ({
 					onintersect: callback,
-					ondisconnect: ondisconnect_version === 1 ? ondisconnect1 : ondisconnect2,
+					ondisconnect: ondisconnect_version === 1 ? ondisconnect1 : ondisconnect2
 				}))(el);
 				flushSync();
 
@@ -632,7 +632,7 @@ describe('intersect', () => {
 
 				cleanup = intersect(() => ({
 					onintersect: callback,
-					options: {rootMargin: root_margin, threshold: [0, 0.5, 1]},
+					options: { rootMargin: root_margin, threshold: [0, 0.5, 1] }
 				}))(el);
 				flushSync();
 

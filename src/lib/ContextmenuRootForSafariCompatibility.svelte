@@ -17,19 +17,19 @@
 	 * Otherwise, use the default `ContextmenuRoot.svelte` which is much simpler
 	 * and relies on the standard `contextmenu` event.
 	 */
-	import {swallow} from '@fuzdev/fuz_util/dom.ts';
-	import {on} from 'svelte/events';
+	import { swallow } from '@fuzdev/fuz_util/dom.ts';
+	import { on } from 'svelte/events';
 
 	import {
 		contextmenu_context,
 		ContextmenuState,
 		contextmenu_open,
-		contextmenu_check_global_root,
+		contextmenu_check_global_root
 	} from './contextmenu_state.svelte.ts';
 	import ContextmenuMenu, {
 		link_entry_default,
 		text_entry_default,
-		separator_entry_default,
+		separator_entry_default
 	} from './ContextmenuMenu.svelte';
 	import {
 		CONTEXTMENU_DEFAULT_OPEN_OFFSET_X,
@@ -42,7 +42,7 @@
 		contextmenu_resolve_contextmenu_event,
 		ContextmenuBypassTracker,
 		ContextmenuOpenGuard,
-		type ContextmenuRootBaseProps,
+		type ContextmenuRootBaseProps
 	} from './contextmenu_helpers.ts';
 
 	const {
@@ -58,7 +58,7 @@
 		link_entry = link_entry_default,
 		text_entry = text_entry_default,
 		separator_entry = separator_entry_default,
-		children,
+		children
 	}: ContextmenuRootBaseProps & {
 		/**
 		 * The number of pixels the pointer can be moved without canceling `longpress`.
@@ -131,7 +131,7 @@
 		open_offset_y,
 		link_enabled: link_entry !== null,
 		text_enabled: text_entry !== null,
-		separator_enabled: separator_entry !== null,
+		separator_enabled: separator_entry !== null
 	});
 
 	const on_window_contextmenu = (e: MouseEvent) => {
@@ -157,7 +157,7 @@
 	const touchstart = (e: TouchEvent): void => {
 		longpress_opened = false;
 		open_guard.touchstart(); // begins a gesture, clearing stale flags
-		const {touches, target} = e;
+		const { touches, target } = e;
 		if (
 			contextmenu.opened ||
 			touches.length !== 1 ||
@@ -168,7 +168,7 @@
 			return;
 		}
 
-		const {clientX, clientY} = touches[0]!;
+		const { clientX, clientY } = touches[0]!;
 
 		// The builtin `'contextmenu'` event will still fire for non-iOS browsers,
 		// so the tracker's `bypassed` flag tells `on_window_contextmenu` to exit early.
@@ -195,7 +195,7 @@
 					touch_x + open_offset_x,
 					touch_y + open_offset_y,
 					contextmenu,
-					open_options,
+					open_options
 				)
 			) {
 				// guard the release of this gesture from interacting with the menu
@@ -208,9 +208,9 @@
 	const touchmove = (e: TouchEvent): void => {
 		// Exit early if no pending longpress or menu is already open
 		if (longpress_timeout === null || contextmenu.opened) return;
-		const {touches} = e;
+		const { touches } = e;
 		if (touches.length !== 1) return;
-		const {clientX, clientY} = touches[0]!;
+		const { clientX, clientY } = touches[0]!;
 		const distance = Math.hypot(clientX - touch_x, clientY - touch_y);
 		if (distance > longpress_move_tolerance) {
 			// User is scrolling - cancel longpress but DON'T preventDefault
@@ -261,9 +261,9 @@
 	 */
 	const touch_event_attachment = (el: HTMLElement | Window) => {
 		// touchstart and touchcancel don't call preventDefault, so they can be passive for better performance
-		const passive_options: AddEventListenerOptions = {passive: true, capture: true};
+		const passive_options: AddEventListenerOptions = { passive: true, capture: true };
 		// touchmove and touchend need to call preventDefault to block iOS behaviors, so they must be non-passive
-		const nonpassive_options: AddEventListenerOptions = {passive: false, capture: true};
+		const nonpassive_options: AddEventListenerOptions = { passive: false, capture: true };
 
 		const cleanup_touchstart = on(el, 'touchstart', touchstart as EventListener, passive_options);
 		const cleanup_touchmove = on(el, 'touchmove', touchmove as EventListener, nonpassive_options);
@@ -272,7 +272,7 @@
 			el,
 			'touchcancel',
 			touchcancel as EventListener,
-			passive_options,
+			passive_options
 		);
 
 		return () => {

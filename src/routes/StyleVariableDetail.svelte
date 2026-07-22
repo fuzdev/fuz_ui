@@ -1,8 +1,8 @@
 <script lang="ts">
-	import type {StyleVariable} from '@fuzdev/fuz_css/variable.ts';
+	import type { StyleVariable } from '@fuzdev/fuz_css/variable.ts';
 
 	const {
-		variable,
+		variable
 	}: {
 		variable: StyleVariable | null;
 	} = $props();

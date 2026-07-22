@@ -1,12 +1,12 @@
 <script lang="ts">
-	import {strip_start} from '@fuzdev/fuz_util/string.ts';
-	import {swallow} from '@fuzdev/fuz_util/dom.ts';
-	import type {Snippet} from 'svelte';
-	import {page} from '$app/state';
+	import { strip_start } from '@fuzdev/fuz_util/string.ts';
+	import { swallow } from '@fuzdev/fuz_util/dom.ts';
+	import type { Snippet } from 'svelte';
+	import { page } from '$app/state';
 
-	import {contextmenu_context} from './contextmenu_state.svelte.ts';
-	import {icon_external_link, icon_link} from './icons.ts';
-	import type {SvgData} from './svg.ts';
+	import { contextmenu_context } from './contextmenu_state.svelte.ts';
+	import { icon_external_link, icon_link } from './icons.ts';
+	import type { SvgData } from './svg.ts';
 	import Svg from './Svg.svelte';
 	import ContextmenuIcon from './ContextmenuIcon.svelte';
 
@@ -15,7 +15,7 @@
 		icon,
 		children,
 		disabled: disabled_prop = false,
-		external_rel = 'noreferrer', // TODO smarter defaults
+		external_rel = 'noreferrer' // TODO smarter defaults
 	}: {
 		href: string;
 		icon?: SvgData | string | Snippet;
@@ -36,11 +36,11 @@
 		() => () => {
 			if (anchor_el) anchor_el.click();
 		},
-		() => disabled_prop,
+		() => disabled_prop
 	);
 
 	// keyboard selection, like `ContextmenuEntry` - distinct from `current_page` below
-	const {selected} = $derived(entry);
+	const { selected } = $derived(entry);
 	const disabled = $derived(entry.disabled());
 
 	// TODO move or upstream?
@@ -64,7 +64,7 @@
 	<!-- eslint-disable svelte/no-navigation-without-resolve -->
 	<a
 		bind:this={anchor_el}
-		class={['menuitem plain', {selected, disabled, deselectable: !disabled}]}
+		class={['menuitem plain', { selected, disabled, deselectable: !disabled }]}
 		role="menuitem"
 		aria-disabled={disabled}
 		aria-current={current_page ? 'page' : undefined}

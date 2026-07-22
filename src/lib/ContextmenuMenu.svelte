@@ -1,7 +1,7 @@
 <script module lang="ts">
 	// The default entry snippets are shared by `ContextmenuRoot.svelte`
 	// and `ContextmenuRootForSafariCompatibility.svelte`.
-	export {link_entry_default, text_entry_default, separator_entry_default};
+	export { link_entry_default, text_entry_default, separator_entry_default };
 </script>
 
 <script lang="ts">
@@ -13,12 +13,12 @@
 	 * the roots own gesture detection, i.e. how the menu opens. Holds no gesture
 	 * state of its own; the `open_guard` it consults is owned and armed by the root.
 	 */
-	import {swallow} from '@fuzdev/fuz_util/dom.ts';
-	import type {ComponentProps, Snippet} from 'svelte';
+	import { swallow } from '@fuzdev/fuz_util/dom.ts';
+	import type { ComponentProps, Snippet } from 'svelte';
 
 	import {
 		contextmenu_dimensions_context,
-		type ContextmenuState,
+		type ContextmenuState
 	} from './contextmenu_state.svelte.ts';
 	import ContextmenuLinkEntry from './ContextmenuLinkEntry.svelte';
 	import ContextmenuTextEntry from './ContextmenuTextEntry.svelte';
@@ -30,7 +30,7 @@
 		contextmenu_calculate_constrained_x,
 		contextmenu_calculate_constrained_y,
 		contextmenu_popover_attachment,
-		type ContextmenuOpenGuard,
+		type ContextmenuOpenGuard
 	} from './contextmenu_helpers.ts';
 
 	let {
@@ -39,7 +39,7 @@
 		link_entry,
 		text_entry,
 		separator_entry,
-		el = $bindable(),
+		el = $bindable()
 	}: {
 		/**
 		 * The contextmenu state owned by the root.
@@ -68,20 +68,20 @@
 		el?: HTMLElement;
 	} = $props();
 
-	const {layout} = $derived(contextmenu);
+	const { layout } = $derived(contextmenu);
 
 	const dimensions = contextmenu_dimensions_context.set();
 
 	const x = $derived(
-		contextmenu_calculate_constrained_x(contextmenu.x, dimensions.width, layout.width),
+		contextmenu_calculate_constrained_x(contextmenu.x, dimensions.width, layout.width)
 	);
 	const y = $derived(
-		contextmenu_calculate_constrained_y(contextmenu.y, dimensions.height, layout.height),
+		contextmenu_calculate_constrained_y(contextmenu.y, dimensions.height, layout.height)
 	);
 
 	// Closes the contextmenu on presses outside of it.
 	const mousedown = $derived(
-		contextmenu_create_mousedown_handler(contextmenu, () => el, open_guard),
+		contextmenu_create_mousedown_handler(contextmenu, () => el, open_guard)
 	);
 
 	const keyboard_handlers = $derived(contextmenu_create_keyboard_handlers(contextmenu));

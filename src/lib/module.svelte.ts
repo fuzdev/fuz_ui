@@ -1,12 +1,12 @@
 import type {
 	ModuleJsonInput,
 	ReExportJsonInput,
-	ExternalReExportJsonInput,
+	ExternalReExportJsonInput
 } from 'svelte-docinfo/types.js';
 
-import {Declaration} from './declaration.svelte.ts';
-import type {Library} from './library.svelte.ts';
-import {url_github_file} from '@fuzdev/fuz_util/package_helpers.ts';
+import { Declaration } from './declaration.svelte.ts';
+import type { Library } from './library.svelte.ts';
+import { url_github_file } from '@fuzdev/fuz_util/package_helpers.ts';
 
 /**
  * Groups entries by a string key, with groups sorted by key. Entries within
@@ -14,7 +14,7 @@ import {url_github_file} from '@fuzdev/fuz_util/package_helpers.ts';
  */
 const group_sorted = <T>(
 	entries: Array<T>,
-	get_key: (entry: T) => string,
+	get_key: (entry: T) => string
 ): Map<string, Array<T>> => {
 	const by_key: Map<string, Array<T>> = new Map();
 	for (const entry of entries) {
@@ -72,7 +72,7 @@ export class Module {
 	declarations = $derived(
 		(this.module_json.declarations ?? [])
 			.filter((declaration_json) => declaration_json.name !== 'default')
-			.map((declaration_json) => new Declaration(this, declaration_json)),
+			.map((declaration_json) => new Declaration(this, declaration_json))
 	);
 
 	/**
@@ -89,7 +89,7 @@ export class Module {
 	url_api_full = $derived(
 		this.library.homepage_url
 			? `${this.library.homepage_url.replace(/\/$/, '')}/docs/api/${this.path}`
-			: undefined,
+			: undefined
 	);
 
 	/**
@@ -98,7 +98,7 @@ export class Module {
 	url_github = $derived(
 		this.library.repo_url
 			? url_github_file(this.library.repo_url, `src/lib/${this.path}`)
-			: undefined,
+			: undefined
 	);
 
 	/**
@@ -148,7 +148,7 @@ export class Module {
 	 * Entries within each group keep their name-sorted serialized order.
 	 */
 	re_exports_by_module: Map<string, Array<ReExportJsonInput>> = $derived(
-		group_sorted(this.re_exports, (entry) => entry.module),
+		group_sorted(this.re_exports, (entry) => entry.module)
 	);
 
 	/**
@@ -166,7 +166,7 @@ export class Module {
 	 * order.
 	 */
 	external_re_exports_by_specifier: Map<string, Array<ExternalReExportJsonInput>> = $derived(
-		group_sorted(this.external_re_exports, (entry) => entry.specifier),
+		group_sorted(this.external_re_exports, (entry) => entry.specifier)
 	);
 
 	/**
@@ -186,7 +186,7 @@ export class Module {
 		this.has_re_exports ||
 			this.has_star_exports ||
 			this.has_external_re_exports ||
-			this.has_external_star_exports,
+			this.has_external_star_exports
 	);
 
 	constructor(library: Library, module_json: ModuleJsonInput) {

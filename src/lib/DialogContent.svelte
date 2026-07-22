@@ -1,9 +1,9 @@
 <script lang="ts">
-	import type {Snippet} from 'svelte';
-	import type {HTMLAttributes, SvelteHTMLElements} from 'svelte/elements';
+	import type { Snippet } from 'svelte';
+	import type { HTMLAttributes, SvelteHTMLElements } from 'svelte/elements';
 
-	import {dialog_context, type DialogContext, type DialogCloseButtonAttrs} from './dialog.ts';
-	import {icon_close} from './icons.ts';
+	import { dialog_context, type DialogContext, type DialogCloseButtonAttrs } from './dialog.ts';
+	import { icon_close } from './icons.ts';
 	import Svg from './Svg.svelte';
 
 	/**
@@ -111,7 +111,7 @@
 		style: 'position: absolute; top: 0; right: 0;',
 		onclick: dialog.close,
 		title: 'close',
-		'aria-label': 'close',
+		'aria-label': 'close'
 	} satisfies SvelteHTMLElements['button'];
 </script>
 
@@ -123,7 +123,7 @@ dismiss zone outside the card, where a press lands on the wrapper and closes the
 content with its own overflow (e.g. `Code`) scrolls instead of forcing the card wider. -->
 <div
 	{...rest}
-	class={[rest.class, {pane}]}
+	class={[rest.class, { pane }]}
 	style:padding
 	style:margin={gutter}
 	style:max-width={max_width}

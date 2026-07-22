@@ -1,11 +1,11 @@
 <script lang="ts">
-	import {page} from '$app/state';
-	import type {SvelteHTMLElements} from 'svelte/elements';
+	import { page } from '$app/state';
+	import type { SvelteHTMLElements } from 'svelte/elements';
 
 	import DocsPageLinks from './DocsPageLinks.svelte';
-	import {tome_to_pathname, Tome} from './tome.ts';
-	import {docs_links_context} from './docs_helpers.svelte.ts';
-	import {library_context} from './library.svelte.ts';
+	import { tome_to_pathname, Tome } from './tome.ts';
+	import { docs_links_context } from './docs_helpers.svelte.ts';
+	import { library_context } from './library.svelte.ts';
 	import TomeLink from './TomeLink.svelte';
 	import ModuleLink from './ModuleLink.svelte';
 	import DeclarationLink from './DeclarationLink.svelte';
@@ -26,7 +26,7 @@
 	const tomes_related_to_selected = $derived(
 		selected_tome?.related_tomes
 			.map((slug) => tomes_by_slug.get(slug))
-			.filter((t) => t !== undefined) ?? [],
+			.filter((t) => t !== undefined) ?? []
 	);
 
 	const get_library = library_context.get();
@@ -35,13 +35,13 @@
 	const modules_related_to_selected = $derived(
 		selected_tome?.related_modules
 			.map((path) => library.module_by_path.get(path))
-			.filter((m) => m !== undefined) ?? [],
+			.filter((m) => m !== undefined) ?? []
 	);
 
 	const declarations_related_to_selected = $derived(
 		selected_tome?.related_declarations
 			.map((name) => library.declaration_by_name.get(name))
-			.filter((d) => d !== undefined) ?? [],
+			.filter((d) => d !== undefined) ?? []
 	);
 
 	const docs_links = docs_links_context.get();
@@ -95,7 +95,9 @@
 		z-index: 1;
 		width: var(--docs_sidebar_width);
 		height: calc(100% - var(--docs_primary_nav_height));
-		padding: var(--docs_secondary_nav_padding); /* needed with `overflow: auto` to avoid cutting off outline */
+		padding: var(
+			--docs_secondary_nav_padding
+		); /* needed with `overflow: auto` to avoid cutting off outline */
 		overflow: auto;
 		scrollbar-width: thin;
 		background-color: var(--shade_10);

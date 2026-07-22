@@ -1,11 +1,11 @@
 <script lang="ts">
-	import type {Snippet} from 'svelte';
+	import type { Snippet } from 'svelte';
 
-	import {tome_get_by_slug} from '$lib/tome.ts';
+	import { tome_get_by_slug } from '$lib/tome.ts';
 	import TomeContent from '$lib/TomeContent.svelte';
 
 	const {
-		children,
+		children
 	}: {
 		children: Snippet;
 	} = $props();

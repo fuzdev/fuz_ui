@@ -1,7 +1,7 @@
 <script lang="ts">
-	import type {Snippet} from 'svelte';
+	import type { Snippet } from 'svelte';
 
-	import type {SvgData} from './svg.ts';
+	import type { SvgData } from './svg.ts';
 	import Svg from './Svg.svelte';
 
 	/**
@@ -13,7 +13,7 @@
 	 */
 
 	const {
-		icon,
+		icon
 	}: {
 		icon?: SvgData | string | Snippet;
 	} = $props();

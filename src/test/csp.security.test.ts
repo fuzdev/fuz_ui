@@ -1,7 +1,7 @@
-import {test, assert, describe} from 'vitest';
+import { test, assert, describe } from 'vitest';
 
-import {create_csp_directives, COLOR_SCHEME_SCRIPT_HASH} from '$lib/csp.ts';
-import {src} from './csp_test_helpers.ts';
+import { create_csp_directives, COLOR_SCHEME_SCRIPT_HASH } from '$lib/csp.ts';
+import { src } from './csp_test_helpers.ts';
 
 describe('default security posture — properties (decoupled from exact defaults)', () => {
 	// These are property tests — what *must* be true for security regardless of exact default
@@ -31,7 +31,7 @@ describe('XSS protection — script source allowlist properties', () => {
 
 		assert.include(csp['script-src']!, 'self');
 		const non_baseline = csp['script-src']!.filter(
-			(v) => v !== 'self' && v !== 'wasm-unsafe-eval' && !v.startsWith('sha256-'),
+			(v) => v !== 'self' && v !== 'wasm-unsafe-eval' && !v.startsWith('sha256-')
 		);
 		assert.deepEqual(non_baseline, [], 'no external domains by default');
 	});
@@ -42,14 +42,14 @@ describe('XSS protection — script source allowlist properties', () => {
 
 		// Adding to img-src does NOT grant script-src — sources land only where named.
 		const csp_img = create_csp_directives({
-			extend: [{'img-src': [untrusted]}],
+			extend: [{ 'img-src': [untrusted] }]
 		});
 		assert.include(csp_img['img-src']!, untrusted);
 		assert.notInclude(csp_img['script-src']! as Array<any>, untrusted);
 
 		// Explicit extend on script-src is the only path.
 		const csp_script = create_csp_directives({
-			extend: [{'script-src': [untrusted]}],
+			extend: [{ 'script-src': [untrusted] }]
 		});
 		assert.include(csp_script['script-src']!, untrusted);
 	});
@@ -65,7 +65,7 @@ describe('XSS protection — script source allowlist properties', () => {
 			const unique_source = src(`unique-${target}.fuz.dev`);
 
 			const csp = create_csp_directives({
-				extend: [{[target]: [unique_source]}],
+				extend: [{ [target]: [unique_source] }]
 			});
 
 			assert.include(csp[target]!, unique_source, `${unique_source} should appear in ${target}`);
@@ -75,7 +75,7 @@ describe('XSS protection — script source allowlist properties', () => {
 				assert.notInclude(
 					value,
 					unique_source,
-					`${unique_source} leaked into ${directive} but was only added to ${target}`,
+					`${unique_source} leaked into ${directive} but was only added to ${target}`
 				);
 			}
 		}
@@ -98,13 +98,13 @@ describe('defense in depth with styles', () => {
 
 		// Adding to img-src doesn't grant style-src.
 		const csp_img = create_csp_directives({
-			extend: [{'img-src': [external_styles]}],
+			extend: [{ 'img-src': [external_styles] }]
 		});
 		assert.notInclude(csp_img['style-src']! as Array<any>, external_styles);
 
 		// Explicit extend on style-src is required.
 		const csp_style = create_csp_directives({
-			extend: [{'style-src': [external_styles]}],
+			extend: [{ 'style-src': [external_styles] }]
 		});
 		assert.include(csp_style['style-src']!, external_styles);
 	});
@@ -124,7 +124,7 @@ describe('nonce-based script execution', () => {
 		const nonce = src('nonce-random123456');
 
 		const csp = create_csp_directives({
-			extend: [{'script-src': [nonce]}],
+			extend: [{ 'script-src': [nonce] }]
 		});
 
 		assert.include(csp['script-src']!, nonce);

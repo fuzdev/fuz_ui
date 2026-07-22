@@ -1,7 +1,7 @@
 <script lang="ts">
 	import Code from '@fuzdev/fuz_code/Code.svelte';
 
-	import {tome_get_by_slug} from '$lib/tome.ts';
+	import { tome_get_by_slug } from '$lib/tome.ts';
 	import PendingAnimation from '$lib/PendingAnimation.svelte';
 	import TomeContent from '$lib/TomeContent.svelte';
 	import TomeSectionHeader from '$lib/TomeSectionHeader.svelte';
@@ -46,7 +46,7 @@
 		<Code
 			content={`<PendingAnimation --font_size="var(--font_size_xl5)"${to_boolean_attr(
 				'running',
-				running,
+				running
 			)} />`}
 		/>
 		<div class="mb_lg align_items_flex_start" role="none">
@@ -56,7 +56,7 @@
 		<Code
 			content={`<PendingAnimation attrs={{class: 'font_size_xl3'}}${to_boolean_attr(
 				'running',
-				running,
+				running
 			)} />`}
 		/>
 		<div class="align_items_flex_start" role="none">
@@ -66,7 +66,7 @@
 		<Code
 			content={`<div class="font_size_xl4"><PendingAnimation${to_boolean_attr(
 				'running',
-				running,
+				running
 			)} /></div>`}
 		/>
 		<div class="font_size_xl4 align_items_flex_start" role="none">
@@ -79,7 +79,7 @@
 		<Code
 			content={`<PendingAnimation${to_boolean_attr('inline', inline)}${to_boolean_attr(
 				'running',
-				running,
+				running
 			)} />`}
 		/>
 		<p>
@@ -97,7 +97,7 @@
 		<Code
 			content={`<PendingAnimation --font_size="var(--font_size_xl6)"${to_boolean_attr(
 				'running',
-				running,
+				running
 			)}>
 	{${turtle_slot}}
 </PendingAnimation>`}
@@ -162,7 +162,7 @@
 		<Code
 			content={`<PendingAnimation --animation_duration="var(--duration_6)" --font_size="var(--font_size_xl4)"${to_boolean_attr(
 				'running',
-				running,
+				running
 			)} />`}
 		/>
 		<PendingAnimation

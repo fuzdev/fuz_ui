@@ -1,9 +1,9 @@
-import {test, assert, describe} from 'vitest';
-import type {KitConfig} from '@sveltejs/kit';
-import type {Defined} from '@fuzdev/fuz_util/types.ts';
+import { test, assert, describe } from 'vitest';
+import type { KitConfig } from '@sveltejs/kit';
+import type { Defined } from '@fuzdev/fuz_util/types.ts';
 
-import {create_csp_directives, type CspDirectives} from '$lib/csp.ts';
-import {src} from './csp_test_helpers.ts';
+import { create_csp_directives, type CspDirectives } from '$lib/csp.ts';
+import { src } from './csp_test_helpers.ts';
 
 // SvelteKit-specific tests only — real-world scenarios (Stripe, analytics, Google Fonts,
 // CDN, hash/nonce) and conditional patterns are covered in csp.integration.test.ts.
@@ -44,8 +44,8 @@ describe('SvelteKit reporting endpoint', () => {
 	test('report-to via replace_defaults', () => {
 		const csp = create_csp_directives({
 			replace_defaults: {
-				'report-to': ['csp-endpoint'],
-			},
+				'report-to': ['csp-endpoint']
+			}
 		});
 
 		assert.deepEqual(csp['report-to'], ['csp-endpoint']);
@@ -54,8 +54,8 @@ describe('SvelteKit reporting endpoint', () => {
 	test('report-to via overrides', () => {
 		const csp = create_csp_directives({
 			overrides: {
-				'report-to': ['csp-violations'],
-			},
+				'report-to': ['csp-violations']
+			}
 		});
 
 		assert.deepEqual(csp['report-to'], ['csp-violations']);
@@ -66,13 +66,13 @@ describe('conditional configuration', () => {
 	// The dev/prod split via extend is a recommended SvelteKit pattern: build the extend
 	// array based on env (`is_dev ? [{'script-src': ['unsafe-eval']}] : []`).
 	test('production omits dev-only sources', () => {
-		const prod_csp = create_csp_directives({extend: []});
+		const prod_csp = create_csp_directives({ extend: [] });
 		assert.notInclude(prod_csp['script-src']! as Array<any>, 'unsafe-eval');
 	});
 
 	test('development extends with unsafe-eval for HMR', () => {
 		const dev_csp = create_csp_directives({
-			extend: [{'script-src': ['unsafe-eval']}],
+			extend: [{ 'script-src': ['unsafe-eval'] }]
 		});
 		assert.include(dev_csp['script-src']!, 'unsafe-eval');
 		assert.include(dev_csp['script-src']!, 'self');
@@ -88,7 +88,7 @@ describe('upgrade-insecure-requests', () => {
 
 	test('can disable via overrides', () => {
 		const csp = create_csp_directives({
-			overrides: {'upgrade-insecure-requests': false},
+			overrides: { 'upgrade-insecure-requests': false }
 		});
 
 		assert.strictEqual(csp['upgrade-insecure-requests'], false);
@@ -106,7 +106,7 @@ describe('frame-ancestors for iframe embedding', () => {
 		const parent_site = src('parent.fuz.dev');
 
 		const csp = create_csp_directives({
-			extend: [{'frame-ancestors': [parent_site]}],
+			extend: [{ 'frame-ancestors': [parent_site] }]
 		});
 
 		assert.include(csp['frame-ancestors']!, parent_site);

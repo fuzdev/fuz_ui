@@ -1,12 +1,12 @@
 /**
  * @vitest-environment jsdom
  */
-import {describe, test, assert, afterEach, vi} from 'vitest';
-import {flushSync} from 'svelte';
+import { describe, test, assert, afterEach, vi } from 'vitest';
+import { flushSync } from 'svelte';
 
-import {create_shared_edge_case_tests} from './contextmenu_test_edge_cases.ts';
+import { create_shared_edge_case_tests } from './contextmenu_test_edge_cases.ts';
 import ContextmenuRoot from '$lib/ContextmenuRoot.svelte';
-import {contextmenu_attachment} from '$lib/contextmenu_state.svelte.ts';
+import { contextmenu_attachment } from '$lib/contextmenu_state.svelte.ts';
 import {
 	unmount_component,
 	create_contextmenu_event,
@@ -14,9 +14,9 @@ import {
 	create_mouse_event,
 	create_touch_event,
 	set_event_target,
-	set_event_time,
+	set_event_time
 } from './test_helpers.ts';
-import {mount_contextmenu_root} from './contextmenu_test_helpers.ts';
+import { mount_contextmenu_root } from './contextmenu_test_helpers.ts';
 
 // ResizeObserver is not currently available in jsdom
 class ResizeObserverMock {
@@ -44,21 +44,21 @@ describe('ContextmenuRoot - Reopen While Open', () => {
 	 */
 	const mount_and_open_first_target = () => {
 		mounted = mount_contextmenu_root(ContextmenuRoot);
-		const {container, contextmenu} = mounted;
+		const { container, contextmenu } = mounted;
 
 		const target_a = document.createElement('div');
 		container.appendChild(target_a);
 		const cleanup_a = contextmenu_attachment([
-			{snippet: 'text' as const, props: {content: 'A1', icon: '🍎', run: () => undefined}},
-			{snippet: 'text' as const, props: {content: 'A2', icon: '🍎', run: () => undefined}},
+			{ snippet: 'text' as const, props: { content: 'A1', icon: '🍎', run: () => undefined } },
+			{ snippet: 'text' as const, props: { content: 'A2', icon: '🍎', run: () => undefined } }
 		])(target_a);
 
 		const target_b = document.createElement('div');
 		container.appendChild(target_b);
 		const cleanup_b = contextmenu_attachment([
-			{snippet: 'text' as const, props: {content: 'B1', icon: '🍌', run: () => undefined}},
-			{snippet: 'text' as const, props: {content: 'B2', icon: '🍌', run: () => undefined}},
-			{snippet: 'text' as const, props: {content: 'B3', icon: '🍌', run: () => undefined}},
+			{ snippet: 'text' as const, props: { content: 'B1', icon: '🍌', run: () => undefined } },
+			{ snippet: 'text' as const, props: { content: 'B2', icon: '🍌', run: () => undefined } },
+			{ snippet: 'text' as const, props: { content: 'B3', icon: '🍌', run: () => undefined } }
 		])(target_b);
 
 		// Open from the first target - its entries mount and register in root_menu.items.
@@ -84,7 +84,7 @@ describe('ContextmenuRoot - Reopen While Open', () => {
 			target_b.remove();
 		};
 
-		return {contextmenu, open_second_target, cleanup};
+		return { contextmenu, open_second_target, cleanup };
 	};
 
 	// Guards the interleaved add/destroy case: when the keyed each replaces entries
@@ -92,7 +92,7 @@ describe('ContextmenuRoot - Reopen While Open', () => {
 	// themselves without losing concurrently-registered entries
 	// (see `ContextmenuItemsState`'s non-reactive source array).
 	test('reopening while open replaces root_menu items with the new entries', () => {
-		const {contextmenu, open_second_target, cleanup} = mount_and_open_first_target();
+		const { contextmenu, open_second_target, cleanup } = mount_and_open_first_target();
 
 		// While still open, open again from the other target with different params.
 		open_second_target();
@@ -111,13 +111,13 @@ describe('ContextmenuRoot - Reopen While Open', () => {
 	// the previous selection, and the keyed menu remounts entries with fresh state.
 	test('reopening from the same target discards the previous selection highlight', () => {
 		mounted = mount_contextmenu_root(ContextmenuRoot);
-		const {container, contextmenu} = mounted;
+		const { container, contextmenu } = mounted;
 
 		const target = document.createElement('div');
 		container.appendChild(target);
 		const cleanup = contextmenu_attachment([
-			{snippet: 'text' as const, props: {content: 'A1', icon: '🍎', run: () => undefined}},
-			{snippet: 'text' as const, props: {content: 'A2', icon: '🍎', run: () => undefined}},
+			{ snippet: 'text' as const, props: { content: 'A1', icon: '🍎', run: () => undefined } },
+			{ snippet: 'text' as const, props: { content: 'A2', icon: '🍎', run: () => undefined } }
 		])(target);
 
 		const open_from_target = (x: number, y: number) => {
@@ -148,7 +148,7 @@ describe('ContextmenuRoot - Reopen While Open', () => {
 	});
 
 	test('reopening after close mounts exactly the new entries', () => {
-		const {contextmenu, open_second_target, cleanup} = mount_and_open_first_target();
+		const { contextmenu, open_second_target, cleanup } = mount_and_open_first_target();
 
 		// Close first (the realistic mouse flow closes via mousedown before reopening).
 		contextmenu.close();
@@ -185,7 +185,7 @@ describe('ContextmenuRoot - Synthesized Click After Touch Open', () => {
 		mounted = mount_contextmenu_root(ContextmenuRoot);
 		// Touch listeners attach via Svelte's microtask queue - drain it before dispatching.
 		flushSync();
-		const {container, contextmenu} = mounted;
+		const { container, contextmenu } = mounted;
 
 		let activated = false;
 		const target = document.createElement('div');
@@ -198,13 +198,13 @@ describe('ContextmenuRoot - Synthesized Click After Touch Open', () => {
 					icon: '🧪',
 					run: () => {
 						activated = true;
-					},
-				},
-			},
+					}
+				}
+			}
 		])(target);
 
 		// The opening gesture: finger down, the native `contextmenu` fires during the hold.
-		const touchstart = create_touch_event('touchstart', [{clientX: 100, clientY: 200, target}]);
+		const touchstart = create_touch_event('touchstart', [{ clientX: 100, clientY: 200, target }]);
 		set_event_target(touchstart, target);
 		window.dispatchEvent(touchstart);
 
@@ -224,7 +224,7 @@ describe('ContextmenuRoot - Synthesized Click After Touch Open', () => {
 		if (!touchend.defaultPrevented) {
 			const item = container.querySelector('.contextmenu [role="menuitem"]');
 			assert.ok(item);
-			const click = create_mouse_event('click', {bubbles: true, cancelable: true});
+			const click = create_mouse_event('click', { bubbles: true, cancelable: true });
 			set_event_target(click, item);
 			item.dispatchEvent(click);
 		}
@@ -259,7 +259,7 @@ describe('ContextmenuRoot - Blocked Click After Touch Open', () => {
 		mounted = mount_contextmenu_root(ContextmenuRoot);
 		// Touch listeners attach via Svelte's microtask queue - drain it before dispatching.
 		flushSync();
-		const {container, contextmenu} = mounted;
+		const { container, contextmenu } = mounted;
 
 		let activated = false;
 		const target = document.createElement('div');
@@ -272,12 +272,12 @@ describe('ContextmenuRoot - Blocked Click After Touch Open', () => {
 					icon: '🧪',
 					run: () => {
 						activated = true;
-					},
-				},
-			},
+					}
+				}
+			}
 		])(target);
 
-		const touchstart = create_touch_event('touchstart', [{clientX: 100, clientY: 200, target}]);
+		const touchstart = create_touch_event('touchstart', [{ clientX: 100, clientY: 200, target }]);
 		set_event_target(touchstart, target);
 		window.dispatchEvent(touchstart);
 
@@ -295,7 +295,7 @@ describe('ContextmenuRoot - Blocked Click After Touch Open', () => {
 		// iOS-style: the click arrives anyway.
 		const item = container.querySelector('.contextmenu [role="menuitem"]');
 		assert.ok(item);
-		const click = create_mouse_event('click', {bubbles: true, cancelable: true});
+		const click = create_mouse_event('click', { bubbles: true, cancelable: true });
 		set_event_target(click, item);
 		item.dispatchEvent(click);
 		assert.strictEqual(click.defaultPrevented, true, 'the synthesized click is blocked');
@@ -307,7 +307,7 @@ describe('ContextmenuRoot - Blocked Click After Touch Open', () => {
 		assert.strictEqual(contextmenu.opened, true);
 
 		// The blocker consumes exactly one click - the next click activates normally.
-		const second_click = create_mouse_event('click', {bubbles: true, cancelable: true});
+		const second_click = create_mouse_event('click', { bubbles: true, cancelable: true });
 		set_event_target(second_click, item);
 		item.dispatchEvent(second_click);
 		vi.runAllTimers();
@@ -334,16 +334,16 @@ describe('ContextmenuRoot - Reopen Gesture Ordering', () => {
 		vi.useFakeTimers();
 		mounted = mount_contextmenu_root(ContextmenuRoot);
 		flushSync();
-		const {container, contextmenu} = mounted;
+		const { container, contextmenu } = mounted;
 		const target_a = document.createElement('div');
 		container.appendChild(target_a);
 		const cleanup_a = contextmenu_attachment([
-			{snippet: 'text' as const, props: {content: 'A', icon: '🍎', run: () => undefined}},
+			{ snippet: 'text' as const, props: { content: 'A', icon: '🍎', run: () => undefined } }
 		])(target_a);
 		const target_b = document.createElement('div');
 		container.appendChild(target_b);
 		const cleanup_b = contextmenu_attachment([
-			{snippet: 'text' as const, props: {content: 'B', icon: '🍌', run: () => undefined}},
+			{ snippet: 'text' as const, props: { content: 'B', icon: '🍌', run: () => undefined } }
 		])(target_b);
 		const dispatch = (e: Event, target: Element, flush = true, time_stamp?: number) => {
 			if (time_stamp !== undefined) set_event_time(e, time_stamp);
@@ -361,22 +361,22 @@ describe('ContextmenuRoot - Reopen Gesture Ordering', () => {
 				cleanup_b?.();
 				target_a.remove();
 				target_b.remove();
-			},
+			}
 		};
 	};
 
 	test('reopens when the gesture mousedown precedes the contextmenu event', () => {
-		const {contextmenu, target_a, target_b, dispatch, cleanup} = setup();
+		const { contextmenu, target_a, target_b, dispatch, cleanup } = setup();
 		dispatch(create_contextmenu_event(100, 100), target_a, true, 1000);
 		assert.strictEqual(contextmenu.opened, true);
 
 		// Secondary-button presses never close via the mousedown handler -
 		// the gesture's own contextmenu event resolves the menu by reopening it.
 		dispatch(
-			create_mouse_event('mousedown', {bubbles: true, cancelable: true, button: 2}),
+			create_mouse_event('mousedown', { bubbles: true, cancelable: true, button: 2 }),
 			target_b,
 			true,
-			1500,
+			1500
 		);
 		assert.strictEqual(contextmenu.opened, true);
 		dispatch(create_contextmenu_event(300, 300), target_b, true, 1500);
@@ -389,7 +389,7 @@ describe('ContextmenuRoot - Reopen Gesture Ordering', () => {
 	});
 
 	test('stays open when the gesture mousedown arrives after the contextmenu event', () => {
-		const {contextmenu, target_a, target_b, dispatch, cleanup} = setup();
+		const { contextmenu, target_a, target_b, dispatch, cleanup } = setup();
 		dispatch(create_contextmenu_event(100, 100), target_a, true, 1000);
 		assert.strictEqual(contextmenu.opened, true);
 
@@ -399,10 +399,10 @@ describe('ContextmenuRoot - Reopen Gesture Ordering', () => {
 		// the menu it just opened (see `ContextmenuOpenGuard.press_belongs_to_open_gesture`).
 		dispatch(create_contextmenu_event(300, 300), target_b, false, 1500);
 		dispatch(
-			create_mouse_event('mousedown', {bubbles: true, cancelable: true, button: 2}),
+			create_mouse_event('mousedown', { bubbles: true, cancelable: true, button: 2 }),
 			target_b,
 			false,
-			1505,
+			1505
 		);
 		flushSync();
 
@@ -411,43 +411,43 @@ describe('ContextmenuRoot - Reopen Gesture Ordering', () => {
 	});
 
 	test('a later outside press still closes the reopened menu', () => {
-		const {contextmenu, target_a, target_b, dispatch, cleanup} = setup();
+		const { contextmenu, target_a, target_b, dispatch, cleanup } = setup();
 		dispatch(create_contextmenu_event(100, 100), target_a, true, 1000);
 		dispatch(create_contextmenu_event(300, 300), target_b, false, 1500);
 		dispatch(
-			create_mouse_event('mousedown', {bubbles: true, cancelable: true, button: 2}),
+			create_mouse_event('mousedown', { bubbles: true, cancelable: true, button: 2 }),
 			target_b,
 			false,
-			1505,
+			1505
 		);
 		flushSync();
 		assert.strictEqual(contextmenu.opened, true);
 
 		// the right button releases, completing the opening gesture
 		dispatch(
-			create_mouse_event('mouseup', {bubbles: true, cancelable: true, button: 2}),
+			create_mouse_event('mouseup', { bubbles: true, cancelable: true, button: 2 }),
 			target_b,
 			true,
-			1550,
+			1550
 		);
 
 		// a sequential press after the release closes normally - however fast
 		dispatch(
-			create_mouse_event('mousedown', {bubbles: true, cancelable: true}),
+			create_mouse_event('mousedown', { bubbles: true, cancelable: true }),
 			target_a,
 			true,
-			1551,
+			1551
 		);
 		assert.strictEqual(contextmenu.opened, false);
 		cleanup();
 	});
 
 	test('touch longpress reopen survives a reversed synthesized burst', () => {
-		const {contextmenu, target_a, target_b, dispatch, cleanup} = setup();
+		const { contextmenu, target_a, target_b, dispatch, cleanup } = setup();
 		// first longpress open at A
 		dispatch(
-			create_touch_event('touchstart', [{clientX: 100, clientY: 100, target: target_a}]),
-			target_a,
+			create_touch_event('touchstart', [{ clientX: 100, clientY: 100, target: target_a }]),
+			target_a
 		);
 		dispatch(create_contextmenu_event(100, 100), target_a);
 		assert.strictEqual(contextmenu.opened, true);
@@ -455,15 +455,15 @@ describe('ContextmenuRoot - Reopen Gesture Ordering', () => {
 
 		// quick second longpress at B with the contextmenu before the synthesized mousedown
 		dispatch(
-			create_touch_event('touchstart', [{clientX: 300, clientY: 300, target: target_b}]),
-			target_b,
+			create_touch_event('touchstart', [{ clientX: 300, clientY: 300, target: target_b }]),
+			target_b
 		);
 		dispatch(create_contextmenu_event(300, 300), target_b, false, 1500);
 		dispatch(
-			create_mouse_event('mousedown', {bubbles: true, cancelable: true, button: 0}),
+			create_mouse_event('mousedown', { bubbles: true, cancelable: true, button: 0 }),
 			target_b,
 			false,
-			1510,
+			1510
 		);
 		flushSync();
 		dispatch(create_touch_event('touchend', []), target_b);
@@ -475,7 +475,7 @@ describe('ContextmenuRoot - Reopen Gesture Ordering', () => {
 	});
 
 	test('shift+rightclick closes the open menu on the press', () => {
-		const {contextmenu, target_a, target_b, dispatch, cleanup} = setup();
+		const { contextmenu, target_a, target_b, dispatch, cleanup } = setup();
 		dispatch(create_contextmenu_event(100, 100), target_a, true, 1000);
 		assert.strictEqual(contextmenu.opened, true);
 
@@ -487,18 +487,18 @@ describe('ContextmenuRoot - Reopen Gesture Ordering', () => {
 				cancelable: true,
 				button: 2,
 				buttons: 2,
-				shiftKey: true,
+				shiftKey: true
 			}),
 			target_b,
 			true,
-			1500,
+			1500
 		);
 		assert.strictEqual(contextmenu.opened, false);
 		cleanup();
 	});
 
 	test('dismissal survives a right-click whose release the native menu swallowed', () => {
-		const {contextmenu, target_a, target_b, dispatch, cleanup} = setup();
+		const { contextmenu, target_a, target_b, dispatch, cleanup } = setup();
 		dispatch(create_contextmenu_event(100, 100), target_a, true, 1000);
 		assert.strictEqual(contextmenu.opened, true);
 
@@ -507,20 +507,20 @@ describe('ContextmenuRoot - Reopen Gesture Ordering', () => {
 		const menu = document.querySelector('.contextmenu');
 		assert.ok(menu);
 		dispatch(
-			create_mouse_event('mousedown', {bubbles: true, cancelable: true, button: 2, buttons: 2}),
+			create_mouse_event('mousedown', { bubbles: true, cancelable: true, button: 2, buttons: 2 }),
 			menu,
 			true,
-			1500,
+			1500
 		);
 		dispatch(create_contextmenu_event(300, 300), menu, true, 1500);
 		assert.strictEqual(contextmenu.opened, true);
 
 		// the next primary press dismisses - no stale tracked state to wedge
 		dispatch(
-			create_mouse_event('mousedown', {bubbles: true, cancelable: true, button: 0, buttons: 1}),
+			create_mouse_event('mousedown', { bubbles: true, cancelable: true, button: 0, buttons: 1 }),
 			target_b,
 			true,
-			3000,
+			3000
 		);
 		assert.strictEqual(contextmenu.opened, false);
 		cleanup();
@@ -547,7 +547,7 @@ describe('ContextmenuRoot - Overlapping Press On Open', () => {
 		vi.useFakeTimers();
 		mounted = mount_contextmenu_root(ContextmenuRoot);
 		flushSync();
-		const {container, contextmenu} = mounted;
+		const { container, contextmenu } = mounted;
 
 		let activated = false;
 		const target = document.createElement('div');
@@ -560,16 +560,16 @@ describe('ContextmenuRoot - Overlapping Press On Open', () => {
 					icon: '🧪',
 					run: () => {
 						activated = true;
-					},
-				},
-			},
+					}
+				}
+			}
 		])(target);
 
 		// the opening right-click: press, contextmenu, release
 		const right_down = create_mouse_event('mousedown', {
 			bubbles: true,
 			cancelable: true,
-			button: 2,
+			button: 2
 		});
 		set_event_time(right_down, 1000);
 		set_event_target(right_down, target);
@@ -582,7 +582,7 @@ describe('ContextmenuRoot - Overlapping Press On Open', () => {
 		flushSync();
 		assert.strictEqual(contextmenu.opened, true);
 
-		const right_up = create_mouse_event('mouseup', {bubbles: true, cancelable: true, button: 2});
+		const right_up = create_mouse_event('mouseup', { bubbles: true, cancelable: true, button: 2 });
 		set_event_time(right_up, 1074);
 		set_event_target(right_up, target);
 		window.dispatchEvent(right_up);
@@ -593,12 +593,12 @@ describe('ContextmenuRoot - Overlapping Press On Open', () => {
 		// The overlapping press: its hardware timestamp (1022) falls inside the right
 		// press (1000-1074); the compositor delivers it after the release,
 		// landing on the first item under the pointer.
-		const md = create_mouse_event('mousedown', {bubbles: true, cancelable: true, button: 0});
+		const md = create_mouse_event('mousedown', { bubbles: true, cancelable: true, button: 0 });
 		set_event_time(md, 1022);
 		set_event_target(md, item);
 		window.dispatchEvent(md);
 
-		const click = create_mouse_event('click', {bubbles: true, cancelable: true});
+		const click = create_mouse_event('click', { bubbles: true, cancelable: true });
 		set_event_time(click, 1106);
 		set_event_target(click, item);
 		item.dispatchEvent(click);
@@ -610,12 +610,12 @@ describe('ContextmenuRoot - Overlapping Press On Open', () => {
 		assert.strictEqual(contextmenu.opened, true);
 
 		// a later deliberate press and click activates normally
-		const md2 = create_mouse_event('mousedown', {bubbles: true, cancelable: true, button: 0});
+		const md2 = create_mouse_event('mousedown', { bubbles: true, cancelable: true, button: 0 });
 		set_event_time(md2, 1400);
 		set_event_target(md2, item);
 		window.dispatchEvent(md2);
 
-		const click2 = create_mouse_event('click', {bubbles: true, cancelable: true});
+		const click2 = create_mouse_event('click', { bubbles: true, cancelable: true });
 		set_event_time(click2, 1480);
 		set_event_target(click2, item);
 		item.dispatchEvent(click2);
@@ -645,12 +645,12 @@ describe('ContextmenuRoot - Contextmenu On Entryless Target', () => {
 	test('right-clicking a target with no entries closes the open menu', () => {
 		mounted = mount_contextmenu_root(ContextmenuRoot);
 		flushSync();
-		const {container, contextmenu} = mounted;
+		const { container, contextmenu } = mounted;
 
 		const target = document.createElement('div');
 		container.appendChild(target);
 		const cleanup = contextmenu_attachment([
-			{snippet: 'text' as const, props: {content: 'A', icon: '🍎', run: () => undefined}},
+			{ snippet: 'text' as const, props: { content: 'A', icon: '🍎', run: () => undefined } }
 		])(target);
 		const bare = document.createElement('div');
 		container.appendChild(bare);

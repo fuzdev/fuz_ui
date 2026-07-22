@@ -1,10 +1,10 @@
 <script lang="ts">
-	import type {OmitStrict} from '@fuzdev/fuz_util/types.ts';
-	import type {Snippet} from 'svelte';
-	import type {SvelteHTMLElements} from 'svelte/elements';
-	import {scale, slide} from 'svelte/transition';
+	import type { OmitStrict } from '@fuzdev/fuz_util/types.ts';
+	import type { Snippet } from 'svelte';
+	import type { SvelteHTMLElements } from 'svelte/elements';
+	import { scale, slide } from 'svelte/transition';
 
-	import {icon_checkmark, icon_copy} from './icons.ts';
+	import { icon_checkmark, icon_copy } from './icons.ts';
 	import Svg from './Svg.svelte';
 
 	// TODO @many should this have the Button suffix?
@@ -69,7 +69,7 @@
 	class={[
 		'copy-to-clipboard',
 		rest.class,
-		{icon_button: children ? false : icon_button, copied, failed, color_c: failed},
+		{ icon_button: children ? false : icon_button, copied, failed, color_c: failed }
 	]}
 	onclick={(e) => {
 		onclick?.(e); // before the internal handler, which is async
@@ -80,7 +80,7 @@
 	{#if children}
 		{@render children(copied, failed)}
 	{:else if copied}
-		<div style:width="100%" in:scale={{duration: 200}}><Svg data={icon_checkmark} /></div>
+		<div style:width="100%" in:scale={{ duration: 200 }}><Svg data={icon_checkmark} /></div>
 	{:else}
 		<div style:width="100%" in:slide><Svg data={icon_copy} /></div>
 	{/if}

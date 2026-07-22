@@ -1,7 +1,7 @@
 <script lang="ts">
 	import Code from '@fuzdev/fuz_code/Code.svelte';
 
-	import {tome_get_by_slug} from '$lib/tome.ts';
+	import { tome_get_by_slug } from '$lib/tome.ts';
 	import TomeContent from '$lib/TomeContent.svelte';
 	import DeclarationLink from '$lib/DeclarationLink.svelte';
 	import TomeLink from '$lib/TomeLink.svelte';
@@ -37,10 +37,9 @@ const library_json = library_json_from_modules(pkg_json, modules);
 const library = new Library(library_json);`}
 		/>
 		<p>
-			Set it into <code>library_context</code> at the docs layout. <TomeLink slug="Docs" /> reads it
-			for navigation, and <TomeLink slug="LibraryDetail" /> and <TomeLink
-				slug="LibrarySummary"
-			/> render it:
+			Set it into <code>library_context</code> at the docs layout. <TomeLink slug="Docs" /> reads it for
+			navigation, and <TomeLink slug="LibraryDetail" /> and <TomeLink slug="LibrarySummary" /> render
+			it:
 		</p>
 		<Code
 			lang="svelte"
@@ -57,8 +56,8 @@ const library = new Library(library_json);`}
 			These docs you're reading are the live example. fuz_ui sets its own <DeclarationLink
 				name="Library"
 			/> as described above. See <TomeLink slug="Docs" /> for the surrounding layout, and
-			<TomeLink slug="LibraryDetail" />/<TomeLink slug="LibrarySummary" /> for the components that
-			render it.
+			<TomeLink slug="LibraryDetail" />/<TomeLink slug="LibrarySummary" /> for the components that render
+			it.
 		</p>
 	</section>
 </TomeContent>

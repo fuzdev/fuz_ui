@@ -1,8 +1,8 @@
-import {resolve} from '$app/paths';
-import {SvelteMap, SvelteSet} from 'svelte/reactivity';
-import {ensure_end, ensure_start} from '@fuzdev/fuz_util/string.ts';
+import { resolve } from '$app/paths';
+import { SvelteMap, SvelteSet } from 'svelte/reactivity';
+import { ensure_end, ensure_start } from '@fuzdev/fuz_util/string.ts';
 
-import {create_context} from './context_helpers.ts';
+import { create_context } from './context_helpers.ts';
 
 export const docs_links_context = create_context<DocsLinks>();
 
@@ -36,12 +36,12 @@ export const DOCS_API_PATH = DOCS_PATH + '/api';
 export const to_docs_path_info = (
 	path_slug: string,
 	pathname: string,
-	root_path = DOCS_PATH_DEFAULT,
-): {path: string; path_is_selected: boolean; path_segment: string | undefined} => {
+	root_path = DOCS_PATH_DEFAULT
+): { path: string; path_is_selected: boolean; path_segment: string | undefined } => {
 	const path_segment = pathname.split('/').at(-1);
 	const path = resolve((ensure_end(ensure_start(root_path, '/'), '/') + path_slug) as any);
 	const path_is_selected = path_segment === path_slug; // messy but works
-	return {path, path_is_selected, path_segment};
+	return { path, path_is_selected, path_segment };
 };
 
 export type DocsLinkTag = 'h2' | 'h3' | 'h4';
@@ -118,7 +118,7 @@ export class DocsLinks {
 		tag?: DocsLinkTag,
 		depth = 1,
 		parent_id?: string,
-		explicit_id?: string,
+		explicit_id?: string
 	): string {
 		// Use explicit ID if provided, otherwise generate one
 		const id = explicit_id ?? 'docs_link_' + this.#next_id++;
@@ -133,7 +133,7 @@ export class DocsLinks {
 			this.#fragment_to_order.set(page_fragment_key, order);
 		}
 
-		this.links.set(id, {id, fragment, text, tag, depth, order, parent_id});
+		this.links.set(id, { id, fragment, text, tag, depth, order, parent_id });
 		return id;
 	}
 

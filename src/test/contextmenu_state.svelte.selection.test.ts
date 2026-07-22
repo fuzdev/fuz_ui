@@ -1,7 +1,7 @@
-import {describe, test, assert, beforeEach} from 'vitest';
+import { describe, test, assert, beforeEach } from 'vitest';
 
-import {ContextmenuState, EntryState, SubmenuState} from '$lib/contextmenu_state.svelte.ts';
-import {add_test_entry, add_test_submenu} from './contextmenu_state_test_helpers.ts';
+import { ContextmenuState, EntryState, SubmenuState } from '$lib/contextmenu_state.svelte.ts';
+import { add_test_entry, add_test_submenu } from './contextmenu_state_test_helpers.ts';
 
 describe('ContextmenuState - Selection', () => {
 	let contextmenu: ContextmenuState;
@@ -198,7 +198,7 @@ describe('ContextmenuState - Selection', () => {
 			const disabled_entry = add_test_entry(
 				contextmenu.root_menu,
 				() => {},
-				() => true, // disabled function returns true
+				() => true // disabled function returns true
 			);
 
 			// Select disabled item

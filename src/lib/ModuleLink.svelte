@@ -1,10 +1,10 @@
 <script lang="ts">
-	import type {SvelteHTMLElements} from 'svelte/elements';
-	import {ensure_start} from '@fuzdev/fuz_util/string.ts';
+	import type { SvelteHTMLElements } from 'svelte/elements';
+	import { ensure_start } from '@fuzdev/fuz_util/string.ts';
 
-	import {library_context} from './library.svelte.ts';
-	import {contextmenu_attachment} from './contextmenu_state.svelte.ts';
-	import {create_module_contextmenu} from './module_contextmenu.ts';
+	import { library_context } from './library.svelte.ts';
+	import { contextmenu_attachment } from './contextmenu_state.svelte.ts';
+	import { create_module_contextmenu } from './module_contextmenu.ts';
 
 	const {
 		module_path,

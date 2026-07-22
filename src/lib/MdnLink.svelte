@@ -1,9 +1,9 @@
 <script lang="ts">
-	import {ensure_start, strip_end, strip_start} from '@fuzdev/fuz_util/string.ts';
-	import type {SvelteHTMLElements} from 'svelte/elements';
+	import { ensure_start, strip_end, strip_start } from '@fuzdev/fuz_util/string.ts';
+	import type { SvelteHTMLElements } from 'svelte/elements';
 
 	import Svg from './Svg.svelte';
-	import {logo_mdn} from './logos.ts';
+	import { logo_mdn } from './logos.ts';
 
 	const {
 		path,
@@ -20,7 +20,7 @@
 		(path.startsWith('https://')
 			? path
 			: `https://developer.mozilla.org/en-US/docs/${strip_start(path, '/')}`) +
-			(hash ? ensure_start(hash, '#') : ''),
+			(hash ? ensure_start(hash, '#') : '')
 	);
 
 	const final_children = $derived(children ?? strip_end(path, '/').split('/').at(-1)!);

@@ -1,9 +1,9 @@
-import {color_schemes, type ColorScheme, type Theme} from '@fuzdev/fuz_css/theme.ts';
-import {default_themes} from '@fuzdev/fuz_css/themes.ts';
-import {BROWSER} from 'esm-env';
+import { color_schemes, type ColorScheme, type Theme } from '@fuzdev/fuz_css/theme.ts';
+import { default_themes } from '@fuzdev/fuz_css/themes.ts';
+import { BROWSER } from 'esm-env';
 
-import {create_context} from './context_helpers.ts';
-import {load_from_storage, save_to_storage} from './storage.ts';
+import { create_context } from './context_helpers.ts';
+import { load_from_storage, save_to_storage } from './storage.ts';
 
 export interface ThemeStateJson {
 	theme: Theme;
@@ -29,7 +29,7 @@ export class ThemeState {
 	toJSON(): ThemeStateJson {
 		return {
 			theme: this.theme,
-			color_scheme: this.color_scheme,
+			color_scheme: this.color_scheme
 		};
 	}
 }
@@ -49,14 +49,14 @@ export const THEME_STORAGE_KEY = 'fuz:theme';
 
 export const save_color_scheme = (
 	color_scheme: ColorScheme | null,
-	key = COLOR_SCHEME_STORAGE_KEY,
+	key = COLOR_SCHEME_STORAGE_KEY
 ): void => {
 	save_to_storage(key, color_scheme);
 };
 
 export const load_color_scheme = (
 	fallback: ColorScheme = 'auto',
-	key = COLOR_SCHEME_STORAGE_KEY,
+	key = COLOR_SCHEME_STORAGE_KEY
 ): ColorScheme => load_from_storage(key, false, parse_color_scheme) ?? fallback;
 
 export const save_theme = (theme: Theme | null, key = THEME_STORAGE_KEY): void => {

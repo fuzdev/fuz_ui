@@ -1,9 +1,9 @@
 <script lang="ts">
-	import {DEV} from 'esm-env';
-	import type {SvelteHTMLElements} from 'svelte/elements';
+	import { DEV } from 'esm-env';
+	import type { SvelteHTMLElements } from 'svelte/elements';
 
-	import {tome_get_by_slug, tome_to_pathname, tome_to_title, tomes_context} from './tome.ts';
-	import {DOCS_PATH_DEFAULT} from './docs_helpers.svelte.ts';
+	import { tome_get_by_slug, tome_to_pathname, tome_to_title, tomes_context } from './tome.ts';
+	import { DOCS_PATH_DEFAULT } from './docs_helpers.svelte.ts';
 
 	const {
 		slug,

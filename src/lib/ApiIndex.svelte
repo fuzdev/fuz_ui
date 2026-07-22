@@ -1,17 +1,17 @@
 <script lang="ts">
-	import {set_library_context_with_fallback, type Library} from './library.svelte.ts';
-	import {tome_get_by_slug, type Tome} from './tome.ts';
+	import { set_library_context_with_fallback, type Library } from './library.svelte.ts';
+	import { tome_get_by_slug, type Tome } from './tome.ts';
 	import TomeContent from './TomeContent.svelte';
 	import TomeLink from './TomeLink.svelte';
 	import DocsSearch from './DocsSearch.svelte';
 	import ApiModulesList from './ApiModulesList.svelte';
 	import ApiDeclarationList from './ApiDeclarationList.svelte';
-	import {create_api_search} from './api_search.svelte.ts';
+	import { create_api_search } from './api_search.svelte.ts';
 
 	const {
 		library: library_prop,
 		tome = tome_get_by_slug('api'),
-		minimal = false,
+		minimal = false
 	}: {
 		/**
 		 * The library instance to render API docs for.

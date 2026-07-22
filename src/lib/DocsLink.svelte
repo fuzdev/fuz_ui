@@ -1,13 +1,13 @@
 <script lang="ts">
-	import type {Snippet} from 'svelte';
-	import type {HTMLAttributes, SvelteHTMLElements} from 'svelte/elements';
-	import type {OmitStrict} from '@fuzdev/fuz_util/types.ts';
+	import type { Snippet } from 'svelte';
+	import type { HTMLAttributes, SvelteHTMLElements } from 'svelte/elements';
+	import type { OmitStrict } from '@fuzdev/fuz_util/types.ts';
 
 	import ModuleLink from './ModuleLink.svelte';
 	import DeclarationLink from './DeclarationLink.svelte';
-	import {library_context} from './library.svelte.ts';
-	import type {Declaration} from './declaration.svelte.ts';
-	import type {Module} from './module.svelte.ts';
+	import { library_context } from './library.svelte.ts';
+	import type { Declaration } from './declaration.svelte.ts';
+	import type { Module } from './module.svelte.ts';
 
 	const {
 		reference,
@@ -52,5 +52,5 @@
 
 {#snippet children()}{#if children_prop}{@render children_prop(
 			declaration,
-			module,
+			module
 		)}{:else}{display_text ?? reference}{/if}{/snippet}

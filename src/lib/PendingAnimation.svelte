@@ -1,7 +1,7 @@
 <script lang="ts">
-	import type {OmitStrict} from '@fuzdev/fuz_util/types.ts';
-	import type {Snippet} from 'svelte';
-	import type {SvelteHTMLElements} from 'svelte/elements';
+	import type { OmitStrict } from '@fuzdev/fuz_util/types.ts';
+	import type { Snippet } from 'svelte';
+	import type { SvelteHTMLElements } from 'svelte/elements';
 
 	const {
 		inline,
@@ -25,7 +25,7 @@
 		'pending-animation',
 		rest.class,
 		inline ? 'display:inline-flex align-items:center' : 'display:flex',
-		{running},
+		{ running }
 	]}
 	><span {...item_attrs} style:animation-delay="0s"
 		>{#if children}{@render children(0)}{:else}•{/if}</span

@@ -1,8 +1,8 @@
 <script lang="ts">
-	import type {SvelteHTMLElements} from 'svelte/elements';
+	import type { SvelteHTMLElements } from 'svelte/elements';
 
 	import DocsMenu from './DocsMenu.svelte';
-	import {Tome} from './tome.ts';
+	import { Tome } from './tome.ts';
 
 	const {
 		tomes,
@@ -16,7 +16,7 @@
 	const expand_width = $derived(!sidebar);
 </script>
 
-<aside {...rest} class={['docs-secondary-nav unstyled', rest.class, {sidebar}]}>
+<aside {...rest} class={['docs-secondary-nav unstyled', rest.class, { sidebar }]}>
 	<nav aria-label="Secondary nav">
 		<DocsMenu {tomes} {expand_width} />
 	</nav>
@@ -31,7 +31,9 @@
 		z-index: 1;
 		width: var(--docs_sidebar_width);
 		height: calc(100% - var(--docs_primary_nav_height));
-		padding: var(--docs_secondary_nav_padding); /* needed with `overflow: auto` to avoid cutting off outline */
+		padding: var(
+			--docs_secondary_nav_padding
+		); /* needed with `overflow: auto` to avoid cutting off outline */
 		margin-bottom: 0;
 		overflow: auto;
 		scrollbar-width: thin;

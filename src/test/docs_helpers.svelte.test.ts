@@ -1,11 +1,11 @@
-import {test, assert, describe, beforeEach} from 'vitest';
-import {flushSync} from 'svelte';
+import { test, assert, describe, beforeEach } from 'vitest';
+import { flushSync } from 'svelte';
 
 import {
 	docs_slugify,
 	to_docs_path_info,
 	DocsLinks,
-	DOCS_PATH_DEFAULT,
+	DOCS_PATH_DEFAULT
 } from '$lib/docs_helpers.svelte.ts';
 
 describe('docs_slugify', () => {

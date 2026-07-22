@@ -1,16 +1,16 @@
 <script lang="ts">
 	import Code from '@fuzdev/fuz_code/Code.svelte';
-	import {slide} from 'svelte/transition';
-	import {swallow} from '@fuzdev/fuz_util/dom.ts';
+	import { slide } from 'svelte/transition';
+	import { swallow } from '@fuzdev/fuz_util/dom.ts';
 
 	import ContextmenuEntry from '$lib/ContextmenuEntry.svelte';
 	import ContextmenuSubmenu from '$lib/ContextmenuSubmenu.svelte';
 	import Contextmenu from '$lib/Contextmenu.svelte';
-	import {ContextmenuState} from '$lib/contextmenu_state.svelte.ts';
+	import { ContextmenuState } from '$lib/contextmenu_state.svelte.ts';
 	import TomeSectionHeader from '$lib/TomeSectionHeader.svelte';
 	import TomeSection from '$lib/TomeSection.svelte';
 	import Glyph from '$lib/Glyph.svelte';
-	import {selected_contextmenu_root_component_context} from './selected_root_component.svelte.ts';
+	import { selected_contextmenu_root_component_context } from './selected_root_component.svelte.ts';
 
 	const selected = selected_contextmenu_root_component_context.get();
 	const ContextmenuRootComponent = $derived(selected.component);
@@ -37,25 +37,25 @@
 						<ContextmenuEntry
 							run={() => {
 								selected_color = 'f';
-								return {ok: true, close: false};
+								return { ok: true, close: false };
 							}}><span class="color_f_50">option f</span></ContextmenuEntry
 						>
 						<ContextmenuEntry
 							run={() => {
 								selected_color = 'g';
-								return {ok: true, close: false};
+								return { ok: true, close: false };
 							}}><span class="color_g_50">option g</span></ContextmenuEntry
 						>
 						<ContextmenuEntry
 							run={() => {
 								selected_color = 'j';
-								return {ok: true, close: false};
+								return { ok: true, close: false };
 							}}><span class="color_j_50">option j</span></ContextmenuEntry
 						>
 						<ContextmenuEntry
 							run={() => {
 								contextmenu.close();
-								return {ok: true};
+								return { ok: true };
 							}}>close contextmenu</ContextmenuEntry
 						>
 					{/snippet}
@@ -64,8 +64,8 @@
 			<div class="panel p_md">
 				<p class="mb_md">
 					The <code>{root_component_name}</code> prop <code>contextmenu</code> accepts a custom
-					<code>ContextmenuState</code> instance, allowing you to observe its reactive state and
-					control it programmatically.
+					<code>ContextmenuState</code> instance, allowing you to observe its reactive state and control
+					it programmatically.
 				</p>
 				<Code lang="ts" content={`const contextmenu = new ContextmenuState();`} />
 				<Code
@@ -75,8 +75,8 @@
 					Try opening the contextmenu on this panel, then use the navigation buttons below to cycle
 					through entries -- just like the arrow keys. The color entries return <code
 						>{'{ok: true, close: false}'}</code
-					> to keep the menu open after activation, allowing you to select multiple colors using the
-					activate button (↵).
+					> to keep the menu open after activation, allowing you to select multiple colors using the activate
+					button (↵).
 				</p>
 				<div class="mb_md {selected_color_class}">
 					<p>Reactive state:</p>

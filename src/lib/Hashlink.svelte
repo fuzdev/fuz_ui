@@ -1,7 +1,7 @@
 <script lang="ts">
-	import type {SvelteHTMLElements} from 'svelte/elements';
+	import type { SvelteHTMLElements } from 'svelte/elements';
 
-	const {fragment, children, ...rest}: SvelteHTMLElements['a'] & {fragment: string} = $props();
+	const { fragment, children, ...rest }: SvelteHTMLElements['a'] & { fragment: string } = $props();
 </script>
 
 <a aria-label="hashlink" {...rest} class="hashlink {rest.class}" href="#{fragment}"

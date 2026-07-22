@@ -3,14 +3,14 @@
  * Tests keyboard shortcuts and event handling.
  */
 
-import {describe, test, assert, afterEach, vi} from 'vitest';
-import {unmount_component, create_keyboard_event, set_event_target} from './test_helpers.ts';
-import {mount_contextmenu_root, type SharedTestOptions} from './contextmenu_test_helpers.ts';
+import { describe, test, assert, afterEach, vi } from 'vitest';
+import { unmount_component, create_keyboard_event, set_event_target } from './test_helpers.ts';
+import { mount_contextmenu_root, type SharedTestOptions } from './contextmenu_test_helpers.ts';
 
 export const create_shared_keyboard_tests = (
 	Component: any,
 	component_name: string,
-	_options: SharedTestOptions = {},
+	_options: SharedTestOptions = {}
 ): void => {
 	describe(`${component_name} - Keyboard Navigation`, () => {
 		let mounted: ReturnType<typeof mount_contextmenu_root> | null = null;
@@ -24,20 +24,20 @@ export const create_shared_keyboard_tests = (
 
 		// Test data for keyboard navigation
 		const keyboard_test_cases = [
-			{key: 'ArrowDown', method: 'select_next'},
-			{key: 'ArrowUp', method: 'select_previous'},
-			{key: 'ArrowRight', method: 'expand_selected'},
-			{key: 'ArrowLeft', method: 'collapse_selected'},
-			{key: 'Home', method: 'select_first'},
-			{key: 'End', method: 'select_last'},
-			{key: 'Enter', method: 'activate_selected'},
-			{key: ' ', method: 'activate_selected'},
+			{ key: 'ArrowDown', method: 'select_next' },
+			{ key: 'ArrowUp', method: 'select_previous' },
+			{ key: 'ArrowRight', method: 'expand_selected' },
+			{ key: 'ArrowLeft', method: 'collapse_selected' },
+			{ key: 'Home', method: 'select_first' },
+			{ key: 'End', method: 'select_last' },
+			{ key: 'Enter', method: 'activate_selected' },
+			{ key: ' ', method: 'activate_selected' }
 		];
 
 		test('keyboard events only fire when contextmenu is opened', () => {
 			mounted = mount_contextmenu_root(Component);
 
-			const {contextmenu} = mounted;
+			const { contextmenu } = mounted;
 
 			// Create a spy on contextmenu methods
 			const select_next_spy = vi.spyOn(contextmenu, 'select_next');
@@ -56,10 +56,10 @@ export const create_shared_keyboard_tests = (
 		});
 
 		// Data-driven tests for keyboard shortcuts
-		test.each(keyboard_test_cases)('$key calls $method', ({key, method}) => {
+		test.each(keyboard_test_cases)('$key calls $method', ({ key, method }) => {
 			mounted = mount_contextmenu_root(Component);
 
-			const {contextmenu} = mounted;
+			const { contextmenu } = mounted;
 
 			contextmenu.open([], 100, 200);
 			const spy = vi.spyOn(contextmenu, method as any);
@@ -71,7 +71,7 @@ export const create_shared_keyboard_tests = (
 		test('Escape key closes contextmenu', () => {
 			mounted = mount_contextmenu_root(Component);
 
-			const {contextmenu} = mounted;
+			const { contextmenu } = mounted;
 
 			contextmenu.open([], 100, 200);
 
@@ -84,7 +84,7 @@ export const create_shared_keyboard_tests = (
 		test('keyboard events on editable elements are ignored', () => {
 			mounted = mount_contextmenu_root(Component);
 
-			const {container, contextmenu} = mounted;
+			const { container, contextmenu } = mounted;
 
 			contextmenu.open([], 100, 200);
 			const spy = vi.spyOn(contextmenu, 'close');
@@ -104,7 +104,7 @@ export const create_shared_keyboard_tests = (
 		test('keyboard events are prevented', () => {
 			mounted = mount_contextmenu_root(Component);
 
-			const {contextmenu} = mounted;
+			const { contextmenu } = mounted;
 
 			contextmenu.open([], 100, 200);
 

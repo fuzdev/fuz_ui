@@ -3,19 +3,19 @@
  * Tests SVG elements, function snippets, rapid sequences, and other edge cases.
  */
 
-import {describe, test, assert, afterEach} from 'vitest';
-import {flushSync} from 'svelte';
-import {unmount_component, create_contextmenu_event, set_event_target} from './test_helpers.ts';
+import { describe, test, assert, afterEach } from 'vitest';
+import { flushSync } from 'svelte';
+import { unmount_component, create_contextmenu_event, set_event_target } from './test_helpers.ts';
 import {
 	mount_contextmenu_root,
 	setup_contextmenu_attachment,
-	type SharedTestOptions,
+	type SharedTestOptions
 } from './contextmenu_test_helpers.ts';
 
 export const create_shared_edge_case_tests = (
 	Component: any,
 	component_name: string,
-	_options: SharedTestOptions = {},
+	_options: SharedTestOptions = {}
 ): void => {
 	describe(`${component_name} - Edge Cases`, () => {
 		let mounted: ReturnType<typeof mount_contextmenu_root> | null = null;
@@ -29,7 +29,7 @@ export const create_shared_edge_case_tests = (
 
 		test('handles SVG elements as targets', async () => {
 			mounted = mount_contextmenu_root(Component);
-			const {container, contextmenu} = mounted;
+			const { container, contextmenu } = mounted;
 
 			const svg = document.createElementNS('http://www.w3.org/2000/svg', 'svg');
 			const rect = document.createElementNS('http://www.w3.org/2000/svg', 'rect');
@@ -37,7 +37,7 @@ export const create_shared_edge_case_tests = (
 			container.appendChild(svg);
 
 			await setup_contextmenu_attachment(rect, [
-				{snippet: 'text', props: {content: 'SVG Test', icon: '🎨', run: () => undefined}},
+				{ snippet: 'text', props: { content: 'SVG Test', icon: '🎨', run: () => undefined } }
 			]);
 
 			const event = create_contextmenu_event(100, 200);
@@ -53,7 +53,7 @@ export const create_shared_edge_case_tests = (
 		test('handles function snippet params', () => {
 			mounted = mount_contextmenu_root(Component);
 
-			const {contextmenu} = mounted;
+			const { contextmenu } = mounted;
 
 			const snippet = (() => {
 				// Test snippet function
@@ -69,7 +69,7 @@ export const create_shared_edge_case_tests = (
 		test('handles empty params array', () => {
 			mounted = mount_contextmenu_root(Component);
 
-			const {contextmenu} = mounted;
+			const { contextmenu } = mounted;
 
 			contextmenu.open([], 100, 200);
 			flushSync();
@@ -81,7 +81,7 @@ export const create_shared_edge_case_tests = (
 		test('handles rapid open/close sequences', () => {
 			mounted = mount_contextmenu_root(Component);
 
-			const {contextmenu} = mounted;
+			const { contextmenu } = mounted;
 
 			// Rapid open/close/open
 			contextmenu.open([(() => undefined) as any], 50, 50);
@@ -102,13 +102,13 @@ export const create_shared_edge_case_tests = (
 
 		test('handles mixed HTML and SVG targets', async () => {
 			mounted = mount_contextmenu_root(Component);
-			const {container, contextmenu} = mounted;
+			const { container, contextmenu } = mounted;
 
 			// First open on HTML element
 			const div = document.createElement('div');
 			container.appendChild(div);
 			await setup_contextmenu_attachment(div, [
-				{snippet: 'text', props: {content: 'HTML', icon: '📄', run: () => undefined}},
+				{ snippet: 'text', props: { content: 'HTML', icon: '📄', run: () => undefined } }
 			]);
 
 			const event1 = create_contextmenu_event(100, 100);
@@ -122,7 +122,7 @@ export const create_shared_edge_case_tests = (
 			const circle = document.createElementNS('http://www.w3.org/2000/svg', 'circle');
 			container.appendChild(circle);
 			await setup_contextmenu_attachment(circle, [
-				{snippet: 'text', props: {content: 'SVG', icon: '🎨', run: () => undefined}},
+				{ snippet: 'text', props: { content: 'SVG', icon: '🎨', run: () => undefined } }
 			]);
 
 			const event2 = create_contextmenu_event(200, 200);
@@ -138,7 +138,7 @@ export const create_shared_edge_case_tests = (
 
 		test('prevents contextmenu when no params available', () => {
 			mounted = mount_contextmenu_root(Component);
-			const {container, contextmenu} = mounted;
+			const { container, contextmenu } = mounted;
 
 			const div = document.createElement('div');
 			// Not setting up contextmenu params

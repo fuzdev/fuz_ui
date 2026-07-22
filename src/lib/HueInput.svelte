@@ -1,7 +1,7 @@
 <script lang="ts">
-	import type {Hue} from '@fuzdev/fuz_util/colors.ts';
-	import type {Snippet} from 'svelte';
-	import type {SvelteHTMLElements} from 'svelte/elements';
+	import type { Hue } from '@fuzdev/fuz_util/colors.ts';
+	import type { Snippet } from 'svelte';
+	import type { SvelteHTMLElements } from 'svelte/elements';
 
 	let {
 		value = $bindable(180),
@@ -26,7 +26,7 @@
 		value = v;
 	};
 
-	const on_input_event = (e: Event & {currentTarget: EventTarget & HTMLInputElement}) => {
+	const on_input_event = (e: Event & { currentTarget: EventTarget & HTMLInputElement }) => {
 		const parsed = parse_hue(e.currentTarget.value);
 		if (parsed === null) return;
 		update_hue(parsed);
@@ -34,7 +34,7 @@
 
 	let el: HTMLInputElement | undefined = $state.raw();
 
-	const set_hue_from_minimap = (e: MouseEvent & {currentTarget: EventTarget & HTMLElement}) => {
+	const set_hue_from_minimap = (e: MouseEvent & { currentTarget: EventTarget & HTMLElement }) => {
 		const rect = e.currentTarget.getBoundingClientRect();
 		const pct = (e.clientX - rect.x) / rect.width;
 		update_hue(Math.floor(360 * pct));

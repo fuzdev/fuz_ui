@@ -2,13 +2,13 @@
 	import ContextmenuEntry from '$lib/ContextmenuEntry.svelte';
 	import ContextmenuSubmenu from '$lib/ContextmenuSubmenu.svelte';
 	import ContextmenuSeparator from '$lib/ContextmenuSeparator.svelte';
-	import {type HistoryItem, type Cat, to_cats_label} from './helpers.ts';
+	import { type HistoryItem, type Cat, to_cats_label } from './helpers.ts';
 	import CatContextmenu from './CatContextmenu.svelte';
 
 	const {
 		home_cats,
 		adventure_cats,
-		act,
+		act
 	}: {
 		home_cats: Array<Cat>;
 		adventure_cats: Array<Cat>;
@@ -22,7 +22,7 @@
 	adventure
 	{#snippet menu()}
 		{#if cat_to_call_to_adventure}
-			<ContextmenuEntry run={() => act({type: 'call_cats_adventure'})} icon="🦋"
+			<ContextmenuEntry run={() => act({ type: 'call_cats_adventure' })} icon="🦋"
 				>call</ContextmenuEntry
 			>
 			{#if adventure_cats.length > 0}
@@ -34,12 +34,14 @@
 		{/each}
 		{#if !cat_to_call_to_adventure}
 			<ContextmenuEntry
-				run={() => act({type: 'cat_be_or_do', name: null, position: 'adventure'})}
+				run={() => act({ type: 'cat_be_or_do', name: null, position: 'adventure' })}
 				icon="🌄"
 			>
 				do
 			</ContextmenuEntry>
-			<ContextmenuEntry run={() => act({type: 'call_cats_home'})} icon="🐈‍⬛">leave</ContextmenuEntry>
+			<ContextmenuEntry run={() => act({ type: 'call_cats_home' })} icon="🐈‍⬛"
+				>leave</ContextmenuEntry
+			>
 		{/if}
 	{/snippet}
 </ContextmenuSubmenu>

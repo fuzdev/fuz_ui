@@ -1,8 +1,8 @@
 <script lang="ts">
 	import Code from '@fuzdev/fuz_code/Code.svelte';
 
-	import {tome_get_by_slug} from '$lib/tome.ts';
-	import {intersect} from '$lib/intersect.svelte.ts';
+	import { tome_get_by_slug } from '$lib/tome.ts';
+	import { intersect } from '$lib/intersect.svelte.ts';
 	import TomeContent from '$lib/TomeContent.svelte';
 	import TomeSection from '$lib/TomeSection.svelte';
 	import TomeSectionHeader from '$lib/TomeSectionHeader.svelte';
@@ -17,7 +17,7 @@
 		if (typeof window === 'undefined') return 15;
 		return Math.max(10, Math.floor(window.innerHeight / 60));
 	};
-	const items = $derived(Array.from({length: get_initial_count()}, (_, i) => i));
+	const items = $derived(Array.from({ length: get_initial_count() }, (_, i) => i));
 
 	// configurable demo state
 	let threshold = $state.raw(0);
@@ -78,9 +78,9 @@
 			{#each items as item (item)}
 				<li
 					{@attach intersect(() => ({
-						onintersect: ({intersecting, el}) => {
+						onintersect: ({ intersecting, el }) => {
 							el.classList.toggle('intersecting', intersecting);
-						},
+						}
 					}))}
 				>
 					item {item}
@@ -106,10 +106,10 @@
 			{#each items as item (item)}
 				<li
 					{@attach intersect(() => ({
-						onintersect: ({intersecting, el}) => {
+						onintersect: ({ intersecting, el }) => {
 							el.classList.toggle('intersecting', intersecting);
 						},
-						options: {threshold: 0.5},
+						options: { threshold: 0.5 }
 					}))}
 				>
 					item {item}
@@ -135,10 +135,10 @@
 			{#each items as item (item)}
 				<li
 					{@attach intersect(() => ({
-						onintersect: ({intersecting, el}) => {
+						onintersect: ({ intersecting, el }) => {
 							el.classList.toggle('intersecting', intersecting);
 						},
-						options: {threshold: 1},
+						options: { threshold: 1 }
 					}))}
 				>
 					item {item}
@@ -151,8 +151,8 @@
 		<TomeSectionHeader text="count: 1" />
 		<p>
 			Disconnects after the first intersection cycle (enter and leave). A <code>count</code> of
-			<code>0</code> disables observation. Negative or <code>undefined</code> never disconnects.
-			(the default)
+			<code>0</code> disables observation. Negative or <code>undefined</code> never disconnects. (the
+			default)
 		</p>
 		<Code
 			content={`<div {@attach intersect(() => ({
@@ -169,10 +169,10 @@
 				{#each items as item (item)}
 					<li
 						{@attach intersect(() => ({
-							onintersect: ({intersecting, el}) => {
+							onintersect: ({ intersecting, el }) => {
 								el.classList.toggle('intersecting', intersecting);
 							},
-							count: 1,
+							count: 1
 						}))}
 					>
 						item {item}
@@ -201,10 +201,10 @@
 				{#each items as item (item)}
 					<li
 						{@attach intersect(() => ({
-							onintersect: ({intersecting, el}) => {
+							onintersect: ({ intersecting, el }) => {
 								el.classList.toggle('intersecting', intersecting);
 							},
-							count: 2,
+							count: 2
 						}))}
 					>
 						item {item}
@@ -220,8 +220,8 @@
 		<p>
 			Try different parameter combinations. Positive <code>count</code> values disconnect after N
 			cycles.
-			<code>0</code> disables observation. Negative or <code>undefined</code> never disconnects.
-			(the default)
+			<code>0</code> disables observation. Negative or <code>undefined</code> never disconnects. (the
+			default)
 		</p>
 		<div class="controls">
 			<label>
@@ -254,11 +254,11 @@
 				{#each items as item (item)}
 					<li
 						{@attach intersect(() => ({
-							onintersect: ({intersecting, el}) => {
+							onintersect: ({ intersecting, el }) => {
 								el.classList.toggle('intersecting', intersecting);
 							},
 							count,
-							options: {threshold, rootMargin},
+							options: { threshold, rootMargin }
 						}))}
 					>
 						item {item}

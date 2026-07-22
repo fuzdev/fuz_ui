@@ -1,7 +1,7 @@
 <script lang="ts">
-	import type {Snippet} from 'svelte';
-	import type {SvelteHTMLElements} from 'svelte/elements';
-	import {slide} from 'svelte/transition';
+	import type { Snippet } from 'svelte';
+	import type { SvelteHTMLElements } from 'svelte/elements';
+	import { slide } from 'svelte/transition';
 
 	// TODO it may be possible to cleanly add the transition with eager rendering by intercepting the open user action
 	// in this case, lazy rendering is probably the better default to retain `ctrl+f` functionality

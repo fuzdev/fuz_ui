@@ -1,13 +1,13 @@
 <script lang="ts">
-	import {resolve} from '$app/paths';
+	import { resolve } from '$app/paths';
 	import Code from '@fuzdev/fuz_code/Code.svelte';
 
 	import ContextmenuEntry from '$lib/ContextmenuEntry.svelte';
 	import Contextmenu from '$lib/Contextmenu.svelte';
-	import {ContextmenuState} from '$lib/contextmenu_state.svelte.ts';
+	import { ContextmenuState } from '$lib/contextmenu_state.svelte.ts';
 	import TomeSectionHeader from '$lib/TomeSectionHeader.svelte';
 	import TomeSection from '$lib/TomeSection.svelte';
-	import {selected_contextmenu_root_component_context} from './selected_root_component.svelte.ts';
+	import { selected_contextmenu_root_component_context } from './selected_root_component.svelte.ts';
 
 	const selected = selected_contextmenu_root_component_context.get();
 	const ContextmenuRootComponent = $derived(selected.component);
@@ -100,8 +100,8 @@
 		</ul>
 	{:else}
 		<p>
-			<strong>Expected:</strong> no behaviors defined. The system contextmenu will show, bypassing
-			the Fuz contextmenu.
+			<strong>Expected:</strong> no behaviors defined. The system contextmenu will show, bypassing the
+			Fuz contextmenu.
 		</p>
 	{/if}
 </TomeSection>
