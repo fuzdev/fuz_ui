@@ -73,6 +73,18 @@ export const parse_library_url_prefix = (value: unknown): string => {
  * Wraps `LibraryJson` with computed properties and provides the root
  * of the API documentation hierarchy: `Library` → `Module` → `Declaration`.
  *
+ * A `Library` and everything it materializes is immutable — `library_json` is
+ * assigned once in the constructor — so the computed properties across all
+ * three classes are plain getters, with the allocating ones (the `Module` and
+ * `Declaration` trees, the lookup maps) cached in a private field on first
+ * read. They are deliberately **not** `$derived`: Svelte's server runtime only
+ * memoizes a `$derived` created during a render (`ssr_context` is otherwise
+ * null), so a `Library` constructed at module scope — the normal shape for a
+ * multi-package docs site — rebuilds its entire `Module`/`Declaration` tree on
+ * every property read, turning a `declaration_by_name` lookup into a full
+ * re-materialization of the library. Reactivity is at the instance level
+ * instead: swap the `Library` (see `library_context`), don't mutate one.
+ *
  * @see `module.svelte.ts` for `Module` class
  * @see `declaration.svelte.ts` for `Declaration` class
  */
@@ -86,60 +98,115 @@ export class Library {
 	 */
 	readonly url_prefix: string;
 
-	readonly pkg_json = $derived(this.library_json.pkg_json);
-	readonly source_json = $derived(this.library_json.source_json);
+	get pkg_json(): LibraryJson['pkg_json'] {
+		return this.library_json.pkg_json;
+	}
+
+	get source_json(): LibraryJson['source_json'] {
+		return this.library_json.source_json;
+	}
 
 	// Everything below is derived from `pkg_json` — `LibraryJson` stores only the
 	// raw `pkg_json`/`source_json` pair, so derivation lives in exactly one place.
-	readonly name = $derived(this.pkg_json.name);
-	readonly repo_name = $derived(repo_name_parse(this.pkg_json.name));
+	get name(): string {
+		return this.pkg_json.name;
+	}
+
+	get repo_name(): string {
+		return repo_name_parse(this.pkg_json.name);
+	}
+
+	#repo_url: Url | undefined;
+
 	/** Non-null — the constructor rejects a `pkg_json` without a parseable `repository`. */
-	readonly repo_url: Url = $derived(repo_url_parse(this.pkg_json.repository)!);
-	readonly owner_name = $derived(repo_url_github_owner(this.repo_url));
-	readonly homepage_url: Url | null = $derived(this.pkg_json.homepage ?? null);
-	readonly logo_url: Url | null = $derived(url_logo(this.homepage_url, this.pkg_json.logo));
-	readonly logo_alt = $derived(this.pkg_json.logo_alt ?? `logo for ${this.repo_name}`);
-	readonly published = $derived(package_is_published(this.pkg_json));
-	readonly npm_url: Url | null = $derived(this.published ? url_npm_package(this.name) : null);
-	readonly changelog_url: Url | null = $derived(
-		this.published ? url_github_file(this.repo_url, 'CHANGELOG.md') : null
-	);
+	get repo_url(): Url {
+		return (this.#repo_url ??= repo_url_parse(this.pkg_json.repository)!);
+	}
+
+	get owner_name(): string | null {
+		return repo_url_github_owner(this.repo_url);
+	}
+
+	get homepage_url(): Url | null {
+		return this.pkg_json.homepage ?? null;
+	}
+
+	get logo_url(): Url | null {
+		return url_logo(this.homepage_url, this.pkg_json.logo);
+	}
+
+	get logo_alt(): string {
+		return this.pkg_json.logo_alt ?? `logo for ${this.repo_name}`;
+	}
+
+	get published(): boolean {
+		return package_is_published(this.pkg_json);
+	}
+
+	get npm_url(): Url | null {
+		return this.published ? url_npm_package(this.name) : null;
+	}
+
+	get changelog_url(): Url | null {
+		return this.published ? url_github_file(this.repo_url, 'CHANGELOG.md') : null;
+	}
 
 	/**
 	 * Organization URL (e.g., 'https://github.com/ryanatkn'), built from `owner_name`.
 	 */
-	readonly org_url = $derived(this.owner_name ? 'https://github.com/' + this.owner_name : null);
+	get org_url(): string | null {
+		const { owner_name } = this;
+		return owner_name ? 'https://github.com/' + owner_name : null;
+	}
+
+	#modules: Array<Module> | undefined;
 
 	/**
 	 * All modules as rich `Module` instances.
 	 */
-	readonly modules = $derived(
-		this.source_json.modules
+	get modules(): Array<Module> {
+		return (this.#modules ??= this.source_json.modules
 			? this.source_json.modules.map((module_json) => new Module(this, module_json))
-			: []
-	);
+			: []);
+	}
+
+	#modules_sorted: Array<Module> | undefined;
 
 	/**
 	 * All modules sorted alphabetically by path.
 	 */
-	readonly modules_sorted = $derived(
-		[...this.modules].sort((a, b) => a.path.localeCompare(b.path))
-	);
+	get modules_sorted(): Array<Module> {
+		return (this.#modules_sorted ??= [...this.modules].sort((a, b) =>
+			a.path.localeCompare(b.path)
+		));
+	}
+
+	#declarations: Array<Declaration> | undefined;
 
 	/**
 	 * All declarations across all modules as a flat array.
 	 */
-	readonly declarations = $derived(this.modules.flatMap((module) => module.declarations));
+	get declarations(): Array<Declaration> {
+		return (this.#declarations ??= this.modules.flatMap((module) => module.declarations));
+	}
+
+	#module_by_path: Map<string, Module> | undefined;
 
 	/**
 	 * Module lookup map by path. Provides O(1) lookup.
 	 */
-	readonly module_by_path = $derived(new Map(this.modules.map((m) => [m.path, m])));
+	get module_by_path(): Map<string, Module> {
+		return (this.#module_by_path ??= new Map(this.modules.map((m) => [m.path, m])));
+	}
+
+	#declaration_by_name: Map<string, Declaration> | undefined;
 
 	/**
 	 * Declaration lookup map by name. Provides O(1) lookup.
 	 */
-	readonly declaration_by_name = $derived(new Map(this.declarations.map((d) => [d.name, d])));
+	get declaration_by_name(): Map<string, Declaration> {
+		return (this.#declaration_by_name ??= new Map(this.declarations.map((d) => [d.name, d])));
+	}
 
 	constructor(library_json: LibraryJson, url_prefix = '') {
 		// `repo_url` is exposed non-null and several derived URLs depend on it, so
