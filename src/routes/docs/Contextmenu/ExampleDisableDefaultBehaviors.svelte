@@ -36,7 +36,8 @@
 	<TomeSectionHeader text="Disable default behaviors" />
 	<p>
 		Check the boxes below to disable automatic <code>a</code> link detection and
-		<code>copy text</code> detection, and see how the contextmenu behaves.
+		<code>copy text</code>
+		detection, and see how the contextmenu behaves.
 	</p>
 
 	<Code
@@ -65,9 +66,9 @@
 		{#if custom_entry_included}
 			<Contextmenu>
 				{#snippet entries()}
-					<ContextmenuEntry icon=">" run={() => void (toggled = !toggled)}
-						>some custom entry</ContextmenuEntry
-					>
+					<ContextmenuEntry icon=">" run={() => void (toggled = !toggled)}>
+						some custom entry
+					</ContextmenuEntry>
 				{/snippet}
 				{@render test_area()}
 			</Contextmenu>
@@ -100,8 +101,8 @@
 		</ul>
 	{:else}
 		<p>
-			<strong>Expected:</strong> no behaviors defined. The system contextmenu will show, bypassing the
-			Fuz contextmenu.
+			<strong>Expected:</strong> no behaviors defined. The system contextmenu will show, bypassing
+			the Fuz contextmenu.
 		</p>
 	{/if}
 </TomeSection>
@@ -109,9 +110,10 @@
 {#snippet test_area()}
 	<div class="panel p_md mb_lg">
 		<p bind:this={text_el}>
-			Try <button type="button" onclick={select_text} class:color_h={toggled}
-				>selecting some text</button
-			> and opening the contextmenu in this panel.
+			Try <button type="button" onclick={select_text} class:color_h={toggled}>
+				selecting some text
+			</button>
+			and opening the contextmenu in this panel.
 		</p>
 		<p>
 			Try opening the contextmenu on <a href={resolve('/')}>this link</a>.

@@ -38,34 +38,42 @@
 							run={() => {
 								selected_color = 'f';
 								return { ok: true, close: false };
-							}}><span class="color_f_50">option f</span></ContextmenuEntry
+							}}
 						>
+							<span class="color_f_50">option f</span>
+						</ContextmenuEntry>
 						<ContextmenuEntry
 							run={() => {
 								selected_color = 'g';
 								return { ok: true, close: false };
-							}}><span class="color_g_50">option g</span></ContextmenuEntry
+							}}
 						>
+							<span class="color_g_50">option g</span>
+						</ContextmenuEntry>
 						<ContextmenuEntry
 							run={() => {
 								selected_color = 'j';
 								return { ok: true, close: false };
-							}}><span class="color_j_50">option j</span></ContextmenuEntry
+							}}
 						>
+							<span class="color_j_50">option j</span>
+						</ContextmenuEntry>
 						<ContextmenuEntry
 							run={() => {
 								contextmenu.close();
 								return { ok: true };
-							}}>close contextmenu</ContextmenuEntry
+							}}
 						>
+							close contextmenu
+						</ContextmenuEntry>
 					{/snippet}
 				</ContextmenuSubmenu>
 			{/snippet}
 			<div class="panel p_md">
 				<p class="mb_md">
 					The <code>{root_component_name}</code> prop <code>contextmenu</code> accepts a custom
-					<code>ContextmenuState</code> instance, allowing you to observe its reactive state and control
-					it programmatically.
+					<code>ContextmenuState</code>
+					instance, allowing you to observe its reactive state and control it programmatically.
 				</p>
 				<Code lang="ts" content={`const contextmenu = new ContextmenuState();`} />
 				<Code
@@ -73,10 +81,10 @@
 				/>
 				<p class="mb_md">
 					Try opening the contextmenu on this panel, then use the navigation buttons below to cycle
-					through entries -- just like the arrow keys. The color entries return <code
-						>{'{ok: true, close: false}'}</code
-					> to keep the menu open after activation, allowing you to select multiple colors using the activate
-					button (↵).
+					through entries -- just like the arrow keys. The color entries return
+					<code>{'{ok: true, close: false}'}</code>
+					to keep the menu open after activation, allowing you to select multiple colors using the
+					activate button (↵).
 				</p>
 				<div class="mb_md {selected_color_class}">
 					<p>Reactive state:</p>
@@ -84,7 +92,7 @@
 						<li><code>contextmenu.opened</code> === <code>{contextmenu.opened}</code></li>
 						<li>
 							<code>contextmenu.x</code> ===
-							<code> {contextmenu.x} && contextmenu.y === {contextmenu.y}</code>
+							<code>{contextmenu.x} && contextmenu.y === {contextmenu.y}</code>
 						</li>
 						{#if contextmenu.error}
 							<li class="color_error">Error: <code>{contextmenu.error}</code></li>
@@ -101,8 +109,10 @@
 								onmousedowncapture={(e) => {
 									swallow(e);
 									contextmenu.select_previous();
-								}}><Glyph glyph="↑" /></button
+								}}
 							>
+								<Glyph glyph="↑" />
+							</button>
 							<div class="row">
 								<button
 									type="button"
@@ -111,8 +121,10 @@
 									onmousedowncapture={(e) => {
 										swallow(e);
 										contextmenu.collapse_selected();
-									}}><Glyph glyph="←" /></button
+									}}
 								>
+									<Glyph glyph="←" />
+								</button>
 								<button
 									type="button"
 									class="border-radius:0 {selected_hue_class}"
@@ -120,8 +132,10 @@
 									onmousedowncapture={async (e) => {
 										swallow(e);
 										await contextmenu.activate_selected();
-									}}><Glyph glyph="↵" /></button
+									}}
 								>
+									<Glyph glyph="↵" />
+								</button>
 								<button
 									type="button"
 									class="border_bottom_left_radius_0 border_top_left_radius_0 {selected_hue_class}"
@@ -129,8 +143,10 @@
 									onmousedowncapture={(e) => {
 										swallow(e);
 										contextmenu.expand_selected();
-									}}><Glyph glyph="→" /></button
+									}}
 								>
+									<Glyph glyph="→" />
+								</button>
 							</div>
 							<button
 								type="button"
@@ -139,8 +155,10 @@
 								onmousedowncapture={(e) => {
 									swallow(e);
 									contextmenu.select_next();
-								}}><Glyph glyph="↓" /></button
+								}}
 							>
+								<Glyph glyph="↓" />
+							</button>
 						</div>
 					</div>
 				{/if}

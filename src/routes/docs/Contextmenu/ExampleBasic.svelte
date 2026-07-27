@@ -55,18 +55,18 @@
 				/>
 				<div><code class:color_g_5={greeted}>greeted = {greeted}</code></div>
 				<div>
-					<code class:color_e_5={greeted_icon_snippet}
-						>greeted_icon_snippet = {greeted_icon_snippet}</code
-					>
+					<code class:color_e_5={greeted_icon_snippet}>
+						greeted_icon_snippet = {greeted_icon_snippet}
+					</code>
 				</div>
 				<div>
-					<code class:color_d_5={greeted_icon_string}
-						>greeted_icon_string = {greeted_icon_string}</code
-					>
+					<code class:color_d_5={greeted_icon_string}>
+						greeted_icon_string = {greeted_icon_string}
+					</code>
 				</div>
 				<aside class="mt_lg">
-					The <code>scoped</code> prop is only needed when mounting a contextmenu inside a specific element
-					instead of the entire page.
+					The <code>scoped</code> prop is only needed when mounting a contextmenu inside a specific
+					element instead of the entire page.
 				</aside>
 			</div>
 		</Contextmenu>

@@ -17,8 +17,8 @@
 
 <!-- eslint-disable svelte/no-useless-mustaches -->
 
-<TomeContent {tome}
-	><section>
+<TomeContent {tome}>
+	<section>
 		<aside>⚠️ This API is unfinished and will likely change.</aside>
 	</section>
 	<section>
@@ -91,8 +91,8 @@ export type AlertStatus = 'inform' | 'help' | 'error';"
 	the <code>color</code> prop overrides the status color
 </Alert>`}
 		/>
-		<Alert status="help" color="var(--color_d_50)"
-			>the <code>color</code> prop overrides the status color</Alert
-		>
+		<Alert status="help" color="var(--color_d_50)">
+			the <code>color</code> prop overrides the status color
+		</Alert>
 	</TomeSection>
 </TomeContent>

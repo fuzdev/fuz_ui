@@ -15,13 +15,13 @@
 <TomeContent {tome}>
 	<section>
 		<p>
-			Adds a redirect for a page using <MdnLink path="Web/HTTP/Redirections#html_redirections"
-				>a meta tag</MdnLink
-			>
+			Adds a redirect for a page using <MdnLink path="Web/HTTP/Redirections#html_redirections">
+				a meta tag
+			</MdnLink>
 			with
-			<MdnLink path="Web/HTML/Element/meta#http-equiv"
-				>the <span class="font_family_mono">refresh</span> header</MdnLink
-			>. Includes a rendered link and JS navigation fallback.
+			<MdnLink path="Web/HTML/Element/meta#http-equiv">
+				the <span class="font_family_mono">refresh</span> header
+			</MdnLink>. Includes a rendered link and JS navigation fallback.
 		</p>
 		<!-- TODO make this a generic data-driven helper -->
 		<Code lang="ts" content={`import Redirect from '@fuzdev/fuz_ui/Redirect.svelte';`} />

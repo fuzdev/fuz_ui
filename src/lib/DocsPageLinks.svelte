@@ -44,8 +44,10 @@
 								highlighted: docs_links.fragments_onscreen.has(item.fragment)
 							}
 						]}
-						href="#{item.fragment}"><div class="ellipsis">{item.text}</div></a
+						href="#{item.fragment}"
 					>
+						<div class="ellipsis">{item.text}</div>
+					</a>
 				</li>
 			{/each}
 		</ul>

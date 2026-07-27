@@ -28,8 +28,10 @@
 				onclick={() => {
 					pending_1 = !pending_1;
 					pending_2 = !pending_2;
-				}}>toggle the pending status of the buttons below</button
+				}}
 			>
+				toggle the pending status of the buttons below
+			</button>
 		</p>
 		<Code
 			content={`<PendingButton

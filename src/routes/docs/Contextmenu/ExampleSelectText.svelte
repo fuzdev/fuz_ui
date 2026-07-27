@@ -51,29 +51,30 @@ Try selecting text and then opening the contextmenu on it.`;
 			<div class="panel p_md" class:color_g_5={highlighted}>
 				<div bind:this={text_el} class="mb_lg">
 					<p>
-						When the Fuz contextmenu opens and the user has selected text, the menu includes a <code
-							>copy text</code
-						> entry.
+						When the Fuz contextmenu opens and the user has selected text, the menu includes a
+						<code>copy text</code>
+						entry.
 					</p>
 					<p>
-						Try <button type="button" onclick={select_text} class:color_a={toggled}
-							>selecting text</button
-						> and then opening the contextmenu on it.
+						Try <button type="button" onclick={select_text} class:color_a={toggled}>
+							selecting text
+						</button>
+						and then opening the contextmenu on it.
 					</p>
 				</div>
 				<label>
 					<input type="text" placeholder="paste text here?" bind:value />
 				</label>
 				<p class:color_g_5={highlighted}>
-					Opening the contextmenu on an <code>input</code> or <code>textarea</code> opens the browser's
-					default contextmenu.
+					Opening the contextmenu on an <code>input</code> or <code>textarea</code> opens the
+					browser's default contextmenu.
 				</p>
 				<label>
 					<textarea placeholder="paste text here?" bind:value></textarea>
 				</label>
 				<p>
-					<MdnLink path="Web/HTML/Global_attributes/contenteditable" /> likewise has your browser's default
-					contextmenu behavior.
+					<MdnLink path="Web/HTML/Global_attributes/contenteditable" /> likewise has your browser's
+					default contextmenu behavior.
 				</p>
 				<p><code>contenteditable</code></p>
 				<blockquote contenteditable bind:innerText={value}></blockquote>

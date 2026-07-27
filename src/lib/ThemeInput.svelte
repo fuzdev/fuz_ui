@@ -55,8 +55,10 @@
 					onclick={(e) => {
 						swallow(e);
 						onedit?.(theme);
-					}}>•••</button
+					}}
 				>
+					•••
+				</button>
 			{/if}
 		</li>
 	{/each}

@@ -18,17 +18,17 @@
 		children: children_prop,
 		...rest
 	}: // generic element attrs, the common denominator of the rendered roots - // assignable to the anchor rest of `DeclarationLink`/`ModuleLink` and exact for `<code>`
-	OmitStrict<HTMLAttributes<HTMLElement>, 'children'> & {
-		reference: string;
-		/** URL fragment to append, with or without the `#`. */
-		hash?: string;
-		display_text?: string | null;
-		/** Anchor attributes, applied only when the reference resolves to a declaration or module link. */
-		a_attrs?: SvelteHTMLElements['a'];
-		/** Code attributes, applied only to the fallback `<code>` when the reference doesn't resolve. */
-		code_attrs?: SvelteHTMLElements['code'];
-		children?: Snippet<[Declaration | undefined, Module | undefined]>;
-	} = $props();
+		OmitStrict<HTMLAttributes<HTMLElement>, 'children'> & {
+			reference: string;
+			/** URL fragment to append, with or without the `#`. */
+			hash?: string;
+			display_text?: string | null;
+			/** Anchor attributes, applied only when the reference resolves to a declaration or module link. */
+			a_attrs?: SvelteHTMLElements['a'];
+			/** Code attributes, applied only to the fallback `<code>` when the reference doesn't resolve. */
+			code_attrs?: SvelteHTMLElements['code'];
+			children?: Snippet<[Declaration | undefined, Module | undefined]>;
+		} = $props();
 
 	const get_library = library_context.get();
 	const library = $derived(get_library());
@@ -50,7 +50,10 @@
 	<code {...rest} {...code_attrs}>{@render children()}</code>
 {/if}
 
-{#snippet children()}{#if children_prop}{@render children_prop(
-			declaration,
-			module
-		)}{:else}{display_text ?? reference}{/if}{/snippet}
+{#snippet children()}
+	{#if children_prop}
+		{@render children_prop(declaration, module)}
+	{:else}
+		{display_text ?? reference}
+	{/if}
+{/snippet}

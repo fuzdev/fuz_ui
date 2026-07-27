@@ -153,7 +153,8 @@
 							<div class="row gap_md flex-wrap:wrap">
 								{#each entries as entry (entry.name)}
 									<DeclarationLink name={entry.name} module_path={from_path}>
-										{#if entry.typeOnly}<small>type</small>
+										{#if entry.typeOnly}
+											<small>type</small>
 										{/if}{entry.name}
 									</DeclarationLink>
 								{/each}
@@ -166,8 +167,10 @@
 							<div class="row gap_md flex-wrap:wrap">
 								{#each entries as entry (entry.name)}
 									<span class="chip">
-										{#if entry.typeOnly}<small>type</small>
-										{/if}{#if entry.originalName}<small>{entry.originalName} as</small>
+										{#if entry.typeOnly}
+											<small>type</small>
+										{/if}{#if entry.originalName}
+											<small>{entry.originalName} as</small>
 										{/if}{entry.name}
 									</span>
 								{/each}

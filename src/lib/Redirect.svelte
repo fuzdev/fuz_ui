@@ -36,7 +36,11 @@
 	{#if auto}<meta http-equiv="refresh" content="0; URL={url}" />{/if}
 </svelte:head>
 
-{#if children}{@render children(url)}{:else}<p>
+{#if children}
+	{@render children(url)}
+{:else}
+	<p>
 		<!-- eslint-disable-next-line svelte/no-navigation-without-resolve -->
 		redirect to <a href={url}>{strip_start(url, 'https://')}</a>
-	</p>{/if}
+	</p>
+{/if}

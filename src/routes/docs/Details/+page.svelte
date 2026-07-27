@@ -17,10 +17,10 @@
 <TomeContent {tome}>
 	<section>
 		<p>
-			The <DeclarationLink name="Details" /> component is an alternative to the <MdnLink
-				path="Web/HTML/Element/details"
-			/> element. By default it's lazy, and you can pass <code>eager</code> to render the children immediately
-			like the base element.
+			The <DeclarationLink name="Details" /> component is an alternative to the
+			<MdnLink path="Web/HTML/Element/details" /> element. By default it's lazy, and you can pass
+			<code>eager</code>
+			to render the children immediately like the base element.
 		</p>
 		<p>Benefits of lazy children:</p>
 		<ul>

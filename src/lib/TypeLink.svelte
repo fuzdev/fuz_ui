@@ -12,15 +12,15 @@
 		code_attrs,
 		...rest
 	}: // generic element attrs, the common denominator of the rendered roots - // assignable to the anchor rest of `DeclarationLink` and the code rest of `Code`
-	HTMLAttributes<HTMLElement> & {
-		type: string;
-		/** URL fragment to append, with or without the `#`. */
-		hash?: string;
-		/** Anchor attributes, applied only when the type resolves to a declaration link. */
-		a_attrs?: SvelteHTMLElements['a'];
-		/** Code attributes, applied only to the fallback `Code` when the type doesn't resolve. */
-		code_attrs?: SvelteHTMLElements['code'];
-	} = $props();
+		HTMLAttributes<HTMLElement> & {
+			type: string;
+			/** URL fragment to append, with or without the `#`. */
+			hash?: string;
+			/** Anchor attributes, applied only when the type resolves to a declaration link. */
+			a_attrs?: SvelteHTMLElements['a'];
+			/** Code attributes, applied only to the fallback `Code` when the type doesn't resolve. */
+			code_attrs?: SvelteHTMLElements['code'];
+		} = $props();
 
 	const get_library = library_context.get();
 	const library = $derived(get_library());

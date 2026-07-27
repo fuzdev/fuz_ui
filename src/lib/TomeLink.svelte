@@ -36,6 +36,6 @@
 </script>
 
 <!-- eslint-disable-next-line svelte/no-navigation-without-resolve -->
-<a {...rest} class="tome-link {class_prop}" href={tome_to_pathname(slug, docs_path, hash)}
-	>{#if children}{@render children()}{:else}{label}{/if}</a
->
+<a {...rest} class="tome-link {class_prop}" href={tome_to_pathname(slug, docs_path, hash)}>
+	{#if children}{@render children()}{:else}{label}{/if}
+</a>

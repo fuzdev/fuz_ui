@@ -125,9 +125,9 @@ with file-type coloring. Uses svelte-docinfo's file type predicates for module c
 					{#if library.repo_url}
 						<span class="title">repo</span>
 						<div class="content">
-							<a class="chip" title="repo" href={library.repo_url}
-								>{library.owner_name}/{library.repo_name}</a
-							>
+							<a class="chip" title="repo" href={library.repo_url}>
+								{library.owner_name}/{library.repo_name}
+							</a>
 						</div>
 					{/if}
 					{#if library.npm_url}

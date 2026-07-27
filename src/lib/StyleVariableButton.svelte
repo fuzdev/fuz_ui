@@ -36,9 +36,9 @@
 		selected_variable.value = variable;
 		onclick?.(e);
 	}}
-	>{#if children}{@render children()}{:else}<span class="font_family_mono">{name}</span
-		>{/if}</button
 >
+	{#if children}{@render children()}{:else}<span class="font_family_mono">{name}</span>{/if}
+</button>
 
 <style>
 	button {

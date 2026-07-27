@@ -84,8 +84,10 @@
 				<!-- eslint-disable svelte/no-navigation-without-resolve -->
 				<a
 					class={['chip', { selected: library.homepage_url === page.url.href }]}
-					href={library.homepage_url}>{format_url(library.homepage_url)}</a
+					href={library.homepage_url}
 				>
+					{format_url(library.homepage_url)}
+				</a>
 				<!-- eslint-enable svelte/no-navigation-without-resolve -->
 			</div>
 		{/if}

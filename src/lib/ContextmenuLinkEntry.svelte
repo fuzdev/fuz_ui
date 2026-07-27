@@ -96,9 +96,9 @@
 				{/if}
 			</div>
 			<div class="title">
-				<span class="text"
-					>{#if children}{@render children()}{:else}{text}{/if}</span
-				>
+				<span class="text">
+					{#if children}{@render children()}{:else}{text}{/if}
+				</span>
 			</div>
 		</div>
 	</a>

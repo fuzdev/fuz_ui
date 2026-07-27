@@ -22,9 +22,9 @@
 	adventure
 	{#snippet menu()}
 		{#if cat_to_call_to_adventure}
-			<ContextmenuEntry run={() => act({ type: 'call_cats_adventure' })} icon="🦋"
-				>call</ContextmenuEntry
-			>
+			<ContextmenuEntry run={() => act({ type: 'call_cats_adventure' })} icon="🦋">
+				call
+			</ContextmenuEntry>
 			{#if adventure_cats.length > 0}
 				<ContextmenuSeparator />
 			{/if}
@@ -39,9 +39,9 @@
 			>
 				do
 			</ContextmenuEntry>
-			<ContextmenuEntry run={() => act({ type: 'call_cats_home' })} icon="🐈‍⬛"
-				>leave</ContextmenuEntry
-			>
+			<ContextmenuEntry run={() => act({ type: 'call_cats_home' })} icon="🐈‍⬛">
+				leave
+			</ContextmenuEntry>
 		{/if}
 	{/snippet}
 </ContextmenuSubmenu>

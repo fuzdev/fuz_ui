@@ -18,11 +18,11 @@
 		children,
 		...rest
 	}: // eslint-disable-next-line @typescript-eslint/no-duplicate-type-constituents
-	(SvelteHTMLElements['h2'] | SvelteHTMLElements['h3'] | SvelteHTMLElements['h4']) & {
-		text: string;
-		tag?: DocsLinkTag;
-		children?: Snippet;
-	} = $props();
+		(SvelteHTMLElements['h2'] | SvelteHTMLElements['h3'] | SvelteHTMLElements['h4']) & {
+			text: string;
+			tag?: DocsLinkTag;
+			children?: Snippet;
+		} = $props();
 
 	const fragment = $derived(docs_slugify(text));
 

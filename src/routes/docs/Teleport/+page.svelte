@@ -49,7 +49,7 @@
 			<div bind:this={port1} class="panel"></div>
 			<div bind:this={port2} class="panel"></div>
 		</div>
-		<button type="button" onclick={() => (swap = !swap)}> teleport the bunny </button>
+		<button type="button" onclick={() => (swap = !swap)}>teleport the bunny</button>
 	</section>
 </TomeContent>
 

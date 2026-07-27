@@ -14,26 +14,27 @@
 		<a href="https://bugs.webkit.org/show_bug.cgi?id=213953">WebKit bug #213953</a>.
 	</p>
 	<p>
-		Use <DeclarationLink name="ContextmenuRoot" /> by default for better performance and haptic feedback.
-		Use
-		<DeclarationLink name="ContextmenuRootForSafariCompatibility" /> only if you need iOS Safari support.
+		Use <DeclarationLink name="ContextmenuRoot" /> by default for better performance and haptic
+		feedback. Use
+		<DeclarationLink name="ContextmenuRootForSafariCompatibility" />
+		only if you need iOS Safari support.
 	</p>
 	<h4>ContextmenuRoot</h4>
 	<ul>
 		<li>standard, default implementation</li>
 		<li>
-			relies on the browser's <MdnLink path="Web/API/Element/contextmenu_event"
-				><span class="font_family_mono">contextmenu</span> event</MdnLink
-			>
+			relies on the browser's <MdnLink path="Web/API/Element/contextmenu_event">
+				<span class="font_family_mono">contextmenu</span> event
+			</MdnLink>
 		</li>
 		<li>
 			much simpler, better performance with fewer and less intrusive event handlers, fewer edge
 			cases that can go wrong
 		</li>
 		<li>
-			does not work on iOS Safari until <a href="https://bugs.webkit.org/show_bug.cgi?id=213953"
-				>WebKit bug #213953</a
-			> is fixed
+			does not work on iOS Safari until
+			<a href="https://bugs.webkit.org/show_bug.cgi?id=213953">WebKit bug #213953</a>
+			is fixed
 		</li>
 	</ul>
 	<h4>ContextmenuRootForSafariCompatibility</h4>
@@ -41,14 +42,15 @@
 		<li>opt-in hacky alternative when iOS support is needed</li>
 		<li>
 			implements custom longpress detection to work around iOS Safari's lacking
-			<a href="https://bugs.webkit.org/show_bug.cgi?id=213953"
-				><code>contextmenu</code> event support</a
-			>
+			<a href="https://bugs.webkit.org/show_bug.cgi?id=213953">
+				<code>contextmenu</code> event support
+			</a>
 		</li>
 		<li>
-			degraded experience because some browsers (including mobile Chrome) block <code
-				>navigator.vibrate</code
-			> haptic feedback due to the timeout-based gesture detection (because it's not a direct user action)
+			degraded experience because some browsers (including mobile Chrome) block
+			<code>navigator.vibrate</code>
+			haptic feedback due to the timeout-based gesture detection (because it's not a direct user
+			action)
 		</li>
 		<li>works on all devices including iOS Safari</li>
 		<li>
@@ -70,8 +72,8 @@
 	<ul>
 		<li>
 			The Fuz contextmenu only replaces the system contextmenu when the DOM tree has defined
-			behaviors. Note that <code>a</code> links have default contextmenu behaviors unless disabled. Other
-			interactive elements may have default behaviors added in the future.
+			behaviors. Note that <code>a</code> links have default contextmenu behaviors unless disabled.
+			Other interactive elements may have default behaviors added in the future.
 		</li>
 		<li>
 			The Fuz contextmenu does not open on elements that allow clipboard pasting like inputs,

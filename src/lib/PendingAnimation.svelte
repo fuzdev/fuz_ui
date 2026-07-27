@@ -27,14 +27,15 @@
 		inline ? 'display:inline-flex align-items:center' : 'display:flex',
 		{ running }
 	]}
-	><span {...item_attrs} style:animation-delay="0s"
-		>{#if children}{@render children(0)}{:else}•{/if}</span
-	><span {...item_attrs} style:animation-delay="0.09s"
-		>{#if children}{@render children(1)}{:else}•{/if}</span
-	><span {...item_attrs} style:animation-delay="0.3s"
-		>{#if children}{@render children(2)}{:else}•{/if}</span
-	></span
 >
+	<span {...item_attrs} style:animation-delay="0s">
+		{#if children}{@render children(0)}{:else}•{/if}
+	</span><span {...item_attrs} style:animation-delay="0.09s">
+		{#if children}{@render children(1)}{:else}•{/if}
+	</span><span {...item_attrs} style:animation-delay="0.3s">
+		{#if children}{@render children(2)}{:else}•{/if}
+	</span>
+</span>
 
 <style>
 	.pending-animation span {

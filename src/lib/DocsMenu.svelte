@@ -32,15 +32,18 @@
 	<ul class="unstyled">
 		{#each Object.entries(tomes_by_category) as [category, tomes] (category)}
 			<li class="category">
-				{#if children}{@render children(category)}{:else}<DocsMenuHeader>{category}</DocsMenuHeader
-					>{/if}
+				{#if children}
+					{@render children(category)}
+				{:else}
+					<DocsMenuHeader>{category}</DocsMenuHeader>
+				{/if}
 				<ul class="unstyled">
 					{#each tomes as item (item)}
 						{@const pathname = tome_to_pathname(item)}
 						<li role="none">
-							<a class={['menuitem', { selected: pathname === page.url.pathname }]} href={pathname}
-								><div class="ellipsis">{tome_to_title(item)}</div></a
-							>
+							<a class={['menuitem', { selected: pathname === page.url.pathname }]} href={pathname}>
+								<div class="ellipsis">{tome_to_title(item)}</div>
+							</a>
 						</li>
 					{/each}
 				</ul>

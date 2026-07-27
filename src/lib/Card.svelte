@@ -15,16 +15,16 @@
 		children,
 		...rest
 	}: // generic element attrs, the common denominator of the rendered roots - // branch-specific attributes go in `a_attrs`
-	HTMLAttributes<HTMLElement> & {
-		/** Renders the card as an `<a>` when provided. */
-		href?: string | undefined;
-		tag?: string | undefined;
-		align?: 'left' | 'right' | 'above' | 'below';
-		icon?: string | Snippet;
-		/** Anchor attributes, applied only when `href` renders the card as an `<a>`. */
-		a_attrs?: SvelteHTMLElements['a'];
-		children: Snippet;
-	} = $props();
+		HTMLAttributes<HTMLElement> & {
+			/** Renders the card as an `<a>` when provided. */
+			href?: string | undefined;
+			tag?: string | undefined;
+			align?: 'left' | 'right' | 'above' | 'below';
+			icon?: string | Snippet;
+			/** Anchor attributes, applied only when `href` renders the card as an `<a>`. */
+			a_attrs?: SvelteHTMLElements['a'];
+			children: Snippet;
+		} = $props();
 
 	const link = $derived(!!href);
 	const selected = $derived(link && page.url.pathname === href);

@@ -22,8 +22,9 @@
 	home
 	{#snippet menu()}
 		{#if cat_to_call_home}
-			<ContextmenuEntry run={() => act({ type: 'call_cats_home' })} icon="🐈‍⬛">call</ContextmenuEntry
-			>
+			<ContextmenuEntry run={() => act({ type: 'call_cats_home' })} icon="🐈‍⬛">
+				call
+			</ContextmenuEntry>
 			{#if home_cats.length > 0}
 				<ContextmenuSeparator />
 			{/if}
@@ -38,9 +39,9 @@
 			>
 				be
 			</ContextmenuEntry>
-			<ContextmenuEntry run={() => act({ type: 'call_cats_adventure' })} icon="🦋"
-				>leave</ContextmenuEntry
-			>
+			<ContextmenuEntry run={() => act({ type: 'call_cats_adventure' })} icon="🦋">
+				leave
+			</ContextmenuEntry>
 		{/if}
 	{/snippet}
 </ContextmenuSubmenu>

@@ -49,10 +49,9 @@
 	{/if}
 </footer>
 
-{#snippet logo_mark()}{#if logo}{@render logo()}{:else}<Svg
-			data={logo_github}
-			size="var(--icon_size_lg)"
-		/>{/if}{/snippet}
+{#snippet logo_mark()}
+	{#if logo}{@render logo()}{:else}<Svg data={logo_github} size="var(--icon_size_lg)" />{/if}
+{/snippet}
 
 <style>
 	/* TODO probably extract */
