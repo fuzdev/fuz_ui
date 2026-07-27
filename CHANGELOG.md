@@ -1,5 +1,12 @@
 # @fuzdev/fuz_ui
 
+## 0.206.8
+
+### Patch Changes
+
+- perf: optimize library helpers ([5f43d45](https://github.com/fuzdev/fuz_ui/commit/5f43d45))
+- docs: fuz_css is a semantic-first CSS framework and design system ([a5b3228](https://github.com/fuzdev/fuz_ui/commit/a5b3228))
+
 ## 0.206.7
 
 ### Patch Changes
@@ -233,6 +240,7 @@
 - use `$state.raw` over `$state` ([69cb802](https://github.com/fuzdev/fuz_ui/commit/69cb802))
 - use kebab-case class names ([dce8fdc](https://github.com/fuzdev/fuz_ui/commit/dce8fdc))
 - feat: improve csp API ([#124](https://github.com/fuzdev/fuz_ui/pull/124))
+
   - replace `create_csp_directives` options with three-stage pipeline:
     `replace_defaults` → `extend` → `overrides`
   - remove the trust-level surface: `CspTrustLevel`, `CspSourceSpec`,
@@ -1798,11 +1806,13 @@
 - remove the `border_radius` variable ([#15](https://github.com/ryanatkn/fuz/pull/15))
 - remove `h1-6` `margin-top` and compensate by increasing `margin-bottom` ([#15](https://github.com/ryanatkn/fuz/pull/15))
 - upgrade to svelte@5 including many breaking changes to components ([#15](https://github.com/ryanatkn/fuz/pull/15))
+
   - convert slots to snippets
   - change events to callbacks
   - remove `DevmodeControls`
 
 - change `line_height` vaiables ([#15](https://github.com/ryanatkn/fuz/pull/15))
+
   - rename `line_height_xs` from `line_height_1`
   - remove `line_height_2`
   - rename `line_height_sm` from `line_height_3`
@@ -1820,6 +1830,7 @@
 
 - add `Details` ([#15](https://github.com/ryanatkn/fuz/pull/15))
 - remove `.prose` ([#15](https://github.com/ryanatkn/fuz/pull/15))
+
   - use `.unstyled` to get the old behavior for `ul|ol|menu`
   - `a` is now the default `diplay: inline` instead of `flex`
 
