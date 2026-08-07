@@ -35,7 +35,7 @@
 	<section>
 		<Code
 			content={`<Redirect
-	host="https://www.felt.dev"
+	host="https://www.fuz.dev"
 	path="/docs"
 	let:url
 	auto={false}
@@ -43,7 +43,7 @@
 	the redirect url is {url}
 </Redirect>`}
 		/>
-		<Redirect host="https://www.felt.dev" path="/docs" auto={false}>
+		<Redirect host="https://www.fuz.dev" path="/docs" auto={false}>
 			{#snippet children(url)}
 				the redirect url is {url}
 			{/snippet}
