@@ -22,8 +22,8 @@
 			 * string — rendered via `TypeJsonView` (per-node linkification, with
 			 * `type` as hover text) instead of the whole-string match below. An
 			 * absent tree falls through to `type`, so call sites pass both fields
-			 * unconditionally. The rest/`a_attrs`/`code_attrs` attributes apply
-			 * only to the flat branches, not the delegated tree.
+			 * unconditionally. `hash` and the rest/`a_attrs`/`code_attrs`
+			 * attributes apply only to the flat branches, not the delegated tree.
 			 */
 			type_info?: TypeJson;
 			/** URL fragment to append, with or without the `#`. */

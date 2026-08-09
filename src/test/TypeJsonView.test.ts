@@ -63,6 +63,13 @@ describe('TypeJsonView', () => {
 		assert.strictEqual(container.querySelector('code.type-json-view'), null);
 	});
 
+	test('a terminal root renders as highlighted code inside the wrapper', () => {
+		// e.g. a conditional type alias reprinted at its own declaration root
+		const container = mount_view({ kind: 'other', text: 'T extends string ? A : B' });
+		assert.strictEqual(container.textContent, 'T extends string ? A : B');
+		assert.ok(container.querySelector('code.type-json-view'), 'expected the code wrapper');
+	});
+
 	test('a bare resolvable reference renders as a declaration link', () => {
 		const container = mount_view({ kind: 'reference', name: 'A' }, fake_library(['A']));
 		const link = container.querySelector('a');
