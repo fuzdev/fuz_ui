@@ -22,6 +22,7 @@ including parameters, props, members, overloads, intersects, and more.
 
 	import type { Declaration } from './declaration.svelte.ts';
 	import TypeLink from './TypeLink.svelte';
+	import TypeJsonView from './TypeJsonView.svelte';
 	import ModuleLink from './ModuleLink.svelte';
 	import DocsLink from './DocsLink.svelte';
 
@@ -57,7 +58,7 @@ including parameters, props, members, overloads, intersects, and more.
 		{/if}
 		<div class="row gap_md mb_sm">
 			<strong>type</strong>
-			<TypeLink type={param.type} />
+			<TypeLink type={param.type} type_info={param.typeInfo} />
 		</div>
 		{#if param.optional || param.defaultValue}
 			<div class="row gap_md">
@@ -79,7 +80,7 @@ including parameters, props, members, overloads, intersects, and more.
 		<code>
 			{param.name}{#if param.optional}?{/if}
 		</code>
-		<TypeLink type={param.type} />
+		<TypeLink type={param.type} type_info={param.typeInfo} />
 	</div>
 {/snippet}
 
@@ -194,6 +195,15 @@ including parameters, props, members, overloads, intersects, and more.
 	<Code lang="ts" content={declaration.type_signature} />
 {/if}
 
+<!-- structured type (variables and type aliases; carries what the flat
+	signature lost — union members, recovered alias names — with links) -->
+{#if declaration.type_info}
+	<p class="row gap_md">
+		<strong>type</strong>
+		<TypeJsonView type_info={declaration.type_info} title={declaration.type_signature} />
+	</p>
+{/if}
+
 <!-- import statement -->
 <Code lang="ts" content={declaration.import_statement} />
 
@@ -226,7 +236,7 @@ including parameters, props, members, overloads, intersects, and more.
 				{/if}
 				<div class="row gap_md mb_sm">
 					<strong>type</strong>
-					<TypeLink type={prop.type} />
+					<TypeLink type={prop.type} type_info={prop.typeInfo} />
 				</div>
 				{#if prop.optional || prop.bindable || prop.defaultValue}
 					<div class="row gap_md">
@@ -274,7 +284,7 @@ including parameters, props, members, overloads, intersects, and more.
 				{#if overload.returnType}
 					<div class="row gap_md">
 						<strong>returns</strong>
-						<TypeLink type={overload.returnType} />
+						<TypeLink type={overload.returnType} type_info={overload.returnTypeInfo} />
 					</div>
 					{#if overload.returnDescription}
 						<Mdz content={overload.returnDescription} />
@@ -299,7 +309,14 @@ including parameters, props, members, overloads, intersects, and more.
 {#if declaration.return_type}
 	<section>
 		<h4>returns</h4>
-		<Code lang="ts" content={declaration.return_type} />
+		{#if declaration.return_type_info}
+			<!-- the flat expansion stays visible in the type signature above -->
+			<p>
+				<TypeJsonView type_info={declaration.return_type_info} title={declaration.return_type} />
+			</p>
+		{:else}
+			<Code lang="ts" content={declaration.return_type} />
+		{/if}
 		{#if declaration.return_description}
 			<Mdz content={declaration.return_description} />
 		{/if}
@@ -440,6 +457,7 @@ including parameters, props, members, overloads, intersects, and more.
 							type={member.kind === 'constructor'
 								? `new ${member.typeSignature}`
 								: member.typeSignature}
+							type_info={member.kind === 'variable' ? member.typeInfo : undefined}
 						/>
 					</p>
 				{/if}
@@ -475,7 +493,7 @@ including parameters, props, members, overloads, intersects, and more.
 				{#if member.kind === 'function' && member.returnType}
 					<div class="row gap_md">
 						<strong>returns</strong>
-						<TypeLink type={member.returnType} />
+						<TypeLink type={member.returnType} type_info={member.returnTypeInfo} />
 					</div>
 					{#if member.returnDescription}
 						<Mdz content={member.returnDescription} />

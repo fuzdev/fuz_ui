@@ -165,7 +165,13 @@ API:
 - `DeclarationDetail` — full detail view of a single declaration
 - `DeclarationLink` — link to a declaration in API docs
 - `ModuleLink` — link to a module in API docs
-- `TypeLink` — link to a type reference
+- `TypeLink` — link to a type reference; renders the structured tree via
+  `TypeJsonView` when given `type_info`, else whole-string match on the flat
+  string
+- `TypeJsonView` — structured `TypeJson` tree renderer: per-node linkification
+  (`DeclarationLink` for resolvable `reference` nodes and alias-carrying
+  unions/intersections), syntax-highlighted terminals, punctuation from
+  svelte-docinfo's `typeJsonToTokens`
 
 Library metadata:
 

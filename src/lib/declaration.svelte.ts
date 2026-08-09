@@ -5,7 +5,8 @@ import type {
 	ParameterJsonInput,
 	ComponentPropJsonInput,
 	OverloadJsonInput,
-	Reactivity
+	Reactivity,
+	TypeJson
 } from 'svelte-docinfo/types.js';
 import { generateImport, getDisplayName } from 'svelte-docinfo/declaration-helpers.js';
 import { EMPTY_ARRAY } from '@fuzdev/fuz_util/array.ts';
@@ -122,6 +123,14 @@ export class Declaration {
 		return this.declaration_json.typeSignature;
 	}
 
+	/**
+	 * Structured type tree beside `type_signature`, absent when the flat string
+	 * is the whole story. Present on `variable` and `type` kinds only.
+	 */
+	get type_info(): TypeJson | undefined {
+		return field<TypeJson>(this.declaration_json, 'typeInfo');
+	}
+
 	get doc_comment(): string | undefined {
 		return this.declaration_json.docComment;
 	}
@@ -140,6 +149,14 @@ export class Declaration {
 
 	get return_type(): string | undefined {
 		return field<string>(this.declaration_json, 'returnType');
+	}
+
+	/**
+	 * Structured return type beside `return_type`, absent when the flat string
+	 * is the whole story. Present on `function` kind only.
+	 */
+	get return_type_info(): TypeJson | undefined {
+		return field<TypeJson>(this.declaration_json, 'returnTypeInfo');
 	}
 
 	get return_description(): string | undefined {
