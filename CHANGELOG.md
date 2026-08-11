@@ -1,5 +1,51 @@
 # @fuzdev/fuz_ui
 
+## 0.207.0
+
+### Minor Changes
+
+- **breaking:** adapt to svelte-docinfo 0.6 ([#139](https://github.com/fuzdev/fuz_ui/pull/139))
+
+  - Rename `Declaration.intersects` to `Declaration.external_types`, following
+    the upstream field rename — it lists the external types whose contributions
+    are filtered out of `props`/`members`, however the author composed them.
+    `DeclarationDetail`'s section heading is now "external types".
+  - Rename `Declaration.extends_type` to `Declaration.extends_types`, now
+    `Array<string> | undefined` — class `extends` is an array like every other
+    heritage field; absent when there is no `extends` clause.
+  - `DeclarationDetail` dedupes external types against the inheritance section —
+    0.6 records direct external heritage in both `externalTypes` and the
+    verbatim `extends`/`implements` clauses.
+  - `DeclarationDetail` renders `@default` on function members — 0.6 emits
+    `defaultValue` on callable members; the default row was gated on
+    `kind === 'variable'`.
+
+  Requires svelte-docinfo >= 0.6.
+
+- feat: render svelte-docinfo's structured `TypeJson` trees in API docs ([#139](https://github.com/fuzdev/fuz_ui/pull/139))
+
+  - New `TypeJsonView` renders a `typeInfo` tree as inline code: `reference`
+    nodes and alias-carrying unions/intersections link via `DeclarationLink`
+    (module-scoped when the analysis names the declaring module), terminal type
+    text stays syntax-highlighted, and punctuation comes from svelte-docinfo's
+    `typeJsonToTokens`.
+  - `TypeLink` takes an optional `type_info` and delegates to `TypeJsonView`.
+  - `DeclarationDetail` threads `typeInfo`/`returnTypeInfo` through every type
+    position and adds a structured type row for variable/type declarations.
+  - `Declaration` gains `type_info` and `return_type_info` getters.
+
+  Requires svelte-docinfo >= 0.6.
+
+- feat: render `@default` on top-level variable declarations ([#139](https://github.com/fuzdev/fuz_ui/pull/139))
+
+  `Declaration` gains a `default_value` getter and `DeclarationDetail` renders it
+  beside the type signature; previously a module-level `@default` documented
+  nothing.
+
+### Patch Changes
+
+- fix: tweak layout for items in `ProjectLinks` ([7362ec0](https://github.com/fuzdev/fuz_ui/commit/7362ec0))
+
 ## 0.206.9
 
 ### Patch Changes
