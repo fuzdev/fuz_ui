@@ -22,17 +22,19 @@
 	<a class="thumbnail row shade_00 px_md py_xs border_radius_sm mb_lg" href={project_item.url}>
 		<Svg shrink={false} data={project_item.logo} size="var(--icon_size_lg)" />
 		<div class="pl_lg width_atmost_sm">
-			<div class="thumbnail-name {project_item.color_class}">{project_item.name}</div>
+			<div class="thumbnail-name row	align-items:start {project_item.color_class}">
+				{project_item.name}
+				{#if counts}
+					<div class="thumbnail-sparkline pl_md {project_item.color_class}">
+						<Sparkline values={counts} {max} scale={1 / 3} label="monthly commit activity" />
+					</div>
+				{/if}
+			</div>
 			<div class="thumbnail-description font_size_md text_70 font-weight:500">
 				{project_item.description}
 				{project_item.glyph}
 			</div>
 		</div>
-		{#if counts}
-			<div class="thumbnail-sparkline pl_md {project_item.color_class}">
-				<Sparkline values={counts} {max} scale={1 / 3} label="monthly commit activity" />
-			</div>
-		{/if}
 	</a>
 {/snippet}
 
