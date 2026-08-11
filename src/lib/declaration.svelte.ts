@@ -167,8 +167,8 @@ export class Declaration {
 		return this.declaration_json.genericParams ?? EMPTY_ARRAY;
 	}
 
-	get extends_type(): string | Array<string> | undefined {
-		return field<string | Array<string>>(this.declaration_json, 'extends');
+	get extends_types(): Array<string> | undefined {
+		return field<Array<string>>(this.declaration_json, 'extends');
 	}
 
 	get implements_types(): Array<string> | undefined {

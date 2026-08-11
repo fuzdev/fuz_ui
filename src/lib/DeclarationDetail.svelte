@@ -35,13 +35,7 @@ including parameters, props, members, overloads, external types, and more.
 	const external_types_not_inherited = $derived.by(() => {
 		const external_types = declaration.external_types;
 		if (!external_types?.length) return undefined;
-		const heritage = (
-			Array.isArray(declaration.extends_type)
-				? declaration.extends_type
-				: declaration.extends_type
-					? [declaration.extends_type]
-					: []
-		).concat(declaration.implements_types ?? []);
+		const heritage = (declaration.extends_types ?? []).concat(declaration.implements_types ?? []);
 		const filtered = external_types.filter((t) => !heritage.includes(t));
 		return filtered.length ? filtered : undefined;
 	});
@@ -370,17 +364,13 @@ including parameters, props, members, overloads, external types, and more.
 {/if}
 
 <!-- Extends/Implements -->
-{#if declaration.extends_type || declaration.implements_types?.length}
+{#if declaration.extends_types?.length || declaration.implements_types?.length}
 	<section>
 		<h4>inheritance</h4>
-		{#if declaration.extends_type}
+		{#if declaration.extends_types?.length}
 			<div class="row gap_md flex-wrap:wrap">
 				<strong>extends:</strong>
-				{@render type_list(
-					Array.isArray(declaration.extends_type)
-						? declaration.extends_type
-						: [declaration.extends_type]
-				)}
+				{@render type_list(declaration.extends_types)}
 			</div>
 		{/if}
 		{#if declaration.implements_types?.length}
@@ -492,7 +482,7 @@ including parameters, props, members, overloads, external types, and more.
 						{/if}
 					</div>
 				{/if}
-				{#if member.kind === 'variable' && member.defaultValue}
+				{#if (member.kind === 'variable' || member.kind === 'function') && member.defaultValue}
 					<div class="row gap_md">
 						<strong>default</strong>
 						<Code lang="ts" content={member.defaultValue} />
