@@ -60,7 +60,7 @@ See [the library](https://ui.fuz.dev/docs) for more.
 
 ## Contributing
 
-See [contributing.md](contributing.md).
+[fuz.dev/contributing](https://www.fuz.dev/contributing)
 
 ## Develop
 
