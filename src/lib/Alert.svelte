@@ -1,8 +1,8 @@
 <script lang="ts">
-	import type {Snippet} from 'svelte';
-	import type {HTMLAttributes, SvelteHTMLElements} from 'svelte/elements';
+	import type { Snippet } from 'svelte';
+	import type { HTMLAttributes, SvelteHTMLElements } from 'svelte/elements';
 
-	import {alert_status_options, type AlertStatus} from './alert.ts';
+	import { alert_status_options, type AlertStatus } from './alert.ts';
 
 	/**
 	 * @see {@link https://www.w3.org/WAI/ARIA/apg/patterns/alert/}
@@ -23,33 +23,29 @@
 		children,
 		...rest
 	}: // generic element attrs, the common denominator of the rendered roots - // branch-specific attributes go in `button_attrs`/`div_attrs`
-	HTMLAttributes<HTMLElement> & {
-		status?: AlertStatus;
-		color?: string;
-		// TODO maybe an explicit `AlertButton` is better,
-		// or rethink the design because `role="alert"` can't be put on buttons -
-		// `disabled` and `button_attrs` only make sense when `onclick` is defined
-		/** Renders the alert as a `<button>` when provided. */
-		onclick?: (() => void) | undefined;
-		disabled?: boolean;
-		icon?:
-			| string
-			| Snippet<[icon: string]>
-			| null
-			| undefined; // TODO experimenting with this, gets complex in the impl
-		/** Button attributes, applied only when `onclick` renders the alert as a `<button>`. */
-		button_attrs?: SvelteHTMLElements['button'];
-		/** Div attributes, applied only when the alert renders as a `<div>` (no `onclick`). */
-		div_attrs?: SvelteHTMLElements['div'];
-		children: Snippet;
-	} = $props();
+		HTMLAttributes<HTMLElement> & {
+			status?: AlertStatus;
+			color?: string;
+			// TODO maybe an explicit `AlertButton` is better,
+			// or rethink the design because `role="alert"` can't be put on buttons -
+			// `disabled` and `button_attrs` only make sense when `onclick` is defined
+			/** Renders the alert as a `<button>` when provided. */
+			onclick?: (() => void) | undefined;
+			disabled?: boolean;
+			icon?: string | Snippet<[icon: string]> | null | undefined; // TODO experimenting with this, gets complex in the impl
+			/** Button attributes, applied only when `onclick` renders the alert as a `<button>`. */
+			button_attrs?: SvelteHTMLElements['button'];
+			/** Div attributes, applied only when the alert renders as a `<div>` (no `onclick`). */
+			div_attrs?: SvelteHTMLElements['div'];
+			children: Snippet;
+		} = $props();
 
 	const options = $derived(alert_status_options[status]);
 	// TODO change this to use the hue and put transparency on the borders, or add a borderColor option
-	const {color: status_color, icon: status_icon} = $derived(options);
+	const { color: status_color, icon: status_icon } = $derived(options);
 	const final_color = $derived(color ?? status_color);
 	const final_icon = $derived(
-		typeof icon === 'string' ? icon : (status_icon ?? alert_status_options.inform.icon!),
+		typeof icon === 'string' ? icon : (status_icon ?? alert_status_options.inform.icon!)
 	);
 </script>
 

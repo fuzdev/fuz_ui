@@ -1,11 +1,11 @@
 <script lang="ts">
 	import ContextmenuEntry from '$lib/ContextmenuEntry.svelte';
 	import Contextmenu from '$lib/Contextmenu.svelte';
-	import {ContextmenuState} from '$lib/contextmenu_state.svelte.ts';
+	import { ContextmenuState } from '$lib/contextmenu_state.svelte.ts';
 	import MdnLink from '$lib/MdnLink.svelte';
 	import TomeSectionHeader from '$lib/TomeSectionHeader.svelte';
 	import TomeSection from '$lib/TomeSection.svelte';
-	import {selected_contextmenu_root_component_context} from './selected_root_component.svelte.ts';
+	import { selected_contextmenu_root_component_context } from './selected_root_component.svelte.ts';
 
 	const selected = selected_contextmenu_root_component_context.get();
 	const ContextmenuRootComponent = $derived(selected.component);
@@ -41,30 +41,31 @@ Try selecting text and then opening the contextmenu on it.`;
 
 <ContextmenuRootComponent {contextmenu} scoped>
 	<TomeSection>
-		<div class:palette_d_50={highlighted}>
+		<div class:color_d_50={highlighted}>
 			<TomeSectionHeader text="Select text" />
 		</div>
 		<Contextmenu>
 			{#snippet entries()}
 				<ContextmenuEntry run={() => void (toggled = !toggled)}>Toggle something</ContextmenuEntry>
 			{/snippet}
-			<div class="panel p_md" class:palette_g_50={highlighted}>
+			<div class="panel p_md" class:color_g_50={highlighted}>
 				<div bind:this={text_el} class="mb_lg">
 					<p>
-						When the Fuz contextmenu opens and the user has selected text, the menu includes a <code
-							>copy text</code
-						> entry.
+						When the Fuz contextmenu opens and the user has selected text, the menu includes a
+						<code>copy text</code>
+						entry.
 					</p>
 					<p>
-						Try <button type="button" onclick={select_text} class:palette_a={toggled}
-							>selecting text</button
-						> and then opening the contextmenu on it.
+						Try <button type="button" onclick={select_text} class:color_a={toggled}>
+							selecting text
+						</button>
+						and then opening the contextmenu on it.
 					</p>
 				</div>
 				<label>
 					<input type="text" placeholder="paste text here?" bind:value />
 				</label>
-				<p class:palette_g_50={highlighted}>
+				<p class:color_g_50={highlighted}>
 					Opening the contextmenu on an <code>input</code> or <code>textarea</code> opens the
 					browser's default contextmenu.
 				</p>

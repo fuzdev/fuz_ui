@@ -1,19 +1,22 @@
 /**
  * @vitest-environment jsdom
  */
-import {describe, test, assert, beforeEach, afterEach, vi} from 'vitest';
-import {flushSync, tick} from 'svelte';
+import { describe, test, assert, beforeEach, afterEach, vi } from 'vitest';
+import { flushSync, tick } from 'svelte';
 
 import ContextmenuRootForSafariCompatibility from '$lib/ContextmenuRootForSafariCompatibility.svelte';
 import {
 	unmount_component,
 	create_touch_event,
 	create_contextmenu_event,
-	set_event_target,
+	set_event_target
 } from './test_helpers.ts';
-import {mount_contextmenu_root, setup_contextmenu_attachment} from './contextmenu_test_helpers.ts';
-import {CONTEXTMENU_DEFAULT_LONGPRESS_DURATION} from '$lib/contextmenu_helpers.ts';
-import {create_shared_link_entry_tests} from './contextmenu_test_link_entries.ts';
+import {
+	mount_contextmenu_root,
+	setup_contextmenu_attachment
+} from './contextmenu_test_helpers.ts';
+import { CONTEXTMENU_DEFAULT_LONGPRESS_DURATION } from '$lib/contextmenu_helpers.ts';
+import { create_shared_link_entry_tests } from './contextmenu_test_link_entries.ts';
 
 // ResizeObserver is not currently available in jsdom
 class ResizeObserverMock {
@@ -28,8 +31,8 @@ create_shared_link_entry_tests(
 	ContextmenuRootForSafariCompatibility,
 	'ContextmenuRootForSafariCompatibility',
 	{
-		requires_longpress: true,
-	},
+		requires_longpress: true
+	}
 );
 
 // Safari-specific additional tests
@@ -52,17 +55,17 @@ describe('ContextmenuRootForSafariCompatibility - Link Entry Handling (Safari-Sp
 		test('link entry works with longpress on touch devices', async () => {
 			mounted = mount_contextmenu_root(ContextmenuRootForSafariCompatibility);
 
-			const {container, contextmenu} = mounted;
+			const { container, contextmenu } = mounted;
 
 			const target = document.createElement('div');
 			container.appendChild(target);
 
 			await setup_contextmenu_attachment(target, [
-				{snippet: 'link', props: {href: 'https://fuz.dev'}},
+				{ snippet: 'link', props: { href: 'https://fuz.dev' } }
 			]);
 
 			// Longpress to open menu
-			const touchstart = create_touch_event('touchstart', [{clientX: 100, clientY: 200, target}]);
+			const touchstart = create_touch_event('touchstart', [{ clientX: 100, clientY: 200, target }]);
 			set_event_target(touchstart, target);
 			window.dispatchEvent(touchstart);
 
@@ -82,7 +85,7 @@ describe('ContextmenuRootForSafariCompatibility - Link Entry Handling (Safari-Sp
 		test('long-pressing link opens fuz contextmenu with link entry', async () => {
 			mounted = mount_contextmenu_root(ContextmenuRootForSafariCompatibility);
 
-			const {container, contextmenu} = mounted;
+			const { container, contextmenu } = mounted;
 
 			// Create an actual link element as the target
 			const link_target = document.createElement('a');
@@ -91,12 +94,12 @@ describe('ContextmenuRootForSafariCompatibility - Link Entry Handling (Safari-Sp
 			container.appendChild(link_target);
 
 			await setup_contextmenu_attachment(link_target, [
-				{snippet: 'link', props: {href: 'https://fuz.dev', content: 'Open in new tab'}},
+				{ snippet: 'link', props: { href: 'https://fuz.dev', content: 'Open in new tab' } }
 			]);
 
 			// Longpress on the link itself
 			const touchstart = create_touch_event('touchstart', [
-				{clientX: 100, clientY: 200, target: link_target},
+				{ clientX: 100, clientY: 200, target: link_target }
 			]);
 			set_event_target(touchstart, link_target);
 			window.dispatchEvent(touchstart);
@@ -117,17 +120,17 @@ describe('ContextmenuRootForSafariCompatibility - Link Entry Handling (Safari-Sp
 		test('right-clicking opened link entry shows native menu', async () => {
 			mounted = mount_contextmenu_root(ContextmenuRootForSafariCompatibility);
 
-			const {container} = mounted;
+			const { container } = mounted;
 
 			const target = document.createElement('div');
 			container.appendChild(target);
 
 			await setup_contextmenu_attachment(target, [
-				{snippet: 'link', props: {href: 'https://fuz.dev', content: 'Example Link'}},
+				{ snippet: 'link', props: { href: 'https://fuz.dev', content: 'Example Link' } }
 			]);
 
 			// Open menu
-			const touchstart = create_touch_event('touchstart', [{clientX: 100, clientY: 200, target}]);
+			const touchstart = create_touch_event('touchstart', [{ clientX: 100, clientY: 200, target }]);
 			set_event_target(touchstart, target);
 			window.dispatchEvent(touchstart);
 
@@ -153,7 +156,7 @@ describe('ContextmenuRootForSafariCompatibility - Link Entry Handling (Safari-Sp
 		test('link entry in submenu allows native contextmenu', async () => {
 			mounted = mount_contextmenu_root(ContextmenuRootForSafariCompatibility);
 
-			const {container} = mounted;
+			const { container } = mounted;
 
 			const target = document.createElement('div');
 			container.appendChild(target);
@@ -161,12 +164,12 @@ describe('ContextmenuRootForSafariCompatibility - Link Entry Handling (Safari-Sp
 			// Setup contextmenu with nested structure
 			// Note: This is a simplified test - actual submenu implementation may differ
 			await setup_contextmenu_attachment(target, [
-				{snippet: 'text', props: {content: 'Parent Item', icon: '📁', run: () => undefined}},
-				{snippet: 'link', props: {href: 'https://fuz.dev', content: 'Nested Link'}},
+				{ snippet: 'text', props: { content: 'Parent Item', icon: '📁', run: () => undefined } },
+				{ snippet: 'link', props: { href: 'https://fuz.dev', content: 'Nested Link' } }
 			]);
 
 			// Open menu
-			const touchstart = create_touch_event('touchstart', [{clientX: 100, clientY: 200, target}]);
+			const touchstart = create_touch_event('touchstart', [{ clientX: 100, clientY: 200, target }]);
 			set_event_target(touchstart, target);
 			window.dispatchEvent(touchstart);
 
@@ -190,19 +193,19 @@ describe('ContextmenuRootForSafariCompatibility - Link Entry Handling (Safari-Sp
 		test('multiple link entries each allow individual native access', async () => {
 			mounted = mount_contextmenu_root(ContextmenuRootForSafariCompatibility);
 
-			const {container} = mounted;
+			const { container } = mounted;
 
 			const target = document.createElement('div');
 			container.appendChild(target);
 
 			await setup_contextmenu_attachment(target, [
-				{snippet: 'link', props: {href: 'https://example1.com', content: 'Link 1'}},
-				{snippet: 'link', props: {href: 'https://example2.com', content: 'Link 2'}},
-				{snippet: 'link', props: {href: 'https://example3.com', content: 'Link 3'}},
+				{ snippet: 'link', props: { href: 'https://example1.com', content: 'Link 1' } },
+				{ snippet: 'link', props: { href: 'https://example2.com', content: 'Link 2' } },
+				{ snippet: 'link', props: { href: 'https://example3.com', content: 'Link 3' } }
 			]);
 
 			// Open menu
-			const touchstart = create_touch_event('touchstart', [{clientX: 100, clientY: 200, target}]);
+			const touchstart = create_touch_event('touchstart', [{ clientX: 100, clientY: 200, target }]);
 			set_event_target(touchstart, target);
 			window.dispatchEvent(touchstart);
 

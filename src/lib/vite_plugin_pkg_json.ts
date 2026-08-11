@@ -44,11 +44,11 @@
  * @module
  */
 
-import {readFileSync} from 'node:fs';
-import {join} from 'node:path';
-import type {Plugin, Rollup} from 'vite';
-import type {PackageJson} from '@fuzdev/fuz_util/package_json.ts';
-import {pkg_json_from_package_json, pkg_json_keys} from '@fuzdev/fuz_util/pkg_json.ts';
+import { readFileSync } from 'node:fs';
+import { join } from 'node:path';
+import type { Plugin, Rollup } from 'vite';
+import type { PackageJson } from '@fuzdev/fuz_util/package_json.ts';
+import { pkg_json_from_package_json, pkg_json_keys } from '@fuzdev/fuz_util/pkg_json.ts';
 
 const VIRTUAL_ID = 'virtual:pkg.json';
 /**
@@ -81,7 +81,7 @@ export interface VitePluginPkgJsonOptions {
  * the publish-safe field set defaults to `pkg_json_keys`; widen it via `keys`.
  */
 export const vite_plugin_pkg_json = (options: VitePluginPkgJsonOptions = {}): Plugin => {
-	const {keys = pkg_json_keys} = options;
+	const { keys = pkg_json_keys } = options;
 	let root = '';
 	let is_dev = false;
 	/** Curated JSON cached for build; left `null` in dev so `load` re-reads. */
@@ -106,7 +106,7 @@ export const vite_plugin_pkg_json = (options: VitePluginPkgJsonOptions = {}): Pl
 			return ctx.error(
 				`vite_plugin_pkg_json: failed to read or parse ${package_json_path}: ${
 					(err as Error).message
-				}`,
+				}`
 			);
 		}
 		if (raw.name === undefined) {
@@ -139,6 +139,6 @@ export const vite_plugin_pkg_json = (options: VitePluginPkgJsonOptions = {}): Pl
 		load(id) {
 			if (id !== RESOLVED_VIRTUAL_ID) return undefined;
 			return cached ?? read_curated(this);
-		},
+		}
 	};
 };

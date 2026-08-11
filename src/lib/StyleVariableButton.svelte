@@ -1,8 +1,8 @@
 <script lang="ts">
-	import type {SvelteHTMLElements} from 'svelte/elements';
-	import {default_variables} from '@fuzdev/fuz_css/variables.ts';
+	import type { SvelteHTMLElements } from 'svelte/elements';
+	import { default_variables } from '@fuzdev/fuz_css/variables.ts';
 
-	import {selected_variable_context} from './style_variable_helpers.svelte.ts';
+	import { selected_variable_context } from './style_variable_helpers.svelte.ts';
 
 	const {
 		name,
@@ -31,14 +31,14 @@
 <button
 	type="button"
 	{...rest}
-	class={[rest.class, {inline, plain}]}
+	class={[rest.class, { inline, plain }]}
 	onclick={(e) => {
 		selected_variable.value = variable;
 		onclick?.(e);
 	}}
-	>{#if children}{@render children()}{:else}<span class="font_family_mono">{name}</span
-		>{/if}</button
 >
+	{#if children}{@render children()}{:else}<span class="font_family_mono">{name}</span>{/if}
+</button>
 
 <style>
 	button {

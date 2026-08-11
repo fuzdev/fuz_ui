@@ -1,16 +1,16 @@
-import {onDestroy, type Snippet} from 'svelte';
-import type {Result} from '@fuzdev/fuz_util/result.ts';
-import {is_promise} from '@fuzdev/fuz_util/async.ts';
-import {BROWSER, DEV} from 'esm-env';
-import type {SvelteHTMLElements} from 'svelte/elements';
-import {EMPTY_OBJECT} from '@fuzdev/fuz_util/object.ts';
-import type {Attachment} from 'svelte/attachments';
+import { onDestroy, type Snippet } from 'svelte';
+import type { Result } from '@fuzdev/fuz_util/result.ts';
+import { is_promise } from '@fuzdev/fuz_util/async.ts';
+import { BROWSER, DEV } from 'esm-env';
+import type { SvelteHTMLElements } from 'svelte/elements';
+import { EMPTY_OBJECT } from '@fuzdev/fuz_util/object.ts';
+import type { Attachment } from 'svelte/attachments';
 
-import {Dimensions} from './dimensions.svelte.ts';
-import {create_context} from './context_helpers.ts';
-import {url_to_root_relative} from './library_helpers.ts';
-import {icon_copy} from './icons.ts';
-import type {SvgData} from './svg.ts';
+import { Dimensions } from './dimensions.svelte.ts';
+import { create_context } from './context_helpers.ts';
+import { url_to_root_relative } from './library_helpers.ts';
+import { icon_copy } from './icons.ts';
+import type { SvgData } from './svg.ts';
 
 export const contextmenu_context = create_context<() => ContextmenuState>();
 
@@ -21,14 +21,12 @@ export const contextmenu_dimensions_context = create_context(() => new Dimension
 export type ContextmenuParams =
 	| Snippet
 	// TODO maybe this should be generic?
-	| {snippet: 'link'; props: {href: string; icon?: string}}
-	| {snippet: 'text'; props: {content: string; icon: SvgData | string; run: ContextmenuRun}}
-	| {snippet: 'separator'; props: SvelteHTMLElements['li']};
+	| { snippet: 'link'; props: { href: string; icon?: string } }
+	| { snippet: 'text'; props: { content: string; icon: SvgData | string; run: ContextmenuRun } }
+	| { snippet: 'separator'; props: SvelteHTMLElements['li'] };
 
 export type ContextmenuActivateResult =
-	| void
-	| undefined
-	| Result<{close?: boolean}, {message?: string}>;
+	void | undefined | Result<{ close?: boolean }, { message?: string }>;
 
 export type ItemState = SubmenuState | EntryState;
 
@@ -47,7 +45,7 @@ export class EntryState {
 	constructor(
 		menu: SubmenuState | RootMenuState,
 		run: () => ContextmenuRun,
-		disabled: () => boolean = () => false,
+		disabled: () => boolean = () => false
 	) {
 		this.menu = menu;
 		this.run = run;
@@ -124,7 +122,7 @@ export type ContextmenuRun = () => ContextmenuActivateResult | Promise<Contextme
 
 /** Extracts a string `message` property from a thrown value or failed result, if present. */
 const to_error_message = (value: unknown): string | undefined => {
-	const message = (value as {message?: unknown} | null | undefined)?.message;
+	const message = (value as { message?: unknown } | null | undefined)?.message;
 	return typeof message === 'string' ? message : undefined;
 };
 
@@ -193,7 +191,7 @@ export class ContextmenuState {
 	});
 
 	constructor(options: ContextmenuStateOptions = EMPTY_OBJECT) {
-		const {layout} = options;
+		const { layout } = options;
 
 		this.has_custom_layout = !!layout;
 		this.layout = layout ?? new Dimensions();
@@ -203,7 +201,7 @@ export class ContextmenuState {
 		params: Array<ContextmenuParams>,
 		x: number,
 		y: number,
-		target?: HTMLElement | SVGElement,
+		target?: HTMLElement | SVGElement
 	): void {
 		this.#clear_selections();
 		this.opened = true;
@@ -311,7 +309,7 @@ export class ContextmenuState {
 					(err) => {
 						if (promise !== item.promise) return;
 						this.#handle_error(item, to_error_message(err));
-					},
+					}
 				)
 				.finally(() => {
 					if (promise !== item.promise) return;
@@ -411,7 +409,7 @@ export class ContextmenuState {
 	}
 
 	select_last(): void {
-		const {items} = this.selections.at(-1)?.menu ?? this.root_menu;
+		const { items } = this.selections.at(-1)?.menu ?? this.root_menu;
 		if (!items.length) return;
 		this.select(items.at(-1)!);
 	}
@@ -462,7 +460,7 @@ const contextmenu_params_by_element: WeakMap<
  */
 export const contextmenu_attachment =
 	(
-		params: ContextmenuParams | Array<ContextmenuParams> | null | undefined,
+		params: ContextmenuParams | Array<ContextmenuParams> | null | undefined
 	): Attachment<HTMLElement | SVGElement> =>
 	(el): undefined | (() => void) => {
 		if (params == null) return;
@@ -500,13 +498,13 @@ export const contextmenu_open = (
 	x: number,
 	y: number,
 	contextmenu: ContextmenuState,
-	options?: ContextmenuOpenOptions,
+	options?: ContextmenuOpenOptions
 ): boolean => {
 	const {
 		link_enabled = true,
 		text_enabled = true,
 		separator_enabled = true,
-		vibrate = true,
+		vibrate = true
 	} = options ?? EMPTY_OBJECT;
 
 	const params = contextmenu_query_params(target)?.filter(
@@ -514,7 +512,7 @@ export const contextmenu_open = (
 			typeof p === 'function' ||
 			((p.snippet !== 'link' || link_enabled) &&
 				(p.snippet !== 'text' || text_enabled) &&
-				(p.snippet !== 'separator' || separator_enabled)),
+				(p.snippet !== 'separator' || separator_enabled))
 	);
 
 	// No-op if empty
@@ -534,7 +532,7 @@ export const contextmenu_open = (
 };
 
 const contextmenu_query_params = (
-	target: HTMLElement | SVGElement,
+	target: HTMLElement | SVGElement
 ): null | Array<ContextmenuParams> => {
 	let params: null | Array<ContextmenuParams> = null;
 	// crawl DOM for contextmenu entries
@@ -555,7 +553,7 @@ const contextmenu_query_params = (
 			(params ??= []).push({
 				snippet: 'link',
 				// anchor elements have the full url, but we want the slash-prefixed/absolute/root-relative version
-				props: {href: url_to_root_relative((el as HTMLAnchorElement).href)},
+				props: { href: url_to_root_relative((el as HTMLAnchorElement).href) }
 			});
 		}
 		el = el.parentElement;
@@ -571,8 +569,8 @@ const contextmenu_query_params = (
 					icon: icon_copy,
 					run: async () => {
 						await navigator.clipboard.writeText(text);
-					},
-				},
+					}
+				}
 			});
 		}
 	}
@@ -603,7 +601,7 @@ export const contextmenu_check_global_root = (get_scoped: () => boolean): void =
 				console.error(
 					`Detected multiple non-scoped contextmenu roots (${non_scoped_roots.size} mounted). ` +
 						'Only one global contextmenu root should be active at a time. ' +
-						'Are you missing a `scoped` attribute?',
+						'Are you missing a `scoped` attribute?'
 				);
 			}
 		}

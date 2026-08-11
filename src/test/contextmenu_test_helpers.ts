@@ -3,9 +3,9 @@
  * Provides helpers for mounting contextmenu components and setting up actions.
  */
 
-import {flushSync, type Component} from 'svelte';
-import {contextmenu_attachment, ContextmenuState} from '$lib/contextmenu_state.svelte.ts';
-import {mount_component} from './test_helpers.ts';
+import { flushSync, type Component } from 'svelte';
+import { contextmenu_attachment, ContextmenuState } from '$lib/contextmenu_state.svelte.ts';
+import { mount_component } from './test_helpers.ts';
 
 /**
  * Create a test contextmenu with standard layout dimensions.
@@ -29,18 +29,18 @@ export const create_test_contextmenu = (): ContextmenuState => {
 export const mount_contextmenu_root = <TProps extends Record<string, any>>(
 	Component: Component<TProps>,
 	contextmenu?: ContextmenuState,
-	props: Record<string, any> = {},
-): {instance: any; container: HTMLElement; contextmenu: ContextmenuState} => {
+	props: Record<string, any> = {}
+): { instance: any; container: HTMLElement; contextmenu: ContextmenuState } => {
 	const cm = contextmenu || create_test_contextmenu();
 	const result = mount_component(Component, {
 		contextmenu: cm,
 		children: (() => {
 			// Empty children snippet
 		}) as any,
-		...props,
+		...props
 	} as any);
 
-	return {...result, contextmenu: cm};
+	return { ...result, contextmenu: cm };
 };
 
 /**
@@ -58,7 +58,7 @@ export const mount_contextmenu_root = <TProps extends Record<string, any>>(
  */
 export const setup_contextmenu_attachment = async (
 	element: HTMLElement | SVGElement,
-	params: Array<any>,
+	params: Array<any>
 ): Promise<(() => void) | void> => {
 	flushSync();
 	return contextmenu_attachment(params)(element);

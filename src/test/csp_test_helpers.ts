@@ -1,4 +1,4 @@
-import type {CspSource} from '$lib/csp.ts';
+import type { CspSource } from '$lib/csp.ts';
 
 /**
  * Casts a string to `CspSource` for tests. The `CspSource` template-literal
@@ -22,5 +22,5 @@ export const TEST_SOURCES = {
 	GOOGLE_FONTS_STATIC: src('fonts.gstatic.com'),
 	CLOUDFLARE_CDN: src('cdnjs.cloudflare.com'),
 	ANALYTICS: src('analytics.fuz.dev'),
-	STRIPE: src('js.stripe.com'),
+	STRIPE: src('js.stripe.com')
 } as const;

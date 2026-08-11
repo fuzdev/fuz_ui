@@ -1,10 +1,10 @@
 <script lang="ts">
-	import type {Snippet} from 'svelte';
+	import type { Snippet } from 'svelte';
 
 	const {
 		name = 'Cat',
 		icon = '😺',
-		children,
+		children
 	}: {
 		name?: string;
 		icon?: string | null;

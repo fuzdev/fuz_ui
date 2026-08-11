@@ -1,8 +1,8 @@
 <script lang="ts">
-	import {page} from '$app/state';
-	import {DEV} from 'esm-env';
-	import type {Snippet} from 'svelte';
-	import type {HTMLAttributes, SvelteHTMLElements} from 'svelte/elements';
+	import { page } from '$app/state';
+	import { DEV } from 'esm-env';
+	import type { Snippet } from 'svelte';
+	import type { HTMLAttributes, SvelteHTMLElements } from 'svelte/elements';
 
 	// TODO think through Alert+Card APIs together, one can be a button and the other a link atm
 
@@ -15,28 +15,28 @@
 		children,
 		...rest
 	}: // generic element attrs, the common denominator of the rendered roots - // branch-specific attributes go in `a_attrs`
-	HTMLAttributes<HTMLElement> & {
-		/** Renders the card as an `<a>` when provided. */
-		href?: string | undefined;
-		tag?: string | undefined;
-		align?: 'left' | 'right' | 'above' | 'below';
-		icon?: string | Snippet;
-		/** Anchor attributes, applied only when `href` renders the card as an `<a>`. */
-		a_attrs?: SvelteHTMLElements['a'];
-		children: Snippet;
-	} = $props();
+		HTMLAttributes<HTMLElement> & {
+			/** Renders the card as an `<a>` when provided. */
+			href?: string | undefined;
+			tag?: string | undefined;
+			align?: 'left' | 'right' | 'above' | 'below';
+			icon?: string | Snippet;
+			/** Anchor attributes, applied only when `href` renders the card as an `<a>`. */
+			a_attrs?: SvelteHTMLElements['a'];
+			children: Snippet;
+		} = $props();
 
 	const link = $derived(!!href);
 	const selected = $derived(link && page.url.pathname === href);
 	const final_tag = $derived(tag ?? (link ? 'a' : 'div'));
-	const inferred_attrs = $derived(link ? {...a_attrs, href} : undefined);
+	const inferred_attrs = $derived(link ? { ...a_attrs, href } : undefined);
 
 	if (DEV) {
 		$effect(() => {
 			if (href && final_tag !== 'a') {
 				// eslint-disable-next-line no-console
 				console.error(
-					`Card received href "${href}" with tag "${final_tag}" - href renders only on an anchor`,
+					`Card received href "${href}" with tag "${final_tag}" - href renders only on an anchor`
 				);
 			}
 		});
@@ -54,7 +54,7 @@
 	this={final_tag}
 	{...rest}
 	{...inferred_attrs}
-	class={['card', rest.class, inferred_attrs?.class, {link, selected, left, right, above, below}]}
+	class={['card', rest.class, inferred_attrs?.class, { link, selected, left, right, above, below }]}
 >
 	{#if align === 'left' || align === 'above'}
 		{@render icon_snippet()}

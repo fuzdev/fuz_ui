@@ -1,8 +1,8 @@
 <script lang="ts">
-	import {ensure_end} from '@fuzdev/fuz_util/string.ts';
-	import type {SvelteHTMLElements} from 'svelte/elements';
+	import { ensure_end } from '@fuzdev/fuz_util/string.ts';
+	import type { SvelteHTMLElements } from 'svelte/elements';
 
-	import type {SvgData} from './svg.ts';
+	import type { SvgData } from './svg.ts';
 
 	/**
 	 * Renders an `SvgData` icon definition to inline `svg` markup, never via `@html`.
@@ -71,7 +71,7 @@
 	const style = $derived(
 		data.style && rest.style
 			? ensure_end(data.style, ';') + ' ' + rest.style
-			: (data.style ?? rest.style),
+			: (data.style ?? rest.style)
 	);
 </script>
 
@@ -79,7 +79,7 @@
 	viewBox={data.viewBox ?? '0 0 100 100'}
 	{...rest}
 	aria-label={label ?? data.label ?? rest['aria-label']}
-	class={[rest.class, {inline}]}
+	class={[rest.class, { inline }]}
 	style:width={final_width}
 	style:height={final_height}
 	style:flex-shrink={shrink ? 1 : 0}

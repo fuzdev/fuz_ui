@@ -1,5 +1,5 @@
 <script lang="ts">
-	import type {SvelteHTMLElements} from 'svelte/elements';
+	import type { SvelteHTMLElements } from 'svelte/elements';
 
 	const {
 		glyph,
@@ -23,5 +23,7 @@
 	style:height={final_size}
 	style:min-width={final_size}
 	style:min-height={final_size}
-	style:font-size={size ?? DEFAULT_FONT_SIZE}>{glyph}</span
+	style:font-size={size ?? DEFAULT_FONT_SIZE}
 >
+	{glyph}
+</span>

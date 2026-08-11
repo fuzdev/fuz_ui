@@ -1,12 +1,12 @@
-import {test, assert, describe} from 'vitest';
+import { test, assert, describe } from 'vitest';
 
 import {
 	create_csp_directives,
 	parse_csp_directive,
 	csp_directive_specs,
-	csp_directive_spec_by_name,
+	csp_directive_spec_by_name
 } from '$lib/csp.ts';
-import {src, srcs} from './csp_test_helpers.ts';
+import { src, srcs } from './csp_test_helpers.ts';
 
 const A = src('a.fuz.dev');
 
@@ -19,7 +19,7 @@ describe('parse_csp_directive', () => {
 		assert.strictEqual(parse_csp_directive('connect-src'), 'connect-src');
 		assert.strictEqual(
 			parse_csp_directive('upgrade-insecure-requests'),
-			'upgrade-insecure-requests',
+			'upgrade-insecure-requests'
 		);
 	});
 
@@ -45,7 +45,7 @@ describe('parse_csp_directive', () => {
 			assert.strictEqual(
 				parse_csp_directive(spec.name),
 				spec.name,
-				`${spec.name} should be a valid directive`,
+				`${spec.name} should be a valid directive`
 			);
 		}
 	});
@@ -56,9 +56,9 @@ describe('error handling', () => {
 		assert.throws(
 			() =>
 				create_csp_directives({
-					replace_defaults: {'invalid-directive': ['self']} as any,
+					replace_defaults: { 'invalid-directive': ['self'] } as any
 				}),
-			/Invalid directive in options.replace_defaults/,
+			/Invalid directive in options.replace_defaults/
 		);
 	});
 
@@ -66,9 +66,9 @@ describe('error handling', () => {
 		assert.throws(
 			() =>
 				create_csp_directives({
-					extend: [{'invalid-directive': ['self'] as any}],
+					extend: [{ 'invalid-directive': ['self'] as any }]
 				}),
-			/Invalid directive in options.extend/,
+			/Invalid directive in options.extend/
 		);
 	});
 
@@ -76,16 +76,16 @@ describe('error handling', () => {
 		assert.throws(
 			() =>
 				create_csp_directives({
-					overrides: {'invalid-directive': ['self']} as any,
+					overrides: { 'invalid-directive': ['self'] } as any
 				}),
-			/Invalid directive in options.overrides/,
+			/Invalid directive in options.overrides/
 		);
 	});
 
 	test('error message includes the invalid directive name', () => {
 		try {
 			create_csp_directives({
-				overrides: {'my-bad-directive': ['self']} as any,
+				overrides: { 'my-bad-directive': ['self'] } as any
 			});
 		} catch (error: any) {
 			assert.include(error.message, 'my-bad-directive');
@@ -98,7 +98,7 @@ describe('error handling', () => {
 	test('error message identifies extend as the source', () => {
 		try {
 			create_csp_directives({
-				extend: [{'my-bad-directive': [A] as any}],
+				extend: [{ 'my-bad-directive': [A] as any }]
 			});
 		} catch (error: any) {
 			assert.include(error.message, 'my-bad-directive');
@@ -119,7 +119,7 @@ describe('immutability', () => {
 		assert.notInclude(
 			csp2['script-src']! as Array<any>,
 			src('https://modified.fuz.dev'),
-			'arrays are independent between calls',
+			'arrays are independent between calls'
 		);
 	});
 
@@ -127,7 +127,7 @@ describe('immutability', () => {
 		const value = srcs('self', 'https://fuz.dev');
 
 		const csp = create_csp_directives({
-			replace_defaults: {'script-src': value},
+			replace_defaults: { 'script-src': value }
 		});
 
 		value.push(src('https://modified.fuz.dev'));
@@ -139,7 +139,7 @@ describe('immutability', () => {
 		const value = [src('https://fuz.dev')];
 
 		const csp = create_csp_directives({
-			extend: [{'connect-src': value}],
+			extend: [{ 'connect-src': value }]
 		});
 
 		value.push(src('https://modified.fuz.dev'));
@@ -151,7 +151,7 @@ describe('immutability', () => {
 		const value = srcs('self', 'https://fuz.dev');
 
 		const csp = create_csp_directives({
-			overrides: {'script-src': value},
+			overrides: { 'script-src': value }
 		});
 
 		value.push(src('https://modified.fuz.dev'));
@@ -164,13 +164,16 @@ describe('stage-4 output validation', () => {
 	test('overrides setting empty array throws', () => {
 		// Empty arrays drop the directive in some parsers, which can fall back to default-src
 		// and effectively widen the policy. Catch via stage 4 across all input paths.
-		assert.throws(() => create_csp_directives({overrides: {'img-src': []}}), /has an empty array/);
+		assert.throws(
+			() => create_csp_directives({ overrides: { 'img-src': [] } }),
+			/has an empty array/
+		);
 	});
 
 	test('replace_defaults with empty array throws', () => {
 		assert.throws(
-			() => create_csp_directives({replace_defaults: {'img-src': []}}),
-			/has an empty array/,
+			() => create_csp_directives({ replace_defaults: { 'img-src': [] } }),
+			/has an empty array/
 		);
 	});
 
@@ -179,10 +182,10 @@ describe('stage-4 output validation', () => {
 			() =>
 				create_csp_directives({
 					overrides: {
-						'script-src': ['none', 'self', A] as any,
-					},
+						'script-src': ['none', 'self', A] as any
+					}
 				}),
-			/'none' alongside other tokens/,
+			/'none' alongside other tokens/
 		);
 	});
 
@@ -191,10 +194,10 @@ describe('stage-4 output validation', () => {
 			() =>
 				create_csp_directives({
 					replace_defaults: {
-						'script-src': ['none', 'self'],
-					},
+						'script-src': ['none', 'self']
+					}
 				}),
-			/'none' alongside other tokens/,
+			/'none' alongside other tokens/
 		);
 	});
 
@@ -205,10 +208,10 @@ describe('stage-4 output validation', () => {
 		assert.throws(
 			() =>
 				create_csp_directives({
-					replace_defaults: {'img-src': ['self']},
-					extend: [{'img-src': ['none']}],
+					replace_defaults: { 'img-src': ['self'] },
+					extend: [{ 'img-src': ['none'] }]
 				}),
-			/'none' alongside other tokens/,
+			/'none' alongside other tokens/
 		);
 	});
 
@@ -219,9 +222,9 @@ describe('stage-4 output validation', () => {
 		assert.throws(
 			() =>
 				create_csp_directives({
-					replace_defaults: {'img-src': 'self' as any},
+					replace_defaults: { 'img-src': 'self' as any }
 				}),
-			/Directive 'img-src' has an invalid value: expected an array of sources or a boolean, got string/,
+			/Directive 'img-src' has an invalid value: expected an array of sources or a boolean, got string/
 		);
 	});
 
@@ -229,9 +232,9 @@ describe('stage-4 output validation', () => {
 		assert.throws(
 			() =>
 				create_csp_directives({
-					overrides: {'img-src': 'self' as any},
+					overrides: { 'img-src': 'self' as any }
 				}),
-			/Directive 'img-src' has an invalid value: expected an array of sources or a boolean, got string/,
+			/Directive 'img-src' has an invalid value: expected an array of sources or a boolean, got string/
 		);
 	});
 
@@ -239,9 +242,9 @@ describe('stage-4 output validation', () => {
 		assert.throws(
 			() =>
 				create_csp_directives({
-					replace_defaults: {'img-src': 42 as any},
+					replace_defaults: { 'img-src': 42 as any }
 				}),
-			/expected an array of sources or a boolean, got number/,
+			/expected an array of sources or a boolean, got number/
 		);
 	});
 
@@ -249,9 +252,9 @@ describe('stage-4 output validation', () => {
 		assert.throws(
 			() =>
 				create_csp_directives({
-					overrides: {'img-src': 42 as any},
+					overrides: { 'img-src': 42 as any }
 				}),
-			/expected an array of sources or a boolean, got number/,
+			/expected an array of sources or a boolean, got number/
 		);
 	});
 
@@ -262,9 +265,9 @@ describe('stage-4 output validation', () => {
 		assert.throws(
 			() =>
 				create_csp_directives({
-					overrides: {'img-src': ['self', undefined as any, 'data:']},
+					overrides: { 'img-src': ['self', undefined as any, 'data:'] }
 				}),
-			/Directive 'img-src' has a non-string source at index 1: got undefined/,
+			/Directive 'img-src' has a non-string source at index 1: got undefined/
 		);
 	});
 
@@ -272,9 +275,9 @@ describe('stage-4 output validation', () => {
 		assert.throws(
 			() =>
 				create_csp_directives({
-					replace_defaults: {'img-src': ['self', null as any]},
+					replace_defaults: { 'img-src': ['self', null as any] }
 				}),
-			/Directive 'img-src' has a non-string source at index 1: got null/,
+			/Directive 'img-src' has a non-string source at index 1: got null/
 		);
 	});
 
@@ -282,10 +285,10 @@ describe('stage-4 output validation', () => {
 		assert.throws(
 			() =>
 				create_csp_directives({
-					replace_defaults: {'img-src': ['self']},
-					extend: [{'img-src': [42 as any]}],
+					replace_defaults: { 'img-src': ['self'] },
+					extend: [{ 'img-src': [42 as any] }]
 				}),
-			/Directive 'img-src' has a non-string source at index \d+: got number/,
+			/Directive 'img-src' has a non-string source at index \d+: got number/
 		);
 	});
 });
@@ -293,7 +296,7 @@ describe('stage-4 output validation', () => {
 describe('boolean directive pass-through', () => {
 	test('overrides preserves boolean true', () => {
 		const csp = create_csp_directives({
-			overrides: {'upgrade-insecure-requests': true},
+			overrides: { 'upgrade-insecure-requests': true }
 		});
 		assert.strictEqual(csp['upgrade-insecure-requests'], true);
 	});
@@ -309,12 +312,12 @@ describe('directive specs structure', () => {
 
 			assert.ok(
 				Array.isArray(spec.fallback) || spec.fallback === null,
-				`${spec.name} fallback should be array or null`,
+				`${spec.name} fallback should be array or null`
 			);
 
 			assert.ok(
 				spec.fallback_of === null || Array.isArray(spec.fallback_of),
-				`${spec.name} fallback_of should be array or null`,
+				`${spec.name} fallback_of should be array or null`
 			);
 		}
 	});
@@ -353,7 +356,7 @@ describe('directive specs structure', () => {
 			'report-to',
 			'require-trusted-types-for',
 			'trusted-types',
-			'sandbox',
+			'sandbox'
 		];
 
 		for (const directive of expected_directives) {

@@ -9,8 +9,8 @@
  * @module
  */
 
-import {ensure_end, strip_start} from '@fuzdev/fuz_util/string.ts';
-import {page} from '$app/state';
+import { ensure_end, strip_start } from '@fuzdev/fuz_util/string.ts';
+import { page } from '$app/state';
 
 /**
  * Convert a full URL to root-relative format by removing the origin.

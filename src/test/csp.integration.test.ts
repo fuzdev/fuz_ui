@@ -1,9 +1,9 @@
-import {describe, test, assert} from 'vitest';
+import { describe, test, assert } from 'vitest';
 
-import {create_csp_directives, COLOR_SCHEME_SCRIPT_HASH, type CspFrameSource} from '$lib/csp.ts';
-import {TEST_SOURCES, src, srcs} from './csp_test_helpers.ts';
+import { create_csp_directives, COLOR_SCHEME_SCRIPT_HASH, type CspFrameSource } from '$lib/csp.ts';
+import { TEST_SOURCES, src, srcs } from './csp_test_helpers.ts';
 
-const {GOOGLE_FONTS, GOOGLE_FONTS_STATIC, CLOUDFLARE_CDN, ANALYTICS, STRIPE} = TEST_SOURCES;
+const { GOOGLE_FONTS, GOOGLE_FONTS_STATIC, CLOUDFLARE_CDN, ANALYTICS, STRIPE } = TEST_SOURCES;
 const FUZ_WILDCARD = src('https://*.fuz.dev/');
 const FUZ_API = src('https://api.fuz.dev/');
 const FUZ_CDN = src('https://cdn.fuz.dev/');
@@ -16,17 +16,17 @@ describe('full pipeline integration', () => {
 				'script-src': ['self', COLOR_SCHEME_SCRIPT_HASH],
 				'style-src': ['self', 'unsafe-inline'],
 				'img-src': ['self'],
-				'connect-src': ['self'],
+				'connect-src': ['self']
 			},
 			extend: [
 				{
 					'script-src': [ANALYTICS],
-					'connect-src': [ANALYTICS],
-				},
+					'connect-src': [ANALYTICS]
+				}
 			],
 			overrides: {
-				'connect-src': ['self', ANALYTICS],
-			},
+				'connect-src': ['self', ANALYTICS]
+			}
 		});
 
 		// Whole-CSP deepEqual catches both missing sources and unintended leaks.
@@ -35,7 +35,7 @@ describe('full pipeline integration', () => {
 			'script-src': ['self', COLOR_SCHEME_SCRIPT_HASH, ANALYTICS],
 			'style-src': ['self', 'unsafe-inline'],
 			'img-src': ['self'],
-			'connect-src': ['self', ANALYTICS],
+			'connect-src': ['self', ANALYTICS]
 		});
 	});
 
@@ -44,14 +44,14 @@ describe('full pipeline integration', () => {
 			extend: [
 				// Shared "library" of trusted sources
 				{
-					'img-src': [FUZ_WILDCARD],
+					'img-src': [FUZ_WILDCARD]
 				},
 				// App-specific extras
 				{
 					'connect-src': [FUZ_API],
-					'img-src': [FUZ_CDN],
-				},
-			],
+					'img-src': [FUZ_CDN]
+				}
+			]
 		});
 
 		assert.include(csp['img-src']!, FUZ_WILDCARD);
@@ -70,9 +70,9 @@ describe('real-world SvelteKit scenarios', () => {
 			extend: [
 				{
 					'style-src': [GOOGLE_FONTS, GOOGLE_FONTS_STATIC],
-					'font-src': [GOOGLE_FONTS, GOOGLE_FONTS_STATIC],
-				},
-			],
+					'font-src': [GOOGLE_FONTS, GOOGLE_FONTS_STATIC]
+				}
+			]
 		});
 
 		assert.include(csp['style-src']!, GOOGLE_FONTS);
@@ -90,9 +90,9 @@ describe('real-world SvelteKit scenarios', () => {
 				{
 					'script-src': [STRIPE],
 					'connect-src': [STRIPE],
-					'frame-src': [STRIPE],
-				},
-			],
+					'frame-src': [STRIPE]
+				}
+			]
 		});
 
 		assert.include(csp['script-src']!, STRIPE);
@@ -106,7 +106,7 @@ describe('real-world SvelteKit scenarios', () => {
 		const nonce = src('nonce-abc123');
 
 		const csp = create_csp_directives({
-			extend: [{'script-src': [nonce]}],
+			extend: [{ 'script-src': [nonce] }]
 		});
 
 		assert.include(csp['script-src']!, nonce);
@@ -117,7 +117,7 @@ describe('real-world SvelteKit scenarios', () => {
 
 describe('progressive enhancement patterns', () => {
 	test('start strict, layer in shared lib + app-specific extras', () => {
-		const shared_lib = {'img-src': [FUZ_WILDCARD]};
+		const shared_lib = { 'img-src': [FUZ_WILDCARD] };
 
 		// Phase 1: defaults only
 		const phase1 = create_csp_directives();
@@ -125,13 +125,13 @@ describe('progressive enhancement patterns', () => {
 
 		// Phase 2: add shared lib
 		const phase2 = create_csp_directives({
-			extend: [shared_lib],
+			extend: [shared_lib]
 		});
 		assert.include(phase2['img-src']!, FUZ_WILDCARD);
 
 		// Phase 3: add app-specific connect
 		const phase3 = create_csp_directives({
-			extend: [shared_lib, {'connect-src': [ANALYTICS]}],
+			extend: [shared_lib, { 'connect-src': [ANALYTICS] }]
 		});
 		assert.include(phase3['img-src']!, FUZ_WILDCARD);
 		assert.include(phase3['connect-src']!, ANALYTICS);
@@ -142,8 +142,8 @@ describe('common pitfalls and gotchas', () => {
 	test("['none'] in directives blocks everything for that directive", () => {
 		const csp = create_csp_directives({
 			overrides: {
-				'script-src': ['none'],
-			},
+				'script-src': ['none']
+			}
 		});
 
 		assert.deepEqual(csp['script-src'], ['none']);
@@ -152,8 +152,8 @@ describe('common pitfalls and gotchas', () => {
 	test('directives static replacement removes default COLOR_SCHEME_SCRIPT_HASH', () => {
 		const csp = create_csp_directives({
 			overrides: {
-				'script-src': ['self'], // Forgot the hash
-			},
+				'script-src': ['self'] // Forgot the hash
+			}
 		});
 
 		assert.notInclude(csp['script-src']! as Array<any>, COLOR_SCHEME_SCRIPT_HASH);
@@ -161,7 +161,7 @@ describe('common pitfalls and gotchas', () => {
 
 	test('to preserve defaults while adding sources, use extend', () => {
 		const correct_csp = create_csp_directives({
-			extend: [{'script-src': [ANALYTICS]}],
+			extend: [{ 'script-src': [ANALYTICS] }]
 		});
 
 		assert.include(correct_csp['script-src']!, COLOR_SCHEME_SCRIPT_HASH);
@@ -185,20 +185,20 @@ describe('maximum complexity scenario', () => {
 				'img-src': ['self', 'data:'],
 				'connect-src': ['self'],
 				'font-src': ['self'],
-				'frame-ancestors': ['self'],
+				'frame-ancestors': ['self']
 			},
 			extend: [
-				{'img-src': [FUZ_WILDCARD]},
+				{ 'img-src': [FUZ_WILDCARD] },
 				{
 					'script-src': [ANALYTICS, CLOUDFLARE_CDN, nonce, custom_hash],
 					'connect-src': [ANALYTICS],
 					'style-src': [GOOGLE_FONTS, CLOUDFLARE_CDN],
-					'font-src': [GOOGLE_FONTS],
-				},
+					'font-src': [GOOGLE_FONTS]
+				}
 			],
 			overrides: {
-				'connect-src': ['self', ANALYTICS],
-			},
+				'connect-src': ['self', ANALYTICS]
+			}
 		});
 
 		assert.deepEqual(csp, {
@@ -209,24 +209,24 @@ describe('maximum complexity scenario', () => {
 				ANALYTICS,
 				CLOUDFLARE_CDN,
 				nonce,
-				custom_hash,
+				custom_hash
 			],
 			'style-src': ['self', 'unsafe-inline', GOOGLE_FONTS, CLOUDFLARE_CDN],
 			'img-src': ['self', 'data:', FUZ_WILDCARD],
 			'connect-src': ['self', ANALYTICS],
 			'font-src': ['self', GOOGLE_FONTS],
-			'frame-ancestors': ['self'],
+			'frame-ancestors': ['self']
 		});
 	});
 
 	test('full-pipeline idempotence — same options produce deepEqual results', () => {
 		const options = {
-			replace_defaults: {'img-src': ['self', 'data:']} as any,
+			replace_defaults: { 'img-src': ['self', 'data:'] } as any,
 			extend: [
-				{'img-src': [FUZ_WILDCARD]},
-				{'connect-src': [ANALYTICS], 'script-src': [CLOUDFLARE_CDN]},
+				{ 'img-src': [FUZ_WILDCARD] },
+				{ 'connect-src': [ANALYTICS], 'script-src': [CLOUDFLARE_CDN] }
 			],
-			overrides: {'frame-ancestors': srcs<CspFrameSource>('self', 'https://parent.fuz.dev')},
+			overrides: { 'frame-ancestors': srcs<CspFrameSource>('self', 'https://parent.fuz.dev') }
 		};
 
 		const csp1 = create_csp_directives(options);

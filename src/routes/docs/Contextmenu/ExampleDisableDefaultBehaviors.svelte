@@ -1,13 +1,13 @@
 <script lang="ts">
-	import {resolve} from '$app/paths';
+	import { resolve } from '$app/paths';
 	import Code from '@fuzdev/fuz_code/Code.svelte';
 
 	import ContextmenuEntry from '$lib/ContextmenuEntry.svelte';
 	import Contextmenu from '$lib/Contextmenu.svelte';
-	import {ContextmenuState} from '$lib/contextmenu_state.svelte.ts';
+	import { ContextmenuState } from '$lib/contextmenu_state.svelte.ts';
 	import TomeSectionHeader from '$lib/TomeSectionHeader.svelte';
 	import TomeSection from '$lib/TomeSection.svelte';
-	import {selected_contextmenu_root_component_context} from './selected_root_component.svelte.ts';
+	import { selected_contextmenu_root_component_context } from './selected_root_component.svelte.ts';
 
 	const selected = selected_contextmenu_root_component_context.get();
 	const ContextmenuRootComponent = $derived(selected.component);
@@ -36,7 +36,8 @@
 	<TomeSectionHeader text="Disable default behaviors" />
 	<p>
 		Check the boxes below to disable automatic <code>a</code> link detection and
-		<code>copy text</code> detection, and see how the contextmenu behaves.
+		<code>copy text</code>
+		detection, and see how the contextmenu behaves.
 	</p>
 
 	<Code
@@ -65,9 +66,9 @@
 		{#if custom_entry_included}
 			<Contextmenu>
 				{#snippet entries()}
-					<ContextmenuEntry icon=">" run={() => void (toggled = !toggled)}
-						>some custom entry</ContextmenuEntry
-					>
+					<ContextmenuEntry icon=">" run={() => void (toggled = !toggled)}>
+						some custom entry
+					</ContextmenuEntry>
 				{/snippet}
 				{@render test_area()}
 			</Contextmenu>
@@ -109,9 +110,10 @@
 {#snippet test_area()}
 	<div class="panel p_md mb_lg">
 		<p bind:this={text_el}>
-			Try <button type="button" onclick={select_text} class:palette_h={toggled}
-				>selecting some text</button
-			> and opening the contextmenu in this panel.
+			Try <button type="button" onclick={select_text} class:color_h={toggled}>
+				selecting some text
+			</button>
+			and opening the contextmenu in this panel.
 		</p>
 		<p>
 			Try opening the contextmenu on <a href={resolve('/')}>this link</a>.

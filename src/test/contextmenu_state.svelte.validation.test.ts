@@ -1,7 +1,7 @@
-import {describe, test, assert, beforeEach} from 'vitest';
+import { describe, test, assert, beforeEach } from 'vitest';
 
-import {ContextmenuState} from '$lib/contextmenu_state.svelte.ts';
-import {add_test_entry, add_test_submenu} from './contextmenu_state_test_helpers.ts';
+import { ContextmenuState } from '$lib/contextmenu_state.svelte.ts';
+import { add_test_entry, add_test_submenu } from './contextmenu_state_test_helpers.ts';
 
 describe('ContextmenuState - Validation', () => {
 	let contextmenu: ContextmenuState;
@@ -203,7 +203,7 @@ describe('ContextmenuState - Validation', () => {
 				const entry = add_test_entry(
 					contextmenu.root_menu,
 					() => {},
-					() => true,
+					() => true
 				);
 				contextmenu.select(entry);
 
@@ -240,7 +240,7 @@ describe('ContextmenuState - Validation', () => {
 					() => {
 						counter++;
 						return false;
-					},
+					}
 				);
 				contextmenu.select(entry);
 
@@ -257,7 +257,7 @@ describe('ContextmenuState - Validation', () => {
 					const entry = add_test_entry(
 						contextmenu.root_menu,
 						() => {},
-						() => is_disabled,
+						() => is_disabled
 					);
 					contextmenu.select(entry);
 

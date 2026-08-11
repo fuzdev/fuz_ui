@@ -1,15 +1,15 @@
 /**
  * @vitest-environment jsdom
  */
-import {describe, test, assert, vi, afterEach} from 'vitest';
-import {flushSync} from 'svelte';
+import { describe, test, assert, vi, afterEach } from 'vitest';
+import { flushSync } from 'svelte';
 
 import './dialog_test_helpers.ts'; // polyfills `<dialog>` modal methods for jsdom
 import DialogHarness from './DialogHarness.svelte';
 import DialogCustomCloseHarness from './DialogCustomCloseHarness.svelte';
-import {mount_component, unmount_component, create_mouse_event} from './test_helpers.ts';
+import { mount_component, unmount_component, create_mouse_event } from './test_helpers.ts';
 
-let mounted: {instance: any; container: HTMLElement} | null = null;
+let mounted: { instance: any; container: HTMLElement } | null = null;
 
 afterEach(async () => {
 	if (mounted) {
@@ -20,9 +20,9 @@ afterEach(async () => {
 
 const mount_harness = (
 	dialog_props: Record<string, any> = {},
-	content_props: Record<string, any> = {},
+	content_props: Record<string, any> = {}
 ): HTMLElement => {
-	mounted = mount_component(DialogHarness as any, {dialog_props, content_props});
+	mounted = mount_component(DialogHarness as any, { dialog_props, content_props });
 	flushSync();
 	return mounted.container;
 };
@@ -34,13 +34,13 @@ describe('DialogContent', () => {
 	});
 
 	test('close_button={false} removes the close button', () => {
-		const container = mount_harness({}, {close_button: false});
+		const container = mount_harness({}, { close_button: false });
 		assert.equal(container.querySelector('button[aria-label="close"]'), null);
 	});
 
 	test('the default close button closes the dialog', () => {
 		const onclose = vi.fn();
-		const container = mount_harness({onclose});
+		const container = mount_harness({ onclose });
 		const button = container.querySelector('button[aria-label="close"]');
 		assert(button instanceof HTMLButtonElement);
 		button.dispatchEvent(create_mouse_event('click'));
@@ -51,7 +51,7 @@ describe('DialogContent', () => {
 	test('a custom close_button snippet replaces the default button', () => {
 		mounted = mount_component(DialogCustomCloseHarness as any, {});
 		flushSync();
-		const {container} = mounted;
+		const { container } = mounted;
 		const custom = container.querySelector('[data-testid="custom-close"]');
 		assert(custom instanceof HTMLButtonElement);
 		// only one close button -- the custom one replaces the default, not in addition to it
@@ -62,7 +62,7 @@ describe('DialogContent', () => {
 
 	test('the attrs bag wires onclick to close the dialog', () => {
 		const onclose = vi.fn();
-		mounted = mount_component(DialogCustomCloseHarness as any, {dialog_props: {onclose}});
+		mounted = mount_component(DialogCustomCloseHarness as any, { dialog_props: { onclose } });
 		flushSync();
 		const button = mounted.container.querySelector('[data-testid="custom-close"]');
 		assert(button instanceof HTMLButtonElement);
@@ -99,14 +99,14 @@ describe('DialogContent', () => {
 	});
 
 	test('pane={false} drops the .pane class but keeps the content', () => {
-		const container = mount_harness({}, {pane: false});
+		const container = mount_harness({}, { pane: false });
 		assert.equal(container.querySelector('.pane'), null);
 		assert(container.querySelector('[data-testid="content"]') instanceof HTMLElement);
 	});
 
 	test('a press inside the registered surface does not close, even with pane={false}', () => {
 		const onclose = vi.fn();
-		const container = mount_harness({onclose}, {pane: false});
+		const container = mount_harness({ onclose }, { pane: false });
 		const content = container.querySelector('[data-testid="content"]');
 		assert(content instanceof HTMLElement);
 		content.dispatchEvent(create_mouse_event('mousedown'));
@@ -116,7 +116,7 @@ describe('DialogContent', () => {
 
 	test('a press outside the surface closes', () => {
 		const onclose = vi.fn();
-		const container = mount_harness({onclose});
+		const container = mount_harness({ onclose });
 		const wrapper = container.querySelector('.dialog-wrapper');
 		assert(wrapper instanceof HTMLElement);
 		wrapper.dispatchEvent(create_mouse_event('mousedown'));

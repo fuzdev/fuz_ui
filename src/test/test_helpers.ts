@@ -3,7 +3,7 @@
  * Provides helpers for component mounting and DOM event creation.
  */
 
-import {mount, unmount, type Component} from 'svelte';
+import { mount, unmount, type Component } from 'svelte';
 
 /**
  * Mount a Svelte component for testing.
@@ -11,17 +11,17 @@ import {mount, unmount, type Component} from 'svelte';
  */
 export const mount_component = <TProps extends Record<string, any>>(
 	Component: Component<TProps>,
-	props: TProps,
-): {instance: any; container: HTMLElement} => {
+	props: TProps
+): { instance: any; container: HTMLElement } => {
 	const container = document.createElement('div');
 	document.body.appendChild(container);
 
 	const instance = mount(Component, {
 		target: container,
-		props,
+		props
 	});
 
-	return {instance, container};
+	return { instance, container };
 };
 
 /**
@@ -38,14 +38,14 @@ export const unmount_component = async (instance: any, container: HTMLElement): 
 export const create_contextmenu_event = (
 	x: number,
 	y: number,
-	options: MouseEventInit = {},
+	options: MouseEventInit = {}
 ): MouseEvent => {
 	return new MouseEvent('contextmenu', {
 		bubbles: true,
 		cancelable: true,
 		clientX: x,
 		clientY: y,
-		...options,
+		...options
 	});
 };
 
@@ -54,13 +54,13 @@ export const create_contextmenu_event = (
  */
 export const create_keyboard_event = (
 	key: string,
-	options: KeyboardEventInit = {},
+	options: KeyboardEventInit = {}
 ): KeyboardEvent => {
 	return new KeyboardEvent('keydown', {
 		bubbles: true,
 		cancelable: true,
 		key,
-		...options,
+		...options
 	});
 };
 
@@ -71,7 +71,7 @@ export const create_mouse_event = (type: string, options: MouseEventInit = {}): 
 	return new MouseEvent(type, {
 		bubbles: true,
 		cancelable: true,
-		...options,
+		...options
 	});
 };
 
@@ -83,7 +83,7 @@ export const set_event_target = (event: Event, target: EventTarget): void => {
 	Object.defineProperty(event, 'target', {
 		value: target,
 		enumerable: true,
-		configurable: true,
+		configurable: true
 	});
 };
 
@@ -92,8 +92,8 @@ export const set_event_target = (event: Event, target: EventTarget): void => {
  */
 export const create_touch_event = (
 	type: string,
-	touches: Array<{clientX: number; clientY: number; target?: EventTarget}>,
-	options: TouchEventInit = {},
+	touches: Array<{ clientX: number; clientY: number; target?: EventTarget }>,
+	options: TouchEventInit = {}
 ): TouchEvent => {
 	// Create Touch objects (mocked for testing)
 	const touch_objects: Array<Touch> = touches.map((touch, index) => ({
@@ -108,7 +108,7 @@ export const create_touch_event = (
 		radiusY: 0,
 		rotationAngle: 0,
 		force: 1,
-		target: touch.target ?? document.body,
+		target: touch.target ?? document.body
 	}));
 
 	return new TouchEvent(type, {
@@ -117,7 +117,7 @@ export const create_touch_event = (
 		touches: touch_objects,
 		targetTouches: touch_objects,
 		changedTouches: touch_objects,
-		...options,
+		...options
 	});
 };
 
@@ -125,5 +125,5 @@ export const create_touch_event = (
  * Overrides an event's readonly `timeStamp`, for testing time-based guards.
  */
 export const set_event_time = (event: Event, time_stamp: number): void => {
-	Object.defineProperty(event, 'timeStamp', {value: time_stamp, configurable: true});
+	Object.defineProperty(event, 'timeStamp', { value: time_stamp, configurable: true });
 };

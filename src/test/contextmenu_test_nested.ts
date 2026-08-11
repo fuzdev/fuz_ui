@@ -3,28 +3,28 @@
  * Tests handling of nested elements, submenu structures, and event propagation boundaries.
  */
 
-import {describe, test, assert, afterEach, beforeEach, vi} from 'vitest';
-import {flushSync, tick} from 'svelte';
-import {on} from 'svelte/events';
+import { describe, test, assert, afterEach, beforeEach, vi } from 'vitest';
+import { flushSync, tick } from 'svelte';
+import { on } from 'svelte/events';
 import {
 	unmount_component,
 	create_contextmenu_event,
 	create_touch_event,
-	set_event_target,
+	set_event_target
 } from './test_helpers.ts';
 import {
 	mount_contextmenu_root,
 	setup_contextmenu_attachment,
-	type SharedTestOptions,
+	type SharedTestOptions
 } from './contextmenu_test_helpers.ts';
-import {CONTEXTMENU_DEFAULT_LONGPRESS_DURATION} from '$lib/contextmenu_helpers.ts';
+import { CONTEXTMENU_DEFAULT_LONGPRESS_DURATION } from '$lib/contextmenu_helpers.ts';
 
 export const create_shared_nested_tests = (
 	Component: any,
 	component_name: string,
-	options: SharedTestOptions = {},
+	options: SharedTestOptions = {}
 ): void => {
-	const {requires_longpress = false} = options;
+	const { requires_longpress = false } = options;
 
 	describe(`${component_name} - Nested Element Handling`, () => {
 		let mounted: ReturnType<typeof mount_contextmenu_root> | null = null;
@@ -49,19 +49,19 @@ export const create_shared_nested_tests = (
 			test('right-clicking on nested element inside contextmenu does not reopen', async () => {
 				mounted = mount_contextmenu_root(Component);
 
-				const {container, contextmenu} = mounted;
+				const { container, contextmenu } = mounted;
 
 				const target = document.createElement('div');
 				container.appendChild(target);
 
 				await setup_contextmenu_attachment(target, [
-					{snippet: 'text', props: {content: 'Test', icon: '🧪', run: () => undefined}},
+					{ snippet: 'text', props: { content: 'Test', icon: '🧪', run: () => undefined } }
 				]);
 
 				// Open contextmenu
 				if (requires_longpress) {
 					const touchstart = create_touch_event('touchstart', [
-						{clientX: 100, clientY: 200, target},
+						{ clientX: 100, clientY: 200, target }
 					]);
 					set_event_target(touchstart, target);
 					window.dispatchEvent(touchstart);
@@ -102,26 +102,26 @@ export const create_shared_nested_tests = (
 				assert.strictEqual(
 					event.defaultPrevented,
 					false,
-					'event should not be prevented to allow browser contextmenu',
+					'event should not be prevented to allow browser contextmenu'
 				);
 			});
 
 			test('right-clicking on deeply nested element does not reopen contextmenu', async () => {
 				mounted = mount_contextmenu_root(Component);
 
-				const {container, contextmenu} = mounted;
+				const { container, contextmenu } = mounted;
 
 				const target = document.createElement('div');
 				container.appendChild(target);
 
 				await setup_contextmenu_attachment(target, [
-					{snippet: 'text', props: {content: 'Test', icon: '🧪', run: () => undefined}},
+					{ snippet: 'text', props: { content: 'Test', icon: '🧪', run: () => undefined } }
 				]);
 
 				// Open contextmenu
 				if (requires_longpress) {
 					const touchstart = create_touch_event('touchstart', [
-						{clientX: 100, clientY: 200, target},
+						{ clientX: 100, clientY: 200, target }
 					]);
 					set_event_target(touchstart, target);
 					window.dispatchEvent(touchstart);
@@ -166,26 +166,26 @@ export const create_shared_nested_tests = (
 				assert.strictEqual(
 					event.defaultPrevented,
 					false,
-					'event should not be prevented to allow browser contextmenu',
+					'event should not be prevented to allow browser contextmenu'
 				);
 			});
 
 			test('containment check works for dynamically added elements', async () => {
 				mounted = mount_contextmenu_root(Component);
 
-				const {container, contextmenu} = mounted;
+				const { container, contextmenu } = mounted;
 
 				const target = document.createElement('div');
 				container.appendChild(target);
 
 				await setup_contextmenu_attachment(target, [
-					{snippet: 'text', props: {content: 'Test', icon: '🧪', run: () => undefined}},
+					{ snippet: 'text', props: { content: 'Test', icon: '🧪', run: () => undefined } }
 				]);
 
 				// Open contextmenu
 				if (requires_longpress) {
 					const touchstart = create_touch_event('touchstart', [
-						{clientX: 100, clientY: 200, target},
+						{ clientX: 100, clientY: 200, target }
 					]);
 					set_event_target(touchstart, target);
 					window.dispatchEvent(touchstart);
@@ -222,26 +222,26 @@ export const create_shared_nested_tests = (
 				assert.strictEqual(
 					event.defaultPrevented,
 					false,
-					'event should not be prevented to allow browser contextmenu',
+					'event should not be prevented to allow browser contextmenu'
 				);
 			});
 
 			test('parent menu stays at original position when nested element is right-clicked', async () => {
 				mounted = mount_contextmenu_root(Component);
 
-				const {container, contextmenu} = mounted;
+				const { container, contextmenu } = mounted;
 
 				const target = document.createElement('div');
 				container.appendChild(target);
 
 				await setup_contextmenu_attachment(target, [
-					{snippet: 'text', props: {content: 'Test', icon: '🧪', run: () => undefined}},
+					{ snippet: 'text', props: { content: 'Test', icon: '🧪', run: () => undefined } }
 				]);
 
 				// Open contextmenu at specific position
 				if (requires_longpress) {
 					const touchstart = create_touch_event('touchstart', [
-						{clientX: 100, clientY: 200, target},
+						{ clientX: 100, clientY: 200, target }
 					]);
 					set_event_target(touchstart, target);
 					window.dispatchEvent(touchstart);
@@ -282,19 +282,19 @@ export const create_shared_nested_tests = (
 			test('event propagation stops at contextmenu boundary', async () => {
 				mounted = mount_contextmenu_root(Component);
 
-				const {container, contextmenu} = mounted;
+				const { container, contextmenu } = mounted;
 
 				const target = document.createElement('div');
 				container.appendChild(target);
 
 				await setup_contextmenu_attachment(target, [
-					{snippet: 'text', props: {content: 'Test', icon: '🧪', run: () => undefined}},
+					{ snippet: 'text', props: { content: 'Test', icon: '🧪', run: () => undefined } }
 				]);
 
 				// Open contextmenu
 				if (requires_longpress) {
 					const touchstart = create_touch_event('touchstart', [
-						{clientX: 100, clientY: 200, target},
+						{ clientX: 100, clientY: 200, target }
 					]);
 					set_event_target(touchstart, target);
 					window.dispatchEvent(touchstart);
@@ -334,19 +334,19 @@ export const create_shared_nested_tests = (
 			test('link in nested structure uses stopPropagation', async () => {
 				mounted = mount_contextmenu_root(Component);
 
-				const {container} = mounted;
+				const { container } = mounted;
 
 				const target = document.createElement('div');
 				container.appendChild(target);
 
 				await setup_contextmenu_attachment(target, [
-					{snippet: 'link', props: {href: 'https://nested.test/'}},
+					{ snippet: 'link', props: { href: 'https://nested.test/' } }
 				]);
 
 				// Open menu
 				if (requires_longpress) {
 					const touchstart = create_touch_event('touchstart', [
-						{clientX: 100, clientY: 200, target},
+						{ clientX: 100, clientY: 200, target }
 					]);
 					set_event_target(touchstart, target);
 					window.dispatchEvent(touchstart);
@@ -384,13 +384,13 @@ export const create_shared_nested_tests = (
 					assert.strictEqual(
 						window_handler_called,
 						false,
-						'event should not propagate to window handler',
+						'event should not propagate to window handler'
 					);
 
 					assert.strictEqual(
 						event.defaultPrevented,
 						false,
-						'event should not be prevented to allow browser contextmenu',
+						'event should not be prevented to allow browser contextmenu'
 					);
 				} finally {
 					off();
@@ -400,21 +400,21 @@ export const create_shared_nested_tests = (
 			test('link in submenu allows browser contextmenu', async () => {
 				mounted = mount_contextmenu_root(Component);
 
-				const {container} = mounted;
+				const { container } = mounted;
 
 				const target = document.createElement('div');
 				container.appendChild(target);
 
 				// Setup contextmenu with nested structure (simplified)
 				await setup_contextmenu_attachment(target, [
-					{snippet: 'text', props: {content: 'Parent', icon: '📁', run: () => undefined}},
-					{snippet: 'link', props: {href: 'https://fuz.dev', content: 'Nested Link'}},
+					{ snippet: 'text', props: { content: 'Parent', icon: '📁', run: () => undefined } },
+					{ snippet: 'link', props: { href: 'https://fuz.dev', content: 'Nested Link' } }
 				]);
 
 				// Open menu
 				if (requires_longpress) {
 					const touchstart = create_touch_event('touchstart', [
-						{clientX: 100, clientY: 200, target},
+						{ clientX: 100, clientY: 200, target }
 					]);
 					set_event_target(touchstart, target);
 					window.dispatchEvent(touchstart);
@@ -445,19 +445,19 @@ export const create_shared_nested_tests = (
 			test('deeply nested link entry behavior consistent', async () => {
 				mounted = mount_contextmenu_root(Component);
 
-				const {container, contextmenu} = mounted;
+				const { container, contextmenu } = mounted;
 
 				const target = document.createElement('div');
 				container.appendChild(target);
 
 				await setup_contextmenu_attachment(target, [
-					{snippet: 'link', props: {href: 'https://deep.test/', content: 'Deep Link'}},
+					{ snippet: 'link', props: { href: 'https://deep.test/', content: 'Deep Link' } }
 				]);
 
 				// Open menu
 				if (requires_longpress) {
 					const touchstart = create_touch_event('touchstart', [
-						{clientX: 100, clientY: 200, target},
+						{ clientX: 100, clientY: 200, target }
 					]);
 					set_event_target(touchstart, target);
 					window.dispatchEvent(touchstart);

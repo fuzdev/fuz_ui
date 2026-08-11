@@ -1,10 +1,10 @@
 <script lang="ts">
-	import {ensure_start, strip_start} from '@fuzdev/fuz_util/string.ts';
-	import type {SvelteHTMLElements} from 'svelte/elements';
-	import {DEV} from 'esm-env';
+	import { ensure_start, strip_start } from '@fuzdev/fuz_util/string.ts';
+	import type { SvelteHTMLElements } from 'svelte/elements';
+	import { DEV } from 'esm-env';
 
 	import Svg from './Svg.svelte';
-	import {logo_github} from './logos.ts';
+	import { logo_github } from './logos.ts';
 
 	const {
 		path,
@@ -47,7 +47,7 @@
 				? path.startsWith('https://')
 					? path
 					: `https://github.com/${strip_start(path, '/')}`
-				: '')) + (hash ? ensure_start(hash, '#') : ''),
+				: '')) + (hash ? ensure_start(hash, '#') : '')
 	);
 
 	// extract meaningful display text from the path
@@ -69,17 +69,17 @@
 
 				// default to the full path (typically "owner/repo")
 				return path_part;
-			})(),
+			})()
 	);
 </script>
 
 <!-- TODO -next-line doesnt work? -->
 <!-- eslint-disable svelte/no-navigation-without-resolve -->
-<a {...rest} {href} class="github-link white-space:nowrap {rest.class}" rel="noopener"
-	><Svg data={logo_github} inline size="var(--icon_size_xs)" class="mx_xs3 vertical-align:middle" />
+<a {...rest} {href} class="github-link white-space:nowrap {rest.class}" rel="noopener">
+	<Svg data={logo_github} inline size="var(--icon_size_xs)" class="mx_xs3 vertical-align:middle" />
 	{#if typeof final_children === 'string'}
 		<span class="font_family_mono">{final_children}</span>
 	{:else if final_children}
 		{@render final_children()}
-	{/if}</a
->
+	{/if}
+</a>

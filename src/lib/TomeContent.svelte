@@ -1,13 +1,13 @@
 <script lang="ts">
-	import type {Snippet} from 'svelte';
-	import type {SvelteHTMLElements} from 'svelte/elements';
-	import {page} from '$app/state';
-	import {resolve} from '$app/paths';
+	import type { Snippet } from 'svelte';
+	import type { SvelteHTMLElements } from 'svelte/elements';
+	import { page } from '$app/state';
+	import { resolve } from '$app/paths';
 
 	import TomeHeader from './TomeHeader.svelte';
-	import {tome_context, type Tome} from './tome.ts';
-	import {DOCS_PATH_DEFAULT, docs_links_context} from './docs_helpers.svelte.ts';
-	import {intersect} from './intersect.svelte.ts';
+	import { tome_context, type Tome } from './tome.ts';
+	import { DOCS_PATH_DEFAULT, docs_links_context } from './docs_helpers.svelte.ts';
+	import { intersect } from './intersect.svelte.ts';
 
 	const {
 		tome,
@@ -36,14 +36,14 @@
 	class="tome-content width_atmost_md mb_xl9 {rest.class}"
 	{@attach intersect(() =>
 		at_root
-			? ({intersecting}) => {
+			? ({ intersecting }) => {
 					if (intersecting) {
 						docs_links.fragments_onscreen.add(fragment);
 					} else {
 						docs_links.fragments_onscreen.delete(fragment);
 					}
 				}
-			: null,
+			: null
 	)}
 >
 	<header
@@ -51,13 +51,13 @@
 		{@attach intersect(() =>
 			at_root
 				? null
-				: ({intersecting}) => {
+				: ({ intersecting }) => {
 						if (intersecting) {
 							docs_links.fragments_onscreen.add(fragment);
 						} else {
 							docs_links.fragments_onscreen.delete(fragment);
 						}
-					},
+					}
 		)}
 	>
 		{#if header}

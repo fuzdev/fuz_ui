@@ -19,12 +19,12 @@
 	import {
 		contextmenu_context,
 		ContextmenuState,
-		contextmenu_check_global_root,
+		contextmenu_check_global_root
 	} from './contextmenu_state.svelte.ts';
 	import ContextmenuMenu, {
 		link_entry_default,
 		text_entry_default,
-		separator_entry_default,
+		separator_entry_default
 	} from './ContextmenuMenu.svelte';
 	import {
 		CONTEXTMENU_DEFAULT_OPEN_OFFSET_X,
@@ -35,7 +35,7 @@
 		contextmenu_resolve_contextmenu_event,
 		ContextmenuBypassTracker,
 		ContextmenuOpenGuard,
-		type ContextmenuRootBaseProps,
+		type ContextmenuRootBaseProps
 	} from './contextmenu_helpers.ts';
 
 	const {
@@ -49,7 +49,7 @@
 		link_entry = link_entry_default,
 		text_entry = text_entry_default,
 		separator_entry = separator_entry_default,
-		children,
+		children
 	}: ContextmenuRootBaseProps = $props();
 
 	contextmenu_context.set(() => contextmenu);
@@ -67,7 +67,7 @@
 		open_offset_y,
 		link_enabled: link_entry !== null,
 		text_enabled: text_entry !== null,
-		separator_enabled: separator_entry !== null,
+		separator_enabled: separator_entry !== null
 	});
 
 	const on_window_contextmenu = (e: MouseEvent) => {
@@ -93,7 +93,7 @@
 
 		if (!bypass_with_tap_then_longpress) return;
 
-		const {touches, target} = e;
+		const { touches, target } = e;
 		if (
 			contextmenu.opened ||
 			touches.length !== 1 ||
@@ -103,7 +103,7 @@
 			return;
 		}
 
-		const {clientX, clientY} = touches[0]!;
+		const { clientX, clientY } = touches[0]!;
 		bypass_tracker.track(clientX, clientY, bypass_window, bypass_move_tolerance);
 	};
 

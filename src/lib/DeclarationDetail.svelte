@@ -12,20 +12,20 @@ including parameters, props, members, overloads, intersects, and more.
 <script lang="ts">
 	import Code from '@fuzdev/fuz_code/Code.svelte';
 	import Mdz from '@fuzdev/mdz/Mdz.svelte';
-	import {mdz_from_tsdoc} from '@fuzdev/mdz/tsdoc_mdz.ts';
+	import { mdz_from_tsdoc } from '@fuzdev/mdz/tsdoc_mdz.ts';
 	import {
 		mdz_code_context,
 		mdz_codeblock_context,
-		mdz_set_context_with_fallback,
+		mdz_set_context_with_fallback
 	} from '@fuzdev/mdz/mdz_contexts.ts';
-	import type {ParameterJsonInput} from 'svelte-docinfo/types.js';
+	import type { ParameterJsonInput } from 'svelte-docinfo/types.js';
 
-	import type {Declaration} from './declaration.svelte.ts';
+	import type { Declaration } from './declaration.svelte.ts';
 	import TypeLink from './TypeLink.svelte';
 	import ModuleLink from './ModuleLink.svelte';
 	import DocsLink from './DocsLink.svelte';
 
-	const {declaration}: {declaration: Declaration} = $props();
+	const { declaration }: { declaration: Declaration } = $props();
 
 	// render mdz inline `code` as API-linking `DocsLink` and fenced blocks as syntax-highlighted
 	// `Code`, matching the rest of the docs — the injection mdz core leaves open
@@ -40,7 +40,7 @@ including parameters, props, members, overloads, intersects, and more.
 		since?: string;
 		examples?: Array<string>;
 		seeAlso?: Array<string>;
-		throws?: Array<{type?: string; description: string}>;
+		throws?: Array<{ type?: string; description: string }>;
 	}
 </script>
 
@@ -48,9 +48,9 @@ including parameters, props, members, overloads, intersects, and more.
 {#snippet param_detail(param: ParameterJsonInput)}
 	<section>
 		<h4>
-			<code
-				>{param.name}{#if param.optional}<strong>?</strong>{/if}</code
-			>
+			<code>
+				{param.name}{#if param.optional}<strong>?</strong>{/if}
+			</code>
 		</h4>
 		{#if param.description}
 			<Mdz content={param.description} />
@@ -76,9 +76,9 @@ including parameters, props, members, overloads, intersects, and more.
 <!-- A compact parameter row: name (with optional marker) and type, for snippet params and overloads. -->
 {#snippet param_row(param: ParameterJsonInput)}
 	<div class="row gap_md">
-		<code
-			>{param.name}{#if param.optional}?{/if}</code
-		>
+		<code>
+			{param.name}{#if param.optional}?{/if}
+		</code>
 		<TypeLink type={param.type} />
 	</div>
 {/snippet}
@@ -127,8 +127,11 @@ including parameters, props, members, overloads, intersects, and more.
 
 <!-- A comma-separated inline list of type links (extends, implements, intersects are rarely more than one). -->
 {#snippet type_list(types: Array<string>)}
-	{#each types as type, i (type)}{#if i > 0},
-		{/if}<TypeLink {type} />{/each}
+	{#each types as type, i (type)}
+		{#if i > 0}
+			,
+		{/if}<TypeLink {type} />
+	{/each}
 {/snippet}
 
 <!-- Metadata -->
@@ -145,7 +148,8 @@ including parameters, props, members, overloads, intersects, and more.
 {#if declaration.is_deprecated ||
 	declaration.reactivity ||
 	declaration.accepts_children ||
-	declaration.alias_of}
+	declaration.alias_of
+}
 	<p class="row gap_md flex-wrap:wrap">
 		<!-- eslint-disable-next-line @typescript-eslint/no-deprecated -->
 		{#if declaration.is_deprecated}
@@ -158,10 +162,11 @@ including parameters, props, members, overloads, intersects, and more.
 			<span class="chip">accepts children</span>
 		{/if}
 		{#if declaration.alias_of}
-			<span class="chip"
-				>alias of {declaration.alias_of.name}{#if declaration.alias_of.module}
-					in {declaration.alias_of.module}{/if}</span
-			>
+			<span class="chip">
+				alias of {declaration.alias_of.name}{#if declaration.alias_of.module}
+					in {declaration.alias_of.module}
+				{/if}
+			</span>
 		{/if}
 	</p>
 {/if}
@@ -212,9 +217,9 @@ including parameters, props, members, overloads, intersects, and more.
 		{#each declaration.props as prop (prop)}
 			<section>
 				<h4>
-					<code
-						>{prop.name}{#if prop.optional}<strong>?</strong>{/if}</code
-					>
+					<code>
+						{prop.name}{#if prop.optional}<strong>?</strong>{/if}
+					</code>
 				</h4>
 				{#if prop.description}
 					<Mdz content={prop.description} />
@@ -338,7 +343,7 @@ including parameters, props, members, overloads, intersects, and more.
 				{@render type_list(
 					Array.isArray(declaration.extends_type)
 						? declaration.extends_type
-						: [declaration.extends_type],
+						: [declaration.extends_type]
 				)}
 			</div>
 		{/if}
@@ -419,10 +424,11 @@ including parameters, props, members, overloads, intersects, and more.
 		{#each declaration.members as member (member)}
 			<section>
 				<h4>
-					<code
-						>{member.name}{#if member.kind !== 'constructor' && member.optional}<strong>?</strong
-							>{/if}</code
-					>
+					<code>
+						{member.name}{#if member.kind !== 'constructor' && member.optional}
+							<strong>?</strong>
+						{/if}
+					</code>
 				</h4>
 				{#if member.docComment}
 					<Mdz content={member.docComment} />
@@ -457,7 +463,8 @@ including parameters, props, members, overloads, intersects, and more.
 				{/if}
 				<!-- parameters for methods and constructors -->
 				{#if (member.kind === 'function' || member.kind === 'constructor') &&
-					member.parameters?.length}
+					member.parameters?.length
+				}
 					<section>
 						{#each member.parameters as param (param)}
 							{@render param_detail(param)}

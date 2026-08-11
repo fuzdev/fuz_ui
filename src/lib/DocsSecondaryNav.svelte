@@ -1,8 +1,8 @@
 <script lang="ts">
-	import type {SvelteHTMLElements} from 'svelte/elements';
+	import type { SvelteHTMLElements } from 'svelte/elements';
 
 	import DocsMenu from './DocsMenu.svelte';
-	import {Tome} from './tome.ts';
+	import { Tome } from './tome.ts';
 
 	const {
 		tomes,
@@ -16,7 +16,7 @@
 	const expand_width = $derived(!sidebar);
 </script>
 
-<aside {...rest} class={['docs-secondary-nav unstyled', rest.class, {sidebar}]}>
+<aside {...rest} class={['docs-secondary-nav unstyled', rest.class, { sidebar }]}>
 	<nav aria-label="Secondary nav">
 		<DocsMenu {tomes} {expand_width} />
 	</nav>

@@ -5,7 +5,7 @@
 	import Dialog from '$lib/Dialog.svelte';
 	import DialogContent from '$lib/DialogContent.svelte';
 
-	const {dialog_props = {}}: {dialog_props?: Record<string, any>} = $props();
+	const { dialog_props = {} }: { dialog_props?: Record<string, any> } = $props();
 </script>
 
 <Dialog {...dialog_props}>

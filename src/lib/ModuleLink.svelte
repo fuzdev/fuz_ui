@@ -1,10 +1,10 @@
 <script lang="ts">
-	import type {SvelteHTMLElements} from 'svelte/elements';
-	import {ensure_start} from '@fuzdev/fuz_util/string.ts';
+	import type { SvelteHTMLElements } from 'svelte/elements';
+	import { ensure_start } from '@fuzdev/fuz_util/string.ts';
 
-	import {library_context} from './library.svelte.ts';
-	import {contextmenu_attachment} from './contextmenu_state.svelte.ts';
-	import {create_module_contextmenu} from './module_contextmenu.ts';
+	import { library_context } from './library.svelte.ts';
+	import { contextmenu_attachment } from './contextmenu_state.svelte.ts';
+	import { create_module_contextmenu } from './module_contextmenu.ts';
 
 	const {
 		module_path,
@@ -34,7 +34,7 @@
 	// the site-local path if `homepage_url` is unavailable.
 	const url_api = $derived((full && module?.url_api_full) || module?.url_api);
 
-	const color_class = $derived(module_path.endsWith('.svelte') ? 'palette_h' : '');
+	const color_class = $derived(module_path.endsWith('.svelte') ? 'color_h' : '');
 
 	const contextmenu_entries = $derived(module ? create_module_contextmenu(module) : undefined);
 </script>

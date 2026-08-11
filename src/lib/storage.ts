@@ -1,4 +1,4 @@
-import {BROWSER} from 'esm-env';
+import { BROWSER } from 'esm-env';
 
 // TODO more than just localStorage, maybe rework the module
 
@@ -26,7 +26,7 @@ export const save_to_storage = (key: string, value: any, is_json = false): void 
 export const load_from_storage = <T>(
 	key: string,
 	is_json = false,
-	parse_fn?: (value: unknown) => T | null,
+	parse_fn?: (value: unknown) => T | null
 ): T | null => {
 	if (!BROWSER) return null;
 	try {

@@ -1,12 +1,12 @@
 <script lang="ts">
-	import type {Module} from './module.svelte.ts';
+	import type { Module } from './module.svelte.ts';
 	import ModuleLink from './ModuleLink.svelte';
 	import TomeSection from './TomeSection.svelte';
 	import TomeSectionHeader from './TomeSectionHeader.svelte';
 
 	const {
 		modules,
-		search_query = '',
+		search_query = ''
 	}: {
 		/**
 		 * The modules to display.
@@ -25,7 +25,7 @@
 	<TomeSection>
 		<TomeSectionHeader text="Modules" />
 		{#if modules.length === 0}
-			<p class="palette_c">No modules match your search.</p>
+			<p class="color_c">No modules match your search.</p>
 		{:else}
 			<ul class="modules-list">
 				{#each modules as module (module.path)}

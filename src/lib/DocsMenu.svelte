@@ -1,10 +1,10 @@
 <script lang="ts">
-	import {page} from '$app/state';
-	import type {Snippet} from 'svelte';
-	import type {SvelteHTMLElements} from 'svelte/elements';
+	import { page } from '$app/state';
+	import type { Snippet } from 'svelte';
+	import type { SvelteHTMLElements } from 'svelte/elements';
 
 	import DocsList from './DocsList.svelte';
-	import {tome_to_pathname, tome_to_title, type Tome} from './tome.ts';
+	import { tome_to_pathname, tome_to_title, type Tome } from './tome.ts';
 	import DocsMenuHeader from './DocsMenuHeader.svelte';
 
 	const {
@@ -22,7 +22,7 @@
 		tomes.reduce<Record<string, Array<Tome>>>((result, c) => {
 			(result[c.category] ??= []).push(c);
 			return result;
-		}, {}),
+		}, {})
 	);
 </script>
 
@@ -32,15 +32,18 @@
 	<ul class="unstyled">
 		{#each Object.entries(tomes_by_category) as [category, tomes] (category)}
 			<li class="category">
-				{#if children}{@render children(category)}{:else}<DocsMenuHeader>{category}</DocsMenuHeader
-					>{/if}
+				{#if children}
+					{@render children(category)}
+				{:else}
+					<DocsMenuHeader>{category}</DocsMenuHeader>
+				{/if}
 				<ul class="unstyled">
 					{#each tomes as item (item)}
 						{@const pathname = tome_to_pathname(item)}
 						<li role="none">
-							<a class={['menuitem', {selected: pathname === page.url.pathname}]} href={pathname}
-								><div class="ellipsis">{tome_to_title(item)}</div></a
-							>
+							<a class={['menuitem', { selected: pathname === page.url.pathname }]} href={pathname}>
+								<div class="ellipsis">{tome_to_title(item)}</div>
+							</a>
 						</li>
 					{/each}
 				</ul>

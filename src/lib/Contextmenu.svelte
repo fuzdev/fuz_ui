@@ -1,8 +1,8 @@
 <script lang="ts" generics="T extends string = 'span'">
-	import type {Snippet} from 'svelte';
-	import type {SvelteHTMLElements} from 'svelte/elements';
+	import type { Snippet } from 'svelte';
+	import type { SvelteHTMLElements } from 'svelte/elements';
 
-	import {contextmenu_attachment} from './contextmenu_state.svelte.ts';
+	import { contextmenu_attachment } from './contextmenu_state.svelte.ts';
 
 	/* eslint-disable @typescript-eslint/no-unnecessary-type-assertion */
 
@@ -27,5 +27,7 @@
 	this={tag}
 	style:display="contents"
 	{...rest}
-	{@attach contextmenu_attachment(entries)}>{@render children()}</svelte:element
+	{@attach contextmenu_attachment(entries)}
 >
+	{@render children()}
+</svelte:element>

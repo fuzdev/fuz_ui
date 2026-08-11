@@ -9,7 +9,7 @@
 	import ContextmenuEntry from '$lib/ContextmenuEntry.svelte';
 	import Details from '$lib/Details.svelte';
 	import RootComponentSelector from './RootComponentSelector.svelte';
-	import {selected_contextmenu_root_component_context} from './selected_root_component.svelte.ts';
+	import { selected_contextmenu_root_component_context } from './selected_root_component.svelte.ts';
 
 	/* eslint-disable no-alert */
 
@@ -29,16 +29,15 @@
 	</p>
 	<p>
 		When you rightclick inside a <DeclarationLink name="ContextmenuRoot" />, or longpress on touch
-		devices, it searches the DOM tree for behaviors defined with <DeclarationLink
-			name="Contextmenu"
-		/> starting from the target element up to the root. If any behaviors are found, the Fuz
-		contextmenu opens, showing all contextually available actions. If no behaviors are found, the
-		default system contextmenu opens.
+		devices, it searches the DOM tree for behaviors defined with
+		<DeclarationLink name="Contextmenu" />
+		starting from the target element up to the root. If any behaviors are found, the Fuz contextmenu
+		opens, showing all contextually available actions. If no behaviors are found, the default system
+		contextmenu opens.
 	</p>
 	<p>
 		Here's a <code>{root_component_name}</code> with a <DeclarationLink name="Contextmenu" /> inside
-		another
-		<DeclarationLink name="Contextmenu" />:
+		another <DeclarationLink name="Contextmenu" />:
 	</p>
 	<ContextmenuRootComponent scoped>
 		<Contextmenu>
@@ -103,8 +102,10 @@
 		<li>holding Shift opens the system contextmenu, bypassing the Fuz contextmenu</li>
 		<li>
 			keyboard navigation and activation should work similarly to the W3C <a
-				href="https://www.w3.org/WAI/ARIA/apg/patterns/menubar/">APG menubar pattern</a
+				href="https://www.w3.org/WAI/ARIA/apg/patterns/menubar/"
 			>
+				APG menubar pattern
+			</a>
 		</li>
 	</ul>
 	<h4>Touch devices:</h4>
@@ -130,8 +131,10 @@
 		</li>
 		<li>
 			opening the contextmenu attempts haptic feedback with <MdnLink
-				path="Web/API/Navigator/vibrate"><code>navigator.vibrate</code></MdnLink
+				path="Web/API/Navigator/vibrate"
 			>
+				<code>navigator.vibrate</code>
+			</MdnLink>
 		</li>
 	</ul>
 	<RootComponentSelector />

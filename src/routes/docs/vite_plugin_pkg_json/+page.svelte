@@ -1,8 +1,8 @@
 <script lang="ts">
 	import Code from '@fuzdev/fuz_code/Code.svelte';
-	import {pkg_json_keys} from '@fuzdev/fuz_util/pkg_json.ts';
+	import { pkg_json_keys } from '@fuzdev/fuz_util/pkg_json.ts';
 
-	import {tome_get_by_slug} from '$lib/tome.ts';
+	import { tome_get_by_slug } from '$lib/tome.ts';
 	import TomeContent from '$lib/TomeContent.svelte';
 	import TomeSection from '$lib/TomeSection.svelte';
 	import TomeSectionHeader from '$lib/TomeSectionHeader.svelte';
@@ -29,7 +29,7 @@
 		homepage: '',
 		repository: '',
 		funding: '',
-		exports: '',
+		exports: ''
 	};
 </script>
 
@@ -39,8 +39,9 @@
 			<DeclarationLink name="vite_plugin_pkg_json" /> is a Vite plugin that serves a publish-safe
 			subset of your <code>package.json</code> as the virtual module
 			<Code lang="ts" content="'virtual:pkg.json'" inline />. The default export is typed
-			<a href="https://util.fuz.dev/docs/api#PkgJson"><code>PkgJson</code></a> from fuz_util, and
-			contains package identity plus Fuz extension fields, with everything else excluded.
+			<a href="https://util.fuz.dev/docs/api#PkgJson"><code>PkgJson</code></a>
+			from fuz_util, and contains package identity plus Fuz extension fields, with everything else
+			excluded.
 		</p>
 		<p>
 			The plugin strips <code>package.json</code> to the allowlist and serves only that, so info
@@ -48,7 +49,8 @@
 			code. The docs system around the content you're reading relies on it. Importing the root
 			<code>package.json</code> directly instead inlines the whole file -- <code>scripts</code>,
 			<code>dependencies</code>, private config -- into the client bundle and trips SvelteKit's
-			<code>server.fs.allow</code> on a cold HMR reload; serving the curated subset avoids both.
+			<code>server.fs.allow</code>
+			on a cold HMR reload; serving the curated subset avoids both.
 		</p>
 	</section>
 
@@ -88,7 +90,8 @@ export default defineConfig({
 		<p>
 			fuz_ui has optional patterns that leverage the feature. One example is adding <DeclarationLink
 				name="SiteState"
-			/> at the root layout, so
+			/>
+			at the root layout, so
 			<code>glyph</code> and <code>repo_url</code> come from <code>package.json</code> instead of
 			being hardcoded:
 		</p>
@@ -122,8 +125,10 @@ export const library_json = library_json_from_modules(pkg_json, modules);`}
 		<TomeSectionHeader text="What gets served" />
 		<p>
 			By default the plugin keeps only the keys in <a
-				href="https://util.fuz.dev/docs/api#pkg_json_keys"><code>pkg_json_keys</code></a
-			>, including package identity values and some Fuz extension fields. Everything else is
+				href="https://util.fuz.dev/docs/api#pkg_json_keys"
+			>
+				<code>pkg_json_keys</code>
+			</a>, including package identity values and some Fuz extension fields. Everything else is
 			dropped:
 		</p>
 		<ul>
@@ -138,9 +143,9 @@ export const library_json = library_json_from_modules(pkg_json, modules);`}
 	<TomeSection>
 		<TomeSectionHeader text="Custom keys" />
 		<p>
-			The set of picked fields defaults to <a href="https://util.fuz.dev/docs/api#pkg_json_keys"
-				><code>pkg_json_keys</code></a
-			>, and you can extend or replace them:
+			The set of picked fields defaults to <a href="https://util.fuz.dev/docs/api#pkg_json_keys">
+				<code>pkg_json_keys</code>
+			</a>, and you can extend or replace them:
 		</p>
 		<Code
 			lang="ts"
@@ -152,7 +157,8 @@ export const custom_keys = [...pkg_json_keys, 'keywords'] as const;`}
 		<p>
 			Because <code>library_json_from_modules</code> re-strips at runtime, the same list must reach
 			all three places (the plugin, that runtime call, and the
-			<code>virtual:pkg.json</code> ambient type), or the extras get dropped:
+			<code>virtual:pkg.json</code>
+			ambient type), or the extras get dropped:
 		</p>
 		<Code
 			lang="ts"
@@ -180,10 +186,12 @@ library_json_from_modules(pkg_json, modules, custom_keys);`}
 
 	<aside>
 		For more, see <ModuleLink module_path="vite_plugin_pkg_json.ts" />, the
-		<GithubLink path="fuzdev/fuz_ui/blob/main/src/lib/vite_plugin_pkg_json.ts"
-			>source code</GithubLink
-		> and <GithubLink path="fuzdev/fuz_ui/blob/main/src/test/vite_plugin_pkg_json.test.ts"
-			>tests</GithubLink
-		>.
+		<GithubLink path="fuzdev/fuz_ui/blob/main/src/lib/vite_plugin_pkg_json.ts">
+			source code
+		</GithubLink>
+		and
+		<GithubLink path="fuzdev/fuz_ui/blob/main/src/test/vite_plugin_pkg_json.test.ts">
+			tests
+		</GithubLink>.
 	</aside>
 </TomeContent>

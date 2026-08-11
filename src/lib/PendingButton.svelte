@@ -1,8 +1,8 @@
 <script lang="ts">
-	import type {Snippet} from 'svelte';
+	import type { Snippet } from 'svelte';
 
 	import PendingAnimation from './PendingAnimation.svelte';
-	import type {SvelteHTMLElements} from 'svelte/elements';
+	import type { SvelteHTMLElements } from 'svelte/elements';
 
 	const {
 		pending,
@@ -30,7 +30,7 @@
 	bind:this={el}
 	type="button"
 	{...rest}
-	class={['pending-button', rest.class, {pending}]}
+	class={['pending-button', rest.class, { pending }]}
 	disabled={disabled_prop ?? pending}
 	{onclick}
 >

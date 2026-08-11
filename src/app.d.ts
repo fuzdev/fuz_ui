@@ -9,7 +9,7 @@ declare module 'virtual:fuz.css' {
 
 // `virtual:pkg.json` is served by `vite_plugin_pkg_json` — the curated package.json.
 declare module 'virtual:pkg.json' {
-	import type {PkgJson} from '@fuzdev/fuz_util/pkg_json.ts';
+	import type { PkgJson } from '@fuzdev/fuz_util/pkg_json.ts';
 	const pkg_json: PkgJson;
 	export default pkg_json;
 }

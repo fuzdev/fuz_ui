@@ -1,12 +1,12 @@
-import {describe, test, assert, beforeEach} from 'vitest';
+import { describe, test, assert, beforeEach } from 'vitest';
 
 import {
 	ContextmenuState,
 	EntryState,
 	SubmenuState,
-	RootMenuState,
+	RootMenuState
 } from '$lib/contextmenu_state.svelte.ts';
-import {add_test_entry, add_test_submenu} from './contextmenu_state_test_helpers.ts';
+import { add_test_entry, add_test_submenu } from './contextmenu_state_test_helpers.ts';
 
 describe('ContextmenuState - Structure', () => {
 	let contextmenu: ContextmenuState;
@@ -222,7 +222,7 @@ describe('ContextmenuState - Structure', () => {
 
 		test('reset clears all async state', () => {
 			const entry = new EntryState(contextmenu.root_menu, () => async () => {});
-			entry.promise = Promise.resolve({ok: true});
+			entry.promise = Promise.resolve({ ok: true });
 			entry.pending = true;
 			entry.error_message = 'async error';
 

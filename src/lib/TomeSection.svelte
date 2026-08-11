@@ -1,5 +1,5 @@
 <script lang="ts" module>
-	import {create_context} from './context_helpers.ts';
+	import { create_context } from './context_helpers.ts';
 
 	export type RegisterSectionHeader = (get_fragment: () => string) => string | undefined;
 	export const register_section_header_context = create_context<RegisterSectionHeader>();
@@ -8,12 +8,12 @@
 </script>
 
 <script lang="ts">
-	import type {Snippet} from 'svelte';
-	import type {SvelteHTMLElements} from 'svelte/elements';
-	import {DEV} from 'esm-env';
+	import type { Snippet } from 'svelte';
+	import type { SvelteHTMLElements } from 'svelte/elements';
+	import { DEV } from 'esm-env';
 
-	import {intersect} from './intersect.svelte.ts';
-	import {docs_links_context} from './docs_helpers.svelte.ts';
+	import { intersect } from './intersect.svelte.ts';
+	import { docs_links_context } from './docs_helpers.svelte.ts';
 
 	const {
 		children,
@@ -44,7 +44,7 @@
 	register_section_header_context.set((gf) => {
 		if (DEV && get_fragment !== undefined) {
 			throw Error(
-				`TomeSection already has header "${get_fragment()}", cannot add "${gf()}". Did you forget to wrap a TomeSectionHeader in its own TomeSection?`,
+				`TomeSection already has header "${get_fragment()}", cannot add "${gf()}". Did you forget to wrap a TomeSectionHeader in its own TomeSection?`
 			);
 		}
 		get_fragment = gf;
@@ -54,7 +54,7 @@
 
 <section
 	{...rest}
-	{@attach intersect(() => ({intersecting}) => {
+	{@attach intersect(() => ({ intersecting }) => {
 		const fragment = get_fragment?.();
 		if (!fragment) {
 			if (DEV) console.error('TomeSectionHeader must be a child of TomeSection'); // eslint-disable-line no-console

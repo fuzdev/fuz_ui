@@ -1,7 +1,7 @@
 <script lang="ts">
 	import Code from '@fuzdev/fuz_code/Code.svelte';
 
-	import {tome_get_by_slug} from '$lib/tome.ts';
+	import { tome_get_by_slug } from '$lib/tome.ts';
 	import PendingButton from '$lib/PendingButton.svelte';
 	import TomeContent from '$lib/TomeContent.svelte';
 
@@ -28,8 +28,10 @@
 				onclick={() => {
 					pending_1 = !pending_1;
 					pending_2 = !pending_2;
-				}}>toggle the pending status of the buttons below</button
+				}}
 			>
+				toggle the pending status of the buttons below
+			</button>
 		</p>
 		<Code
 			content={`<PendingButton

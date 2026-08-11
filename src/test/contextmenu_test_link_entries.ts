@@ -3,29 +3,29 @@
  * Tests link entry contextmenu event handling, propagation control, and browser native menu access.
  */
 
-import {describe, test, assert, afterEach, beforeEach, vi} from 'vitest';
-import {flushSync, tick} from 'svelte';
-import {on} from 'svelte/events';
+import { describe, test, assert, afterEach, beforeEach, vi } from 'vitest';
+import { flushSync, tick } from 'svelte';
+import { on } from 'svelte/events';
 import {
 	unmount_component,
 	create_contextmenu_event,
 	create_keyboard_event,
 	create_touch_event,
-	set_event_target,
+	set_event_target
 } from './test_helpers.ts';
 import {
 	mount_contextmenu_root,
 	setup_contextmenu_attachment,
-	type SharedTestOptions,
+	type SharedTestOptions
 } from './contextmenu_test_helpers.ts';
-import {CONTEXTMENU_DEFAULT_LONGPRESS_DURATION} from '$lib/contextmenu_helpers.ts';
+import { CONTEXTMENU_DEFAULT_LONGPRESS_DURATION } from '$lib/contextmenu_helpers.ts';
 
 export const create_shared_link_entry_tests = (
 	Component: any,
 	component_name: string,
-	options: SharedTestOptions = {},
+	options: SharedTestOptions = {}
 ): void => {
-	const {requires_longpress = false} = options;
+	const { requires_longpress = false } = options;
 
 	describe(`${component_name} - Link Entry Handling`, () => {
 		let mounted: ReturnType<typeof mount_contextmenu_root> | null = null;
@@ -50,19 +50,19 @@ export const create_shared_link_entry_tests = (
 			test('right-clicking on link entry stops propagation', async () => {
 				mounted = mount_contextmenu_root(Component);
 
-				const {container, contextmenu} = mounted;
+				const { container, contextmenu } = mounted;
 
 				const target = document.createElement('div');
 				container.appendChild(target);
 
 				await setup_contextmenu_attachment(target, [
-					{snippet: 'link', props: {href: 'https://ui.fuz.dev/'}},
+					{ snippet: 'link', props: { href: 'https://ui.fuz.dev/' } }
 				]);
 
 				// Open menu
 				if (requires_longpress) {
 					const touchstart = create_touch_event('touchstart', [
-						{clientX: 100, clientY: 200, target},
+						{ clientX: 100, clientY: 200, target }
 					]);
 					set_event_target(touchstart, target);
 					window.dispatchEvent(touchstart);
@@ -109,14 +109,14 @@ export const create_shared_link_entry_tests = (
 					assert.strictEqual(
 						link_event.defaultPrevented,
 						false,
-						'event should not be prevented to allow browser contextmenu',
+						'event should not be prevented to allow browser contextmenu'
 					);
 
 					// Window handler should not be called due to stopPropagation
 					assert.strictEqual(
 						window_handler_called,
 						false,
-						'event should not propagate to window handler',
+						'event should not propagate to window handler'
 					);
 				} finally {
 					off();
@@ -126,19 +126,19 @@ export const create_shared_link_entry_tests = (
 			test('right-clicking on link entry does not prevent default', async () => {
 				mounted = mount_contextmenu_root(Component);
 
-				const {container} = mounted;
+				const { container } = mounted;
 
 				const target = document.createElement('div');
 				container.appendChild(target);
 
 				await setup_contextmenu_attachment(target, [
-					{snippet: 'link', props: {href: 'https://fuz.dev'}},
+					{ snippet: 'link', props: { href: 'https://fuz.dev' } }
 				]);
 
 				// Open menu
 				if (requires_longpress) {
 					const touchstart = create_touch_event('touchstart', [
-						{clientX: 100, clientY: 200, target},
+						{ clientX: 100, clientY: 200, target }
 					]);
 					set_event_target(touchstart, target);
 					window.dispatchEvent(touchstart);
@@ -169,19 +169,19 @@ export const create_shared_link_entry_tests = (
 			test('keyboard selection highlights the link entry', async () => {
 				mounted = mount_contextmenu_root(Component);
 
-				const {container, contextmenu} = mounted;
+				const { container, contextmenu } = mounted;
 
 				const target = document.createElement('div');
 				container.appendChild(target);
 
 				await setup_contextmenu_attachment(target, [
-					{snippet: 'link', props: {href: 'https://ui.fuz.dev/'}},
+					{ snippet: 'link', props: { href: 'https://ui.fuz.dev/' } }
 				]);
 
 				// Open menu
 				if (requires_longpress) {
 					const touchstart = create_touch_event('touchstart', [
-						{clientX: 100, clientY: 200, target},
+						{ clientX: 100, clientY: 200, target }
 					]);
 					set_event_target(touchstart, target);
 					window.dispatchEvent(touchstart);
@@ -212,20 +212,20 @@ export const create_shared_link_entry_tests = (
 			test('multiple link entries each handle contextmenu independently', async () => {
 				mounted = mount_contextmenu_root(Component);
 
-				const {container} = mounted;
+				const { container } = mounted;
 
 				const target = document.createElement('div');
 				container.appendChild(target);
 
 				await setup_contextmenu_attachment(target, [
-					{snippet: 'link', props: {href: 'https://ui.fuz.dev/'}},
-					{snippet: 'link', props: {href: 'https://fuz.dev/'}},
+					{ snippet: 'link', props: { href: 'https://ui.fuz.dev/' } },
+					{ snippet: 'link', props: { href: 'https://fuz.dev/' } }
 				]);
 
 				// Open menu
 				if (requires_longpress) {
 					const touchstart = create_touch_event('touchstart', [
-						{clientX: 100, clientY: 200, target},
+						{ clientX: 100, clientY: 200, target }
 					]);
 					set_event_target(touchstart, target);
 					window.dispatchEvent(touchstart);
@@ -267,13 +267,13 @@ export const create_shared_link_entry_tests = (
 						assert.strictEqual(
 							window_handler_called,
 							false,
-							`event should not propagate for link ${link.getAttribute('href')}`,
+							`event should not propagate for link ${link.getAttribute('href')}`
 						);
 
 						assert.strictEqual(
 							event.defaultPrevented,
 							false,
-							'event should not be prevented to allow browser contextmenu',
+							'event should not be prevented to allow browser contextmenu'
 						);
 					}
 				} finally {
@@ -284,19 +284,19 @@ export const create_shared_link_entry_tests = (
 			test('link entry prevents Fuz menu from reopening', async () => {
 				mounted = mount_contextmenu_root(Component);
 
-				const {container, contextmenu} = mounted;
+				const { container, contextmenu } = mounted;
 
 				const target = document.createElement('div');
 				container.appendChild(target);
 
 				await setup_contextmenu_attachment(target, [
-					{snippet: 'link', props: {href: 'https://ui.fuz.dev/'}},
+					{ snippet: 'link', props: { href: 'https://ui.fuz.dev/' } }
 				]);
 
 				// Open menu
 				if (requires_longpress) {
 					const touchstart = create_touch_event('touchstart', [
-						{clientX: 100, clientY: 200, target},
+						{ clientX: 100, clientY: 200, target }
 					]);
 					set_event_target(touchstart, target);
 					window.dispatchEvent(touchstart);
@@ -331,7 +331,7 @@ export const create_shared_link_entry_tests = (
 				assert.deepStrictEqual(
 					contextmenu.params,
 					original_params,
-					'contextmenu params should not change',
+					'contextmenu params should not change'
 				);
 
 				// Position should not change
@@ -342,19 +342,19 @@ export const create_shared_link_entry_tests = (
 			test('window contextmenu handler not called for link entries', async () => {
 				mounted = mount_contextmenu_root(Component);
 
-				const {container, contextmenu} = mounted;
+				const { container, contextmenu } = mounted;
 
 				const target = document.createElement('div');
 				container.appendChild(target);
 
 				await setup_contextmenu_attachment(target, [
-					{snippet: 'link', props: {href: 'https://fuz.dev'}},
+					{ snippet: 'link', props: { href: 'https://fuz.dev' } }
 				]);
 
 				// Open menu
 				if (requires_longpress) {
 					const touchstart = create_touch_event('touchstart', [
-						{clientX: 100, clientY: 200, target},
+						{ clientX: 100, clientY: 200, target }
 					]);
 					set_event_target(touchstart, target);
 					window.dispatchEvent(touchstart);
@@ -393,19 +393,19 @@ export const create_shared_link_entry_tests = (
 			test("browser's native link contextmenu can open", async () => {
 				mounted = mount_contextmenu_root(Component);
 
-				const {container, contextmenu} = mounted;
+				const { container, contextmenu } = mounted;
 
 				const target = document.createElement('div');
 				container.appendChild(target);
 
 				await setup_contextmenu_attachment(target, [
-					{snippet: 'link', props: {href: 'https://fuz.dev', content: 'Example Link'}},
+					{ snippet: 'link', props: { href: 'https://fuz.dev', content: 'Example Link' } }
 				]);
 
 				// Open menu
 				if (requires_longpress) {
 					const touchstart = create_touch_event('touchstart', [
-						{clientX: 100, clientY: 200, target},
+						{ clientX: 100, clientY: 200, target }
 					]);
 					set_event_target(touchstart, target);
 					window.dispatchEvent(touchstart);
@@ -439,19 +439,19 @@ export const create_shared_link_entry_tests = (
 			test('contextmenu position unchanged when right-clicking link entry', async () => {
 				mounted = mount_contextmenu_root(Component);
 
-				const {container, contextmenu} = mounted;
+				const { container, contextmenu } = mounted;
 
 				const target = document.createElement('div');
 				container.appendChild(target);
 
 				await setup_contextmenu_attachment(target, [
-					{snippet: 'link', props: {href: 'https://fuz.dev', content: 'Example Link'}},
+					{ snippet: 'link', props: { href: 'https://fuz.dev', content: 'Example Link' } }
 				]);
 
 				// Open menu at specific position
 				if (requires_longpress) {
 					const touchstart = create_touch_event('touchstart', [
-						{clientX: 100, clientY: 200, target},
+						{ clientX: 100, clientY: 200, target }
 					]);
 					set_event_target(touchstart, target);
 					window.dispatchEvent(touchstart);
@@ -488,7 +488,7 @@ export const create_shared_link_entry_tests = (
 			test('without stopPropagation, contextmenu_query_params auto-detects links (demonstrates bug)', () => {
 				mounted = mount_contextmenu_root(Component);
 
-				const {container, contextmenu} = mounted;
+				const { container, contextmenu } = mounted;
 
 				// Create a link element WITHOUT the stopPropagation fix
 				// (simulating the old behavior before the fix was applied)
@@ -521,7 +521,7 @@ export const create_shared_link_entry_tests = (
 					assert.strictEqual(
 						open_was_called,
 						true,
-						'contextmenu.open should be called when link is detected',
+						'contextmenu.open should be called when link is detected'
 					);
 
 					// Verify that contextmenu_query_params auto-detected the <a> tag
@@ -533,7 +533,7 @@ export const create_shared_link_entry_tests = (
 					assert.strictEqual(
 						link_param.props.href,
 						'https://regression.test/',
-						'auto-detected link should have correct href',
+						'auto-detected link should have correct href'
 					);
 				} finally {
 					// Restore original open method
@@ -545,19 +545,19 @@ export const create_shared_link_entry_tests = (
 			test('stopPropagation prevents auto-detection bug', async () => {
 				mounted = mount_contextmenu_root(Component);
 
-				const {container, contextmenu} = mounted;
+				const { container, contextmenu } = mounted;
 
 				const target = document.createElement('div');
 				container.appendChild(target);
 
 				await setup_contextmenu_attachment(target, [
-					{snippet: 'link', props: {href: 'https://fixed.test/'}},
+					{ snippet: 'link', props: { href: 'https://fixed.test/' } }
 				]);
 
 				// Open menu with a link entry (which HAS stopPropagation)
 				if (requires_longpress) {
 					const touchstart = create_touch_event('touchstart', [
-						{clientX: 100, clientY: 200, target},
+						{ clientX: 100, clientY: 200, target }
 					]);
 					set_event_target(touchstart, target);
 					window.dispatchEvent(touchstart);
@@ -598,7 +598,7 @@ export const create_shared_link_entry_tests = (
 					assert.strictEqual(
 						open_was_called,
 						false,
-						'contextmenu.open should NOT be called due to stopPropagation fix',
+						'contextmenu.open should NOT be called due to stopPropagation fix'
 					);
 
 					// This proves the fix works: stopPropagation prevents the event from

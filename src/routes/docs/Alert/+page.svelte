@@ -1,7 +1,7 @@
 <script lang="ts">
 	import Code from '@fuzdev/fuz_code/Code.svelte';
 
-	import {tome_get_by_slug} from '$lib/tome.ts';
+	import { tome_get_by_slug } from '$lib/tome.ts';
 	import Alert from '$lib/Alert.svelte';
 	import TomeContent from '$lib/TomeContent.svelte';
 	import TomeSection from '$lib/TomeSection.svelte';
@@ -17,8 +17,8 @@
 
 <!-- eslint-disable svelte/no-useless-mustaches -->
 
-<TomeContent {tome}
-	><section>
+<TomeContent {tome}>
+	<section>
 		<aside>⚠️ This API is unfinished and will likely change.</aside>
 	</section>
 	<section>
@@ -91,8 +91,8 @@ export type AlertStatus = 'inform' | 'help' | 'error';"
 	the <code>color</code> prop overrides the status color
 </Alert>`}
 		/>
-		<Alert status="help" color="var(--palette_d_50)"
-			>the <code>color</code> prop overrides the status color</Alert
-		>
+		<Alert status="help" color="var(--palette_d_50)">
+			the <code>color</code> prop overrides the status color
+		</Alert>
 	</TomeSection>
 </TomeContent>

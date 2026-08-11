@@ -1,13 +1,13 @@
 <script lang="ts">
 	import Code from '@fuzdev/fuz_code/Code.svelte';
-	import type {Theme} from '@fuzdev/fuz_css/theme.ts';
-	import {default_themes} from '@fuzdev/fuz_css/themes.ts';
+	import type { Theme } from '@fuzdev/fuz_css/theme.ts';
+	import { default_themes } from '@fuzdev/fuz_css/themes.ts';
 
 	import TomeContent from '$lib/TomeContent.svelte';
 	import Details from '$lib/Details.svelte';
 	import Dialog from '$lib/Dialog.svelte';
 	import DialogContent from '$lib/DialogContent.svelte';
-	import {tome_get_by_slug} from '$lib/tome.ts';
+	import { tome_get_by_slug } from '$lib/tome.ts';
 	import ColorSchemeInput from '$lib/ColorSchemeInput.svelte';
 	import TomeSectionHeader from '$lib/TomeSectionHeader.svelte';
 	import TomeSection from '$lib/TomeSection.svelte';
@@ -15,7 +15,7 @@
 	import ThemeForm from '$routes/ThemeForm.svelte';
 	import MdnLink from '$lib/MdnLink.svelte';
 	import DeclarationLink from '$lib/DeclarationLink.svelte';
-	import {theme_state_context} from '$lib/theme_state.svelte.ts';
+	import { theme_state_context } from '$lib/theme_state.svelte.ts';
 
 	const TOME_SLUG = 'ThemeRoot';
 
@@ -34,9 +34,9 @@
 <TomeContent {tome}>
 	<section class="theme">
 		<p>
-			Fuz provides UI components that use <a href="https://css.fuz.dev/docs/themes"
-				>fuz_css' theming system</a
-			> for dark mode and custom themes.
+			Fuz provides UI components that use
+			<a href="https://css.fuz.dev/docs/themes">fuz_css' theming system</a>
+			for dark mode and custom themes.
 		</p>
 		<p>
 			<DeclarationLink name="ThemeRoot" /> adds global support for both the browser's
@@ -44,8 +44,8 @@
 			and custom themes based on
 			<a href="https://css.fuz.dev/docs/variables">fuz_css style variables</a>, which use
 			<MdnLink path="Web/CSS/--*">CSS custom properties</MdnLink>.
-			<DeclarationLink name="ThemeRoot" /> is a singleton component that's mounted at the top-level
-			of the page:
+			<DeclarationLink name="ThemeRoot" />
+			is a singleton component that's mounted at the top-level of the page:
 		</p>
 		<Code lang="ts" content={`import ThemeRoot from '@fuzdev/fuz_ui/ThemeRoot.svelte';`} />
 		<Code content={`<!-- +layout.svelte -->\n<ThemeRoot>\n\t{@render children()}\n</ThemeRoot>`} />
@@ -77,7 +77,8 @@
 					<code>theme_state</code>
 					instance. It works without children, but <code>theme_state_context.get()</code> will fail
 					unless you call
-					<code>theme_state_context.set()</code> yourself.
+					<code>theme_state_context.set()</code>
+					yourself.
 				</p>
 				<p>
 					This lets you call <code>theme_state_context.get()</code> to access the reactive
@@ -85,13 +86,15 @@
 					class instance anywhere in your code. The helper components on this page like
 					<DeclarationLink name="ColorSchemeInput" /> and <DeclarationLink name="ThemeInput" /> use
 					it so they don't require a
-					<code>theme_state</code> prop.
+					<code>theme_state</code>
+					prop.
 				</p>
 				<p>
 					If you don't don't want to wrap everything in <DeclarationLink name="ThemeRoot" /> for
 					some reason, you can set a <DeclarationLink name="ThemeState" /> in context manually. It
 					must be the same reference as the
-					<DeclarationLink name="ThemeRoot" /> prop:
+					<DeclarationLink name="ThemeRoot" />
+					prop:
 				</p>
 				<Code
 					content={'<' +
@@ -143,9 +146,8 @@
 					scheme without boilerplate.
 				</p>
 				<p>
-					By default, <DeclarationLink name="ColorSchemeInput" /> works with <DeclarationLink
-						name="ThemeRoot"
-					/>'s
+					By default, <DeclarationLink name="ColorSchemeInput" /> works with
+					<DeclarationLink name="ThemeRoot" />'s
 					<code>theme_state</code> in context to save the user's preference to
 					<code>localStorage</code>. To customize this behavior, pass your own <code>value</code> or
 					<code>onchange</code>
@@ -159,11 +161,11 @@
 	<TomeSection>
 		<TomeSectionHeader text="Builtin themes" />
 		<p>
-			A theme is a simple JSON collection of <a href="https://css.fuz.dev/docs/variables"
-				>fuz_css style variables</a
-			> that can be transformed into CSS that set custom properties. Each variable can have values
-			for light and/or dark color schemes. In other words, "dark" isn't a theme, it's a mode that
-			any theme can implement.
+			A theme is a simple JSON collection of
+			<a href="https://css.fuz.dev/docs/variables">fuz_css style variables</a>
+			that can be transformed into CSS that set custom properties. Each variable can have values for
+			light and/or dark color schemes. In other words, "dark" isn't a theme, it's a mode that any
+			theme can implement.
 		</p>
 		<!-- TODO explain when exported <Code code={`<ThemeInput\n\t{themes}\n\t{selected_theme}\n/>`} /> -->
 		<div class="width_atmost_sm mb_lg">
@@ -239,9 +241,9 @@ theme_state.theme.name; // '${theme_state.theme.name}'
 theme_state.color_scheme; // '${theme_state.color_scheme}'`}
 		/>
 		<p>
-			For a more complete example, see <a href="https://github.com/fuzdev/fuz_template"
-				>fuz_template</a
-			>.
+			For a more complete example, see <a href="https://github.com/fuzdev/fuz_template">
+				fuz_template
+			</a>.
 		</p>
 	</TomeSection>
 	<TomeSection>

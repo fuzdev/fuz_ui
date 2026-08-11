@@ -1,16 +1,16 @@
 <script lang="ts">
-	import type {Snippet} from 'svelte';
-	import type {SvelteHTMLElements} from 'svelte/elements';
-	import {page} from '$app/state';
-	import {resolve} from '$app/paths';
+	import type { Snippet } from 'svelte';
+	import type { SvelteHTMLElements } from 'svelte/elements';
+	import { page } from '$app/state';
+	import { resolve } from '$app/paths';
 
 	import Hashlink from './Hashlink.svelte';
 	import {
 		register_section_header_context,
 		section_depth_context,
-		section_id_context,
+		section_id_context
 	} from './TomeSection.svelte';
-	import {docs_links_context, docs_slugify, type DocsLinkTag} from './docs_helpers.svelte.ts';
+	import { docs_links_context, docs_slugify, type DocsLinkTag } from './docs_helpers.svelte.ts';
 
 	const {
 		text,
@@ -18,11 +18,11 @@
 		children,
 		...rest
 	}: // eslint-disable-next-line @typescript-eslint/no-duplicate-type-constituents
-	(SvelteHTMLElements['h2'] | SvelteHTMLElements['h3'] | SvelteHTMLElements['h4']) & {
-		text: string;
-		tag?: DocsLinkTag;
-		children?: Snippet;
-	} = $props();
+		(SvelteHTMLElements['h2'] | SvelteHTMLElements['h3'] | SvelteHTMLElements['h4']) & {
+			text: string;
+			tag?: DocsLinkTag;
+			children?: Snippet;
+		} = $props();
 
 	const fragment = $derived(docs_slugify(text));
 
@@ -53,7 +53,7 @@
 			final_tag,
 			depth,
 			parent_section_id,
-			my_section_id,
+			my_section_id
 		);
 		return () => docs_links.remove(id);
 	});

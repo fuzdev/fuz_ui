@@ -1,7 +1,7 @@
 <script lang="ts">
-	import type {SvelteHTMLElements} from 'svelte/elements';
+	import type { SvelteHTMLElements } from 'svelte/elements';
 
-	import {FUZ_DEV_URL} from './constants.ts';
+	import { FUZ_DEV_URL } from './constants.ts';
 
 	const {
 		selected,
@@ -14,7 +14,7 @@
 <ul {...rest}>
 	<li>
 		<!-- eslint-disable-next-line svelte/no-navigation-without-resolve -->
-		<a rel="me" href={FUZ_DEV_URL} class={{selected: selected === 'fuz.dev'}}>fuz.dev</a>
+		<a rel="me" href={FUZ_DEV_URL} class={{ selected: selected === 'fuz.dev' }}>fuz.dev</a>
 		- the Fuz stack homepage{#if selected === 'fuz.dev'}, you are here{/if}
 	</li>
 	<li>

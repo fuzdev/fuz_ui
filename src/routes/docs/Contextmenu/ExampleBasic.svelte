@@ -5,7 +5,7 @@
 	import Contextmenu from '$lib/Contextmenu.svelte';
 	import TomeSectionHeader from '$lib/TomeSectionHeader.svelte';
 	import TomeSection from '$lib/TomeSection.svelte';
-	import {selected_contextmenu_root_component_context} from './selected_root_component.svelte.ts';
+	import { selected_contextmenu_root_component_context } from './selected_root_component.svelte.ts';
 
 	const selected = selected_contextmenu_root_component_context.get();
 	const ContextmenuRootComponent = $derived(selected.component);
@@ -53,16 +53,16 @@
 </${root_component_name}>
 ...markup without contextmenu behavior...`}
 				/>
-				<div><code class:palette_g_50={greeted}>greeted = {greeted}</code></div>
+				<div><code class:color_g_50={greeted}>greeted = {greeted}</code></div>
 				<div>
-					<code class:palette_e_50={greeted_icon_snippet}
-						>greeted_icon_snippet = {greeted_icon_snippet}</code
-					>
+					<code class:color_e_50={greeted_icon_snippet}>
+						greeted_icon_snippet = {greeted_icon_snippet}
+					</code>
 				</div>
 				<div>
-					<code class:palette_d_50={greeted_icon_string}
-						>greeted_icon_string = {greeted_icon_string}</code
-					>
+					<code class:color_d_50={greeted_icon_string}>
+						greeted_icon_string = {greeted_icon_string}
+					</code>
 				</div>
 				<aside class="mt_lg">
 					The <code>scoped</code> prop is only needed when mounting a contextmenu inside a specific

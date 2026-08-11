@@ -1,7 +1,7 @@
 <script lang="ts">
-	import type {SvelteHTMLElements} from 'svelte/elements';
+	import type { SvelteHTMLElements } from 'svelte/elements';
 
-	import {icon_close} from './icons.ts';
+	import { icon_close } from './icons.ts';
 	import Svg from './Svg.svelte';
 
 	let {
@@ -55,7 +55,7 @@
 			parts.push(
 				filtered_declaration_count === 1
 					? '1 declaration'
-					: `${filtered_declaration_count} declarations`,
+					: `${filtered_declaration_count} declarations`
 			);
 		}
 		return parts.join(' · ');

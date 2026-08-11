@@ -1,12 +1,12 @@
-import {describe, test, assert, beforeEach} from 'vitest';
+import { describe, test, assert, beforeEach } from 'vitest';
 
 import {
 	ContextmenuState,
 	EntryState,
 	SubmenuState,
-	RootMenuState,
+	RootMenuState
 } from '$lib/contextmenu_state.svelte.ts';
-import {add_test_entry} from './contextmenu_state_test_helpers.ts';
+import { add_test_entry } from './contextmenu_state_test_helpers.ts';
 
 describe('ContextmenuState - Edge Cases', () => {
 	let contextmenu: ContextmenuState;
@@ -60,7 +60,7 @@ describe('ContextmenuState - Edge Cases', () => {
 				throw new Error('initial error');
 			});
 			const success_entry = add_test_entry(contextmenu.root_menu, () => {
-				return {ok: true};
+				return { ok: true };
 			});
 
 			contextmenu.open([], 0, 0);
@@ -131,9 +131,9 @@ describe('ContextmenuState - Edge Cases', () => {
 		test('null/undefined handling', () => {
 			// Open with valid params
 			contextmenu.open(
-				[{snippet: 'text' as const, props: {content: 'Test', icon: '🧪', run: () => {}}}],
+				[{ snippet: 'text' as const, props: { content: 'Test', icon: '🧪', run: () => {} } }],
 				0,
-				0,
+				0
 			);
 			assert.strictEqual(contextmenu.opened, true);
 
@@ -176,8 +176,8 @@ describe('ContextmenuState - Edge Cases', () => {
 		});
 
 		test('zero-sized layout', () => {
-			const zero_layout = {width: 0, height: 0};
-			const cm = new ContextmenuState({layout: zero_layout});
+			const zero_layout = { width: 0, height: 0 };
+			const cm = new ContextmenuState({ layout: zero_layout });
 
 			assert.strictEqual(cm.layout.width, 0);
 			assert.strictEqual(cm.layout.height, 0);
@@ -244,7 +244,7 @@ describe('ContextmenuState - Edge Cases', () => {
 		});
 
 		test('concurrent selections', () => {
-			const entries = Array.from({length: 10}, () => add_test_entry(contextmenu.root_menu));
+			const entries = Array.from({ length: 10 }, () => add_test_entry(contextmenu.root_menu));
 
 			// Rapid selections
 			for (let i = 0; i < 100; i++) {
@@ -257,11 +257,11 @@ describe('ContextmenuState - Edge Cases', () => {
 		});
 
 		test('concurrent activations', async () => {
-			const entries = Array.from({length: 3}, () =>
+			const entries = Array.from({ length: 3 }, () =>
 				add_test_entry(contextmenu.root_menu, async () => {
 					await new Promise((resolve) => setTimeout(resolve, 10));
-					return {ok: true};
-				}),
+					return { ok: true };
+				})
 			);
 
 			contextmenu.open([], 0, 0);
@@ -285,7 +285,7 @@ describe('ContextmenuState - Edge Cases', () => {
 
 			const entry = new EntryState(contextmenu.root_menu, () => async () => {
 				await promise;
-				return {ok: true};
+				return { ok: true };
 			});
 
 			contextmenu.open([], 0, 0);
@@ -295,7 +295,7 @@ describe('ContextmenuState - Edge Cases', () => {
 			assert.strictEqual(contextmenu.opened, false);
 
 			// Resolve after close
-			resolve({ok: true});
+			resolve({ ok: true });
 			await activation;
 
 			// Should stay closed

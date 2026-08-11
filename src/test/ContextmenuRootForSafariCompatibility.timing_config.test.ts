@@ -1,21 +1,24 @@
 /**
  * @vitest-environment jsdom
  */
-import {describe, test, assert, beforeEach, afterEach, vi} from 'vitest';
-import {tick} from 'svelte';
+import { describe, test, assert, beforeEach, afterEach, vi } from 'vitest';
+import { tick } from 'svelte';
 
 import ContextmenuRootForSafariCompatibility from '$lib/ContextmenuRootForSafariCompatibility.svelte';
 import {
 	unmount_component,
 	create_touch_event,
 	create_contextmenu_event,
-	set_event_target,
+	set_event_target
 } from './test_helpers.ts';
-import {mount_contextmenu_root, setup_contextmenu_attachment} from './contextmenu_test_helpers.ts';
+import {
+	mount_contextmenu_root,
+	setup_contextmenu_attachment
+} from './contextmenu_test_helpers.ts';
 import {
 	CONTEXTMENU_DEFAULT_LONGPRESS_DURATION,
 	CONTEXTMENU_DEFAULT_LONGPRESS_MOVE_TOLERANCE,
-	CONTEXTMENU_DEFAULT_BYPASS_WINDOW,
+	CONTEXTMENU_DEFAULT_BYPASS_WINDOW
 } from '$lib/contextmenu_helpers.ts';
 
 // ResizeObserver is not currently available in jsdom
@@ -44,19 +47,19 @@ describe('ContextmenuRootForSafariCompatibility - Timing Configurations', () => 
 	describe('longpress_duration configuration', () => {
 		test('respects custom longpress_duration (very short: 200ms)', async () => {
 			mounted = mount_contextmenu_root(ContextmenuRootForSafariCompatibility, undefined, {
-				longpress_duration: 200,
+				longpress_duration: 200
 			});
 
-			const {container, contextmenu} = mounted;
+			const { container, contextmenu } = mounted;
 
 			const target = document.createElement('div');
 			container.appendChild(target);
 
 			await setup_contextmenu_attachment(target, [
-				{snippet: 'text', props: {content: 'Test', icon: '🧪', run: () => undefined}},
+				{ snippet: 'text', props: { content: 'Test', icon: '🧪', run: () => undefined } }
 			]);
 
-			const touchstart = create_touch_event('touchstart', [{clientX: 100, clientY: 200, target}]);
+			const touchstart = create_touch_event('touchstart', [{ clientX: 100, clientY: 200, target }]);
 			set_event_target(touchstart, target);
 			window.dispatchEvent(touchstart);
 
@@ -69,19 +72,19 @@ describe('ContextmenuRootForSafariCompatibility - Timing Configurations', () => 
 
 		test('respects custom longpress_duration (normal: 500ms)', async () => {
 			mounted = mount_contextmenu_root(ContextmenuRootForSafariCompatibility, undefined, {
-				longpress_duration: 500,
+				longpress_duration: 500
 			});
 
-			const {container, contextmenu} = mounted;
+			const { container, contextmenu } = mounted;
 
 			const target = document.createElement('div');
 			container.appendChild(target);
 
 			await setup_contextmenu_attachment(target, [
-				{snippet: 'text', props: {content: 'Test', icon: '🧪', run: () => undefined}},
+				{ snippet: 'text', props: { content: 'Test', icon: '🧪', run: () => undefined } }
 			]);
 
-			const touchstart = create_touch_event('touchstart', [{clientX: 100, clientY: 200, target}]);
+			const touchstart = create_touch_event('touchstart', [{ clientX: 100, clientY: 200, target }]);
 			set_event_target(touchstart, target);
 			window.dispatchEvent(touchstart);
 
@@ -98,19 +101,19 @@ describe('ContextmenuRootForSafariCompatibility - Timing Configurations', () => 
 
 		test('respects custom longpress_duration (very long: 2000ms)', async () => {
 			mounted = mount_contextmenu_root(ContextmenuRootForSafariCompatibility, undefined, {
-				longpress_duration: 2000,
+				longpress_duration: 2000
 			});
 
-			const {container, contextmenu} = mounted;
+			const { container, contextmenu } = mounted;
 
 			const target = document.createElement('div');
 			container.appendChild(target);
 
 			await setup_contextmenu_attachment(target, [
-				{snippet: 'text', props: {content: 'Test', icon: '🧪', run: () => undefined}},
+				{ snippet: 'text', props: { content: 'Test', icon: '🧪', run: () => undefined } }
 			]);
 
-			const touchstart = create_touch_event('touchstart', [{clientX: 100, clientY: 200, target}]);
+			const touchstart = create_touch_event('touchstart', [{ clientX: 100, clientY: 200, target }]);
 			set_event_target(touchstart, target);
 			window.dispatchEvent(touchstart);
 
@@ -127,20 +130,20 @@ describe('ContextmenuRootForSafariCompatibility - Timing Configurations', () => 
 
 		test('shorter duration increases accidental trigger risk', async () => {
 			mounted = mount_contextmenu_root(ContextmenuRootForSafariCompatibility, undefined, {
-				longpress_duration: 100, // Very short
+				longpress_duration: 100 // Very short
 			});
 
-			const {container, contextmenu} = mounted;
+			const { container, contextmenu } = mounted;
 
 			const target = document.createElement('div');
 			container.appendChild(target);
 
 			await setup_contextmenu_attachment(target, [
-				{snippet: 'text', props: {content: 'Test', icon: '🧪', run: () => undefined}},
+				{ snippet: 'text', props: { content: 'Test', icon: '🧪', run: () => undefined } }
 			]);
 
 			// Brief touch that might be unintentional
-			const touchstart = create_touch_event('touchstart', [{clientX: 100, clientY: 200, target}]);
+			const touchstart = create_touch_event('touchstart', [{ clientX: 100, clientY: 200, target }]);
 			set_event_target(touchstart, target);
 			window.dispatchEvent(touchstart);
 
@@ -154,19 +157,19 @@ describe('ContextmenuRootForSafariCompatibility - Timing Configurations', () => 
 
 		test('longer duration reduces UX responsiveness', async () => {
 			mounted = mount_contextmenu_root(ContextmenuRootForSafariCompatibility, undefined, {
-				longpress_duration: 3000, // Very long
+				longpress_duration: 3000 // Very long
 			});
 
-			const {container, contextmenu} = mounted;
+			const { container, contextmenu } = mounted;
 
 			const target = document.createElement('div');
 			container.appendChild(target);
 
 			await setup_contextmenu_attachment(target, [
-				{snippet: 'text', props: {content: 'Test', icon: '🧪', run: () => undefined}},
+				{ snippet: 'text', props: { content: 'Test', icon: '🧪', run: () => undefined } }
 			]);
 
-			const touchstart = create_touch_event('touchstart', [{clientX: 100, clientY: 200, target}]);
+			const touchstart = create_touch_event('touchstart', [{ clientX: 100, clientY: 200, target }]);
 			set_event_target(touchstart, target);
 			window.dispatchEvent(touchstart);
 
@@ -188,24 +191,24 @@ describe('ContextmenuRootForSafariCompatibility - Timing Configurations', () => 
 		test('respects custom longpress_move_tolerance (tight: 2px)', async () => {
 			mounted = mount_contextmenu_root(ContextmenuRootForSafariCompatibility, undefined, {
 				longpress_move_tolerance: 2,
-				longpress_duration: 300,
+				longpress_duration: 300
 			});
 
-			const {container, contextmenu} = mounted;
+			const { container, contextmenu } = mounted;
 
 			const target = document.createElement('div');
 			container.appendChild(target);
 
 			await setup_contextmenu_attachment(target, [
-				{snippet: 'text', props: {content: 'Test', icon: '🧪', run: () => undefined}},
+				{ snippet: 'text', props: { content: 'Test', icon: '🧪', run: () => undefined } }
 			]);
 
-			const touchstart = create_touch_event('touchstart', [{clientX: 100, clientY: 200, target}]);
+			const touchstart = create_touch_event('touchstart', [{ clientX: 100, clientY: 200, target }]);
 			set_event_target(touchstart, target);
 			window.dispatchEvent(touchstart);
 
 			// Move 3 pixels (over tolerance of 2)
-			const touchmove = create_touch_event('touchmove', [{clientX: 103, clientY: 200, target}]);
+			const touchmove = create_touch_event('touchmove', [{ clientX: 103, clientY: 200, target }]);
 			set_event_target(touchmove, target);
 			window.dispatchEvent(touchmove);
 
@@ -220,24 +223,24 @@ describe('ContextmenuRootForSafariCompatibility - Timing Configurations', () => 
 		test('respects custom longpress_move_tolerance (normal: 21px)', async () => {
 			mounted = mount_contextmenu_root(ContextmenuRootForSafariCompatibility, undefined, {
 				longpress_move_tolerance: CONTEXTMENU_DEFAULT_LONGPRESS_MOVE_TOLERANCE,
-				longpress_duration: 300,
+				longpress_duration: 300
 			});
 
-			const {container, contextmenu} = mounted;
+			const { container, contextmenu } = mounted;
 
 			const target = document.createElement('div');
 			container.appendChild(target);
 
 			await setup_contextmenu_attachment(target, [
-				{snippet: 'text', props: {content: 'Test', icon: '🧪', run: () => undefined}},
+				{ snippet: 'text', props: { content: 'Test', icon: '🧪', run: () => undefined } }
 			]);
 
-			const touchstart = create_touch_event('touchstart', [{clientX: 100, clientY: 200, target}]);
+			const touchstart = create_touch_event('touchstart', [{ clientX: 100, clientY: 200, target }]);
 			set_event_target(touchstart, target);
 			window.dispatchEvent(touchstart);
 
 			// Move 20 pixels (within tolerance of 21)
-			const touchmove = create_touch_event('touchmove', [{clientX: 120, clientY: 200, target}]);
+			const touchmove = create_touch_event('touchmove', [{ clientX: 120, clientY: 200, target }]);
 			set_event_target(touchmove, target);
 			window.dispatchEvent(touchmove);
 
@@ -252,24 +255,24 @@ describe('ContextmenuRootForSafariCompatibility - Timing Configurations', () => 
 		test('respects custom longpress_move_tolerance (loose: 50px)', async () => {
 			mounted = mount_contextmenu_root(ContextmenuRootForSafariCompatibility, undefined, {
 				longpress_move_tolerance: 50,
-				longpress_duration: 300,
+				longpress_duration: 300
 			});
 
-			const {container, contextmenu} = mounted;
+			const { container, contextmenu } = mounted;
 
 			const target = document.createElement('div');
 			container.appendChild(target);
 
 			await setup_contextmenu_attachment(target, [
-				{snippet: 'text', props: {content: 'Test', icon: '🧪', run: () => undefined}},
+				{ snippet: 'text', props: { content: 'Test', icon: '🧪', run: () => undefined } }
 			]);
 
-			const touchstart = create_touch_event('touchstart', [{clientX: 100, clientY: 200, target}]);
+			const touchstart = create_touch_event('touchstart', [{ clientX: 100, clientY: 200, target }]);
 			set_event_target(touchstart, target);
 			window.dispatchEvent(touchstart);
 
 			// Move 40 pixels (within tolerance of 50)
-			const touchmove = create_touch_event('touchmove', [{clientX: 140, clientY: 200, target}]);
+			const touchmove = create_touch_event('touchmove', [{ clientX: 140, clientY: 200, target }]);
 			set_event_target(touchmove, target);
 			window.dispatchEvent(touchmove);
 
@@ -284,24 +287,24 @@ describe('ContextmenuRootForSafariCompatibility - Timing Configurations', () => 
 		test('very tight tolerance requires precise touch', async () => {
 			mounted = mount_contextmenu_root(ContextmenuRootForSafariCompatibility, undefined, {
 				longpress_move_tolerance: 1,
-				longpress_duration: 300,
+				longpress_duration: 300
 			});
 
-			const {container, contextmenu} = mounted;
+			const { container, contextmenu } = mounted;
 
 			const target = document.createElement('div');
 			container.appendChild(target);
 
 			await setup_contextmenu_attachment(target, [
-				{snippet: 'text', props: {content: 'Test', icon: '🧪', run: () => undefined}},
+				{ snippet: 'text', props: { content: 'Test', icon: '🧪', run: () => undefined } }
 			]);
 
-			const touchstart = create_touch_event('touchstart', [{clientX: 100, clientY: 200, target}]);
+			const touchstart = create_touch_event('touchstart', [{ clientX: 100, clientY: 200, target }]);
 			set_event_target(touchstart, target);
 			window.dispatchEvent(touchstart);
 
 			// Even tiny movement (2 pixels) cancels
-			const touchmove = create_touch_event('touchmove', [{clientX: 102, clientY: 200, target}]);
+			const touchmove = create_touch_event('touchmove', [{ clientX: 102, clientY: 200, target }]);
 			set_event_target(touchmove, target);
 			window.dispatchEvent(touchmove);
 
@@ -315,24 +318,24 @@ describe('ContextmenuRootForSafariCompatibility - Timing Configurations', () => 
 		test('very loose tolerance allows more movement', async () => {
 			mounted = mount_contextmenu_root(ContextmenuRootForSafariCompatibility, undefined, {
 				longpress_move_tolerance: 100,
-				longpress_duration: 300,
+				longpress_duration: 300
 			});
 
-			const {container, contextmenu} = mounted;
+			const { container, contextmenu } = mounted;
 
 			const target = document.createElement('div');
 			container.appendChild(target);
 
 			await setup_contextmenu_attachment(target, [
-				{snippet: 'text', props: {content: 'Test', icon: '🧪', run: () => undefined}},
+				{ snippet: 'text', props: { content: 'Test', icon: '🧪', run: () => undefined } }
 			]);
 
-			const touchstart = create_touch_event('touchstart', [{clientX: 100, clientY: 200, target}]);
+			const touchstart = create_touch_event('touchstart', [{ clientX: 100, clientY: 200, target }]);
 			set_event_target(touchstart, target);
 			window.dispatchEvent(touchstart);
 
 			// Large movement (80 pixels) still allowed
-			const touchmove = create_touch_event('touchmove', [{clientX: 180, clientY: 200, target}]);
+			const touchmove = create_touch_event('touchmove', [{ clientX: 180, clientY: 200, target }]);
 			set_event_target(touchmove, target);
 			window.dispatchEvent(touchmove);
 
@@ -347,20 +350,22 @@ describe('ContextmenuRootForSafariCompatibility - Timing Configurations', () => 
 	describe('bypass_window configuration', () => {
 		test('respects custom bypass_window (short: 400ms)', async () => {
 			mounted = mount_contextmenu_root(ContextmenuRootForSafariCompatibility, undefined, {
-				bypass_window: 400,
+				bypass_window: 400
 			});
 
-			const {container, contextmenu} = mounted;
+			const { container, contextmenu } = mounted;
 
 			const target = document.createElement('div');
 			container.appendChild(target);
 
 			await setup_contextmenu_attachment(target, [
-				{snippet: 'text', props: {content: 'Test', icon: '🧪', run: () => undefined}},
+				{ snippet: 'text', props: { content: 'Test', icon: '🧪', run: () => undefined } }
 			]);
 
 			// First tap
-			const touchstart1 = create_touch_event('touchstart', [{clientX: 100, clientY: 200, target}]);
+			const touchstart1 = create_touch_event('touchstart', [
+				{ clientX: 100, clientY: 200, target }
+			]);
 			set_event_target(touchstart1, target);
 			window.dispatchEvent(touchstart1);
 
@@ -373,7 +378,9 @@ describe('ContextmenuRootForSafariCompatibility - Timing Configurations', () => 
 			// Second tap 200ms after first touchend (total 300ms from first touchstart, within custom 400ms bypass window)
 			vi.advanceTimersByTime(200);
 
-			const touchstart2 = create_touch_event('touchstart', [{clientX: 100, clientY: 200, target}]);
+			const touchstart2 = create_touch_event('touchstart', [
+				{ clientX: 100, clientY: 200, target }
+			]);
 			set_event_target(touchstart2, target);
 			window.dispatchEvent(touchstart2);
 
@@ -386,20 +393,22 @@ describe('ContextmenuRootForSafariCompatibility - Timing Configurations', () => 
 
 		test('respects custom bypass_window (normal: 660ms)', async () => {
 			mounted = mount_contextmenu_root(ContextmenuRootForSafariCompatibility, undefined, {
-				bypass_window: CONTEXTMENU_DEFAULT_BYPASS_WINDOW,
+				bypass_window: CONTEXTMENU_DEFAULT_BYPASS_WINDOW
 			});
 
-			const {container, contextmenu} = mounted;
+			const { container, contextmenu } = mounted;
 
 			const target = document.createElement('div');
 			container.appendChild(target);
 
 			await setup_contextmenu_attachment(target, [
-				{snippet: 'text', props: {content: 'Test', icon: '🧪', run: () => undefined}},
+				{ snippet: 'text', props: { content: 'Test', icon: '🧪', run: () => undefined } }
 			]);
 
 			// First tap
-			const touchstart1 = create_touch_event('touchstart', [{clientX: 100, clientY: 200, target}]);
+			const touchstart1 = create_touch_event('touchstart', [
+				{ clientX: 100, clientY: 200, target }
+			]);
 			set_event_target(touchstart1, target);
 			window.dispatchEvent(touchstart1);
 
@@ -412,7 +421,9 @@ describe('ContextmenuRootForSafariCompatibility - Timing Configurations', () => 
 			// Second tap 500ms after first touchend (total 600ms from first touchstart, within CONTEXTMENU_DEFAULT_BYPASS_WINDOW)
 			vi.advanceTimersByTime(500);
 
-			const touchstart2 = create_touch_event('touchstart', [{clientX: 100, clientY: 200, target}]);
+			const touchstart2 = create_touch_event('touchstart', [
+				{ clientX: 100, clientY: 200, target }
+			]);
 			set_event_target(touchstart2, target);
 			window.dispatchEvent(touchstart2);
 
@@ -425,20 +436,22 @@ describe('ContextmenuRootForSafariCompatibility - Timing Configurations', () => 
 
 		test('respects custom bypass_window (long: 1000ms)', async () => {
 			mounted = mount_contextmenu_root(ContextmenuRootForSafariCompatibility, undefined, {
-				bypass_window: 1000,
+				bypass_window: 1000
 			});
 
-			const {container, contextmenu} = mounted;
+			const { container, contextmenu } = mounted;
 
 			const target = document.createElement('div');
 			container.appendChild(target);
 
 			await setup_contextmenu_attachment(target, [
-				{snippet: 'text', props: {content: 'Test', icon: '🧪', run: () => undefined}},
+				{ snippet: 'text', props: { content: 'Test', icon: '🧪', run: () => undefined } }
 			]);
 
 			// First tap
-			const touchstart1 = create_touch_event('touchstart', [{clientX: 100, clientY: 200, target}]);
+			const touchstart1 = create_touch_event('touchstart', [
+				{ clientX: 100, clientY: 200, target }
+			]);
 			set_event_target(touchstart1, target);
 			window.dispatchEvent(touchstart1);
 
@@ -451,7 +464,9 @@ describe('ContextmenuRootForSafariCompatibility - Timing Configurations', () => 
 			// Second tap 800ms after first touchend (total 900ms from first touchstart, within custom 1000ms bypass window)
 			vi.advanceTimersByTime(800);
 
-			const touchstart2 = create_touch_event('touchstart', [{clientX: 100, clientY: 200, target}]);
+			const touchstart2 = create_touch_event('touchstart', [
+				{ clientX: 100, clientY: 200, target }
+			]);
 			set_event_target(touchstart2, target);
 			window.dispatchEvent(touchstart2);
 
@@ -466,20 +481,22 @@ describe('ContextmenuRootForSafariCompatibility - Timing Configurations', () => 
 	describe('bypass_move_tolerance configuration', () => {
 		test('respects custom bypass_move_tolerance (5px)', async () => {
 			mounted = mount_contextmenu_root(ContextmenuRootForSafariCompatibility, undefined, {
-				bypass_move_tolerance: 5,
+				bypass_move_tolerance: 5
 			});
 
-			const {container, contextmenu} = mounted;
+			const { container, contextmenu } = mounted;
 
 			const target = document.createElement('div');
 			container.appendChild(target);
 
 			await setup_contextmenu_attachment(target, [
-				{snippet: 'text', props: {content: 'Test', icon: '🧪', run: () => undefined}},
+				{ snippet: 'text', props: { content: 'Test', icon: '🧪', run: () => undefined } }
 			]);
 
 			// First tap
-			const touchstart1 = create_touch_event('touchstart', [{clientX: 100, clientY: 200, target}]);
+			const touchstart1 = create_touch_event('touchstart', [
+				{ clientX: 100, clientY: 200, target }
+			]);
 			set_event_target(touchstart1, target);
 			window.dispatchEvent(touchstart1);
 
@@ -492,7 +509,9 @@ describe('ContextmenuRootForSafariCompatibility - Timing Configurations', () => 
 			// Second tap 200ms after first touchend, 4 pixels away (within 5px tolerance)
 			vi.advanceTimersByTime(200);
 
-			const touchstart2 = create_touch_event('touchstart', [{clientX: 104, clientY: 200, target}]);
+			const touchstart2 = create_touch_event('touchstart', [
+				{ clientX: 104, clientY: 200, target }
+			]);
 			set_event_target(touchstart2, target);
 			window.dispatchEvent(touchstart2);
 
@@ -505,20 +524,22 @@ describe('ContextmenuRootForSafariCompatibility - Timing Configurations', () => 
 
 		test('respects custom bypass_move_tolerance (20px)', async () => {
 			mounted = mount_contextmenu_root(ContextmenuRootForSafariCompatibility, undefined, {
-				bypass_move_tolerance: 20,
+				bypass_move_tolerance: 20
 			});
 
-			const {container, contextmenu} = mounted;
+			const { container, contextmenu } = mounted;
 
 			const target = document.createElement('div');
 			container.appendChild(target);
 
 			await setup_contextmenu_attachment(target, [
-				{snippet: 'text', props: {content: 'Test', icon: '🧪', run: () => undefined}},
+				{ snippet: 'text', props: { content: 'Test', icon: '🧪', run: () => undefined } }
 			]);
 
 			// First tap
-			const touchstart1 = create_touch_event('touchstart', [{clientX: 100, clientY: 200, target}]);
+			const touchstart1 = create_touch_event('touchstart', [
+				{ clientX: 100, clientY: 200, target }
+			]);
 			set_event_target(touchstart1, target);
 			window.dispatchEvent(touchstart1);
 
@@ -531,7 +552,9 @@ describe('ContextmenuRootForSafariCompatibility - Timing Configurations', () => 
 			// Second tap 200ms after first touchend, 15 pixels away (within 20px tolerance)
 			vi.advanceTimersByTime(200);
 
-			const touchstart2 = create_touch_event('touchstart', [{clientX: 115, clientY: 200, target}]);
+			const touchstart2 = create_touch_event('touchstart', [
+				{ clientX: 115, clientY: 200, target }
+			]);
 			set_event_target(touchstart2, target);
 			window.dispatchEvent(touchstart2);
 
@@ -550,20 +573,22 @@ describe('ContextmenuRootForSafariCompatibility - Timing Configurations', () => 
 			// the longpress would fire before the bypass window expires, making bypass difficult
 			mounted = mount_contextmenu_root(ContextmenuRootForSafariCompatibility, undefined, {
 				longpress_duration: 500,
-				bypass_window: 400,
+				bypass_window: 400
 			});
 
-			const {container, contextmenu} = mounted;
+			const { container, contextmenu } = mounted;
 
 			const target = document.createElement('div');
 			container.appendChild(target);
 
 			await setup_contextmenu_attachment(target, [
-				{snippet: 'text', props: {content: 'Test', icon: '🧪', run: () => undefined}},
+				{ snippet: 'text', props: { content: 'Test', icon: '🧪', run: () => undefined } }
 			]);
 
 			// Try bypass gesture - first tap
-			const touchstart1 = create_touch_event('touchstart', [{clientX: 100, clientY: 200, target}]);
+			const touchstart1 = create_touch_event('touchstart', [
+				{ clientX: 100, clientY: 200, target }
+			]);
 			set_event_target(touchstart1, target);
 			window.dispatchEvent(touchstart1);
 
@@ -576,7 +601,9 @@ describe('ContextmenuRootForSafariCompatibility - Timing Configurations', () => 
 			// Second tap 250ms after first touchend (total 350ms from first touchstart, within custom 400ms bypass window)
 			vi.advanceTimersByTime(250);
 
-			const touchstart2 = create_touch_event('touchstart', [{clientX: 100, clientY: 200, target}]);
+			const touchstart2 = create_touch_event('touchstart', [
+				{ clientX: 100, clientY: 200, target }
+			]);
 			set_event_target(touchstart2, target);
 			window.dispatchEvent(touchstart2);
 
@@ -590,20 +617,20 @@ describe('ContextmenuRootForSafariCompatibility - Timing Configurations', () => 
 		test('handles longpress_duration close to bypass_window', async () => {
 			mounted = mount_contextmenu_root(ContextmenuRootForSafariCompatibility, undefined, {
 				longpress_duration: 450,
-				bypass_window: CONTEXTMENU_DEFAULT_BYPASS_WINDOW,
+				bypass_window: CONTEXTMENU_DEFAULT_BYPASS_WINDOW
 			});
 
-			const {container, contextmenu} = mounted;
+			const { container, contextmenu } = mounted;
 
 			const target = document.createElement('div');
 			container.appendChild(target);
 
 			await setup_contextmenu_attachment(target, [
-				{snippet: 'text', props: {content: 'Test', icon: '🧪', run: () => undefined}},
+				{ snippet: 'text', props: { content: 'Test', icon: '🧪', run: () => undefined } }
 			]);
 
 			// Normal flow should work
-			const touchstart = create_touch_event('touchstart', [{clientX: 100, clientY: 200, target}]);
+			const touchstart = create_touch_event('touchstart', [{ clientX: 100, clientY: 200, target }]);
 			set_event_target(touchstart, target);
 			window.dispatchEvent(touchstart);
 
@@ -619,20 +646,20 @@ describe('ContextmenuRootForSafariCompatibility - Timing Configurations', () => 
 				longpress_duration: 1000,
 				bypass_window: 500,
 				longpress_move_tolerance: 0,
-				bypass_move_tolerance: 0,
+				bypass_move_tolerance: 0
 			});
 
-			const {container} = mounted;
+			const { container } = mounted;
 
 			const target = document.createElement('div');
 			container.appendChild(target);
 
 			await setup_contextmenu_attachment(target, [
-				{snippet: 'text', props: {content: 'Test', icon: '🧪', run: () => undefined}},
+				{ snippet: 'text', props: { content: 'Test', icon: '🧪', run: () => undefined } }
 			]);
 
 			// Should still function (maybe not optimally, but not crash)
-			const touchstart = create_touch_event('touchstart', [{clientX: 100, clientY: 200, target}]);
+			const touchstart = create_touch_event('touchstart', [{ clientX: 100, clientY: 200, target }]);
 			set_event_target(touchstart, target);
 			window.dispatchEvent(touchstart);
 
@@ -648,20 +675,20 @@ describe('ContextmenuRootForSafariCompatibility - Timing Configurations', () => 
 	describe('browser contextmenu timing interaction', () => {
 		test('handles browser contextmenu firing before custom longpress (early)', async () => {
 			mounted = mount_contextmenu_root(ContextmenuRootForSafariCompatibility, undefined, {
-				longpress_duration: 600, // Longer than browser's ~500ms
+				longpress_duration: 600 // Longer than browser's ~500ms
 			});
 
-			const {container, contextmenu} = mounted;
+			const { container, contextmenu } = mounted;
 
 			const target = document.createElement('div');
 			container.appendChild(target);
 
 			await setup_contextmenu_attachment(target, [
-				{snippet: 'text', props: {content: 'Test', icon: '🧪', run: () => undefined}},
+				{ snippet: 'text', props: { content: 'Test', icon: '🧪', run: () => undefined } }
 			]);
 
 			// Start touch
-			const touchstart = create_touch_event('touchstart', [{clientX: 100, clientY: 200, target}]);
+			const touchstart = create_touch_event('touchstart', [{ clientX: 100, clientY: 200, target }]);
 			set_event_target(touchstart, target);
 			window.dispatchEvent(touchstart);
 
@@ -684,20 +711,20 @@ describe('ContextmenuRootForSafariCompatibility - Timing Configurations', () => 
 
 		test('handles browser contextmenu firing after custom longpress (late)', async () => {
 			mounted = mount_contextmenu_root(ContextmenuRootForSafariCompatibility, undefined, {
-				longpress_duration: 400, // Shorter than browser's ~500ms
+				longpress_duration: 400 // Shorter than browser's ~500ms
 			});
 
-			const {container, contextmenu} = mounted;
+			const { container, contextmenu } = mounted;
 
 			const target = document.createElement('div');
 			container.appendChild(target);
 
 			await setup_contextmenu_attachment(target, [
-				{snippet: 'text', props: {content: 'Test', icon: '🧪', run: () => undefined}},
+				{ snippet: 'text', props: { content: 'Test', icon: '🧪', run: () => undefined } }
 			]);
 
 			// Start touch
-			const touchstart = create_touch_event('touchstart', [{clientX: 100, clientY: 200, target}]);
+			const touchstart = create_touch_event('touchstart', [{ clientX: 100, clientY: 200, target }]);
 			set_event_target(touchstart, target);
 			window.dispatchEvent(touchstart);
 
@@ -719,20 +746,20 @@ describe('ContextmenuRootForSafariCompatibility - Timing Configurations', () => 
 
 		test('handles browser contextmenu firing simultaneously (±10ms)', async () => {
 			mounted = mount_contextmenu_root(ContextmenuRootForSafariCompatibility, undefined, {
-				longpress_duration: 500, // Same as browser
+				longpress_duration: 500 // Same as browser
 			});
 
-			const {container, contextmenu} = mounted;
+			const { container, contextmenu } = mounted;
 
 			const target = document.createElement('div');
 			container.appendChild(target);
 
 			await setup_contextmenu_attachment(target, [
-				{snippet: 'text', props: {content: 'Test', icon: '🧪', run: () => undefined}},
+				{ snippet: 'text', props: { content: 'Test', icon: '🧪', run: () => undefined } }
 			]);
 
 			// Start touch
-			const touchstart = create_touch_event('touchstart', [{clientX: 100, clientY: 200, target}]);
+			const touchstart = create_touch_event('touchstart', [{ clientX: 100, clientY: 200, target }]);
 			set_event_target(touchstart, target);
 			window.dispatchEvent(touchstart);
 
@@ -755,17 +782,19 @@ describe('ContextmenuRootForSafariCompatibility - Timing Configurations', () => 
 		test('handles browser contextmenu firing between tap-then-longpress taps', async () => {
 			mounted = mount_contextmenu_root(ContextmenuRootForSafariCompatibility);
 
-			const {container, contextmenu} = mounted;
+			const { container, contextmenu } = mounted;
 
 			const target = document.createElement('div');
 			container.appendChild(target);
 
 			await setup_contextmenu_attachment(target, [
-				{snippet: 'text', props: {content: 'Test', icon: '🧪', run: () => undefined}},
+				{ snippet: 'text', props: { content: 'Test', icon: '🧪', run: () => undefined } }
 			]);
 
 			// First tap
-			const touchstart1 = create_touch_event('touchstart', [{clientX: 100, clientY: 200, target}]);
+			const touchstart1 = create_touch_event('touchstart', [
+				{ clientX: 100, clientY: 200, target }
+			]);
 			set_event_target(touchstart1, target);
 			window.dispatchEvent(touchstart1);
 
@@ -789,20 +818,22 @@ describe('ContextmenuRootForSafariCompatibility - Timing Configurations', () => 
 		test('longpress_duration < browser timing (bypass works)', async () => {
 			mounted = mount_contextmenu_root(ContextmenuRootForSafariCompatibility, undefined, {
 				longpress_duration: 400,
-				bypass_window: CONTEXTMENU_DEFAULT_BYPASS_WINDOW,
+				bypass_window: CONTEXTMENU_DEFAULT_BYPASS_WINDOW
 			});
 
-			const {container, contextmenu} = mounted;
+			const { container, contextmenu } = mounted;
 
 			const target = document.createElement('div');
 			container.appendChild(target);
 
 			await setup_contextmenu_attachment(target, [
-				{snippet: 'text', props: {content: 'Test', icon: '🧪', run: () => undefined}},
+				{ snippet: 'text', props: { content: 'Test', icon: '🧪', run: () => undefined } }
 			]);
 
 			// Bypass gesture - first tap
-			const touchstart1 = create_touch_event('touchstart', [{clientX: 100, clientY: 200, target}]);
+			const touchstart1 = create_touch_event('touchstart', [
+				{ clientX: 100, clientY: 200, target }
+			]);
 			set_event_target(touchstart1, target);
 			window.dispatchEvent(touchstart1);
 
@@ -814,7 +845,9 @@ describe('ContextmenuRootForSafariCompatibility - Timing Configurations', () => 
 
 			// Second tap 200ms after first touchend
 			vi.advanceTimersByTime(200);
-			const touchstart2 = create_touch_event('touchstart', [{clientX: 100, clientY: 200, target}]);
+			const touchstart2 = create_touch_event('touchstart', [
+				{ clientX: 100, clientY: 200, target }
+			]);
 			set_event_target(touchstart2, target);
 			window.dispatchEvent(touchstart2);
 
@@ -834,19 +867,19 @@ describe('ContextmenuRootForSafariCompatibility - Timing Configurations', () => 
 
 		test('longpress_duration > browser timing (custom menu opens first)', async () => {
 			mounted = mount_contextmenu_root(ContextmenuRootForSafariCompatibility, undefined, {
-				longpress_duration: 600, // Longer than browser's ~500ms
+				longpress_duration: 600 // Longer than browser's ~500ms
 			});
 
-			const {container, contextmenu} = mounted;
+			const { container, contextmenu } = mounted;
 
 			const target = document.createElement('div');
 			container.appendChild(target);
 
 			await setup_contextmenu_attachment(target, [
-				{snippet: 'text', props: {content: 'Test', icon: '🧪', run: () => undefined}},
+				{ snippet: 'text', props: { content: 'Test', icon: '🧪', run: () => undefined } }
 			]);
 
-			const touchstart = create_touch_event('touchstart', [{clientX: 100, clientY: 200, target}]);
+			const touchstart = create_touch_event('touchstart', [{ clientX: 100, clientY: 200, target }]);
 			set_event_target(touchstart, target);
 			window.dispatchEvent(touchstart);
 
@@ -863,19 +896,19 @@ describe('ContextmenuRootForSafariCompatibility - Timing Configurations', () => 
 
 		test('longpress_duration ≈ browser timing (race condition handling)', async () => {
 			mounted = mount_contextmenu_root(ContextmenuRootForSafariCompatibility, undefined, {
-				longpress_duration: 500, // Approximately browser timing
+				longpress_duration: 500 // Approximately browser timing
 			});
 
-			const {container, contextmenu} = mounted;
+			const { container, contextmenu } = mounted;
 
 			const target = document.createElement('div');
 			container.appendChild(target);
 
 			await setup_contextmenu_attachment(target, [
-				{snippet: 'text', props: {content: 'Test', icon: '🧪', run: () => undefined}},
+				{ snippet: 'text', props: { content: 'Test', icon: '🧪', run: () => undefined } }
 			]);
 
-			const touchstart = create_touch_event('touchstart', [{clientX: 100, clientY: 200, target}]);
+			const touchstart = create_touch_event('touchstart', [{ clientX: 100, clientY: 200, target }]);
 			set_event_target(touchstart, target);
 			window.dispatchEvent(touchstart);
 

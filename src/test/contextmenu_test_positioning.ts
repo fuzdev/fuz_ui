@@ -3,16 +3,16 @@
  * Tests menu positioning, edge detection, and layout tracking.
  */
 
-import {describe, test, assert, afterEach} from 'vitest';
-import {flushSync} from 'svelte';
-import {ContextmenuState} from '$lib/contextmenu_state.svelte.ts';
-import {unmount_component} from './test_helpers.ts';
-import {mount_contextmenu_root, type SharedTestOptions} from './contextmenu_test_helpers.ts';
+import { describe, test, assert, afterEach } from 'vitest';
+import { flushSync } from 'svelte';
+import { ContextmenuState } from '$lib/contextmenu_state.svelte.ts';
+import { unmount_component } from './test_helpers.ts';
+import { mount_contextmenu_root, type SharedTestOptions } from './contextmenu_test_helpers.ts';
 
 export const create_shared_positioning_tests = (
 	Component: any,
 	component_name: string,
-	_options: SharedTestOptions = {},
+	_options: SharedTestOptions = {}
 ): void => {
 	describe(`${component_name} - Positioning`, () => {
 		let mounted: ReturnType<typeof mount_contextmenu_root> | null = null;
@@ -27,7 +27,7 @@ export const create_shared_positioning_tests = (
 		test('menu positioned at click coordinates with offset', () => {
 			mounted = mount_contextmenu_root(Component);
 
-			const {contextmenu} = mounted;
+			const { contextmenu } = mounted;
 
 			contextmenu.open([], 100, 200);
 
@@ -38,7 +38,7 @@ export const create_shared_positioning_tests = (
 		test('menu element receives transform style', () => {
 			mounted = mount_contextmenu_root(Component);
 
-			const {container, contextmenu} = mounted;
+			const { container, contextmenu } = mounted;
 
 			contextmenu.open([(() => undefined) as any], 100, 200);
 			flushSync(); // Wait for DOM to update
@@ -54,7 +54,7 @@ export const create_shared_positioning_tests = (
 		test('contextmenu layout tracking updates layout dimensions', () => {
 			mounted = mount_contextmenu_root(Component);
 
-			const {contextmenu} = mounted;
+			const { contextmenu } = mounted;
 
 			// Verify layout has the dimensions from test setup
 			assert.ok(contextmenu.layout);
@@ -65,7 +65,7 @@ export const create_shared_positioning_tests = (
 		test('menu repositions when near right edge', () => {
 			mounted = mount_contextmenu_root(Component);
 
-			const {container, contextmenu} = mounted;
+			const { container, contextmenu } = mounted;
 
 			// Open menu near right edge (1020 + assumed menu width would overflow 1024)
 			contextmenu.open([(() => undefined) as any], 1020, 100);
@@ -84,7 +84,7 @@ export const create_shared_positioning_tests = (
 		test('menu repositions when near bottom edge', () => {
 			mounted = mount_contextmenu_root(Component);
 
-			const {container, contextmenu} = mounted;
+			const { container, contextmenu } = mounted;
 
 			// Open menu near bottom edge
 			contextmenu.open([(() => undefined) as any], 100, 760);
@@ -100,8 +100,8 @@ export const create_shared_positioning_tests = (
 		});
 
 		test('custom layout is not overridden', () => {
-			const custom_layout = {width: 800, height: 600};
-			const cm = new ContextmenuState({layout: custom_layout});
+			const custom_layout = { width: 800, height: 600 };
+			const cm = new ContextmenuState({ layout: custom_layout });
 
 			mounted = mount_contextmenu_root(Component, cm);
 

@@ -1,8 +1,8 @@
 <script lang="ts">
-	import {is_iframed} from '@fuzdev/fuz_util/dom.ts';
-	import type {Snippet} from 'svelte';
-	import {scrollY} from 'svelte/reactivity/window';
-	import type {SvelteHTMLElements} from 'svelte/elements';
+	import { is_iframed } from '@fuzdev/fuz_util/dom.ts';
+	import type { Snippet } from 'svelte';
+	import { scrollY } from 'svelte/reactivity/window';
+	import type { SvelteHTMLElements } from 'svelte/elements';
 
 	import Breadcrumb from './Breadcrumb.svelte';
 
@@ -20,7 +20,7 @@
 </script>
 
 {#if enabled}
-	<div {...rest} class={['docs-primary-nav', rest.class, {scrolled}]}>
+	<div {...rest} class={['docs-primary-nav', rest.class, { scrolled }]}>
 		<div class="background" aria-hidden="true"></div>
 		<div class="content">
 			<nav aria-label="Primary nav">

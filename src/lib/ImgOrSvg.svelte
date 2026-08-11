@@ -1,5 +1,5 @@
 <script lang="ts">
-	import type {SvelteHTMLElements} from 'svelte/elements';
+	import type { SvelteHTMLElements } from 'svelte/elements';
 
 	const {
 		src,
@@ -11,25 +11,25 @@
 		img_attrs,
 		...rest
 	}: // the intersection makes rest shared attributes valid for whichever branch renders - // branch-specific attributes go in `svg_attrs`/`img_attrs`
-	SvelteHTMLElements['img'] &
-		SvelteHTMLElements['svg'] & {
-			src: string;
-			label?: string;
-			/**
-			 * Sets both the `width` and `height` of the svg. Overridden by the `width` and `height` props.
-			 */
-			size?: string;
-			/**
-			 * Sets the `width` of the svg. Overrides `size`.
-			 */
-			width?: string;
-			/**
-			 * Sets the `height` of the svg. Overrides `size`.
-			 */
-			height?: string;
-			svg_attrs?: SvelteHTMLElements['svg'];
-			img_attrs?: SvelteHTMLElements['img'];
-		} = $props();
+		SvelteHTMLElements['img'] &
+			SvelteHTMLElements['svg'] & {
+				src: string;
+				label?: string;
+				/**
+				 * Sets both the `width` and `height` of the svg. Overridden by the `width` and `height` props.
+				 */
+				size?: string;
+				/**
+				 * Sets the `width` of the svg. Overrides `size`.
+				 */
+				width?: string;
+				/**
+				 * Sets the `height` of the svg. Overrides `size`.
+				 */
+				height?: string;
+				svg_attrs?: SvelteHTMLElements['svg'];
+				img_attrs?: SvelteHTMLElements['img'];
+			} = $props();
 
 	const final_width = $derived(width ?? size);
 	const final_height = $derived(height ?? size);

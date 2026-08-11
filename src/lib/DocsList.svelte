@@ -1,6 +1,6 @@
 <script lang="ts">
-	import type {Snippet} from 'svelte';
-	import type {SvelteHTMLElements} from 'svelte/elements';
+	import type { Snippet } from 'svelte';
+	import type { SvelteHTMLElements } from 'svelte/elements';
 
 	const {
 		expand_width = false,
@@ -14,7 +14,7 @@
 	} = $props();
 </script>
 
-<div {...rest} class={['docs-list', rest.class, {'expand-width': expand_width, margin}]}>
+<div {...rest} class={['docs-list', rest.class, { 'expand-width': expand_width, margin }]}>
 	{@render children()}
 </div>
 

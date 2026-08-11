@@ -12,7 +12,7 @@ import {
 	EntryState,
 	SubmenuState,
 	type ContextmenuRun,
-	type RootMenuState,
+	type RootMenuState
 } from '$lib/contextmenu_state.svelte.ts';
 
 /**
@@ -29,7 +29,7 @@ import {
 export const add_test_entry = (
 	menu: SubmenuState | RootMenuState,
 	run: ContextmenuRun = () => {},
-	disabled?: () => boolean,
+	disabled?: () => boolean
 ): EntryState => {
 	const entry = new EntryState(menu, () => run, disabled);
 	menu.add_item(entry);

@@ -3,14 +3,14 @@
  * Tests scoped=true/false behavior and wrapper div.
  */
 
-import {describe, test, assert, afterEach} from 'vitest';
-import {unmount_component, create_contextmenu_event} from './test_helpers.ts';
-import {mount_contextmenu_root, type SharedTestOptions} from './contextmenu_test_helpers.ts';
+import { describe, test, assert, afterEach } from 'vitest';
+import { unmount_component, create_contextmenu_event } from './test_helpers.ts';
+import { mount_contextmenu_root, type SharedTestOptions } from './contextmenu_test_helpers.ts';
 
 export const create_shared_scoped_tests = (
 	Component: any,
 	component_name: string,
-	_options: SharedTestOptions = {},
+	_options: SharedTestOptions = {}
 ): void => {
 	describe(`${component_name} - Scoped Mode`, () => {
 		let mounted: ReturnType<typeof mount_contextmenu_root> | null = null;
@@ -23,9 +23,9 @@ export const create_shared_scoped_tests = (
 		});
 
 		test('scoped=true wraps children in div', () => {
-			mounted = mount_contextmenu_root(Component, undefined, {scoped: true});
+			mounted = mount_contextmenu_root(Component, undefined, { scoped: true });
 
-			const {container} = mounted;
+			const { container } = mounted;
 
 			const scoped_div = container.querySelector('.contextmenu-root');
 			assert.ok(scoped_div);
@@ -34,18 +34,18 @@ export const create_shared_scoped_tests = (
 		});
 
 		test('scoped=false does not wrap children', () => {
-			mounted = mount_contextmenu_root(Component, undefined, {scoped: false});
+			mounted = mount_contextmenu_root(Component, undefined, { scoped: false });
 
-			const {container} = mounted;
+			const { container } = mounted;
 
 			const scoped_div = container.querySelector('.contextmenu-root');
 			assert.strictEqual(scoped_div, null);
 		});
 
 		test('scoped=true disables window contextmenu handler', () => {
-			mounted = mount_contextmenu_root(Component, undefined, {scoped: true});
+			mounted = mount_contextmenu_root(Component, undefined, { scoped: true });
 
-			const {contextmenu} = mounted;
+			const { contextmenu } = mounted;
 
 			// Try to trigger contextmenu on window
 			const event = create_contextmenu_event(100, 200);

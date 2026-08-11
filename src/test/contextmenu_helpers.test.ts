@@ -1,7 +1,7 @@
 /**
  * @vitest-environment jsdom
  */
-import {describe, test, assert, beforeEach, afterEach, vi} from 'vitest';
+import { describe, test, assert, beforeEach, afterEach, vi } from 'vitest';
 
 import {
 	ContextmenuBypassTracker,
@@ -18,18 +18,18 @@ import {
 	contextmenu_resolve_contextmenu_event,
 	contextmenu_resolve_popover_host,
 	CONTEXTMENU_DEFAULT_OPEN_OFFSET_X,
-	CONTEXTMENU_DEFAULT_OPEN_OFFSET_Y,
+	CONTEXTMENU_DEFAULT_OPEN_OFFSET_Y
 } from '$lib/contextmenu_helpers.ts';
-import {ContextmenuState, contextmenu_attachment} from '$lib/contextmenu_state.svelte.ts';
+import { ContextmenuState, contextmenu_attachment } from '$lib/contextmenu_state.svelte.ts';
 import {
 	create_contextmenu_event,
 	create_keyboard_event,
 	create_mouse_event,
 	create_touch_event,
 	set_event_target,
-	set_event_time,
+	set_event_time
 } from './test_helpers.ts';
-import {add_test_entry} from './contextmenu_state_test_helpers.ts';
+import { add_test_entry } from './contextmenu_state_test_helpers.ts';
 
 describe('ContextmenuBypassTracker', () => {
 	const BYPASS_WINDOW = 750;
@@ -184,18 +184,18 @@ describe('contextmenu_calculate_submenu_translate', () => {
 		height: 200,
 		parent_width: 320,
 		layout_width: 1024,
-		layout_height: 768,
+		layout_height: 768
 	};
 
 	test('flies out to the right of the parent menu when it fits', () => {
-		assert.deepEqual(contextmenu_calculate_submenu_translate(base), {x: 320, y: 0});
+		assert.deepEqual(contextmenu_calculate_submenu_translate(base), { x: 320, y: 0 });
 	});
 
 	test('flips fully to the left when the right side overflows and the left fits', () => {
 		// right edge would be at 700+320+320=1340 > 1024; left flip needs base_x >= width
-		assert.deepEqual(contextmenu_calculate_submenu_translate({...base, base_x: 700}), {
+		assert.deepEqual(contextmenu_calculate_submenu_translate({ ...base, base_x: 700 }), {
 			x: -320,
-			y: 0,
+			y: 0
 		});
 	});
 
@@ -204,8 +204,8 @@ describe('contextmenu_calculate_submenu_translate', () => {
 		// overflow_left = 320-300 = 20; the left flip overflows less (20 < 140),
 		// so shift it right by the overflow: x = 20 - 320 = -300, landing at x=0
 		assert.deepEqual(
-			contextmenu_calculate_submenu_translate({...base, base_x: 300, layout_width: 800}),
-			{x: -300, y: 0},
+			contextmenu_calculate_submenu_translate({ ...base, base_x: 300, layout_width: 800 }),
+			{ x: -300, y: 0 }
 		);
 	});
 
@@ -213,22 +213,25 @@ describe('contextmenu_calculate_submenu_translate', () => {
 		// layout 700, base_x=100: overflow_right = 100+320+320-700 = 40,
 		// overflow_left = 320-100 = 220; the right flyout overflows less (40 < 220),
 		// so shift it left by the overflow: x = 320 - 40 = 280, right edge at 700
-		assert.deepEqual(contextmenu_calculate_submenu_translate({...base, layout_width: 700}), {
+		assert.deepEqual(contextmenu_calculate_submenu_translate({ ...base, layout_width: 700 }), {
 			x: 280,
-			y: 0,
+			y: 0
 		});
 	});
 
 	test('shifts up to fit the bottom edge', () => {
 		// bottom would be at 700+200=900 > 768 -> shift up by 132
-		assert.deepEqual(contextmenu_calculate_submenu_translate({...base, base_y: 700}), {
+		assert.deepEqual(contextmenu_calculate_submenu_translate({ ...base, base_y: 700 }), {
 			x: 320,
-			y: -132,
+			y: -132
 		});
 	});
 
 	test('does not shift down when the submenu fits vertically', () => {
-		assert.deepEqual(contextmenu_calculate_submenu_translate({...base, base_y: 0}), {x: 320, y: 0});
+		assert.deepEqual(contextmenu_calculate_submenu_translate({ ...base, base_y: 0 }), {
+			x: 320,
+			y: 0
+		});
 	});
 });
 
@@ -416,7 +419,7 @@ describe('contextmenu_open_from_event', () => {
 	let cleanup: (() => void) | void;
 
 	const test_params = [
-		{snippet: 'text' as const, props: {content: 'Test', icon: '🧪', run: () => undefined}},
+		{ snippet: 'text' as const, props: { content: 'Test', icon: '🧪', run: () => undefined } }
 	];
 
 	beforeEach(() => {
@@ -451,9 +454,9 @@ describe('contextmenu_open_from_event', () => {
 		assert.strictEqual(
 			contextmenu_open_from_event(event, contextmenu, undefined, {
 				open_offset_x: 10,
-				open_offset_y: 20,
+				open_offset_y: 20
 			}),
-			true,
+			true
 		);
 
 		assert.strictEqual(contextmenu.x, 110);
@@ -461,7 +464,7 @@ describe('contextmenu_open_from_event', () => {
 	});
 
 	test('returns false for shift-clicks', () => {
-		const event = create_contextmenu_event(100, 200, {shiftKey: true});
+		const event = create_contextmenu_event(100, 200, { shiftKey: true });
 		set_event_target(event, el);
 
 		assert.strictEqual(contextmenu_open_from_event(event, contextmenu, undefined), false);
@@ -565,9 +568,9 @@ const create_button_event = (
 	type: string,
 	button: number,
 	time_stamp: number,
-	init?: {buttons?: number; shiftKey?: boolean},
+	init?: { buttons?: number; shiftKey?: boolean }
 ): MouseEvent => {
-	const e = create_mouse_event(type, {bubbles: true, cancelable: true, button, ...init});
+	const e = create_mouse_event(type, { bubbles: true, cancelable: true, button, ...init });
 	set_event_time(e, time_stamp);
 	return e;
 };
@@ -582,15 +585,17 @@ describe('ContextmenuOpenGuard - gesture causality', () => {
 	test('secondary-button presses always belong to the gesture', () => {
 		assert.strictEqual(
 			guard.press_belongs_to_open_gesture(create_button_event('mousedown', 2, 1000)),
-			true,
+			true
 		);
 	});
 
 	test('a press while the secondary button is held belongs to the gesture', () => {
 		// the press's own `buttons` bitmask carries the still-held secondary button
 		assert.strictEqual(
-			guard.press_belongs_to_open_gesture(create_button_event('mousedown', 0, 1022, {buttons: 3})),
-			true,
+			guard.press_belongs_to_open_gesture(
+				create_button_event('mousedown', 0, 1022, { buttons: 3 })
+			),
+			true
 		);
 	});
 
@@ -602,7 +607,7 @@ describe('ContextmenuOpenGuard - gesture causality', () => {
 
 		assert.strictEqual(
 			guard.press_belongs_to_open_gesture(create_button_event('mousedown', 0, 1022)),
-			true,
+			true
 		);
 	});
 
@@ -612,7 +617,7 @@ describe('ContextmenuOpenGuard - gesture causality', () => {
 		// 1ms after the release - a power user's muscle-memory right-then-left click
 		assert.strictEqual(
 			guard.press_belongs_to_open_gesture(create_button_event('mousedown', 0, 1075)),
-			false,
+			false
 		);
 	});
 
@@ -621,7 +626,7 @@ describe('ContextmenuOpenGuard - gesture causality', () => {
 
 		assert.strictEqual(
 			guard.press_belongs_to_open_gesture(create_button_event('mousedown', 0, 1022)),
-			false,
+			false
 		);
 	});
 
@@ -630,7 +635,7 @@ describe('ContextmenuOpenGuard - gesture causality', () => {
 
 		assert.strictEqual(
 			guard.press_belongs_to_open_gesture(create_button_event('mousedown', 0, 1000)),
-			true,
+			true
 		);
 	});
 
@@ -642,11 +647,11 @@ describe('ContextmenuOpenGuard - gesture causality', () => {
 
 		assert.strictEqual(
 			guard.press_belongs_to_open_gesture(create_button_event('mousedown', 0, 1080)),
-			true,
+			true
 		);
 		assert.strictEqual(
 			guard.press_belongs_to_open_gesture(create_button_event('mousedown', 0, 1101)),
-			false,
+			false
 		);
 	});
 
@@ -674,7 +679,7 @@ describe('ContextmenuOpenGuard - gesture causality', () => {
 		// the release timestamp persists - it mirrors hardware history, not gesture state
 		assert.strictEqual(
 			guard.press_belongs_to_open_gesture(create_button_event('mousedown', 0, 1050)),
-			true,
+			true
 		);
 	});
 
@@ -682,18 +687,20 @@ describe('ContextmenuOpenGuard - gesture causality', () => {
 		// The native menu's pointer grab swallowed the secondary release (and in
 		// Firefox, shift+rightclick suppresses the `contextmenu` event too) - nothing
 		// was tracked, and the next press's own `buttons` shows the button is up.
-		guard.mousedown_on_menu(create_button_event('mousedown', 2, 1000, {buttons: 2}));
+		guard.mousedown_on_menu(create_button_event('mousedown', 2, 1000, { buttons: 2 }));
 
 		assert.strictEqual(
-			guard.press_belongs_to_open_gesture(create_button_event('mousedown', 0, 5000, {buttons: 1})),
-			false,
+			guard.press_belongs_to_open_gesture(
+				create_button_event('mousedown', 0, 5000, { buttons: 1 })
+			),
+			false
 		);
 	});
 
 	test('a non-primary gesture press on the menu does not arm the click blocker', () => {
 		// a right-press on the menu produces no `click` - arming would leave the
 		// blocker to eat the next deliberate click on an entry
-		guard.mousedown_on_menu(create_button_event('mousedown', 2, 1000, {buttons: 2}));
+		guard.mousedown_on_menu(create_button_event('mousedown', 2, 1000, { buttons: 2 }));
 
 		assert.strictEqual(guard.consume_blocked_click(), false);
 	});
@@ -702,14 +709,14 @@ describe('ContextmenuOpenGuard - gesture causality', () => {
 		guard.touchstart();
 
 		// one finger lifts while another remains down
-		const partial = create_touch_event('touchend', [{clientX: 0, clientY: 0}]);
+		const partial = create_touch_event('touchend', [{ clientX: 0, clientY: 0 }]);
 		set_event_time(partial, 1000);
 		guard.touchend(partial);
 
 		// a press during the remaining touch still belongs to the gesture
 		assert.strictEqual(
 			guard.press_belongs_to_open_gesture(create_button_event('mousedown', 0, 2000)),
-			true,
+			true
 		);
 
 		// the final release ends the gesture
@@ -719,7 +726,7 @@ describe('ContextmenuOpenGuard - gesture causality', () => {
 
 		assert.strictEqual(
 			guard.press_belongs_to_open_gesture(create_button_event('mousedown', 0, 3001)),
-			false,
+			false
 		);
 	});
 });
@@ -732,7 +739,7 @@ describe('contextmenu_resolve_contextmenu_event', () => {
 	let cleanup: (() => void) | void;
 
 	const test_params = [
-		{snippet: 'text' as const, props: {content: 'Test', icon: '🧪', run: () => undefined}},
+		{ snippet: 'text' as const, props: { content: 'Test', icon: '🧪', run: () => undefined } }
 	];
 
 	beforeEach(() => {
@@ -752,7 +759,7 @@ describe('contextmenu_resolve_contextmenu_event', () => {
 	});
 
 	const dispatch = (event_target: EventTarget, time: number, shift = false): boolean => {
-		const e = create_contextmenu_event(100, 100, {shiftKey: shift});
+		const e = create_contextmenu_event(100, 100, { shiftKey: shift });
 		set_event_target(e, event_target);
 		set_event_time(e, time);
 		return contextmenu_resolve_contextmenu_event(e, contextmenu, menu_el, open_guard);
@@ -802,7 +809,7 @@ describe('contextmenu_resolve_contextmenu_event', () => {
 		// and its release is never delivered
 		const entry = document.createElement('li');
 		menu_el.appendChild(entry);
-		const right_press = create_button_event('mousedown', 2, 2000, {buttons: 2});
+		const right_press = create_button_event('mousedown', 2, 2000, { buttons: 2 });
 		set_event_target(right_press, entry);
 		mousedown(right_press);
 		assert.strictEqual(dispatch(entry, 2000), false);
@@ -812,7 +819,7 @@ describe('contextmenu_resolve_contextmenu_event', () => {
 		assert.strictEqual(open_guard.consume_blocked_click(), false);
 
 		// a later primary press outside dismisses normally
-		const press = create_button_event('mousedown', 0, 3000, {buttons: 1});
+		const press = create_button_event('mousedown', 0, 3000, { buttons: 1 });
 		set_event_target(press, target);
 		mousedown(press);
 		assert.strictEqual(contextmenu.opened, false);
@@ -827,7 +834,7 @@ describe('contextmenu_resolve_contextmenu_event', () => {
 		assert.strictEqual(dispatch(target, 1000), true);
 		open_guard.track_mouseup(create_button_event('mouseup', 2, 1050));
 
-		const press = create_button_event('mousedown', 2, 2000, {buttons: 2, shiftKey: true});
+		const press = create_button_event('mousedown', 2, 2000, { buttons: 2, shiftKey: true });
 		set_event_target(press, target);
 		mousedown(press);
 		assert.strictEqual(contextmenu.opened, false);
@@ -841,7 +848,7 @@ describe('contextmenu_resolve_contextmenu_event', () => {
 
 		const entry = document.createElement('li');
 		menu_el.appendChild(entry);
-		const press = create_button_event('mousedown', 2, 2000, {buttons: 2, shiftKey: true});
+		const press = create_button_event('mousedown', 2, 2000, { buttons: 2, shiftKey: true });
 		set_event_target(press, entry);
 		mousedown(press);
 		assert.strictEqual(contextmenu.opened, true);

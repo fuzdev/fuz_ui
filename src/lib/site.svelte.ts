@@ -1,9 +1,9 @@
-import type {Url} from '@fuzdev/fuz_util/url.ts';
-import type {PkgJson} from '@fuzdev/fuz_util/pkg_json.ts';
+import type { Url } from '@fuzdev/fuz_util/url.ts';
+import type { PkgJson } from '@fuzdev/fuz_util/pkg_json.ts';
 
-import {create_context} from './context_helpers.ts';
-import {repo_url_parse} from '@fuzdev/fuz_util/package_helpers.ts';
-import type {SvgData} from './svg.ts';
+import { create_context } from './context_helpers.ts';
+import { repo_url_parse } from '@fuzdev/fuz_util/package_helpers.ts';
+import type { SvgData } from './svg.ts';
 
 export interface SiteStateOptions {
 	/**

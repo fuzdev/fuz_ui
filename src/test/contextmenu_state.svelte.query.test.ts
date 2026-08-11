@@ -1,12 +1,12 @@
 /**
  * @vitest-environment jsdom
  */
-import {describe, test, assert, beforeEach, afterEach, vi} from 'vitest';
+import { describe, test, assert, beforeEach, afterEach, vi } from 'vitest';
 
 import {
 	ContextmenuState,
 	contextmenu_attachment,
-	contextmenu_open,
+	contextmenu_open
 } from '$lib/contextmenu_state.svelte.ts';
 
 describe('contextmenu_open DOM querying', () => {
@@ -46,7 +46,7 @@ describe('contextmenu_open DOM querying', () => {
 		stale.appendChild(target);
 
 		const params = [
-			{snippet: 'text' as const, props: {content: 'outer entry', icon: '🙂', run: () => {}}},
+			{ snippet: 'text' as const, props: { content: 'outer entry', icon: '🙂', run: () => {} } }
 		];
 		const cleanup = contextmenu_attachment(params)(outer);
 
@@ -62,7 +62,7 @@ describe('contextmenu_open DOM querying', () => {
 		root.appendChild(el);
 
 		const params = [
-			{snippet: 'text' as const, props: {content: 'entry', icon: '🙂', run: () => {}}},
+			{ snippet: 'text' as const, props: { content: 'entry', icon: '🙂', run: () => {} } }
 		];
 		const cleanup = contextmenu_attachment(params)(el);
 		assert.strictEqual(el.dataset.contextmenu, '');
@@ -82,7 +82,10 @@ describe('contextmenu_open DOM querying', () => {
 		const el = document.createElement('div');
 		root.appendChild(el);
 
-		const param = {snippet: 'text' as const, props: {content: 'entry', icon: '🙂', run: () => {}}};
+		const param = {
+			snippet: 'text' as const,
+			props: { content: 'entry', icon: '🙂', run: () => {} }
+		};
 		const cleanup = contextmenu_attachment(param)(el);
 
 		assert.strictEqual(contextmenu_open(el, 0, 0, contextmenu), true);
@@ -99,11 +102,11 @@ describe('contextmenu_open DOM querying', () => {
 
 		const outer_param = {
 			snippet: 'text' as const,
-			props: {content: 'outer', icon: '🅾️', run: () => {}},
+			props: { content: 'outer', icon: '🅾️', run: () => {} }
 		};
 		const inner_params = [
-			{snippet: 'text' as const, props: {content: 'inner a', icon: '🅰️', run: () => {}}},
-			{snippet: 'text' as const, props: {content: 'inner b', icon: '🅱️', run: () => {}}},
+			{ snippet: 'text' as const, props: { content: 'inner a', icon: '🅰️', run: () => {} } },
+			{ snippet: 'text' as const, props: { content: 'inner b', icon: '🅱️', run: () => {} } }
 		];
 		const cleanup_outer = contextmenu_attachment(outer_param)(outer);
 		const cleanup_inner = contextmenu_attachment(inner_params)(inner);
@@ -122,7 +125,7 @@ describe('contextmenu_open copy-text entry', () => {
 
 	const text_param = {
 		snippet: 'text' as const,
-		props: {content: 'entry', icon: '🙂', run: () => {}},
+		props: { content: 'entry', icon: '🙂', run: () => {} }
 	};
 
 	beforeEach(() => {
@@ -137,7 +140,7 @@ describe('contextmenu_open copy-text entry', () => {
 	});
 
 	const stub_selection = (text: string) => {
-		vi.spyOn(window, 'getSelection').mockReturnValue({toString: () => text} as Selection);
+		vi.spyOn(window, 'getSelection').mockReturnValue({ toString: () => text } as Selection);
 	};
 
 	test('prepends a copy-text entry when text is selected and other entries exist', () => {
@@ -163,7 +166,7 @@ describe('contextmenu_open copy-text entry', () => {
 
 		// jsdom has no `navigator.clipboard` - define a stub
 		const writeText = vi.fn(() => Promise.resolve());
-		Object.defineProperty(navigator, 'clipboard', {value: {writeText}, configurable: true});
+		Object.defineProperty(navigator, 'clipboard', { value: { writeText }, configurable: true });
 
 		assert.strictEqual(contextmenu_open(el, 0, 0, contextmenu), true);
 		const first = contextmenu.params[0]!;
@@ -199,11 +202,11 @@ describe('contextmenu_open copy-text entry', () => {
 	test('text_enabled: false drops the copy-text entry', () => {
 		const el = document.createElement('div');
 		root.appendChild(el);
-		const separator_param = {snippet: 'separator' as const, props: {}};
+		const separator_param = { snippet: 'separator' as const, props: {} };
 		const cleanup = contextmenu_attachment([separator_param])(el);
 		stub_selection('selected text');
 
-		assert.strictEqual(contextmenu_open(el, 0, 0, contextmenu, {text_enabled: false}), true);
+		assert.strictEqual(contextmenu_open(el, 0, 0, contextmenu, { text_enabled: false }), true);
 		assert.deepEqual(contextmenu.params, [separator_param]);
 
 		cleanup?.();
@@ -224,11 +227,11 @@ describe('contextmenu_open vibrate', () => {
 		el = document.createElement('div');
 		root.appendChild(el);
 		cleanup = contextmenu_attachment([
-			{snippet: 'text' as const, props: {content: 'entry', icon: '🙂', run: () => {}}},
+			{ snippet: 'text' as const, props: { content: 'entry', icon: '🙂', run: () => {} } }
 		])(el);
 		// jsdom has no `navigator.vibrate` - define a stub
 		vibrate = vi.fn(() => true);
-		Object.defineProperty(navigator, 'vibrate', {value: vibrate, configurable: true});
+		Object.defineProperty(navigator, 'vibrate', { value: vibrate, configurable: true });
 	});
 
 	afterEach(() => {
@@ -243,7 +246,7 @@ describe('contextmenu_open vibrate', () => {
 	});
 
 	test('vibrate: false disables haptic feedback', () => {
-		assert.strictEqual(contextmenu_open(el, 0, 0, contextmenu, {vibrate: false}), true);
+		assert.strictEqual(contextmenu_open(el, 0, 0, contextmenu, { vibrate: false }), true);
 		assert.strictEqual(vibrate.mock.calls.length, 0);
 	});
 
@@ -261,9 +264,9 @@ describe('contextmenu_open entry filtering', () => {
 
 	const text_param = {
 		snippet: 'text' as const,
-		props: {content: 'entry', icon: '🙂', run: () => {}},
+		props: { content: 'entry', icon: '🙂', run: () => {} }
 	};
-	const separator_param = {snippet: 'separator' as const, props: {}};
+	const separator_param = { snippet: 'separator' as const, props: {} };
 
 	beforeEach(() => {
 		contextmenu = new ContextmenuState();
@@ -280,7 +283,7 @@ describe('contextmenu_open entry filtering', () => {
 		root.appendChild(el);
 		const cleanup = contextmenu_attachment([text_param, separator_param])(el);
 
-		assert.strictEqual(contextmenu_open(el, 0, 0, contextmenu, {separator_enabled: false}), true);
+		assert.strictEqual(contextmenu_open(el, 0, 0, contextmenu, { separator_enabled: false }), true);
 		assert.deepEqual(contextmenu.params, [text_param]);
 
 		cleanup?.();
@@ -299,7 +302,7 @@ describe('contextmenu_open entry filtering', () => {
 		assert.strictEqual(contextmenu.params.length, 2);
 		contextmenu.close();
 
-		assert.strictEqual(contextmenu_open(el, 0, 0, contextmenu, {link_enabled: false}), true);
+		assert.strictEqual(contextmenu_open(el, 0, 0, contextmenu, { link_enabled: false }), true);
 		assert.deepEqual(contextmenu.params, [text_param]);
 
 		cleanup?.();
@@ -310,7 +313,7 @@ describe('contextmenu_open entry filtering', () => {
 		root.appendChild(el);
 		const cleanup = contextmenu_attachment([text_param])(el);
 
-		assert.strictEqual(contextmenu_open(el, 0, 0, contextmenu, {text_enabled: false}), false);
+		assert.strictEqual(contextmenu_open(el, 0, 0, contextmenu, { text_enabled: false }), false);
 		assert.strictEqual(contextmenu.opened, false);
 
 		cleanup?.();

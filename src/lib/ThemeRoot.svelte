@@ -3,10 +3,10 @@
 </script>
 
 <script lang="ts">
-	import {onMount, type Snippet} from 'svelte';
-	import {render_theme_style, type Theme} from '@fuzdev/fuz_css/theme.ts';
-	import {DEFAULT_THEME} from '@fuzdev/fuz_css/themes.ts';
-	import {DEV} from 'esm-env';
+	import { onMount, type Snippet } from 'svelte';
+	import { render_theme_style, type Theme } from '@fuzdev/fuz_css/theme.ts';
+	import { DEFAULT_THEME } from '@fuzdev/fuz_css/themes.ts';
+	import { DEV } from 'esm-env';
 
 	import {
 		load_color_scheme as default_load_color_scheme,
@@ -15,9 +15,9 @@
 		save_theme as default_save_theme,
 		load_theme as default_load_theme,
 		theme_state_context,
-		ThemeState,
+		ThemeState
 	} from './theme_state.svelte.ts';
-	import {effect_with_count} from './rune_helpers.svelte.ts';
+	import { effect_with_count } from './rune_helpers.svelte.ts';
 
 	const {
 		sync_color_scheme = default_sync_color_scheme,
@@ -28,9 +28,9 @@
 		theme_fallback,
 		theme_state = new ThemeState({
 			theme: load_theme(theme_fallback),
-			color_scheme: load_color_scheme(),
+			color_scheme: load_color_scheme()
 		}),
-		children,
+		children
 	}: {
 		sync_color_scheme?: typeof default_sync_color_scheme;
 		load_color_scheme?: typeof default_load_color_scheme;
@@ -72,10 +72,9 @@
 
 	const selected_theme_name = $derived(theme_state.theme.name);
 	const style = $derived(
-		selected_theme_name ===
-		DEFAULT_THEME.name // TODO @many proper equality check, won't work when we allow editing, need an id or unique names and a deep equality check
+		selected_theme_name === DEFAULT_THEME.name // TODO @many proper equality check, won't work when we allow editing, need an id or unique names and a deep equality check
 			? null
-			: render_theme_style(theme_state.theme),
+			: render_theme_style(theme_state.theme)
 	);
 	const theme_style_html = $derived(style ? `<style>${style}</style>` : null);
 

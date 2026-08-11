@@ -1,17 +1,20 @@
 <script lang="ts">
-	import {onDestroy, type Snippet} from 'svelte';
-	import {swallow} from '@fuzdev/fuz_util/dom.ts';
+	import { onDestroy, type Snippet } from 'svelte';
+	import { swallow } from '@fuzdev/fuz_util/dom.ts';
 
-	import {contextmenu_context, contextmenu_dimensions_context} from './contextmenu_state.svelte.ts';
-	import {contextmenu_calculate_submenu_translate} from './contextmenu_helpers.ts';
-	import type {Dimensions} from './dimensions.svelte.ts';
-	import type {SvgData} from './svg.ts';
+	import {
+		contextmenu_context,
+		contextmenu_dimensions_context
+	} from './contextmenu_state.svelte.ts';
+	import { contextmenu_calculate_submenu_translate } from './contextmenu_helpers.ts';
+	import type { Dimensions } from './dimensions.svelte.ts';
+	import type { SvgData } from './svg.ts';
 	import ContextmenuIcon from './ContextmenuIcon.svelte';
 
 	const {
 		icon,
 		menu,
-		children,
+		children
 	}: {
 		icon?: SvgData | string | Snippet;
 		menu: Snippet;
@@ -24,9 +27,9 @@
 	// add_submenu registers on the current instance at init — not reactive to contextmenu getter changes
 	const submenu = get_contextmenu().add_submenu();
 
-	const {layout} = $derived(contextmenu);
+	const { layout } = $derived(contextmenu);
 
-	const {selected} = $derived(submenu);
+	const { selected } = $derived(submenu);
 
 	let el: HTMLElement | undefined = $state.raw();
 
@@ -43,7 +46,7 @@
 		if (el) update_position(el, layout, parent_dimensions);
 	});
 	const update_position = (el: HTMLElement, layout: Dimensions, parent_dimensions: Dimensions) => {
-		const {x, y, width, height} = el.getBoundingClientRect();
+		const { x, y, width, height } = el.getBoundingClientRect();
 		dimensions.width = width;
 		dimensions.height = height;
 		const translate = contextmenu_calculate_submenu_translate({
@@ -53,7 +56,7 @@
 			height,
 			parent_width: parent_dimensions.width,
 			layout_width: layout.width,
-			layout_height: layout.height,
+			layout_height: layout.height
 		});
 		translate_x = translate.x;
 		translate_y = translate.y;
@@ -68,7 +71,7 @@
 <li role="none" style:--contextmenu_depth={submenu.depth}>
 	<!-- disabling the a11y warning because a parent element handles keyboard events -->
 	<div
-		class={['menuitem plain selectable', {selected}]}
+		class={['menuitem plain selectable', { selected }]}
 		role="menuitem"
 		aria-haspopup="menu"
 		tabindex="-1"

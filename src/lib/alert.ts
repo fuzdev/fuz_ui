@@ -8,7 +8,7 @@ export interface AlertStatusOptions {
 }
 
 export const alert_status_options: Record<AlertStatus, AlertStatusOptions> = {
-	inform: {color: 'var(--text_70)', icon: '✻'},
-	help: {color: 'var(--palette_b_50)', icon: '➺'},
-	error: {color: 'var(--palette_c_50)', icon: '!?'},
+	inform: { color: 'var(--text_70)', icon: '✻' },
+	help: { color: 'var(--palette_b_50)', icon: '➺' },
+	error: { color: 'var(--palette_c_50)', icon: '!?' }
 };

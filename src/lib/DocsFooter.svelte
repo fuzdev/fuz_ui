@@ -1,10 +1,10 @@
 <script lang="ts">
-	import {format_url, type Url} from '@fuzdev/fuz_util/url.ts';
-	import type {Snippet} from 'svelte';
-	import type {SvelteHTMLElements} from 'svelte/elements';
+	import { format_url, type Url } from '@fuzdev/fuz_util/url.ts';
+	import type { Snippet } from 'svelte';
+	import type { SvelteHTMLElements } from 'svelte/elements';
 
 	import Svg from './Svg.svelte';
-	import {logo_github} from './logos.ts';
+	import { logo_github } from './logos.ts';
 
 	const {
 		repo_url,
@@ -49,10 +49,9 @@
 	{/if}
 </footer>
 
-{#snippet logo_mark()}{#if logo}{@render logo()}{:else}<Svg
-			data={logo_github}
-			size="var(--icon_size_lg)"
-		/>{/if}{/snippet}
+{#snippet logo_mark()}
+	{#if logo}{@render logo()}{:else}<Svg data={logo_github} size="var(--icon_size_lg)" />{/if}
+{/snippet}
 
 <style>
 	/* TODO probably extract */

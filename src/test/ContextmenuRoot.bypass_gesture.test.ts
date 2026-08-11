@@ -1,17 +1,20 @@
 /**
  * @vitest-environment jsdom
  */
-import {describe, test, assert, beforeEach, afterEach, vi} from 'vitest';
+import { describe, test, assert, beforeEach, afterEach, vi } from 'vitest';
 
 import ContextmenuRoot from '$lib/ContextmenuRoot.svelte';
 import {
 	unmount_component,
 	create_contextmenu_event,
 	create_touch_event,
-	set_event_target,
+	set_event_target
 } from './test_helpers.ts';
-import {mount_contextmenu_root, setup_contextmenu_attachment} from './contextmenu_test_helpers.ts';
-import {CONTEXTMENU_DEFAULT_BYPASS_WINDOW} from '$lib/contextmenu_helpers.ts';
+import {
+	mount_contextmenu_root,
+	setup_contextmenu_attachment
+} from './contextmenu_test_helpers.ts';
+import { CONTEXTMENU_DEFAULT_BYPASS_WINDOW } from '$lib/contextmenu_helpers.ts';
 
 // ResizeObserver is not currently available in jsdom
 class ResizeObserverMock {
@@ -41,16 +44,16 @@ describe('ContextmenuRoot - Tap-Then-Longpress Bypass Gesture', () => {
 		mounted = mount_contextmenu_root(ContextmenuRoot, undefined, {
 			bypass_with_tap_then_longpress: true,
 			bypass_window: custom_bypass_window,
-			bypass_move_tolerance: 5,
+			bypass_move_tolerance: 5
 		});
 
-		const {contextmenu} = mounted;
+		const { contextmenu } = mounted;
 
 		const target = document.createElement('div');
 		document.body.appendChild(target);
 
 		// First tap
-		const touchstart1 = create_touch_event('touchstart', [{clientX: 100, clientY: 200, target}]);
+		const touchstart1 = create_touch_event('touchstart', [{ clientX: 100, clientY: 200, target }]);
 		set_event_target(touchstart1, target);
 		window.dispatchEvent(touchstart1);
 
@@ -59,7 +62,7 @@ describe('ContextmenuRoot - Tap-Then-Longpress Bypass Gesture', () => {
 
 		// Second tap 300ms after first (within custom_bypass_window of 600ms)
 		vi.advanceTimersByTime(300);
-		const touchstart2 = create_touch_event('touchstart', [{clientX: 100, clientY: 200, target}]);
+		const touchstart2 = create_touch_event('touchstart', [{ clientX: 100, clientY: 200, target }]);
 		set_event_target(touchstart2, target);
 		window.dispatchEvent(touchstart2);
 
@@ -80,28 +83,28 @@ describe('ContextmenuRoot - Tap-Then-Longpress Bypass Gesture', () => {
 		mounted = mount_contextmenu_root(ContextmenuRoot, undefined, {
 			bypass_with_tap_then_longpress: true,
 			bypass_window: CONTEXTMENU_DEFAULT_BYPASS_WINDOW,
-			bypass_move_tolerance,
+			bypass_move_tolerance
 		});
 
-		const {contextmenu} = mounted;
+		const { contextmenu } = mounted;
 
 		const target = document.createElement('div');
 		document.body.appendChild(target);
 
 		// Setup contextmenu action so menu can open
 		await setup_contextmenu_attachment(target, [
-			{snippet: 'text', props: {content: 'Test', icon: '🧪', run: () => undefined}},
+			{ snippet: 'text', props: { content: 'Test', icon: '🧪', run: () => undefined } }
 		]);
 
 		// First tap
-		const touchstart1 = create_touch_event('touchstart', [{clientX: 100, clientY: 200, target}]);
+		const touchstart1 = create_touch_event('touchstart', [{ clientX: 100, clientY: 200, target }]);
 		window.dispatchEvent(touchstart1);
 		const touchend1 = create_touch_event('touchend', []);
 		window.dispatchEvent(touchend1);
 
 		// Second tap 300ms after first
 		vi.advanceTimersByTime(300);
-		const touchstart2 = create_touch_event('touchstart', [{clientX: 110, clientY: 200, target}]);
+		const touchstart2 = create_touch_event('touchstart', [{ clientX: 110, clientY: 200, target }]);
 		window.dispatchEvent(touchstart2);
 
 		// Contextmenu should open normally (not bypassed)
@@ -119,28 +122,28 @@ describe('ContextmenuRoot - Tap-Then-Longpress Bypass Gesture', () => {
 		const custom_bypass_window = 600;
 		mounted = mount_contextmenu_root(ContextmenuRoot, undefined, {
 			bypass_with_tap_then_longpress: true,
-			bypass_window: custom_bypass_window,
+			bypass_window: custom_bypass_window
 		});
 
-		const {contextmenu} = mounted;
+		const { contextmenu } = mounted;
 
 		const target = document.createElement('div');
 		document.body.appendChild(target);
 
 		// Setup contextmenu action so menu can open
 		await setup_contextmenu_attachment(target, [
-			{snippet: 'text', props: {content: 'Test', icon: '🧪', run: () => undefined}},
+			{ snippet: 'text', props: { content: 'Test', icon: '🧪', run: () => undefined } }
 		]);
 
 		// First tap
-		const touchstart1 = create_touch_event('touchstart', [{clientX: 100, clientY: 200, target}]);
+		const touchstart1 = create_touch_event('touchstart', [{ clientX: 100, clientY: 200, target }]);
 		window.dispatchEvent(touchstart1);
 		const touchend1 = create_touch_event('touchend', []);
 		window.dispatchEvent(touchend1);
 
 		// Second tap 700ms later (past the 600ms bypass window)
 		vi.advanceTimersByTime(custom_bypass_window + 100);
-		const touchstart2 = create_touch_event('touchstart', [{clientX: 100, clientY: 200, target}]);
+		const touchstart2 = create_touch_event('touchstart', [{ clientX: 100, clientY: 200, target }]);
 		window.dispatchEvent(touchstart2);
 
 		// Contextmenu should open normally
@@ -156,28 +159,28 @@ describe('ContextmenuRoot - Tap-Then-Longpress Bypass Gesture', () => {
 
 	test('bypass can be disabled', async () => {
 		mounted = mount_contextmenu_root(ContextmenuRoot, undefined, {
-			bypass_with_tap_then_longpress: false,
+			bypass_with_tap_then_longpress: false
 		});
 
-		const {contextmenu} = mounted;
+		const { contextmenu } = mounted;
 
 		const target = document.createElement('div');
 		document.body.appendChild(target);
 
 		// Setup contextmenu action so menu can open
 		await setup_contextmenu_attachment(target, [
-			{snippet: 'text', props: {content: 'Test', icon: '🧪', run: () => undefined}},
+			{ snippet: 'text', props: { content: 'Test', icon: '🧪', run: () => undefined } }
 		]);
 
 		// First tap
-		const touchstart1 = create_touch_event('touchstart', [{clientX: 100, clientY: 200, target}]);
+		const touchstart1 = create_touch_event('touchstart', [{ clientX: 100, clientY: 200, target }]);
 		window.dispatchEvent(touchstart1);
 		const touchend1 = create_touch_event('touchend', []);
 		window.dispatchEvent(touchend1);
 
 		// Second tap 300ms after first (within bypass window)
 		vi.advanceTimersByTime(300);
-		const touchstart2 = create_touch_event('touchstart', [{clientX: 100, clientY: 200, target}]);
+		const touchstart2 = create_touch_event('touchstart', [{ clientX: 100, clientY: 200, target }]);
 		window.dispatchEvent(touchstart2);
 
 		// Should still open menu since bypass is disabled
@@ -196,23 +199,23 @@ describe('ContextmenuRoot - Tap-Then-Longpress Bypass Gesture', () => {
 		mounted = mount_contextmenu_root(ContextmenuRoot, undefined, {
 			bypass_with_tap_then_longpress: true,
 			bypass_window: custom_bypass_window,
-			bypass_move_tolerance: 5,
+			bypass_move_tolerance: 5
 		});
 
-		const {contextmenu} = mounted;
+		const { contextmenu } = mounted;
 
 		const target = document.createElement('div');
 		document.body.appendChild(target);
 
 		// First tap
-		const touchstart1 = create_touch_event('touchstart', [{clientX: 100, clientY: 200, target}]);
+		const touchstart1 = create_touch_event('touchstart', [{ clientX: 100, clientY: 200, target }]);
 		window.dispatchEvent(touchstart1);
 		const touchend1 = create_touch_event('touchend', []);
 		window.dispatchEvent(touchend1);
 
 		// Second tap 800ms after first (within custom_bypass_window of 1000ms)
 		vi.advanceTimersByTime(800);
-		const touchstart2 = create_touch_event('touchstart', [{clientX: 100, clientY: 200, target}]);
+		const touchstart2 = create_touch_event('touchstart', [{ clientX: 100, clientY: 200, target }]);
 		window.dispatchEvent(touchstart2);
 
 		// Should bypass
@@ -231,23 +234,23 @@ describe('ContextmenuRoot - Tap-Then-Longpress Bypass Gesture', () => {
 		mounted = mount_contextmenu_root(ContextmenuRoot, undefined, {
 			bypass_with_tap_then_longpress: true,
 			bypass_window: CONTEXTMENU_DEFAULT_BYPASS_WINDOW,
-			bypass_move_tolerance: custom_bypass_move_tolerance,
+			bypass_move_tolerance: custom_bypass_move_tolerance
 		});
 
-		const {contextmenu} = mounted;
+		const { contextmenu } = mounted;
 
 		const target = document.createElement('div');
 		document.body.appendChild(target);
 
 		// First tap
-		const touchstart1 = create_touch_event('touchstart', [{clientX: 100, clientY: 200, target}]);
+		const touchstart1 = create_touch_event('touchstart', [{ clientX: 100, clientY: 200, target }]);
 		window.dispatchEvent(touchstart1);
 		const touchend1 = create_touch_event('touchend', []);
 		window.dispatchEvent(touchend1);
 
 		// Second tap 300ms after first
 		vi.advanceTimersByTime(300);
-		const touchstart2 = create_touch_event('touchstart', [{clientX: 115, clientY: 200, target}]);
+		const touchstart2 = create_touch_event('touchstart', [{ clientX: 115, clientY: 200, target }]);
 		window.dispatchEvent(touchstart2);
 
 		// Should bypass since within tolerance
@@ -263,24 +266,24 @@ describe('ContextmenuRoot - Tap-Then-Longpress Bypass Gesture', () => {
 
 	test('ignores touch events when contextmenu already open', async () => {
 		mounted = mount_contextmenu_root(ContextmenuRoot, undefined, {
-			bypass_with_tap_then_longpress: true,
+			bypass_with_tap_then_longpress: true
 		});
 
-		const {contextmenu} = mounted;
+		const { contextmenu } = mounted;
 
 		const target = document.createElement('div');
 		document.body.appendChild(target);
 
 		// Open the contextmenu first
 		contextmenu.open(
-			[{snippet: 'text', props: {content: 'Test', icon: '🧪', run: () => undefined}}],
+			[{ snippet: 'text', props: { content: 'Test', icon: '🧪', run: () => undefined } }],
 			100,
-			200,
+			200
 		);
 		assert.strictEqual(contextmenu.opened, true);
 
 		// First tap - should be ignored due to contextmenu being open
-		const touchstart1 = create_touch_event('touchstart', [{clientX: 100, clientY: 200, target}]);
+		const touchstart1 = create_touch_event('touchstart', [{ clientX: 100, clientY: 200, target }]);
 		window.dispatchEvent(touchstart1);
 		const touchend1 = create_touch_event('touchend', []);
 		window.dispatchEvent(touchend1);
@@ -291,12 +294,12 @@ describe('ContextmenuRoot - Tap-Then-Longpress Bypass Gesture', () => {
 
 		// Second tap 300ms after first (should not bypass since first tap was ignored)
 		vi.advanceTimersByTime(300);
-		const touchstart2 = create_touch_event('touchstart', [{clientX: 100, clientY: 200, target}]);
+		const touchstart2 = create_touch_event('touchstart', [{ clientX: 100, clientY: 200, target }]);
 		window.dispatchEvent(touchstart2);
 
 		// Setup contextmenu action so menu can open
 		await setup_contextmenu_attachment(target, [
-			{snippet: 'text', props: {content: 'Test', icon: '🧪', run: () => undefined}},
+			{ snippet: 'text', props: { content: 'Test', icon: '🧪', run: () => undefined } }
 		]);
 
 		// Contextmenu should open normally (no bypass since first tap was ignored)
@@ -312,18 +315,18 @@ describe('ContextmenuRoot - Tap-Then-Longpress Bypass Gesture', () => {
 
 	test('ignores touch events with multiple touches', async () => {
 		mounted = mount_contextmenu_root(ContextmenuRoot, undefined, {
-			bypass_with_tap_then_longpress: true,
+			bypass_with_tap_then_longpress: true
 		});
 
-		const {contextmenu} = mounted;
+		const { contextmenu } = mounted;
 
 		const target = document.createElement('div');
 		document.body.appendChild(target);
 
 		// First tap with two fingers - should be ignored
 		const touchstart1 = create_touch_event('touchstart', [
-			{clientX: 100, clientY: 200, target},
-			{clientX: 150, clientY: 200, target},
+			{ clientX: 100, clientY: 200, target },
+			{ clientX: 150, clientY: 200, target }
 		]);
 		window.dispatchEvent(touchstart1);
 		const touchend1 = create_touch_event('touchend', []);
@@ -331,12 +334,12 @@ describe('ContextmenuRoot - Tap-Then-Longpress Bypass Gesture', () => {
 
 		// Second tap 300ms after first (should not bypass since first tap was ignored)
 		vi.advanceTimersByTime(300);
-		const touchstart2 = create_touch_event('touchstart', [{clientX: 100, clientY: 200, target}]);
+		const touchstart2 = create_touch_event('touchstart', [{ clientX: 100, clientY: 200, target }]);
 		window.dispatchEvent(touchstart2);
 
 		// Setup contextmenu action so menu can open
 		await setup_contextmenu_attachment(target, [
-			{snippet: 'text', props: {content: 'Test', icon: '🧪', run: () => undefined}},
+			{ snippet: 'text', props: { content: 'Test', icon: '🧪', run: () => undefined } }
 		]);
 
 		// Contextmenu should open normally (no bypass)
@@ -352,10 +355,10 @@ describe('ContextmenuRoot - Tap-Then-Longpress Bypass Gesture', () => {
 
 	test('ignores touch events on editable elements', () => {
 		mounted = mount_contextmenu_root(ContextmenuRoot, undefined, {
-			bypass_with_tap_then_longpress: true,
+			bypass_with_tap_then_longpress: true
 		});
 
-		const {contextmenu} = mounted;
+		const { contextmenu } = mounted;
 
 		// Test with input element
 		const input = document.createElement('input');
@@ -363,7 +366,7 @@ describe('ContextmenuRoot - Tap-Then-Longpress Bypass Gesture', () => {
 
 		// First tap on input - should be ignored
 		const touchstart1 = create_touch_event('touchstart', [
-			{clientX: 100, clientY: 200, target: input},
+			{ clientX: 100, clientY: 200, target: input }
 		]);
 		set_event_target(touchstart1, input);
 		window.dispatchEvent(touchstart1);
@@ -373,7 +376,7 @@ describe('ContextmenuRoot - Tap-Then-Longpress Bypass Gesture', () => {
 		// Second tap 300ms after first
 		vi.advanceTimersByTime(300);
 		const touchstart2 = create_touch_event('touchstart', [
-			{clientX: 100, clientY: 200, target: input},
+			{ clientX: 100, clientY: 200, target: input }
 		]);
 		set_event_target(touchstart2, input);
 		window.dispatchEvent(touchstart2);
@@ -391,22 +394,22 @@ describe('ContextmenuRoot - Tap-Then-Longpress Bypass Gesture', () => {
 
 	test('ignores touch events with shift key pressed', async () => {
 		mounted = mount_contextmenu_root(ContextmenuRoot, undefined, {
-			bypass_with_tap_then_longpress: true,
+			bypass_with_tap_then_longpress: true
 		});
 
-		const {contextmenu} = mounted;
+		const { contextmenu } = mounted;
 
 		const target = document.createElement('div');
 		document.body.appendChild(target);
 
 		// Setup contextmenu action so menu can open
 		await setup_contextmenu_attachment(target, [
-			{snippet: 'text', props: {content: 'Test', icon: '🧪', run: () => undefined}},
+			{ snippet: 'text', props: { content: 'Test', icon: '🧪', run: () => undefined } }
 		]);
 
 		// First tap with shift key - should be ignored
-		const touchstart1 = create_touch_event('touchstart', [{clientX: 100, clientY: 200, target}], {
-			shiftKey: true,
+		const touchstart1 = create_touch_event('touchstart', [{ clientX: 100, clientY: 200, target }], {
+			shiftKey: true
 		});
 		set_event_target(touchstart1, target);
 		window.dispatchEvent(touchstart1);
@@ -415,7 +418,7 @@ describe('ContextmenuRoot - Tap-Then-Longpress Bypass Gesture', () => {
 
 		// Second tap 300ms after first
 		vi.advanceTimersByTime(300);
-		const touchstart2 = create_touch_event('touchstart', [{clientX: 100, clientY: 200, target}]);
+		const touchstart2 = create_touch_event('touchstart', [{ clientX: 100, clientY: 200, target }]);
 		set_event_target(touchstart2, target);
 		window.dispatchEvent(touchstart2);
 
@@ -432,21 +435,21 @@ describe('ContextmenuRoot - Tap-Then-Longpress Bypass Gesture', () => {
 
 	test('touchcancel resets bypass state', async () => {
 		mounted = mount_contextmenu_root(ContextmenuRoot, undefined, {
-			bypass_with_tap_then_longpress: true,
+			bypass_with_tap_then_longpress: true
 		});
 
-		const {contextmenu} = mounted;
+		const { contextmenu } = mounted;
 
 		const target = document.createElement('div');
 		document.body.appendChild(target);
 
 		// Setup contextmenu action so menu can open
 		await setup_contextmenu_attachment(target, [
-			{snippet: 'text', props: {content: 'Test', icon: '🧪', run: () => undefined}},
+			{ snippet: 'text', props: { content: 'Test', icon: '🧪', run: () => undefined } }
 		]);
 
 		// First tap
-		const touchstart1 = create_touch_event('touchstart', [{clientX: 100, clientY: 200, target}]);
+		const touchstart1 = create_touch_event('touchstart', [{ clientX: 100, clientY: 200, target }]);
 		window.dispatchEvent(touchstart1);
 
 		// Touch gets cancelled (e.g., scrolling starts)
@@ -455,7 +458,7 @@ describe('ContextmenuRoot - Tap-Then-Longpress Bypass Gesture', () => {
 
 		// Second tap 100ms after cancel
 		vi.advanceTimersByTime(100);
-		const touchstart2 = create_touch_event('touchstart', [{clientX: 100, clientY: 200, target}]);
+		const touchstart2 = create_touch_event('touchstart', [{ clientX: 100, clientY: 200, target }]);
 		window.dispatchEvent(touchstart2);
 
 		// Contextmenu should open normally (no bypass since state was reset)
@@ -471,21 +474,21 @@ describe('ContextmenuRoot - Tap-Then-Longpress Bypass Gesture', () => {
 
 	test('touchcancel clears bypass flag if set', () => {
 		mounted = mount_contextmenu_root(ContextmenuRoot, undefined, {
-			bypass_with_tap_then_longpress: true,
+			bypass_with_tap_then_longpress: true
 		});
 
-		const {contextmenu} = mounted;
+		const { contextmenu } = mounted;
 
 		const target = document.createElement('div');
 		document.body.appendChild(target);
 
 		// First tap
-		const touchstart1 = create_touch_event('touchstart', [{clientX: 100, clientY: 200, target}]);
+		const touchstart1 = create_touch_event('touchstart', [{ clientX: 100, clientY: 200, target }]);
 		window.dispatchEvent(touchstart1);
 
 		// Second tap 200ms after first (sets bypass flag)
 		vi.advanceTimersByTime(200);
-		const touchstart2 = create_touch_event('touchstart', [{clientX: 100, clientY: 200, target}]);
+		const touchstart2 = create_touch_event('touchstart', [{ clientX: 100, clientY: 200, target }]);
 		window.dispatchEvent(touchstart2);
 
 		// Cancel should clear the bypass flag
@@ -509,26 +512,26 @@ describe('ContextmenuRoot - Tap-Then-Longpress Bypass Gesture', () => {
 		const custom_bypass_window = 600;
 		mounted = mount_contextmenu_root(ContextmenuRoot, undefined, {
 			bypass_with_tap_then_longpress: true,
-			bypass_window: custom_bypass_window,
+			bypass_window: custom_bypass_window
 		});
 
-		const {contextmenu} = mounted;
+		const { contextmenu } = mounted;
 
 		const target = document.createElement('div');
 		document.body.appendChild(target);
 
 		// First tap
-		const touchstart1 = create_touch_event('touchstart', [{clientX: 100, clientY: 200, target}]);
+		const touchstart1 = create_touch_event('touchstart', [{ clientX: 100, clientY: 200, target }]);
 		window.dispatchEvent(touchstart1);
 
 		// Second tap 200ms after first (total 200ms from start)
 		vi.advanceTimersByTime(200);
-		const touchstart2 = create_touch_event('touchstart', [{clientX: 100, clientY: 200, target}]);
+		const touchstart2 = create_touch_event('touchstart', [{ clientX: 100, clientY: 200, target }]);
 		window.dispatchEvent(touchstart2);
 
 		// Third tap 200ms after second (total 400ms from start)
 		vi.advanceTimersByTime(200);
-		const touchstart3 = create_touch_event('touchstart', [{clientX: 100, clientY: 200, target}]);
+		const touchstart3 = create_touch_event('touchstart', [{ clientX: 100, clientY: 200, target }]);
 		window.dispatchEvent(touchstart3);
 
 		// Contextmenu should be bypassed (tap 2 + tap 3 form the bypass)
@@ -544,21 +547,21 @@ describe('ContextmenuRoot - Tap-Then-Longpress Bypass Gesture', () => {
 
 	test('handles mixed touch and mouse input', async () => {
 		mounted = mount_contextmenu_root(ContextmenuRoot, undefined, {
-			bypass_with_tap_then_longpress: true,
+			bypass_with_tap_then_longpress: true
 		});
 
-		const {contextmenu} = mounted;
+		const { contextmenu } = mounted;
 
 		const target = document.createElement('div');
 		document.body.appendChild(target);
 
 		// Setup contextmenu action
 		await setup_contextmenu_attachment(target, [
-			{snippet: 'text', props: {content: 'Test', icon: '🧪', run: () => undefined}},
+			{ snippet: 'text', props: { content: 'Test', icon: '🧪', run: () => undefined } }
 		]);
 
 		// First touch
-		const touchstart1 = create_touch_event('touchstart', [{clientX: 100, clientY: 200, target}]);
+		const touchstart1 = create_touch_event('touchstart', [{ clientX: 100, clientY: 200, target }]);
 		window.dispatchEvent(touchstart1);
 
 		// Mouse click 300ms after touch
@@ -576,22 +579,22 @@ describe('ContextmenuRoot - Tap-Then-Longpress Bypass Gesture', () => {
 
 	test('keyboard contextmenu respects bypass', () => {
 		mounted = mount_contextmenu_root(ContextmenuRoot, undefined, {
-			bypass_with_tap_then_longpress: true,
+			bypass_with_tap_then_longpress: true
 		});
 
-		const {contextmenu} = mounted;
+		const { contextmenu } = mounted;
 
 		const target = document.createElement('div');
 		document.body.appendChild(target);
 
 		// First tap to set up potential bypass
-		const touchstart1 = create_touch_event('touchstart', [{clientX: 100, clientY: 200, target}]);
+		const touchstart1 = create_touch_event('touchstart', [{ clientX: 100, clientY: 200, target }]);
 		set_event_target(touchstart1, target);
 		window.dispatchEvent(touchstart1);
 
 		// Second tap 300ms after first (triggers bypass)
 		vi.advanceTimersByTime(300);
-		const touchstart2 = create_touch_event('touchstart', [{clientX: 100, clientY: 200, target}]);
+		const touchstart2 = create_touch_event('touchstart', [{ clientX: 100, clientY: 200, target }]);
 		set_event_target(touchstart2, target);
 		window.dispatchEvent(touchstart2);
 
@@ -612,27 +615,27 @@ describe('ContextmenuRoot - Tap-Then-Longpress Bypass Gesture', () => {
 		mounted = mount_contextmenu_root(ContextmenuRoot, undefined, {
 			bypass_with_tap_then_longpress: true,
 			bypass_window: custom_bypass_window,
-			bypass_move_tolerance: 5,
+			bypass_move_tolerance: 5
 		});
 
-		const {contextmenu} = mounted;
+		const { contextmenu } = mounted;
 
 		const target = document.createElement('div');
 		document.body.appendChild(target);
 
 		// Setup contextmenu action
 		await setup_contextmenu_attachment(target, [
-			{snippet: 'text', props: {content: 'Test', icon: '🧪', run: () => undefined}},
+			{ snippet: 'text', props: { content: 'Test', icon: '🧪', run: () => undefined } }
 		]);
 
 		// First tap
-		const touchstart1 = create_touch_event('touchstart', [{clientX: 100, clientY: 200, target}]);
+		const touchstart1 = create_touch_event('touchstart', [{ clientX: 100, clientY: 200, target }]);
 		set_event_target(touchstart1, target);
 		window.dispatchEvent(touchstart1);
 
 		// Second tap 200ms after first (triggers bypass detection)
 		vi.advanceTimersByTime(200);
-		const touchstart2 = create_touch_event('touchstart', [{clientX: 100, clientY: 200, target}]);
+		const touchstart2 = create_touch_event('touchstart', [{ clientX: 100, clientY: 200, target }]);
 		set_event_target(touchstart2, target);
 		window.dispatchEvent(touchstart2);
 
@@ -650,26 +653,26 @@ describe('ContextmenuRoot - Tap-Then-Longpress Bypass Gesture', () => {
 
 	test('lifting before the native contextmenu fires discards the pending bypass', async () => {
 		mounted = mount_contextmenu_root(ContextmenuRoot, undefined, {
-			bypass_with_tap_then_longpress: true,
+			bypass_with_tap_then_longpress: true
 		});
 
-		const {contextmenu} = mounted;
+		const { contextmenu } = mounted;
 
 		const target = document.createElement('div');
 		document.body.appendChild(target);
 
 		await setup_contextmenu_attachment(target, [
-			{snippet: 'text', props: {content: 'Test', icon: '🧪', run: () => undefined}},
+			{ snippet: 'text', props: { content: 'Test', icon: '🧪', run: () => undefined } }
 		]);
 
 		// Tap, then a second touch arms the bypass...
-		const touchstart1 = create_touch_event('touchstart', [{clientX: 100, clientY: 200, target}]);
+		const touchstart1 = create_touch_event('touchstart', [{ clientX: 100, clientY: 200, target }]);
 		set_event_target(touchstart1, target);
 		window.dispatchEvent(touchstart1);
 		window.dispatchEvent(create_touch_event('touchend', []));
 
 		vi.advanceTimersByTime(200);
-		const touchstart2 = create_touch_event('touchstart', [{clientX: 100, clientY: 200, target}]);
+		const touchstart2 = create_touch_event('touchstart', [{ clientX: 100, clientY: 200, target }]);
 		set_event_target(touchstart2, target);
 		window.dispatchEvent(touchstart2);
 
@@ -694,28 +697,28 @@ describe('ContextmenuRoot - Tap-Then-Longpress Bypass Gesture', () => {
 		const custom_bypass_window = 600;
 		mounted = mount_contextmenu_root(ContextmenuRoot, undefined, {
 			bypass_with_tap_then_longpress: true,
-			bypass_window: custom_bypass_window,
+			bypass_window: custom_bypass_window
 		});
 
-		const {contextmenu} = mounted;
+		const { contextmenu } = mounted;
 
 		const target = document.createElement('div');
 		document.body.appendChild(target);
 
 		// Setup contextmenu action
 		await setup_contextmenu_attachment(target, [
-			{snippet: 'text', props: {content: 'Test', icon: '🧪', run: () => undefined}},
+			{ snippet: 'text', props: { content: 'Test', icon: '🧪', run: () => undefined } }
 		]);
 
 		// Perform tap-then-longpress gesture
-		const touchstart1 = create_touch_event('touchstart', [{clientX: 100, clientY: 200, target}]);
+		const touchstart1 = create_touch_event('touchstart', [{ clientX: 100, clientY: 200, target }]);
 		set_event_target(touchstart1, target);
 		window.dispatchEvent(touchstart1);
 
 		// Second tap 200ms after first
 		vi.advanceTimersByTime(200);
 
-		const touchstart2 = create_touch_event('touchstart', [{clientX: 100, clientY: 200, target}]);
+		const touchstart2 = create_touch_event('touchstart', [{ clientX: 100, clientY: 200, target }]);
 		set_event_target(touchstart2, target);
 		window.dispatchEvent(touchstart2);
 

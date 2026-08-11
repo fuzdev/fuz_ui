@@ -1,20 +1,23 @@
 /**
  * @vitest-environment jsdom
  */
-import {describe, test, assert, beforeEach, afterEach, vi} from 'vitest';
-import {flushSync, tick} from 'svelte';
+import { describe, test, assert, beforeEach, afterEach, vi } from 'vitest';
+import { flushSync, tick } from 'svelte';
 
 import ContextmenuRootForSafariCompatibility from '$lib/ContextmenuRootForSafariCompatibility.svelte';
 import {
 	unmount_component,
 	create_touch_event,
 	create_contextmenu_event,
-	set_event_target,
+	set_event_target
 } from './test_helpers.ts';
-import {mount_contextmenu_root, setup_contextmenu_attachment} from './contextmenu_test_helpers.ts';
+import {
+	mount_contextmenu_root,
+	setup_contextmenu_attachment
+} from './contextmenu_test_helpers.ts';
 import {
 	CONTEXTMENU_DEFAULT_LONGPRESS_DURATION,
-	CONTEXTMENU_DEFAULT_BYPASS_WINDOW,
+	CONTEXTMENU_DEFAULT_BYPASS_WINDOW
 } from '$lib/contextmenu_helpers.ts';
 
 // ResizeObserver is not currently available in jsdom
@@ -43,20 +46,22 @@ describe('ContextmenuRootForSafariCompatibility - Tap-Then-Longpress Bypass Gest
 	describe('basic bypass detection', () => {
 		test('bypasses contextmenu on tap-then-longpress', async () => {
 			mounted = mount_contextmenu_root(ContextmenuRootForSafariCompatibility, undefined, {
-				bypass_window: CONTEXTMENU_DEFAULT_BYPASS_WINDOW,
+				bypass_window: CONTEXTMENU_DEFAULT_BYPASS_WINDOW
 			});
 
-			const {container, contextmenu} = mounted;
+			const { container, contextmenu } = mounted;
 
 			const target = document.createElement('div');
 			container.appendChild(target);
 
 			await setup_contextmenu_attachment(target, [
-				{snippet: 'text', props: {content: 'Test', icon: '🧪', run: () => undefined}},
+				{ snippet: 'text', props: { content: 'Test', icon: '🧪', run: () => undefined } }
 			]);
 
 			// First tap
-			const touchstart1 = create_touch_event('touchstart', [{clientX: 100, clientY: 200, target}]);
+			const touchstart1 = create_touch_event('touchstart', [
+				{ clientX: 100, clientY: 200, target }
+			]);
 			set_event_target(touchstart1, target);
 			window.dispatchEvent(touchstart1);
 
@@ -70,7 +75,9 @@ describe('ContextmenuRootForSafariCompatibility - Tap-Then-Longpress Bypass Gest
 			// Second tap within bypass window (total 300ms from first tap)
 			vi.advanceTimersByTime(200);
 
-			const touchstart2 = create_touch_event('touchstart', [{clientX: 102, clientY: 201, target}]);
+			const touchstart2 = create_touch_event('touchstart', [
+				{ clientX: 102, clientY: 201, target }
+			]);
 			set_event_target(touchstart2, target);
 			window.dispatchEvent(touchstart2);
 
@@ -90,20 +97,22 @@ describe('ContextmenuRootForSafariCompatibility - Tap-Then-Longpress Bypass Gest
 
 		test('does not bypass if second tap is too far', async () => {
 			mounted = mount_contextmenu_root(ContextmenuRootForSafariCompatibility, undefined, {
-				bypass_move_tolerance: 10,
+				bypass_move_tolerance: 10
 			});
 
-			const {container, contextmenu} = mounted;
+			const { container, contextmenu } = mounted;
 
 			const target = document.createElement('div');
 			container.appendChild(target);
 
 			await setup_contextmenu_attachment(target, [
-				{snippet: 'text', props: {content: 'Test', icon: '🧪', run: () => undefined}},
+				{ snippet: 'text', props: { content: 'Test', icon: '🧪', run: () => undefined } }
 			]);
 
 			// First tap
-			const touchstart1 = create_touch_event('touchstart', [{clientX: 100, clientY: 200, target}]);
+			const touchstart1 = create_touch_event('touchstart', [
+				{ clientX: 100, clientY: 200, target }
+			]);
 			set_event_target(touchstart1, target);
 			window.dispatchEvent(touchstart1);
 
@@ -117,7 +126,9 @@ describe('ContextmenuRootForSafariCompatibility - Tap-Then-Longpress Bypass Gest
 			// Second tap too far away (15 pixels when tolerance is 10)
 			vi.advanceTimersByTime(200);
 
-			const touchstart2 = create_touch_event('touchstart', [{clientX: 115, clientY: 200, target}]);
+			const touchstart2 = create_touch_event('touchstart', [
+				{ clientX: 115, clientY: 200, target }
+			]);
 			set_event_target(touchstart2, target);
 			window.dispatchEvent(touchstart2);
 
@@ -130,20 +141,22 @@ describe('ContextmenuRootForSafariCompatibility - Tap-Then-Longpress Bypass Gest
 
 		test('does not bypass if second tap is too late', async () => {
 			mounted = mount_contextmenu_root(ContextmenuRootForSafariCompatibility, undefined, {
-				bypass_window: CONTEXTMENU_DEFAULT_BYPASS_WINDOW,
+				bypass_window: CONTEXTMENU_DEFAULT_BYPASS_WINDOW
 			});
 
-			const {container, contextmenu} = mounted;
+			const { container, contextmenu } = mounted;
 
 			const target = document.createElement('div');
 			container.appendChild(target);
 
 			await setup_contextmenu_attachment(target, [
-				{snippet: 'text', props: {content: 'Test', icon: '🧪', run: () => undefined}},
+				{ snippet: 'text', props: { content: 'Test', icon: '🧪', run: () => undefined } }
 			]);
 
 			// First tap
-			const touchstart1 = create_touch_event('touchstart', [{clientX: 100, clientY: 200, target}]);
+			const touchstart1 = create_touch_event('touchstart', [
+				{ clientX: 100, clientY: 200, target }
+			]);
 			set_event_target(touchstart1, target);
 			window.dispatchEvent(touchstart1);
 
@@ -157,7 +170,9 @@ describe('ContextmenuRootForSafariCompatibility - Tap-Then-Longpress Bypass Gest
 			// Second tap too late (exceeds bypass window)
 			vi.advanceTimersByTime(CONTEXTMENU_DEFAULT_BYPASS_WINDOW + 40);
 
-			const touchstart2 = create_touch_event('touchstart', [{clientX: 100, clientY: 200, target}]);
+			const touchstart2 = create_touch_event('touchstart', [
+				{ clientX: 100, clientY: 200, target }
+			]);
 			set_event_target(touchstart2, target);
 			window.dispatchEvent(touchstart2);
 
@@ -170,20 +185,22 @@ describe('ContextmenuRootForSafariCompatibility - Tap-Then-Longpress Bypass Gest
 
 		test('bypass can be disabled with bypass_with_tap_then_longpress=false', async () => {
 			mounted = mount_contextmenu_root(ContextmenuRootForSafariCompatibility, undefined, {
-				bypass_with_tap_then_longpress: false,
+				bypass_with_tap_then_longpress: false
 			});
 
-			const {container, contextmenu} = mounted;
+			const { container, contextmenu } = mounted;
 
 			const target = document.createElement('div');
 			container.appendChild(target);
 
 			await setup_contextmenu_attachment(target, [
-				{snippet: 'text', props: {content: 'Test', icon: '🧪', run: () => undefined}},
+				{ snippet: 'text', props: { content: 'Test', icon: '🧪', run: () => undefined } }
 			]);
 
 			// Try bypass gesture
-			const touchstart1 = create_touch_event('touchstart', [{clientX: 100, clientY: 200, target}]);
+			const touchstart1 = create_touch_event('touchstart', [
+				{ clientX: 100, clientY: 200, target }
+			]);
 			set_event_target(touchstart1, target);
 			window.dispatchEvent(touchstart1);
 
@@ -197,7 +214,9 @@ describe('ContextmenuRootForSafariCompatibility - Tap-Then-Longpress Bypass Gest
 			// Second tap within normal bypass window
 			vi.advanceTimersByTime(200);
 
-			const touchstart2 = create_touch_event('touchstart', [{clientX: 100, clientY: 200, target}]);
+			const touchstart2 = create_touch_event('touchstart', [
+				{ clientX: 100, clientY: 200, target }
+			]);
 			set_event_target(touchstart2, target);
 			window.dispatchEvent(touchstart2);
 
@@ -211,20 +230,22 @@ describe('ContextmenuRootForSafariCompatibility - Tap-Then-Longpress Bypass Gest
 		test('respects custom bypass_window', async () => {
 			const custom_bypass_window = 1000; // Longer window
 			mounted = mount_contextmenu_root(ContextmenuRootForSafariCompatibility, undefined, {
-				bypass_window: custom_bypass_window,
+				bypass_window: custom_bypass_window
 			});
 
-			const {container, contextmenu} = mounted;
+			const { container, contextmenu } = mounted;
 
 			const target = document.createElement('div');
 			container.appendChild(target);
 
 			await setup_contextmenu_attachment(target, [
-				{snippet: 'text', props: {content: 'Test', icon: '🧪', run: () => undefined}},
+				{ snippet: 'text', props: { content: 'Test', icon: '🧪', run: () => undefined } }
 			]);
 
 			// First tap
-			const touchstart1 = create_touch_event('touchstart', [{clientX: 100, clientY: 200, target}]);
+			const touchstart1 = create_touch_event('touchstart', [
+				{ clientX: 100, clientY: 200, target }
+			]);
 			set_event_target(touchstart1, target);
 			window.dispatchEvent(touchstart1);
 
@@ -238,7 +259,9 @@ describe('ContextmenuRootForSafariCompatibility - Tap-Then-Longpress Bypass Gest
 			// Second tap within custom bypass window (total 900ms, within 1000ms window)
 			vi.advanceTimersByTime(800);
 
-			const touchstart2 = create_touch_event('touchstart', [{clientX: 100, clientY: 200, target}]);
+			const touchstart2 = create_touch_event('touchstart', [
+				{ clientX: 100, clientY: 200, target }
+			]);
 			set_event_target(touchstart2, target);
 			window.dispatchEvent(touchstart2);
 
@@ -251,20 +274,22 @@ describe('ContextmenuRootForSafariCompatibility - Tap-Then-Longpress Bypass Gest
 
 		test('respects custom bypass_move_tolerance', async () => {
 			mounted = mount_contextmenu_root(ContextmenuRootForSafariCompatibility, undefined, {
-				bypass_move_tolerance: 50, // Very loose tolerance
+				bypass_move_tolerance: 50 // Very loose tolerance
 			});
 
-			const {container, contextmenu} = mounted;
+			const { container, contextmenu } = mounted;
 
 			const target = document.createElement('div');
 			container.appendChild(target);
 
 			await setup_contextmenu_attachment(target, [
-				{snippet: 'text', props: {content: 'Test', icon: '🧪', run: () => undefined}},
+				{ snippet: 'text', props: { content: 'Test', icon: '🧪', run: () => undefined } }
 			]);
 
 			// First tap
-			const touchstart1 = create_touch_event('touchstart', [{clientX: 100, clientY: 200, target}]);
+			const touchstart1 = create_touch_event('touchstart', [
+				{ clientX: 100, clientY: 200, target }
+			]);
 			set_event_target(touchstart1, target);
 			window.dispatchEvent(touchstart1);
 
@@ -278,7 +303,9 @@ describe('ContextmenuRootForSafariCompatibility - Tap-Then-Longpress Bypass Gest
 			// Second tap 40 pixels away (within 50px tolerance)
 			vi.advanceTimersByTime(200);
 
-			const touchstart2 = create_touch_event('touchstart', [{clientX: 140, clientY: 200, target}]);
+			const touchstart2 = create_touch_event('touchstart', [
+				{ clientX: 140, clientY: 200, target }
+			]);
 			set_event_target(touchstart2, target);
 			window.dispatchEvent(touchstart2);
 
@@ -294,7 +321,7 @@ describe('ContextmenuRootForSafariCompatibility - Tap-Then-Longpress Bypass Gest
 		test('tap on editable element resets bypass state', async () => {
 			mounted = mount_contextmenu_root(ContextmenuRootForSafariCompatibility);
 
-			const {container, contextmenu} = mounted;
+			const { container, contextmenu } = mounted;
 
 			const target = document.createElement('div');
 			const input = document.createElement('input');
@@ -302,11 +329,13 @@ describe('ContextmenuRootForSafariCompatibility - Tap-Then-Longpress Bypass Gest
 			container.appendChild(input);
 
 			await setup_contextmenu_attachment(target, [
-				{snippet: 'text', props: {content: 'Test', icon: '🧪', run: () => undefined}},
+				{ snippet: 'text', props: { content: 'Test', icon: '🧪', run: () => undefined } }
 			]);
 
 			// First tap on valid target
-			const touchstart1 = create_touch_event('touchstart', [{clientX: 100, clientY: 200, target}]);
+			const touchstart1 = create_touch_event('touchstart', [
+				{ clientX: 100, clientY: 200, target }
+			]);
 			set_event_target(touchstart1, target);
 			window.dispatchEvent(touchstart1);
 
@@ -321,7 +350,7 @@ describe('ContextmenuRootForSafariCompatibility - Tap-Then-Longpress Bypass Gest
 			vi.advanceTimersByTime(200);
 
 			const touchstart2 = create_touch_event('touchstart', [
-				{clientX: 100, clientY: 200, target: input},
+				{ clientX: 100, clientY: 200, target: input }
 			]);
 			set_event_target(touchstart2, input);
 			window.dispatchEvent(touchstart2);
@@ -336,7 +365,9 @@ describe('ContextmenuRootForSafariCompatibility - Tap-Then-Longpress Bypass Gest
 			// Third tap on valid target - should start fresh, not bypass
 			vi.advanceTimersByTime(200);
 
-			const touchstart3 = create_touch_event('touchstart', [{clientX: 100, clientY: 200, target}]);
+			const touchstart3 = create_touch_event('touchstart', [
+				{ clientX: 100, clientY: 200, target }
+			]);
 			set_event_target(touchstart3, target);
 			window.dispatchEvent(touchstart3);
 
@@ -350,17 +381,19 @@ describe('ContextmenuRootForSafariCompatibility - Tap-Then-Longpress Bypass Gest
 		test('touchcancel after tap resets bypass state', async () => {
 			mounted = mount_contextmenu_root(ContextmenuRootForSafariCompatibility);
 
-			const {container, contextmenu} = mounted;
+			const { container, contextmenu } = mounted;
 
 			const target = document.createElement('div');
 			container.appendChild(target);
 
 			await setup_contextmenu_attachment(target, [
-				{snippet: 'text', props: {content: 'Test', icon: '🧪', run: () => undefined}},
+				{ snippet: 'text', props: { content: 'Test', icon: '🧪', run: () => undefined } }
 			]);
 
 			// First tap
-			const touchstart1 = create_touch_event('touchstart', [{clientX: 100, clientY: 200, target}]);
+			const touchstart1 = create_touch_event('touchstart', [
+				{ clientX: 100, clientY: 200, target }
+			]);
 			set_event_target(touchstart1, target);
 			window.dispatchEvent(touchstart1);
 
@@ -381,7 +414,9 @@ describe('ContextmenuRootForSafariCompatibility - Tap-Then-Longpress Bypass Gest
 			// Second tap after cancel
 			vi.advanceTimersByTime(100);
 
-			const touchstart2 = create_touch_event('touchstart', [{clientX: 100, clientY: 200, target}]);
+			const touchstart2 = create_touch_event('touchstart', [
+				{ clientX: 100, clientY: 200, target }
+			]);
 			set_event_target(touchstart2, target);
 			window.dispatchEvent(touchstart2);
 
@@ -395,17 +430,19 @@ describe('ContextmenuRootForSafariCompatibility - Tap-Then-Longpress Bypass Gest
 		test('touchend preserves tap tracking for bypass detection', async () => {
 			mounted = mount_contextmenu_root(ContextmenuRootForSafariCompatibility);
 
-			const {container, contextmenu} = mounted;
+			const { container, contextmenu } = mounted;
 
 			const target = document.createElement('div');
 			container.appendChild(target);
 
 			await setup_contextmenu_attachment(target, [
-				{snippet: 'text', props: {content: 'Test', icon: '🧪', run: () => undefined}},
+				{ snippet: 'text', props: { content: 'Test', icon: '🧪', run: () => undefined } }
 			]);
 
 			// First tap
-			const touchstart1 = create_touch_event('touchstart', [{clientX: 100, clientY: 200, target}]);
+			const touchstart1 = create_touch_event('touchstart', [
+				{ clientX: 100, clientY: 200, target }
+			]);
 			set_event_target(touchstart1, target);
 			window.dispatchEvent(touchstart1);
 
@@ -419,7 +456,9 @@ describe('ContextmenuRootForSafariCompatibility - Tap-Then-Longpress Bypass Gest
 			// Second tap within bypass window
 			vi.advanceTimersByTime(300);
 
-			const touchstart2 = create_touch_event('touchstart', [{clientX: 100, clientY: 200, target}]);
+			const touchstart2 = create_touch_event('touchstart', [
+				{ clientX: 100, clientY: 200, target }
+			]);
 			set_event_target(touchstart2, target);
 			window.dispatchEvent(touchstart2);
 
@@ -433,17 +472,19 @@ describe('ContextmenuRootForSafariCompatibility - Tap-Then-Longpress Bypass Gest
 		test('bypass flag cleared after touchend prevents stuck bypass', async () => {
 			mounted = mount_contextmenu_root(ContextmenuRootForSafariCompatibility);
 
-			const {container, contextmenu} = mounted;
+			const { container, contextmenu } = mounted;
 
 			const target = document.createElement('div');
 			container.appendChild(target);
 
 			await setup_contextmenu_attachment(target, [
-				{snippet: 'text', props: {content: 'Test', icon: '🧪', run: () => undefined}},
+				{ snippet: 'text', props: { content: 'Test', icon: '🧪', run: () => undefined } }
 			]);
 
 			// Trigger bypass
-			const touchstart1 = create_touch_event('touchstart', [{clientX: 100, clientY: 200, target}]);
+			const touchstart1 = create_touch_event('touchstart', [
+				{ clientX: 100, clientY: 200, target }
+			]);
 			set_event_target(touchstart1, target);
 			window.dispatchEvent(touchstart1);
 
@@ -457,7 +498,9 @@ describe('ContextmenuRootForSafariCompatibility - Tap-Then-Longpress Bypass Gest
 			// Second tap within bypass window
 			vi.advanceTimersByTime(200);
 
-			const touchstart2 = create_touch_event('touchstart', [{clientX: 100, clientY: 200, target}]);
+			const touchstart2 = create_touch_event('touchstart', [
+				{ clientX: 100, clientY: 200, target }
+			]);
 			set_event_target(touchstart2, target);
 			window.dispatchEvent(touchstart2);
 
@@ -473,7 +516,9 @@ describe('ContextmenuRootForSafariCompatibility - Tap-Then-Longpress Bypass Gest
 			await tick();
 
 			// Start a new touch - should work normally
-			const touchstart3 = create_touch_event('touchstart', [{clientX: 100, clientY: 200, target}]);
+			const touchstart3 = create_touch_event('touchstart', [
+				{ clientX: 100, clientY: 200, target }
+			]);
 			set_event_target(touchstart3, target);
 			window.dispatchEvent(touchstart3);
 
@@ -485,20 +530,22 @@ describe('ContextmenuRootForSafariCompatibility - Tap-Then-Longpress Bypass Gest
 
 		test('timeout does not interfere with bypass flag', async () => {
 			mounted = mount_contextmenu_root(ContextmenuRootForSafariCompatibility, undefined, {
-				bypass_window: CONTEXTMENU_DEFAULT_BYPASS_WINDOW,
+				bypass_window: CONTEXTMENU_DEFAULT_BYPASS_WINDOW
 			});
 
-			const {container, contextmenu} = mounted;
+			const { container, contextmenu } = mounted;
 
 			const target = document.createElement('div');
 			container.appendChild(target);
 
 			await setup_contextmenu_attachment(target, [
-				{snippet: 'text', props: {content: 'Test', icon: '🧪', run: () => undefined}},
+				{ snippet: 'text', props: { content: 'Test', icon: '🧪', run: () => undefined } }
 			]);
 
 			// First tap
-			const touchstart1 = create_touch_event('touchstart', [{clientX: 100, clientY: 200, target}]);
+			const touchstart1 = create_touch_event('touchstart', [
+				{ clientX: 100, clientY: 200, target }
+			]);
 			set_event_target(touchstart1, target);
 			window.dispatchEvent(touchstart1);
 
@@ -512,7 +559,9 @@ describe('ContextmenuRootForSafariCompatibility - Tap-Then-Longpress Bypass Gest
 			// Second tap before timeout expires (total 600ms, within CONTEXTMENU_DEFAULT_BYPASS_WINDOW)
 			vi.advanceTimersByTime(500);
 
-			const touchstart2 = create_touch_event('touchstart', [{clientX: 100, clientY: 200, target}]);
+			const touchstart2 = create_touch_event('touchstart', [
+				{ clientX: 100, clientY: 200, target }
+			]);
 			set_event_target(touchstart2, target);
 			window.dispatchEvent(touchstart2);
 
@@ -526,25 +575,27 @@ describe('ContextmenuRootForSafariCompatibility - Tap-Then-Longpress Bypass Gest
 		test('ignores touch events when contextmenu already open', async () => {
 			mounted = mount_contextmenu_root(ContextmenuRootForSafariCompatibility);
 
-			const {container, contextmenu} = mounted;
+			const { container, contextmenu } = mounted;
 
 			const target = document.createElement('div');
 			container.appendChild(target);
 
 			await setup_contextmenu_attachment(target, [
-				{snippet: 'text', props: {content: 'Test', icon: '🧪', run: () => undefined}},
+				{ snippet: 'text', props: { content: 'Test', icon: '🧪', run: () => undefined } }
 			]);
 
 			// Open menu
 			contextmenu.open(
-				[{snippet: 'text', props: {content: 'Test', icon: '🧪', run: () => undefined}}],
+				[{ snippet: 'text', props: { content: 'Test', icon: '🧪', run: () => undefined } }],
 				150,
-				250,
+				250
 			);
 			flushSync();
 
 			// Try bypass gesture
-			const touchstart1 = create_touch_event('touchstart', [{clientX: 100, clientY: 200, target}]);
+			const touchstart1 = create_touch_event('touchstart', [
+				{ clientX: 100, clientY: 200, target }
+			]);
 			set_event_target(touchstart1, target);
 			window.dispatchEvent(touchstart1);
 
@@ -558,7 +609,9 @@ describe('ContextmenuRootForSafariCompatibility - Tap-Then-Longpress Bypass Gest
 			// Second tap within bypass window
 			vi.advanceTimersByTime(200);
 
-			const touchstart2 = create_touch_event('touchstart', [{clientX: 100, clientY: 200, target}]);
+			const touchstart2 = create_touch_event('touchstart', [
+				{ clientX: 100, clientY: 200, target }
+			]);
 			set_event_target(touchstart2, target);
 			window.dispatchEvent(touchstart2);
 
@@ -570,19 +623,19 @@ describe('ContextmenuRootForSafariCompatibility - Tap-Then-Longpress Bypass Gest
 		test('ignores touch events with multiple touches', async () => {
 			mounted = mount_contextmenu_root(ContextmenuRootForSafariCompatibility);
 
-			const {container, contextmenu} = mounted;
+			const { container, contextmenu } = mounted;
 
 			const target = document.createElement('div');
 			container.appendChild(target);
 
 			await setup_contextmenu_attachment(target, [
-				{snippet: 'text', props: {content: 'Test', icon: '🧪', run: () => undefined}},
+				{ snippet: 'text', props: { content: 'Test', icon: '🧪', run: () => undefined } }
 			]);
 
 			// Multi-touch should not start bypass tracking
 			const touchstart1 = create_touch_event('touchstart', [
-				{clientX: 100, clientY: 200, target},
-				{clientX: 150, clientY: 250, target},
+				{ clientX: 100, clientY: 200, target },
+				{ clientX: 150, clientY: 250, target }
 			]);
 			set_event_target(touchstart1, target);
 			window.dispatchEvent(touchstart1);
@@ -597,7 +650,9 @@ describe('ContextmenuRootForSafariCompatibility - Tap-Then-Longpress Bypass Gest
 			// Single touch after - should not trigger bypass
 			vi.advanceTimersByTime(200);
 
-			const touchstart2 = create_touch_event('touchstart', [{clientX: 100, clientY: 200, target}]);
+			const touchstart2 = create_touch_event('touchstart', [
+				{ clientX: 100, clientY: 200, target }
+			]);
 			set_event_target(touchstart2, target);
 			window.dispatchEvent(touchstart2);
 
@@ -611,7 +666,7 @@ describe('ContextmenuRootForSafariCompatibility - Tap-Then-Longpress Bypass Gest
 		test('ignores touch events on editable elements', async () => {
 			mounted = mount_contextmenu_root(ContextmenuRootForSafariCompatibility);
 
-			const {container, contextmenu} = mounted;
+			const { container, contextmenu } = mounted;
 
 			const input = document.createElement('input');
 			container.appendChild(input);
@@ -620,12 +675,12 @@ describe('ContextmenuRootForSafariCompatibility - Tap-Then-Longpress Bypass Gest
 			container.appendChild(target);
 
 			await setup_contextmenu_attachment(target, [
-				{snippet: 'text', props: {content: 'Test', icon: '🧪', run: () => undefined}},
+				{ snippet: 'text', props: { content: 'Test', icon: '🧪', run: () => undefined } }
 			]);
 
 			// Tap on input
 			const touchstart1 = create_touch_event('touchstart', [
-				{clientX: 100, clientY: 200, target: input},
+				{ clientX: 100, clientY: 200, target: input }
 			]);
 			set_event_target(touchstart1, input);
 			window.dispatchEvent(touchstart1);
@@ -640,7 +695,9 @@ describe('ContextmenuRootForSafariCompatibility - Tap-Then-Longpress Bypass Gest
 			// Tap on valid target
 			vi.advanceTimersByTime(200);
 
-			const touchstart2 = create_touch_event('touchstart', [{clientX: 100, clientY: 200, target}]);
+			const touchstart2 = create_touch_event('touchstart', [
+				{ clientX: 100, clientY: 200, target }
+			]);
 			set_event_target(touchstart2, target);
 			window.dispatchEvent(touchstart2);
 
@@ -654,19 +711,23 @@ describe('ContextmenuRootForSafariCompatibility - Tap-Then-Longpress Bypass Gest
 		test('ignores touch events with shift key pressed', async () => {
 			mounted = mount_contextmenu_root(ContextmenuRootForSafariCompatibility);
 
-			const {container, contextmenu} = mounted;
+			const { container, contextmenu } = mounted;
 
 			const target = document.createElement('div');
 			container.appendChild(target);
 
 			await setup_contextmenu_attachment(target, [
-				{snippet: 'text', props: {content: 'Test', icon: '🧪', run: () => undefined}},
+				{ snippet: 'text', props: { content: 'Test', icon: '🧪', run: () => undefined } }
 			]);
 
 			// Tap with shift key
-			const touchstart1 = create_touch_event('touchstart', [{clientX: 100, clientY: 200, target}], {
-				shiftKey: true,
-			});
+			const touchstart1 = create_touch_event(
+				'touchstart',
+				[{ clientX: 100, clientY: 200, target }],
+				{
+					shiftKey: true
+				}
+			);
 			set_event_target(touchstart1, target);
 			window.dispatchEvent(touchstart1);
 
@@ -680,7 +741,9 @@ describe('ContextmenuRootForSafariCompatibility - Tap-Then-Longpress Bypass Gest
 			// Normal tap after shift tap
 			vi.advanceTimersByTime(200);
 
-			const touchstart2 = create_touch_event('touchstart', [{clientX: 100, clientY: 200, target}]);
+			const touchstart2 = create_touch_event('touchstart', [
+				{ clientX: 100, clientY: 200, target }
+			]);
 			set_event_target(touchstart2, target);
 			window.dispatchEvent(touchstart2);
 
@@ -696,17 +759,19 @@ describe('ContextmenuRootForSafariCompatibility - Tap-Then-Longpress Bypass Gest
 		test('bypass works with contextmenu event after gesture', async () => {
 			mounted = mount_contextmenu_root(ContextmenuRootForSafariCompatibility);
 
-			const {container, contextmenu} = mounted;
+			const { container, contextmenu } = mounted;
 
 			const target = document.createElement('div');
 			container.appendChild(target);
 
 			await setup_contextmenu_attachment(target, [
-				{snippet: 'text', props: {content: 'Test', icon: '🧪', run: () => undefined}},
+				{ snippet: 'text', props: { content: 'Test', icon: '🧪', run: () => undefined } }
 			]);
 
 			// Bypass gesture
-			const touchstart1 = create_touch_event('touchstart', [{clientX: 100, clientY: 200, target}]);
+			const touchstart1 = create_touch_event('touchstart', [
+				{ clientX: 100, clientY: 200, target }
+			]);
 			set_event_target(touchstart1, target);
 			window.dispatchEvent(touchstart1);
 
@@ -720,7 +785,9 @@ describe('ContextmenuRootForSafariCompatibility - Tap-Then-Longpress Bypass Gest
 			// Second tap within bypass window
 			vi.advanceTimersByTime(200);
 
-			const touchstart2 = create_touch_event('touchstart', [{clientX: 100, clientY: 200, target}]);
+			const touchstart2 = create_touch_event('touchstart', [
+				{ clientX: 100, clientY: 200, target }
+			]);
 			set_event_target(touchstart2, target);
 			window.dispatchEvent(touchstart2);
 
@@ -739,17 +806,19 @@ describe('ContextmenuRootForSafariCompatibility - Tap-Then-Longpress Bypass Gest
 		test('bypass flag is cleared after contextmenu event consumes it', async () => {
 			mounted = mount_contextmenu_root(ContextmenuRootForSafariCompatibility);
 
-			const {container, contextmenu} = mounted;
+			const { container, contextmenu } = mounted;
 
 			const target = document.createElement('div');
 			container.appendChild(target);
 
 			await setup_contextmenu_attachment(target, [
-				{snippet: 'text', props: {content: 'Test', icon: '🧪', run: () => undefined}},
+				{ snippet: 'text', props: { content: 'Test', icon: '🧪', run: () => undefined } }
 			]);
 
 			// Trigger bypass
-			const touchstart1 = create_touch_event('touchstart', [{clientX: 100, clientY: 200, target}]);
+			const touchstart1 = create_touch_event('touchstart', [
+				{ clientX: 100, clientY: 200, target }
+			]);
 			set_event_target(touchstart1, target);
 			window.dispatchEvent(touchstart1);
 
@@ -763,7 +832,9 @@ describe('ContextmenuRootForSafariCompatibility - Tap-Then-Longpress Bypass Gest
 			// Second tap within bypass window
 			vi.advanceTimersByTime(200);
 
-			const touchstart2 = create_touch_event('touchstart', [{clientX: 100, clientY: 200, target}]);
+			const touchstart2 = create_touch_event('touchstart', [
+				{ clientX: 100, clientY: 200, target }
+			]);
 			set_event_target(touchstart2, target);
 			window.dispatchEvent(touchstart2);
 
@@ -790,17 +861,19 @@ describe('ContextmenuRootForSafariCompatibility - Tap-Then-Longpress Bypass Gest
 		test('second contextmenu event works normally after bypass consumed', async () => {
 			mounted = mount_contextmenu_root(ContextmenuRootForSafariCompatibility);
 
-			const {container, contextmenu} = mounted;
+			const { container, contextmenu } = mounted;
 
 			const target = document.createElement('div');
 			container.appendChild(target);
 
 			await setup_contextmenu_attachment(target, [
-				{snippet: 'text', props: {content: 'Test', icon: '🧪', run: () => undefined}},
+				{ snippet: 'text', props: { content: 'Test', icon: '🧪', run: () => undefined } }
 			]);
 
 			// Bypass gesture and consume
-			const touchstart1 = create_touch_event('touchstart', [{clientX: 100, clientY: 200, target}]);
+			const touchstart1 = create_touch_event('touchstart', [
+				{ clientX: 100, clientY: 200, target }
+			]);
 			set_event_target(touchstart1, target);
 			window.dispatchEvent(touchstart1);
 
@@ -812,7 +885,9 @@ describe('ContextmenuRootForSafariCompatibility - Tap-Then-Longpress Bypass Gest
 
 			// Second tap within bypass window
 			vi.advanceTimersByTime(200);
-			const touchstart2 = create_touch_event('touchstart', [{clientX: 100, clientY: 200, target}]);
+			const touchstart2 = create_touch_event('touchstart', [
+				{ clientX: 100, clientY: 200, target }
+			]);
 			set_event_target(touchstart2, target);
 			window.dispatchEvent(touchstart2);
 
@@ -841,18 +916,20 @@ describe('ContextmenuRootForSafariCompatibility - Tap-Then-Longpress Bypass Gest
 		test('handles rapid tap sequences (3+ taps)', async () => {
 			mounted = mount_contextmenu_root(ContextmenuRootForSafariCompatibility);
 
-			const {container, contextmenu} = mounted;
+			const { container, contextmenu } = mounted;
 
 			const target = document.createElement('div');
 			container.appendChild(target);
 
 			await setup_contextmenu_attachment(target, [
-				{snippet: 'text', props: {content: 'Test', icon: '🧪', run: () => undefined}},
+				{ snippet: 'text', props: { content: 'Test', icon: '🧪', run: () => undefined } }
 			]);
 
 			// Three rapid taps
 			for (let i = 0; i < 3; i++) {
-				const touchstart = create_touch_event('touchstart', [{clientX: 100, clientY: 200, target}]);
+				const touchstart = create_touch_event('touchstart', [
+					{ clientX: 100, clientY: 200, target }
+				]);
 				set_event_target(touchstart, target);
 				window.dispatchEvent(touchstart);
 
@@ -878,17 +955,19 @@ describe('ContextmenuRootForSafariCompatibility - Tap-Then-Longpress Bypass Gest
 		test('handles alternating tap and touchcancel', async () => {
 			mounted = mount_contextmenu_root(ContextmenuRootForSafariCompatibility);
 
-			const {container, contextmenu} = mounted;
+			const { container, contextmenu } = mounted;
 
 			const target = document.createElement('div');
 			container.appendChild(target);
 
 			await setup_contextmenu_attachment(target, [
-				{snippet: 'text', props: {content: 'Test', icon: '🧪', run: () => undefined}},
+				{ snippet: 'text', props: { content: 'Test', icon: '🧪', run: () => undefined } }
 			]);
 
 			// Tap, cancel, tap, cancel pattern
-			const touchstart1 = create_touch_event('touchstart', [{clientX: 100, clientY: 200, target}]);
+			const touchstart1 = create_touch_event('touchstart', [
+				{ clientX: 100, clientY: 200, target }
+			]);
 			set_event_target(touchstart1, target);
 			window.dispatchEvent(touchstart1);
 
@@ -902,7 +981,9 @@ describe('ContextmenuRootForSafariCompatibility - Tap-Then-Longpress Bypass Gest
 			// Wait after cancel
 			vi.advanceTimersByTime(100);
 
-			const touchstart2 = create_touch_event('touchstart', [{clientX: 100, clientY: 200, target}]);
+			const touchstart2 = create_touch_event('touchstart', [
+				{ clientX: 100, clientY: 200, target }
+			]);
 			set_event_target(touchstart2, target);
 			window.dispatchEvent(touchstart2);
 
@@ -923,17 +1004,17 @@ describe('ContextmenuRootForSafariCompatibility - Tap-Then-Longpress Bypass Gest
 		test('handles mixed touch and mouse input', async () => {
 			mounted = mount_contextmenu_root(ContextmenuRootForSafariCompatibility);
 
-			const {container, contextmenu} = mounted;
+			const { container, contextmenu } = mounted;
 
 			const target = document.createElement('div');
 			container.appendChild(target);
 
 			await setup_contextmenu_attachment(target, [
-				{snippet: 'text', props: {content: 'Test', icon: '🧪', run: () => undefined}},
+				{ snippet: 'text', props: { content: 'Test', icon: '🧪', run: () => undefined } }
 			]);
 
 			// Touch tap
-			const touchstart = create_touch_event('touchstart', [{clientX: 100, clientY: 200, target}]);
+			const touchstart = create_touch_event('touchstart', [{ clientX: 100, clientY: 200, target }]);
 			set_event_target(touchstart, target);
 			window.dispatchEvent(touchstart);
 
@@ -961,17 +1042,19 @@ describe('ContextmenuRootForSafariCompatibility - Tap-Then-Longpress Bypass Gest
 		test('bypass prevents longpress from starting', async () => {
 			mounted = mount_contextmenu_root(ContextmenuRootForSafariCompatibility);
 
-			const {container, contextmenu} = mounted;
+			const { container, contextmenu } = mounted;
 
 			const target = document.createElement('div');
 			container.appendChild(target);
 
 			await setup_contextmenu_attachment(target, [
-				{snippet: 'text', props: {content: 'Test', icon: '🧪', run: () => undefined}},
+				{ snippet: 'text', props: { content: 'Test', icon: '🧪', run: () => undefined } }
 			]);
 
 			// Trigger bypass
-			const touchstart1 = create_touch_event('touchstart', [{clientX: 100, clientY: 200, target}]);
+			const touchstart1 = create_touch_event('touchstart', [
+				{ clientX: 100, clientY: 200, target }
+			]);
 			set_event_target(touchstart1, target);
 			window.dispatchEvent(touchstart1);
 
@@ -985,7 +1068,9 @@ describe('ContextmenuRootForSafariCompatibility - Tap-Then-Longpress Bypass Gest
 			// Second tap within bypass window
 			vi.advanceTimersByTime(200);
 
-			const touchstart2 = create_touch_event('touchstart', [{clientX: 100, clientY: 200, target}]);
+			const touchstart2 = create_touch_event('touchstart', [
+				{ clientX: 100, clientY: 200, target }
+			]);
 			set_event_target(touchstart2, target);
 			window.dispatchEvent(touchstart2);
 
@@ -999,17 +1084,19 @@ describe('ContextmenuRootForSafariCompatibility - Tap-Then-Longpress Bypass Gest
 		test('longpress state cleared when bypass detected', async () => {
 			mounted = mount_contextmenu_root(ContextmenuRootForSafariCompatibility);
 
-			const {container, contextmenu} = mounted;
+			const { container, contextmenu } = mounted;
 
 			const target = document.createElement('div');
 			container.appendChild(target);
 
 			await setup_contextmenu_attachment(target, [
-				{snippet: 'text', props: {content: 'Test', icon: '🧪', run: () => undefined}},
+				{ snippet: 'text', props: { content: 'Test', icon: '🧪', run: () => undefined } }
 			]);
 
 			// Start first touch
-			const touchstart1 = create_touch_event('touchstart', [{clientX: 100, clientY: 200, target}]);
+			const touchstart1 = create_touch_event('touchstart', [
+				{ clientX: 100, clientY: 200, target }
+			]);
 			set_event_target(touchstart1, target);
 			window.dispatchEvent(touchstart1);
 
@@ -1023,7 +1110,9 @@ describe('ContextmenuRootForSafariCompatibility - Tap-Then-Longpress Bypass Gest
 			// Second touch triggers bypass - should not start longpress
 			vi.advanceTimersByTime(200);
 
-			const touchstart2 = create_touch_event('touchstart', [{clientX: 100, clientY: 200, target}]);
+			const touchstart2 = create_touch_event('touchstart', [
+				{ clientX: 100, clientY: 200, target }
+			]);
 			set_event_target(touchstart2, target);
 			window.dispatchEvent(touchstart2);
 
@@ -1037,20 +1126,22 @@ describe('ContextmenuRootForSafariCompatibility - Tap-Then-Longpress Bypass Gest
 
 		test('bypass does not affect subsequent normal longpress after expiry', async () => {
 			mounted = mount_contextmenu_root(ContextmenuRootForSafariCompatibility, undefined, {
-				bypass_window: CONTEXTMENU_DEFAULT_BYPASS_WINDOW,
+				bypass_window: CONTEXTMENU_DEFAULT_BYPASS_WINDOW
 			});
 
-			const {container, contextmenu} = mounted;
+			const { container, contextmenu } = mounted;
 
 			const target = document.createElement('div');
 			container.appendChild(target);
 
 			await setup_contextmenu_attachment(target, [
-				{snippet: 'text', props: {content: 'Test', icon: '🧪', run: () => undefined}},
+				{ snippet: 'text', props: { content: 'Test', icon: '🧪', run: () => undefined } }
 			]);
 
 			// Trigger and consume bypass
-			const touchstart1 = create_touch_event('touchstart', [{clientX: 100, clientY: 200, target}]);
+			const touchstart1 = create_touch_event('touchstart', [
+				{ clientX: 100, clientY: 200, target }
+			]);
 			set_event_target(touchstart1, target);
 			window.dispatchEvent(touchstart1);
 
@@ -1062,7 +1153,9 @@ describe('ContextmenuRootForSafariCompatibility - Tap-Then-Longpress Bypass Gest
 
 			// Second tap within bypass window
 			vi.advanceTimersByTime(200);
-			const touchstart2 = create_touch_event('touchstart', [{clientX: 100, clientY: 200, target}]);
+			const touchstart2 = create_touch_event('touchstart', [
+				{ clientX: 100, clientY: 200, target }
+			]);
 			set_event_target(touchstart2, target);
 			window.dispatchEvent(touchstart2);
 
@@ -1076,7 +1169,9 @@ describe('ContextmenuRootForSafariCompatibility - Tap-Then-Longpress Bypass Gest
 			vi.advanceTimersByTime(1000);
 
 			// Now try normal longpress
-			const touchstart3 = create_touch_event('touchstart', [{clientX: 100, clientY: 200, target}]);
+			const touchstart3 = create_touch_event('touchstart', [
+				{ clientX: 100, clientY: 200, target }
+			]);
 			set_event_target(touchstart3, target);
 			window.dispatchEvent(touchstart3);
 

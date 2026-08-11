@@ -1,7 +1,7 @@
-import {describe, test, assert, beforeEach} from 'vitest';
+import { describe, test, assert, beforeEach } from 'vitest';
 
-import {ContextmenuState, EntryState, SubmenuState} from '$lib/contextmenu_state.svelte.ts';
-import {add_test_entry} from './contextmenu_state_test_helpers.ts';
+import { ContextmenuState, EntryState, SubmenuState } from '$lib/contextmenu_state.svelte.ts';
+import { add_test_entry } from './contextmenu_state_test_helpers.ts';
 
 describe('ContextmenuState - Immutability', () => {
 	let contextmenu: ContextmenuState;
@@ -142,11 +142,15 @@ describe('ContextmenuState - Immutability', () => {
 
 	describe('params array immutability', () => {
 		test('open creates new params array reference', () => {
-			const params1 = [{snippet: 'text' as const, props: {content: 'A', icon: '1', run: () => {}}}];
+			const params1 = [
+				{ snippet: 'text' as const, props: { content: 'A', icon: '1', run: () => {} } }
+			];
 			contextmenu.open(params1, 0, 0);
 
 			const old_params = contextmenu.params;
-			const params2 = [{snippet: 'text' as const, props: {content: 'B', icon: '2', run: () => {}}}];
+			const params2 = [
+				{ snippet: 'text' as const, props: { content: 'B', icon: '2', run: () => {} } }
+			];
 			contextmenu.open(params2, 10, 10);
 
 			assert.notStrictEqual(contextmenu.params, old_params);

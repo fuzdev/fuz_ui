@@ -1,10 +1,10 @@
-import {resolve} from '$app/paths';
-import type {Component} from 'svelte';
-import {z} from 'zod';
-import {ensure_start} from '@fuzdev/fuz_util/string.ts';
+import { resolve } from '$app/paths';
+import type { Component } from 'svelte';
+import { z } from 'zod';
+import { ensure_start } from '@fuzdev/fuz_util/string.ts';
 
-import {create_context} from './context_helpers.ts';
-import {DOCS_PATH_DEFAULT} from './docs_helpers.svelte.ts';
+import { create_context } from './context_helpers.ts';
+import { DOCS_PATH_DEFAULT } from './docs_helpers.svelte.ts';
 
 export const tomes_context = create_context<() => Map<string, Tome>>();
 
@@ -29,7 +29,7 @@ export const Tome = z.object({
 	Component: z.custom<Component<any, any>>(),
 	related_tomes: z.array(z.string()),
 	related_modules: z.array(z.string()),
-	related_declarations: z.array(z.string()),
+	related_declarations: z.array(z.string())
 });
 export type Tome = z.infer<typeof Tome>;
 
@@ -39,7 +39,7 @@ export type Tome = z.infer<typeof Tome>;
 export const tome_to_pathname = (
 	item: Tome | string,
 	docs_path = DOCS_PATH_DEFAULT,
-	hash?: string,
+	hash?: string
 ): string => {
 	const slug = typeof item === 'string' ? item : item.slug;
 	const path = docs_path + '/' + slug;

@@ -1,9 +1,9 @@
 <script lang="ts">
-	import {DEV} from 'esm-env';
-	import type {SvelteHTMLElements} from 'svelte/elements';
+	import { DEV } from 'esm-env';
+	import type { SvelteHTMLElements } from 'svelte/elements';
 
-	import {tome_get_by_slug, tome_to_pathname, tome_to_title, tomes_context} from './tome.ts';
-	import {DOCS_PATH_DEFAULT} from './docs_helpers.svelte.ts';
+	import { tome_get_by_slug, tome_to_pathname, tome_to_title, tomes_context } from './tome.ts';
+	import { DOCS_PATH_DEFAULT } from './docs_helpers.svelte.ts';
 
 	const {
 		slug,
@@ -36,6 +36,6 @@
 </script>
 
 <!-- eslint-disable-next-line svelte/no-navigation-without-resolve -->
-<a {...rest} class="tome-link {class_prop}" href={tome_to_pathname(slug, docs_path, hash)}
-	>{#if children}{@render children()}{:else}{label}{/if}</a
->
+<a {...rest} class="tome-link {class_prop}" href={tome_to_pathname(slug, docs_path, hash)}>
+	{#if children}{@render children()}{:else}{label}{/if}
+</a>

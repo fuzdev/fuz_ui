@@ -1,7 +1,7 @@
 <script lang="ts">
 	import Code from '@fuzdev/fuz_code/Code.svelte';
 
-	import {tome_get_by_slug} from '$lib/tome.ts';
+	import { tome_get_by_slug } from '$lib/tome.ts';
 	import Teleport from '$lib/Teleport.svelte';
 	import TomeContent from '$lib/TomeContent.svelte';
 
@@ -49,7 +49,7 @@
 			<div bind:this={port1} class="panel"></div>
 			<div bind:this={port2} class="panel"></div>
 		</div>
-		<button type="button" onclick={() => (swap = !swap)}> teleport the bunny </button>
+		<button type="button" onclick={() => (swap = !swap)}>teleport the bunny</button>
 	</section>
 </TomeContent>
 

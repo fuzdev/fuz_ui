@@ -1,8 +1,8 @@
 <script lang="ts">
 	import Code from '@fuzdev/fuz_code/Code.svelte';
-	import {swallow} from '@fuzdev/fuz_util/dom.ts';
-	import {render_theme_style, type Theme} from '@fuzdev/fuz_css/theme.ts';
-	import type {StyleVariable} from '@fuzdev/fuz_css/variable.ts';
+	import { swallow } from '@fuzdev/fuz_util/dom.ts';
+	import { render_theme_style, type Theme } from '@fuzdev/fuz_css/theme.ts';
+	import type { StyleVariable } from '@fuzdev/fuz_css/variable.ts';
 
 	import CopyToClipboard from '$lib/CopyToClipboard.svelte';
 	import Dialog from '$lib/Dialog.svelte';
@@ -17,7 +17,7 @@
 
 	const {
 		theme = null,
-		onsave,
+		onsave
 	}: {
 		/**
 		 * `null` means creating
@@ -31,9 +31,9 @@
 
 	let new_variables = $derived(theme ? theme.variables : []);
 
-	const new_theme: Theme = $derived({name: new_name, variables: new_variables});
+	const new_theme: Theme = $derived({ name: new_name, variables: new_variables });
 
-	const code = $derived(render_theme_style(new_theme, {empty_default_theme: false}));
+	const code = $derived(render_theme_style(new_theme, { empty_default_theme: false }));
 
 	const light_count = $derived(new_variables.reduce((c, v) => (v.light ? c + 1 : c), 0));
 	const dark_count = $derived(new_variables.reduce((c, v) => (v.dark ? c + 1 : c), 0));
@@ -58,7 +58,7 @@
 
 	const editing = $derived(!!theme);
 	const changed = $derived(
-		theme ? new_name !== theme.name || new_variables !== theme.variables : true,
+		theme ? new_name !== theme.name || new_variables !== theme.variables : true
 	);
 </script>
 
@@ -72,26 +72,26 @@
 	<header>
 		<div class="flex:1">
 			<p>variables: {light_count} light, {dark_count} dark</p>
-			<button type="button" class="width:100%" onclick={add_variable} disabled
-				>add a variable</button
-			>
+			<button type="button" class="width:100%" onclick={add_variable} disabled>
+				add a variable
+			</button>
 		</div>
 		<fieldset class="flex:1">
 			<label>
 				<div class="title">name</div>
 				<input bind:value={new_name} placeholder=">" />
 			</label>
-			<button type="button" onclick={save} disabled={!changed}
-				>{#if editing}save changes{:else}create theme{/if}</button
-			>
+			<button type="button" onclick={save} disabled={!changed}>
+				{#if editing}save changes{:else}create theme{/if}
+			</button>
 		</fieldset>
 	</header>
 	<div class="content">
 		<div class="variables">
 			{#each new_variables as variable (variable.name)}
-				<button type="button" class="variable menuitem" onclick={(e) => edit_variable(e, variable)}
-					>--{variable.name}</button
-				>
+				<button type="button" class="variable menuitem" onclick={(e) => edit_variable(e, variable)}>
+					--{variable.name}
+				</button>
 			{/each}
 		</div>
 		<div class="rendered">
@@ -107,7 +107,7 @@
 {#if selected_variable}
 	<Dialog onclose={() => (selected_variable = null)}>
 		<DialogContent>
-			{#snippet children({close})}
+			{#snippet children({ close })}
 				<div class="panel p_lg box">
 					<StyleVariableDetail variable={selected_variable} />
 					<aside>⚠️ This is unfinished and will change.</aside>

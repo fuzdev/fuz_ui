@@ -1,6 +1,6 @@
-import {test, assert, describe} from 'vitest';
+import { test, assert, describe } from 'vitest';
 
-import {csp_directive_specs, csp_directive_spec_by_name, type CspDirective} from '$lib/csp.ts';
+import { csp_directive_specs, csp_directive_spec_by_name, type CspDirective } from '$lib/csp.ts';
 
 // `csp_directive_specs` is consumed by the fuz_ui docs page (src/routes/docs/csp/+page.svelte).
 // These tests protect that public metadata: structural soundness and absence of cycles.
@@ -13,7 +13,7 @@ describe('directive spec fallback relationships', () => {
 				for (const fallback_name of spec.fallback) {
 					assert.ok(
 						csp_directive_spec_by_name.has(fallback_name),
-						`${spec.name} fallback ${fallback_name} should be a valid directive`,
+						`${spec.name} fallback ${fallback_name} should be a valid directive`
 					);
 				}
 			}
@@ -26,7 +26,7 @@ describe('directive spec fallback relationships', () => {
 				for (const fallback_of_name of spec.fallback_of) {
 					assert.ok(
 						csp_directive_spec_by_name.has(fallback_of_name),
-						`${spec.name} fallback_of ${fallback_of_name} should be a valid directive`,
+						`${spec.name} fallback_of ${fallback_of_name} should be a valid directive`
 					);
 				}
 			}
@@ -45,7 +45,7 @@ describe('directive spec fallback relationships', () => {
 						fallback_spec.fallback_of?.includes(spec.name),
 						`${fallback_name} should list ${spec.name} in fallback_of (bidirectional with ${
 							spec.name
-						}.fallback)`,
+						}.fallback)`
 					);
 				}
 			}
@@ -57,7 +57,7 @@ describe('directive spec fallback relationships', () => {
 						child_spec.fallback?.includes(spec.name),
 						`${fallback_of_name} should list ${spec.name} in fallback (bidirectional with ${
 							spec.name
-						}.fallback_of)`,
+						}.fallback_of)`
 					);
 				}
 			}
@@ -110,7 +110,7 @@ describe('no circular fallback chains', () => {
 
 			assert.ok(
 				depth <= MAX_DEPTH,
-				`${spec.name} has fallback chain depth of ${depth}, exceeds max of ${MAX_DEPTH}`,
+				`${spec.name} has fallback chain depth of ${depth}, exceeds max of ${MAX_DEPTH}`
 			);
 		}
 	});
