@@ -15,7 +15,7 @@
 		{@render package_thumbnail(project_item)}
 	{/each}
 </menu>
-<small class="display:block text-align:right">the charts show public commit activity<br/>since Gro planted on August 8, 2019</small>
+<small class="display:block text-align:right">the charts show public commit activity<br/>since Gro planted on August 7, 2019</small>
 
 {#snippet package_thumbnail(project_item: ProjectItem)}
 	{@const counts = series_by_name.get(project_item.name)}
