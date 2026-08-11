@@ -131,6 +131,15 @@ export class Declaration {
 		return field<TypeJson>(this.declaration_json, 'typeInfo');
 	}
 
+	/**
+	 * Default value documented via `@default`; the authoritative initializer
+	 * (when human-readable) is in `type_signature`. Present on `variable` kind
+	 * only — parameters, props, and members carry their own.
+	 */
+	get default_value(): string | undefined {
+		return field<string>(this.declaration_json, 'defaultValue');
+	}
+
 	get doc_comment(): string | undefined {
 		return this.declaration_json.docComment;
 	}

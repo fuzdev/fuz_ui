@@ -3,7 +3,8 @@
 
 Renders svelte-docinfo's structured `TypeJson` tree as inline code: `reference`
 nodes (and alias-carrying unions/intersections) link to API docs via
-`DeclarationLink` when the name resolves in the library, terminal type text is
+`DeclarationLink` when the name resolves in the library — scoped to the token's
+declaring module when the analysis names one — terminal type text is
 syntax-highlighted via fuz_code's `Code`, and structural punctuation comes
 from svelte-docinfo's `typeJsonToTokens`, which owns spacing and
 parenthesization so rendering is whitespace-exact.
@@ -39,21 +40,29 @@ tree replaced it with a recovered name.
 
 	// a bare name renders without the code wrapper, matching the plain chip
 	// link `TypeLink` produces for whole-string matches
-	const bare_name = $derived(
-		tokens.length === 1 && tokens[0]!.kind === 'name' ? tokens[0]!.name : undefined
+	const bare_name_token = $derived(
+		tokens.length === 1 && tokens[0]!.kind === 'name' ? tokens[0]! : undefined
 	);
+
+	// the gate mirrors `DeclarationLink`'s resolution exactly — a moduled token
+	// (registry-recovered reference) is scoped to its declaring module with no
+	// by-name fallback, so the gate can't admit a name the link then fails on
+	const resolves = (name: string, module?: string): boolean =>
+		module === undefined
+			? library.declaration_by_name.has(name)
+			: library.module_by_path.get(module)?.get_declaration_by_name(name) !== undefined;
 </script>
 
-{#snippet name_view(name: string, root_title?: string)}
-	{#if library.declaration_by_name.has(name)}
-		<DeclarationLink {name} title={root_title} />
+{#snippet name_view(name: string, module: string | undefined, root_title?: string)}
+	{#if resolves(name, module)}
+		<DeclarationLink {name} module_path={module} title={root_title} />
 	{:else}
 		<Code lang="ts" content={name} inline title={root_title} />
 	{/if}
 {/snippet}
 
-{#if bare_name !== undefined}
-	{@render name_view(bare_name, title)}
+{#if bare_name_token}
+	{@render name_view(bare_name_token.name, bare_name_token.module, title)}
 {:else}
 	<!-- token adjacency survives the multi-line template: Svelte trims
 		block-boundary whitespace here, locked by the `TypeJsonView` render tests
@@ -63,7 +72,7 @@ tree replaced it with a recovered name.
 			{#if token.kind === 'text'}
 				{token.text}
 			{:else if token.kind === 'name'}
-				{@render name_view(token.name)}
+				{@render name_view(token.name, token.module)}
 			{:else}
 				<Code lang="ts" content={token.text} inline />
 			{/if}

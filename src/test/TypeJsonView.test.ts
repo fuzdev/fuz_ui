@@ -95,6 +95,42 @@ describe('TypeJsonView', () => {
 		assert.strictEqual(link.textContent, 'A');
 	});
 
+	test('a moduled reference resolves scoped to its declaring module', () => {
+		const container = mount_view(
+			{ kind: 'reference', name: 'A', module: 'y.ts' },
+			fake_library([], { 'y.ts': ['A'] })
+		);
+		const link = container.querySelector('a');
+		assert.ok(link, 'expected a link');
+		assert.strictEqual(link.getAttribute('href'), '/docs/api/y.ts#A');
+	});
+
+	test('a moduled reference missing from its module renders as code, no by-name fallback', () => {
+		const container = mount_view(
+			{ kind: 'reference', name: 'A', module: 'y.ts' },
+			fake_library(['A'], { 'y.ts': [] })
+		);
+		assert.strictEqual(container.querySelector('a'), null);
+		assert.strictEqual(container.textContent, 'A');
+	});
+
+	test('moduled references link inside composite trees', () => {
+		const container = mount_view(
+			{
+				kind: 'union',
+				members: [
+					{ kind: 'reference', name: 'A', module: 'y.ts' },
+					{ kind: 'intrinsic', text: 'null' }
+				]
+			},
+			fake_library([], { 'y.ts': ['A'] })
+		);
+		assert.strictEqual(container.textContent, 'A | null');
+		const link = container.querySelector('code.type-json-view a');
+		assert.ok(link, 'expected a link inside the wrapper');
+		assert.strictEqual(link.getAttribute('href'), '/docs/api/y.ts#A');
+	});
+
 	test('title lands on the wrapper of a composite tree', () => {
 		const container = mount_view(
 			{

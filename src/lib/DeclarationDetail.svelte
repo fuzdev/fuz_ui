@@ -216,6 +216,14 @@ including parameters, props, members, overloads, external types, and more.
 	</p>
 {/if}
 
+<!-- default (top-level variables; params, props, and members render theirs inline) -->
+{#if declaration.default_value}
+	<p class="row gap_md">
+		<strong>default</strong>
+		<Code lang="ts" content={declaration.default_value} />
+	</p>
+{/if}
+
 <!-- import statement -->
 <Code lang="ts" content={declaration.import_statement} />
 
