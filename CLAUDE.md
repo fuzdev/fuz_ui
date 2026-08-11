@@ -115,6 +115,15 @@ consumes are listed under [Library and API generation](#library-and-api-generati
 
 - `Svg`, `Glyph`, `ImgOrSvg`
 
+### Data display
+
+- `Sparkline` - small inline SVG line graph; shared-scale small multiples via
+  `max`, geometry via `scale` (linear, sqrt, log, or a power exponent),
+  per-point alpha fade via `alpha_floor` (always linear), optional `end_dot`,
+  `currentColor` stroke over a light `--sparkline_bg` wash
+- `ProjectActivityChart` - all projects' weekly commit series drawn over one
+  another at a shared scale, colored per project; native `title` hover per line
+
 ### Clipboard
 
 - `CopyToClipboard`, `PasteFromClipboard`
@@ -123,7 +132,8 @@ consumes are listed under [Library and API generation](#library-and-api-generati
 
 - `Hashlink` - hash anchor links
 - `GithubLink`, `MdnLink` - external reference links
-- `ProjectLinks` - @fuzdev ecosystem package grid; add an entry inline and a matching logo in `logos.ts`
+- `ProjectLinks` - @fuzdev ecosystem package grid with per-project commit-activity
+  sparklines; add entries in `projects.ts` and a matching logo in `logos.ts`
 
 ### Documentation & API system
 
@@ -192,6 +202,21 @@ mdz itself (`Mdz`, `MdzRoot`, `MdzStream`, the preprocessor) lives in `@fuzdev/m
 - `tome.ts` - documentation system types and utilities
 - `theme_state.svelte.ts` - theme and color scheme management (ThemeState class)
 - `context_helpers.ts` - Svelte context utilities (`create_context()`)
+
+### Project stats
+
+- `projects.ts` - ecosystem project metadata (`ProjectItem`, `project_items`);
+  `name` doubles as the sibling repo directory name
+- `project_stats.ts` - commit-activity types (`ProjectStatsSnapshot`) and pure
+  UTC bucketing helpers (daily master data; weekly/monthly derived at runtime),
+  plus `project_stats_label` for accessible labels/tooltips
+- `project_stats_data.ts` - committed snapshot of daily commit counts per
+  project; regenerate with `gro project_stats_update` (reads sibling repos'
+  git histories, so it only runs in the full workspace)
+- `sparkline.ts` - pure geometry behind `Sparkline`/`ProjectActivityChart`:
+  polyline points, thinned alpha-gradient stops, end-dot position
+- `publish.task.ts` - local override that refreshes and commits the stats
+  snapshot, then delegates to gro's builtin publish
 
 ### Component helpers
 

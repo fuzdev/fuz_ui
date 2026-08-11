@@ -4,6 +4,7 @@
 	import DocsFooter from '$lib/DocsFooter.svelte';
 	import Card from '$lib/Card.svelte';
 	import GithubLink from '$lib/GithubLink.svelte';
+	import ProjectActivityChart from '$lib/ProjectActivityChart.svelte';
 	import ProjectLinks from '$lib/ProjectLinks.svelte';
 	import { site_context } from '$lib/site.svelte.ts';
 	import Svg from '$lib/Svg.svelte';
@@ -34,8 +35,8 @@
 					<p>
 						<!-- eslint-disable-next-line svelte/no-navigation-without-resolve -->
 						To learn more see <a href={DOCS_PATH}>the docs</a>
-						and <GithubLink path="fuzdev/fuz_ui#readme">readme</GithubLink>. Feel free to take the
-						ideas and <GithubLink path="fuzdev/fuz_ui">code</GithubLink> for your own purposes.
+						and <a href="https://github.com/fuzdev/fuz_ui#readme">readme</a>. Feel free to take the
+						ideas and <a href="https://github.com/fuzdev/fuz_ui">code</a> for your own purposes.
 					</p>
 				</div>
 			</div>
@@ -46,6 +47,10 @@
 		</section>
 		<section class="panel p_lg shadow_inset_xs">
 			<ProjectLinks />
+		</section>
+		<section class="panel p_lg shadow_inset_xs">
+			<ProjectActivityChart />
+			<small class="display:block text-align:right">weekly commit activity, all projects</small>
 		</section>
 		<section>
 			<DocsFooter repo_url={site.repo_url} root_url={FUZ_DEV_URL}>
