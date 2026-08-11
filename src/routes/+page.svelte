@@ -3,7 +3,6 @@
 
 	import DocsFooter from '$lib/DocsFooter.svelte';
 	import Card from '$lib/Card.svelte';
-	import GithubLink from '$lib/GithubLink.svelte';
 	import ProjectActivityChart from '$lib/ProjectActivityChart.svelte';
 	import ProjectLinks from '$lib/ProjectLinks.svelte';
 	import { site_context } from '$lib/site.svelte.ts';

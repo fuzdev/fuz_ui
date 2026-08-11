@@ -5,7 +5,8 @@ import type {
 	ParameterJsonInput,
 	ComponentPropJsonInput,
 	OverloadJsonInput,
-	Reactivity
+	Reactivity,
+	TypeJson
 } from 'svelte-docinfo/types.js';
 import { generateImport, getDisplayName } from 'svelte-docinfo/declaration-helpers.js';
 import { EMPTY_ARRAY } from '@fuzdev/fuz_util/array.ts';
@@ -122,6 +123,23 @@ export class Declaration {
 		return this.declaration_json.typeSignature;
 	}
 
+	/**
+	 * Structured type tree beside `type_signature`, absent when the flat string
+	 * is the whole story. Present on `variable` and `type` kinds only.
+	 */
+	get type_info(): TypeJson | undefined {
+		return field<TypeJson>(this.declaration_json, 'typeInfo');
+	}
+
+	/**
+	 * Default value documented via `@default`; the authoritative initializer
+	 * (when human-readable) is in `type_signature`. Present on `variable` kind
+	 * only — parameters, props, and members carry their own.
+	 */
+	get default_value(): string | undefined {
+		return field<string>(this.declaration_json, 'defaultValue');
+	}
+
 	get doc_comment(): string | undefined {
 		return this.declaration_json.docComment;
 	}
@@ -142,6 +160,14 @@ export class Declaration {
 		return field<string>(this.declaration_json, 'returnType');
 	}
 
+	/**
+	 * Structured return type beside `return_type`, absent when the flat string
+	 * is the whole story. Present on `function` kind only.
+	 */
+	get return_type_info(): TypeJson | undefined {
+		return field<TypeJson>(this.declaration_json, 'returnTypeInfo');
+	}
+
 	get return_description(): string | undefined {
 		return field<string>(this.declaration_json, 'returnDescription');
 	}
@@ -150,8 +176,8 @@ export class Declaration {
 		return this.declaration_json.genericParams ?? EMPTY_ARRAY;
 	}
 
-	get extends_type(): string | Array<string> | undefined {
-		return field<string | Array<string>>(this.declaration_json, 'extends');
+	get extends_types(): Array<string> | undefined {
+		return field<Array<string>>(this.declaration_json, 'extends');
 	}
 
 	get implements_types(): Array<string> | undefined {
@@ -182,11 +208,15 @@ export class Declaration {
 	}
 
 	/**
-	 * Intersection types whose properties are external (filtered out of props/members).
-	 * Present on `component` and `type` kinds.
+	 * External types whose contributions are filtered out of props/members —
+	 * the attribute bags a component forwards, however the author composed
+	 * them (intersection, heritage clause, bare or indexed-access reference).
+	 * On `interface`/`class` kinds it records the external reach of the
+	 * heritage chain, whose contributions members (own-only) never enumerate.
+	 * Present on `component`, `type`, `interface`, and `class` kinds.
 	 */
-	get intersects(): Array<string> | undefined {
-		return field<Array<string>>(this.declaration_json, 'intersects');
+	get external_types(): Array<string> | undefined {
+		return field<Array<string>>(this.declaration_json, 'externalTypes');
 	}
 
 	/**

@@ -24,8 +24,11 @@
 
 {#snippet package_thumbnail(project_item: ProjectItem)}
 	{@const counts = series_by_name.get(project_item.name)}
-	<!-- eslint-disable-next-line svelte/no-navigation-without-resolve -->
-	<a class="thumbnail row align-items:start shade_00 px_md py_xs border_radius_sm mb_lg" href={project_item.url}>
+	<!-- eslint-disable svelte/no-navigation-without-resolve -->
+	<a
+		class="thumbnail row align-items:start shade_00 px_md py_xs border_radius_sm mb_lg"
+		href={project_item.url}
+	>
 		<Svg shrink={false} data={project_item.logo} size="var(--icon_size_lg)" />
 		<div class="pl_lg width_atmost_sm">
 			<div class="thumbnail-name row {project_item.color_class}">
@@ -43,6 +46,7 @@
 			</div>
 		</div>
 	</a>
+	<!-- eslint-enable svelte/no-navigation-without-resolve -->
 {/snippet}
 
 <style>
