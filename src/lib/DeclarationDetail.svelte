@@ -4,7 +4,7 @@
 Renders the full detail view for an exported declaration.
 Handles all svelte-docinfo declaration kinds (function, class, interface,
 type, variable, enum, component, snippet) and their kind-specific fields
-including parameters, props, members, overloads, intersects, and more.
+including parameters, props, members, overloads, external types, and more.
 
 @see `declaration.svelte.ts` for the `Declaration` wrapper class
 @see {@link https://github.com/ryanatkn/svelte-docinfo svelte-docinfo} for the analysis library
@@ -27,6 +27,24 @@ including parameters, props, members, overloads, intersects, and more.
 	import DocsLink from './DocsLink.svelte';
 
 	const { declaration }: { declaration: Declaration } = $props();
+
+	// external types not already shown in the inheritance section — on direct
+	// heritage (`interface Props extends HTMLButtonAttributes`) the producer
+	// deliberately records the same name in both fields, so the external-types
+	// section keeps only what heritage doesn't already display
+	const external_types_not_inherited = $derived.by(() => {
+		const external_types = declaration.external_types;
+		if (!external_types?.length) return undefined;
+		const heritage = (
+			Array.isArray(declaration.extends_type)
+				? declaration.extends_type
+				: declaration.extends_type
+					? [declaration.extends_type]
+					: []
+		).concat(declaration.implements_types ?? []);
+		const filtered = external_types.filter((t) => !heritage.includes(t));
+		return filtered.length ? filtered : undefined;
+	});
 
 	// render mdz inline `code` as API-linking `DocsLink` and fenced blocks as syntax-highlighted
 	// `Code`, matching the rest of the docs — the injection mdz core leaves open
@@ -126,7 +144,7 @@ including parameters, props, members, overloads, intersects, and more.
 	{/if}
 {/snippet}
 
-<!-- A comma-separated inline list of type links (extends, implements, intersects are rarely more than one). -->
+<!-- A comma-separated inline list of type links (extends, implements, external types are rarely more than one). -->
 {#snippet type_list(types: Array<string>)}
 	{#each types as type, i (type)}
 		{#if i > 0}
@@ -295,12 +313,13 @@ including parameters, props, members, overloads, intersects, and more.
 	</section>
 {/if}
 
-<!-- intersects (component/type intersection types) -->
-{#if declaration.intersects?.length}
+<!-- external types whose contributions are filtered out of (or, on
+	interfaces/classes, never enumerated in) props/members -->
+{#if external_types_not_inherited}
 	<section>
-		<h4>intersects</h4>
+		<h4>external types</h4>
 		<div class="row gap_md flex-wrap:wrap">
-			{@render type_list(declaration.intersects)}
+			{@render type_list(external_types_not_inherited)}
 		</div>
 	</section>
 {/if}

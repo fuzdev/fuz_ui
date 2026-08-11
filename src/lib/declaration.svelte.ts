@@ -199,11 +199,15 @@ export class Declaration {
 	}
 
 	/**
-	 * Intersection types whose properties are external (filtered out of props/members).
-	 * Present on `component` and `type` kinds.
+	 * External types whose contributions are filtered out of props/members —
+	 * the attribute bags a component forwards, however the author composed
+	 * them (intersection, heritage clause, bare or indexed-access reference).
+	 * On `interface`/`class` kinds it records the external reach of the
+	 * heritage chain, whose contributions members (own-only) never enumerate.
+	 * Present on `component`, `type`, `interface`, and `class` kinds.
 	 */
-	get intersects(): Array<string> | undefined {
-		return field<Array<string>>(this.declaration_json, 'intersects');
+	get external_types(): Array<string> | undefined {
+		return field<Array<string>>(this.declaration_json, 'externalTypes');
 	}
 
 	/**
