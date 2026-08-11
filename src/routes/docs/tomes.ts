@@ -16,6 +16,7 @@ import Redirect from './Redirect/+page.svelte';
 import HueInput from './HueInput/+page.svelte';
 import Breadcrumb from './Breadcrumb/+page.svelte';
 import Card from './Card/+page.svelte';
+import Sparkline from './Sparkline/+page.svelte';
 import Svg from './Svg/+page.svelte';
 import csp from './csp/+page.svelte';
 import icons from './icons/+page.svelte';
@@ -207,6 +208,14 @@ export const tomes: Array<Tome> = [
 		related_tomes: ['Breadcrumb'],
 		related_modules: [],
 		related_declarations: ['Redirect']
+	},
+	{
+		slug: 'Sparkline',
+		category: 'components',
+		Component: Sparkline,
+		related_tomes: ['Svg'],
+		related_modules: ['project_stats.ts', 'projects.ts'],
+		related_declarations: ['Sparkline']
 	},
 	{
 		slug: 'Svg',
