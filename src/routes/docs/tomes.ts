@@ -214,8 +214,8 @@ export const tomes: Array<Tome> = [
 		category: 'components',
 		Component: Sparkline,
 		related_tomes: ['Svg'],
-		related_modules: ['project_stats.ts', 'projects.ts'],
-		related_declarations: ['Sparkline']
+		related_modules: ['sparkline.ts', 'project_stats.ts', 'projects.ts'],
+		related_declarations: ['Sparkline', 'ProjectActivityChart']
 	},
 	{
 		slug: 'Svg',

@@ -6,7 +6,10 @@ import {
 	date_from_epoch_day,
 	epoch_day_from_date,
 	monthly_counts_from_daily,
+	project_stats_label,
 	project_stats_to_monthly_series,
+	project_stats_to_weekly_series,
+	weekly_counts_from_daily,
 	type ProjectStatsSnapshot
 } from '$lib/project_stats.ts';
 
@@ -85,6 +88,62 @@ describe('monthly_counts_from_daily', () => {
 		daily_counts[0] = 5; // Mar 1
 		daily_counts[61] = 2; // May 1
 		assert.deepEqual(monthly_counts_from_daily(daily_counts, '2026-03-01'), [5, 0, 2]);
+	});
+});
+
+describe('weekly_counts_from_daily', () => {
+	test('chunks 7-day buckets anchored at the end', () => {
+		// 10 days: partial first bucket of 3, full last bucket of 7
+		assert.deepEqual(weekly_counts_from_daily([1, 2, 3, 4, 5, 6, 7, 8, 9, 10]), [6, 49]);
+	});
+
+	test('handles exact multiples of 7', () => {
+		const daily_counts = new Array(14).fill(1);
+		assert.deepEqual(weekly_counts_from_daily(daily_counts), [7, 7]);
+	});
+
+	test('returns empty for empty input', () => {
+		assert.deepEqual(weekly_counts_from_daily([]), []);
+	});
+});
+
+describe('project_stats_to_weekly_series', () => {
+	test('aligns weekly series to a shared window with a shared max', () => {
+		const snapshot: ProjectStatsSnapshot = {
+			generated_at: '2026-08-11T00:00:00.000Z',
+			end_date: '1970-01-14',
+			projects: [
+				{
+					// 14 days
+					name: 'older',
+					start_date: '1970-01-01',
+					daily_counts: [9, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1]
+				},
+				{
+					// 3 days, padded to 14
+					name: 'younger',
+					start_date: '1970-01-12',
+					daily_counts: [2, 2, 2]
+				}
+			]
+		};
+		const { series, max } = project_stats_to_weekly_series(snapshot);
+		assert.deepEqual(series[0]!.counts, [9, 1]);
+		assert.deepEqual(series[1]!.counts, [0, 6]);
+		assert.strictEqual(max, 9);
+	});
+});
+
+describe('project_stats_label', () => {
+	test('formats the name, comma-separated total, and start date', () => {
+		assert.strictEqual(
+			project_stats_label({
+				name: 'gro',
+				start_date: '2019-08-07',
+				daily_counts: [2000, 386]
+			}),
+			'gro — 2,386 commits since August 7, 2019'
+		);
 	});
 });
 

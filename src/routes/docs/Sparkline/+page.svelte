@@ -9,6 +9,7 @@
 	import DeclarationLink from '$lib/DeclarationLink.svelte';
 	import MdnLink from '$lib/MdnLink.svelte';
 	import ModuleLink from '$lib/ModuleLink.svelte';
+	import ProjectActivityChart from '$lib/ProjectActivityChart.svelte';
 	import { project_stats_data } from '$lib/project_stats_data.ts';
 	import { project_stats_to_monthly_series } from '$lib/project_stats.ts';
 	import { project_items } from '$lib/projects.ts';
@@ -108,7 +109,7 @@
 			<DeclarationLink name="project_stats_to_monthly_series" /> so every project shares one time
 			window and one scale, rendered with a cube-root <code>scale</code>.
 		</p>
-		<ul class="unstyled">
+		<ul class="unstyled mb_lg">
 			{#each series as { name, counts } (name)}
 				<li class="row gap_md">
 					<span class="project-name">{name}</span>
@@ -124,13 +125,21 @@
 				</li>
 			{/each}
 		</ul>
+		<p>
+			<DeclarationLink name="ProjectActivityChart" /> draws every project's weekly series over one
+			another at a shared scale, built on the same geometry via
+			<ModuleLink module_path="sparkline.ts" />
+			— hover a line for the project's stats:
+		</p>
+		<ProjectActivityChart />
 	</TomeSection>
 </TomeContent>
 
 <style>
 	.project-name {
 		/* fits the longest project name so the sparklines align in a column */
-		min-width: 9rem;
+		width: 11rem;
+		white-space: nowrap;
 		flex-shrink: 0;
 	}
 </style>

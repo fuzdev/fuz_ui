@@ -136,6 +136,45 @@ export const monthly_counts_from_daily = (
 };
 
 /**
+ * Rebuckets daily counts into 7-day counts, anchored at the end of the series
+ * so the newest bucket always covers a full 7 days.
+ *
+ * The first bucket may cover fewer days when the length isn't a multiple of 7.
+ */
+export const weekly_counts_from_daily = (daily_counts: Array<number>): Array<number> => {
+	const counts: Array<number> = [];
+	for (let end = daily_counts.length; end > 0; end -= 7) {
+		let sum = 0;
+		for (let i = Math.max(0, end - 7); i < end; i++) {
+			sum += daily_counts[i]!;
+		}
+		counts.push(sum);
+	}
+	return counts.reverse();
+};
+
+const to_aligned_series = (
+	snapshot: ProjectStatsSnapshot,
+	rebucket: (daily_counts: Array<number>, start_date: string) => Array<number>
+): { series: Array<ProjectStatsSeries>; max: number } => {
+	if (snapshot.projects.length === 0) return { series: [], max: 0 };
+	let shared_start = snapshot.projects[0]!.start_date;
+	for (const project of snapshot.projects) {
+		if (project.start_date < shared_start) shared_start = project.start_date;
+	}
+	let max = 0;
+	const series = snapshot.projects.map((project) => {
+		const daily = daily_counts_pad_start(project.daily_counts, project.start_date, shared_start);
+		const counts = rebucket(daily, shared_start);
+		for (const count of counts) {
+			if (count > max) max = count;
+		}
+		return { name: project.name, counts };
+	});
+	return { series, max };
+};
+
+/**
  * Derives aligned monthly series for every project in `snapshot`, sharing one
  * time window and one scale.
  *
@@ -147,20 +186,35 @@ export const monthly_counts_from_daily = (
  */
 export const project_stats_to_monthly_series = (
 	snapshot: ProjectStatsSnapshot
-): { series: Array<ProjectStatsSeries>; max: number } => {
-	if (snapshot.projects.length === 0) return { series: [], max: 0 };
-	let shared_start = snapshot.projects[0]!.start_date;
-	for (const project of snapshot.projects) {
-		if (project.start_date < shared_start) shared_start = project.start_date;
+): { series: Array<ProjectStatsSeries>; max: number } =>
+	to_aligned_series(snapshot, monthly_counts_from_daily);
+
+/**
+ * Derives aligned weekly series for every project in `snapshot`, sharing one
+ * time window and one scale — the weekly sibling of
+ * `project_stats_to_monthly_series`.
+ */
+export const project_stats_to_weekly_series = (
+	snapshot: ProjectStatsSnapshot
+): { series: Array<ProjectStatsSeries>; max: number } =>
+	to_aligned_series(snapshot, weekly_counts_from_daily);
+
+const start_date_formatter = new Intl.DateTimeFormat('en-US', {
+	month: 'long',
+	day: 'numeric',
+	year: 'numeric',
+	timeZone: 'UTC'
+});
+
+/**
+ * Formats a one-line human-readable summary of a project's commit stats,
+ * e.g. `"gro — 2,386 commits since August 7, 2019"`. Used for accessible
+ * labels and tooltips.
+ */
+export const project_stats_label = (project: ProjectCommitStats): string => {
+	let total = 0;
+	for (const count of project.daily_counts) {
+		total += count;
 	}
-	let max = 0;
-	const series = snapshot.projects.map((project) => {
-		const daily = daily_counts_pad_start(project.daily_counts, project.start_date, shared_start);
-		const counts = monthly_counts_from_daily(daily, shared_start);
-		for (const count of counts) {
-			if (count > max) max = count;
-		}
-		return { name: project.name, counts };
-	});
-	return { series, max };
+	return `${project.name} — ${total.toLocaleString('en-US')} commits since ${start_date_formatter.format(new Date(project.start_date))}`;
 };

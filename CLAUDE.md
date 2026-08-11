@@ -119,7 +119,10 @@ consumes are listed under [Library and API generation](#library-and-api-generati
 
 - `Sparkline` - small inline SVG line graph; shared-scale small multiples via
   `max`, geometry via `scale` (linear, sqrt, log, or a power exponent),
-  per-point alpha fade via `alpha_floor` (always linear), `currentColor` stroke
+  per-point alpha fade via `alpha_floor` (always linear), optional `end_dot`,
+  `currentColor` stroke over a light `--sparkline_bg` wash
+- `ProjectActivityChart` - all projects' weekly commit series drawn over one
+  another at a shared scale, colored per project; native `title` hover per line
 
 ### Clipboard
 
@@ -199,10 +202,15 @@ mdz itself (`Mdz`, `MdzRoot`, `MdzStream`, the preprocessor) lives in `@fuzdev/m
 - `projects.ts` - ecosystem project metadata (`ProjectItem`, `project_items`);
   `name` doubles as the sibling repo directory name
 - `project_stats.ts` - commit-activity types (`ProjectStatsSnapshot`) and pure
-  UTC bucketing helpers (daily master data, monthly derived at runtime)
+  UTC bucketing helpers (daily master data; weekly/monthly derived at runtime),
+  plus `project_stats_label` for accessible labels/tooltips
 - `project_stats_data.ts` - committed snapshot of daily commit counts per
   project; regenerate with `gro project_stats_update` (reads sibling repos'
   git histories, so it only runs in the full workspace)
+- `sparkline.ts` - pure geometry behind `Sparkline`/`ProjectActivityChart`:
+  polyline points, thinned alpha-gradient stops, end-dot position
+- `publish.task.ts` - local override that refreshes and commits the stats
+  snapshot, then delegates to gro's builtin publish
 
 ### Component helpers
 

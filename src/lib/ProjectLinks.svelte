@@ -3,10 +3,13 @@
 	import Sparkline from './Sparkline.svelte';
 	import { project_items, type ProjectItem } from './projects.ts';
 	import { project_stats_data } from './project_stats_data.ts';
-	import { project_stats_to_monthly_series } from './project_stats.ts';
+	import { project_stats_label, project_stats_to_monthly_series } from './project_stats.ts';
 
 	const { series, max } = project_stats_to_monthly_series(project_stats_data);
 	const series_by_name = new Map(series.map((s) => [s.name, s.counts]));
+	const label_by_name = new Map(
+		project_stats_data.projects.map((p) => [p.name, project_stats_label(p)])
+	);
 </script>
 
 <h2 class="mt_0 mb_xl2">Packages</h2>
@@ -15,7 +18,9 @@
 		{@render package_thumbnail(project_item)}
 	{/each}
 </menu>
-<small class="display:block text-align:right">the charts show public commit activity<br/>since Gro planted on August 7, 2019</small>
+<small class="display:block text-align:right">
+	the charts show public commit activity<br />since Gro planted on August 7, 2019
+</small>
 
 {#snippet package_thumbnail(project_item: ProjectItem)}
 	{@const counts = series_by_name.get(project_item.name)}
@@ -26,8 +31,9 @@
 			<div class="thumbnail-name row align-items:start {project_item.color_class}">
 				{project_item.name}
 				{#if counts}
-					<div class="thumbnail-sparkline pl_md {project_item.color_class}">
-						<Sparkline values={counts} {max} scale={1 / 3} label="monthly commit activity" />
+					{@const stats_label = label_by_name.get(project_item.name)}
+					<div class="thumbnail-sparkline pl_md {project_item.color_class}" title={stats_label}>
+						<Sparkline values={counts} {max} scale={1 / 3} end_dot label={stats_label} />
 					</div>
 				{/if}
 			</div>
@@ -41,7 +47,6 @@
 
 <style>
 	.thumbnail {
-		flex-wrap: wrap;
 		box-shadow: var(--shadow_bottom_xs)
 			color-mix(
 				in hsl,

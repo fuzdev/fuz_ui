@@ -2,6 +2,8 @@
 	import type { OmitStrict } from '@fuzdev/fuz_util/types.ts';
 	import type { SvelteHTMLElements } from 'svelte/elements';
 
+	import { sparkline_geometry, type SparklineScale } from './sparkline.ts';
+
 	/**
 	 * Renders values as a small inline SVG line graph.
 	 *
@@ -17,6 +19,9 @@
 	 * `max`, while the alpha fade keeps tracking the linear ratio so it still
 	 * encodes true magnitude.
 	 *
+	 * The background is a light wash of `currentColor`, overridable with the
+	 * `--sparkline_bg` custom property.
+	 *
 	 * @module
 	 */
 
@@ -28,6 +33,7 @@
 		height = 24,
 		stroke_width = 2,
 		alpha_floor = 0.4,
+		end_dot = false,
 		label,
 		...rest
 	}: OmitStrict<SvelteHTMLElements['svg'], 'values' | 'width' | 'height' | 'scale'> & {
@@ -39,14 +45,10 @@
 		 */
 		max?: number;
 		/**
-		 * Vertical scale for the line's geometry. The nonlinear options compress
-		 * the top of the range so small values stay legible under a large shared
-		 * `max` — increasingly so from `'sqrt'` to smaller power exponents (a
-		 * number in `(0, 1]`, where `1` is linear and `1 / 3` is cube root) to
-		 * `'log'`. The alpha fade always tracks the linear ratio regardless of
-		 * `scale`.
+		 * Vertical scale for the line's geometry — see `SparklineScale`.
+		 * The alpha fade always tracks the linear ratio regardless of `scale`.
 		 */
-		scale?: 'linear' | 'sqrt' | 'log' | number;
+		scale?: SparklineScale;
 		/**
 		 * Width of the svg in px.
 		 */
@@ -61,6 +63,10 @@
 		 */
 		alpha_floor?: number;
 		/**
+		 * Renders a dot at the final point, anchoring the "now" end of the line.
+		 */
+		end_dot?: boolean;
+		/**
 		 * Accessible label. When omitted the svg is `aria-hidden`.
 		 */
 		label?: string;
@@ -68,35 +74,8 @@
 
 	const gradient_id = $props.id();
 
-	const scale_max = $derived.by(() => {
-		const m = max ?? Math.max(0, ...values);
-		return m > 0 ? m : 1;
-	});
-
-	// inset by half the stroke so the line isn't clipped at the extremes
-	const pad = $derived(stroke_width / 2);
-	const x_coord = (index: number): number =>
-		values.length <= 1 ? width / 2 : pad + (index * (width - 2 * pad)) / (values.length - 1);
-	const y_coord = (value: number): number => {
-		const clamped = Math.min(value, scale_max);
-		const ratio = clamped / scale_max;
-		const scaled =
-			scale === 'linear'
-				? ratio
-				: scale === 'sqrt'
-					? Math.sqrt(ratio)
-					: scale === 'log'
-						? Math.log1p(clamped) / Math.log1p(scale_max)
-						: ratio ** scale;
-		return height - pad - scaled * (height - 2 * pad);
-	};
-	const alpha = (value: number): number =>
-		alpha_floor + (1 - alpha_floor) * (Math.min(value, scale_max) / scale_max);
-
-	const round = (n: number): number => Math.round(n * 100) / 100;
-
-	const points = $derived(
-		values.map((value, index) => `${round(x_coord(index))},${round(y_coord(value))}`).join(' ')
+	const geometry = $derived(
+		sparkline_geometry(values, { width, height, max, scale, stroke_width, alpha_floor, end_dot })
 	);
 </script>
 
@@ -109,7 +88,7 @@
 	aria-label={label}
 	aria-hidden={label ? undefined : true}
 >
-	{#if values.length > 1}
+	{#if geometry}
 		<defs>
 			<linearGradient
 				id={gradient_id}
@@ -119,22 +98,34 @@
 				x2={width}
 				y2="0"
 			>
-				{#each values as value, index (index)}
-					<stop
-						offset={round(x_coord(index) / width)}
-						stop-color="currentColor"
-						stop-opacity={round(alpha(value))}
-					/>
+				{#each geometry.stops as stop, index (index)}
+					<stop offset={stop.offset} stop-color="currentColor" stop-opacity={stop.opacity} />
 				{/each}
 			</linearGradient>
 		</defs>
 		<polyline
-			{points}
+			points={geometry.points}
 			fill="none"
 			stroke="url(#{gradient_id})"
 			stroke-width={stroke_width}
 			stroke-linejoin="round"
 			stroke-linecap="round"
 		/>
+		{#if end_dot}
+			<circle
+				cx={geometry.end_x}
+				cy={geometry.end_y}
+				r={geometry.dot_radius}
+				fill="currentColor"
+				fill-opacity={geometry.end_alpha}
+			/>
+		{/if}
 	{/if}
 </svg>
+
+<style>
+	svg {
+		background: var(--sparkline_bg, color-mix(in hsl, currentColor 8%, transparent));
+		border-radius: var(--border_radius_xs);
+	}
+</style>

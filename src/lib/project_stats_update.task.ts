@@ -6,7 +6,7 @@ import { spawn_out } from '@fuzdev/fuz_util/process.ts';
 import { project_items } from './projects.ts';
 import { daily_counts_from_timestamps, type ProjectStatsSnapshot } from './project_stats.ts';
 
-const OUTPUT_PATH = 'src/lib/project_stats_data.ts';
+export const PROJECT_STATS_DATA_PATH = 'src/lib/project_stats_data.ts';
 
 export const task: Task = {
 	summary: 'update project_stats_data.ts from the git histories of sibling project repos',
@@ -46,8 +46,8 @@ import type { ProjectStatsSnapshot } from './project_stats.ts';
 
 export const project_stats_data: ProjectStatsSnapshot = ${JSON.stringify(snapshot)};
 `;
-		writeFileSync(OUTPUT_PATH, content);
-		await invoke_task('format', { _: [OUTPUT_PATH] });
-		log.info(`wrote ${OUTPUT_PATH}`);
+		writeFileSync(PROJECT_STATS_DATA_PATH, content);
+		await invoke_task('format', { _: [PROJECT_STATS_DATA_PATH] });
+		log.info(`wrote ${PROJECT_STATS_DATA_PATH}`);
 	}
 };

@@ -4,6 +4,7 @@
 	import DocsFooter from '$lib/DocsFooter.svelte';
 	import Card from '$lib/Card.svelte';
 	import GithubLink from '$lib/GithubLink.svelte';
+	import ProjectActivityChart from '$lib/ProjectActivityChart.svelte';
 	import ProjectLinks from '$lib/ProjectLinks.svelte';
 	import { site_context } from '$lib/site.svelte.ts';
 	import Svg from '$lib/Svg.svelte';
@@ -46,6 +47,10 @@
 		</section>
 		<section class="panel p_lg shadow_inset_xs">
 			<ProjectLinks />
+		</section>
+		<section class="panel p_lg shadow_inset_xs">
+			<ProjectActivityChart />
+			<small class="display:block text-align:right">weekly commit activity, all projects</small>
 		</section>
 		<section>
 			<DocsFooter repo_url={site.repo_url} root_url={FUZ_DEV_URL}>
