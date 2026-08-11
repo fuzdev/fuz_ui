@@ -35,8 +35,8 @@
 					<p>
 						<!-- eslint-disable-next-line svelte/no-navigation-without-resolve -->
 						To learn more see <a href={DOCS_PATH}>the docs</a>
-						and <GithubLink path="fuzdev/fuz_ui#readme">readme</GithubLink>. Feel free to take the
-						ideas and <GithubLink path="fuzdev/fuz_ui">code</GithubLink> for your own purposes.
+						and <a href="https://github.com/fuzdev/fuz_ui#readme">readme</a>. Feel free to take the
+						ideas and <a href="https://github.com/fuzdev/fuz_ui">code</a> for your own purposes.
 					</p>
 				</div>
 			</div>
