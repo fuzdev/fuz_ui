@@ -1,5 +1,11 @@
 # @fuzdev/fuz_ui
 
+## 0.206.9
+
+### Patch Changes
+
+- feat: add `Sparkline` and `ProjectActivityChart` with committed project commit stats ([#137](https://github.com/fuzdev/fuz_ui/pull/137))
+
 ## 0.206.8
 
 ### Patch Changes
