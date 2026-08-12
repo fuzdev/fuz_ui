@@ -20,7 +20,8 @@
 
 	let selected_color: 'f' | 'g' | 'j' | undefined = $state.raw();
 
-	const selected_color_class = $derived(selected_color ? `color_${selected_color}_5` : undefined);
+	// @fuz-classes color_f_50 color_g_50 color_j_50 color_f color_g color_j
+	const selected_color_class = $derived(selected_color ? `color_${selected_color}_50` : undefined);
 	const selected_hue_class = $derived(selected_color ? `color_${selected_color}` : undefined);
 </script>
 
@@ -95,7 +96,7 @@
 							<code>{contextmenu.x} && contextmenu.y === {contextmenu.y}</code>
 						</li>
 						{#if contextmenu.error}
-							<li class="color_error">Error: <code>{contextmenu.error}</code></li>
+							<li class="color_c_50">Error: <code>{contextmenu.error}</code></li>
 						{/if}
 					</ul>
 				</div>
