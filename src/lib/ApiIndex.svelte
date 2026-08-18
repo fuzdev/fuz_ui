@@ -6,7 +6,7 @@
 	import DocsSearch from './DocsSearch.svelte';
 	import ApiModulesList from './ApiModulesList.svelte';
 	import ApiDeclarationList from './ApiDeclarationList.svelte';
-	import { create_api_search } from './api_search.svelte.ts';
+	import { ApiSearchState } from './api_search.svelte.ts';
 
 	const {
 		library: library_prop,
@@ -33,7 +33,7 @@
 	const get_library = set_library_context_with_fallback(() => library_prop, 'ApiIndex');
 	const library = $derived(get_library());
 
-	const search = $derived(create_api_search(library));
+	const search = $derived(new ApiSearchState(library));
 </script>
 
 <svelte:head>
@@ -49,21 +49,21 @@
 		<section>
 			<p>{library.pkg_json.description}</p>
 
-			{#if search.modules.all.length + search.declarations.all.length > 1}
+			{#if search.modules.length + search.declarations.length > 1}
 				<DocsSearch
-					module_count={search.modules.all.length}
-					declaration_count={search.declarations.all.length}
-					filtered_module_count={search.query.trim() ? search.modules.filtered.length : undefined}
+					module_count={search.modules.length}
+					declaration_count={search.declarations.length}
+					filtered_module_count={search.query.trim() ? search.modules_filtered.length : undefined}
 					filtered_declaration_count={search.query.trim()
-						? search.declarations.filtered.length
+						? search.declarations_filtered.length
 						: undefined}
 					bind:search_query={search.query}
 				/>
 			{/if}
 		</section>
 
-		<ApiModulesList modules={search.modules.filtered} search_query={search.query} />
+		<ApiModulesList modules={search.modules_filtered} search_query={search.query} />
 
-		<ApiDeclarationList declarations={search.declarations.filtered} search_query={search.query} />
+		<ApiDeclarationList declarations={search.declarations_filtered} search_query={search.query} />
 	{/if}
 </TomeContent>
