@@ -17,7 +17,7 @@
 	import DocsLink from './DocsLink.svelte';
 	import DeclarationLink from './DeclarationLink.svelte';
 	import ApiDeclarationList from './ApiDeclarationList.svelte';
-	import { create_module_declaration_search } from './api_search.svelte.ts';
+	import { DeclarationSearchState } from './api_search.svelte.ts';
 
 	const {
 		module_path: module_path_param,
@@ -64,7 +64,7 @@
 		module?.path || (directory_modules ? module_path : '[missing module]')
 	);
 
-	const search = $derived(create_module_declaration_search(module?.declarations ?? []));
+	const search = $derived(new DeclarationSearchState(module?.declarations ?? []));
 
 	// GitHub source URL for the module
 	const source_url = $derived(module?.url_github);
@@ -117,11 +117,11 @@
 			<TomeSection>
 				<TomeSectionHeader text="Declarations" />
 
-				{#if search.all.length > 1}
+				{#if search.declarations.length > 1}
 					<section>
 						<DocsSearch
 							placeholder="search declarations in this module..."
-							declaration_count={search.all.length}
+							declaration_count={search.declarations.length}
 							filtered_declaration_count={search.query.trim() ? search.filtered.length : undefined}
 							bind:search_query={search.query}
 						/>
