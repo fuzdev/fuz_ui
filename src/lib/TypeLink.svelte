@@ -1,3 +1,14 @@
+<!--
+@component
+
+Renders a type reference, linking the parts that resolve to library declarations.
+
+With `type_info` it delegates to `TypeJsonView`, which renders the structured
+tree — reference names become `DeclarationLink`s and everything else is
+syntax-highlighted in place, so `Map<string, Tome> | null` links `Map` and
+`Tome` independently, with the flat `type` as hover text. Without it the whole
+`type` string links only when it names a declaration outright.
+-->
 <script lang="ts">
 	import Code from '@fuzdev/fuz_code/Code.svelte';
 	import type { HTMLAttributes, SvelteHTMLElements } from 'svelte/elements';

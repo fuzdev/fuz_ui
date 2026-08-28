@@ -254,12 +254,15 @@ re-strip drops the extras. See the `vite_plugin_pkg_json` tome for the pattern.
   `svelte-docinfo/types.js`)
 - `LibraryDetail.svelte` - library overview component (uses `isTypescript`,
   `isSvelte`, `isCss`, `isJson` from `svelte-docinfo/source.js`)
+- `TypeJsonView.svelte` - structured type renderer (uses `typeJsonToTokens`
+  from `svelte-docinfo/declaration-helpers.js` to link each reference nested
+  in a composite type; `TypeLink` delegates to it when given `type_info`)
 - `library_helpers.ts` - docs URL helpers
 
 The `svelte-docinfo` imports above resolve to its `source.js` (type
-predicates), `types.js` (`ModuleJson`, `DeclarationJson`, and their `*Input`
-variants), and `declaration-helpers.js` (`generateImport`, `getDisplayName`);
-see its CLAUDE.md for the full API.
+predicates), `types.js` (`ModuleJson`, `DeclarationJson`, `TypeJson`, and their
+`*Input` variants), and `declaration-helpers.js` (`generateImport`,
+`getDisplayName`, `typeJsonToTokens`); see its CLAUDE.md for the full API.
 
 ### Browser and DOM
 

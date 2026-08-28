@@ -7,7 +7,7 @@ type, variable, enum, component, snippet) and their kind-specific fields
 including parameters, props, members, overloads, external types, and more.
 
 @see `declaration.svelte.ts` for the `Declaration` wrapper class
-@see {@link https://github.com/ryanatkn/svelte-docinfo svelte-docinfo} for the analysis library
+@see {@link https://github.com/fuzdev/svelte-docinfo svelte-docinfo} for the analysis library
 -->
 <script lang="ts">
 	import Code from '@fuzdev/fuz_code/Code.svelte';
@@ -50,6 +50,7 @@ including parameters, props, members, overloads, external types, and more.
 	// sections for the same fields instead).
 	interface DocExtras {
 		deprecatedMessage?: string;
+		internalMessage?: string;
 		since?: string;
 		examples?: Array<string>;
 		seeAlso?: Array<string>;
@@ -96,7 +97,7 @@ including parameters, props, members, overloads, external types, and more.
 	</div>
 {/snippet}
 
-<!-- Compact prose metadata for props and members (deprecated, since, examples, see also, throws). -->
+<!-- Compact prose metadata for props and members (deprecated, internal, since, examples, see also, throws). -->
 {#snippet doc_extras(item: DocExtras)}
 	<!-- eslint-disable-next-line @typescript-eslint/no-deprecated -->
 	{#if item.deprecatedMessage !== undefined}
@@ -104,6 +105,12 @@ including parameters, props, members, overloads, external types, and more.
 			<span class="chip">⚠️ deprecated</span>
 			<!-- eslint-disable-next-line @typescript-eslint/no-deprecated -->
 			{#if item.deprecatedMessage}{item.deprecatedMessage}{/if}
+		</p>
+	{/if}
+	{#if item.internalMessage !== undefined}
+		<p class="row gap_md">
+			<span class="chip">internal</span>
+			{#if item.internalMessage}{item.internalMessage}{/if}
 		</p>
 	{/if}
 	{#if item.since}
@@ -159,8 +166,10 @@ including parameters, props, members, overloads, external types, and more.
 <!-- chips -->
 <!-- eslint-disable-next-line @typescript-eslint/no-deprecated -->
 {#if declaration.is_deprecated ||
+	declaration.is_internal ||
 	declaration.reactivity ||
 	declaration.accepts_children ||
+	declaration.merged_value ||
 	declaration.alias_of
 }
 	<p class="row gap_md flex-wrap:wrap">
@@ -168,11 +177,17 @@ including parameters, props, members, overloads, external types, and more.
 		{#if declaration.is_deprecated}
 			<span class="chip">⚠️ deprecated</span>
 		{/if}
+		{#if declaration.is_internal}
+			<span class="chip">internal</span>
+		{/if}
 		{#if declaration.reactivity}
 			<span class="chip">{declaration.reactivity}</span>
 		{/if}
 		{#if declaration.accepts_children}
 			<span class="chip">accepts children</span>
+		{/if}
+		{#if declaration.merged_value}
+			<span class="chip">value + type</span>
 		{/if}
 		{#if declaration.alias_of}
 			<span class="chip">
@@ -202,17 +217,23 @@ including parameters, props, members, overloads, external types, and more.
 	</p>
 {/if}
 
+{#if declaration.internal_message}
+	<p>{declaration.internal_message}</p>
+{/if}
+
 <!-- type signature -->
 {#if declaration.type_signature}
 	<Code lang="ts" content={declaration.type_signature} />
 {/if}
 
 <!-- structured type (variables and type aliases; carries what the flat
-	signature lost — union members, recovered alias names — with links) -->
-{#if declaration.type_info}
+	signature lost — union members, recovered alias names — with links);
+	`type_info_expanded` strips a self-aliased root so a union alias expands
+	into its members here instead of linking circularly to itself -->
+{#if declaration.type_info_expanded}
 	<p class="row gap_md">
 		<strong>type</strong>
-		<TypeJsonView type_info={declaration.type_info} title={declaration.type_signature} />
+		<TypeJsonView type_info={declaration.type_info_expanded} title={declaration.type_signature} />
 	</p>
 {/if}
 

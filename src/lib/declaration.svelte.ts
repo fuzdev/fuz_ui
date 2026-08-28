@@ -35,7 +35,7 @@ const field = <T>(decl: DeclarationJsonInput, key: string): T | undefined =>
  * Computed properties are plain getters rather than `$derived` — see
  * `Library` for why.
  *
- * @see {@link https://github.com/ryanatkn/svelte-docinfo svelte-docinfo} for the analysis library
+ * @see {@link https://github.com/fuzdev/svelte-docinfo svelte-docinfo} for the analysis library
  * @see `DeclarationDetail.svelte` for the rendering component
  */
 export class Declaration {
@@ -87,8 +87,9 @@ export class Declaration {
 	 * Generated TypeScript import statement.
 	 */
 	get import_statement(): string {
-		// `generateImport` reads only `name`/`kind`/path, none of the defaulted
-		// arrays, so asserting the parsed shape here is sound.
+		// `generateImport` reads only `name`/`kind`/`mergedValue`/path, none of
+		// the defaulted arrays, and treats an absent `mergedValue` as the stripped
+		// `false`, so asserting the parsed shape here is sound.
 		return (this.#import_statement ??= generateImport(
 			this.declaration_json as DeclarationJson,
 			this.module_path,
@@ -129,6 +130,27 @@ export class Declaration {
 	 */
 	get type_info(): TypeJson | undefined {
 		return field<TypeJson>(this.declaration_json, 'typeInfo');
+	}
+
+	/**
+	 * `type_info` prepared for rendering at the declaration itself. A type
+	 * alias's tree carries the alias's own name at the root
+	 * (`type A = 'a' | 'b'` → `{kind: 'union', alias: 'A', members: [...]}`),
+	 * which `typeJsonToTokens` collapses to the bare name — right where `A` is
+	 * composed into another type, circular at `A`'s own declaration. Strips
+	 * that self-alias so the root expands into its members; every other tree
+	 * passes through unchanged.
+	 */
+	get type_info_expanded(): TypeJson | undefined {
+		const type_info = this.type_info;
+		if (
+			type_info &&
+			(type_info.kind === 'union' || type_info.kind === 'intersection') &&
+			type_info.alias === this.name
+		) {
+			return { ...type_info, alias: undefined };
+		}
+		return type_info;
 	}
 
 	/**
@@ -220,6 +242,16 @@ export class Declaration {
 	}
 
 	/**
+	 * Whether the exported name also carries a value meaning — a merged
+	 * value+type symbol like `const Foo = z.strictObject({...})` beside
+	 * `type Foo = z.infer<typeof Foo>`, where the type wins the declaration slot.
+	 * Present on `type` and `interface` kinds.
+	 */
+	get merged_value(): boolean | undefined {
+		return field<boolean>(this.declaration_json, 'mergedValue');
+	}
+
+	/**
 	 * Whether a component accepts children via props or template usage.
 	 * Present on `component` kind only.
 	 */
@@ -259,6 +291,15 @@ export class Declaration {
 	}
 
 	/**
+	 * Internal-API marker from the `@internal` tag. Presence means the tag was
+	 * written; an empty string is a bare tag with no trailing prose. A marker,
+	 * not an exclusion — the declaration stays documented.
+	 */
+	get internal_message(): string | undefined {
+		return this.declaration_json.internalMessage;
+	}
+
+	/**
 	 * Svelte reactivity flavor (`$state`, `$state.raw`, `$derived`, `$derived.by`)
 	 * when this variable is initialized with a value-producing rune.
 	 * Present on `variable` kind only.
@@ -274,6 +315,11 @@ export class Declaration {
 	// presence, not truthiness — a bare `@deprecated` (no message text) arrives as `''`
 	get is_deprecated(): boolean {
 		return this.deprecated_message !== undefined;
+	}
+
+	// presence, not truthiness — a bare `@internal` (no message text) arrives as `''`
+	get is_internal(): boolean {
+		return this.internal_message !== undefined;
 	}
 
 	get has_documentation(): boolean {

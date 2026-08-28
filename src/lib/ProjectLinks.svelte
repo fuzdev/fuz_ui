@@ -19,8 +19,8 @@
 	{/each}
 </menu>
 <small class="display:block text-align:right">
-	the charts show public commit activity<br />since Gro started in August 2019 -<br/>most of the
-	repos created in 2023-2024 are<br/>history-resetting forks from 2020~2023 attempts
+	the charts show public commit activity<br />since Gro started in August 2019 -<br />most of the
+	repos created in 2023-2024 are<br />history-resetting forks from 2020~2023 attempts
 </small>
 
 {#snippet package_thumbnail(project_item: ProjectItem)}
