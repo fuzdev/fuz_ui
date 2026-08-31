@@ -1,5 +1,32 @@
 # @fuzdev/fuz_ui
 
+## 0.208.0
+
+### Minor Changes
+
+- refactor: replace the `create_api_search`/`create_module_declaration_search` getter/setter factories with `ApiSearchState`/`DeclarationSearchState` classes — nested `modules`/`declarations` `{all, filtered}` objects flatten to `modules`, `modules_filtered`, `declarations`, `declarations_filtered` (and `all` → `declarations` on `DeclarationSearchState`) ([#140](https://github.com/fuzdev/fuz_ui/pull/140))
+- fix: correct `COLOR_SCHEME_SCRIPT_HASH` to match the color-scheme loader in `app.html` and add `COLOR_SCHEME_SCRIPT` ([df102f9](https://github.com/fuzdev/fuz_ui/commit/df102f9))
+- feat: adopt svelte-docinfo 0.7 and render its `@internal` and merged-value metadata ([1b7e407](https://github.com/fuzdev/fuz_ui/commit/1b7e407))
+
+  - `Declaration` gains `internal_message` / `is_internal` (from svelte-docinfo's
+    `@internal` tag support — a marker, not an exclusion) and `merged_value` (the
+    name is importable as a runtime value, not just a type). `DeclarationDetail`
+    renders an "internal" chip and message on declarations and members (component
+    props deliberately never carry the tag), and a "value + type" chip for merged
+    declarations.
+  - `Declaration` gains `type_info_expanded` — `type_info` with the alias's
+    self-reference stripped from the root — and `DeclarationDetail`'s structured
+    type row renders it, so a union alias like `type DialogAlign = 'center' |
+'top'` documents its members at its own declaration instead of linking
+    circularly to itself.
+
+  The rendered fields shipped in svelte-docinfo 0.6; the dependency range moves
+  to `^0.7.0` for its `@mutates` / `{@link}` / `@throws` extraction fixes.
+
+### Patch Changes
+
+- docs: improve footer text for `ProjectLinks` ([6ef1504](https://github.com/fuzdev/fuz_ui/commit/6ef1504))
+
 ## 0.207.0
 
 ### Minor Changes
