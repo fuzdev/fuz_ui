@@ -254,7 +254,33 @@ const for_each_directive = <V>(
 	}
 };
 
-export const COLOR_SCHEME_SCRIPT_HASH = 'sha256-QOxqn7EUzb3ydF9SALJoJGWSvywW9R0AfTDSenB83Z8=';
+/**
+ * The exact body of the color-scheme loader `<script>` in `app.html`, the inline script
+ * `COLOR_SCHEME_SCRIPT_HASH` admits.
+ *
+ * The loader has to run before first paint to avoid a flash of the wrong scheme, so it is inline
+ * rather than a render-blocking `src`, and CSP admits it by hash. That makes its bytes
+ * load-bearing: whitespace, quoting, and trailing commas all move the hash, so a formatter that
+ * reflows `app.html` breaks the theme on every cold load with nothing but a console violation to
+ * show for it. Consumers can guard their own `app.html` against this constant.
+ */
+export const COLOR_SCHEME_SCRIPT = `
+			document.documentElement.classList.add(
+				((c) =>
+					c === 'dark' || (c !== 'light' && matchMedia('(prefers-color-scheme:dark)').matches)
+						? 'dark'
+						: 'light')(localStorage.getItem('fuz:color-scheme'))
+			);
+		`;
+
+/**
+ * The `sha256-` CSP source for `COLOR_SCHEME_SCRIPT`, carried by the `script-src` and
+ * `script-src-elem` defaults so the loader runs under the library CSP.
+ *
+ * Regenerate after any edit to `COLOR_SCHEME_SCRIPT` — `src/test/csp.color_scheme.test.ts`
+ * reports the expected value when the two disagree.
+ */
+export const COLOR_SCHEME_SCRIPT_HASH = 'sha256-CkhymyixntvSTuePGizI3BFtnRFlWWg95YBmBOCFxfY=';
 
 /**
  * The library CSP directive defaults — directives enabled out of the box.

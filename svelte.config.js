@@ -27,9 +27,9 @@ export default {
 				'script-src': [
 					'self',
 					'wasm-unsafe-eval',
-					'sha256-QOxqn7EUzb3ydF9SALJoJGWSvywW9R0AfTDSenB83Z8='
+					'sha256-CkhymyixntvSTuePGizI3BFtnRFlWWg95YBmBOCFxfY='
 				],
-				'script-src-elem': ['self', 'sha256-QOxqn7EUzb3ydF9SALJoJGWSvywW9R0AfTDSenB83Z8='],
+				'script-src-elem': ['self', 'sha256-CkhymyixntvSTuePGizI3BFtnRFlWWg95YBmBOCFxfY='],
 				'script-src-attr': ['none'],
 				'style-src': ['self', 'unsafe-inline'],
 				'style-src-elem': ['self', 'unsafe-inline'],
