@@ -4,10 +4,10 @@
 Renders the full detail view for an exported declaration.
 Handles all svelte-docinfo declaration kinds (function, class, interface,
 type, variable, enum, component, snippet) and their kind-specific fields
-including parameters, props, members, overloads, intersects, and more.
+including parameters, props, members, overloads, external types, and more.
 
 @see `declaration.svelte.ts` for the `Declaration` wrapper class
-@see {@link https://github.com/ryanatkn/svelte-docinfo svelte-docinfo} for the analysis library
+@see {@link https://github.com/fuzdev/svelte-docinfo svelte-docinfo} for the analysis library
 -->
 <script lang="ts">
 	import Code from '@fuzdev/fuz_code/Code.svelte';
@@ -22,10 +22,23 @@ including parameters, props, members, overloads, intersects, and more.
 
 	import type { Declaration } from './declaration.svelte.ts';
 	import TypeLink from './TypeLink.svelte';
+	import TypeJsonView from './TypeJsonView.svelte';
 	import ModuleLink from './ModuleLink.svelte';
 	import DocsLink from './DocsLink.svelte';
 
 	const { declaration }: { declaration: Declaration } = $props();
+
+	// external types not already shown in the inheritance section — on direct
+	// heritage (`interface Props extends HTMLButtonAttributes`) the producer
+	// deliberately records the same name in both fields, so the external-types
+	// section keeps only what heritage doesn't already display
+	const external_types_not_inherited = $derived.by(() => {
+		const external_types = declaration.external_types;
+		if (!external_types?.length) return undefined;
+		const heritage = (declaration.extends_types ?? []).concat(declaration.implements_types ?? []);
+		const filtered = external_types.filter((t) => !heritage.includes(t));
+		return filtered.length ? filtered : undefined;
+	});
 
 	// render mdz inline `code` as API-linking `DocsLink` and fenced blocks as syntax-highlighted
 	// `Code`, matching the rest of the docs — the injection mdz core leaves open
@@ -37,6 +50,7 @@ including parameters, props, members, overloads, intersects, and more.
 	// sections for the same fields instead).
 	interface DocExtras {
 		deprecatedMessage?: string;
+		internalMessage?: string;
 		since?: string;
 		examples?: Array<string>;
 		seeAlso?: Array<string>;
@@ -57,7 +71,7 @@ including parameters, props, members, overloads, intersects, and more.
 		{/if}
 		<div class="row gap_md mb_sm">
 			<strong>type</strong>
-			<TypeLink type={param.type} />
+			<TypeLink type={param.type} type_info={param.typeInfo} />
 		</div>
 		{#if param.optional || param.defaultValue}
 			<div class="row gap_md">
@@ -79,11 +93,11 @@ including parameters, props, members, overloads, intersects, and more.
 		<code>
 			{param.name}{#if param.optional}?{/if}
 		</code>
-		<TypeLink type={param.type} />
+		<TypeLink type={param.type} type_info={param.typeInfo} />
 	</div>
 {/snippet}
 
-<!-- Compact prose metadata for props and members (deprecated, since, examples, see also, throws). -->
+<!-- Compact prose metadata for props and members (deprecated, internal, since, examples, see also, throws). -->
 {#snippet doc_extras(item: DocExtras)}
 	<!-- eslint-disable-next-line @typescript-eslint/no-deprecated -->
 	{#if item.deprecatedMessage !== undefined}
@@ -91,6 +105,12 @@ including parameters, props, members, overloads, intersects, and more.
 			<span class="chip">⚠️ deprecated</span>
 			<!-- eslint-disable-next-line @typescript-eslint/no-deprecated -->
 			{#if item.deprecatedMessage}{item.deprecatedMessage}{/if}
+		</p>
+	{/if}
+	{#if item.internalMessage !== undefined}
+		<p class="row gap_md">
+			<span class="chip">internal</span>
+			{#if item.internalMessage}{item.internalMessage}{/if}
 		</p>
 	{/if}
 	{#if item.since}
@@ -125,7 +145,7 @@ including parameters, props, members, overloads, intersects, and more.
 	{/if}
 {/snippet}
 
-<!-- A comma-separated inline list of type links (extends, implements, intersects are rarely more than one). -->
+<!-- A comma-separated inline list of type links (extends, implements, external types are rarely more than one). -->
 {#snippet type_list(types: Array<string>)}
 	{#each types as type, i (type)}
 		{#if i > 0}
@@ -146,8 +166,10 @@ including parameters, props, members, overloads, intersects, and more.
 <!-- chips -->
 <!-- eslint-disable-next-line @typescript-eslint/no-deprecated -->
 {#if declaration.is_deprecated ||
+	declaration.is_internal ||
 	declaration.reactivity ||
 	declaration.accepts_children ||
+	declaration.merged_value ||
 	declaration.alias_of
 }
 	<p class="row gap_md flex-wrap:wrap">
@@ -155,11 +177,17 @@ including parameters, props, members, overloads, intersects, and more.
 		{#if declaration.is_deprecated}
 			<span class="chip">⚠️ deprecated</span>
 		{/if}
+		{#if declaration.is_internal}
+			<span class="chip">internal</span>
+		{/if}
 		{#if declaration.reactivity}
 			<span class="chip">{declaration.reactivity}</span>
 		{/if}
 		{#if declaration.accepts_children}
 			<span class="chip">accepts children</span>
+		{/if}
+		{#if declaration.merged_value}
+			<span class="chip">value + type</span>
 		{/if}
 		{#if declaration.alias_of}
 			<span class="chip">
@@ -189,9 +217,32 @@ including parameters, props, members, overloads, intersects, and more.
 	</p>
 {/if}
 
+{#if declaration.internal_message}
+	<p>{declaration.internal_message}</p>
+{/if}
+
 <!-- type signature -->
 {#if declaration.type_signature}
 	<Code lang="ts" content={declaration.type_signature} />
+{/if}
+
+<!-- structured type (variables and type aliases; carries what the flat
+	signature lost — union members, recovered alias names — with links);
+	`type_info_expanded` strips a self-aliased root so a union alias expands
+	into its members here instead of linking circularly to itself -->
+{#if declaration.type_info_expanded}
+	<p class="row gap_md">
+		<strong>type</strong>
+		<TypeJsonView type_info={declaration.type_info_expanded} title={declaration.type_signature} />
+	</p>
+{/if}
+
+<!-- default (top-level variables; params, props, and members render theirs inline) -->
+{#if declaration.default_value}
+	<p class="row gap_md">
+		<strong>default</strong>
+		<Code lang="ts" content={declaration.default_value} />
+	</p>
 {/if}
 
 <!-- import statement -->
@@ -226,7 +277,7 @@ including parameters, props, members, overloads, intersects, and more.
 				{/if}
 				<div class="row gap_md mb_sm">
 					<strong>type</strong>
-					<TypeLink type={prop.type} />
+					<TypeLink type={prop.type} type_info={prop.typeInfo} />
 				</div>
 				{#if prop.optional || prop.bindable || prop.defaultValue}
 					<div class="row gap_md">
@@ -274,7 +325,7 @@ including parameters, props, members, overloads, intersects, and more.
 				{#if overload.returnType}
 					<div class="row gap_md">
 						<strong>returns</strong>
-						<TypeLink type={overload.returnType} />
+						<TypeLink type={overload.returnType} type_info={overload.returnTypeInfo} />
 					</div>
 					{#if overload.returnDescription}
 						<Mdz content={overload.returnDescription} />
@@ -285,12 +336,13 @@ including parameters, props, members, overloads, intersects, and more.
 	</section>
 {/if}
 
-<!-- intersects (component/type intersection types) -->
-{#if declaration.intersects?.length}
+<!-- external types whose contributions are filtered out of (or, on
+	interfaces/classes, never enumerated in) props/members -->
+{#if external_types_not_inherited}
 	<section>
-		<h4>intersects</h4>
+		<h4>external types</h4>
 		<div class="row gap_md flex-wrap:wrap">
-			{@render type_list(declaration.intersects)}
+			{@render type_list(external_types_not_inherited)}
 		</div>
 	</section>
 {/if}
@@ -299,7 +351,14 @@ including parameters, props, members, overloads, intersects, and more.
 {#if declaration.return_type}
 	<section>
 		<h4>returns</h4>
-		<Code lang="ts" content={declaration.return_type} />
+		{#if declaration.return_type_info}
+			<!-- the flat expansion stays visible in the type signature above -->
+			<p>
+				<TypeJsonView type_info={declaration.return_type_info} title={declaration.return_type} />
+			</p>
+		{:else}
+			<Code lang="ts" content={declaration.return_type} />
+		{/if}
 		{#if declaration.return_description}
 			<Mdz content={declaration.return_description} />
 		{/if}
@@ -334,17 +393,13 @@ including parameters, props, members, overloads, intersects, and more.
 {/if}
 
 <!-- Extends/Implements -->
-{#if declaration.extends_type || declaration.implements_types?.length}
+{#if declaration.extends_types?.length || declaration.implements_types?.length}
 	<section>
 		<h4>inheritance</h4>
-		{#if declaration.extends_type}
+		{#if declaration.extends_types?.length}
 			<div class="row gap_md flex-wrap:wrap">
 				<strong>extends:</strong>
-				{@render type_list(
-					Array.isArray(declaration.extends_type)
-						? declaration.extends_type
-						: [declaration.extends_type]
-				)}
+				{@render type_list(declaration.extends_types)}
 			</div>
 		{/if}
 		{#if declaration.implements_types?.length}
@@ -440,6 +495,7 @@ including parameters, props, members, overloads, intersects, and more.
 							type={member.kind === 'constructor'
 								? `new ${member.typeSignature}`
 								: member.typeSignature}
+							type_info={member.kind === 'variable' ? member.typeInfo : undefined}
 						/>
 					</p>
 				{/if}
@@ -455,7 +511,7 @@ including parameters, props, members, overloads, intersects, and more.
 						{/if}
 					</div>
 				{/if}
-				{#if member.kind === 'variable' && member.defaultValue}
+				{#if (member.kind === 'variable' || member.kind === 'function') && member.defaultValue}
 					<div class="row gap_md">
 						<strong>default</strong>
 						<Code lang="ts" content={member.defaultValue} />
@@ -475,7 +531,7 @@ including parameters, props, members, overloads, intersects, and more.
 				{#if member.kind === 'function' && member.returnType}
 					<div class="row gap_md">
 						<strong>returns</strong>
-						<TypeLink type={member.returnType} />
+						<TypeLink type={member.returnType} type_info={member.returnTypeInfo} />
 					</div>
 					{#if member.returnDescription}
 						<Mdz content={member.returnDescription} />

@@ -1,5 +1,84 @@
 # @fuzdev/fuz_ui
 
+## 0.208.0
+
+### Minor Changes
+
+- refactor: replace the `create_api_search`/`create_module_declaration_search` getter/setter factories with `ApiSearchState`/`DeclarationSearchState` classes — nested `modules`/`declarations` `{all, filtered}` objects flatten to `modules`, `modules_filtered`, `declarations`, `declarations_filtered` (and `all` → `declarations` on `DeclarationSearchState`) ([#140](https://github.com/fuzdev/fuz_ui/pull/140))
+- fix: correct `COLOR_SCHEME_SCRIPT_HASH` to match the color-scheme loader in `app.html` and add `COLOR_SCHEME_SCRIPT` ([df102f9](https://github.com/fuzdev/fuz_ui/commit/df102f9))
+- feat: adopt svelte-docinfo 0.7 and render its `@internal` and merged-value metadata ([1b7e407](https://github.com/fuzdev/fuz_ui/commit/1b7e407))
+
+  - `Declaration` gains `internal_message` / `is_internal` (from svelte-docinfo's
+    `@internal` tag support — a marker, not an exclusion) and `merged_value` (the
+    name is importable as a runtime value, not just a type). `DeclarationDetail`
+    renders an "internal" chip and message on declarations and members (component
+    props deliberately never carry the tag), and a "value + type" chip for merged
+    declarations.
+  - `Declaration` gains `type_info_expanded` — `type_info` with the alias's
+    self-reference stripped from the root — and `DeclarationDetail`'s structured
+    type row renders it, so a union alias like `type DialogAlign = 'center' |
+'top'` documents its members at its own declaration instead of linking
+    circularly to itself.
+
+  The rendered fields shipped in svelte-docinfo 0.6; the dependency range moves
+  to `^0.7.0` for its `@mutates` / `{@link}` / `@throws` extraction fixes.
+
+### Patch Changes
+
+- docs: improve footer text for `ProjectLinks` ([6ef1504](https://github.com/fuzdev/fuz_ui/commit/6ef1504))
+
+## 0.207.0
+
+### Minor Changes
+
+- **breaking:** adapt to svelte-docinfo 0.6 ([#139](https://github.com/fuzdev/fuz_ui/pull/139))
+
+  - Rename `Declaration.intersects` to `Declaration.external_types`, following
+    the upstream field rename — it lists the external types whose contributions
+    are filtered out of `props`/`members`, however the author composed them.
+    `DeclarationDetail`'s section heading is now "external types".
+  - Rename `Declaration.extends_type` to `Declaration.extends_types`, now
+    `Array<string> | undefined` — class `extends` is an array like every other
+    heritage field; absent when there is no `extends` clause.
+  - `DeclarationDetail` dedupes external types against the inheritance section —
+    0.6 records direct external heritage in both `externalTypes` and the
+    verbatim `extends`/`implements` clauses.
+  - `DeclarationDetail` renders `@default` on function members — 0.6 emits
+    `defaultValue` on callable members; the default row was gated on
+    `kind === 'variable'`.
+
+  Requires svelte-docinfo >= 0.6.
+
+- feat: render svelte-docinfo's structured `TypeJson` trees in API docs ([#139](https://github.com/fuzdev/fuz_ui/pull/139))
+
+  - New `TypeJsonView` renders a `typeInfo` tree as inline code: `reference`
+    nodes and alias-carrying unions/intersections link via `DeclarationLink`
+    (module-scoped when the analysis names the declaring module), terminal type
+    text stays syntax-highlighted, and punctuation comes from svelte-docinfo's
+    `typeJsonToTokens`.
+  - `TypeLink` takes an optional `type_info` and delegates to `TypeJsonView`.
+  - `DeclarationDetail` threads `typeInfo`/`returnTypeInfo` through every type
+    position and adds a structured type row for variable/type declarations.
+  - `Declaration` gains `type_info` and `return_type_info` getters.
+
+  Requires svelte-docinfo >= 0.6.
+
+- feat: render `@default` on top-level variable declarations ([#139](https://github.com/fuzdev/fuz_ui/pull/139))
+
+  `Declaration` gains a `default_value` getter and `DeclarationDetail` renders it
+  beside the type signature; previously a module-level `@default` documented
+  nothing.
+
+### Patch Changes
+
+- fix: tweak layout for items in `ProjectLinks` ([7362ec0](https://github.com/fuzdev/fuz_ui/commit/7362ec0))
+
+## 0.206.9
+
+### Patch Changes
+
+- feat: add `Sparkline` and `ProjectActivityChart` with committed project commit stats ([#137](https://github.com/fuzdev/fuz_ui/pull/137))
+
 ## 0.206.8
 
 ### Patch Changes
