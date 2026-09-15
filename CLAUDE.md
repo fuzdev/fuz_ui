@@ -110,6 +110,7 @@ consumes are listed under [Library and API generation](#library-and-api-generati
 ### Forms and inputs
 
 - `HueInput`, `ColorSchemeInput`, `ThemeInput` - theme controls
+- `RadioMenu` - a joined-button `menuitemradio` row, the shape `ColorSchemeInput` is built on
 
 ### Icons and media
 
