@@ -28,10 +28,8 @@
 <TomeContent {tome}>
 	<section>
 		<p>
-			Fuz includes a number of logos available as data that can be mounted with the <TomeLink
-				slug="Svg"
-			/>
-			component. Only the ones you use are included in your bundle.
+			Fuz includes a number of logos available as data that can be mounted with the
+			<TomeLink slug="Svg" /> component. Only the ones you use are included in your bundle.
 		</p>
 	</section>
 	<section>

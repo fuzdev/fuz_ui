@@ -145,8 +145,7 @@
 			</code>
 		</p>
 		<p>
-			and children <input bind:value={turtle_slot_2a} />
-			<input bind:value={turtle_slot_2b} />
+			and children <input bind:value={turtle_slot_2a} /> <input bind:value={turtle_slot_2b} />
 		</p>
 		<PendingAnimation {running}>
 			{#snippet children(index)}

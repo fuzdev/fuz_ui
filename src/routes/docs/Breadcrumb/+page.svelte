@@ -27,8 +27,7 @@
 			The root link defaults to the <Code inline content="site_context" /> icon, rendered as an
 			<Code inline content="Svg" />. Set the <Code inline content="SiteState" /> once at your app's
 			root layout and every <Code inline content="Breadcrumb" /> picks it up. It falls back to the
-			<Code inline content="site_context" />
-			glyph, then a bullet.
+			<Code inline content="site_context" /> glyph, then a bullet.
 		</p>
 		<Code
 			lang="ts"
@@ -50,7 +49,9 @@ site_context.set(new SiteState({icon: logo_fuz, glyph: '🧶'}));`}
 	{#snippet separator()}.{/snippet}
 </Breadcrumb>`}
 		/>
-		<Breadcrumb>{#snippet separator()}.{/snippet}</Breadcrumb>
+		<Breadcrumb>
+			{#snippet separator()}.{/snippet}
+		</Breadcrumb>
 	</TomeSection>
 	<TomeSection>
 		<TomeSectionHeader text="With custom paths" />

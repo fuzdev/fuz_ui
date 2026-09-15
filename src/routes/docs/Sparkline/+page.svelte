@@ -37,8 +37,7 @@
 	<TomeSection>
 		<TomeSectionHeader text="With a shared max" />
 		<p>
-			By default each sparkline stretches its own max to full height. Pass a shared
-			<code>max</code>
+			By default each sparkline stretches its own max to full height. Pass a shared <code>max</code>
 			so a set of sparklines renders at the same vertical scale and stays visually comparable:
 		</p>
 		<Code
@@ -54,12 +53,10 @@
 		<TomeSectionHeader text="With a nonlinear scale" />
 		<p>
 			Under a large shared <code>max</code>, low-activity series hug the baseline. Set
-			<code>scale</code>
-			to compress the top of the range so small values stay legible — increasingly so from
-			<code>"sqrt"</code>
-			to a power exponent (a number in <code>(0, 1]</code>, where <code>1</code> is linear) to
-			<code>"log"</code>. The alpha fade still tracks the linear ratio, so it keeps encoding true
-			magnitude:
+			<code>scale</code> to compress the top of the range so small values stay legible —
+			increasingly so from <code>"sqrt"</code> to a power exponent (a number in <code>(0, 1]</code>,
+			where <code>1</code> is linear) to <code>"log"</code>. The alpha fade still tracks the linear
+			ratio, so it keeps encoding true magnitude:
 		</p>
 		<Code
 			content={`<Sparkline values={b} max={12} scale="sqrt" />
@@ -69,8 +66,7 @@
 		<p>
 			<Sparkline values={b} max={12} /> linear, <Sparkline values={b} max={12} scale="sqrt" /> sqrt,
 			<Sparkline values={b} max={12} scale={1 / 3} /> cube root,
-			<Sparkline values={b} max={12} scale="log" />
-			log
+			<Sparkline values={b} max={12} scale="log" /> log
 		</p>
 	</TomeSection>
 	<TomeSection>
@@ -92,8 +88,7 @@
 		<TomeSectionHeader text="With alpha scaling" />
 		<p>
 			Each point's stroke alpha scales with its value, from <code>alpha_floor</code> at 0 (default
-			0.4) up to 1 at <code>max</code>, de-emphasizing quiet stretches. Set
-			<code>alpha_floor</code>
+			0.4) up to 1 at <code>max</code>, de-emphasizing quiet stretches. Set <code>alpha_floor</code>
 			to 1 to disable the fade:
 		</p>
 		<Code content={`<Sparkline values={b} alpha_floor={1} />`} />
@@ -128,8 +123,7 @@
 		<p>
 			<DeclarationLink name="ProjectActivityChart" /> draws every project's weekly series over one
 			another at a shared scale, built on the same geometry via
-			<ModuleLink module_path="sparkline.ts" />
-			— hover a line for the project's stats:
+			<ModuleLink module_path="sparkline.ts" /> — hover a line for the project's stats:
 		</p>
 		<ProjectActivityChart />
 	</TomeSection>

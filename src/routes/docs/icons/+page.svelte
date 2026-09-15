@@ -17,10 +17,8 @@
 <TomeContent {tome}>
 	<section>
 		<p>
-			Fuz includes a number of icons available as data that can be mounted with the <TomeLink
-				slug="Svg"
-			/>
-			component. Only the ones you use are included in your bundle.
+			Fuz includes a number of icons available as data that can be mounted with the
+			<TomeLink slug="Svg" /> component. Only the ones you use are included in your bundle.
 		</p>
 		<Code
 			content={`import Svg from '@fuzdev/fuz_ui/Svg.svelte';\nimport {icon_add} from '@fuzdev/fuz_ui/icons.js';`}

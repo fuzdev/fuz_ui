@@ -26,15 +26,14 @@
 				<div class="width_atmost_sm panel p_lg shadow_inset_xs shade_00">
 					<p>
 						fuz_ui is a Svelte UI library with components and helpers for making zippy websites.
-						It's built on <a href="https://css.fuz.dev/">fuz_css</a>
-						and provides a documentation system built on
-						<a href="https://svelte-docinfo.fuz.dev/">svelte-docinfo</a>. fuz_ui emphasizes
-						capability and efficiency and tries to be simple for those goals.
+						It's built on <a href="https://css.fuz.dev/">fuz_css</a> and provides a documentation
+						system built on <a href="https://svelte-docinfo.fuz.dev/">svelte-docinfo</a>. fuz_ui
+						emphasizes capability and efficiency and tries to be simple for those goals.
 					</p>
 					<p>
 						<!-- eslint-disable-next-line svelte/no-navigation-without-resolve -->
-						To learn more see <a href={DOCS_PATH}>the docs</a>
-						and <a href="https://github.com/fuzdev/fuz_ui#readme">readme</a>. Feel free to take the
+						To learn more see <a href={DOCS_PATH}>the docs</a> and
+						<a href="https://github.com/fuzdev/fuz_ui#readme">readme</a>. Feel free to take the
 						ideas and <a href="https://github.com/fuzdev/fuz_ui">code</a> for your own purposes.
 					</p>
 				</div>
@@ -42,7 +41,10 @@
 		</section>
 		<section>
 			<!-- TODO add color variants -->
-			<Card href={DOCS_PATH}>docs{#snippet icon()}{site.glyph}{/snippet}</Card>
+			<Card href={DOCS_PATH}>
+				docs
+				{#snippet icon()}{site.glyph}{/snippet}
+			</Card>
 		</section>
 		<section class="panel p_lg shadow_inset_xs">
 			<ProjectLinks />

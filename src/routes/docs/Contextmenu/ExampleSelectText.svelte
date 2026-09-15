@@ -52,11 +52,11 @@ Try selecting text and then opening the contextmenu on it.`;
 				<div bind:this={text_el} class="mb_lg">
 					<p>
 						When the Fuz contextmenu opens and the user has selected text, the menu includes a
-						<code>copy text</code>
-						entry.
+						<code>copy text</code> entry.
 					</p>
 					<p>
-						Try <button type="button" onclick={select_text} class:color_a={toggled}>
+						Try
+						<button type="button" onclick={select_text} class:color_a={toggled}>
 							selecting text
 						</button>
 						and then opening the contextmenu on it.
