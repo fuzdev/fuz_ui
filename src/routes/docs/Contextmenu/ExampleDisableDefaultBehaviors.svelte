@@ -36,8 +36,7 @@
 	<TomeSectionHeader text="Disable default behaviors" />
 	<p>
 		Check the boxes below to disable automatic <code>a</code> link detection and
-		<code>copy text</code>
-		detection, and see how the contextmenu behaves.
+		<code>copy text</code> detection, and see how the contextmenu behaves.
 	</p>
 
 	<Code
@@ -81,8 +80,8 @@
 
 	<div class="mb_md">
 		<label class="row">
-			<input type="checkbox" bind:checked={custom_entry_included} />
-			include a custom entry, which ensures the Fuz contextmenu is used
+			<input type="checkbox" bind:checked={custom_entry_included} /> include a custom entry, which
+			ensures the Fuz contextmenu is used
 		</label>
 	</div>
 
@@ -110,7 +109,8 @@
 {#snippet test_area()}
 	<div class="panel p_md mb_lg">
 		<p bind:this={text_el}>
-			Try <button type="button" onclick={select_text} class:color_h={toggled}>
+			Try
+			<button type="button" onclick={select_text} class:color_h={toggled}>
 				selecting some text
 			</button>
 			and opening the contextmenu in this panel.

@@ -15,10 +15,8 @@
 <TomeContent {tome}>
 	<section>
 		<p>
-			Adds a redirect for a page using <MdnLink path="Web/HTTP/Redirections#html_redirections">
-				a meta tag
-			</MdnLink>
-			with
+			Adds a redirect for a page using
+			<MdnLink path="Web/HTTP/Redirections#html_redirections">a meta tag</MdnLink> with
 			<MdnLink path="Web/HTML/Element/meta#http-equiv">
 				the <span class="font_family_mono">refresh</span> header
 			</MdnLink>. Includes a rendered link and JS navigation fallback.
