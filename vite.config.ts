@@ -9,5 +9,5 @@ export default defineConfig(({ mode }) => ({
 	plugins: [sveltekit(), svelte_docinfo(), vite_plugin_fuz_css(), vite_plugin_pkg_json()],
 	// In test mode, use browser conditions so Svelte's mount() resolves to the client version
 	resolve: mode === 'test' ? { conditions: ['browser'] } : undefined,
-	optimizeDeps: { exclude: ['@fuzdev/blake3_wasm'] }
+	optimizeDeps: { exclude: ['@fuzdev/blake3-wasm'] }
 }));
