@@ -4,7 +4,7 @@
 
 ### Minor Changes
 
-- refactor: replace the `create_api_search`/`create_module_declaration_search` getter/setter factories with `ApiSearchState`/`DeclarationSearchState` classes — nested `modules`/`declarations` `{all, filtered}` objects flatten to `modules`, `modules_filtered`, `declarations`, `declarations_filtered` (and `all` → `declarations` on `DeclarationSearchState`) ([#140](https://github.com/fuzdev/fuz_ui/pull/140))
+- replace the `create_api_search`/`create_module_declaration_search` getter/setter factories with `ApiSearchState`/`DeclarationSearchState` classes — nested `modules`/`declarations` `{all, filtered}` objects flatten to `modules`, `modules_filtered`, `declarations`, `declarations_filtered` (and `all` → `declarations` on `DeclarationSearchState`) ([#140](https://github.com/fuzdev/fuz_ui/pull/140)) ([refactor](https://github.com/fuzdev/fuz_ui/commit/refactor))
 - fix: correct `COLOR_SCHEME_SCRIPT_HASH` to match the color-scheme loader in `app.html` and add `COLOR_SCHEME_SCRIPT` ([df102f9](https://github.com/fuzdev/fuz_ui/commit/df102f9))
 - feat: adopt svelte-docinfo 0.7 and render its `@internal` and merged-value metadata ([1b7e407](https://github.com/fuzdev/fuz_ui/commit/1b7e407))
 
