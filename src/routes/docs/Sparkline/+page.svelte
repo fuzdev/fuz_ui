@@ -58,8 +58,7 @@
 		<p>
 			<Sparkline values={b} max={12} /> linear, <Sparkline values={b} max={12} scale="sqrt" /> sqrt,
 			<Sparkline values={b} max={12} scale={1 / 3} /> cube root,
-			<Sparkline values={b} max={12} scale="log" />
-			log
+			<Sparkline values={b} max={12} scale="log" /> log
 		</p>
 	</TomeSection>
 	<TomeSection>
