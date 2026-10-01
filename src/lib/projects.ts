@@ -18,9 +18,6 @@ import {
 
 /**
  * Metadata for a project in the fuz.dev ecosystem, rendered by `ProjectLinks`.
- *
- * `name` doubles as the project's repo directory name, so the
- * `project_stats_update` task can locate each repo as a sibling directory.
  */
 export interface ProjectItem {
 	name: string;
