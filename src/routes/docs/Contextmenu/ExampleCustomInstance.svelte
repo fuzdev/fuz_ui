@@ -20,8 +20,10 @@
 
 	let selected_color: 'f' | 'g' | 'j' | undefined = $state.raw();
 
-	const selected_color_class = $derived(selected_color ? `color_${selected_color}_5` : undefined);
-	const selected_hue_class = $derived(selected_color ? `color_${selected_color}` : undefined);
+	// @fuz-classes color_f_50 color_g_50 color_j_50
+	const selected_color_class = $derived(selected_color ? `color_${selected_color}_50` : undefined);
+	// the `.palette_*` button rules are base styles, which ship with any `button`
+	const selected_palette_class = $derived(selected_color ? `palette_${selected_color}` : undefined);
 </script>
 
 <!-- eslint-disable svelte/no-useless-mustaches -->
@@ -94,7 +96,7 @@
 							<code>{contextmenu.x} && contextmenu.y === {contextmenu.y}</code>
 						</li>
 						{#if contextmenu.error}
-							<li class="color_error">Error: <code>{contextmenu.error}</code></li>
+							<li class="negative_60">Error: <code>{contextmenu.error}</code></li>
 						{/if}
 					</ul>
 				</div>
@@ -103,7 +105,7 @@
 						<div class="box">
 							<button
 								type="button"
-								class="border_bottom_left_radius_0 border_bottom_right_radius_0 {selected_hue_class}"
+								class="border-bottom-left-radius:0 border-bottom-right-radius:0 {selected_palette_class}"
 								disabled={!contextmenu.can_select_sibling}
 								onmousedowncapture={(e) => {
 									swallow(e);
@@ -115,7 +117,7 @@
 							<div class="row">
 								<button
 									type="button"
-									class="border_bottom_right_radius_0 border_top_right_radius_0 {selected_hue_class}"
+									class="border-bottom-right-radius:0 border-top-right-radius:0 {selected_palette_class}"
 									disabled={!contextmenu.can_collapse}
 									onmousedowncapture={(e) => {
 										swallow(e);
@@ -126,7 +128,7 @@
 								</button>
 								<button
 									type="button"
-									class="border-radius:0 {selected_hue_class}"
+									class="border-radius:0 {selected_palette_class}"
 									disabled={!contextmenu.can_activate}
 									onmousedowncapture={async (e) => {
 										swallow(e);
@@ -137,7 +139,7 @@
 								</button>
 								<button
 									type="button"
-									class="border_bottom_left_radius_0 border_top_left_radius_0 {selected_hue_class}"
+									class="border-bottom-left-radius:0 border-top-left-radius:0 {selected_palette_class}"
 									disabled={!contextmenu.can_expand}
 									onmousedowncapture={(e) => {
 										swallow(e);
@@ -149,7 +151,7 @@
 							</div>
 							<button
 								type="button"
-								class="border_top_left_radius_0 border_top_right_radius_0 {selected_hue_class}"
+								class="border-top-left-radius:0 border-top-right-radius:0 {selected_palette_class}"
 								disabled={!contextmenu.can_select_sibling}
 								onmousedowncapture={(e) => {
 									swallow(e);

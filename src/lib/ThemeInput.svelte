@@ -1,6 +1,6 @@
 <script lang="ts">
 	import { swallow } from '@fuzdev/fuz_util/dom.ts';
-	import type { Theme } from '@fuzdev/fuz_css/theme.ts';
+	import type { Theme } from '@fuzdev/fuz_css/variable.ts';
 	import { default_themes } from '@fuzdev/fuz_css/themes.ts';
 	import type { SvelteHTMLElements } from 'svelte/elements';
 
@@ -35,7 +35,7 @@
 		<li class="row" role="none">
 			<button
 				type="button"
-				class={['theme-button color_a', { selected }]}
+				class={['theme-button palette_a', { selected }]}
 				role="menuitemradio"
 				aria-label="{theme.name} theme"
 				aria-checked={selected}

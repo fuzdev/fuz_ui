@@ -1,8 +1,8 @@
 <script lang="ts">
 	import Code from '@fuzdev/fuz_code/Code.svelte';
 	import { swallow } from '@fuzdev/fuz_util/dom.ts';
-	import { render_theme_style, type Theme } from '@fuzdev/fuz_css/theme.ts';
-	import type { StyleVariable } from '@fuzdev/fuz_css/variable.ts';
+	import { render_theme_style } from '@fuzdev/fuz_css/theme.ts';
+	import type { StyleVariable, Theme } from '@fuzdev/fuz_css/variable.ts';
 
 	import CopyToClipboard from '$lib/CopyToClipboard.svelte';
 	import Dialog from '$lib/Dialog.svelte';
@@ -33,9 +33,7 @@
 
 	const new_theme: Theme = $derived({ name: new_name, variables: new_variables });
 
-	const code = $derived(
-		render_theme_style(new_theme, { empty_default_theme: false, specificity: 1 })
-	);
+	const code = $derived(render_theme_style(new_theme));
 
 	const light_count = $derived(new_variables.reduce((c, v) => (v.light ? c + 1 : c), 0));
 	const dark_count = $derived(new_variables.reduce((c, v) => (v.dark ? c + 1 : c), 0));

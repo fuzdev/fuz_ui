@@ -54,7 +54,7 @@
 		content={`<Dialog show={opened} onclose={() => (opened = false)}>
 	<DialogContent>
 		{#snippet close_button(attrs)}
-			<button {...attrs} class="xs plain">close</button>
+			<button {...attrs} class="sized_xs plain">close</button>
 		{/snippet}
 		<Code content="..." />
 	</DialogContent>
@@ -253,7 +253,7 @@
 	<Dialog onclose={() => (dialog_custom_close_opened = false)}>
 		<DialogContent>
 			{#snippet close_button(attrs)}
-				<button {...attrs} class="xs plain">close</button>
+				<button {...attrs} class="sized_xs plain">close</button>
 			{/snippet}
 			<p class="mt_lg">
 				The close button in the top-right is custom: it spreads <code>attrs</code> to extend the

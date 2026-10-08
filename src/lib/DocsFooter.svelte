@@ -64,7 +64,7 @@
 		border: var(--border_width) double var(--border_color);
 	}
 	.logo a:hover {
-		--border_color: var(--color_a_50);
+		--border_color: var(--palette_a_50);
 	}
 	.root-url {
 		/* TODO messy */
