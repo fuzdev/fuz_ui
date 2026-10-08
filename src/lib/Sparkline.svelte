@@ -125,7 +125,7 @@
 
 <style>
 	svg {
-		background: var(--sparkline_bg, color-mix(in hsl, currentColor 8%, transparent));
+		background: var(--sparkline_bg, color-mix(in oklab, currentColor 8%, transparent));
 		border-radius: var(--border_radius_xs);
 	}
 </style>

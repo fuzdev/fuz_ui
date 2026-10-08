@@ -105,7 +105,7 @@
 			--shadow,
 			var(--shadow_inset_bottom_sm)
 				color-mix(
-					in hsl,
+					in oklab,
 					var(--shadow_color, var(--shadow_color_umbra)) var(--shadow_alpha_40),
 					transparent
 				)
@@ -116,7 +116,7 @@
 			--shadow,
 			var(--shadow_inset_top_sm)
 				color-mix(
-					in hsl,
+					in oklab,
 					var(--shadow_color, var(--shadow_color_umbra)) var(--shadow_alpha_40),
 					transparent
 				)

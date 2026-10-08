@@ -176,7 +176,7 @@
 	.dialog {
 		--pane_shadow: var(--shadow_bottom_xl)
 			color-mix(
-				in hsl,
+				in oklab,
 				var(--shadow_color, var(--shadow_color_umbra)) var(--shadow_alpha_70),
 				transparent
 			);
