@@ -196,9 +196,13 @@
 		overflow: auto;
 		overscroll-behavior: contain;
 	}
-	/* the native backdrop is the dim background; fade it in on open */
+	/* the native backdrop is the dim background; fade it in on open. It reads
+		fuz_css's `--backdrop_color` like a plain dialog's does, then its default
+		`--darken_60` for a variable set without it. Older browsers don't let
+		::backdrop inherit custom properties from the page, so the last fallback
+		is that value as a literal */
 	.dialog::backdrop {
-		background-color: var(--dialog_bg, var(--darken_60));
+		background-color: var(--backdrop_color, var(--darken_60, #000000a6));
 		transition: background-color var(--duration_2) ease;
 	}
 	@starting-style {
