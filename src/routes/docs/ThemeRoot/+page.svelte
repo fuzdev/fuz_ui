@@ -1,6 +1,6 @@
 <script lang="ts">
 	import Code from '@fuzdev/fuz_code/Code.svelte';
-	import type { Theme } from '@fuzdev/fuz_css/theme.ts';
+	import type { Theme } from '@fuzdev/fuz_css/variable.ts';
 	import { default_themes } from '@fuzdev/fuz_css/themes.ts';
 
 	import TomeContent from '$lib/TomeContent.svelte';

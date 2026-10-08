@@ -110,7 +110,7 @@
 	<div class="panel p_md mb_lg">
 		<p bind:this={text_el}>
 			Try
-			<button type="button" onclick={select_text} class:color_h={toggled}>
+			<button type="button" onclick={select_text} class:palette_h={toggled}>
 				selecting some text
 			</button>
 			and opening the contextmenu in this panel.

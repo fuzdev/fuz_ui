@@ -4,7 +4,7 @@ import type { SvgData } from './svg.ts';
 
 /*
 
-Logo colors are frozen brand values — originally derived as the midpoint
+Logo colors are frozen brand values, originally derived as the midpoint
 between the light and dark mid-stops of fuz_css's pre-OKLCH palette
 (today's `--palette_X_50`), and deliberately not re-derived since:
 
