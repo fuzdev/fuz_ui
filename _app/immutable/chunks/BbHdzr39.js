@@ -1,0 +1,1 @@
+import{m as s,o as t,z as i}from"./De_lEKU-.js";import{B as m}from"./C93eQGyD.js";const c=Symbol("NaN");function h(r,e,n){t&&i();var o=new m(r);s(()=>{var a=e();a!==a&&(a=c),o.ensure(a,n)})}export{h as k};
