@@ -11,7 +11,7 @@
 		logo_fuz_code,
 		logo_fuz_blog,
 		logo_fuz_mastodon,
-		logo_fuz_gitops,
+		logo_fuz_repos,
 		logo_github,
 		logo_mdn,
 		logo_fuz_template,
@@ -79,10 +79,10 @@
 				<Code content={`<Svg data={logo_fuz_mastodon} />`} />
 			</li>
 			<li>
-				<a class="box" href="https://gitops.fuz.dev/">
-					<Svg data={logo_fuz_gitops} size="var(--icon_size_xl3)" />
+				<a class="box" href="https://repos.fuz.dev/">
+					<Svg data={logo_fuz_repos} size="var(--icon_size_xl3)" />
 				</a>
-				<Code content={`<Svg data={logo_fuz_gitops} />`} />
+				<Code content={`<Svg data={logo_fuz_repos} />`} />
 			</li>
 			<li>
 				<a class="box" href="https://util.fuz.dev/">

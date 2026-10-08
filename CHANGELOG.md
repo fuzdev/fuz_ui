@@ -1,5 +1,12 @@
 # @fuzdev/fuz_ui
 
+## 0.209.0
+
+### Minor Changes
+
+- feat: remove project commit stats, `ProjectActivityChart`, and the `ProjectLinks` sparklines ([0f58cac](https://github.com/fuzdev/fuz_ui/commit/0f58cac))
+- chore: rename `logo_fuz_repos` from `logo_fuz_gitops`, and the `fuz_repos` project entry to match (now at repos.fuz.dev) ([c3e4417](https://github.com/fuzdev/fuz_ui/commit/c3e4417))
+
 ## 0.208.0
 
 ### Minor Changes

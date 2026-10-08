@@ -7,11 +7,6 @@ components and TypeScript helpers for building user-friendly websites.
 
 For coding conventions, see Skill(fuz-stack).
 
-## Committing
-
-`git add` and `git commit` are denied by `.claude/settings.local.json` in
-this repo — make the edits and stop, the user commits.
-
 ## Gro commands
 
 ```bash
@@ -20,9 +15,6 @@ gro typecheck # typecheck only (faster iteration)
 gro test      # run tests with vitest
 gro build     # build for production
 ```
-
-IMPORTANT for AI agents: Do NOT run `gro dev` - the developer will manage the
-dev server.
 
 ## Key dependencies
 
@@ -122,8 +114,6 @@ consumes are listed under [Library and API generation](#library-and-api-generati
   `max`, geometry via `scale` (linear, sqrt, log, or a power exponent),
   per-point alpha fade via `alpha_floor` (always linear), optional `end_dot`,
   `currentColor` stroke over a light `--sparkline_bg` wash
-- `ProjectActivityChart` - all projects' weekly commit series drawn over one
-  another at a shared scale, colored per project; native `title` hover per line
 
 ### Clipboard
 
@@ -133,8 +123,8 @@ consumes are listed under [Library and API generation](#library-and-api-generati
 
 - `Hashlink` - hash anchor links
 - `GithubLink`, `MdnLink` - external reference links
-- `ProjectLinks` - @fuzdev ecosystem package grid with per-project commit-activity
-  sparklines; add entries in `projects.ts` and a matching logo in `logos.ts`
+- `ProjectLinks` - @fuzdev ecosystem package grid; add entries in `projects.ts`
+  and a matching logo in `logos.ts`
 
 ### Documentation & API system
 
@@ -204,23 +194,12 @@ mdz itself (`Mdz`, `MdzRoot`, `MdzStream`, the preprocessor) lives in `@fuzdev/m
 - `theme_state.svelte.ts` - theme and color scheme management (ThemeState class)
 - `context_helpers.ts` - Svelte context utilities (`create_context()`)
 
-### Project stats
-
-- `projects.ts` - ecosystem project metadata (`ProjectItem`, `project_items`);
-  `name` doubles as the sibling repo directory name
-- `project_stats.ts` - commit-activity types (`ProjectStatsSnapshot`) and pure
-  UTC bucketing helpers (daily master data; weekly/monthly derived at runtime),
-  plus `project_stats_label` for accessible labels/tooltips
-- `project_stats_data.ts` - committed snapshot of daily commit counts per
-  project; regenerate with `gro project_stats_update` (reads sibling repos'
-  git histories, so it only runs in the full workspace)
-- `sparkline.ts` - pure geometry behind `Sparkline`/`ProjectActivityChart`:
-  polyline points, thinned alpha-gradient stops, end-dot position
-- `publish.task.ts` - local override that refreshes and commits the stats
-  snapshot, then delegates to gro's builtin publish
-
 ### Component helpers
 
+- `projects.ts` - ecosystem project metadata behind `ProjectLinks`
+  (`ProjectItem`, `project_items`)
+- `sparkline.ts` - pure geometry behind `Sparkline`: polyline points, thinned
+  alpha-gradient stops, end-dot position
 - `contextmenu_state.svelte.ts` - context menu state management
 - `dialog.ts` - dialog types and `dialog_context` (`DialogContext`, `DialogAlign`,
   `DialogCloseButtonAttrs`)
@@ -352,7 +331,7 @@ plugin (exposing `virtual:svelte-docinfo`) and API routes; see
 
 - TypeScript strict mode
 - Svelte 5 with runes API
-- Prettier with tabs, 100 char width
+- tsv (`gro format`) with tabs, 100 char width
 - Node >= 22.15
 - Tests in `src/test/` (not co-located)
 

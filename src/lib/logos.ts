@@ -102,7 +102,7 @@ export const logo_fuz_mastodon = {
 	paths: logo_fuz.paths
 } satisfies SvgData;
 
-export const logo_fuz_gitops = {
+export const logo_fuz_repos = {
 	label: 'a friendly blue spider facing you',
 	fill: '#6199d1',
 	paths: logo_fuz.paths
