@@ -96,7 +96,7 @@
 							<code>{contextmenu.x} && contextmenu.y === {contextmenu.y}</code>
 						</li>
 						{#if contextmenu.error}
-							<li class="color_c_50">Error: <code>{contextmenu.error}</code></li>
+							<li class="negative_60">Error: <code>{contextmenu.error}</code></li>
 						{/if}
 					</ul>
 				</div>

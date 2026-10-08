@@ -18,7 +18,6 @@
 
 <RadioMenu
 	{...rest}
-	class={['color-scheme-control', rest.class]}
 	options={color_schemes}
 	bind:value={value.color_scheme}
 	label={(color_scheme) => color_scheme}
