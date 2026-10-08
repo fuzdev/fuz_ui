@@ -11,6 +11,8 @@ and provides a documentation system built on
 fuz_ui emphasizes capability and efficiency and tries to be simple for those goals,
 while following idiomatic Svelte patterns.
 
+This library has no AI features by design, for that see [zzz](https://github.com/fuzdev/zzz).
+
 To learn more see [the docs](https://ui.fuz.dev/docs) and [contributing.md](contributing.md).
 Feel free to take the ideas and code for your own purposes.
 
