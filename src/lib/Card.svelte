@@ -28,6 +28,8 @@
 
 	const link = $derived(!!href);
 	const selected = $derived(link && page.url.pathname === href);
+	// the tag renders through `svelte:element`, so declare the styled one for fuz_css extraction
+	// @fuz-elements a
 	const final_tag = $derived(tag ?? (link ? 'a' : 'div'));
 	const inferred_attrs = $derived(link ? { ...a_attrs, href } : undefined);
 
