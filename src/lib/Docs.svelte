@@ -118,7 +118,7 @@
 
 	main {
 		position: relative;
-		min-height: calc(100vh - var(--docs_primary_nav_height));
+		min-height: calc(100svh - var(--docs_primary_nav_height));
 		width: calc(100% - var(--docs_sidebar_width) * 2);
 		max-width: var(--docs_content_max_width);
 		padding: var(--docs_content_padding);
