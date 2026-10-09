@@ -1,5 +1,11 @@
 # @fuzdev/fuz_ui
 
+## 0.210.2
+
+### Patch Changes
+
+- fix: `Docs`'s content min-height uses `100svh` (was `100vh`), so a short docs page no longer scrolls by the toolbar's height on mobile browsers ([76a7c93](https://github.com/fuzdev/fuz_ui/commit/76a7c93))
+
 ## 0.210.1
 
 ### Patch Changes
