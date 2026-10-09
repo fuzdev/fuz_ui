@@ -1,5 +1,11 @@
 # @fuzdev/fuz_ui
 
+## 0.210.4
+
+### Patch Changes
+
+- fix: `HueInput` parses with `parse_hue` from `@fuzdev/fuz_util/colors.ts`, so clearing the number field no longer snaps the hue to 0; the `@fuzdev/fuz_util` peer dependency is now `>=0.72.0` ([0b9ad8e](https://github.com/fuzdev/fuz_ui/commit/0b9ad8e))
+
 ## 0.210.3
 
 ### Patch Changes
