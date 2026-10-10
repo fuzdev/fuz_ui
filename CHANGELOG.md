@@ -1,5 +1,14 @@
 # @fuzdev/fuz_ui
 
+## 0.211.0
+
+### Minor Changes
+
+- feat: `Breadcrumb` takes an optional `root_path`, where its root link goes, relative to the base path, e.g. `/docs` on a home page where the root would link to itself ([ea66d00](https://github.com/fuzdev/fuz_ui/commit/ea66d00))
+- feat: `Docs` takes an optional `footer` snippet that replaces its default footer, so a site outside the Fuz stack needn't link to fuz.dev ([ea66d00](https://github.com/fuzdev/fuz_ui/commit/ea66d00))
+- feat: `Docs` takes an optional `primary_nav` snippet, rendered in the primary nav after the breadcrumb, for links to a site's other sections ([ea66d00](https://github.com/fuzdev/fuz_ui/commit/ea66d00))
+- feat: `DocsSecondaryNav` takes optional `header` and `footer` snippets around the tome menu, and `Docs` passes them through as `secondary_nav_header` and `secondary_nav_footer`, in the sidebar and the narrow-screen menu dialog ([ea66d00](https://github.com/fuzdev/fuz_ui/commit/ea66d00))
+
 ## 0.210.4
 
 ### Patch Changes
