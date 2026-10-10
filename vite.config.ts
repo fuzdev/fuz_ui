@@ -6,6 +6,11 @@ import { vite_plugin_fuz_css } from '@fuzdev/fuz_css/vite_plugin_fuz_css.ts';
 import { vite_plugin_pkg_json } from './src/lib/vite_plugin_pkg_json.js';
 
 export default defineConfig(({ mode }) => ({
+	server: {
+		// Vite watches the whole root, an inotify watch per file, and gro's `.gro/` output
+		// needn't come out of the user's `max_user_watches` budget
+		watch: { ignored: ['**/.gro/**'] }
+	},
 	plugins: [sveltekit(), svelte_docinfo(), vite_plugin_fuz_css(), vite_plugin_pkg_json()],
 	// In test mode, use browser conditions so Svelte's mount() resolves to the client version
 	resolve: mode === 'test' ? { conditions: ['browser'] } : undefined,
