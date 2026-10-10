@@ -12,6 +12,7 @@
 	const {
 		path,
 		selected_path,
+		root_path,
 		base_path,
 		separator,
 		children,
@@ -26,6 +27,12 @@
 		 * `null` means none and `undefined` is detected from the current url.
 		 */
 		selected_path?: string | null | undefined;
+		/**
+		 * Where the root link goes, prefixed with a slash and relative to the base path,
+		 * e.g. `'/docs'` on a home page, where linking to the root would link to itself.
+		 * Defaults to the root.
+		 */
+		root_path?: string;
 		/**
 		 * Sets a custom base path of `path` and `selected_path`.
 		 * Defaults to `base` from `$app/paths`.
@@ -53,7 +60,9 @@
 
 	const path_pieces = $derived(parse_path_pieces(final_path));
 
-	const root_path = $derived(ensure_end(final_base_path, '/'));
+	const root_href = $derived(
+		root_path === undefined ? ensure_end(final_base_path, '/') : final_base_path + root_path
+	);
 
 	// TODO animate these
 	// `transition:slide={{axis: 'x'}}`
@@ -61,7 +70,7 @@
 
 <div {...rest} class="breadcrumb {rest.class}">
 	<!-- eslint-disable-next-line svelte/no-navigation-without-resolve -->
-	<a href={root_path} class={{ selected: root_path === final_base_path + final_selected_path }}>
+	<a href={root_href} class={{ selected: root_href === final_base_path + final_selected_path }}>
 		{#if children}
 			{@render children()}
 		{:else if icon_data}

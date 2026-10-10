@@ -60,6 +60,25 @@
 </Docs>`}
 		/>
 		<p>
+			Optional snippets add to the layout: <code>primary_nav</code> renders in the top bar after the
+			breadcrumb, <code>secondary_nav_header</code> and <code>secondary_nav_footer</code> above and
+			below the tome menu (in the sidebar, and in the menu dialog on narrow screens, where the top
+			bar has little room), and <code>footer</code> replaces the default footer, which links to
+			fuz.dev:
+		</p>
+		<Code
+			lang="svelte"
+			content={`<Docs {tomes}>
+  {#snippet primary_nav()}
+    <a href={resolve('/results')}>results</a>
+  {/snippet}
+  {#snippet footer()}
+    <DocsFooter repo_url={site.repo_url} />
+  {/snippet}
+  {@render children()}
+</Docs>`}
+		/>
+		<p>
 			For live and complete examples, see the docs layouts in
 			<GithubLink path="fuzdev/fuz_ui/blob/main/src/routes/docs/%2Blayout.svelte">
 				fuz_ui

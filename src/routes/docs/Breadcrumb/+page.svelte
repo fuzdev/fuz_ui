@@ -54,6 +54,15 @@ site_context.set(new SiteState({icon: logo_fuz, glyph: '🧶'}));`}
 		</Breadcrumb>
 	</TomeSection>
 	<TomeSection>
+		<TomeSectionHeader text="With a custom root link" />
+		<p>
+			<Code inline content="root_path" /> sets where the root link goes, relative to the base path.
+			On a home page the root link would link to the page itself, so it can lead elsewhere:
+		</p>
+		<Code content={`<Breadcrumb root_path="/docs" />`} />
+		<Breadcrumb root_path="/docs" />
+	</TomeSection>
+	<TomeSection>
 		<TomeSectionHeader text="With custom paths" />
 		<BreadcrumbExample selected_path="/a/b" />
 	</TomeSection>

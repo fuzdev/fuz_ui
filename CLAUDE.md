@@ -136,9 +136,13 @@ components render TSDoc prose as mdz via `@fuzdev/mdz`, injecting `DocsLink`
 
 Docs layout:
 
-- `Docs` — three-column layout; sets `tomes_context` + `docs_links_context`
+- `Docs` — three-column layout; sets `tomes_context` + `docs_links_context`;
+  optional snippets: `primary_nav` (top bar, after the breadcrumb),
+  `secondary_nav_header` / `secondary_nav_footer` (around the tome menu), and
+  `footer` (replaces the default `DocsFooter`)
 - `DocsPrimaryNav` — top bar with breadcrumb and menu toggle
-- `DocsSecondaryNav` — left sidebar; tome list grouped by category
+- `DocsSecondaryNav` — left sidebar; tome list grouped by category, with optional
+  `header` / `footer` snippets
 - `DocsTertiaryNav` — right sidebar; section headers within the current page
 - `DocsContent` — content wrapper for docs pages
 - `DocsFooter` — footer with library info and breadcrumb
