@@ -103,12 +103,15 @@
 		align-items: center;
 		font-size: var(--font_size, var(--font_size_md));
 	}
+	/* at least one line of text tall, so a root link holding only an icon is as tall as a
+	 * breadcrumb with path pieces, and the layout around it doesn't shift between pages */
 	a {
 		position: relative;
 		z-index: 1;
 		padding: 0 calc(var(--font_size, var(--font_size_md)) * 0.5);
 		display: flex;
 		align-items: center;
+		min-height: 1lh;
 	}
 	.separator {
 		position: relative;
