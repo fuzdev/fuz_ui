@@ -1,5 +1,15 @@
 # @fuzdev/fuz_ui
 
+## 0.213.0
+
+### Minor Changes
+
+- **breaking** feat: support SvelteKit 3 (`@sveltejs/kit` peer `^3`, `@fuzdev/gro` peer `>=0.214.0`, the first Gro that supports SvelteKit 3) ([f24dc56](https://github.com/fuzdev/fuz_ui/commit/f24dc56))
+
+  - `Redirect` navigates with kit 3's `goto` option `replace` (was the deprecated `replaceState`), and falls back to `location.replace` for URLs `goto` rejects - kit 3's `goto` rejects same-origin URLs that aren't app routes, and `Redirect` to another host now redirects client-side too
+  - `href_is_current_page` takes any `Pick<URL, 'href' | 'origin' | 'pathname'>`, so kit 3's readonly `page.url` fits
+  - `create_csp_directives` TSDoc names the flat `csp.directives` option passed to `sveltekit()`
+
 ## 0.212.0
 
 ### Minor Changes
