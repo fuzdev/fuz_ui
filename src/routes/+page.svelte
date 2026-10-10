@@ -40,10 +40,7 @@
 		</section>
 		<section>
 			<!-- TODO add color variants -->
-			<Card href={DOCS_PATH}>
-				docs
-				{#snippet icon()}{site.glyph}{/snippet}
-			</Card>
+			<Card href={DOCS_PATH} icon={site.glyph}>docs</Card>
 		</section>
 		<section class="panel p_lg shadow_inset_xs">
 			<ProjectLinks />

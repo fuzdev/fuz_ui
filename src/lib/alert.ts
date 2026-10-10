@@ -4,7 +4,7 @@ export type AlertStatus = 'inform' | 'help' | 'error';
 
 export interface AlertStatusOptions {
 	color: string;
-	icon: string | null;
+	icon: string;
 }
 
 export const alert_status_options: Record<AlertStatus, AlertStatusOptions> = {

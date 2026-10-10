@@ -208,6 +208,9 @@ mdz itself (`Mdz`, `MdzRoot`, `MdzStream`, the preprocessor) lives in `@fuzdev/m
 - `dialog.ts` - dialog types and `dialog_context` (`DialogContext`, `DialogAlign`,
   `DialogCloseButtonAttrs`)
 - `alert.ts` - alert utilities
+- `page_helpers.ts` - `href_is_current_page()`, whether a link leads to the
+  current page (behind `Card`'s `selected` and `ContextmenuLinkEntry`'s
+  `aria-current`)
 - `storage.ts` - localStorage utilities with optional `parse_fn` for custom parsing
 - `csp.ts` - Content Security Policy builder utilities
 - `dimensions.svelte.ts` - `Dimensions` class for width/height tracking
