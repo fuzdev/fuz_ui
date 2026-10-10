@@ -1,13 +1,13 @@
 <script lang="ts">
 	import Code from '@fuzdev/fuz_code/Code.svelte';
 
-	import MdnLink from '$lib/MdnLink.svelte';
-	import TomeSectionHeader from '$lib/TomeSectionHeader.svelte';
-	import TomeSection from '$lib/TomeSection.svelte';
-	import DeclarationLink from '$lib/DeclarationLink.svelte';
-	import Contextmenu from '$lib/Contextmenu.svelte';
-	import ContextmenuEntry from '$lib/ContextmenuEntry.svelte';
-	import Details from '$lib/Details.svelte';
+	import MdnLink from '#lib/MdnLink.svelte';
+	import TomeSectionHeader from '#lib/TomeSectionHeader.svelte';
+	import TomeSection from '#lib/TomeSection.svelte';
+	import DeclarationLink from '#lib/DeclarationLink.svelte';
+	import Contextmenu from '#lib/Contextmenu.svelte';
+	import ContextmenuEntry from '#lib/ContextmenuEntry.svelte';
+	import Details from '#lib/Details.svelte';
 	import RootComponentSelector from './RootComponentSelector.svelte';
 	import { selected_contextmenu_root_component_context } from './selected_root_component.svelte.ts';
 

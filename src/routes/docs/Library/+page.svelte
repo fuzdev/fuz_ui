@@ -1,10 +1,10 @@
 <script lang="ts">
 	import Code from '@fuzdev/fuz_code/Code.svelte';
 
-	import { tome_get_by_slug } from '$lib/tome.ts';
-	import TomeContent from '$lib/TomeContent.svelte';
-	import DeclarationLink from '$lib/DeclarationLink.svelte';
-	import TomeLink from '$lib/TomeLink.svelte';
+	import { tome_get_by_slug } from '#lib/tome.ts';
+	import TomeContent from '#lib/TomeContent.svelte';
+	import DeclarationLink from '#lib/DeclarationLink.svelte';
+	import TomeLink from '#lib/TomeLink.svelte';
 
 	const TOME_SLUG = 'Library';
 	const tome = tome_get_by_slug(TOME_SLUG);
@@ -43,7 +43,7 @@ const library = new Library(library_json);`}
 			content={`<!-- src/routes/docs/+layout.svelte -->
 <script lang="ts">
   import {Library, library_context} from '@fuzdev/fuz_ui/library.svelte.js';
-  import {library_json} from '$routes/library.js';
+  import {library_json} from '#routes/library.ts';
 
   const library = new Library(library_json);
   library_context.set(() => library);

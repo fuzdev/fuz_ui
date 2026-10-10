@@ -1,12 +1,12 @@
 <script lang="ts">
 	import Code from '@fuzdev/fuz_code/Code.svelte';
 
-	import { tome_get_by_slug } from '$lib/tome.ts';
-	import Breadcrumb from '$lib/Breadcrumb.svelte';
-	import TomeContent from '$lib/TomeContent.svelte';
+	import { tome_get_by_slug } from '#lib/tome.ts';
+	import Breadcrumb from '#lib/Breadcrumb.svelte';
+	import TomeContent from '#lib/TomeContent.svelte';
 	import BreadcrumbExample from './BreadcrumbExample.svelte';
-	import TomeSectionHeader from '$lib/TomeSectionHeader.svelte';
-	import TomeSection from '$lib/TomeSection.svelte';
+	import TomeSectionHeader from '#lib/TomeSectionHeader.svelte';
+	import TomeSection from '#lib/TomeSection.svelte';
 
 	const TOME_SLUG = 'Breadcrumb';
 	const tome = tome_get_by_slug(TOME_SLUG);

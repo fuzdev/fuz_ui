@@ -4,12 +4,12 @@
 	import { render_theme_style } from '@fuzdev/fuz_css/theme.ts';
 	import type { StyleVariable, Theme } from '@fuzdev/fuz_css/variable.ts';
 
-	import CopyToClipboard from '$lib/CopyToClipboard.svelte';
-	import Dialog from '$lib/Dialog.svelte';
-	import DialogContent from '$lib/DialogContent.svelte';
+	import CopyToClipboard from '#lib/CopyToClipboard.svelte';
+	import Dialog from '#lib/Dialog.svelte';
+	import DialogContent from '#lib/DialogContent.svelte';
 	import StyleVariableDetail from './StyleVariableDetail.svelte';
 
-	// TODO @many add to $lib?
+	// TODO @many add to `src/lib`?
 
 	// TODO should this be merged with `ThemeInput`?
 

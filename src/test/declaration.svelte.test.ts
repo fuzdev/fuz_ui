@@ -2,8 +2,8 @@ import { test, assert, describe } from 'vitest';
 import type { DeclarationJsonInput, TypeJson } from 'svelte-docinfo/types.js';
 import { typeJsonToText } from 'svelte-docinfo/declaration-helpers.js';
 
-import { Declaration } from '$lib/declaration.svelte.ts';
-import type { Module } from '$lib/module.svelte.ts';
+import { Declaration } from '#lib/declaration.svelte.ts';
+import type { Module } from '#lib/module.svelte.ts';
 
 // The fields under test read only `declaration_json` and `name`, so a bare
 // module stub suffices; the loose input cast mirrors the runtime's untyped

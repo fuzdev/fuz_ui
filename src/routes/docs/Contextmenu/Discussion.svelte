@@ -1,8 +1,8 @@
 <script lang="ts">
-	import MdnLink from '$lib/MdnLink.svelte';
-	import TomeSectionHeader from '$lib/TomeSectionHeader.svelte';
-	import TomeSection from '$lib/TomeSection.svelte';
-	import DeclarationLink from '$lib/DeclarationLink.svelte';
+	import MdnLink from '#lib/MdnLink.svelte';
+	import TomeSectionHeader from '#lib/TomeSectionHeader.svelte';
+	import TomeSection from '#lib/TomeSection.svelte';
+	import DeclarationLink from '#lib/DeclarationLink.svelte';
 	import RootComponentSelector from './RootComponentSelector.svelte';
 </script>
 

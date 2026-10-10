@@ -2,14 +2,14 @@
 	import Code from '@fuzdev/fuz_code/Code.svelte';
 	import { pkg_json_keys } from '@fuzdev/fuz_util/pkg_json.ts';
 
-	import { tome_get_by_slug } from '$lib/tome.ts';
-	import TomeContent from '$lib/TomeContent.svelte';
-	import TomeSection from '$lib/TomeSection.svelte';
-	import TomeSectionHeader from '$lib/TomeSectionHeader.svelte';
-	import DeclarationLink from '$lib/DeclarationLink.svelte';
-	import ModuleLink from '$lib/ModuleLink.svelte';
-	import TomeLink from '$lib/TomeLink.svelte';
-	import GithubLink from '$lib/GithubLink.svelte';
+	import { tome_get_by_slug } from '#lib/tome.ts';
+	import TomeContent from '#lib/TomeContent.svelte';
+	import TomeSection from '#lib/TomeSection.svelte';
+	import TomeSectionHeader from '#lib/TomeSectionHeader.svelte';
+	import DeclarationLink from '#lib/DeclarationLink.svelte';
+	import ModuleLink from '#lib/ModuleLink.svelte';
+	import TomeLink from '#lib/TomeLink.svelte';
+	import GithubLink from '#lib/GithubLink.svelte';
 
 	const TOME_SLUG = 'vite_plugin_pkg_json';
 	const tome = tome_get_by_slug(TOME_SLUG);
@@ -170,7 +170,7 @@ library_json_from_modules(pkg_json, modules, custom_keys);`}
 			lang="ts"
 			content={`// src/app.d.ts\ndeclare module 'virtual:pkg.json' {
 	import type {PackageJson} from '@fuzdev/fuz_util/package_json.js';
-	import type {custom_keys} from '$routes/pkg_json_keys.js';
+	import type {custom_keys} from '#routes/pkg_json_keys.ts';
 	const pkg_json: Pick<PackageJson, (typeof custom_keys)[number]>;
 	export default pkg_json;
 }`}

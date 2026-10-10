@@ -1,9 +1,9 @@
 <script lang="ts">
 	import Code from '@fuzdev/fuz_code/Code.svelte';
-	import TomeContent from '$lib/TomeContent.svelte';
-	import TomeSection from '$lib/TomeSection.svelte';
-	import TomeSectionHeader from '$lib/TomeSectionHeader.svelte';
-	import { tome_get_by_slug } from '$lib/tome.ts';
+	import TomeContent from '#lib/TomeContent.svelte';
+	import TomeSection from '#lib/TomeSection.svelte';
+	import TomeSectionHeader from '#lib/TomeSectionHeader.svelte';
+	import { tome_get_by_slug } from '#lib/tome.ts';
 
 	const TOME_SLUG = 'introduction';
 
@@ -40,16 +40,22 @@
 			<a href="https://mdz.fuz.dev/docs/svelte_preprocess_mdz">preprocessor</a>:
 		</p>
 		<Code
-			lang="js"
-			content={`// svelte.config.js
+			lang="ts"
+			content={`// vite.config.ts
+import {defineConfig} from 'vite';
+import {sveltekit} from '@sveltejs/kit/vite';
 import {svelte_preprocess_mdz} from '@fuzdev/mdz/svelte_preprocess_mdz.js';
 
-export default {
-  preprocess: [
-    svelte_preprocess_mdz(),
-    // ...other preprocessors
+export default defineConfig({
+  plugins: [
+    sveltekit({
+      preprocess: [
+        svelte_preprocess_mdz(),
+        // ...other preprocessors
+      ],
+    }),
   ],
-};`}
+});`}
 		/>
 	</TomeSection>
 	<section>

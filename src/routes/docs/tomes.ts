@@ -1,4 +1,4 @@
-import type { Tome } from '$lib/tome.ts';
+import type { Tome } from '#lib/tome.ts';
 import introduction from './introduction/+page.svelte';
 import ThemeRoot from './ThemeRoot/+page.svelte';
 import PendingAnimation from './PendingAnimation/+page.svelte';

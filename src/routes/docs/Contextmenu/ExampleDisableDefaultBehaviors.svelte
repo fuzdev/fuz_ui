@@ -2,11 +2,11 @@
 	import { resolve } from '$app/paths';
 	import Code from '@fuzdev/fuz_code/Code.svelte';
 
-	import ContextmenuEntry from '$lib/ContextmenuEntry.svelte';
-	import Contextmenu from '$lib/Contextmenu.svelte';
-	import { ContextmenuState } from '$lib/contextmenu_state.svelte.ts';
-	import TomeSectionHeader from '$lib/TomeSectionHeader.svelte';
-	import TomeSection from '$lib/TomeSection.svelte';
+	import ContextmenuEntry from '#lib/ContextmenuEntry.svelte';
+	import Contextmenu from '#lib/Contextmenu.svelte';
+	import { ContextmenuState } from '#lib/contextmenu_state.svelte.ts';
+	import TomeSectionHeader from '#lib/TomeSectionHeader.svelte';
+	import TomeSection from '#lib/TomeSection.svelte';
 	import { selected_contextmenu_root_component_context } from './selected_root_component.svelte.ts';
 
 	const selected = selected_contextmenu_root_component_context.get();

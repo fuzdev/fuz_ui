@@ -1,6 +1,6 @@
 import { assert, describe, test } from 'vitest';
 
-import { href_is_current_page } from '$lib/page_helpers.ts';
+import { href_is_current_page } from '#lib/page_helpers.ts';
 
 const url = new URL('https://fuz.dev/docs/Card?q=1#top');
 

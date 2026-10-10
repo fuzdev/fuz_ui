@@ -1,14 +1,14 @@
 <script lang="ts">
 	import Code from '@fuzdev/fuz_code/Code.svelte';
 
-	import GithubLink from '$lib/GithubLink.svelte';
-	import { tome_get_by_slug } from '$lib/tome.ts';
-	import TomeContent from '$lib/TomeContent.svelte';
-	import MdnLink from '$lib/MdnLink.svelte';
-	import { csp_directive_specs } from '$lib/csp.ts';
-	import TomeSectionHeader from '$lib/TomeSectionHeader.svelte';
-	import TomeSection from '$lib/TomeSection.svelte';
-	import DeclarationLink from '$lib/DeclarationLink.svelte';
+	import GithubLink from '#lib/GithubLink.svelte';
+	import { tome_get_by_slug } from '#lib/tome.ts';
+	import TomeContent from '#lib/TomeContent.svelte';
+	import MdnLink from '#lib/MdnLink.svelte';
+	import { csp_directive_specs } from '#lib/csp.ts';
+	import TomeSectionHeader from '#lib/TomeSectionHeader.svelte';
+	import TomeSection from '#lib/TomeSection.svelte';
+	import DeclarationLink from '#lib/DeclarationLink.svelte';
 
 	const TOME_SLUG = 'csp';
 	const tome = tome_get_by_slug(TOME_SLUG);
@@ -42,8 +42,8 @@
 
 // Default CSP — restrictive defaults from \`csp_directive_value_defaults\`.
 const csp = create_csp_directives();
-// Use in svelte.config.js:
-// export default {kit: {csp: {directives: csp}}}
+// Use in vite.config.ts:
+// sveltekit({csp: {directives: csp}})
 
 // Layer in your own sources per directive:
 const csp_with_sources = create_csp_directives({

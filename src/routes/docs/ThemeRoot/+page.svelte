@@ -3,19 +3,19 @@
 	import type { Theme } from '@fuzdev/fuz_css/variable.ts';
 	import { default_themes } from '@fuzdev/fuz_css/themes.ts';
 
-	import TomeContent from '$lib/TomeContent.svelte';
-	import Details from '$lib/Details.svelte';
-	import Dialog from '$lib/Dialog.svelte';
-	import DialogContent from '$lib/DialogContent.svelte';
-	import { tome_get_by_slug } from '$lib/tome.ts';
-	import ColorSchemeInput from '$lib/ColorSchemeInput.svelte';
-	import TomeSectionHeader from '$lib/TomeSectionHeader.svelte';
-	import TomeSection from '$lib/TomeSection.svelte';
-	import ThemeInput from '$lib/ThemeInput.svelte';
-	import ThemeForm from '$routes/ThemeForm.svelte';
-	import MdnLink from '$lib/MdnLink.svelte';
-	import DeclarationLink from '$lib/DeclarationLink.svelte';
-	import { theme_state_context } from '$lib/theme_state.svelte.ts';
+	import TomeContent from '#lib/TomeContent.svelte';
+	import Details from '#lib/Details.svelte';
+	import Dialog from '#lib/Dialog.svelte';
+	import DialogContent from '#lib/DialogContent.svelte';
+	import { tome_get_by_slug } from '#lib/tome.ts';
+	import ColorSchemeInput from '#lib/ColorSchemeInput.svelte';
+	import TomeSectionHeader from '#lib/TomeSectionHeader.svelte';
+	import TomeSection from '#lib/TomeSection.svelte';
+	import ThemeInput from '#lib/ThemeInput.svelte';
+	import ThemeForm from '#routes/ThemeForm.svelte';
+	import MdnLink from '#lib/MdnLink.svelte';
+	import DeclarationLink from '#lib/DeclarationLink.svelte';
+	import { theme_state_context } from '#lib/theme_state.svelte.ts';
 
 	const TOME_SLUG = 'ThemeRoot';
 

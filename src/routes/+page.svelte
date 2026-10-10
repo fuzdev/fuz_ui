@@ -1,14 +1,14 @@
 <script lang="ts">
 	import { resolve } from '$app/paths';
 
-	import DocsFooter from '$lib/DocsFooter.svelte';
-	import Card from '$lib/Card.svelte';
-	import ProjectLinks from '$lib/ProjectLinks.svelte';
-	import { site_context } from '$lib/site.svelte.ts';
-	import Svg from '$lib/Svg.svelte';
-	import { logo_fuz_ui } from '$lib/logos.ts';
-	import { FUZ_DEV_URL, MAIN_HEADER_MARGIN_TOP } from '$lib/constants.ts';
-	import { DOCS_PATH } from '$lib/docs_helpers.svelte.ts';
+	import DocsFooter from '#lib/DocsFooter.svelte';
+	import Card from '#lib/Card.svelte';
+	import ProjectLinks from '#lib/ProjectLinks.svelte';
+	import { site_context } from '#lib/site.svelte.ts';
+	import Svg from '#lib/Svg.svelte';
+	import { logo_fuz_ui } from '#lib/logos.ts';
+	import { FUZ_DEV_URL, MAIN_HEADER_MARGIN_TOP } from '#lib/constants.ts';
+	import { DOCS_PATH } from '#lib/docs_helpers.svelte.ts';
 
 	const site = site_context.get();
 </script>

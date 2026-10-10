@@ -14,12 +14,15 @@ const strip_trailing_slash = (pathname: string): string =>
  * against `url`, as a browser resolves it.
  *
  * @param href - a link's `href`, absolute or relative
- * @param url - the current page's url, e.g. `page.url`
+ * @param url - the current page's url, e.g. SvelteKit's readonly `page.url`
  * @returns `false` for an `href` that isn't a valid url
  */
-export const href_is_current_page = (href: string, url: URL): boolean => {
-	if (!URL.canParse(href, url)) return false;
-	const target = new URL(href, url);
+export const href_is_current_page = (
+	href: string,
+	url: Pick<URL, 'href' | 'origin' | 'pathname'>
+): boolean => {
+	if (!URL.canParse(href, url.href)) return false;
+	const target = new URL(href, url.href);
 	return (
 		target.origin === url.origin &&
 		strip_trailing_slash(target.pathname) === strip_trailing_slash(url.pathname)

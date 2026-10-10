@@ -1,10 +1,10 @@
 <script lang="ts">
 	import Code from '@fuzdev/fuz_code/Code.svelte';
 
-	import { tome_get_by_slug } from '$lib/tome.ts';
-	import Redirect from '$lib/Redirect.svelte';
-	import MdnLink from '$lib/MdnLink.svelte';
-	import TomeContent from '$lib/TomeContent.svelte';
+	import { tome_get_by_slug } from '#lib/tome.ts';
+	import Redirect from '#lib/Redirect.svelte';
+	import MdnLink from '#lib/MdnLink.svelte';
+	import TomeContent from '#lib/TomeContent.svelte';
 
 	const TOME_SLUG = 'Redirect';
 	const tome = tome_get_by_slug(TOME_SLUG);

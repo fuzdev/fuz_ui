@@ -1,11 +1,11 @@
 <script lang="ts">
 	import Code from '@fuzdev/fuz_code/Code.svelte';
 
-	import GithubLink from '$lib/GithubLink.svelte';
-	import { tome_get_by_slug } from '$lib/tome.ts';
-	import TomeContent from '$lib/TomeContent.svelte';
-	import DeclarationLink from '$lib/DeclarationLink.svelte';
-	import TomeLink from '$lib/TomeLink.svelte';
+	import GithubLink from '#lib/GithubLink.svelte';
+	import { tome_get_by_slug } from '#lib/tome.ts';
+	import TomeContent from '#lib/TomeContent.svelte';
+	import DeclarationLink from '#lib/DeclarationLink.svelte';
+	import TomeLink from '#lib/TomeLink.svelte';
 
 	const TOME_SLUG = 'Docs';
 	const tome = tome_get_by_slug(TOME_SLUG);
@@ -46,8 +46,8 @@
 <script lang="ts">
   import Docs from '@fuzdev/fuz_ui/Docs.svelte';
   import {Library, library_context} from '@fuzdev/fuz_ui/library.svelte.js';
-  import {library_json} from '$routes/library.js';
-  import {tomes} from '$routes/docs/tomes.js';
+  import {library_json} from '#routes/library.ts';
+  import {tomes} from '#routes/docs/tomes.ts';
 
   const {children} = $props();
 
