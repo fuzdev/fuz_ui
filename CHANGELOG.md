@@ -1,5 +1,19 @@
 # @fuzdev/fuz_ui
 
+## 0.212.0
+
+### Minor Changes
+
+- **breaking** feat: `Card`'s `align` takes logical values, `'start' | 'end' | 'top' | 'bottom'` in place of `'left' | 'right' | 'above' | 'below'`, and `tag` is typed as an HTML tag name ([9ca7313](https://github.com/fuzdev/fuz_ui/commit/9ca7313))
+- **breaking** feat: `Card` shows no icon unless given one, where it defaulted to 🔗 for a link and 🪧 otherwise, and an absent, `null`, or empty `icon` renders no icon element; pass `icon="🔗"` to keep the old look, and drop `icon=""` and empty `{#snippet icon()}{/snippet}` opt-outs ([9ca7313](https://github.com/fuzdev/fuz_ui/commit/9ca7313))
+- feat: `href_is_current_page` in `page_helpers.ts`, whether a link leads to the current page ignoring a trailing slash, the query, and the hash; `Card`'s `selected` and `ContextmenuLinkEntry`'s `aria-current` use it in place of an exact pathname match ([9ca7313](https://github.com/fuzdev/fuz_ui/commit/9ca7313))
+
+### Patch Changes
+
+- fix: `Alert`'s icon is `aria-hidden`, an empty `icon` renders none as `null` does, and `AlertStatusOptions.icon` is a `string`, so each status shows its own icon rather than falling back to `inform`'s ([9ca7313](https://github.com/fuzdev/fuz_ui/commit/9ca7313))
+- fix: `Breadcrumb` links are at least one line tall, so a breadcrumb holding only the root icon is as tall as one with path pieces, and a header around it doesn't shift between pages ([94b7bbc](https://github.com/fuzdev/fuz_ui/commit/94b7bbc))
+- fix: `Card`'s icon is `aria-hidden`, an icon on top or bottom stays centered on narrow screens, and `tag="button"` defaults to `type="button"` ([9ca7313](https://github.com/fuzdev/fuz_ui/commit/9ca7313))
+
 ## 0.211.0
 
 ### Minor Changes
