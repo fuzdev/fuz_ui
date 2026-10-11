@@ -55,6 +55,7 @@ including parameters, props, members, overloads, external types, and more.
 		examples?: Array<string>;
 		seeAlso?: Array<string>;
 		throws?: Array<{ type?: string; description: string }>;
+		mutates?: Record<string, string>;
 	}
 </script>
 
@@ -97,7 +98,7 @@ including parameters, props, members, overloads, external types, and more.
 	</div>
 {/snippet}
 
-<!-- Compact prose metadata for props and members (deprecated, internal, since, examples, see also, throws). -->
+<!-- Compact prose metadata for props and members (deprecated, internal, since, examples, see also, throws, mutates). -->
 {#snippet doc_extras(item: DocExtras)}
 	<!-- eslint-disable-next-line @typescript-eslint/no-deprecated -->
 	{#if item.deprecatedMessage !== undefined}
@@ -139,6 +140,16 @@ including parameters, props, members, overloads, external types, and more.
 					{:else}
 						{thrown.description}
 					{/if}
+				</li>
+			{/each}
+		</ul>
+	{/if}
+	{#if item.mutates && Object.keys(item.mutates).length}
+		<p><strong>mutates</strong></p>
+		<ul>
+			{#each Object.entries(item.mutates) as [target, description] (target)}
+				<li>
+					<code>{target}</code>{#if description}{' '}— {description}{/if}
 				</li>
 			{/each}
 		</ul>
@@ -337,7 +348,8 @@ including parameters, props, members, overloads, external types, and more.
 {/if}
 
 <!-- external types whose contributions are filtered out of (or, on
-	interfaces/classes, never enumerated in) props/members -->
+	interfaces/classes, never enumerated in) props/members; a component prop
+	its `$props()` destructuring names is documented anyway -->
 {#if external_types_not_inherited}
 	<section>
 		<h4>external types</h4>
@@ -435,7 +447,9 @@ including parameters, props, members, overloads, external types, and more.
 		<h4>mutates</h4>
 		<ul>
 			{#each Object.entries(declaration.mutates) as [param, description] (param)}
-				<li><code>{param}</code> — {description}</li>
+				<li>
+					<code>{param}</code>{#if description}{' '}— {description}{/if}
+				</li>
 			{/each}
 		</ul>
 	</section>
