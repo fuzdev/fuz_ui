@@ -1,0 +1,1 @@
+.icon_grid.svelte-fkfv4r{--icon_grid_gap:var(--space_lg);grid-template-columns:repeat(auto-fit, minmax(max(200px, (100% - 3 * var(--icon_grid_gap)) / 4), 1fr));gap:var(--icon_grid_gap);display:grid}li.svelte-fkfv4r svg{background-color:var(--shade_05)}.icon_name.svelte-fkfv4r{font-family:var(--font_family_mono);font-size:var(--font_size_sm);margin-top:var(--space_xs)}

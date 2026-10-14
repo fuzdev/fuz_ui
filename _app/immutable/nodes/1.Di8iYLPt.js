@@ -1,0 +1,1 @@
+import{Ct as e,H as t,W as n,at as r,dt as i,ft as a,pt as o,wt as s,z as c}from"../chunks/CmwoW_WP.js";import{t as l}from"../chunks/DIi0oe83.js";import"../chunks/u_vYR6dJ.js";var u=n(`<h1> </h1> <p> </p>`,1);function d(n,d){s(d,!0);var f=u(),p=i(f),m=a(p,!0),h=o(p,2),g=a(h,!0);r(()=>{c(m,l.status),c(g,l.error?.message)}),t(n,f),e()}export{d as component};
