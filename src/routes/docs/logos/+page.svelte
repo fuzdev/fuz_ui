@@ -17,7 +17,11 @@
 		logo_fuz_template,
 		logo_fuz_util,
 		logo_fuz_ui,
-		logo_tsv
+		logo_tsv,
+		logo_fuz_app,
+		logo_fuz_docs,
+		logo_fuz_host,
+		logo_svelte_docinfo
 	} from '#lib/logos.ts';
 
 	const TOME_SLUG = 'logos';
@@ -47,6 +51,12 @@
 					<Svg data={logo_fuz_ui} size="var(--icon_size_xl3)" />
 				</a>
 				<Code content={`<Svg data={logo_fuz_ui} />`} />
+			</li>
+			<li>
+				<a class="box" href="https://app.fuz.dev/">
+					<Svg data={logo_fuz_app} size="var(--icon_size_xl3)" />
+				</a>
+				<Code content={`<Svg data={logo_fuz_app} />`} />
 			</li>
 			<li>
 				<a class="box" href="https://css.fuz.dev/">
@@ -85,10 +95,22 @@
 				<Code content={`<Svg data={logo_fuz_repos} />`} />
 			</li>
 			<li>
+				<a class="box" href="https://docs.fuz.dev/">
+					<Svg data={logo_fuz_docs} size="var(--icon_size_xl3)" />
+				</a>
+				<Code content={`<Svg data={logo_fuz_docs} />`} />
+			</li>
+			<li>
 				<a class="box" href="https://util.fuz.dev/">
 					<Svg data={logo_fuz_util} size="var(--icon_size_xl3)" />
 				</a>
 				<Code content={`<Svg data={logo_fuz_util} />`} />
+			</li>
+			<li>
+				<a class="box" href="https://host.fuz.dev/">
+					<Svg data={logo_fuz_host} size="var(--icon_size_xl3)" />
+				</a>
+				<Code content={`<Svg data={logo_fuz_host} />`} />
 			</li>
 			<li>
 				<a class="box" href="https://gro.ryanatkn.com/">
@@ -101,6 +123,12 @@
 					<Svg data={logo_tsv} size="var(--icon_size_xl3)" />
 				</a>
 				<Code content={`<Svg data={logo_tsv} />`} />
+			</li>
+			<li>
+				<a class="box" href="https://svelte-docinfo.fuz.dev/">
+					<Svg data={logo_svelte_docinfo} size="var(--icon_size_xl3)" />
+				</a>
+				<Code content={`<Svg data={logo_svelte_docinfo} />`} />
 			</li>
 			<li>
 				<a class="box" href="https://github.com/">
