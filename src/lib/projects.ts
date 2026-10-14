@@ -10,6 +10,7 @@ import {
 	logo_fuz_template,
 	logo_fuz_css,
 	logo_fuz_util,
+	logo_fuz_host,
 	logo_gro,
 	logo_svelte_docinfo,
 	logo_fuz_app,
@@ -41,6 +42,7 @@ export const project_items: Array<ProjectItem> = [
 	{name: 'fuz_repos', url: 'https://repos.fuz.dev/', logo: logo_fuz_repos, description: 'a tool for managing many repos', glyph: '🪄', color_class: 'color_a_50'},
 	{name: 'svelte-docinfo', url: 'https://svelte-docinfo.fuz.dev/', logo: logo_svelte_docinfo, description: 'static analysis for TypeScript and Svelte', glyph: '📜', color_class: 'color_i_50'},
 	{name: 'fuz_util', url: 'https://util.fuz.dev/', logo: logo_fuz_util, description: 'utility belt for JS', glyph: '🦕', color_class: 'color_f_50'},
+	{name: 'fuz_host', url: 'https://host.fuz.dev/', logo: logo_fuz_host, description: 'host APIs for JS: filesystem, processes, and the OS, one import across runtimes', glyph: '🐚', color_class: 'color_f_50'},
 	{name: 'gro', url: 'https://github.com/fuzdev/gro', logo: logo_gro, description: 'task runner and toolkit extending SvelteKit', glyph: '🌰', color_class: 'color_f_50'},
 	{name: 'tsv', url: 'https://tsv.fuz.dev/', logo: logo_tsv, description: 'precise language tools for TypeScript/JS, CSS, and Svelte in Rust', glyph: '🪶', color_class: 'color_h_50'},
 ];
