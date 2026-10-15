@@ -1,0 +1,1 @@
+export{t as component}from"../chunks/BJTR2ce1.js";
