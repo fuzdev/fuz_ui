@@ -1,5 +1,14 @@
 # @fuzdev/fuz_ui
 
+## 0.215.0
+
+### Minor Changes
+
+- **breaking** fix: `DocsList` and `Card` use fuz*css 0.67's `--ink*\*`overlays, and the`@fuzdev/fuz_css`peer is`>=0.67.0` ([024ab0d](https://github.com/fuzdev/fuz_ui/commit/024ab0d))
+
+  - under fuz*css 0.67 the `--fg*\*`variables they used are gone, so the docs menu lost its hover, selected, and highlighted backgrounds and`Card` its fill
+  - upgrade `@fuzdev/fuz_css` to 0.67 with this release; `--ink_*` doesn't exist before it
+
 ## 0.214.0
 
 ### Minor Changes
