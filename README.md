@@ -83,4 +83,4 @@ If you're not allergic it's handy to install globally.
 
 ## License 🐦
 
-[MIT](LICENSE)
+[0BSD](LICENSE)
