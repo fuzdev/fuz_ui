@@ -1,5 +1,18 @@
 # @fuzdev/fuz_ui
 
+## 0.214.0
+
+### Minor Changes
+
+- **breaking** feat: `Tome` is a TypeScript interface instead of a zod schema, and zod is no longer a peer dependency ([dec6b20](https://github.com/fuzdev/fuz_ui/commit/dec6b20))
+
+  - import `Tome` as a type, `import type {Tome}` or `{type Tome}`: it has no runtime value now, so a plain `import {Tome}` fails `verbatimModuleSyntax` (SvelteKit's default) and, in a `.svelte` file, fails to load with a missing export; code that already imports it as a type changes nothing
+  - `Tome.parse`, `Tome.safeParse`, `Tome.shape`, and the rest of the zod schema are gone; validate tomes with your own schema if you need to
+
+### Patch Changes
+
+- feat: `DeclarationDetail` renders `@mutates` on component props and class/interface members, not just top-level declarations, and a bare `@mutates target` no longer renders a dangling dash ([c510d86](https://github.com/fuzdev/fuz_ui/commit/c510d86))
+
 ## 0.213.0
 
 ### Minor Changes
