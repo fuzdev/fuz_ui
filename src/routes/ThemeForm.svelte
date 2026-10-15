@@ -35,7 +35,7 @@
 
 	const code = $derived(render_theme_style(new_theme));
 
-	const light_count = $derived(new_variables.reduce((c, v) => (v.light ? c + 1 : c), 0));
+	const base_count = $derived(new_variables.reduce((c, v) => (v.base ? c + 1 : c), 0));
 	const dark_count = $derived(new_variables.reduce((c, v) => (v.dark ? c + 1 : c), 0));
 
 	let selected_variable: StyleVariable | null = $state.raw(null);
@@ -71,7 +71,7 @@
 	</aside>
 	<header>
 		<div class="flex:1">
-			<p>variables: {light_count} light, {dark_count} dark</p>
+			<p>variables: {base_count} base, {dark_count} dark</p>
 			<button type="button" class="width:100%" onclick={add_variable} disabled>
 				add a variable
 			</button>
