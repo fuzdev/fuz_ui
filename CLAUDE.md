@@ -69,8 +69,10 @@ src/
 ### Core concepts
 
 **Tome** - documentation units that define the library's structure. Each tome
-represents a component or helper with `name`, `category`, `component`, and
-`related` fields. Central registry: `src/routes/docs/tomes.ts`
+(the `Tome` interface in `tome.ts`) represents a component or helper with a
+`slug`, optional `title`, `category`, `Component`, and `related_tomes` /
+`related_modules` / `related_declarations`. Central registry:
+`src/routes/docs/tomes.ts`
 
 **svelte-docinfo** - TypeScript/Svelte static analysis is provided by the
 `svelte-docinfo` package. The analyzed modules arrive at runtime via the

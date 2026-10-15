@@ -5,7 +5,7 @@
 	import { page } from '$app/state';
 
 	import Breadcrumb from './Breadcrumb.svelte';
-	import { Tome, tomes_context } from './tome.ts';
+	import { type Tome, tomes_context } from './tome.ts';
 	import DocsPrimaryNav from './DocsPrimaryNav.svelte';
 	import DocsSecondaryNav from './DocsSecondaryNav.svelte';
 	import DocsTertiaryNav from './DocsTertiaryNav.svelte';

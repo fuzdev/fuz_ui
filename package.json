@@ -44,8 +44,7 @@
     "@fuzdev/mdz": ">=0.2.0",
     "@sveltejs/kit": "^3",
     "esm-env": "^1",
-    "svelte": "^5",
-    "zod": "^4.1.12"
+    "svelte": "^5"
   },
   "peerDependenciesMeta": {
     "@fuzdev/fuz_code": {
@@ -58,9 +57,6 @@
       "optional": true
     },
     "esm-env": {
-      "optional": true
-    },
-    "zod": {
       "optional": true
     }
   },
@@ -90,8 +86,7 @@
     "typescript": "^6.0.3",
     "typescript-eslint": "^8.71.1",
     "vite": "^8.3.4",
-    "vitest": "^5.0.0",
-    "zod": "^4.3.6"
+    "vitest": "^5.0.0"
   },
   "sideEffects": [
     "**/*.css"
