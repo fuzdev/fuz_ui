@@ -1,5 +1,11 @@
 # @fuzdev/fuz_ui
 
+## 0.216.0
+
+### Minor Changes
+
+- **breaking** chore: peer `@fuzdev/fuz_css` `>=0.68.0`, whose `Theme` and `StyleVariable` are `@fuzdev/fuz_schema` schemas, so their types no longer need `zod` installed ([713f16f](https://github.com/fuzdev/fuz_ui/commit/713f16f))
+
 ## 0.215.0
 
 ### Minor Changes
