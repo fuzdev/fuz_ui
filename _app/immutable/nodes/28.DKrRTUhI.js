@@ -1,1 +1,0 @@
-export{t as component}from"../chunks/CDmTo1Mc.js";
