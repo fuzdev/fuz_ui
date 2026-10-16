@@ -1,5 +1,11 @@
 # @fuzdev/fuz_ui
 
+## 0.216.1
+
+### Patch Changes
+
+- fix: `load_theme` parses the stored theme with fuz_css's `parse_theme`, falling back when it's malformed or from an older shape ([e9c7e14](https://github.com/fuzdev/fuz_ui/commit/e9c7e14))
+
 ## 0.216.0
 
 ### Minor Changes
