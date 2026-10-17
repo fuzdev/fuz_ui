@@ -1,5 +1,11 @@
 # @fuzdev/fuz_ui
 
+## 0.217.0
+
+### Minor Changes
+
+- chore: upgrade deps ([3de6b47](https://github.com/fuzdev/fuz_ui/commit/3de6b47))
+
 ## 0.216.1
 
 ### Patch Changes
