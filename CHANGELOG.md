@@ -1276,12 +1276,6 @@
 
 - add `shrink` prop to `Svg` ([fc28782](https://github.com/ryanatkn/fuz/commit/fc28782))
 
-## 0.130.5
-
-### Patch Changes
-
-- add link to https://fosstodon.org/@ryanatkn ([2b7880c](https://github.com/ryanatkn/fuz/commit/2b7880c))
-
 ## 0.130.4
 
 ### Patch Changes
@@ -1328,12 +1322,6 @@
 ### Patch Changes
 
 - remove discord link ([222eb8c](https://github.com/ryanatkn/fuz/commit/222eb8c))
-
-## 0.129.3
-
-### Patch Changes
-
-- update webdevladder Mastodon link to fosstodon.org/@webdevladder ([bf19a04](https://github.com/ryanatkn/fuz/commit/bf19a04))
 
 ## 0.129.2
 
