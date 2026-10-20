@@ -1,1 +1,0 @@
-export{t as component}from"../chunks/CWu_foyf.js";
