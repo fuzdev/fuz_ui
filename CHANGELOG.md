@@ -1,5 +1,11 @@
 # @fuzdev/fuz_ui
 
+## 0.218.0
+
+### Minor Changes
+
+- break: remove `logo_fuz_mastodon` and the fuz_mastodon entry in `projects.ts` ([7ef76b6](https://github.com/fuzdev/fuz_ui/commit/7ef76b6))
+
 ## 0.217.0
 
 ### Minor Changes
