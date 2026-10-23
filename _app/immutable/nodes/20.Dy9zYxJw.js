@@ -1,1 +1,0 @@
-export{t as component}from"../chunks/_X4t_cso.js";

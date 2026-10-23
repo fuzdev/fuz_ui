@@ -1,0 +1,1 @@
+export{t as component}from"../chunks/BiDl2F3C.js";
