@@ -1,5 +1,13 @@
 # @fuzdev/fuz_ui
 
+## 0.219.0
+
+### Minor Changes
+
+- break: render module-comment doc fields in `ApiModule`, replacing `Module.has_module_comment` with `has_module_doc` ([c6516ff](https://github.com/fuzdev/fuz_ui/commit/c6516ff))
+
+  `Module` gains `examples`, `see_also`, `since`, `deprecated_message`, `internal_message`, `is_deprecated`, and `is_internal`, read from the svelte-docinfo `ModuleJson` doc fields. The module page renders them as a declaration's are (deprecated/internal chips and messages, since, examples, see also), and directory listings add the deprecated/internal chips. `has_module_doc` is true for a tag-only module comment, which has no `module_comment`. The fields come from svelte-docinfo's module-comment tag parsing (0.14.0); with an older svelte-docinfo they are absent and nothing extra renders.
+
 ## 0.218.0
 
 ### Minor Changes
