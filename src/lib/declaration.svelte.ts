@@ -4,6 +4,7 @@ import type {
 	MemberJsonInput,
 	ParameterJsonInput,
 	ComponentPropJsonInput,
+	ComponentCssPropertyJsonInput,
 	OverloadJsonInput,
 	Reactivity,
 	TypeJson
@@ -249,6 +250,19 @@ export class Declaration {
 	 */
 	get merged_value(): boolean | undefined {
 		return field<boolean>(this.declaration_json, 'mergedValue');
+	}
+
+	/**
+	 * The component's styling API: CSS custom properties its styles read with
+	 * a `var()` fallback, plus any its doc comment documents with `@cssprop`
+	 * tags (`documented`), the documented ones first.
+	 * Present on `component` kind only.
+	 */
+	get css_custom_properties(): Array<ComponentCssPropertyJsonInput> | undefined {
+		return field<Array<ComponentCssPropertyJsonInput>>(
+			this.declaration_json,
+			'cssCustomProperties'
+		);
 	}
 
 	/**

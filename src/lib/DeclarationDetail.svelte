@@ -4,7 +4,8 @@
 Renders the full detail view for an exported declaration.
 Handles all svelte-docinfo declaration kinds (function, class, interface,
 type, variable, enum, component, snippet) and their kind-specific fields
-including parameters, props, members, overloads, external types, and more.
+including parameters, props, CSS custom properties, members, overloads,
+external types, and more.
 
 @see `declaration.svelte.ts` for the `Declaration` wrapper class
 @see {@link https://github.com/fuzdev/svelte-docinfo svelte-docinfo} for the analysis library
@@ -25,6 +26,7 @@ including parameters, props, members, overloads, external types, and more.
 	import TypeJsonView from './TypeJsonView.svelte';
 	import ModuleLink from './ModuleLink.svelte';
 	import DocsLink from './DocsLink.svelte';
+	import { dedent_css_fallback } from './helpers.ts';
 
 	const { declaration }: { declaration: Declaration } = $props();
 
@@ -38,6 +40,14 @@ including parameters, props, members, overloads, external types, and more.
 		const heritage = (declaration.extends_types ?? []).concat(declaration.implements_types ?? []);
 		const filtered = external_types.filter((t) => !heritage.includes(t));
 		return filtered.length ? filtered : undefined;
+	});
+
+	// the "inferred" chip marks entries found by a `var()` fallback, which only
+	// distinguishes anything when the list also has `@cssprop`-documented ones
+	const css_property_chips_shown = $derived.by(() => {
+		const css_properties = declaration.css_custom_properties;
+		if (!css_properties) return false;
+		return css_properties.some((p) => p.documented) && css_properties.some((p) => !p.documented);
 	});
 
 	// render mdz inline `code` as API-linking `DocsLink` and fenced blocks as syntax-highlighted
@@ -313,6 +323,52 @@ including parameters, props, members, overloads, external types, and more.
 					</section>
 				{/if}
 				{@render doc_extras(prop)}
+			</section>
+		{/each}
+	</section>
+{/if}
+
+<!-- CSS custom properties (for Svelte components): the styling API a
+	consumer sets on the component or an ancestor; `documented` entries come
+	from `@cssprop` tags and arrive first, the rest are inferred from `var()`
+	fallbacks in the component's styles, marked only when the list mixes both -->
+{#if declaration.css_custom_properties?.length}
+	<section>
+		<h4>CSS custom properties</h4>
+		{#if css_property_chips_shown}
+			<p>
+				Properties marked <span class="chip">inferred</span> are found by their <code>var()</code>
+				fallback, not documented with <code>@cssprop</code>.
+			</p>
+		{/if}
+		{#each declaration.css_custom_properties as css_property (css_property.name)}
+			<section>
+				<div class="row gap_md">
+					<h5><code>{css_property.name}</code></h5>
+					{#if css_property_chips_shown && !css_property.documented}
+						<span class="chip">inferred</span>
+					{/if}
+				</div>
+				{#if css_property.description}
+					<Mdz content={css_property.description} />
+				{/if}
+				{#if css_property.syntax}
+					<div class="row gap_md mb_sm">
+						<strong>syntax</strong>
+						<code>{css_property.syntax}</code>
+					</div>
+				{/if}
+				{#if css_property.fallback !== undefined}
+					<div class="row gap_md">
+						<strong>fallback</strong>
+						{#if css_property.fallback}
+							<Code lang="css" content={dedent_css_fallback(css_property.fallback)} wrap />
+						{:else}
+							<!-- `var(--a,)`, a fallback of nothing -->
+							<span>empty</span>
+						{/if}
+					</div>
+				{/if}
 			</section>
 		{/each}
 	</section>

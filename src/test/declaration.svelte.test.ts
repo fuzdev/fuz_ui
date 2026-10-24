@@ -100,3 +100,39 @@ describe('merged_value', () => {
 		assert.strictEqual(declaration.merged_value, undefined);
 	});
 });
+
+describe('css_custom_properties', () => {
+	test('absent on the wire (stripped default) reads as undefined', () => {
+		const declaration = create_declaration({ name: 'A', kind: 'component' });
+		assert.strictEqual(declaration.css_custom_properties, undefined);
+	});
+
+	test('an empty array reads as empty', () => {
+		const declaration = create_declaration({
+			name: 'A',
+			kind: 'component',
+			cssCustomProperties: []
+		});
+		assert.deepEqual(declaration.css_custom_properties, []);
+	});
+
+	test('reads the entries in wire order', () => {
+		const css_custom_properties = [
+			{
+				name: '--a_color',
+				description: 'the color',
+				syntax: '<color>',
+				fallback: 'red',
+				sourceLine: 3,
+				documented: true
+			},
+			{ name: '--b', fallback: 'var(--c, 1px)', sourceLine: 9 }
+		];
+		const declaration = create_declaration({
+			name: 'A',
+			kind: 'component',
+			cssCustomProperties: css_custom_properties
+		});
+		assert.strictEqual(declaration.css_custom_properties, css_custom_properties);
+	});
+});
