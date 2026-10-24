@@ -1,3 +1,8 @@
+<!--
+@component
+
+@cssprop --backdrop_color - color of the overlay behind the dialog's content, fuz_css's global token by default
+-->
 <script lang="ts">
 	import type { Snippet } from 'svelte';
 	import type { SvelteHTMLElements } from 'svelte/elements';

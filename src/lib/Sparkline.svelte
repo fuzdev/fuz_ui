@@ -1,3 +1,8 @@
+<!--
+@component
+
+@cssprop --sparkline_bg - background behind the line
+-->
 <script lang="ts">
 	import type { OmitStrict } from '@fuzdev/fuz_util/types.ts';
 	import type { SvelteHTMLElements } from 'svelte/elements';

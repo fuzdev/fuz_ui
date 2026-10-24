@@ -1,3 +1,12 @@
+<!--
+@component
+
+@cssprop --contextmenu_z_index - stacking order of the menu in browsers without the Popover API
+@cssprop --contextmenu_border_width - width of the menu's border
+@cssprop --contextmenu_border_style - style of the menu's border
+@cssprop --contextmenu_border_color - color of the menu's border
+@cssprop --contextmenu_border_radius - corner radius of the menu
+-->
 <script module lang="ts">
 	// The default entry snippets are shared by `ContextmenuRoot.svelte`
 	// and `ContextmenuRootForSafariCompatibility.svelte`.

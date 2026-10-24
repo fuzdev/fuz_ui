@@ -1,3 +1,10 @@
+<!--
+@component
+
+@cssprop --card_width - width of the card
+@cssprop --border_radius - corner radius of the card
+@cssprop --shadow - box shadow of a linked card in every state, replacing its default inset shadows
+-->
 <script lang="ts">
 	import { page } from '$app/state';
 	import { DEV } from 'esm-env';
