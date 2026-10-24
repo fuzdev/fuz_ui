@@ -1,6 +1,17 @@
 <!--
 @component
 
+Renders a native `<dialog>` opened with `showModal()`, which puts it in the top
+layer. The top layer escapes ancestor stacking/overflow contexts (so no `Teleport`
+is needed), traps focus, makes the rest of the page inert, closes on Escape, and
+restores focus to the previously focused element on close -- all natively. The dim
+background is the native `::backdrop`.
+
+We render a full-viewport overlay inside the dialog rather than a content-sized
+box, to preserve the scrolling and `align="top"` behaviors. The content surface
+itself is the consumer's -- pair this with `DialogContent` for the default `.pane`
+card and gutter, or render your own surface in `children`.
+
 @cssprop --backdrop_color - color of the overlay behind the dialog's content, fuz_css's global token by default
 -->
 <script lang="ts">
@@ -10,21 +21,6 @@
 	import { swallow } from '@fuzdev/fuz_util/dom.ts';
 
 	import { dialog_context, type DialogContext, type DialogAlign } from './dialog.ts';
-
-	/**
-	 * This component renders a native `<dialog>` opened with `showModal()`, which
-	 * puts it in the top layer. The top layer escapes ancestor stacking/overflow
-	 * contexts (so no `Teleport` is needed), traps focus, makes the rest of the page
-	 * inert, closes on Escape, and restores focus to the previously focused element
-	 * on close -- all natively. The dim background is the native `::backdrop`.
-	 *
-	 * We render a full-viewport overlay inside the dialog rather than a content-sized
-	 * box, to preserve the scrolling and `align="top"` behaviors. The content
-	 * surface itself is the consumer's -- pair this with `DialogContent` for the
-	 * default `.pane` card and gutter, or render your own surface in `children`.
-	 *
-	 * @module
-	 */
 
 	const {
 		show = true,
