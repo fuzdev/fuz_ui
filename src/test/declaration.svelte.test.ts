@@ -123,6 +123,7 @@ describe('css_custom_properties', () => {
 				description: 'the color',
 				syntax: '<color>',
 				fallback: 'red',
+				default: 'red',
 				sourceLine: 3,
 				documented: true
 			},

@@ -254,9 +254,10 @@ export class Declaration {
 
 	/**
 	 * The component's styling API: CSS custom properties its styles read with
-	 * a `var()` fallback, plus any its doc comment documents with `@cssprop`
-	 * tags (`documented`), the documented ones first.
-	 * Present on `component` kind only.
+	 * a `var()` fallback or register with `@property`, plus any its doc comment
+	 * documents with `@cssprop` tags (`documented`), the documented ones first.
+	 * A documented entry carries the tag's `default` beside the style's
+	 * `fallback`. Present on `component` kind only.
 	 */
 	get css_custom_properties(): Array<ComponentCssPropertyJsonInput> | undefined {
 		return field<Array<ComponentCssPropertyJsonInput>>(
