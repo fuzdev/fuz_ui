@@ -20,7 +20,8 @@
 		logo_fuz_app,
 		logo_fuz_docs,
 		logo_fuz_host,
-		logo_svelte_docinfo
+		logo_svelte_docinfo,
+		logo_mdz
 	} from '#lib/logos.ts';
 
 	const TOME_SLUG = 'logos';
@@ -74,6 +75,12 @@
 					<Svg data={logo_fuz_code} size="var(--icon_size_xl3)" />
 				</a>
 				<Code content={`<Svg data={logo_fuz_code} />`} />
+			</li>
+			<li>
+				<a class="box" href="https://mdz.fuz.dev/">
+					<Svg data={logo_mdz} size="var(--icon_size_xl3)" />
+				</a>
+				<Code content={`<Svg data={logo_mdz} />`} />
 			</li>
 			<li>
 				<a class="box" href="https://blog.fuz.dev/">

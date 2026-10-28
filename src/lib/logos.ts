@@ -118,6 +118,17 @@ export const logo_svelte_docinfo = {
 	]
 } satisfies SvgData;
 
+export const logo_mdz = {
+	label: 'a purple pen nib hovering over an inkwell with a glint of light',
+	fill: '#8866cc',
+	paths: [
+		{
+			'fill-rule': 'evenodd',
+			d: 'M36.05 40.56H61.35Q64.27 40.56 64.27 43.48V48.35H59.4V56.13L71.08 56.13Q80.81 56.13 82.76 65.86Q86.26 76.56 86.65 87.27Q87.62 97 77.89 97H19.51Q9.78 97 10.76 87.27Q11.14 76.56 14.65 65.86Q16.59 56.13 26.32 56.13L38 56.13V48.35H33.13V43.48Q33.13 40.56 36.05 40.56ZM23.04 64.89Q17.76 76.56 19.37 89.21L24.23 89.21Q22.55 77.54 26.71 65.86ZM53.57 35.7L64.72 12.36L79.22 2.99L90.22 16.12L78.49 28.77ZM67.95 22.37L55.4 32.9L56.64 34.37L69.2 23.85ZM67.78 21.25a2.99 2.99 0 1 1 6 0a2.99 2.99 0 1 1 -6 0Z'
+		}
+	]
+} satisfies SvgData;
+
 export const logo_fuz_template = {
 	label: 'a friendly orange pixelated spider facing you',
 	fill: '#f4672f',
