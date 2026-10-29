@@ -9,3 +9,4 @@ Breaking dependency changes:
 - @fuzdev/fuz_css: 0.71.1 → 0.72.0 (minor)
 - @fuzdev/mdz: 0.6.0 → 0.7.0 (minor)
 - @fuzdev/gro: 0.222.0 → 0.223.0 (minor)
+- @fuzdev/fuz_code: 0.54.0 → 0.56.0 (minor)
