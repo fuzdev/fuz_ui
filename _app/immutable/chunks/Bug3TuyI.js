@@ -1,0 +1,24 @@
+import{Ct as e,H as t,Ot as n,W as r,dt as i,pt as a,wt as o}from"./CmwoW_WP.js";import{n as s}from"./BBAXxzVJ.js";import{t as c}from"./DOjpfaIg.js";import{t as l}from"./DLXxB25I.js";import{n as u,t as d}from"./qxTrOQPC.js";var f=r(`<!> <!> <p>To import the Svelte components:</p> <!> <p>See the nav for the available components and other helpers.</p> <p><a href="https://mdz.fuz.dev/">mdz</a> is a markdown dialect enhanced with Svelte components,
+			autolinked identifiers, and other integrations. To compile static content at build time
+			instead of parsing at runtime with slower dynamic rendering, use its <a href="https://mdz.fuz.dev/docs/svelte_preprocess_mdz">preprocessor</a>:</p> <!>`,1),p=r(`<section><p>fuz_ui is a Svelte UI library with components and helpers for making zippy websites. It's
+			built on <a href="https://css.fuz.dev/">fuz_css</a> and provides a documentation system built
+			on <a href="https://svelte-docinfo.fuz.dev/">svelte-docinfo</a>. fuz_ui emphasizes capability
+			and efficiency and tries to be simple for those goals.</p></section> <!> <section><p>fuz_ui is part of the <a href="https://www.fuz.dev/">Fuz stack</a>. See also the <a href="https://github.com/fuzdev/fuz_ui">repo</a>.</p></section>`,1);function m(r,m){o(m,!0);let h=s(`introduction`);l(r,{get tome(){return h},children:(e,r)=>{var o=p(),s=a(i(o),2);u(s,{children:(e,n)=>{var r=f(),o=i(r);d(o,{text:`Usage`});var s=a(o,2);c(s,{lang:null,content:`npm i -D @fuzdev/fuz_ui`});var l=a(s,4);c(l,{lang:`svelte`,dangerous_raw_html:`<span class="token_tag"><span class="token_tag"><span class="token_punctuation token_tag_punctuation">&lt;</span>script</span><span class="token_punctuation token_tag_punctuation">></span></span><span class="token_script"><span class="token_lang_ts">
+  <span class="token_special_keyword">import</span> <span class="token_capitalized_identifier token_class_name">Alert</span> <span class="token_special_keyword">from</span> <span class="token_string">'@fuzdev/fuz_ui/Alert.svelte'</span><span class="token_punctuation">;</span>
+  <span class="token_special_keyword">import</span> <span class="token_capitalized_identifier token_class_name">Card</span> <span class="token_special_keyword">from</span> <span class="token_string">'@fuzdev/fuz_ui/Card.svelte'</span><span class="token_punctuation">;</span>
+  <span class="token_special_keyword">import</span> <span class="token_capitalized_identifier token_class_name">Dialog</span> <span class="token_special_keyword">from</span> <span class="token_string">'@fuzdev/fuz_ui/Dialog.svelte'</span><span class="token_punctuation">;</span>
+</span></span><span class="token_tag"><span class="token_tag"><span class="token_punctuation token_tag_punctuation">&lt;/</span>script</span><span class="token_punctuation token_tag_punctuation">></span></span>`});var u=a(l,6);c(u,{lang:`ts`,dangerous_raw_html:`<span class="token_comment">// vite.config.ts</span>
+<span class="token_special_keyword">import</span> <span class="token_punctuation">{</span>defineConfig<span class="token_punctuation">}</span> <span class="token_special_keyword">from</span> <span class="token_string">'vite'</span><span class="token_punctuation">;</span>
+<span class="token_special_keyword">import</span> <span class="token_punctuation">{</span>sveltekit<span class="token_punctuation">}</span> <span class="token_special_keyword">from</span> <span class="token_string">'@sveltejs/kit/vite'</span><span class="token_punctuation">;</span>
+<span class="token_special_keyword">import</span> <span class="token_punctuation">{</span>svelte_preprocess_mdz<span class="token_punctuation">}</span> <span class="token_special_keyword">from</span> <span class="token_string">'@fuzdev/mdz/svelte_preprocess_mdz.js'</span><span class="token_punctuation">;</span>
+
+<span class="token_special_keyword">export</span> <span class="token_special_keyword">default</span> <span class="token_function">defineConfig</span><span class="token_punctuation">({</span>
+  plugins<span class="token_operator">:</span> <span class="token_punctuation">[</span>
+    <span class="token_function">sveltekit</span><span class="token_punctuation">({</span>
+      preprocess<span class="token_operator">:</span> <span class="token_punctuation">[</span>
+        <span class="token_function">svelte_preprocess_mdz</span><span class="token_punctuation">(),</span>
+        <span class="token_comment">// ...other preprocessors</span>
+      <span class="token_punctuation">],</span>
+    <span class="token_punctuation">}),</span>
+  <span class="token_punctuation">],</span>
+<span class="token_punctuation">});</span>`}),t(e,r)},$$slots:{default:!0}}),n(2),t(e,o)},$$slots:{default:!0}}),e()}export{m as t};

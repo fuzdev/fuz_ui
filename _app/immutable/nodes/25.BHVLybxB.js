@@ -1,1 +1,0 @@
-export{t as component}from"../chunks/CLc-yE8g.js";
