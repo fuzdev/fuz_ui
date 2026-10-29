@@ -1,5 +1,23 @@
 # @fuzdev/fuz_ui
 
+## 0.221.0
+
+### Minor Changes
+
+- Update dependencies (BREAKING CHANGES) ([2e3b9d8](https://github.com/fuzdev/fuz_ui/commit/2e3b9d8))
+
+  Breaking dependency changes:
+
+  - @fuzdev/fuz_util: 0.78.0 → 0.79.0 (minor)
+  - @fuzdev/fuz_css: 0.71.1 → 0.72.0 (minor)
+  - @fuzdev/mdz: 0.6.0 → 0.7.0 (minor)
+  - @fuzdev/gro: 0.222.0 → 0.223.0 (minor)
+  - @fuzdev/fuz_code: 0.54.0 → 0.56.0 (minor)
+
+- add `logo_mdz`, a pen nib hovering over an inkwell, and an mdz entry in `projects.ts` ([2f20eae](https://github.com/fuzdev/fuz_ui/commit/2f20eae))
+- upgrade svelte-docinfo 0.17.0: `DeclarationDetail` renders a `@cssprop` tag's `default` beside the style's `fallback`, one row when they agree ([86d9378](https://github.com/fuzdev/fuz_ui/commit/86d9378))
+- chore: upgrade fuz_css 0.71.1, fuz_util 0.78.0 and gro 0.222.0 ([232c9f0](https://github.com/fuzdev/fuz_ui/commit/232c9f0))
+
 ## 0.220.0
 
 ### Minor Changes
