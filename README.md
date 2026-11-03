@@ -4,7 +4,7 @@
 
 > friendly user zystem 🧶 [fuz.dev](https://ui.fuz.dev/)
 
-fuz_ui is a Svelte UI library with components and helpers for making zippy
+fuz_ui is a Svelte component library with frontend helpers for making zippy
 websites. It's built on [fuz_css](https://css.fuz.dev/)
 and provides a documentation system built on
 [svelte-docinfo](https://svelte-docinfo.fuz.dev/).

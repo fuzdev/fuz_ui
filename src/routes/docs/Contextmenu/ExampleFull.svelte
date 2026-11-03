@@ -232,7 +232,7 @@
 	<Dialog onclose={() => (show_about_dialog = false)}>
 		<DialogContent>
 			<h1>About Fuz</h1>
-			<blockquote>Svelte UI library</blockquote>
+			<blockquote>Svelte component library and frontend helpers</blockquote>
 			<blockquote>
 				free and open source at<br /><GithubLink path="fuzdev/fuz_ui" />
 			</blockquote>

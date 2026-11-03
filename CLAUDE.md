@@ -1,8 +1,8 @@
 # fuz_ui
 
-> friendly user zystem - Svelte UI library
+> friendly user zystem - Svelte component library and frontend helpers
 
-fuz_ui (`@fuzdev/fuz_ui`) is a Svelte UI library built on fuz_css. It provides
+fuz_ui (`@fuzdev/fuz_ui`) is a Svelte component library built on fuz_css. It provides
 components and TypeScript helpers for building user-friendly websites.
 
 For coding conventions, see Skill(fuz-stack).

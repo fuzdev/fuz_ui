@@ -1,7 +1,7 @@
 {
   "name": "@fuzdev/fuz_ui",
   "version": "0.221.0",
-  "description": "Svelte UI library",
+  "description": "Svelte component library and frontend helpers",
   "tagline": "friendly user zystem",
   "glyph": "🧶",
   "logo": "logo.svg",
