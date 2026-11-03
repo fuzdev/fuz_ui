@@ -19,7 +19,6 @@
 		logo_tsv,
 		logo_fuz_app,
 		logo_fuz_docs,
-		logo_fuz_host,
 		logo_svelte_docinfo,
 		logo_mdz
 	} from '#lib/logos.ts';
@@ -105,12 +104,6 @@
 					<Svg data={logo_fuz_util} size="var(--icon_size_xl3)" />
 				</a>
 				<Code content={`<Svg data={logo_fuz_util} />`} />
-			</li>
-			<li>
-				<a class="box" href="https://host.fuz.dev/">
-					<Svg data={logo_fuz_host} size="var(--icon_size_xl3)" />
-				</a>
-				<Code content={`<Svg data={logo_fuz_host} />`} />
 			</li>
 			<li>
 				<a class="box" href="https://gro.ryanatkn.com/">
