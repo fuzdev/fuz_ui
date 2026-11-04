@@ -16,7 +16,7 @@
 </script>
 
 <main class="width_atmost_md">
-	<section>
+	<section class="box">
 		<header class="box">
 			<h1 class="mb_xl5" style:margin-top={MAIN_HEADER_MARGIN_TOP}>
 				{library.repo_name}
