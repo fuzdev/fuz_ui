@@ -102,7 +102,7 @@ export const logo_fuz_repos = {
 	paths: logo_fuz.paths
 } satisfies SvgData;
 
-export const logo_fuz_docs = {
+export const logo_docs_fuz_dev = {
 	label: 'a friendly cyan spider facing you',
 	fill: '#1ec3d2',
 	paths: logo_fuz.paths

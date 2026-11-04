@@ -18,7 +18,7 @@
 		logo_fuz_ui,
 		logo_tsv,
 		logo_fuz_app,
-		logo_fuz_docs,
+		logo_docs_fuz_dev,
 		logo_svelte_docinfo,
 		logo_mdz
 	} from '#lib/logos.ts';
@@ -95,9 +95,9 @@
 			</li>
 			<li>
 				<a class="box" href="https://docs.fuz.dev/">
-					<Svg data={logo_fuz_docs} size="var(--icon_size_xl3)" />
+					<Svg data={logo_docs_fuz_dev} size="var(--icon_size_xl3)" />
 				</a>
-				<Code content={`<Svg data={logo_fuz_docs} />`} />
+				<Code content={`<Svg data={logo_docs_fuz_dev} />`} />
 			</li>
 			<li>
 				<a class="box" href="https://util.fuz.dev/">
