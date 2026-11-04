@@ -1,5 +1,14 @@
 # @fuzdev/fuz_ui
 
+## 0.222.0
+
+### Minor Changes
+
+- break: `csp_directives_of_fuzdev` now allows only `*.fuz.dev` ([b971b4e](https://github.com/fuzdev/fuz_ui/commit/b971b4e))
+- break: remove `LibraryDetail`; use `LibrarySummary` for package metadata and the `api` tome for the module index ([ce11d11](https://github.com/fuzdev/fuz_ui/commit/ce11d11))
+- break: rename `logo_fuz_docs` to `logo_docs_fuz_dev` ([e89680a](https://github.com/fuzdev/fuz_ui/commit/e89680a))
+- break: remove `logo_fuz_host` and the fuz_host entry in `projects.ts` ([f177748](https://github.com/fuzdev/fuz_ui/commit/f177748))
+
 ## 0.221.0
 
 ### Minor Changes
