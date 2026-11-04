@@ -132,6 +132,7 @@
 		flex-direction: column;
 		align-items: center;
 		max-width: var(--max_width, var(--distance_sm));
+		margin: 0 auto;
 	}
 	.repo-name {
 		font-family: var(--font_family_serif);
