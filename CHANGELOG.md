@@ -1,5 +1,11 @@
 # @fuzdev/fuz_ui
 
+## 0.222.1
+
+### Patch Changes
+
+- fix: center `LibrarySummary` within a wider parent ([ca601d1](https://github.com/fuzdev/fuz_ui/commit/ca601d1))
+
 ## 0.222.0
 
 ### Minor Changes
