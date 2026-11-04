@@ -1,1 +1,0 @@
-export{t as component}from"../chunks/-k2_7PFv.js";
