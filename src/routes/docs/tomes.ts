@@ -4,7 +4,6 @@ import ThemeRoot from './ThemeRoot/+page.svelte';
 import PendingAnimation from './PendingAnimation/+page.svelte';
 import PendingButton from './PendingButton/+page.svelte';
 import LibrarySummary from './LibrarySummary/+page.svelte';
-import LibraryDetail from './LibraryDetail/+page.svelte';
 import Details from './Details/+page.svelte';
 import Dialog from './Dialog/+page.svelte';
 import Teleport from './Teleport/+page.svelte';
@@ -61,7 +60,7 @@ export const tomes: Array<Tome> = [
 		slug: 'vite_plugin_pkg_json',
 		category: 'helpers',
 		Component: vite_plugin_pkg_json,
-		related_tomes: ['LibraryDetail'],
+		related_tomes: ['LibrarySummary'],
 		related_modules: ['vite_plugin_pkg_json.ts'],
 		related_declarations: ['vite_plugin_pkg_json']
 	},
@@ -93,7 +92,7 @@ export const tomes: Array<Tome> = [
 		slug: 'logos',
 		category: 'helpers',
 		Component: logos,
-		related_tomes: ['LibraryDetail', 'LibrarySummary', 'Svg'],
+		related_tomes: ['LibrarySummary', 'Svg'],
 		related_modules: ['logos.ts'],
 		related_declarations: []
 	},
@@ -157,7 +156,7 @@ export const tomes: Array<Tome> = [
 		slug: 'Docs',
 		category: 'components',
 		Component: Docs,
-		related_tomes: ['Library', 'LibraryDetail', 'LibrarySummary'],
+		related_tomes: ['Library', 'LibrarySummary'],
 		related_modules: [],
 		related_declarations: ['Docs']
 	},
@@ -165,23 +164,15 @@ export const tomes: Array<Tome> = [
 		slug: 'Library',
 		category: 'components',
 		Component: Library,
-		related_tomes: ['Docs', 'LibraryDetail', 'LibrarySummary', 'api'],
+		related_tomes: ['Docs', 'LibrarySummary', 'api'],
 		related_modules: [],
 		related_declarations: ['Library']
-	},
-	{
-		slug: 'LibraryDetail',
-		category: 'components',
-		Component: LibraryDetail,
-		related_tomes: ['api', 'logos', 'LibrarySummary'],
-		related_modules: [],
-		related_declarations: ['LibraryDetail']
 	},
 	{
 		slug: 'LibrarySummary',
 		category: 'components',
 		Component: LibrarySummary,
-		related_tomes: ['api', 'logos', 'LibraryDetail'],
+		related_tomes: ['api', 'logos'],
 		related_modules: [],
 		related_declarations: ['LibrarySummary']
 	},

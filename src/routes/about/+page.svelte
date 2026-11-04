@@ -1,7 +1,7 @@
 <script lang="ts">
 	import { Library, library_context } from '#lib/library.svelte.ts';
 	import EcosystemLinksPanel from '#lib/EcosystemLinksPanel.svelte';
-	import LibraryDetail from '#lib/LibraryDetail.svelte';
+	import LibrarySummary from '#lib/LibrarySummary.svelte';
 	import DocsFooter from '#lib/DocsFooter.svelte';
 	import Breadcrumb from '#lib/Breadcrumb.svelte';
 	import { FUZ_DEV_URL, MAIN_HEADER_MARGIN_TOP } from '#lib/constants.ts';
@@ -27,7 +27,7 @@
 	<EcosystemLinksPanel />
 	<section class="box width:100% mb_lg">
 		<div class="panel p_md width_atmost_md">
-			<LibraryDetail {library} />
+			<LibrarySummary {library} />
 		</div>
 	</section>
 	<section class="box mb_xl7">

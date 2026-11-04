@@ -35,8 +35,7 @@ const library = new Library(library_json);`}
 		/>
 		<p>
 			Set it into <code>library_context</code> at the docs layout. <TomeLink slug="Docs" /> reads it
-			for navigation, and <TomeLink slug="LibraryDetail" /> and <TomeLink slug="LibrarySummary" />
-			render it:
+			for navigation, and <TomeLink slug="LibrarySummary" /> renders it:
 		</p>
 		<Code
 			lang="svelte"
@@ -52,8 +51,7 @@ const library = new Library(library_json);`}
 		<p>
 			These docs you're reading are the live example. fuz_ui sets its own
 			<DeclarationLink name="Library" /> as described above. See <TomeLink slug="Docs" /> for the
-			surrounding layout, and <TomeLink slug="LibraryDetail" />/<TomeLink slug="LibrarySummary" />
-			for the components that render it.
+			surrounding layout, and <TomeLink slug="LibrarySummary" /> for the component that renders it.
 		</p>
 	</section>
 </TomeContent>

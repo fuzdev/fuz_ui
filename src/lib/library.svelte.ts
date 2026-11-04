@@ -21,8 +21,8 @@ import {
  * The getter form keeps consumers reactive when the library changes without
  * requiring a remount — set it with a closure over reactive state, e.g.
  * `library_context.set(() => library)`. Components that accept a `library`
- * prop (`LibraryDetail`, `ApiIndex`, `ApiModule`) project the prop into this
- * context for their subtree, so descendants like `ModuleLink`,
+ * prop (`ApiIndex`, `ApiModule`) project the prop into this context for their
+ * subtree, so descendants like `ModuleLink`,
  * `DeclarationLink`, and TSDoc-rendered `DocsLink` resolve against the same
  * library — including when an aggregator renders a foreign library that
  * differs from the site-level context.

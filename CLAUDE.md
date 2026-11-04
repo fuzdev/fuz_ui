@@ -183,7 +183,6 @@ API:
 Library metadata:
 
 - `LibrarySummary` — compact package metadata card
-- `LibraryDetail` — expanded package info with file-type breakdown (from a `Library`)
 
 mdz itself (`Mdz`, `MdzRoot`, `MdzStream`, the preprocessor) lives in `@fuzdev/mdz`.
 
@@ -241,8 +240,6 @@ re-strip drops the extras. See the `vite_plugin_pkg_json` tome for the pattern.
   `generateImport`, `getDisplayName` from `svelte-docinfo/declaration-helpers.js`)
 - `module.svelte.ts` - `Module` class for source files (uses `ModuleJson` from
   `svelte-docinfo/types.js`)
-- `LibraryDetail.svelte` - library overview component (uses `isTypescript`,
-  `isSvelte`, `isCss`, `isJson` from `svelte-docinfo/source.js`)
 - `TypeJsonView.svelte` - structured type renderer (uses `typeJsonToTokens`
   from `svelte-docinfo/declaration-helpers.js` to link each reference nested
   in a composite type; `TypeLink` delegates to it when given `type_info`)
@@ -284,7 +281,7 @@ All contexts use the standardized pattern via `context_helpers.ts`:
 - `theme_state_context` - theme state (ThemeState class)
 - `library_context` - library API metadata (getter of a Library, `() => Library`);
   set with a closure over reactive state, e.g. `library_context.set(() => library)`.
-  Components with a `library` prop (`LibraryDetail`, `ApiIndex`, `ApiModule`)
+  Components with a `library` prop (`ApiIndex`, `ApiModule`)
   project the prop into this context for their subtree, so link components
   (`ModuleLink`, `DeclarationLink`, `DocsLink`, `TypeLink`) resolve against the
   rendered library — aggregators rendering a foreign library don't set the
