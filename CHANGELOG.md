@@ -1400,7 +1400,7 @@
 
 ### Patch Changes
 
-- webdevladder.net has a blog and YouTube channels ([d31974c](https://github.com/ryanatkn/fuz/commit/d31974c))
+- update links ([d31974c](https://github.com/ryanatkn/fuz/commit/d31974c))
 
 ## 0.128.0
 
@@ -1800,7 +1800,7 @@
 
 ### Patch Changes
 
-- add logos for webdevladder and zzz ([#33](https://github.com/ryanatkn/fuz/pull/33))
+- add logo for zzz ([#33](https://github.com/ryanatkn/fuz/pull/33))
 - add support for `logo` and `logo_alt` in `PackageJson` ([#33](https://github.com/ryanatkn/fuz/pull/33))
 - add `sideEffects` to `package.json` ([85b92a8](https://github.com/ryanatkn/fuz/commit/85b92a8))
 
