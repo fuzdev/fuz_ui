@@ -63,11 +63,11 @@
 				contextmenu.select(entry);
 			}}
 >
-	<div class="content">
-		<div class="icon">
+	<div class="menuitem_content">
+		<div class="menuitem_icon">
 			<ContextmenuIcon {icon} />
 		</div>
-		<div class="title">{@render children()}</div>
+		<div class="menuitem_title">{@render children()}</div>
 		{#if pending}<PendingAnimation />{:else if error_message}⚠️{/if}
 	</div>
 </li>

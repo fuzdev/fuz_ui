@@ -1,5 +1,5 @@
 <script lang="ts">
-	import { color_schemes, type ColorScheme } from '@fuzdev/fuz_css/theme.ts';
+	import { color_schemes, type ColorSchemePreference } from '@fuzdev/fuz_css/theme.ts';
 	import type { OmitStrict } from '@fuzdev/fuz_util/types.ts';
 	import type { SvelteHTMLElements } from 'svelte/elements';
 
@@ -12,7 +12,7 @@
 		value = get_theme_state(),
 		...rest
 	}: OmitStrict<SvelteHTMLElements['menu'], 'title' | 'children' | 'onselect'> & {
-		value?: { color_scheme: ColorScheme };
+		value?: { color_scheme: ColorSchemePreference };
 	} = $props();
 </script>
 

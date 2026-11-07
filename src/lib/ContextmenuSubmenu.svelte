@@ -89,11 +89,11 @@
 		}}
 		aria-expanded={selected}
 	>
-		<div class="content">
-			<div class="icon">
+		<div class="menuitem_content">
+			<div class="menuitem_icon">
 				<ContextmenuIcon {icon} />
 			</div>
-			<div class="title">{@render children()}</div>
+			<div class="menuitem_title">{@render children()}</div>
 		</div>
 		<div class="chevron" aria-hidden="true"></div>
 	</div>

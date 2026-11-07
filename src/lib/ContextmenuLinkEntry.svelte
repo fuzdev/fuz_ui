@@ -88,15 +88,15 @@
 					contextmenu.select(entry);
 				}}
 	>
-		<div class="content">
-			<div class="icon">
+		<div class="menuitem_content">
+			<div class="menuitem_icon">
 				{#if icon}
 					<ContextmenuIcon {icon} />
 				{:else}
 					<Svg data={external ? icon_external_link : icon_link} />
 				{/if}
 			</div>
-			<div class="title">
+			<div class="menuitem_title">
 				<span class="text">
 					{#if children}{@render children()}{:else}{text}{/if}
 				</span>
