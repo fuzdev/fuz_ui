@@ -101,16 +101,29 @@ const CONTRASTS = ['low', 'high'] as const satisfies ReadonlyArray<keyof Contras
  */
 const to_saved_theme = (theme: Theme, themes: Array<Theme>): SavedTheme => {
 	if (themes.some((t) => t.name === theme.name)) return theme.name;
+	const composition = find_composition(theme.name, themes);
+	if (composition) return { name: composition.base.name, contrast: composition.contrast };
+	return trim_theme(theme);
+};
+
+/**
+ * Finds the registry theme and contrast modifier whose composition is named
+ * `name`.
+ */
+const find_composition = (
+	name: string,
+	themes: Array<Theme>
+): { base: Theme; contrast: keyof ContrastModifiers; theme: Theme } | null => {
 	// recomposing keeps the naming rule in `compose_themes`, and costs one
-	// composition per registry theme and modifier, only when saving
-	for (const t of themes) {
+	// composition per registry theme and modifier, only when saving or when
+	// loading a whole object no registry theme is named
+	for (const base of themes) {
 		for (const contrast of CONTRASTS) {
-			if (compose_themes(t, contrast_modifiers[contrast]).name === theme.name) {
-				return { name: t.name, contrast };
-			}
+			const theme = compose_themes(base, contrast_modifiers[contrast]);
+			if (theme.name === name) return { base, contrast, theme };
 		}
 	}
-	return trim_theme(theme);
+	return null;
 };
 
 /**
@@ -123,7 +136,8 @@ type SavedTheme = string | { name: string; contrast: keyof ContrastModifiers } |
  * Loads the saved theme from storage, falling back when there's none or it
  * doesn't resolve to a theme. A saved name loads the registry theme of that
  * name, `{name, contrast}` the registry theme composed with that contrast
- * modifier, an object named like a registry theme the registry theme (so a
+ * modifier, an object named like a registry theme or one of its contrast
+ * compositions (`ledger (high contrast)`) that theme or composition (so a
  * whole-object save from before themes saved by name loads the current
  * version), and any other object its authored fields when they parse as a
  * `Theme`.
@@ -156,6 +170,10 @@ export const parse_saved_theme = (value: unknown, themes: Array<Theme>): Theme |
 		return contrast === 'low' || contrast === 'high'
 			? compose_themes(registry_theme, contrast_modifiers[contrast])
 			: registry_theme;
+	}
+	if (typeof name === 'string') {
+		const composition = find_composition(name, themes);
+		if (composition) return composition.theme;
 	}
 	return parse_theme(trim_theme(value as Theme));
 };

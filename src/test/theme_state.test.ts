@@ -128,6 +128,22 @@ describe('load_theme', () => {
 		assert.equal(load_theme(), ledger_theme);
 	});
 
+	test('an object named like a composition loads the current composition', () => {
+		for (const contrast of ['low', 'high'] as const) {
+			const composed = compose_themes(ledger_theme, contrast_modifiers[contrast]);
+			// a whole save from before compositions saved by reference, now stale
+			write_saved({ name: composed.name, variables: [{ name: 'hue_accent', base: '10' }] });
+			assert.deepEqual(load_theme(), composed);
+		}
+	});
+
+	test('a whole composition save rewrites by reference on the next save', () => {
+		const composed = compose_themes(ledger_theme, contrast_modifiers.high);
+		write_saved(composed);
+		save_theme(load_theme(), default_themes);
+		assert.deepEqual(read_saved(), { name: 'ledger', contrast: 'high' });
+	});
+
 	test('any other object loads its authored fields', () => {
 		write_saved({ ...custom_theme, scheme_mirror: [{ name: 'shade_00', base: 'red' }], extra: 1 });
 		assert.deepEqual(load_theme(), custom_theme);
@@ -173,5 +189,12 @@ describe('parse_saved_theme', () => {
 	test('reads the given registry', () => {
 		assert.equal(parse_saved_theme('custom', [custom_theme]), custom_theme);
 		assert.equal(parse_saved_theme('custom', default_themes), null);
+	});
+
+	test('composition names follow the given registry', () => {
+		const composed = compose_themes(custom_theme, contrast_modifiers.high);
+		const stale = { ...composed, variables: [{ name: 'hue_accent', base: '10' }] };
+		assert.deepEqual(parse_saved_theme(stale, [custom_theme]), composed);
+		assert.deepEqual(parse_saved_theme(stale, default_themes), stale);
 	});
 });
