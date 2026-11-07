@@ -64,8 +64,8 @@ describe('save_theme', () => {
 	test('saves a contrast composition by reference', () => {
 		save_theme(compose_themes(ledger_theme, contrast_modifiers.high), default_themes);
 		assert.deepEqual(read_saved(), { name: 'ledger', contrast: 'high' });
-		save_theme(compose_themes(DEFAULT_THEME, contrast_modifiers.low), default_themes);
-		assert.deepEqual(read_saved(), { name: DEFAULT_THEME.name, contrast: 'low' });
+		save_theme(compose_themes(DEFAULT_THEME, contrast_modifiers.high), default_themes);
+		assert.deepEqual(read_saved(), { name: DEFAULT_THEME.name, contrast: 'high' });
 	});
 
 	test('a theme named like a composition saves as that composition', () => {
@@ -109,8 +109,11 @@ describe('load_theme', () => {
 	test('{name, contrast} loads the registry theme composed with the modifier', () => {
 		write_saved({ name: 'ledger', contrast: 'high' });
 		assert.deepEqual(load_theme(), compose_themes(ledger_theme, contrast_modifiers.high));
+	});
+
+	test("`contrast: 'low'` loads the registry theme", () => {
 		write_saved({ name: 'ledger', contrast: 'low' });
-		assert.deepEqual(load_theme(), compose_themes(ledger_theme, contrast_modifiers.low));
+		assert.equal(load_theme(), ledger_theme);
 	});
 
 	test('an unknown contrast loads the registry theme', () => {
@@ -129,12 +132,10 @@ describe('load_theme', () => {
 	});
 
 	test('an object named like a composition loads the current composition', () => {
-		for (const contrast of ['low', 'high'] as const) {
-			const composed = compose_themes(ledger_theme, contrast_modifiers[contrast]);
-			// a whole save from before compositions saved by reference, now stale
-			write_saved({ name: composed.name, variables: [{ name: 'hue_accent', base: '10' }] });
-			assert.deepEqual(load_theme(), composed);
-		}
+		const composed = compose_themes(ledger_theme, contrast_modifiers.high);
+		// a whole save from before compositions saved by reference, now stale
+		write_saved({ name: composed.name, variables: [{ name: 'hue_accent', base: '10' }] });
+		assert.deepEqual(load_theme(), composed);
 	});
 
 	test('a whole composition save rewrites by reference on the next save', () => {

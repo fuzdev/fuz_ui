@@ -94,7 +94,10 @@ export const save_theme = (
 	save_to_storage(key, theme === null ? null : to_saved_theme(theme, themes), true);
 };
 
-const CONTRASTS = ['low', 'high'] as const satisfies ReadonlyArray<keyof ContrastModifiers>;
+const CONTRASTS = ['high'] as const satisfies ReadonlyArray<keyof ContrastModifiers>;
+
+const is_contrast = (value: unknown): value is keyof ContrastModifiers =>
+	(CONTRASTS as ReadonlyArray<unknown>).includes(value);
 
 /**
  * The value `save_theme` stores for a non-null theme.
@@ -136,9 +139,10 @@ type SavedTheme = string | { name: string; contrast: keyof ContrastModifiers } |
  * Loads the saved theme from storage, falling back when there's none or it
  * doesn't resolve to a theme. A saved name loads the registry theme of that
  * name, `{name, contrast}` the registry theme composed with that contrast
- * modifier, an object named like a registry theme or one of its contrast
- * compositions (`ledger (high contrast)`) that theme or composition (so a
- * whole-object save from before themes saved by name loads the current
+ * modifier (or the registry theme alone when `contrast` names no modifier),
+ * an object named like a registry theme or one of its
+ * contrast compositions (`ledger (high contrast)`) that theme or composition
+ * (so a whole-object save from before themes saved by name loads the current
  * version), and any other object its authored fields when they parse as a
  * `Theme`.
  *
@@ -167,7 +171,8 @@ export const parse_saved_theme = (value: unknown, themes: Array<Theme>): Theme |
 	const { name, contrast } = value as Record<string, unknown>;
 	const registry_theme = typeof name === 'string' ? themes.find((t) => t.name === name) : undefined;
 	if (registry_theme) {
-		return contrast === 'low' || contrast === 'high'
+		// a contrast naming no modifier loads the base theme uncomposed
+		return is_contrast(contrast)
 			? compose_themes(registry_theme, contrast_modifiers[contrast])
 			: registry_theme;
 	}
