@@ -244,8 +244,8 @@ export class Declaration {
 
 	/**
 	 * Whether the exported name also carries a value meaning — a merged
-	 * value+type symbol like `const Foo = z.strictObject({...})` beside
-	 * `type Foo = z.infer<typeof Foo>`, where the type wins the declaration slot.
+	 * value+type symbol like `const Foo = object({...})` beside
+	 * `type Foo = Infer<typeof Foo>`, where the type wins the declaration slot.
 	 * Present on `type` and `interface` kinds.
 	 */
 	get merged_value(): boolean | undefined {
