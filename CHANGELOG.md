@@ -1,5 +1,18 @@
 # @fuzdev/fuz_ui
 
+## 0.224.0
+
+### Minor Changes
+
+- break: upgrade to fuz_css 0.76 - the `@fuzdev/fuz_css` peer is `>=0.76.0` ([9432b7e](https://github.com/fuzdev/fuz_ui/commit/9432b7e))
+
+  fuz_css 0.76 makes contrast one `--contrast` knob that the high-contrast modifier sets, and removes the low-contrast modifier, so `contrast_modifiers` is `{high}`. `save_theme` persists only `{name, contrast: 'high'}` compositions, and `load_theme` loads a `{name, contrast: 'low'}` saved by an earlier release as the registry theme `name`, uncomposed. A whole low-contrast composition saved before 0.223 (when compositions were saved whole) still parses and loads as a custom theme under its saved name.
+
+### Patch Changes
+
+- components set their display and position with fuz_css keyword classes, so a display literal passed through `Glyph`'s or `PendingAnimation`'s `class` now overrides the default ([b9599c2](https://github.com/fuzdev/fuz_ui/commit/b9599c2))
+- fix: `load_theme` loads a whole saved theme named like a registry theme's contrast composition (`ledger (high contrast)`) as the registry's current composition, so a composition saved whole before 0.223 stops loading as a stale snapshot ([bf388ed](https://github.com/fuzdev/fuz_ui/commit/bf388ed))
+
 ## 0.223.0
 
 ### Minor Changes
