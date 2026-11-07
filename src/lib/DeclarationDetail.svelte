@@ -199,7 +199,7 @@ external types, and more.
 	declaration.merged_value ||
 	declaration.alias_of
 }
-	<p class="row gap_md flex-wrap:wrap">
+	<p class="row_wrap gap_md">
 		<!-- eslint-disable-next-line @typescript-eslint/no-deprecated -->
 		{#if declaration.is_deprecated}
 			<span class="chip">⚠️ deprecated</span>
@@ -228,7 +228,7 @@ external types, and more.
 
 <!-- also exported from -->
 {#if declaration.also_exported_from?.length}
-	<p class="row gap_md flex-wrap:wrap">
+	<p class="row_wrap gap_md">
 		<strong>also exported from</strong>
 		{#each declaration.also_exported_from as module_path (module_path)}
 			<ModuleLink {module_path} />
@@ -425,7 +425,7 @@ external types, and more.
 {#if external_types_not_inherited}
 	<section>
 		<h4>external types</h4>
-		<div class="row gap_md flex-wrap:wrap">
+		<div class="row_wrap gap_md">
 			{@render type_list(external_types_not_inherited)}
 		</div>
 	</section>
@@ -481,13 +481,13 @@ external types, and more.
 	<section>
 		<h4>inheritance</h4>
 		{#if declaration.extends_types?.length}
-			<div class="row gap_md flex-wrap:wrap">
+			<div class="row_wrap gap_md">
 				<strong>extends:</strong>
 				{@render type_list(declaration.extends_types)}
 			</div>
 		{/if}
 		{#if declaration.implements_types?.length}
-			<div class="row gap_md flex-wrap:wrap">
+			<div class="row_wrap gap_md">
 				<strong>implements:</strong>
 				{@render type_list(declaration.implements_types)}
 			</div>
@@ -586,7 +586,7 @@ external types, and more.
 					</p>
 				{/if}
 				{#if member.modifiers?.length || (member.kind === 'variable' && member.reactivity)}
-					<div class="row gap_md flex-wrap:wrap">
+					<div class="row_wrap gap_md">
 						{#if member.modifiers?.length}
 							{#each member.modifiers as modifier (modifier)}
 								<span class="chip">{modifier}</span>

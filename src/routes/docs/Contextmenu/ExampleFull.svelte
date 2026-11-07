@@ -154,7 +154,7 @@
 				{/if}
 				<AppContextmenu {toggle_about_dialog} />
 			{/snippet}
-			<section class="display:flex">
+			<section class="flex">
 				<div>
 					<Contextmenu>
 						{#snippet entries()}
@@ -236,7 +236,7 @@
 			<blockquote>
 				free and open source at<br /><GithubLink path="fuzdev/fuz_ui" />
 			</blockquote>
-			<code class="display:block p_md mb_lg">
+			<code class="block p_md mb_lg">
 				npm i -D <a href="https://www.npmjs.com/package/@fuzdev/fuz_ui">@fuzdev/fuz_ui</a>
 			</code>
 			<div class="p_xl box">

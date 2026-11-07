@@ -75,7 +75,7 @@
 <!-- Marker chips from the module comment, shared by the module page and directory listings. -->
 {#snippet doc_chips(m: Module)}
 	{#if m.is_deprecated || m.is_internal}
-		<p class="row gap_md flex-wrap:wrap">
+		<p class="row_wrap gap_md">
 			{#if m.is_deprecated}
 				<span class="chip">⚠️ deprecated</span>
 			{/if}
@@ -191,7 +191,7 @@
 					{#each module.re_exports_by_module as [from_path, entries] (from_path)}
 						<li class="mb_lg">
 							<p class="mb_sm">from <ModuleLink module_path={from_path} /></p>
-							<div class="row gap_md flex-wrap:wrap">
+							<div class="row_wrap gap_md">
 								{#each entries as entry (entry.name)}
 									<DeclarationLink name={entry.name} module_path={from_path}>
 										{#if entry.typeOnly}
@@ -205,7 +205,7 @@
 					{#each module.external_re_exports_by_specifier as [specifier, entries] (specifier)}
 						<li class="mb_lg">
 							<p class="mb_sm">from <code>{specifier}</code></p>
-							<div class="row gap_md flex-wrap:wrap">
+							<div class="row_wrap gap_md">
 								{#each entries as entry (entry.name)}
 									<span class="chip">
 										{#if entry.typeOnly}

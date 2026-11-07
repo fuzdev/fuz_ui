@@ -97,7 +97,7 @@
 			</div>
 		{/if}
 	{/if}
-	<p class="display:flex gap_xs2">
+	<p class="flex gap_xs2">
 		{#if library.repo_url}
 			<!-- eslint-disable-next-line svelte/no-navigation-without-resolve -->
 			<a class="chip" href={library.repo_url}>repo</a>

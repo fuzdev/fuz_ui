@@ -62,12 +62,12 @@
 	});
 </script>
 
-<label class="display:block position:relative">
+<label class="block relative">
 	<input {...rest} type="search" {placeholder} bind:value={search_query} />
 	{#if has_search}
 		<button
 			type="button"
-			class="plain icon_button position:absolute right:0 top:0"
+			class="plain icon_button absolute right:0 top:0"
 			onclick={() => {
 				search_query = '';
 			}}

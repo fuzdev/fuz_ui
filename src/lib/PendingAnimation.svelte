@@ -33,7 +33,7 @@
 	class={[
 		'pending-animation',
 		rest.class,
-		inline ? 'display:inline-flex align-items:center' : 'display:flex',
+		inline ? 'inline-flex align-items:center' : 'flex',
 		{ running }
 	]}
 >
