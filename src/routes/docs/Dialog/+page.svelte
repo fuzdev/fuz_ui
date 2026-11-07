@@ -173,7 +173,7 @@
 			the page and grow downward, which avoids the jumpiness of a centered dialog whose content
 			changes height. Add and remove items in the demo to compare:
 		</p>
-		<button type="button" class="mb_lg" onclick={() => (dialog_align_top_opened = true)}>
+		<button type="button" onclick={() => (dialog_align_top_opened = true)}>
 			open a top-aligned dialog
 		</button>
 	</TomeSection>
@@ -181,7 +181,7 @@
 	<TomeSection>
 		<TomeSectionHeader text="Overflow" />
 		<p>Tall content scrolls within the dialog rather than the page behind it:</p>
-		<button type="button" class="mb_lg" onclick={() => (dialog_overflowing_opened = true)}>
+		<button type="button" onclick={() => (dialog_overflowing_opened = true)}>
 			open a dialog that overflows vertically
 		</button>
 	</TomeSection>
@@ -193,7 +193,7 @@
 			<code>dismissable={'{false}'}</code> to disable click-outside (<kbd>Escape</kbd> and your own
 			buttons still close it):
 		</p>
-		<button type="button" class="mb_lg" onclick={() => (dialog_no_dismiss_opened = true)}>
+		<button type="button" onclick={() => (dialog_no_dismiss_opened = true)}>
 			open a non-dismissable dialog
 		</button>
 	</TomeSection>
@@ -233,7 +233,7 @@
 			Dialogs can open more dialogs, each stacking in the top layer. The deepest level in this demo
 			renders its own multi-pane surface via the bare-children path:
 		</p>
-		<button type="button" class="mb_lg" onclick={() => (dialog_nested_1_opened = true)}>
+		<button type="button" onclick={() => (dialog_nested_1_opened = true)}>
 			open nested dialogs
 		</button>
 	</TomeSection>
