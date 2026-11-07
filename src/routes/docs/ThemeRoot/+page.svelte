@@ -58,6 +58,9 @@
 				</p>
 				<p>These behaviors can be customized with its props:</p>
 				<ul>
+					<li><code>themes</code></li>
+					<li><code>resolve_theme</code></li>
+					<li><code>theme_fallback</code></li>
 					<li><code>sync_color_scheme</code></li>
 					<li><code>load_color_scheme</code></li>
 					<li><code>save_color_scheme</code></li>
@@ -168,6 +171,51 @@
 			refresh the page. This can be fixed using a similar strategy that we use to avoid pop-in of
 			user-defined color schemes, but it's more involved.
 		</aside>
+	</TomeSection>
+	<TomeSection>
+		<TomeSectionHeader text="Theme registry" />
+		<p>
+			The <code>themes</code> prop is the app's theme registry, defaulting to fuz_css'
+			<code>default_themes</code>. <DeclarationLink name="ThemeRoot" /> persists a registry theme by
+			its name and a registry theme composed with a contrast modifier as the pair
+			<code>{'{name, contrast}'}</code>, so a returning user gets the registry's current version,
+			recomposed; any other theme persists whole, trimmed to its <code>name</code>,
+			<code>summary</code>, <code>scheme</code>, and <code>variables</code>. Names identify registry
+			themes and their compositions, so a custom theme sharing one's name loads as that registry
+			theme or composition.
+		</p>
+		<Code
+			content={`<ThemeRoot themes={[DEFAULT_THEME, ledger_theme, my_theme]}>
+	{@render children()}
+</ThemeRoot>`}
+		/>
+		<p>
+			A theme with a single-scheme <code>scheme</code> stance, like fuz_css' dark-only
+			<code>phosphor</code>, renders its one appearance in both color schemes through derived data
+			that a resolver computes. Inject fuz_css' <code>resolve_theme_stance</code> as
+			<code>resolve_theme</code> when the registry or <code>theme_fallback</code> holds one:
+		</p>
+		<Code
+			content={`<` +
+				`script>
+	import {resolve_theme_stance} from '@fuzdev/fuz_css/theme_stance.ts';
+	import {phosphor_theme} from '@fuzdev/fuz_css/themes/phosphor.ts';
+	import {default_themes} from '@fuzdev/fuz_css/themes.ts';
+
+	const themes = [...default_themes, phosphor_theme];
+</script>
+
+<ThemeRoot {themes} resolve_theme={resolve_theme_stance}>
+	{@render children()}
+</ThemeRoot>`}
+		/>
+		<p>
+			Without a resolver, <DeclarationLink name="ThemeRoot" /> throws when it's created if
+			<code>themes</code> or <code>theme_fallback</code> holds a stanced theme. A stanced theme that
+			arrives some other way, like a user's custom theme restored from storage, logs an error and
+			renders without its stance mirror instead. The resolver is injected rather than built in so
+			apps without a stanced theme don't ship the mirror's data.
+		</p>
 	</TomeSection>
 	<TomeSection>
 		<TomeSectionHeader text="Example usage" />

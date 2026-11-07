@@ -188,7 +188,9 @@ mdz itself (`Mdz`, `MdzRoot`, `MdzStream`, the preprocessor) lives in `@fuzdev/m
 
 ### Utilities
 
-- `ThemeRoot` - theme provider component
+- `ThemeRoot` - theme provider component over the app's theme registry (`themes`);
+  a stanced theme renders through an injected `resolve_theme`, and construction
+  throws when the registry or fallback holds one without it
 - `Redirect` - client-side redirects
 
 ## Key library files
@@ -196,7 +198,9 @@ mdz itself (`Mdz`, `MdzRoot`, `MdzStream`, the preprocessor) lives in `@fuzdev/m
 ### Core systems
 
 - `tome.ts` - documentation system types and utilities
-- `theme_state.svelte.ts` - theme and color scheme management (ThemeState class)
+- `theme_state.svelte.ts` - theme and color scheme management (ThemeState class);
+  `save_theme`/`load_theme` persist a registry theme by name, a contrast
+  composition of one as `{name, contrast}`, any other whole
 - `context_helpers.ts` - Svelte context utilities (`create_context()`)
 
 ### Component helpers
