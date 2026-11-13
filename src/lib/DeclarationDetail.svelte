@@ -8,7 +8,7 @@ including parameters, props, CSS custom properties, members, overloads,
 external types, and more.
 
 @see `declaration.svelte.ts` for the `Declaration` wrapper class
-@see {@link https://github.com/fuzdev/svelte-docinfo svelte-docinfo} for the analysis library
+@see [svelte-docinfo](https://github.com/fuzdev/svelte-docinfo) for the analysis library
 -->
 <script lang="ts">
 	import Code from '@fuzdev/fuz_code/Code.svelte';

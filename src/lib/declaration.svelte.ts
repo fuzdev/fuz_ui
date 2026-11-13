@@ -36,7 +36,7 @@ const field = <T>(decl: DeclarationJsonInput, key: string): T | undefined =>
  * Computed properties are plain getters rather than `$derived` — see
  * `Library` for why.
  *
- * @see {@link https://github.com/fuzdev/svelte-docinfo svelte-docinfo} for the analysis library
+ * @see [svelte-docinfo](https://github.com/fuzdev/svelte-docinfo) for the analysis library
  * @see `DeclarationDetail.svelte` for the rendering component
  */
 export class Declaration {

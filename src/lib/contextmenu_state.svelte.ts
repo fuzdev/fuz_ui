@@ -134,7 +134,7 @@ export interface ContextmenuStateOptions {
  * Manages contextmenu state.
  * See usage with `ContextmenuRoot.svelte` and `Contextmenu.svelte`.
  *
- * @see {@link https://developer.mozilla.org/en-US/docs/Web/API/Element/contextmenu_event}
+ * @see https://developer.mozilla.org/en-US/docs/Web/API/Element/contextmenu_event
  */
 export class ContextmenuState {
 	layout: Dimensions; // TODO $state?

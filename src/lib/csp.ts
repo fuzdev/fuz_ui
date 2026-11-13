@@ -332,7 +332,7 @@ export interface CspDirectiveSpec {
  * Fuz excludes deprecated directives, so those are intentionally omitted,
  * but any newer missing directives are bugs.
  *
- * @see {@link https://developer.mozilla.org/en-US/docs/Web/HTTP/Reference/Headers/Content-Security-Policy}
+ * @see https://developer.mozilla.org/en-US/docs/Web/HTTP/Reference/Headers/Content-Security-Policy
  */
 export const csp_directive_specs: Array<CspDirectiveSpec> = [
 	{

@@ -39,7 +39,7 @@ const group_sorted = <T>(
  * Computed properties are plain getters rather than `$derived` — see
  * `Library` for why.
  *
- * @see {@link https://github.com/ryanatkn/svelte-docinfo svelte-docinfo} for the analysis library
+ * @see [svelte-docinfo](https://github.com/fuzdev/svelte-docinfo) for the analysis library
  * @see `declaration.svelte.ts` for the `Declaration` wrapper class
  */
 export class Module {

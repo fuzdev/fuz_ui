@@ -5,7 +5,7 @@
 	import { alert_status_options, type AlertStatus } from './alert.ts';
 
 	/**
-	 * @see {@link https://www.w3.org/WAI/ARIA/apg/patterns/alert/}
+	 * @see https://www.w3.org/WAI/ARIA/apg/patterns/alert/
 	 *
 	 * @module
 	 */
