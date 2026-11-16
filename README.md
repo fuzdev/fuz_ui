@@ -13,7 +13,7 @@ while following idiomatic Svelte patterns.
 
 This library has no AI features by design, for that see [zzz](https://github.com/fuzdev/zzz).
 
-To learn more see [the docs](https://ui.fuz.dev/docs) and [contributing.md](contributing.md).
+To learn more see [the docs](https://ui.fuz.dev/docs) and [contributing](CONTRIBUTING.md).
 Feel free to take the ideas and code for your own purposes.
 
 The Svelte components and helpers:
@@ -32,7 +32,7 @@ The Svelte components and helpers:
 ## Usage
 
 > ⚠️ Expect breaking changes. If you want to help stabilize the API,
-> please see [contributing.md](contributing.md) and thank you.
+> please see [contributing](CONTRIBUTING.md) and thank you.
 
 ```bash
 npm i -D @fuzdev/fuz_ui
