@@ -7,6 +7,7 @@ import {
 	RootMenuState
 } from '#lib/contextmenu_state.svelte.ts';
 import { add_test_entry } from './contextmenu_state_test_helpers.ts';
+import { Dimensions } from '#lib/dimensions.svelte.ts';
 
 describe('ContextmenuState - Edge Cases', () => {
 	let contextmenu: ContextmenuState;
@@ -176,7 +177,7 @@ describe('ContextmenuState - Edge Cases', () => {
 		});
 
 		test('zero-sized layout', () => {
-			const zero_layout = { width: 0, height: 0 };
+			const zero_layout = Object.assign(new Dimensions(), { width: 0, height: 0 });
 			const cm = new ContextmenuState({ layout: zero_layout });
 
 			assert.strictEqual(cm.layout.width, 0);

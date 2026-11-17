@@ -1,6 +1,7 @@
 import { describe, test, assert, beforeEach } from 'vitest';
 
 import { ContextmenuState } from '#lib/contextmenu_state.svelte.ts';
+import { Dimensions } from '#lib/dimensions.svelte.ts';
 
 describe('ContextmenuState - Initialization', () => {
 	let contextmenu: ContextmenuState;
@@ -25,7 +26,7 @@ describe('ContextmenuState - Initialization', () => {
 		});
 
 		test('uses provided initial layout', () => {
-			const custom_layout = { width: 800, height: 600 };
+			const custom_layout = Object.assign(new Dimensions(), { width: 800, height: 600 });
 			const cm = new ContextmenuState({ layout: custom_layout });
 			assert.strictEqual(cm.layout, custom_layout);
 			assert.strictEqual(cm.has_custom_layout, true);
@@ -40,7 +41,7 @@ describe('ContextmenuState - Initialization', () => {
 		});
 
 		test('custom layout is preserved', () => {
-			const custom_layout = { width: 1920, height: 1080 };
+			const custom_layout = Object.assign(new Dimensions(), { width: 1920, height: 1080 });
 			const cm = new ContextmenuState({ layout: custom_layout });
 
 			// Open and close shouldn't modify custom layout

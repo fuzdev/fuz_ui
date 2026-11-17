@@ -6,6 +6,7 @@
 import { describe, test, assert, afterEach } from 'vitest';
 import { flushSync } from 'svelte';
 import { ContextmenuState, type ContextmenuActivateResult } from '#lib/contextmenu_state.svelte.ts';
+import { Dimensions } from '#lib/dimensions.svelte.ts';
 import { unmount_component } from './test_helpers.ts';
 import { mount_contextmenu_root, type SharedTestOptions } from './contextmenu_test_helpers.ts';
 
@@ -62,7 +63,7 @@ export const create_shared_rendering_tests = (
 		});
 
 		test('contextmenu-layout not rendered with custom layout', () => {
-			const custom_layout = { width: 800, height: 600 };
+			const custom_layout = Object.assign(new Dimensions(), { width: 800, height: 600 });
 			const cm = new ContextmenuState({ layout: custom_layout });
 
 			mounted = mount_contextmenu_root(Component, cm);
