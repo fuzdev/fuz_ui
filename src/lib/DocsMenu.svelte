@@ -4,22 +4,26 @@
 	import type { SvelteHTMLElements } from 'svelte/elements';
 
 	import DocsList from './DocsList.svelte';
-	import { tome_to_pathname, tome_to_title, type Tome } from './tome.ts';
+	import { tome_to_pathname, tome_to_title, type DocsMenuTome } from './tome.ts';
+	import { href_is_current_page } from './page_helpers.ts';
 	import DocsMenuHeader from './DocsMenuHeader.svelte';
 
 	const {
 		tomes,
 		children,
-		expand_width = false,
 		...rest
 	}: SvelteHTMLElements['div'] & {
-		tomes: Array<Tome>;
+		/**
+		 * The tomes to list, grouped by category. Only their slug, title, and
+		 * category are read, so a site's own nav can list them without importing
+		 * their page components.
+		 */
+		tomes: Array<DocsMenuTome>;
 		children?: Snippet<[category: string]>;
-		expand_width?: boolean;
 	} = $props();
 
 	const tomes_by_category = $derived(
-		tomes.reduce<Record<string, Array<Tome>>>((result, c) => {
+		tomes.reduce<Record<string, Array<DocsMenuTome>>>((result, c) => {
 			(result[c.category] ??= []).push(c);
 			return result;
 		}, {})
@@ -28,7 +32,7 @@
 
 <!-- eslint-disable svelte/no-navigation-without-resolve -->
 
-<DocsList {...rest} {expand_width} margin={false} class="docs-menu {rest.class}">
+<DocsList {...rest} margin={false} class="docs-menu {rest.class}">
 	<ul class="unstyled">
 		{#each Object.entries(tomes_by_category) as [category, tomes] (category)}
 			<li class="category">
@@ -40,8 +44,13 @@
 				<ul class="unstyled">
 					{#each tomes as item (item)}
 						{@const pathname = tome_to_pathname(item)}
+						{@const current = href_is_current_page(pathname, page.url)}
 						<li role="none">
-							<a class={['menuitem', { selected: pathname === page.url.pathname }]} href={pathname}>
+							<a
+								class={['menuitem', { selected: current }]}
+								href={pathname}
+								aria-current={current ? 'page' : undefined}
+							>
 								<div class="ellipsis">{tome_to_title(item)}</div>
 							</a>
 						</li>

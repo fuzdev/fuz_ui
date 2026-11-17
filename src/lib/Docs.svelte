@@ -1,6 +1,6 @@
 <script module lang="ts">
-	/** Width in pixels of the docs sidebar, passed to `AppShell`. */
-	const DOCS_SIDEBAR_WIDTH = 240;
+	/** Width of the docs sidebar, passed to `AppShell`. */
+	const DOCS_SIDEBAR_WIDTH = '240px';
 </script>
 
 <script lang="ts">
@@ -9,24 +9,29 @@
 	 * `AppShell` sidebar, the page, and a column of the page's links and related
 	 * docs on wide screens.
 	 *
-	 * Below `SIDEBAR_NARROW_QUERY_DEFAULT` the menu is `AppShell`'s overlay,
-	 * opened from the primary nav's menu button. Below 1000px the page links
-	 * leave their column for the sidebar, under the menu. Both moves are CSS,
-	 * so the server render paints the right layout at any width.
+	 * At or below `SIDEBAR_NARROW_QUERY_DEFAULT` the menu is `AppShell`'s
+	 * overlay, opened from the primary nav's menu button. At or below 1000px
+	 * the page links leave their column for the sidebar, under the menu. Both
+	 * moves are CSS, so the server render paints the right layout at any width.
 	 *
 	 * Nested in an outer `AppShell` (a site whose shell spans more than its
 	 * docs), `Docs` renders no shell or primary nav of its own: the outer shell
-	 * owns the sidebar and renders the tome menu there (a `DocsMenu` of the same
-	 * `tomes`), and the page links show only in the column, so they're absent
-	 * below 1000px. `primary_nav`, `secondary_nav_header`, and
-	 * `secondary_nav_footer` render only in the standalone layout; nested, put
-	 * that content in the outer shell. `--docs_nested_top` offsets the sticky
-	 * column below an outer header.
+	 * owns the sidebar and must render the tome menu there (a `DocsMenu` of the
+	 * same `tomes`), or the menu is missing. `primary_nav`,
+	 * `secondary_nav_header`, and `secondary_nav_footer` render only in the
+	 * standalone layout (DEV warns when they're passed nested); put that
+	 * content in the outer shell. The page links show in the column, and at or
+	 * below 1000px only where the outer sidebar renders a `DocsPageLinks`: for
+	 * that, set `docs_links_context` above both, which `Docs` then shares
+	 * rather than creating its own. `--docs_sticky_top` offsets the sticky
+	 * column below an outer header, and the page renders in a `<main>`, so the
+	 * outer layout shouldn't wrap it in another.
 	 *
 	 * @module
 	 */
 
 	import type { Snippet } from 'svelte';
+	import { DEV } from 'esm-env';
 	import { page } from '$app/state';
 
 	import AppShell from './AppShell.svelte';
@@ -76,14 +81,22 @@
 	const tomes_by_slug = $derived(new Map(tomes.map((t) => [t.slug, t])));
 	tomes_context.set(() => tomes_by_slug);
 
-	docs_links_context.set(new DocsLinks());
+	// an outer one lets a site's own sidebar render the page links
+	if (!docs_links_context.get_maybe()) docs_links_context.set(new DocsLinks());
 
 	// read before this component's own `AppShell` sets the context, so it finds only an outer one
 	const nested = sidebar_state_context.get_maybe() !== undefined;
 
+	if (DEV && nested && (primary_nav || secondary_nav_header || secondary_nav_footer)) {
+		// eslint-disable-next-line no-console
+		console.warn(
+			'`Docs` is nested in an outer `AppShell`, so `primary_nav`, `secondary_nav_header`, and `secondary_nav_footer` do not render; put that content in the outer shell'
+		);
+	}
+
 	const uid = $props.id();
 	// named so the primary nav's menu button can carry `aria-controls`
-	const sidebar_state = nested ? undefined : new SidebarState({ sidebar_id: `${uid}-docs-menu` });
+	const sidebar_state = nested ? undefined : new SidebarState({ id: `${uid}-docs-menu` });
 </script>
 
 {#snippet sidebar()}
@@ -106,9 +119,9 @@
 					<button
 						class="plain"
 						type="button"
-						aria-expanded={sidebar_state.show_sidebar_narrow}
-						aria-controls={sidebar_state.sidebar_id}
-						onclick={() => sidebar_state.toggle_sidebar()}
+						aria-expanded={sidebar_state.show_narrow}
+						aria-controls={sidebar_state.id}
+						onclick={() => sidebar_state.toggle()}
 					>
 						menu
 					</button>
@@ -156,7 +169,6 @@
 
 <style>
 	.docs {
-		--docs_menu_width: 180px;
 		--docs_content_padding: var(--space_xl5);
 		--docs_content_max_width: calc(var(--distance_md) + var(--docs_content_padding) * 2);
 		--docs_tertiary_width: 240px; /* matches `DOCS_SIDEBAR_WIDTH` */
@@ -187,18 +199,14 @@
 	}
 	.tertiary-column {
 		position: sticky;
-		top: var(--docs_primary_nav_height);
+		top: var(--docs_sticky_top, 0px);
 		align-self: flex-start;
 		flex-shrink: 0;
 		width: var(--docs_tertiary_width);
-		max-height: calc(100svh - var(--docs_primary_nav_height));
+		max-height: calc(100svh - var(--docs_sticky_top, 0px));
 		padding: var(--space_md);
 		overflow: auto;
 		scrollbar-width: thin;
-	}
-	.docs.nested .tertiary-column {
-		top: var(--docs_nested_top, 0px);
-		max-height: calc(100svh - var(--docs_nested_top, 0px));
 	}
 	.primary-nav-end {
 		display: flex;
@@ -223,15 +231,11 @@
 		padding: 0 var(--space_md);
 	}
 
-	/* the shell's sidebar sits below the primary nav while it's beside the content */
-	@media not (max-width: 800px) {
-		:global(.docs-shell.app-shell > .app-shell-sidebar) {
-			top: var(--docs_primary_nav_height);
-			height: calc(100% - var(--docs_primary_nav_height));
-		}
-	}
 	:global(.docs-shell.app-shell) {
 		--docs_primary_nav_height: 60px;
+		/* below the primary nav: the wide sidebar (`AppShell` ignores it narrow) and the column */
+		--sidebar_top: var(--docs_primary_nav_height);
+		--docs_sticky_top: var(--docs_primary_nav_height);
 		--sidebar_bg: var(--shade_10);
 		background-color: var(--shade_10);
 	}

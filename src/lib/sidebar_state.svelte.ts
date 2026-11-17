@@ -1,13 +1,12 @@
 /**
  * Reactive sidebar visibility state. Provisioned by `AppShell.svelte` via
- * `sidebar_state_context`; consumers read `show_sidebar` and call
- * `toggle_sidebar` / `activate`.
+ * `sidebar_state_context`; consumers read `show` and call `toggle`.
  *
- * Visibility is two viewport-free fields — `show_sidebar_wide` (the persistent
- * sidebar beside the content) and `show_sidebar_narrow` (the overlay below
- * `narrow_query`) — so server and client render the same classes and CSS picks
- * which field is in effect. `narrow` reads the viewport and is only for input
- * handling and ARIA, never for markup that must match SSR.
+ * Visibility is two viewport-free fields — `show_wide` (the persistent
+ * sidebar beside the content) and `show_narrow` (the overlay at or below
+ * `narrow_query`) — so server and client render the same classes and CSS
+ * picks which field is in effect. `narrow` and `show` read the viewport and
+ * are for input handling and ARIA, never for markup that must match SSR.
  *
  * @module
  */
@@ -17,8 +16,8 @@ import { MediaQuery } from 'svelte/reactivity';
 import { create_context } from './context_helpers.ts';
 
 /**
- * Default `narrow_query` — below 800px the sidebar overlays the content and
- * starts closed.
+ * Default `narrow_query` — at or below 800px the sidebar overlays the content
+ * and starts closed.
  */
 export const SIDEBAR_NARROW_QUERY_DEFAULT = '(max-width: 800px)';
 
@@ -31,9 +30,9 @@ export const sidebar_state_context = create_context<() => SidebarState>();
 
 export interface SidebarStateOptions {
 	/**
-	 * Reactive getter that controls whether the sidebar is enabled. When
-	 * supplied, overrides the internal `enabled` state — `show_sidebar`
-	 * auto-returns `false` while the getter returns `false`.
+	 * Reactive getter for whether the sidebar is enabled; `show` is `false`
+	 * and `AppShell` hides its toggle while it returns `false`.
+	 * @default () => true
 	 */
 	enabled?: () => boolean;
 	/**
@@ -53,27 +52,31 @@ export interface SidebarStateOptions {
 	 * toggle knows. Set, it assumes one shell per state: shells mounted at
 	 * the same time with this state would render the same id.
 	 */
-	sidebar_id?: string;
+	id?: string;
 }
 
+/**
+ * Visibility of an `AppShell` sidebar in its two modes. Construct one to
+ * configure the shell (`enabled`, `narrow_query`, `id`) and pass it as
+ * `AppShell`'s `sidebar_state`; otherwise the shell creates its own.
+ */
 export class SidebarState {
 	/** The media query for narrow mode, or `null` when narrow mode is disabled. */
 	readonly narrow_query: string | null;
 
 	/** The sidebar element's `id`, or `null` to let `AppShell` generate one. */
-	readonly sidebar_id: string | null;
+	readonly id: string | null;
 
 	/**
 	 * Whether the sidebar shows beside the content outside narrow mode — the
 	 * desktop preference. Narrow-mode interactions never touch it.
 	 */
-	show_sidebar_wide: boolean = $state.raw(true);
+	show_wide: boolean = $state.raw(true);
 
 	/** Whether the narrow-mode overlay is open. */
-	show_sidebar_narrow: boolean = $state.raw(false);
+	show_narrow: boolean = $state.raw(false);
 
-	#get_enabled?: () => boolean | undefined;
-	#enabled: boolean = $state.raw(true);
+	#get_enabled: (() => boolean) | undefined;
 	#narrow_media: MediaQuery | null;
 
 	/**
@@ -93,23 +96,20 @@ export class SidebarState {
 			);
 		}
 		this.narrow_query = narrow_query;
-		this.sidebar_id = options?.sidebar_id ?? null;
+		this.id = options?.id ?? null;
 		this.#narrow_media = narrow_query === null ? null : new MediaQuery(narrow_query, false);
 	}
 
+	/** Whether the sidebar is enabled, from the `enabled` option, else `true`. */
 	get enabled(): boolean {
-		return this.#get_enabled?.() ?? this.#enabled;
-	}
-
-	set enabled(value: boolean) {
-		this.#enabled = value;
+		return this.#get_enabled?.() ?? true;
 	}
 
 	/**
 	 * Whether the viewport matches `narrow_query`. Always `false` during SSR
 	 * and when `narrow_query` is `null`. Read it for input handling and ARIA
 	 * only — markup that must match the server render should key on
-	 * `show_sidebar_wide` / `show_sidebar_narrow` instead.
+	 * `show_wide` / `show_narrow` instead.
 	 */
 	get narrow(): boolean {
 		return this.#narrow_media?.current ?? false;
@@ -117,54 +117,34 @@ export class SidebarState {
 
 	/**
 	 * Effective visibility for the current mode: `false` while disabled,
-	 * otherwise `show_sidebar_narrow` in narrow mode and `show_sidebar_wide`
-	 * outside it. The setter writes the current mode's field.
+	 * otherwise `show_narrow` in narrow mode and `show_wide` outside it. The
+	 * setter writes the current mode's field. Viewport-dependent, like
+	 * `narrow`.
 	 */
-	get show_sidebar(): boolean {
+	get show(): boolean {
 		if (!this.enabled) return false;
-		return this.narrow ? this.show_sidebar_narrow : this.show_sidebar_wide;
+		return this.narrow ? this.show_narrow : this.show_wide;
 	}
 
-	set show_sidebar(value: boolean) {
+	set show(value: boolean) {
 		if (this.narrow) {
-			this.show_sidebar_narrow = value;
+			this.show_narrow = value;
 		} else {
-			this.show_sidebar_wide = value;
+			this.show_wide = value;
 		}
 	}
 
-	/**
-	 * Sets the current mode's visibility, routed by `narrow` at call time.
-	 *
-	 * @param value - the new visibility, defaults to the inverse of `show_sidebar`
-	 */
-	toggle_sidebar(value: boolean = !this.show_sidebar): void {
-		this.show_sidebar = value;
+	/** Flips the current mode's visibility, routed by `narrow` at call time. */
+	toggle(): void {
+		this.show = !this.show;
 	}
 
 	/**
 	 * Closes the narrow-mode overlay, leaving the wide preference untouched.
-	 * `AppShell` calls it on navigation, Escape, scrim click, and when the
-	 * viewport widens out of narrow mode.
+	 * `AppShell` calls it on navigation, a hash change, Escape, scrim click,
+	 * and when the viewport widens out of narrow mode.
 	 */
 	close_narrow(): void {
-		this.show_sidebar_narrow = false;
-	}
-
-	/**
-	 * Show the sidebar and enable the toggle. The returned disposer hides
-	 * and disables on cleanup — pair with `$effect` for scoped activation.
-	 *
-	 * @mutates `this` - sets `enabled` and `show_sidebar_wide`; the disposer
-	 *   clears `enabled`, `show_sidebar_wide`, and `show_sidebar_narrow`
-	 */
-	activate(): () => void {
-		this.enabled = true;
-		this.show_sidebar_wide = true;
-		return () => {
-			this.enabled = false;
-			this.show_sidebar_wide = false;
-			this.show_sidebar_narrow = false;
-		};
+		this.show_narrow = false;
 	}
 }

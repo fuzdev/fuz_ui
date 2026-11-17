@@ -5,19 +5,14 @@
 	import DocsList from './DocsList.svelte';
 	import { docs_links_context } from './docs_helpers.svelte.ts';
 
-	const {
-		expand_width = false,
-		...rest
-	}: SvelteHTMLElements['div'] & {
-		expand_width?: boolean;
-	} = $props();
+	const rest: SvelteHTMLElements['div'] = $props();
 
 	const docs_links = docs_links_context.get();
 
 	const hash = $derived(page.url.hash.slice(1));
 </script>
 
-<DocsList {...rest} {expand_width} class="docs-page-links {rest.class}">
+<DocsList {...rest} class="docs-page-links {rest.class}">
 	<h4 class="mb_sm">on this page</h4>
 	{@render content()}
 </DocsList>

@@ -258,9 +258,7 @@ describe('AppShell markup', () => {
 	});
 
 	test('disabled renders neither state class and no toggle', () => {
-		const state = new SidebarState();
-		state.enabled = false;
-		const { body } = render_shell(state);
+		const { body } = render_shell(new SidebarState({ enabled: () => false }));
 		const root = get_tag(body, 'app-shell');
 		assert.isFalse(has_class(root, 'wide-open'));
 		assert.isFalse(has_class(root, 'narrow-open'));
@@ -278,8 +276,8 @@ describe('AppShell markup', () => {
 		assert.include(toggle, 'aria-expanded="true"');
 	});
 
-	test("the state's sidebar_id names the sidebar and the toggle's aria-controls", () => {
-		const { body } = render_shell(new SidebarState({ sidebar_id: 'site-menu' }));
+	test("the state's id names the sidebar and the toggle's aria-controls", () => {
+		const { body } = render_shell(new SidebarState({ id: 'site-menu' }));
 		assert.include(get_tag(body, 'app-shell-sidebar'), 'id="site-menu"');
 		assert.include(get_tag(body, 'app-shell-toggle'), 'aria-controls="site-menu"');
 	});
@@ -294,7 +292,7 @@ describe('AppShell markup', () => {
 
 	test('an open narrow state still renders no dialog, which keys on the viewport', () => {
 		const sidebar_state = new SidebarState();
-		sidebar_state.show_sidebar_narrow = true;
+		sidebar_state.show_narrow = true;
 		const { body } = render(AppShell, {
 			props: { children, sidebar, sidebar_state, sidebar_label: 'menu' }
 		});
@@ -306,19 +304,15 @@ describe('AppShell markup', () => {
 		assert.notInclude(sidebar_tag, 'tabindex');
 	});
 
-	test("a custom toggle receives the state's sidebar_id", () => {
-		const toggle_button = createRawSnippet<[{ sidebar_id: string }]>((args) => ({
-			render: () => `<button class="custom-toggle" aria-controls="${args().sidebar_id}">t</button>`
-		}));
-		const { body } = render(AppShell, {
-			props: {
-				children,
-				sidebar,
-				sidebar_state: new SidebarState({ sidebar_id: 'site-menu' }),
-				toggle_button
-			}
-		});
-		assert.include(get_tag(body, 'custom-toggle'), 'aria-controls="site-menu"');
+	test('sidebar_label also names the built-in toggle', () => {
+		const { body } = render(AppShell, { props: { children, sidebar, sidebar_label: 'menu' } });
+		assert.include(get_tag(body, 'app-shell-toggle'), 'aria-label="menu"');
+	});
+
+	test('sidebar_width is set inline only when passed', () => {
+		assert.notInclude(get_tag(render_shell().body, 'app-shell'), '--sidebar_width');
+		const { body } = render(AppShell, { props: { children, sidebar, sidebar_width: '16rem' } });
+		assert.include(get_tag(body, 'app-shell'), '--sidebar_width: 16rem');
 	});
 
 	test('toggle has a static accessible name and a dynamic title', () => {

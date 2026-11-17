@@ -34,11 +34,14 @@ export interface Tome {
 	related_declarations: Array<string>;
 }
 
+/** The fields of a `Tome` that `DocsMenu` reads, so a nav can list tomes without their components. */
+export type DocsMenuTome = Pick<Tome, 'slug' | 'title' | 'category'>;
+
 /**
  * @param hash - URL fragment to append, with or without the `#`
  */
 export const tome_to_pathname = (
-	item: Tome | string,
+	item: Pick<Tome, 'slug'> | string,
 	docs_path = DOCS_PATH_DEFAULT,
 	hash?: string
 ): string => {
@@ -50,7 +53,8 @@ export const tome_to_pathname = (
 /**
  * The display label for a tome — its `title` if set, else its `slug`.
  */
-export const tome_to_title = (tome: Tome): string => tome.title ?? tome.slug;
+export const tome_to_title = (tome: Pick<Tome, 'slug' | 'title'>): string =>
+	tome.title ?? tome.slug;
 
 export const tome_get_by_slug = (slug: string): Tome => {
 	const get_tomes = tomes_context.get();

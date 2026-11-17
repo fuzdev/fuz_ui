@@ -50,7 +50,7 @@
 <!-- TODO probably add a `nav` wrapper? around which? -->
 <aside {...rest} class="docs-tertiary-nav unstyled {rest.class}">
 	{#if should_show_page_links}
-		<DocsPageLinks expand_width />
+		<DocsPageLinks />
 	{/if}
 	{#if tomes_related_to_selected.length}
 		<section class="related-section">

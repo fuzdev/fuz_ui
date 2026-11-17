@@ -1,11 +1,11 @@
 <script lang="ts">
 	/**
-	 * SvelteKit-aware navigation link. Resolves `path` via `resolve` from
-	 * `$app/paths`, then derives `selected` from `page.url.pathname` —
-	 * fires for both the exact page (`/admin/repos`) and any descendant
-	 * page (`/admin/repos/foo/log`). Exact matches additionally carry
-	 * `aria-current="page"` so CSS / assistive tech can distinguish
-	 * "this exact page" from "current section" when needed.
+	 * Navigation link marked `selected` while its `href` is the current page
+	 * or, unless `exact`, a page beneath it (`/admin` for `/admin/repos/foo`).
+	 * The current page itself also carries `aria-current="page"`, so CSS and
+	 * assistive tech can tell "this page" from "this section". A relative
+	 * `href` resolves against the current url, so the server render matches
+	 * the client's.
 	 *
 	 * The `highlighted` name is left free for orthogonal emphasis (recent
 	 * activity, unread badges, search matches), as `DocsPageLinks` uses it.
@@ -16,25 +16,37 @@
 	import type { Snippet } from 'svelte';
 	import type { SvelteHTMLElements } from 'svelte/elements';
 	import { page } from '$app/state';
-	import { resolve } from '$app/paths';
 	import type { OmitStrict } from '@fuzdev/fuz_util/types.ts';
 
+	import { href_contains_current_page, href_is_current_page } from './page_helpers.ts';
+
 	const {
-		path,
+		href,
+		exact = false,
+		selected: selected_prop,
 		children,
 		...rest
 	}: OmitStrict<SvelteHTMLElements['a'], 'href' | 'children'> & {
-		/** Route path passed to `resolve` from `$app/paths` to compute `href`. */
-		path: string;
+		/** The link's `href`, already resolved (e.g. with `resolve` from `$app/paths`). */
+		href: string;
+		/**
+		 * Whether only the page itself selects the link, not pages beneath it. A link
+		 * to the site root (or the base path) contains every page, so it wants `exact`.
+		 * @default false
+		 */
+		exact?: boolean;
+		/** Overrides the derived `selected` state, e.g. for a link that owns several routes. */
+		selected?: boolean;
 		children?: Snippet;
 	} = $props();
 
-	const href = $derived(resolve(path as any));
-	const is_exact = $derived(href === page.url.pathname);
-	const selected = $derived(is_exact || page.url.pathname.startsWith(href + '/'));
+	const current = $derived(href_is_current_page(href, page.url));
+	const selected = $derived(
+		selected_prop ?? (exact ? current : href_contains_current_page(href, page.url))
+	);
 </script>
 
 <!-- eslint-disable-next-line svelte/no-navigation-without-resolve -->
-<a {href} class:selected aria-current={is_exact ? 'page' : undefined} {...rest}>
+<a {...rest} {href} class={[rest.class, { selected }]} aria-current={current ? 'page' : undefined}>
 	{@render children?.()}
 </a>

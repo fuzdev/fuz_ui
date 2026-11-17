@@ -3,14 +3,15 @@
 	 * Sidebar-and-main app shell. Provisions `sidebar_state_context` (creating
 	 * a fresh `SidebarState` if `sidebar_state` is not supplied) so descendants
 	 * can read sidebar visibility and toggle it. Optionally binds a global
-	 * keyboard shortcut and renders a built-in toggle button (or a custom one
-	 * via the `toggle_button` snippet) while the sidebar is enabled. Requires
+	 * keyboard shortcut and renders a built-in toggle button while the sidebar
+	 * is enabled; a toggle elsewhere reads the context and the state's `id`
+	 * (see `SidebarStateOptions`). Requires
 	 * the SvelteKit runtime — it closes the overlay from `afterNavigate`.
 	 *
 	 * Two modes, split by the state's `narrow_query`. Outside it the sidebar
 	 * sits beside the content, padded by `--sidebar_offset`, following
-	 * `show_sidebar_wide`. Inside it the sidebar starts closed and opens as an
-	 * overlay over a scrim, following `show_sidebar_narrow`; the content is
+	 * `show_wide`. Inside it the sidebar starts closed and opens as an
+	 * overlay over a scrim, following `show_narrow`; the content is
 	 * `inert` while it's open, and navigation, a hash change (an in-page link,
 	 * which SvelteKit leaves to the browser without `afterNavigate`), Escape, a
 	 * scrim click, or widening out of narrow mode closes it. Escape never prevents the
@@ -36,7 +37,7 @@
 	 * focus to what opened the overlay, or else to the first element whose
 	 * `aria-controls` names the sidebar's id and that takes it — when focus
 	 * was inside the sidebar or had fallen to the body. The id is the state's
-	 * `sidebar_id` when set, so a toggle outside the shell can carry
+	 * `id` when set, so a toggle outside the shell can carry
 	 * `aria-controls` too; Safari doesn't focus a clicked button, so without
 	 * it a mouse-opened overlay has no opener to return to.
 	 *
@@ -74,9 +75,11 @@
 	 * narrow query's negation — the state classes don't track the viewport,
 	 * so `.wide-open` stays set in narrow mode too. CSS variables:
 	 * `--sidebar_bg`, `--sidebar_z_index` (default `200` in both modes; the toggle sits one
-	 * above), `--sidebar_scrim_bg`, `--sidebar_width` (set from the
-	 * `sidebar_width` prop; always the configured width, not the offset), and
-	 * `--sidebar_offset`.
+	 * above), `--sidebar_scrim_bg`, `--sidebar_width` (the `sidebar_width`
+	 * prop when passed, else `180px` from the base layer; always the
+	 * configured width, not the offset), `--sidebar_top` (wide mode only: the
+	 * sidebar starts this far down, e.g. below a full-width top bar; default
+	 * `0px`), and `--sidebar_offset`.
 	 *
 	 * @module
 	 */
@@ -96,58 +99,49 @@
 	const {
 		children,
 		sidebar,
-		sidebar_width = 180,
+		sidebar_width,
 		sidebar_label = 'sidebar',
 		sidebar_state: sidebar_state_prop,
 		keyboard_shortcut = false,
 		show_toggle = true,
-		toggle_button,
 		class: class_prop,
 		...rest
 	}: SvelteHTMLElements['div'] & {
 		children: Snippet;
 		sidebar: Snippet;
 		/**
-		 * Sidebar width in pixels when shown; in narrow mode capped at `85vw`.
-		 * @default 180
+		 * Sidebar width as a CSS length, set inline as `--sidebar_width`; in
+		 * narrow mode capped at `85vw`. Omitted, the width comes from CSS, so a
+		 * consumer rule can set `--sidebar_width` on `.app-shell` (responsively,
+		 * say), falling back to `180px`.
 		 */
-		sidebar_width?: number;
+		sidebar_width?: string;
 		/**
 		 * Accessible name for the sidebar while it's the narrow-mode overlay,
-		 * announced as a modal dialog.
+		 * announced as a modal dialog, and for the built-in toggle.
 		 * @default 'sidebar'
 		 */
 		sidebar_label?: string;
-		/** Optional pre-built `SidebarState` for sharing visibility across shells. */
+		/**
+		 * A `SidebarState` built to configure the shell (`enabled`,
+		 * `narrow_query`, `id`) or to read and toggle it from outside. Omitted,
+		 * the shell creates its own.
+		 */
 		sidebar_state?: SidebarState;
 		/**
 		 * Single-key shortcut that toggles the sidebar (e.g. `'b'`) while it's
 		 * enabled and no modal is open — the persistent sidebar in wide mode,
-		 * the overlay in narrow mode. `false` disables.
+		 * the overlay in narrow mode. The key with Ctrl, Meta, or Alt held is
+		 * left to the browser. `false` disables.
 		 * @default false
 		 */
 		keyboard_shortcut?: string | false;
 		/**
-		 * Whether to render the built-in (or custom) toggle button. It renders
-		 * only while the sidebar is enabled either way.
+		 * Whether to render the built-in toggle button. It renders only while
+		 * the sidebar is enabled either way.
 		 * @default true
 		 */
 		show_toggle?: boolean;
-		/**
-		 * Custom toggle-button renderer; receives the title, visibility, toggle
-		 * callback, and the sidebar element's id. Give the button
-		 * `class="app-shell-toggle"` so it stacks above the sidebar and scrim
-		 * (it renders as a direct child of the root) — the z-index applies only
-		 * to a positioned button, so position it (e.g. `position: fixed`) — and
-		 * `aria-controls={sidebar_id}` so closing can return focus to it.
-		 * `show_sidebar` is viewport-dependent: the server renders it as in wide
-		 * mode, so rendering it as visible content changes on hydration at
-		 * narrow widths — attributes are repaired, but key visible content on
-		 * CSS or the viewport-free fields instead.
-		 */
-		toggle_button?: Snippet<
-			[{ title: string; show_sidebar: boolean; toggle: () => void; sidebar_id: string }]
-		>;
 	} = $props();
 
 	const uid = $props.id();
@@ -158,16 +152,16 @@
 	);
 	const sidebar_state = $derived(get_sidebar_state());
 
-	const sidebar_id = $derived(sidebar_state.sidebar_id ?? `${uid}-sidebar`);
+	const sidebar_id = $derived(sidebar_state.id ?? `${uid}-sidebar`);
 
 	// viewport-free, so the server and hydration renders agree
-	const wide_open = $derived(sidebar_state.enabled && sidebar_state.show_sidebar_wide);
-	const narrow_open = $derived(sidebar_state.enabled && sidebar_state.show_sidebar_narrow);
+	const wide_open = $derived(sidebar_state.enabled && sidebar_state.show_wide);
+	const narrow_open = $derived(sidebar_state.enabled && sidebar_state.show_narrow);
 	// viewport-dependent, only for `inert` and input handling (always `false` in SSR)
 	const overlay_open = $derived(sidebar_state.narrow && narrow_open);
 
 	const button_title = $derived(
-		(sidebar_state.show_sidebar ? 'hide sidebar' : 'show sidebar') +
+		(sidebar_state.show ? 'hide sidebar' : 'show sidebar') +
 			(keyboard_shortcut ? ` [${keyboard_shortcut}]` : '')
 	);
 
@@ -257,6 +251,8 @@
 				}
 				.app-shell > .app-shell-sidebar {
 					visibility: hidden;
+					top: 0;
+					height: 100%;
 					translate: -100% 0;
 					width: min(var(--sidebar_width), 85vw);
 				}
@@ -298,6 +294,9 @@
 			keyboard_shortcut &&
 			sidebar_state.enabled &&
 			e.key === keyboard_shortcut &&
+			!e.ctrlKey &&
+			!e.metaKey &&
+			!e.altKey &&
 			!is_editable(e.target) &&
 			// a modal owns the keyboard, even one opened from the overlay
 			!document.querySelector(':modal')
@@ -306,7 +305,7 @@
 			if (overlay_open) {
 				close_overlay();
 			} else {
-				sidebar_state.toggle_sidebar();
+				sidebar_state.toggle();
 			}
 			swallow(e);
 		}
@@ -316,7 +315,7 @@
 <div
 	{...rest}
 	class={['app-shell', class_prop, { 'wide-open': wide_open, 'narrow-open': narrow_open }]}
-	style:--sidebar_width="{sidebar_width}px"
+	style:--sidebar_width={sidebar_width}
 >
 	<div class="app-shell-content" inert={overlay_open}>
 		{@render children()}
@@ -324,27 +323,18 @@
 	<!-- pointer-only dismissal; Escape is the keyboard path -->
 	<div class="app-shell-scrim" aria-hidden="true" onclick={close_overlay}></div>
 	{#if show_toggle && sidebar_state.enabled}
-		{#if toggle_button}
-			{@render toggle_button({
-				title: button_title,
-				show_sidebar: sidebar_state.show_sidebar,
-				toggle: () => sidebar_state.toggle_sidebar(),
-				sidebar_id
-			})}
-		{:else}
-			<button
-				type="button"
-				class="app-shell-toggle fixed bottom:0 left:0 icon_button plain border-radius:0 border_top_right_radius_sm"
-				aria-label="sidebar"
-				aria-keyshortcuts={keyboard_shortcut || undefined}
-				aria-expanded={sidebar_state.show_sidebar}
-				aria-controls={sidebar_id}
-				title={button_title}
-				onclick={() => sidebar_state.toggle_sidebar()}
-			>
-				<span class="app-shell-toggle-glyph" aria-hidden="true">←</span>
-			</button>
-		{/if}
+		<button
+			type="button"
+			class="app-shell-toggle fixed bottom:0 left:0 icon_button plain border-radius:0 border_top_right_radius_sm"
+			aria-label={sidebar_label}
+			aria-keyshortcuts={keyboard_shortcut || undefined}
+			aria-expanded={sidebar_state.show}
+			aria-controls={sidebar_id}
+			title={button_title}
+			onclick={() => sidebar_state.toggle()}
+		>
+			<span class="app-shell-toggle-glyph" aria-hidden="true">←</span>
+		</button>
 	{/if}
 	<!-- open, the overlay is a modal dialog whose `tabindex="-1"` makes it focus's
 		fallback target; the wide sidebar stays a plain element, so a click on its
@@ -391,6 +381,9 @@
 	}
 
 	@layer fuz_ui.app_shell_base {
+		.app-shell {
+			--sidebar_width: 180px;
+		}
 		.app-shell-content {
 			--sidebar_offset: 0px;
 			display: flex;
@@ -405,10 +398,10 @@
 
 		.app-shell-sidebar {
 			position: fixed;
-			top: 0;
+			top: var(--sidebar_top, 0px);
 			left: 0;
 			width: var(--sidebar_width);
-			height: 100%;
+			height: calc(100% - var(--sidebar_top, 0px));
 			overflow: auto;
 			overscroll-behavior: contain;
 			scrollbar-width: thin;
@@ -429,11 +422,8 @@
 		}
 
 		/*
-		 * The toggle and its glyph may be consumer markup from the `toggle_button`
-		 * snippet, which never carries this component's scope hash, so they're
-		 * matched by their public class names under the scoped root. The glyph
-		 * rules go through the root's own toggle so an outer shell's state never
-		 * reaches a nested shell's glyph.
+		 * The glyph rules go through the root's own toggle so an outer shell's
+		 * state never reaches a nested shell's glyph.
 		 */
 		.app-shell > :global(.app-shell-toggle) {
 			z-index: calc(var(--sidebar_z_index, 200) + 1);

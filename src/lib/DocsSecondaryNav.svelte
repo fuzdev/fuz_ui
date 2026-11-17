@@ -21,6 +21,6 @@
 
 <nav aria-label="Secondary nav" {...rest} class={['docs-secondary-nav p_md', rest.class]}>
 	{@render header?.()}
-	<DocsMenu {tomes} expand_width />
+	<DocsMenu {tomes} />
 	{@render footer?.()}
 </nav>

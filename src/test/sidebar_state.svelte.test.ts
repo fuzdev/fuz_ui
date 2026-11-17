@@ -3,7 +3,7 @@
 /**
  * Tests for `SidebarState` — the wide and narrow visibility fields, mode
  * routing through a flippable `matchMedia` stub, the reactive `narrow`
- * subscription, `activate`, and the narrow-query guard.
+ * subscription, the `enabled` option, and the narrow-query guard.
  *
  * @module
  */
@@ -30,23 +30,23 @@ describe('SidebarState defaults', () => {
 		const state = new SidebarState();
 		assert.strictEqual(state.narrow_query, SIDEBAR_NARROW_QUERY_DEFAULT);
 		assert.deepEqual(media.queries, [SIDEBAR_NARROW_QUERY_DEFAULT]);
-		assert.isTrue(state.show_sidebar_wide);
-		assert.isFalse(state.show_sidebar_narrow);
+		assert.isTrue(state.show_wide);
+		assert.isFalse(state.show_narrow);
 		assert.isFalse(state.narrow);
-		assert.isTrue(state.show_sidebar);
-		assert.isNull(state.sidebar_id);
+		assert.isTrue(state.show);
+		assert.isNull(state.id);
 	});
 
-	test('custom sidebar_id is passed through', () => {
-		const state = new SidebarState({ sidebar_id: 'site-menu' });
-		assert.strictEqual(state.sidebar_id, 'site-menu');
+	test('custom id is passed through', () => {
+		const state = new SidebarState({ id: 'site-menu' });
+		assert.strictEqual(state.id, 'site-menu');
 	});
 
 	test('narrow viewport starts closed', () => {
 		media.set_matches(true);
 		const state = new SidebarState();
 		assert.isTrue(state.narrow);
-		assert.isFalse(state.show_sidebar);
+		assert.isFalse(state.show);
 	});
 
 	test('custom query is passed through', () => {
@@ -59,71 +59,71 @@ describe('SidebarState defaults', () => {
 describe('SidebarState mode routing', () => {
 	test('wide toggle flips only the wide field', () => {
 		const state = new SidebarState();
-		state.toggle_sidebar();
-		assert.isFalse(state.show_sidebar_wide);
-		assert.isFalse(state.show_sidebar_narrow);
-		assert.isFalse(state.show_sidebar);
-		state.toggle_sidebar();
-		assert.isTrue(state.show_sidebar_wide);
-		assert.isFalse(state.show_sidebar_narrow);
+		state.toggle();
+		assert.isFalse(state.show_wide);
+		assert.isFalse(state.show_narrow);
+		assert.isFalse(state.show);
+		state.toggle();
+		assert.isTrue(state.show_wide);
+		assert.isFalse(state.show_narrow);
 	});
 
 	test('narrow toggle flips only the narrow field', () => {
 		media.set_matches(true);
 		const state = new SidebarState();
-		state.toggle_sidebar();
-		assert.isTrue(state.show_sidebar_narrow);
-		assert.isTrue(state.show_sidebar_wide);
-		assert.isTrue(state.show_sidebar);
-		state.toggle_sidebar();
-		assert.isFalse(state.show_sidebar_narrow);
-		assert.isTrue(state.show_sidebar_wide);
+		state.toggle();
+		assert.isTrue(state.show_narrow);
+		assert.isTrue(state.show_wide);
+		assert.isTrue(state.show);
+		state.toggle();
+		assert.isFalse(state.show_narrow);
+		assert.isTrue(state.show_wide);
 	});
 
 	test('explicit toggle value writes the current mode', () => {
 		const state = new SidebarState();
-		state.toggle_sidebar(false);
-		assert.isFalse(state.show_sidebar_wide);
+		state.show = false;
+		assert.isFalse(state.show_wide);
 		media.set_matches(true);
-		state.toggle_sidebar(true);
-		assert.isTrue(state.show_sidebar_narrow);
-		assert.isFalse(state.show_sidebar_wide);
+		state.show = true;
+		assert.isTrue(state.show_narrow);
+		assert.isFalse(state.show_wide);
 	});
 
-	test('show_sidebar setter writes the current mode', () => {
+	test('show setter writes the current mode', () => {
 		const state = new SidebarState();
-		state.show_sidebar = false;
-		assert.isFalse(state.show_sidebar_wide);
+		state.show = false;
+		assert.isFalse(state.show_wide);
 		media.set_matches(true);
-		state.show_sidebar = true;
-		assert.isTrue(state.show_sidebar_narrow);
-		assert.isFalse(state.show_sidebar_wide);
+		state.show = true;
+		assert.isTrue(state.show_narrow);
+		assert.isFalse(state.show_wide);
 	});
 
 	test('wide closed survives narrow open, close, and crossings', () => {
 		const state = new SidebarState();
-		state.toggle_sidebar(false);
+		state.show = false;
 		media.set_matches(true);
-		assert.isFalse(state.show_sidebar);
-		state.toggle_sidebar();
-		assert.isTrue(state.show_sidebar);
+		assert.isFalse(state.show);
+		state.toggle();
+		assert.isTrue(state.show);
 		state.close_narrow();
-		assert.isFalse(state.show_sidebar);
-		state.toggle_sidebar();
+		assert.isFalse(state.show);
+		state.toggle();
 		media.set_matches(false);
-		assert.isFalse(state.show_sidebar_wide);
-		assert.isFalse(state.show_sidebar);
+		assert.isFalse(state.show_wide);
+		assert.isFalse(state.show);
 		media.set_matches(true);
-		assert.isTrue(state.show_sidebar, 'narrow field is untouched by crossing on its own');
+		assert.isTrue(state.show, 'narrow field is untouched by crossing on its own');
 	});
 
 	test('close_narrow clears only the narrow field', () => {
 		media.set_matches(true);
 		const state = new SidebarState();
-		state.toggle_sidebar(true);
+		state.show = true;
 		state.close_narrow();
-		assert.isFalse(state.show_sidebar_narrow);
-		assert.isTrue(state.show_sidebar_wide);
+		assert.isFalse(state.show_narrow);
+		assert.isTrue(state.show_wide);
 	});
 });
 
@@ -148,12 +148,12 @@ describe('SidebarState narrow reactivity', () => {
 		assert.deepEqual(seen, [false, true, false]);
 	});
 
-	test('show_sidebar follows the flip reactively', () => {
+	test('show follows the flip reactively', () => {
 		const state = new SidebarState();
 		const seen: Array<boolean> = [];
 		const cleanup = $effect.root(() => {
 			$effect(() => {
-				seen.push(state.show_sidebar);
+				seen.push(state.show);
 			});
 		});
 		try {
@@ -168,42 +168,38 @@ describe('SidebarState narrow reactivity', () => {
 });
 
 describe('SidebarState enabled', () => {
-	test('show_sidebar is false while disabled, in both modes', () => {
-		const state = new SidebarState();
-		state.enabled = false;
-		assert.isFalse(state.show_sidebar);
-		assert.isTrue(state.show_sidebar_wide);
+	test('show is false while disabled, in both modes', () => {
+		const state = new SidebarState({ enabled: () => false });
+		assert.isFalse(state.show);
+		assert.isTrue(state.show_wide);
 		media.set_matches(true);
-		state.show_sidebar_narrow = true;
-		assert.isFalse(state.show_sidebar);
+		state.show_narrow = true;
+		assert.isFalse(state.show);
 	});
 
-	test('enabled getter option overrides the internal field', () => {
+	test('the enabled getter is read on every access', () => {
 		let enabled = false;
 		const state = new SidebarState({ enabled: () => enabled });
 		assert.isFalse(state.enabled);
-		assert.isFalse(state.show_sidebar);
+		assert.isFalse(state.show);
 		enabled = true;
-		assert.isTrue(state.show_sidebar);
+		assert.isTrue(state.show);
 	});
 });
 
-describe('SidebarState activate', () => {
-	test('activate enables and shows wide; disposer clears both fields', () => {
+describe('SidebarState toggle', () => {
+	test('flips the current mode only', () => {
 		const state = new SidebarState();
-		state.enabled = false;
-		state.show_sidebar_wide = false;
-		const dispose = state.activate();
-		assert.isTrue(state.enabled);
-		assert.isTrue(state.show_sidebar_wide);
-		assert.isTrue(state.show_sidebar);
+		state.toggle();
+		assert.isFalse(state.show_wide);
 		media.set_matches(true);
-		state.toggle_sidebar(true);
-		dispose();
-		assert.isFalse(state.enabled);
-		assert.isFalse(state.show_sidebar_wide);
-		assert.isFalse(state.show_sidebar_narrow);
-		assert.isFalse(state.show_sidebar);
+		state.toggle();
+		assert.isTrue(state.show_narrow);
+		assert.isFalse(state.show_wide);
+	});
+
+	test('enabled defaults to true', () => {
+		assert.isTrue(new SidebarState().enabled);
 	});
 });
 
@@ -214,9 +210,9 @@ describe('SidebarState narrow_query', () => {
 		assert.isNull(state.narrow_query);
 		assert.isFalse(state.narrow);
 		assert.deepEqual(media.queries, []);
-		state.toggle_sidebar();
-		assert.isFalse(state.show_sidebar_wide);
-		assert.isFalse(state.show_sidebar_narrow);
+		state.toggle();
+		assert.isFalse(state.show_wide);
+		assert.isFalse(state.show_narrow);
 	});
 
 	test('a query without parentheses throws in DEV', () => {

@@ -72,8 +72,8 @@ const mount_shell = (props?: Partial<ComponentProps<typeof AppShell>>): MountedS
 };
 
 /** Dispatches a bubbling, cancelable `keydown` from the focused element and returns it. */
-const press = (key: string): KeyboardEvent => {
-	const event = new KeyboardEvent('keydown', { key, bubbles: true, cancelable: true });
+const press = (key: string, init?: KeyboardEventInit): KeyboardEvent => {
+	const event = new KeyboardEvent('keydown', { ...init, key, bubbles: true, cancelable: true });
 	(document.activeElement ?? document.body).dispatchEvent(event);
 	return event;
 };
@@ -82,7 +82,7 @@ const press = (key: string): KeyboardEvent => {
 const open_overlay = (shell: MountedShell, opener: HTMLElement | null): void => {
 	if (opener) opener.focus();
 	else (document.activeElement as HTMLElement | null)?.blur();
-	shell.sidebar_state.toggle_sidebar(true);
+	shell.sidebar_state.show = true;
 	flushSync();
 	assert.isTrue(shell.content.inert, 'overlay should be open');
 	assert.strictEqual(document.activeElement, shell.link, 'opening should focus the link');
@@ -105,7 +105,7 @@ describe('AppShell Escape', () => {
 		const shell = mount_shell();
 		open_overlay(shell, shell.opener);
 		const event = press('Escape');
-		assert.isFalse(shell.sidebar_state.show_sidebar_narrow);
+		assert.isFalse(shell.sidebar_state.show_narrow);
 		assert.isFalse(shell.content.inert);
 		assert.isFalse(event.defaultPrevented, 'the browser close request must stay intact');
 	});
@@ -119,7 +119,7 @@ describe('AppShell Escape', () => {
 			selector === ':modal' ? dialog : (document.querySelectorAll(selector)[0] ?? null)
 		);
 		press('Escape');
-		assert.isTrue(shell.sidebar_state.show_sidebar_narrow);
+		assert.isTrue(shell.sidebar_state.show_narrow);
 	});
 
 	test('is left to a window listener registered before the overlay opened', () => {
@@ -134,10 +134,10 @@ describe('AppShell Escape', () => {
 		cleanups.push(() => window.removeEventListener('keydown', swallow_escape));
 		open_overlay(shell, shell.opener);
 		press('Escape');
-		assert.isTrue(shell.sidebar_state.show_sidebar_narrow);
+		assert.isTrue(shell.sidebar_state.show_narrow);
 		window.removeEventListener('keydown', swallow_escape);
 		press('Escape');
-		assert.isFalse(shell.sidebar_state.show_sidebar_narrow);
+		assert.isFalse(shell.sidebar_state.show_narrow);
 	});
 
 	test('skips an Escape a document listener already handled', () => {
@@ -156,10 +156,10 @@ describe('AppShell Escape', () => {
 
 		press('Escape');
 		assert.isFalse(popover_open, 'the popover closes');
-		assert.isTrue(shell.sidebar_state.show_sidebar_narrow, 'the overlay stays open');
+		assert.isTrue(shell.sidebar_state.show_narrow, 'the overlay stays open');
 
 		press('Escape');
-		assert.isFalse(shell.sidebar_state.show_sidebar_narrow);
+		assert.isFalse(shell.sidebar_state.show_narrow);
 	});
 
 	test('the keydown listener exists only while the overlay is open', () => {
@@ -168,7 +168,7 @@ describe('AppShell Escape', () => {
 		const remove = vi.spyOn(window, 'removeEventListener');
 		const keydown_calls = (spy: typeof add | typeof remove): Array<unknown> =>
 			spy.mock.calls.filter(([type]) => type === 'keydown').map(([, listener]) => listener);
-		shell.sidebar_state.toggle_sidebar(true);
+		shell.sidebar_state.show = true;
 		flushSync();
 		const added = keydown_calls(add);
 		assert.strictEqual(added.length, 1);
@@ -182,7 +182,7 @@ describe('AppShell Escape', () => {
 		media.set_matches(false);
 		const shell = mount_shell();
 		const add = vi.spyOn(window, 'addEventListener');
-		shell.sidebar_state.show_sidebar_narrow = true;
+		shell.sidebar_state.show_narrow = true;
 		flushSync();
 		assert.deepEqual(
 			add.mock.calls.filter(([type]) => type === 'keydown'),
@@ -190,8 +190,8 @@ describe('AppShell Escape', () => {
 			'no Escape listener outside narrow mode'
 		);
 		press('Escape');
-		assert.isTrue(shell.sidebar_state.show_sidebar_narrow);
-		assert.isTrue(shell.sidebar_state.show_sidebar_wide);
+		assert.isTrue(shell.sidebar_state.show_narrow);
+		assert.isTrue(shell.sidebar_state.show_wide);
 	});
 });
 
@@ -213,13 +213,13 @@ describe('AppShell focus return', () => {
 	test('returns when focus fell to the body after opening from the content', () => {
 		const shell = mount_shell();
 		shell.opener.focus();
-		shell.sidebar_state.toggle_sidebar(true);
+		shell.sidebar_state.show = true;
 		flushSync();
 		// as when the control focus moved to is removed from the sidebar
 		(document.activeElement as HTMLElement).blur();
 		assert.strictEqual(document.activeElement, document.body);
 		press('Escape');
-		assert.isFalse(shell.sidebar_state.show_sidebar_narrow);
+		assert.isFalse(shell.sidebar_state.show_narrow);
 		assert.strictEqual(document.activeElement, shell.opener);
 	});
 
@@ -241,29 +241,25 @@ describe('AppShell focus return', () => {
 	});
 
 	test('skips a toggle that does not take focus', () => {
-		const toggle_button = createRawSnippet<[{ sidebar_id: string }]>((args) => ({
-			render: () =>
-				`<span><button type="button" class="dead-toggle" aria-controls="${args().sidebar_id}" disabled>x</button><button type="button" class="live-toggle" aria-controls="${args().sidebar_id}">t</button></span>`
-		}));
-		const shell = mount_shell({ toggle_button });
+		const sidebar_state = new SidebarState({ id: 'site-menu' });
+		const shell = mount_shell({ sidebar_state, show_toggle: false });
+		const dead = document.createElement('button');
+		dead.disabled = true;
+		dead.setAttribute('aria-controls', 'site-menu');
+		const live = document.createElement('button');
+		live.setAttribute('aria-controls', 'site-menu');
+		document.body.append(dead, live);
+		cleanups.push(() => {
+			dead.remove();
+			live.remove();
+		});
 		open_overlay(shell, null);
 		press('Escape');
-		assert.strictEqual(document.activeElement, shell.root.querySelector('.live-toggle'));
+		assert.strictEqual(document.activeElement, live);
 	});
 
-	test('falls back to a custom toggle wired with sidebar_id', () => {
-		const toggle_button = createRawSnippet<[{ sidebar_id: string }]>((args) => ({
-			render: () =>
-				`<button type="button" class="app-shell-toggle custom-toggle" aria-controls="${args().sidebar_id}">t</button>`
-		}));
-		const shell = mount_shell({ toggle_button });
-		open_overlay(shell, null);
-		press('Escape');
-		assert.strictEqual(document.activeElement, shell.root.querySelector('.custom-toggle'));
-	});
-
-	test("falls back to a toggle outside the shell wired to the state's sidebar_id", () => {
-		const sidebar_state = new SidebarState({ sidebar_id: 'site-menu' });
+	test("falls back to a toggle outside the shell wired to the state's id", () => {
+		const sidebar_state = new SidebarState({ id: 'site-menu' });
 		const shell = mount_shell({ sidebar_state, show_toggle: false });
 		const outside = document.createElement('button');
 		// `aria-controls` is an id list
@@ -276,7 +272,7 @@ describe('AppShell focus return', () => {
 	});
 
 	test('an aria-controls id that only contains the sidebar id is no match', () => {
-		const sidebar_state = new SidebarState({ sidebar_id: 'site-menu' });
+		const sidebar_state = new SidebarState({ id: 'site-menu' });
 		const shell = mount_shell({ sidebar_state, show_toggle: false });
 		const decoy = document.createElement('button');
 		decoy.setAttribute('aria-controls', 'site-menu-extra');
@@ -296,7 +292,7 @@ describe('AppShell focus return', () => {
 		const shell = mount_shell();
 		// jsdom ignores the closed sidebar's `visibility: hidden`, so its link takes focus
 		shell.link.focus();
-		shell.sidebar_state.toggle_sidebar(true);
+		shell.sidebar_state.show = true;
 		flushSync();
 		press('Escape');
 		assert.strictEqual(document.activeElement, shell.root.querySelector('.app-shell-toggle'));
@@ -306,7 +302,7 @@ describe('AppShell focus return', () => {
 		const shell = mount_shell();
 		open_overlay(shell, shell.opener);
 		shell.root.querySelector<HTMLElement>('.app-shell-scrim')?.click();
-		assert.isFalse(shell.sidebar_state.show_sidebar_narrow);
+		assert.isFalse(shell.sidebar_state.show_narrow);
 		assert.strictEqual(document.activeElement, shell.opener);
 	});
 
@@ -314,7 +310,7 @@ describe('AppShell focus return', () => {
 		const shell = mount_shell();
 		open_overlay(shell, null);
 		shell.root.querySelector<HTMLElement>('.app-shell-scrim')?.click();
-		assert.isFalse(shell.sidebar_state.show_sidebar_narrow);
+		assert.isFalse(shell.sidebar_state.show_narrow);
 		assert.strictEqual(document.activeElement, shell.root.querySelector('.app-shell-toggle'));
 	});
 
@@ -326,7 +322,7 @@ describe('AppShell focus return', () => {
 		cleanups.push(() => outside.remove());
 		outside.focus();
 		press('Escape');
-		assert.isFalse(shell.sidebar_state.show_sidebar_narrow);
+		assert.isFalse(shell.sidebar_state.show_narrow);
 		assert.strictEqual(document.activeElement, outside);
 	});
 });
@@ -344,7 +340,7 @@ describe('AppShell overlay dialog', () => {
 			...props
 		});
 		shell.opener.focus();
-		shell.sidebar_state.toggle_sidebar(true);
+		shell.sidebar_state.show = true;
 		flushSync();
 		const sidebar_el = shell.root.querySelector<HTMLElement>('.app-shell-sidebar');
 		assert.ok(sidebar_el);
@@ -369,7 +365,7 @@ describe('AppShell overlay dialog', () => {
 			sidebar: createRawSnippet(() => ({ render: () => '<p><a class="link">no href</a></p>' }))
 		});
 		shell.opener.focus();
-		shell.sidebar_state.toggle_sidebar(true);
+		shell.sidebar_state.show = true;
 		flushSync();
 		assert.strictEqual(document.activeElement, shell.root.querySelector('.app-shell-sidebar'));
 	});
@@ -379,7 +375,7 @@ describe('AppShell overlay dialog', () => {
 			sidebar: createRawSnippet(() => ({ render: () => '<p><a class="link">no href</a></p>' }))
 		});
 		shell.opener.focus();
-		shell.sidebar_state.toggle_sidebar(true);
+		shell.sidebar_state.show = true;
 		flushSync();
 		press('Escape');
 		assert.strictEqual(document.activeElement, shell.opener);
@@ -407,10 +403,10 @@ describe('AppShell overlay dialog', () => {
 	test('the wide sidebar is a plain element and opening it leaves focus alone', () => {
 		media.set_matches(false);
 		const shell = mount_shell();
-		shell.sidebar_state.show_sidebar_wide = false;
+		shell.sidebar_state.show_wide = false;
 		flushSync();
 		shell.opener.focus();
-		shell.sidebar_state.toggle_sidebar(true);
+		shell.sidebar_state.show = true;
 		flushSync();
 		assert.strictEqual(document.activeElement, shell.opener);
 		const sidebar_el = shell.root.querySelector('.app-shell-sidebar');
@@ -422,13 +418,13 @@ describe('AppShell overlay dialog', () => {
 describe('AppShell overlay dismissal', () => {
 	test('widening out of narrow mode closes the overlay and keeps the wide preference', () => {
 		const shell = mount_shell();
-		shell.sidebar_state.show_sidebar_wide = false;
-		shell.sidebar_state.toggle_sidebar(true);
+		shell.sidebar_state.show_wide = false;
+		shell.sidebar_state.show = true;
 		flushSync();
 		media.set_matches(false);
 		flushSync();
-		assert.isFalse(shell.sidebar_state.show_sidebar_narrow);
-		assert.isFalse(shell.sidebar_state.show_sidebar_wide);
+		assert.isFalse(shell.sidebar_state.show_narrow);
+		assert.isFalse(shell.sidebar_state.show_wide);
 		assert.isFalse(shell.content.inert);
 		const sidebar_el = shell.root.querySelector('.app-shell-sidebar');
 		assert.isNull(sidebar_el?.getAttribute('role'));
@@ -442,7 +438,7 @@ describe('AppShell overlay dismissal', () => {
 		assert.ok(on_navigate);
 		on_navigate({} as Parameters<typeof on_navigate>[0]);
 		flushSync();
-		assert.isFalse(shell.sidebar_state.show_sidebar_narrow);
+		assert.isFalse(shell.sidebar_state.show_narrow);
 		// SvelteKit resets focus after navigation, so the shell doesn't return it
 		assert.strictEqual(document.activeElement, shell.link);
 	});
@@ -453,17 +449,17 @@ describe('AppShell overlay dismissal', () => {
 		// an in-page link: SvelteKit leaves it to the browser, so no `afterNavigate`
 		window.dispatchEvent(new HashChangeEvent('hashchange'));
 		flushSync();
-		assert.isFalse(shell.sidebar_state.show_sidebar_narrow);
+		assert.isFalse(shell.sidebar_state.show_narrow);
 		assert.isFalse(shell.content.inert);
 		assert.strictEqual(document.activeElement, shell.link);
 	});
 
 	test('a scrim click closes the overlay', () => {
 		const shell = mount_shell();
-		shell.sidebar_state.toggle_sidebar(true);
+		shell.sidebar_state.show = true;
 		flushSync();
 		shell.root.querySelector<HTMLElement>('.app-shell-scrim')?.click();
-		assert.isFalse(shell.sidebar_state.show_sidebar_narrow);
+		assert.isFalse(shell.sidebar_state.show_narrow);
 	});
 });
 
@@ -471,8 +467,8 @@ describe('AppShell keyboard shortcut', () => {
 	test('drives the overlay at narrow widths', () => {
 		const shell = mount_shell({ keyboard_shortcut: 'b' });
 		const event = press('b');
-		assert.isTrue(shell.sidebar_state.show_sidebar_narrow);
-		assert.isTrue(shell.sidebar_state.show_sidebar_wide);
+		assert.isTrue(shell.sidebar_state.show_narrow);
+		assert.isTrue(shell.sidebar_state.show_wide);
 		assert.isTrue(event.defaultPrevented);
 	});
 
@@ -491,7 +487,7 @@ describe('AppShell keyboard shortcut', () => {
 		open_overlay(shell, shell.opener);
 		assert.strictEqual(document.activeElement, shell.link);
 		const event = press('b');
-		assert.isFalse(shell.sidebar_state.show_sidebar_narrow);
+		assert.isFalse(shell.sidebar_state.show_narrow);
 		assert.isFalse(shell.content.inert);
 		assert.strictEqual(document.activeElement, shell.opener);
 		assert.isTrue(event.defaultPrevented);
@@ -502,8 +498,8 @@ describe('AppShell keyboard shortcut', () => {
 		const shell = mount_shell({ keyboard_shortcut: 'b' });
 		shell.link.focus();
 		press('b');
-		assert.isFalse(shell.sidebar_state.show_sidebar_wide);
-		assert.isFalse(shell.sidebar_state.show_sidebar_narrow);
+		assert.isFalse(shell.sidebar_state.show_wide);
+		assert.isFalse(shell.sidebar_state.show_narrow);
 		assert.strictEqual(document.activeElement, shell.link);
 	});
 
@@ -516,7 +512,7 @@ describe('AppShell keyboard shortcut', () => {
 			selector === ':modal' ? dialog : (document.querySelectorAll(selector)[0] ?? null)
 		);
 		const event = press('b');
-		assert.isTrue(shell.sidebar_state.show_sidebar_narrow);
+		assert.isTrue(shell.sidebar_state.show_narrow);
 		assert.isTrue(shell.content.inert);
 		assert.isFalse(event.defaultPrevented);
 	});
@@ -530,18 +526,27 @@ describe('AppShell keyboard shortcut', () => {
 			selector === ':modal' ? dialog : (document.querySelectorAll(selector)[0] ?? null)
 		);
 		const event = press('b');
-		assert.isTrue(shell.sidebar_state.show_sidebar_wide);
-		assert.isFalse(shell.sidebar_state.show_sidebar_narrow);
+		assert.isTrue(shell.sidebar_state.show_wide);
+		assert.isFalse(shell.sidebar_state.show_narrow);
 		assert.isFalse(event.defaultPrevented);
 	});
 
+	test('leaves the key with a modifier to the browser', () => {
+		const shell = mount_shell({ keyboard_shortcut: 'b' });
+		for (const modifier of ['ctrlKey', 'metaKey', 'altKey'] as const) {
+			const event = press('b', { [modifier]: true });
+			assert.isFalse(event.defaultPrevented, modifier);
+		}
+		assert.isTrue(shell.sidebar_state.show_wide);
+		assert.isFalse(shell.sidebar_state.show_narrow);
+	});
+
 	test('does nothing while the sidebar is disabled', () => {
-		const sidebar_state = new SidebarState();
-		sidebar_state.enabled = false;
+		const sidebar_state = new SidebarState({ enabled: () => false });
 		const shell = mount_shell({ keyboard_shortcut: 'b', sidebar_state });
 		const event = press('b');
-		assert.isFalse(shell.sidebar_state.show_sidebar_narrow);
-		assert.isTrue(shell.sidebar_state.show_sidebar_wide);
+		assert.isFalse(shell.sidebar_state.show_narrow);
+		assert.isTrue(shell.sidebar_state.show_wide);
 		assert.isFalse(event.defaultPrevented);
 	});
 });

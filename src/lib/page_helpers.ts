@@ -28,3 +28,24 @@ export const href_is_current_page = (
 		strip_trailing_slash(target.pathname) === strip_trailing_slash(url.pathname)
 	);
 };
+
+/**
+ * Whether `href` leads to the page at `url` or to a page beneath it, by
+ * pathname segments: `/docs` contains `/docs` and `/docs/api`, not
+ * `/docsite`. Resolved and compared as `href_is_current_page` does.
+ *
+ * @param href - a link's `href`, absolute or relative
+ * @param url - the current page's url, e.g. SvelteKit's readonly `page.url`
+ * @returns `false` for an `href` that isn't a valid url
+ */
+export const href_contains_current_page = (
+	href: string,
+	url: Pick<URL, 'href' | 'origin' | 'pathname'>
+): boolean => {
+	if (!URL.canParse(href, url.href)) return false;
+	const target = new URL(href, url.href);
+	if (target.origin !== url.origin) return false;
+	const base = strip_trailing_slash(target.pathname);
+	const current = strip_trailing_slash(url.pathname);
+	return current === base || current.startsWith(base === '/' ? '/' : base + '/');
+};

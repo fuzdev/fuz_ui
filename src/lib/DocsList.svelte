@@ -3,27 +3,21 @@
 	import type { SvelteHTMLElements } from 'svelte/elements';
 
 	const {
-		expand_width = false,
 		margin = true,
 		children,
 		...rest
 	}: SvelteHTMLElements['div'] & {
-		expand_width?: boolean;
 		margin?: boolean;
 		children: Snippet;
 	} = $props();
 </script>
 
-<div {...rest} class={['docs-list', rest.class, { 'expand-width': expand_width, margin }]}>
+<div {...rest} class={['docs-list', rest.class, { margin }]}>
 	{@render children()}
 </div>
 
 <style>
 	.docs-list {
-		width: var(--docs_menu_width);
-		min-width: var(--docs_menu_width);
-	}
-	.docs-list.expand-width {
 		width: 100%;
 		max-width: var(--distance_md);
 	}

@@ -99,7 +99,10 @@ the traps worth knowing up front:
   `SIDEBAR_NARROW_QUERY_DEFAULT`, `'(max-width: 800px)'`): wide, the sidebar
   sits beside the content, offset through `--sidebar_offset`; narrow, it
   starts closed and opens as a modal overlay over a scrim, closed by
-  navigation (`afterNavigate`), Escape, the scrim, or widening. The narrow
+  navigation (`afterNavigate`), a hash change, Escape, the scrim, or
+  widening. `sidebar_width` is a CSS length (default `180px` from CSS, so a
+  consumer rule on `.app-shell` can set `--sidebar_width`); `--sidebar_top`
+  hangs the wide sidebar below a full-width top bar. The narrow
   rules ship as a `<style media>` in `svelte:head`, so SSR paints the right
   mode and the state classes never read the viewport; that style needs
   `style-src-elem 'unsafe-inline'` (the `csp.ts` default allows it). Rules
@@ -109,17 +112,21 @@ the traps worth knowing up front:
   property instead: whether the reset's `fuz.base` layer outranks the
   shell's depends on which sheet declares its layer first). Shells mounted
   together must share a `narrow_query`.
-- `ColumnLayout` - fixed `aside` column + fluid `children`; below 64rem of
-  its own width (a container query) the aside stacks behind a toggle. Its
-  container can't size from its content: a shrink-to-fit placement
-  collapses it to zero width.
-- `MenuLink` - SvelteKit `<a>` taking `path` (through `resolve`); `selected`
-  for the page and its descendants, `aria-current="page"` on an exact match.
-  `.highlighted` stays free for orthogonal emphasis.
-- `sidebar_state.svelte.ts` - `SidebarState`: `show_sidebar_wide` and
-  `show_sidebar_narrow` are viewport-free (SSR-safe); `narrow` reads the
-  viewport and is for input handling and ARIA only. Set `sidebar_id` when a
-  toggle outside the shell needs `aria-controls`.
+- `ColumnLayout` - fixed `aside` column (`aside_width`, or
+  `--column_layout_aside_width`) + fluid `children`; below 64rem of its own
+  width (a container query; 640px under fuz_css's 62.5% root) the aside
+  stacks behind a toggle. Its container can't size from its content: a
+  shrink-to-fit placement collapses it to zero width.
+- `MenuLink` - `<a>` taking a resolved `href`; `selected` for the page and
+  its descendants (only the page with `exact`, or forced by the `selected`
+  prop), `aria-current="page"` on the page itself. Matching goes through
+  `page_helpers.ts`, so relative hrefs (`resolve` on the server) match in
+  SSR. `.highlighted` stays free for orthogonal emphasis.
+- `sidebar_state.svelte.ts` - `SidebarState`: `show_wide` and `show_narrow`
+  are viewport-free (SSR-safe); `narrow` and `show` read the viewport and
+  are for input handling and ARIA only. `enabled` comes from a getter
+  option. Set the `id` option when a toggle outside the shell needs
+  `aria-controls`.
 
 Both `AppShell`'s sidebar and `ColumnLayout`'s aside are plain `<div>`s:
 render the landmark (`<nav aria-label>`) inside the snippet. Both require
@@ -179,10 +186,13 @@ Docs layout:
   `docs_links_context`; optional snippets: `primary_nav` (top bar, after the
   breadcrumb), `secondary_nav_header` / `secondary_nav_footer` (around the tome
   menu), and `footer` (replaces the default `DocsFooter`). The tome menu is the
-  shell's sidebar (an overlay below 800px); the page links are a sticky column
-  above 1000px and sit in the sidebar below it, both by CSS. Under an outer
-  `AppShell` it detects the outer `sidebar_state_context` and renders only the
-  page and the links column — the outer sidebar renders a `DocsMenu`
+  shell's sidebar (an overlay at or below 800px); the page links are a sticky
+  column above 1000px and sit in the sidebar at or below it, both by CSS.
+  Under an outer `AppShell` it detects the outer `sidebar_state_context` and
+  renders only the page and the links column — the outer sidebar must render
+  a `DocsMenu` (and a `DocsPageLinks`, with `docs_links_context` set above
+  both, to keep the links on narrow screens); `--docs_sticky_top` clears an
+  outer header
 - `DocsPrimaryNav` — top bar with the breadcrumb; `Docs` passes its menu
   button and `primary_nav` as children
 - `DocsSecondaryNav` — the sidebar's `nav`: tome list grouped by category, with

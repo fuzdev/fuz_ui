@@ -91,7 +91,7 @@
   {#snippet sidebar()}
     <nav aria-label="site">
       <!-- the site's other sections -->
-      <DocsMenu {tomes} expand_width />
+      <DocsMenu {tomes} />
     </nav>
   {/snippet}
   <Docs {tomes}>

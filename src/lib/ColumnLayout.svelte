@@ -25,7 +25,7 @@
 	 * width from its context, as a block or a stretched or growing flex item.
 	 *
 	 * Requires the SvelteKit runtime - it closes the aside from
-	 * `afterNavigate`. Without JS the stacked aside can't be opened, since the
+	 * `afterNavigate`, and on a hash change (an in-page link skips it). Without JS the stacked aside can't be opened, since the
 	 * toggle is client state; above the threshold it's always shown.
 	 *
 	 * The aside column is a plain `<div>`, not a landmark, as with `AppShell`'s
@@ -33,9 +33,10 @@
 	 * `<nav aria-label>` for navigation links, or an `<aside aria-label>` for
 	 * other content.
 	 *
-	 * Styling hooks: `--column_width` (set from `column_width`) and
-	 * `--column_toggle_bg`, the stacked toggle bar's opaque background so
-	 * content scrolls under it unseen (default `--shade_00`, the page ground).
+	 * Styling hooks: `--column_layout_aside_width` (the `aside_width` prop when
+	 * passed, else `280px`) and `--column_layout_toggle_bg`, the stacked toggle
+	 * bar's opaque background so content scrolls under it unseen (default
+	 * `--shade_00`, the page ground).
 	 *
 	 * @module
 	 */
@@ -47,7 +48,7 @@
 	const {
 		aside,
 		children,
-		column_width = '280px',
+		aside_width,
 		toggle_label = 'menu',
 		class: class_name = '',
 		...rest
@@ -55,10 +56,11 @@
 		aside: Snippet;
 		children: Snippet;
 		/**
-		 * CSS width of the fixed `aside` column.
-		 * @default '280px'
+		 * CSS width of the fixed `aside` column, set inline as
+		 * `--column_layout_aside_width`. Omitted, a consumer rule can set that
+		 * variable, falling back to `280px`.
 		 */
-		column_width?: string;
+		aside_width?: string;
 		/**
 		 * The stacked toggle's text.
 		 * @default 'menu'
@@ -95,7 +97,9 @@
 	});
 </script>
 
-<div class="column-layout {class_name}" style:--column_width={column_width} {...rest}>
+<svelte:window onhashchange={() => (aside_open = false)} />
+
+<div class="column-layout {class_name}" style:--column_layout_aside_width={aside_width} {...rest}>
 	<div class={['column-layout-body', { 'aside-open': aside_open }]}>
 		<div class="column-toggle-bar" bind:this={toggle_bar_el}>
 			<button
@@ -134,8 +138,8 @@
 	}
 
 	.column-fixed {
-		width: var(--column_width, 280px);
-		min-width: var(--column_width, 280px);
+		width: var(--column_layout_aside_width, 280px);
+		min-width: var(--column_layout_aside_width, 280px);
 		height: 100%;
 		overflow: auto;
 	}
@@ -161,7 +165,7 @@
 			position: sticky;
 			top: 0;
 			z-index: 1;
-			background-color: var(--column_toggle_bg, var(--shade_00));
+			background-color: var(--column_layout_toggle_bg, var(--shade_00));
 		}
 		/* `flex: none` because the aside scrolls, so it would otherwise shrink
 		   to nothing in the body's fixed height */

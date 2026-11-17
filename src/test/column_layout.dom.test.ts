@@ -157,4 +157,15 @@ describe('ColumnLayout toggle', () => {
 		flushSync();
 		assert_open(layout, false);
 	});
+
+	test('a hash change closes the open aside', () => {
+		const layout = mount_layout();
+		layout.toggle.click();
+		flushSync();
+		assert_open(layout, true);
+		// an in-page link: SvelteKit leaves it to the browser, so no `afterNavigate`
+		window.dispatchEvent(new HashChangeEvent('hashchange'));
+		flushSync();
+		assert_open(layout, false);
+	});
 });
