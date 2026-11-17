@@ -1,5 +1,12 @@
 # @fuzdev/fuz_ui
 
+## 0.229.1
+
+### Patch Changes
+
+- feat: `DocsMenu` reads `--docs_menu_category_spacing` for the margin around each category (default `--space_xl6`), for a site that lists the menu in a denser nav ([cbe950e](https://github.com/fuzdev/fuz_ui/commit/cbe950e))
+- fix: `DocsPrimaryNav` renders inside an iframe too, so an embedded docs site keeps its breadcrumb and, on narrow screens, the menu button (the tome menu was unreachable there), and no longer leaves a gap above the wide sidebar or flashes out after hydration ([cbe950e](https://github.com/fuzdev/fuz_ui/commit/cbe950e))
+
 ## 0.229.0
 
 ### Minor Changes
