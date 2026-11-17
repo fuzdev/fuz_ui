@@ -1,1 +1,0 @@
-export{t as component}from"../chunks/C39O-lz0.js";
