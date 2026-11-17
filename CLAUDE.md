@@ -88,6 +88,43 @@ consumes are listed under [Library and API generation](#library-and-api-generati
 (Docs-system layout and tome components are cataloged under
 [Documentation & API system](#documentation--api-system).)
 
+### App shell and layout
+
+The module TSDoc is the full contract (modes, focus, CSS layers and hooks);
+the traps worth knowing up front:
+
+- `AppShell` - sidebar-and-main shell; provisions `sidebar_state_context`
+  (a fresh `SidebarState` unless the `sidebar_state` prop supplies one).
+  Two modes split by `SidebarState.narrow_query` (default
+  `SIDEBAR_NARROW_QUERY_DEFAULT`, `'(max-width: 800px)'`): wide, the sidebar
+  sits beside the content, offset through `--sidebar_offset`; narrow, it
+  starts closed and opens as a modal overlay over a scrim, closed by
+  navigation (`afterNavigate`), Escape, the scrim, or widening. The narrow
+  rules ship as a `<style media>` in `svelte:head`, so SSR paints the right
+  mode and the state classes never read the viewport; that style needs
+  `style-src-elem 'unsafe-inline'` (the `csp.ts` default allows it). Rules
+  sit in `@layer fuz_ui.app_shell_base` / `fuz_ui.app_shell_narrow`, except
+  one unlayered `padding-left: var(--sidebar_offset)` on the content, and
+  never set a property the fuz_css reset sets (route it through a custom
+  property instead: whether the reset's `fuz.base` layer outranks the
+  shell's depends on which sheet declares its layer first). Shells mounted
+  together must share a `narrow_query`.
+- `ColumnLayout` - fixed `aside` column + fluid `children`; below 64rem of
+  its own width (a container query) the aside stacks behind a toggle. Its
+  container can't size from its content: a shrink-to-fit placement
+  collapses it to zero width.
+- `MenuLink` - SvelteKit `<a>` taking `path` (through `resolve`); `selected`
+  for the page and its descendants, `aria-current="page"` on an exact match.
+  `.highlighted` stays free for orthogonal emphasis.
+- `sidebar_state.svelte.ts` - `SidebarState`: `show_sidebar_wide` and
+  `show_sidebar_narrow` are viewport-free (SSR-safe); `narrow` reads the
+  viewport and is for input handling and ARIA only. Set `sidebar_id` when a
+  toggle outside the shell needs `aria-controls`.
+
+Both `AppShell`'s sidebar and `ColumnLayout`'s aside are plain `<div>`s:
+render the landmark (`<nav aria-label>`) inside the snippet. Both require
+the SvelteKit runtime.
+
 ### Feedback and alerts
 
 - `Alert` - alert/notification component
@@ -296,6 +333,10 @@ All contexts use the standardized pattern via `context_helpers.ts`:
 - `tomes_context` - available documentation (Map<string, Tome>)
 - `tome_context` - current documentation page (Tome)
 - `docs_links_context` - documentation navigation (DocsLinks class)
+
+**Layout:**
+
+- `sidebar_state_context` - `() => SidebarState`, provisioned by `AppShell`
 
 The mdz contexts (`mdz_code_context`, `mdz_codeblock_context`, `mdz_base_context`,
 `mdz_components_context`, `mdz_elements_context`) are defined in `@fuzdev/mdz`; fuz_ui
