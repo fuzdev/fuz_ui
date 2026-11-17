@@ -19,7 +19,11 @@
 	 * while a modal (`:modal`) is open, when a window `keydown` listener
 	 * registered before the overlay opened swallows it (a contextmenu, say),
 	 * or when a listener that ran first already prevented its default (a
-	 * popover's `document` listener, say).
+	 * popover's `document` listener, say). An open `popover="auto"` isn't
+	 * `:modal` and its Escape isn't prevented, so one Escape closes it and the
+	 * overlay together; a popover that should close alone hides itself
+	 * (`hidePopover()`) and prevents the default from a listener that runs
+	 * first — preventing alone would keep the browser from closing it too.
 	 *
 	 * The open overlay is a modal dialog: the sidebar takes `role="dialog"`,
 	 * `aria-modal`, `tabindex="-1"`, and `sidebar_label` as its name, and
@@ -28,8 +32,11 @@
 	 * key on the open overlay, which reads the viewport — that's what keeps
 	 * the wide sidebar from ever being a dialog — and the server render
 	 * matches hydration because the overlay always starts closed, as with the
-	 * content's `inert`. `aria-modal` lets assistive tech hide everything
-	 * outside the sidebar, the built-in toggle included, so a sidebar whose
+	 * content's `inert`. There's no focus trap: the content's `inert` already
+	 * keeps Tab out of it (not out of anything rendered outside the shell), and the built-in toggle, outside the sidebar, stays
+	 * reachable as a close control. `aria-modal` lets assistive tech hide
+	 * everything outside the sidebar, the built-in toggle included (Chromium
+	 * keeps it exposed; WebKit may not), so a sidebar whose
 	 * screen-reader users need a close control beyond Escape and navigation
 	 * renders its own.
 	 *

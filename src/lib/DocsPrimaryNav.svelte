@@ -1,5 +1,4 @@
 <script lang="ts">
-	import { is_iframed } from '@fuzdev/fuz_util/dom.ts';
 	import type { Snippet } from 'svelte';
 	import { scrollY } from 'svelte/reactivity/window';
 	import type { SvelteHTMLElements } from 'svelte/elements';
@@ -13,23 +12,18 @@
 		children?: Snippet;
 	} = $props();
 
-	const iframed = is_iframed();
-	const enabled = !iframed;
-
 	const scrolled = $derived(scrollY.current && scrollY.current > 0);
 </script>
 
-{#if enabled}
-	<div {...rest} class={['docs-primary-nav', rest.class, { scrolled }]}>
-		<div class="background" aria-hidden="true"></div>
-		<div class="content">
-			<nav aria-label="Primary nav">
-				<Breadcrumb />
-			</nav>
-			{@render children?.()}
-		</div>
+<div {...rest} class={['docs-primary-nav', rest.class, { scrolled }]}>
+	<div class="background" aria-hidden="true"></div>
+	<div class="content">
+		<nav aria-label="Primary nav">
+			<Breadcrumb />
+		</nav>
+		{@render children?.()}
 	</div>
-{/if}
+</div>
 
 <style>
 	.docs-primary-nav {

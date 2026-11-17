@@ -1,4 +1,12 @@
 <script lang="ts">
+	/**
+	 * The tome menu, grouped by category, marking the current tome.
+	 * `--docs_menu_category_spacing` sets the margin around each category
+	 * (default `--space_xl6`), for a site that lists the menu in a denser nav.
+	 *
+	 * @module
+	 */
+
 	import { page } from '$app/state';
 	import type { Snippet } from 'svelte';
 	import type { SvelteHTMLElements } from 'svelte/elements';
@@ -63,6 +71,6 @@
 
 <style>
 	.category {
-		margin: var(--space_xl6) 0;
+		margin: var(--docs_menu_category_spacing, var(--space_xl6)) 0;
 	}
 </style>
