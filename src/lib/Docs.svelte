@@ -1,20 +1,45 @@
+<script module lang="ts">
+	/** Width in pixels of the docs sidebar, passed to `AppShell`. */
+	const DOCS_SIDEBAR_WIDTH = 240;
+</script>
+
 <script lang="ts">
+	/**
+	 * The docs layout: a primary nav with the breadcrumb, the tome menu in an
+	 * `AppShell` sidebar, the page, and a column of the page's links and related
+	 * docs on wide screens.
+	 *
+	 * Below `SIDEBAR_NARROW_QUERY_DEFAULT` the menu is `AppShell`'s overlay,
+	 * opened from the primary nav's menu button. Below 1000px the page links
+	 * leave their column for the sidebar, under the menu. Both moves are CSS,
+	 * so the server render paints the right layout at any width.
+	 *
+	 * Nested in an outer `AppShell` (a site whose shell spans more than its
+	 * docs), `Docs` renders no shell or primary nav of its own: the outer shell
+	 * owns the sidebar and renders the tome menu there (a `DocsMenu` of the same
+	 * `tomes`), and the page links show only in the column, so they're absent
+	 * below 1000px. `primary_nav`, `secondary_nav_header`, and
+	 * `secondary_nav_footer` render only in the standalone layout; nested, put
+	 * that content in the outer shell. `--docs_nested_top` offsets the sticky
+	 * column below an outer header.
+	 *
+	 * @module
+	 */
+
 	import type { Snippet } from 'svelte';
-	import { onNavigate } from '$app/navigation';
-	import { innerWidth } from 'svelte/reactivity/window';
 	import { page } from '$app/state';
 
+	import AppShell from './AppShell.svelte';
 	import Breadcrumb from './Breadcrumb.svelte';
 	import { type Tome, tomes_context } from './tome.ts';
 	import DocsPrimaryNav from './DocsPrimaryNav.svelte';
 	import DocsSecondaryNav from './DocsSecondaryNav.svelte';
 	import DocsTertiaryNav from './DocsTertiaryNav.svelte';
-	import Dialog from './Dialog.svelte';
-	import DialogContent from './DialogContent.svelte';
 	import DocsFooter from './DocsFooter.svelte';
 	import { site_context } from './site.svelte.ts';
 	import { FUZ_DEV_URL } from './constants.ts';
 	import { DocsLinks, docs_links_context } from './docs_helpers.svelte.ts';
+	import { SidebarState, sidebar_state_context } from './sidebar_state.svelte.ts';
 
 	const {
 		tomes,
@@ -31,11 +56,11 @@
 		 */
 		primary_nav?: Snippet;
 		/**
-		 * Rendered above the tome menu in the secondary nav, in the sidebar and in the
-		 * menu dialog of narrow screens, where the primary nav has little room.
+		 * Rendered above the tome menu in the sidebar, which is the overlay on narrow
+		 * screens, where the primary nav has little room.
 		 */
 		secondary_nav_header?: Snippet;
-		/** Rendered below the tome menu in the secondary nav, in the sidebar and in the menu dialog. */
+		/** Rendered below the tome menu in the sidebar. */
 		secondary_nav_footer?: Snippet;
 		/**
 		 * Replaces the default footer, a `DocsFooter` with the site's repo and a link to
@@ -51,164 +76,182 @@
 	const tomes_by_slug = $derived(new Map(tomes.map((t) => [t.slug, t])));
 	tomes_context.set(() => tomes_by_slug);
 
-	// TODO @many dialog navs - this is messy to satisfy SSR with the current design that puts the secondary nav in a dialog
-	const TERTIARY_NAV_BREAKPOINT = 1000;
-	const SECONDARY_NAV_BREAKPOINT = 800;
-
-	const docs_menu_width = '180px';
-
-	let show_secondary_nav_dialog = $state.raw(false);
-	const toggle_secondary_nav_dialog = (show?: boolean): void => {
-		show_secondary_nav_dialog = show ?? !show_secondary_nav_dialog;
-	};
-
 	docs_links_context.set(new DocsLinks());
 
-	onNavigate(() => {
-		show_secondary_nav_dialog = false;
-	});
+	// read before this component's own `AppShell` sets the context, so it finds only an outer one
+	const nested = sidebar_state_context.get_maybe() !== undefined;
+
+	const uid = $props.id();
+	// named so the primary nav's menu button can carry `aria-controls`
+	const sidebar_state = nested ? undefined : new SidebarState({ sidebar_id: `${uid}-docs-menu` });
 </script>
 
-<svelte:window onhashchange={() => (show_secondary_nav_dialog = false)} />
+{#snippet sidebar()}
+	<DocsSecondaryNav {tomes} header={secondary_nav_header} footer={secondary_nav_footer} />
+	<div class="tertiary-in-sidebar">
+		<DocsTertiaryNav {tomes} {tomes_by_slug} />
+	</div>
+{/snippet}
 
-<div class="docs" style:--docs_menu_width={docs_menu_width}>
-	<DocsPrimaryNav>
-		{#if primary_nav}
-			<div class="primary-nav-end">
-				{@render primary_nav()}
-			</div>
-		{/if}
-		<div class="nav-dialog-toggle">
-			<button class="plain" type="button" onclick={() => toggle_secondary_nav_dialog()}>
-				menu
-			</button>
-		</div>
-	</DocsPrimaryNav>
-	<!-- TODO @many dialog navs -->
-	{#if !innerWidth.current || innerWidth.current > SECONDARY_NAV_BREAKPOINT}
-		<div class="secondary-nav-wrapper">
-			<DocsSecondaryNav {tomes} header={secondary_nav_header} footer={secondary_nav_footer} />
-		</div>
-	{/if}
-	<main>
-		{#key page.url.pathname}
-			{@render children()}
-		{/key}
-		<!-- TODO @many dialog navs -->
-		{#if !innerWidth.current || innerWidth.current > TERTIARY_NAV_BREAKPOINT}
-			<DocsTertiaryNav {tomes} {tomes_by_slug} />
-		{/if}
-		<section class="box">
-			{#if footer}
-				{@render footer()}
-			{:else}
-				<DocsFooter repo_url={site.repo_url} root_url={FUZ_DEV_URL}>
-					<div class="mb_xl5">
-						<Breadcrumb />
+{#snippet content()}
+	<div class={['docs', { nested }]}>
+		{#if sidebar_state}
+			<DocsPrimaryNav>
+				{#if primary_nav}
+					<div class="primary-nav-end">
+						{@render primary_nav()}
 					</div>
-				</DocsFooter>
-			{/if}
-		</section>
-	</main>
-</div>
-<!-- TODO @many dialog navs - instead of a dialog, probably use a popover (new component) -->
-<!-- TODO this is messy rendering `DocsSecondaryNav` twice to handle responsive states with SSR correctly -->
-{#if show_secondary_nav_dialog &&
-	innerWidth.current &&
-	innerWidth.current <= TERTIARY_NAV_BREAKPOINT
-}
-	<Dialog onclose={() => (show_secondary_nav_dialog = false)}>
-		<DialogContent padding="">
-			<div style:--docs_menu_width={docs_menu_width}>
-				<div class="p_xl pb_0">
-					<Breadcrumb />
+				{/if}
+				<div class="nav-menu-toggle">
+					<button
+						class="plain"
+						type="button"
+						aria-expanded={sidebar_state.show_sidebar_narrow}
+						aria-controls={sidebar_state.sidebar_id}
+						onclick={() => sidebar_state.toggle_sidebar()}
+					>
+						menu
+					</button>
 				</div>
-				<div class="px_lg pb_xl">
-					<DocsSecondaryNav
-						{tomes}
-						sidebar={false}
-						header={secondary_nav_header}
-						footer={secondary_nav_footer}
-					/>
-					<DocsTertiaryNav {tomes} {tomes_by_slug} sidebar={false} />
-				</div>
+			</DocsPrimaryNav>
+		{/if}
+		<div class="columns">
+			<main>
+				{#key page.url.pathname}
+					{@render children()}
+				{/key}
+				<section class="box">
+					{#if footer}
+						{@render footer()}
+					{:else}
+						<DocsFooter repo_url={site.repo_url} root_url={FUZ_DEV_URL}>
+							<div class="mb_xl5">
+								<Breadcrumb />
+							</div>
+						</DocsFooter>
+					{/if}
+				</section>
+			</main>
+			<div class="tertiary-column">
+				<DocsTertiaryNav {tomes} {tomes_by_slug} />
 			</div>
-		</DialogContent>
-	</Dialog>
+		</div>
+	</div>
+{/snippet}
+
+{#if sidebar_state}
+	<AppShell
+		class="docs-shell"
+		{sidebar}
+		{sidebar_state}
+		sidebar_width={DOCS_SIDEBAR_WIDTH}
+		sidebar_label="docs menu"
+		show_toggle={false}
+	>
+		{@render content()}
+	</AppShell>
+{:else}
+	{@render content()}
 {/if}
 
 <style>
 	.docs {
-		--docs_primary_nav_height: 60px;
-		--docs_secondary_nav_padding: var(--space_md); /* also used by the tertiary nav */
+		--docs_menu_width: 180px;
 		--docs_content_padding: var(--space_xl5);
 		--docs_content_max_width: calc(var(--distance_md) + var(--docs_content_padding) * 2);
-		/* TODO this is broken for scrollbars, so we add `+ 10px` as a messy safeguard (there may be `+ 1px` needed for scaling issues too) */
-		--docs_sidebar_width: max(
-			calc(var(--docs_menu_width) + 10px + var(--docs_secondary_nav_padding) * 2),
-			calc((100% - var(--docs_content_max_width)) / 2)
-		);
-		display: contents;
+		--docs_tertiary_width: 240px; /* matches `DOCS_SIDEBAR_WIDTH` */
+		display: flex;
+		flex-direction: column;
+		flex: 1;
 	}
-
+	.docs:not(.nested) {
+		/* the primary nav spans the sidebar's column too */
+		margin-left: calc(-1 * var(--sidebar_offset, 0px));
+	}
+	.columns {
+		flex: 1;
+		display: flex;
+		justify-content: center;
+	}
+	.docs:not(.nested) .columns {
+		margin-left: var(--sidebar_offset, 0px);
+	}
 	main {
 		position: relative;
-		min-height: calc(100svh - var(--docs_primary_nav_height));
-		width: calc(100% - var(--docs_sidebar_width) * 2);
+		min-width: 0;
+		flex: 1;
 		max-width: var(--docs_content_max_width);
 		padding: var(--docs_content_padding);
 		padding-top: 0;
-		margin: 0 auto;
-		overflow: hidden; /* TODO maybe heavy handed */
+		background-color: var(--shade_00);
 	}
-
-	.secondary-nav-wrapper {
-		display: contents;
+	.tertiary-column {
+		position: sticky;
+		top: var(--docs_primary_nav_height);
+		align-self: flex-start;
+		flex-shrink: 0;
+		width: var(--docs_tertiary_width);
+		max-height: calc(100svh - var(--docs_primary_nav_height));
+		padding: var(--space_md);
+		overflow: auto;
+		scrollbar-width: thin;
 	}
-
+	.docs.nested .tertiary-column {
+		top: var(--docs_nested_top, 0px);
+		max-height: calc(100svh - var(--docs_nested_top, 0px));
+	}
 	.primary-nav-end {
 		display: flex;
 		align-items: center;
 		gap: var(--space_md);
 		padding: 0 var(--space_md);
 	}
-	.nav-dialog-toggle {
+	.nav-menu-toggle {
 		display: none;
 	}
-	.nav-dialog-toggle button {
+	.nav-menu-toggle button {
+		height: 100%;
 		padding-left: var(--space_xl3);
 		padding-right: var(--space_xl3);
 		border-radius: 0;
 	}
-
-	/* sync this breakpoint with `DocsTertiaryNav` and `TomeSectionHeader` */
-	@media (max-width: 1000px) {
-		main {
-			--docs_content_padding: var(--space_xl);
-			/* handle the moved `DocsTertiaryNav` */
-			width: calc(100% - var(--docs_sidebar_width));
-			margin-right: 0;
-		}
-
-		.nav-dialog-toggle {
-			display: contents;
-		}
-	}
-
-	/* sync this breakpoint with `DocsPrimaryNav`, `DocsSecondaryNav`, and `TomeSectionHeader` */
-	@media (max-width: 800px) {
-		main {
-			/* handle the moved `DocsSecondaryNav` */
-			width: 100%;
-			margin-left: 0;
-		}
-
-		.secondary-nav-wrapper {
-			display: none;
-		}
-	}
-
 	section {
 		padding: var(--space_xl2);
+	}
+	.tertiary-in-sidebar {
+		display: none;
+		padding: 0 var(--space_md);
+	}
+
+	/* the shell's sidebar sits below the primary nav while it's beside the content */
+	@media not (max-width: 800px) {
+		:global(.docs-shell.app-shell > .app-shell-sidebar) {
+			top: var(--docs_primary_nav_height);
+			height: calc(100% - var(--docs_primary_nav_height));
+		}
+	}
+	:global(.docs-shell.app-shell) {
+		--docs_primary_nav_height: 60px;
+		--sidebar_bg: var(--shade_10);
+		background-color: var(--shade_10);
+	}
+
+	/* the page links move from their column into the sidebar */
+	@media (max-width: 1000px) {
+		.docs {
+			--docs_content_padding: var(--space_xl);
+		}
+		.tertiary-column {
+			display: none;
+		}
+		.tertiary-in-sidebar {
+			display: block;
+		}
+	}
+	/* sync with `SIDEBAR_NARROW_QUERY_DEFAULT`, `AppShell`'s narrow mode */
+	@media (max-width: 800px) {
+		.nav-menu-toggle {
+			display: contents;
+		}
 	}
 </style>

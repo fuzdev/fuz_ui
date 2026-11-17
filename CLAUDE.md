@@ -175,14 +175,20 @@ components render TSDoc prose as mdz via `@fuzdev/mdz`, injecting `DocsLink`
 
 Docs layout:
 
-- `Docs` — three-column layout; sets `tomes_context` + `docs_links_context`;
-  optional snippets: `primary_nav` (top bar, after the breadcrumb),
-  `secondary_nav_header` / `secondary_nav_footer` (around the tome menu), and
-  `footer` (replaces the default `DocsFooter`)
-- `DocsPrimaryNav` — top bar with breadcrumb and menu toggle
-- `DocsSecondaryNav` — left sidebar; tome list grouped by category, with optional
-  `header` / `footer` snippets
-- `DocsTertiaryNav` — right sidebar; section headers within the current page
+- `Docs` — three-column layout on `AppShell`; sets `tomes_context` +
+  `docs_links_context`; optional snippets: `primary_nav` (top bar, after the
+  breadcrumb), `secondary_nav_header` / `secondary_nav_footer` (around the tome
+  menu), and `footer` (replaces the default `DocsFooter`). The tome menu is the
+  shell's sidebar (an overlay below 800px); the page links are a sticky column
+  above 1000px and sit in the sidebar below it, both by CSS. Under an outer
+  `AppShell` it detects the outer `sidebar_state_context` and renders only the
+  page and the links column — the outer sidebar renders a `DocsMenu`
+- `DocsPrimaryNav` — top bar with the breadcrumb; `Docs` passes its menu
+  button and `primary_nav` as children
+- `DocsSecondaryNav` — the sidebar's `nav`: tome list grouped by category, with
+  optional `header` / `footer` snippets
+- `DocsTertiaryNav` — the page links and related tomes, modules, and
+  declarations
 - `DocsContent` — content wrapper for docs pages
 - `DocsFooter` — footer with library info and breadcrumb
 - `DocsSearch` — search input for filtering modules and declarations

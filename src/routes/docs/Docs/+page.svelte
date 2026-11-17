@@ -19,10 +19,10 @@
 		<p>
 			<DeclarationLink name="Docs" /> is the top-level component behind fuz_ui's docs system, which
 			is used to construct this page, and all of the other <code>/docs</code> pages in the Fuz
-			stack. It has a three-column responsive layout with managed navigation and uses ordinary
-			SvelteKit patterns: it takes an array of <DeclarationLink name="Tome" />s and renders the
-			current page as <code>children</code>, so it lives in a <code>+layout.svelte</code> wrapping
-			your docs routes.
+			stack. It has a three-column responsive layout on <DeclarationLink name="AppShell" /> with
+			managed navigation and uses ordinary SvelteKit patterns: it takes an array of
+			<DeclarationLink name="Tome" />s and renders the current page as <code>children</code>, so it
+			lives in a <code>+layout.svelte</code> wrapping your docs routes.
 		</p>
 		<p>
 			It requires two contexts: <code>site_context</code> (a <DeclarationLink name="SiteState" />
@@ -62,7 +62,7 @@
 		<p>
 			Optional snippets add to the layout: <code>primary_nav</code> renders in the top bar after the
 			breadcrumb, <code>secondary_nav_header</code> and <code>secondary_nav_footer</code> above and
-			below the tome menu (in the sidebar, and in the menu dialog on narrow screens, where the top
+			below the tome menu (in the sidebar, which overlays the page on narrow screens, where the top
 			bar has little room), and <code>footer</code> replaces the default footer, which links to
 			fuz.dev:
 		</p>
@@ -77,6 +77,27 @@
   {/snippet}
   {@render children()}
 </Docs>`}
+		/>
+		<p>
+			Inside an outer <DeclarationLink name="AppShell" /> &mdash; a site whose sidebar spans more
+			than its docs &mdash; <code>Docs</code> renders no shell or top bar of its own, only the page
+			and its column of page links, and the <code>primary_nav</code> and
+			<code>secondary_nav_*</code> snippets don't render. The outer sidebar renders the tome menu, a
+			<DeclarationLink name="DocsMenu" /> of the same tomes:
+		</p>
+		<Code
+			lang="svelte"
+			content={`<AppShell>
+  {#snippet sidebar()}
+    <nav aria-label="site">
+      <!-- the site's other sections -->
+      <DocsMenu {tomes} expand_width />
+    </nav>
+  {/snippet}
+  <Docs {tomes}>
+    {@render children()}
+  </Docs>
+</AppShell>`}
 		/>
 		<p>
 			For live and complete examples, see the docs layouts in

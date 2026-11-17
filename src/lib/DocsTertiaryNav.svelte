@@ -13,12 +13,10 @@
 	const {
 		tomes,
 		tomes_by_slug,
-		sidebar = true,
 		...rest
 	}: SvelteHTMLElements['aside'] & {
 		tomes: Array<Tome>;
 		tomes_by_slug: Map<string, Tome>;
-		sidebar?: boolean; // TODO @many dialog navs (this shouldn't exist)
 	} = $props();
 
 	const selected_tome = $derived(tomes.find((t) => tome_to_pathname(t) === page.url.pathname));
@@ -52,7 +50,7 @@
 <!-- TODO probably add a `nav` wrapper? around which? -->
 <aside {...rest} class="docs-tertiary-nav unstyled {rest.class}">
 	{#if should_show_page_links}
-		<DocsPageLinks {sidebar} expand_width />
+		<DocsPageLinks expand_width />
 	{/if}
 	{#if tomes_related_to_selected.length}
 		<section class="related-section">
@@ -85,28 +83,3 @@
 		</section>
 	{/if}
 </aside>
-
-<style>
-	.docs-tertiary-nav {
-		/* TODO @many lots of duplicate code between `DocsSecondaryNav` and `DocsTertiaryNav` */
-		position: fixed;
-		right: 0;
-		top: var(--docs_primary_nav_height);
-		z-index: 1;
-		width: var(--docs_sidebar_width);
-		height: calc(100% - var(--docs_primary_nav_height));
-		padding: var(--docs_secondary_nav_padding); /* needed with `overflow: auto` to avoid cutting off outline */
-		overflow: auto;
-		scrollbar-width: thin;
-		background-color: var(--shade_10);
-	}
-
-	/* sync this breakpoint with `/docs/+layout` */
-	@media (max-width: 1000px) {
-		.docs-tertiary-nav {
-			position: static;
-			background-color: initial;
-			overflow: initial;
-		}
-	}
-</style>

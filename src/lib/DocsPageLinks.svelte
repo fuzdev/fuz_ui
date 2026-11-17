@@ -6,11 +6,9 @@
 	import { docs_links_context } from './docs_helpers.svelte.ts';
 
 	const {
-		sidebar = true,
 		expand_width = false,
 		...rest
 	}: SvelteHTMLElements['div'] & {
-		sidebar?: boolean; // TODO @many dialog navs (this shouldn't exist)
 		expand_width?: boolean;
 	} = $props();
 
@@ -21,11 +19,7 @@
 
 <DocsList {...rest} {expand_width} class="docs-page-links {rest.class}">
 	<h4 class="mb_sm">on this page</h4>
-	{#if sidebar}
-		<div class="sidebar-wrapper">{@render content()}</div>
-	{:else}
-		{@render content()}
-	{/if}
+	{@render content()}
 </DocsList>
 
 {#snippet content()}
@@ -53,12 +47,3 @@
 		</ul>
 	</nav>
 {/snippet}
-
-<style>
-	/* this is needed because `.docs-page-links` needs to be a block to collapse the vertical margin */
-	.sidebar-wrapper {
-		display: flex;
-		flex-direction: column;
-		align-items: flex-start;
-	}
-</style>
