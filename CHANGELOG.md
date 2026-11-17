@@ -1,5 +1,15 @@
 # @fuzdev/fuz_ui
 
+## 0.228.0
+
+### Minor Changes
+
+- add `logo_fuz_schema`, a fossilized femur, and a fuz_schema entry in `projects.ts` ([7f07150](https://github.com/fuzdev/fuz_ui/commit/7f07150))
+
+### Patch Changes
+
+- fix: declaration maps resolve to the shipped source, so go-to-definition lands in `src/lib` ([8a80d8b](https://github.com/fuzdev/fuz_ui/commit/8a80d8b))
+
 ## 0.227.0
 
 ### Minor Changes
