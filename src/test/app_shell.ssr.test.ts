@@ -224,6 +224,19 @@ describe('AppShell scoped style', () => {
 		]);
 	});
 
+	test("the sidebar's left reads `--sidebar_left` wide and is the edge narrow", () => {
+		assert.ok(css);
+		const [style] = get_styles(render_shell().head);
+		assert.ok(style);
+		const lefts = [...parse_declarations(css.code), ...parse_declarations(style.content)]
+			.filter((d) => d.property === 'left' && d.selector.includes('.app-shell-sidebar'))
+			.map((d) => [d.layers.join(' '), d.value]);
+		assert.deepEqual(lefts, [
+			['fuz_ui.app_shell_base', 'var(--sidebar_left, 0px)'],
+			['fuz_ui.app_shell_narrow', '0']
+		]);
+	});
+
 	test('rules reaching consumer markup are unscoped under the scoped root', () => {
 		assert.ok(css);
 		assert.match(css.code, /\.app-shell\.svelte-[a-z0-9]+ > \.app-shell-toggle \{/);

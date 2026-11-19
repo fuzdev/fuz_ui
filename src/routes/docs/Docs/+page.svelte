@@ -60,6 +60,17 @@
 </Docs>`}
 		/>
 		<p>
+			On screens wider than the page and its columns, <code>layout</code> places the tome menu:
+			<code>'centered'</code>, the default, sets it against the centered page, and
+			<code>'flush'</code> keeps it at the viewport's left edge:
+		</p>
+		<Code
+			lang="svelte"
+			content={`<Docs {tomes} layout="flush">
+  {@render children()}
+</Docs>`}
+		/>
+		<p>
 			Optional snippets add to the layout: <code>primary_nav</code> renders in the top bar after the
 			breadcrumb, <code>secondary_nav_header</code> and <code>secondary_nav_footer</code> above and
 			below the tome menu (in the sidebar, which overlays the page on narrow screens, where the top

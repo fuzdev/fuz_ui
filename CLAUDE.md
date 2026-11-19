@@ -102,8 +102,9 @@ the traps worth knowing up front:
   navigation (`afterNavigate`), a hash change, Escape, the scrim, or
   widening. `sidebar_width` is a CSS length (default `180px` from CSS, so a
   consumer rule on `.app-shell` can set `--sidebar_width`); `--sidebar_top`
-  hangs the wide sidebar below a full-width top bar. The narrow
-  rules ship as a `<style media>` in `svelte:head`, so SSR paints the right
+  hangs the wide sidebar below a full-width top bar, and `--sidebar_left`
+  moves it in from the viewport's edge (wide only; the offset and the
+  built-in toggle don't follow). The narrow rules ship as a `<style media>` in `svelte:head`, so SSR paints the right
   mode and the state classes never read the viewport; that style needs
   `style-src-elem 'unsafe-inline'` (the `csp.ts` default allows it). Rules
   sit in `@layer fuz_ui.app_shell_base` / `fuz_ui.app_shell_narrow`, except
@@ -185,7 +186,10 @@ Docs layout:
 - `Docs` — three-column layout on `AppShell`; sets `tomes_context` +
   `docs_links_context`; optional snippets: `primary_nav` (top bar, after the
   breadcrumb), `secondary_nav_header` / `secondary_nav_footer` (around the tome
-  menu), and `footer` (replaces the default `DocsFooter`). The tome menu is the
+  menu), and `footer` (replaces the default `DocsFooter`). `layout` places the
+  wide menu: `'centered'` (default) against the centered page through the
+  shell's `--sidebar_left`, `'flush'` at the viewport's edge; it does nothing
+  nested. The tome menu is the
   shell's sidebar (an overlay at or below 800px); the page links are a sticky
   column above 1000px and sit in the sidebar at or below it, both by CSS.
   Under an outer `AppShell` it detects the outer `sidebar_state_context` and

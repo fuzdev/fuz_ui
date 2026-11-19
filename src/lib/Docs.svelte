@@ -14,16 +14,25 @@
 	 * the page links leave their column for the sidebar, under the menu. Both
 	 * moves are CSS, so the server render paints the right layout at any width.
 	 *
+	 * `layout` places the menu on wide screens: `'centered'` (the default) sets
+	 * it against the centered page, `'flush'` at the viewport's left edge. It
+	 * goes through the shell's `--sidebar_left`, so the sidebar stays the same
+	 * fixed element either way. To change the page's width, set
+	 * `--docs_content_max_width` or `--docs_content_padding` on `.docs-shell`
+	 * (on `.docs` when nested), which the menu's position follows.
+	 *
 	 * Nested in an outer `AppShell` (a site whose shell spans more than its
 	 * docs), `Docs` renders no shell or primary nav of its own: the outer shell
 	 * owns the sidebar and must render the tome menu there (a `DocsMenu` of the
 	 * same `tomes`), or the menu is missing. `primary_nav`,
 	 * `secondary_nav_header`, and `secondary_nav_footer` render only in the
 	 * standalone layout (DEV warns when they're passed nested); put that
-	 * content in the outer shell. The page links show in the column, and at or
-	 * below 1000px only where the outer sidebar renders a `DocsPageLinks`: for
-	 * that, set `docs_links_context` above both, which `Docs` then shares
-	 * rather than creating its own. `--docs_sticky_top` offsets the sticky
+	 * content in the outer shell. `layout` does nothing nested either: the
+	 * outer shell places its own sidebar, with `--sidebar_left` if it wants.
+	 * The page links show in the column, and at or below 1000px only where the
+	 * outer sidebar renders a `DocsPageLinks`: for that, set
+	 * `docs_links_context` above both, which `Docs` then shares rather than
+	 * creating its own. `--docs_sticky_top` offsets the sticky
 	 * column below an outer header, and the page renders in a `<main>`, so the
 	 * outer layout shouldn't wrap it in another.
 	 *
@@ -48,6 +57,7 @@
 
 	const {
 		tomes,
+		layout = 'centered',
 		primary_nav,
 		secondary_nav_header,
 		secondary_nav_footer,
@@ -55,6 +65,13 @@
 		children
 	}: {
 		tomes: Array<Tome>;
+		/**
+		 * Where the tome menu sits on screens wider than the content and its
+		 * columns: `'centered'` against the centered page, `'flush'` at the
+		 * viewport's left edge. No effect nested in an outer `AppShell`.
+		 * @default 'centered'
+		 */
+		layout?: 'centered' | 'flush';
 		/**
 		 * Rendered in the primary nav after the breadcrumb, at its end, e.g. links to the
 		 * site's other sections.
@@ -154,7 +171,7 @@
 
 {#if sidebar_state}
 	<AppShell
-		class="docs-shell"
+		class={['docs-shell', { 'docs-shell-centered': layout === 'centered' }]}
 		{sidebar}
 		{sidebar_state}
 		sidebar_width={DOCS_SIDEBAR_WIDTH}
@@ -168,9 +185,15 @@
 {/if}
 
 <style>
-	.docs {
+	/* on the shell, not `.docs`, so its sidebar reads the same content width as
+	   the page in the centered layout, and one override there moves both; nested
+	   there's no shell of its own */
+	.docs.nested,
+	:global(.docs-shell.app-shell) {
 		--docs_content_padding: var(--space_xl5);
 		--docs_content_max_width: calc(var(--distance_md) + var(--docs_content_padding) * 2);
+	}
+	.docs {
 		--docs_tertiary_width: 240px; /* matches `DOCS_SIDEBAR_WIDTH` */
 		display: flex;
 		flex-direction: column;
@@ -239,10 +262,21 @@
 		--sidebar_bg: var(--shade_10);
 		background-color: var(--shade_10);
 	}
+	/* the menu sits against the centered page, not the viewport's edge: the
+	   columns center the page in the viewport, since the links column is as wide
+	   as the sidebar. The percentage resolves where it's read, the fixed
+	   sidebar's `left`, so against the viewport. */
+	:global(.docs-shell.app-shell.docs-shell-centered) {
+		--sidebar_left: max(
+			0px,
+			calc((100% - var(--docs_content_max_width)) / 2 - var(--sidebar_width))
+		);
+	}
 
 	/* the page links move from their column into the sidebar */
 	@media (max-width: 1000px) {
-		.docs {
+		.docs.nested,
+		:global(.docs-shell.app-shell) {
 			--docs_content_padding: var(--space_xl);
 		}
 		.tertiary-column {

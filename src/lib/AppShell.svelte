@@ -86,7 +86,11 @@
 	 * prop when passed, else `180px` from the base layer; always the
 	 * configured width, not the offset), `--sidebar_top` (wide mode only: the
 	 * sidebar starts this far down, e.g. below a full-width top bar; default
-	 * `0px`), and `--sidebar_offset`.
+	 * `0px`), `--sidebar_left` (wide mode only: the sidebar's distance from the
+	 * viewport's left edge, for a layout that sets it against centered content;
+	 * default `0px`; neither the content's offset nor the built-in toggle
+	 * follows it), and
+	 * `--sidebar_offset`.
 	 *
 	 * @module
 	 */
@@ -259,6 +263,7 @@
 				.app-shell > .app-shell-sidebar {
 					visibility: hidden;
 					top: 0;
+					left: 0;
 					height: 100%;
 					translate: -100% 0;
 					width: min(var(--sidebar_width), 85vw);
@@ -406,7 +411,7 @@
 		.app-shell-sidebar {
 			position: fixed;
 			top: var(--sidebar_top, 0px);
-			left: 0;
+			left: var(--sidebar_left, 0px);
 			width: var(--sidebar_width);
 			height: calc(100% - var(--sidebar_top, 0px));
 			overflow: auto;
