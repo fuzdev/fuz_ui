@@ -20,7 +20,10 @@
 	}: // generic element attrs, the common denominator of the rendered roots - // assignable to the anchor rest of `DeclarationLink`/`ModuleLink` and exact for `<code>`
 		OmitStrict<HTMLAttributes<HTMLElement>, 'children'> & {
 			reference: string;
-			/** URL fragment to append, with or without the `#`. */
+			/**
+			 * URL fragment, with or without the `#`: appended to a module's link,
+			 * and replacing a declaration's own (see `DeclarationLink`).
+			 */
 			hash?: string;
 			display_text?: string | null;
 			/** Anchor attributes, applied only when the reference resolves to a declaration or module link. */

@@ -37,7 +37,7 @@ syntax-highlighted in place, so `Map<string, Tome> | null` links `Map` and
 			 * attributes apply only to the flat branches, not the delegated tree.
 			 */
 			type_info?: TypeJson;
-			/** URL fragment to append, with or without the `#`. */
+			/** URL fragment for a declaration link, with or without the `#` (see `DeclarationLink`). */
 			hash?: string;
 			/** Anchor attributes, applied only when the type resolves to a declaration link. */
 			a_attrs?: SvelteHTMLElements['a'];

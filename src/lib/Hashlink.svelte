@@ -21,6 +21,11 @@
 		transition: opacity var(--duration_2);
 	}
 
+	/* a keyboard user reaches it without hovering, so focus reveals it */
+	.hashlink:focus-visible {
+		opacity: 1;
+	}
+
 	.hashlink-scroll-target {
 		position: absolute;
 		top: calc(var(--font_size, var(--font_size_md)) * -4);

@@ -20,7 +20,7 @@ afterEach(async () => {
 });
 
 const mount_link = (
-	props: { type: string; type_info?: TypeJson },
+	props: { type: string; type_info?: TypeJson; hash?: string },
 	library: Library = fake_library()
 ): HTMLElement => {
 	mounted = mount_component(TypeLinkHarness as any, { ...props, library });
@@ -57,6 +57,14 @@ describe('TypeLink', () => {
 		assert.ok(link, 'expected a link');
 		assert.strictEqual(link.getAttribute('href'), '/docs/api/x.ts#A');
 		assert.strictEqual(container.querySelector('code.type-json-view'), null);
+	});
+
+	test('a hash replaces the fragment of a declaration link', () => {
+		const container = mount_link({ type: 'A', hash: 'A.field' }, fake_library(['A']));
+		assert.strictEqual(
+			container.querySelector('a')?.getAttribute('href'),
+			'/docs/api/x.ts#A.field'
+		);
 	});
 
 	test('an absent tree with an unresolvable string falls through to inline code', () => {

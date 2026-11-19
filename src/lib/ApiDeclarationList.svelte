@@ -28,7 +28,8 @@
 			<TomeSectionHeader text={declaration.name}>
 				<div class="word-break:break-all">{declaration.name}</div>
 			</TomeSectionHeader>
-			<article id={declaration.name}>
+			<!-- the header's hashlink carries the `id` the declaration's url targets -->
+			<article>
 				<DeclarationDetail {declaration} />
 			</article>
 		</TomeSection>

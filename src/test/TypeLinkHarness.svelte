@@ -10,10 +10,14 @@ resolve names against a caller-supplied (typically fake) `Library`.
 	import TypeLink from '#lib/TypeLink.svelte';
 	import { library_context, type Library } from '#lib/library.svelte.ts';
 
-	const { type, type_info, library }: { type: string; type_info?: TypeJson; library: Library } =
-		$props();
+	const {
+		type,
+		type_info,
+		hash,
+		library
+	}: { type: string; type_info?: TypeJson; hash?: string; library: Library } = $props();
 
 	library_context.set(() => library);
 </script>
 
-<TypeLink {type} {type_info} />
+<TypeLink {type} {type_info} {hash} />

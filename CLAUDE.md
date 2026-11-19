@@ -222,8 +222,16 @@ API:
 - `ApiModule` — single module's declarations with full detail
 - `ApiModulesList` — module listing within the API index
 - `ApiDeclarationList` — declaration listing within a module
-- `DeclarationDetail` — full detail view of a single declaration
-- `DeclarationLink` — link to a declaration in API docs
+- `DeclarationDetail` — full detail view of a single declaration: each field
+  (member, prop, parameter) under its signature after the way TypeScript
+  declares it (`readonly name?: Type = default`, `name(a: A): R`), composed
+  from the structured data so every type links. Each rendered field carries a
+  `Declaration.field` id (`SidebarState.toggle`,
+  `SidebarState.constructor.options` for a member's parameter). The component
+  comment and `declaration_detail.ts` hold the rules (which parameters get a
+  row, where the flat signature stays)
+- `DeclarationLink` — link to a declaration in API docs; `hash` replaces the
+  declaration's own fragment, so a field is `hash="Name.field"`
 - `ModuleLink` — link to a module in API docs
 - `TypeLink` — link to a type reference; renders the structured tree via
   `TypeJsonView` when given `type_info`, else whole-string match on the flat
@@ -300,6 +308,11 @@ re-strip drops the extras. See the `vite_plugin_pkg_json` tome for the pattern.
 - `TypeJsonView.svelte` - structured type renderer (uses `typeJsonToTokens`
   from `svelte-docinfo/declaration-helpers.js` to link each reference nested
   in a composite type; `TypeLink` delegates to it when given `type_info`)
+- `declaration_detail.ts` - pure helpers behind `DeclarationDetail`: signature
+  token streams (`to_member_signature_tokens` and siblings), when composing
+  one would lose something (`signature_is_composable`), which parameters earn
+  a row (`parameter_has_detail`), and field fragments
+  (`to_declaration_field_fragment`)
 - `library_helpers.ts` - docs URL helpers
 
 The `svelte-docinfo` imports above resolve to its `source.js` (type

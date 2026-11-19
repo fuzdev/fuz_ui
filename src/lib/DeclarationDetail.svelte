@@ -7,6 +7,15 @@ type, variable, enum, component, snippet) and their kind-specific fields
 including parameters, props, CSS custom properties, members, overloads,
 external types, and more.
 
+Each field (member, prop, parameter) is headed by its signature in the form
+TypeScript declares it, `readonly name?: Type = default`, composed from the
+structured data so every type links on its own (see `declaration_detail.ts`).
+A function's signature is composed the same way, and a parameter gets a row
+of its own only when it has more to say than that signature shows. Where
+composing would lose something (a type predicate, a destructured parameter),
+the flat signature stays. Each rendered field carries its `Declaration.field`
+fragment as an `id`.
+
 @see `declaration.svelte.ts` for the `Declaration` wrapper class
 @see [svelte-docinfo](https://github.com/fuzdev/svelte-docinfo) for the analysis library
 -->
@@ -26,9 +35,65 @@ external types, and more.
 	import TypeJsonView from './TypeJsonView.svelte';
 	import ModuleLink from './ModuleLink.svelte';
 	import DocsLink from './DocsLink.svelte';
+	import Hashlink from './Hashlink.svelte';
 	import { dedent_css_fallback } from './helpers.ts';
+	import {
+		parameter_has_detail,
+		signature_is_composable,
+		to_declaration_field_fragment,
+		to_function_signature_tokens,
+		to_member_chip_modifiers,
+		to_member_signature_tokens,
+		to_parameter_signature_tokens,
+		to_prop_signature_tokens,
+		type SignatureToken
+	} from './declaration_detail.ts';
 
 	const { declaration }: { declaration: Declaration } = $props();
+
+	// a signature's name renders through `svelte:element`, so declare the tags
+	// for fuz_css extraction
+	// @fuz-elements h5 h6 strong
+
+	/** Heading level of a field's name: `h5` for a declaration's fields, `h6` for a field's own parameters. */
+	type FieldTag = 'h5' | 'h6';
+
+	// functions and snippets get their signature composed from the structured
+	// fields, linking each type; a failed extraction, and a signature those
+	// fields can't fully express, keep the flat one
+	const signature_tokens = $derived.by(() => {
+		const { kind } = declaration;
+		if ((kind !== 'function' && kind !== 'snippet') || declaration.declaration_json.partial) {
+			return undefined;
+		}
+		const callable = {
+			typeSignature: declaration.type_signature,
+			genericParams: declaration.generic_params,
+			parameters: declaration.parameters,
+			returnType: declaration.return_type,
+			returnTypeInfo: declaration.return_type_info
+		};
+		return signature_is_composable(callable)
+			? to_function_signature_tokens(declaration.name, callable)
+			: undefined;
+	});
+
+	// the flat signature, where it says something the heading and a composed
+	// signature don't — an interface's or enum's is only its own name
+	const type_signature_shown = $derived.by(() => {
+		const { type_signature } = declaration;
+		if (!type_signature || signature_tokens) return undefined;
+		if (type_signature === declaration.name || type_signature === declaration.display_name) {
+			return undefined;
+		}
+		return type_signature;
+	});
+
+	// a composed signature already shows each parameter's name and type, so
+	// only the ones with more to say get a row
+	const parameters_shown = $derived(
+		signature_tokens ? declaration.parameters?.filter(parameter_has_detail) : declaration.parameters
+	);
 
 	// external types not already shown in the inheritance section — on direct
 	// heritage (`interface Props extends HTMLButtonAttributes`) the producer
@@ -75,43 +140,134 @@ external types, and more.
 	}
 </script>
 
-<!-- A single function/method parameter: name, description, type, and optional/default. -->
-{#snippet param_detail(param: ParameterJsonInput)}
-	<section>
-		<h4>
-			<code>
-				{param.name}{#if param.optional}<strong>?</strong>{/if}
-			</code>
-		</h4>
-		{#if param.description}
-			<Mdz content={param.description} />
+<!-- A signature's tokens, adjacent: spacing lives in the token text, and Svelte
+	trims the block-boundary whitespace here (locked by the `DeclarationDetail`
+	render tests, where `textContent` equality would catch a stray space). -->
+{#snippet signature(tokens: Array<SignatureToken>, name_tag: FieldTag | 'strong')}
+	{#each tokens as token, i (i)}
+		{#if token.kind === 'keyword'}
+			<span class="text_70">{token.text}</span>
+		{:else if token.kind === 'name'}
+			<svelte:element this={name_tag} class="signature-name">{token.text}</svelte:element>
+		{:else if token.kind === 'type'}
+			<TypeLink type={token.type} type_info={token.type_info} />
+		{:else if token.kind === 'value'}
+			<Code lang="ts" content={token.text} inline />
+		{:else}
+			{token.text}
 		{/if}
-		<div class="row gap_md mb_sm">
-			<strong>type</strong>
-			<TypeLink type={param.type} type_info={param.typeInfo} />
-		</div>
-		{#if param.optional || param.defaultValue}
-			<div class="row gap_md">
-				{#if param.optional}
-					<strong>optional</strong>
-				{/if}
-				{#if param.defaultValue}
-					<strong>default</strong>
-					<Code lang="ts" content={param.defaultValue} />
-				{/if}
+	{/each}
+{/snippet}
+
+<!-- A function's or overload's signature as a block; `title` keeps the checker's flat rendering reachable on hover. -->
+{#snippet signature_block(tokens: Array<SignatureToken>, title: string | undefined)}
+	<code class="declaration-signature signature-block" {title}>
+		{@render signature(tokens, 'strong')}
+	</code>
+{/snippet}
+
+<!-- A field's heading line: its signature, any chips, and the hashlink to its `id`. -->
+{#snippet field_header(
+	tokens: Array<SignatureToken>,
+	tag: FieldTag,
+	fragment: string | undefined,
+	chips?: Array<string>,
+	title?: string
+)}
+	<div class="field-header mb_sm">
+		<div class="flex:1 min-width:0">
+			<div class="declaration-signature field-signature" {title}>
+				{@render signature(tokens, tag)}
 			</div>
+			{#if chips}
+				{#each chips as chip (chip)}
+					<span class="chip ml_sm">{chip}</span>
+				{/each}
+			{/if}
+		</div>
+		{#if fragment}
+			<Hashlink {fragment} />
+		{/if}
+	</div>
+{/snippet}
+
+<!-- A parameter's own row: signature, description, and documented properties. -->
+{#snippet param_field(param: ParameterJsonInput, tag: FieldTag, fragment: string | undefined)}
+	<section>
+		{@render field_header(to_parameter_signature_tokens(param), tag, fragment)}
+		{#if param.description}
+			<Mdz content={param.description} class="mb_md" />
+		{/if}
+		{#if param.propertyDescriptions}
+			<ul>
+				{#each Object.entries(param.propertyDescriptions) as [path, description] (path)}
+					<li>
+						<code>{param.name}{path.startsWith('[') ? '' : '.'}{path}</code
+						>{#if description}{' '}— <Mdz content={description} inline />{/if}
+					</li>
+				{/each}
+			</ul>
 		{/if}
 	</section>
 {/snippet}
 
-<!-- A compact parameter row: name (with optional marker) and type, for snippet params and overloads. -->
-{#snippet param_row(param: ParameterJsonInput)}
-	<div class="row gap_md">
-		<code>
-			{param.name}{#if param.optional}?{/if}
-		</code>
-		<TypeLink type={param.type} type_info={param.typeInfo} />
-	</div>
+<!-- What a callable field (method, constructor, callback prop, overload) adds
+	beneath its signature: the parameters with more to say, and the `@returns` prose. -->
+{#snippet callable_detail(
+	parameters: Array<ParameterJsonInput> | undefined,
+	return_description: string | undefined,
+	tag: FieldTag,
+	fragment_path?: Array<string>
+)}
+	{@const parameters_with_detail = parameters?.filter(parameter_has_detail)}
+	{#if parameters_with_detail?.length}
+		<div class="pl_lg my_md">
+			{#each parameters_with_detail as param (param)}
+				{@render param_field(
+					param,
+					tag,
+					fragment_path &&
+						to_declaration_field_fragment(declaration.name, ...fragment_path, param.name)
+				)}
+			{/each}
+		</div>
+	{/if}
+	{#if return_description}
+		<!-- a `div`: the prose can hold block content, which a `p` can't -->
+		<div class="mb_md"><strong>returns</strong> <Mdz content={return_description} inline /></div>
+	{/if}
+{/snippet}
+
+{#snippet throws_list(throws: NonNullable<DocExtras['throws']>)}
+	<ul>
+		{#each throws as thrown (thrown)}
+			<li>
+				{#if thrown.type}
+					<TypeLink type={thrown.type} /> - {thrown.description}
+				{:else}
+					{thrown.description}
+				{/if}
+			</li>
+		{/each}
+	</ul>
+{/snippet}
+
+{#snippet mutates_list(mutates: Record<string, string>)}
+	<ul>
+		{#each Object.entries(mutates) as [target, description] (target)}
+			<li>
+				<code>{target}</code>{#if description}{' '}— {description}{/if}
+			</li>
+		{/each}
+	</ul>
+{/snippet}
+
+{#snippet see_also_list(see_also: Array<string>)}
+	<ul>
+		{#each see_also as ref (ref)}
+			<li><Mdz content={mdz_from_tsdoc(ref)} /></li>
+		{/each}
+	</ul>
 {/snippet}
 
 <!-- Compact prose metadata for props and members (deprecated, internal, since, examples, see also, throws, mutates). -->
@@ -140,35 +296,15 @@ external types, and more.
 	{/if}
 	{#if item.seeAlso?.length}
 		<p><strong>see also</strong></p>
-		<ul>
-			{#each item.seeAlso as ref (ref)}
-				<li><Mdz content={mdz_from_tsdoc(ref)} /></li>
-			{/each}
-		</ul>
+		{@render see_also_list(item.seeAlso)}
 	{/if}
 	{#if item.throws?.length}
 		<p><strong>throws</strong></p>
-		<ul>
-			{#each item.throws as thrown (thrown)}
-				<li>
-					{#if thrown.type}
-						<code>{thrown.type}</code> - {thrown.description}
-					{:else}
-						{thrown.description}
-					{/if}
-				</li>
-			{/each}
-		</ul>
+		{@render throws_list(item.throws)}
 	{/if}
 	{#if item.mutates && Object.keys(item.mutates).length}
 		<p><strong>mutates</strong></p>
-		<ul>
-			{#each Object.entries(item.mutates) as [target, description] (target)}
-				<li>
-					<code>{target}</code>{#if description}{' '}— {description}{/if}
-				</li>
-			{/each}
-		</ul>
+		{@render mutates_list(item.mutates)}
 	{/if}
 {/snippet}
 
@@ -248,9 +384,11 @@ external types, and more.
 	<p>{declaration.internal_message}</p>
 {/if}
 
-<!-- type signature -->
-{#if declaration.type_signature}
-	<Code lang="ts" content={declaration.type_signature} />
+<!-- signature: composed for functions and snippets, else the flat one -->
+{#if signature_tokens}
+	{@render signature_block(signature_tokens, declaration.type_signature)}
+{:else if type_signature_shown}
+	<Code lang="ts" content={type_signature_shown} />
 {/if}
 
 <!-- structured type (variables and type aliases; carries what the flat
@@ -264,7 +402,7 @@ external types, and more.
 	</p>
 {/if}
 
-<!-- default (top-level variables; params, props, and members render theirs inline) -->
+<!-- default (top-level variables; params, props, and members carry theirs in their signature) -->
 {#if declaration.default_value}
 	<p class="row gap_md">
 		<strong>default</strong>
@@ -272,62 +410,53 @@ external types, and more.
 	</p>
 {/if}
 
+<!-- documentation -->
+{#if declaration.has_documentation}
+	<Mdz content={declaration.doc_comment!} class="mb_lg" />
+{/if}
+
 <!-- import statement -->
 <Code lang="ts" content={declaration.import_statement} />
 
-<!-- documentation -->
-{#if declaration.has_documentation}
-	<Mdz content={declaration.doc_comment!} />
+<!-- parameters -->
+{#if parameters_shown?.length}
+	<section>
+		<h4>parameters</h4>
+		{#each parameters_shown as param (param)}
+			{@render param_field(
+				param,
+				'h5',
+				to_declaration_field_fragment(declaration.name, param.name)
+			)}
+		{/each}
+	</section>
 {/if}
 
-<!-- parameters -->
-{#if declaration.parameters?.length}
+<!-- returns: the type is in the signature, so only the `@returns` prose -->
+{#if declaration.return_description}
 	<section>
-		{#each declaration.parameters as param (param)}
-			{@render param_detail(param)}
-		{/each}
+		<h4>returns</h4>
+		<Mdz content={declaration.return_description} />
 	</section>
 {/if}
 
 <!-- component props (for Svelte components) -->
 {#if declaration.props?.length}
 	<section>
+		<h4>props</h4>
 		{#each declaration.props as prop (prop)}
 			<section>
-				<h4>
-					<code>
-						{prop.name}{#if prop.optional}<strong>?</strong>{/if}
-					</code>
-				</h4>
+				{@render field_header(
+					to_prop_signature_tokens(prop),
+					'h5',
+					to_declaration_field_fragment(declaration.name, prop.name),
+					prop.bindable ? ['bindable'] : undefined
+				)}
 				{#if prop.description}
-					<Mdz content={prop.description} />
+					<Mdz content={prop.description} class="mb_md" />
 				{/if}
-				<div class="row gap_md mb_sm">
-					<strong>type</strong>
-					<TypeLink type={prop.type} type_info={prop.typeInfo} />
-				</div>
-				{#if prop.optional || prop.bindable || prop.defaultValue}
-					<div class="row gap_md">
-						{#if prop.optional}
-							<strong>optional</strong>
-						{/if}
-						{#if prop.bindable}
-							<strong>bindable</strong>
-						{/if}
-						{#if prop.defaultValue}
-							<strong>default</strong>
-							<Code lang="ts" content={prop.defaultValue} />
-						{/if}
-					</div>
-				{/if}
-				{#if prop.parameters?.length}
-					<section>
-						<h5>snippet parameters</h5>
-						{#each prop.parameters as param (param)}
-							{@render param_row(param)}
-						{/each}
-					</section>
-				{/if}
+				<!-- a snippet's or callback's parameters -->
+				{@render callable_detail(prop.parameters, undefined, 'h6', [prop.name])}
 				{@render doc_extras(prop)}
 			</section>
 		{/each}
@@ -350,12 +479,12 @@ external types, and more.
 		{/if}
 		{#each declaration.css_custom_properties as css_property (css_property.name)}
 			<section>
-				<div class="row gap_md">
-					<h5><code>{css_property.name}</code></h5>
-					{#if css_property_chips_shown && !css_property.documented}
-						<span class="chip">inferred</span>
-					{/if}
-				</div>
+				{@render field_header(
+					[{ kind: 'name', text: css_property.name }],
+					'h5',
+					to_declaration_field_fragment(declaration.name, css_property.name),
+					css_property_chips_shown && !css_property.documented ? ['inferred'] : undefined
+				)}
 				{#if css_property.description}
 					<Mdz content={css_property.description} />
 				{/if}
@@ -396,24 +525,19 @@ external types, and more.
 		<h4>overloads</h4>
 		{#each declaration.overloads as overload, i (i)}
 			<section>
-				<Code lang="ts" content={overload.typeSignature} />
+				{#if signature_is_composable(overload)}
+					{@render signature_block(
+						to_function_signature_tokens(declaration.name, overload),
+						overload.typeSignature
+					)}
+				{:else}
+					<Code lang="ts" content={overload.typeSignature} />
+				{/if}
 				{#if overload.docComment}
-					<Mdz content={overload.docComment} />
+					<Mdz content={overload.docComment} class="mb_md" />
 				{/if}
-				{#if overload.parameters?.length}
-					{#each overload.parameters as param (param)}
-						{@render param_row(param)}
-					{/each}
-				{/if}
-				{#if overload.returnType}
-					<div class="row gap_md">
-						<strong>returns</strong>
-						<TypeLink type={overload.returnType} type_info={overload.returnTypeInfo} />
-					</div>
-					{#if overload.returnDescription}
-						<Mdz content={overload.returnDescription} />
-					{/if}
-				{/if}
+				<!-- an overload's parameters sit directly under the `overloads` label -->
+				{@render callable_detail(overload.parameters, overload.returnDescription, 'h5')}
 			</section>
 		{/each}
 	</section>
@@ -428,24 +552,6 @@ external types, and more.
 		<div class="row_wrap gap_md">
 			{@render type_list(external_types_not_inherited)}
 		</div>
-	</section>
-{/if}
-
-<!-- returns -->
-{#if declaration.return_type}
-	<section>
-		<h4>returns</h4>
-		{#if declaration.return_type_info}
-			<!-- the flat expansion stays visible in the type signature above -->
-			<p>
-				<TypeJsonView type_info={declaration.return_type_info} title={declaration.return_type} />
-			</p>
-		{:else}
-			<Code lang="ts" content={declaration.return_type} />
-		{/if}
-		{#if declaration.return_description}
-			<Mdz content={declaration.return_description} />
-		{/if}
 	</section>
 {/if}
 
@@ -499,17 +605,7 @@ external types, and more.
 {#if declaration.throws.length}
 	<section>
 		<h4>throws</h4>
-		<ul>
-			{#each declaration.throws as thrown (thrown)}
-				<li>
-					{#if thrown.type}
-						<code>{thrown.type}</code> - {thrown.description}
-					{:else}
-						{thrown.description}
-					{/if}
-				</li>
-			{/each}
-		</ul>
+		{@render throws_list(declaration.throws)}
 	</section>
 {/if}
 
@@ -517,13 +613,7 @@ external types, and more.
 {#if declaration.mutates && Object.keys(declaration.mutates).length}
 	<section>
 		<h4>mutates</h4>
-		<ul>
-			{#each Object.entries(declaration.mutates) as [param, description] (param)}
-				<li>
-					<code>{param}</code>{#if description}{' '}— {description}{/if}
-				</li>
-			{/each}
-		</ul>
+		{@render mutates_list(declaration.mutates)}
 	</section>
 {/if}
 
@@ -532,6 +622,40 @@ external types, and more.
 	<section>
 		<h4>since</h4>
 		<p>{declaration.since}</p>
+	</section>
+{/if}
+
+<!-- members (classes, interfaces, types, enums) -->
+{#if declaration.members?.length}
+	<section>
+		<h4>members</h4>
+		{#each declaration.members as member (member)}
+			{@const chip_modifiers = to_member_chip_modifiers(member)}
+			<section>
+				{@render field_header(
+					to_member_signature_tokens(member, { omit_type: declaration.kind === 'enum' }),
+					'h5',
+					to_declaration_field_fragment(declaration.name, member.name),
+					member.kind === 'variable' && member.reactivity
+						? chip_modifiers.concat(member.reactivity)
+						: chip_modifiers,
+					// the checker's flat signature, where the composed one replaced it
+					member.kind === 'variable' ? undefined : member.typeSignature
+				)}
+				{#if member.docComment}
+					<Mdz content={member.docComment} class="mb_md" />
+				{/if}
+				{#if member.kind !== 'variable'}
+					{@render callable_detail(
+						member.parameters,
+						member.kind === 'function' ? member.returnDescription : undefined,
+						'h6',
+						[member.name]
+					)}
+				{/if}
+				{@render doc_extras(member)}
+			</section>
+		{/each}
 	</section>
 {/if}
 
@@ -549,88 +673,61 @@ external types, and more.
 {#if declaration.see_also.length}
 	<section>
 		<h4>see also</h4>
-		<ul>
-			{#each declaration.see_also as ref (ref)}
-				<li>
-					<Mdz content={mdz_from_tsdoc(ref)} />
-				</li>
-			{/each}
-		</ul>
-	</section>
-{/if}
-
-<!-- members (classes, interfaces, types, enums) -->
-{#if declaration.members?.length}
-	<section>
-		{#each declaration.members as member (member)}
-			<section>
-				<h4>
-					<code>
-						{member.name}{#if member.kind !== 'constructor' && member.optional}
-							<strong>?</strong>
-						{/if}
-					</code>
-				</h4>
-				{#if member.docComment}
-					<Mdz content={member.docComment} />
-				{/if}
-				{#if member.typeSignature}
-					<p class="row gap_md">
-						<strong>type</strong>
-						<TypeLink
-							type={member.kind === 'constructor'
-								? `new ${member.typeSignature}`
-								: member.typeSignature}
-							type_info={member.kind === 'variable' ? member.typeInfo : undefined}
-						/>
-					</p>
-				{/if}
-				{#if member.modifiers?.length || (member.kind === 'variable' && member.reactivity)}
-					<div class="row_wrap gap_md">
-						{#if member.modifiers?.length}
-							{#each member.modifiers as modifier (modifier)}
-								<span class="chip">{modifier}</span>
-							{/each}
-						{/if}
-						{#if member.kind === 'variable' && member.reactivity}
-							<span class="chip">{member.reactivity}</span>
-						{/if}
-					</div>
-				{/if}
-				{#if (member.kind === 'variable' || member.kind === 'function') && member.defaultValue}
-					<div class="row gap_md">
-						<strong>default</strong>
-						<Code lang="ts" content={member.defaultValue} />
-					</div>
-				{/if}
-				<!-- parameters for methods and constructors -->
-				{#if (member.kind === 'function' || member.kind === 'constructor') &&
-					member.parameters?.length
-				}
-					<section>
-						{#each member.parameters as param (param)}
-							{@render param_detail(param)}
-						{/each}
-					</section>
-				{/if}
-				<!-- return type for methods -->
-				{#if member.kind === 'function' && member.returnType}
-					<div class="row gap_md">
-						<strong>returns</strong>
-						<TypeLink type={member.returnType} type_info={member.returnTypeInfo} />
-					</div>
-					{#if member.returnDescription}
-						<Mdz content={member.returnDescription} />
-					{/if}
-				{/if}
-				{@render doc_extras(member)}
-			</section>
-		{/each}
+		{@render see_also_list(declaration.see_also)}
 	</section>
 {/if}
 
 <style>
 	section section:not(:last-child) {
-		margin-bottom: var(--space_xl4);
+		margin-bottom: var(--space_xl2);
+	}
+
+	/* the hashlink sits at the row's end, as in a section header, so it never
+	   wraps under a long signature */
+	.field-header {
+		/* anchors the hashlink's scroll target */
+		position: relative;
+		display: flex;
+		align-items: flex-start;
+	}
+	.field-header:hover :global(.hashlink) {
+		opacity: 1;
+	}
+	/* sized with the row, so a row with one is no taller than a row without */
+	.field-header :global(.hashlink) {
+		flex-shrink: 0;
+		font-size: inherit;
+	}
+	/* flows inline with the chips after it */
+	.field-signature {
+		display: inline;
+	}
+
+	/* a signature reads as one line of code: the types inside it contribute
+	   syntax coloring and links, not pills of their own */
+	.declaration-signature {
+		font-family: var(--font_family_mono);
+	}
+	.declaration-signature :global(code) {
+		display: inline;
+		background: transparent;
+		padding: 0;
+	}
+	.signature-block {
+		display: block;
+		padding: var(--space_xs3) var(--space_xs);
+	}
+	.signature-block:not(:last-child) {
+		margin-bottom: var(--space_lg);
+	}
+
+	/* the name is the field's heading, set inline in its signature */
+	.signature-name {
+		display: inline;
+		margin: 0;
+		font: inherit;
+		font-weight: 700;
+		letter-spacing: normal;
+		text-transform: none;
 	}
 </style>

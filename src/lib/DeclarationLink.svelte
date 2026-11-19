@@ -23,7 +23,10 @@
 		 * library-wide by-name map.
 		 */
 		module_path?: string;
-		/** URL fragment to append, with or without the `#`. */
+		/**
+		 * URL fragment, with or without the `#`, replacing the declaration's own
+		 * (its name) — a field of the declaration is `Name.field`.
+		 */
 		hash?: string;
 		/**
 		 * Link to the library's own deployed docs (`url_api_full`) instead of a
@@ -46,6 +49,11 @@
 	// the site-local path if `homepage_url` is unavailable.
 	const url_api = $derived((full && declaration?.url_api_full) || declaration?.url_api);
 
+	// the declaration's url already ends in its own fragment, which `hash` replaces
+	const href = $derived(
+		hash && url_api ? url_api.replace(/#.*$/, '') + ensure_start(hash, '#') : url_api
+	);
+
 	const contextmenu_entries = $derived(
 		declaration ? create_declaration_contextmenu(declaration) : undefined
 	);
@@ -57,7 +65,7 @@
 	<a
 		{...rest}
 		class="declaration-link {class_prop}"
-		href={url_api + (hash ? ensure_start(hash, '#') : '')}
+		{href}
 		{@attach contextmenu_attachment(contextmenu_entries)}
 	>
 		{#if children}
