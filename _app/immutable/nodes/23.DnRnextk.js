@@ -1,1 +1,0 @@
-export{t as component}from"../chunks/Oetg-T4L.js";

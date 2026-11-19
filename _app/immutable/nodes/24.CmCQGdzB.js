@@ -1,0 +1,1 @@
+export{t as component}from"../chunks/C6A5sul_.js";
