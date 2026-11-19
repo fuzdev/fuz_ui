@@ -207,11 +207,10 @@ export class LocalMedia {
 	#get_display_options: () => DisplayMediaStreamOptions;
 	#heard_rms: number;
 	#silent_after: number;
-	/** Bumped whenever a start is abandoned or the source released. */
+	/** Bumped by each `start` and `stop`, so a start that settles late knows it was superseded. */
 	#generation = 0;
-	#probe: AudioLevelProbe | null = null;
-	#stop_probing: (() => void) | null = null;
-	#cancel_silent: (() => void) | null = null;
+	/** Ends the probe `#probe_until_heard` started: its reads, its `silent` timer, the probe. */
+	#end_probe_fn: (() => void) | null = null;
 	#unlisten_track: (() => void) | null = null;
 
 	constructor(options: LocalMediaOptions) {
@@ -317,26 +316,25 @@ export class LocalMedia {
 			this.status = 'live';
 			return;
 		}
-		this.#probe = probe;
-		this.#stop_probing = this.deps.repeat(() => {
+		const stop_probing = this.deps.repeat(() => {
 			if (probe.read() <= this.#heard_rms) return;
 			this.#end_probe();
 			this.status = 'live';
 		}, LOCAL_MEDIA_PROBE_INTERVAL);
 		// cancelled with the probe, so it fires only while this probe still listens
-		this.#cancel_silent = this.deps.timeout(() => {
-			this.#cancel_silent = null;
+		const cancel_silent = this.deps.timeout(() => {
 			this.silent = true;
 		}, this.#silent_after);
+		this.#end_probe_fn = () => {
+			stop_probing();
+			cancel_silent();
+			probe.close();
+		};
 	}
 
 	#end_probe(): void {
-		this.#stop_probing?.();
-		this.#stop_probing = null;
-		this.#cancel_silent?.();
-		this.#cancel_silent = null;
-		this.#probe?.close();
-		this.#probe = null;
+		this.#end_probe_fn?.();
+		this.#end_probe_fn = null;
 		this.silent = false;
 	}
 

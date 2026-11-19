@@ -15,12 +15,6 @@ import {
 	type FakeAudioNode
 } from './media_test_helpers.ts';
 
-const running_context = (): FakeAudioContext => {
-	const context = new FakeAudioContext();
-	context.state = 'running';
-	return context;
-};
-
 describe('to_rms', () => {
 	test('of silence, a constant, and a square wave', () => {
 		assert.strictEqual(to_rms(new Float32Array(0)), 0);
@@ -32,7 +26,7 @@ describe('to_rms', () => {
 
 describe('create_stream_level_probe', () => {
 	test('reads the stream through the given context', () => {
-		const context = running_context();
+		const context = new FakeAudioContext({ state: 'running' });
 		const stream = new FakeStream([new FakeTrack('audio')]);
 		stream.level = 0.25;
 		const probe = create_stream_level_probe(context.as_context(), stream.as_stream());
@@ -52,7 +46,7 @@ describe('create_stream_level_probe', () => {
 	});
 
 	test('close disconnects its source and leaves the context open', () => {
-		const context = running_context();
+		const context = new FakeAudioContext({ state: 'running' });
 		const stream = new FakeStream([new FakeTrack('audio')]);
 		const probe = create_stream_level_probe(context.as_context(), stream.as_stream());
 		probe.close();
@@ -63,7 +57,7 @@ describe('create_stream_level_probe', () => {
 
 describe('create_audio_level_probe', () => {
 	test('taps a node without sending anything downstream, and closes only its own edge', () => {
-		const context = running_context();
+		const context = new FakeAudioContext({ state: 'running' });
 		const stream = new FakeStream([new FakeTrack('audio')]);
 		stream.level = 0.1;
 		const source = context.createMediaStreamSource(stream.as_stream());

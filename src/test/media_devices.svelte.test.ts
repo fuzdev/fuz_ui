@@ -68,14 +68,18 @@ describe('MediaDevicesState devices', () => {
 			state.audio_outputs.map((d) => d.deviceId),
 			['out-a']
 		);
-		assert.isTrue(state.labeled);
+		assert.isTrue(state.labeled_for('audioinput'));
+		assert.isTrue(state.labeled_for('videoinput'));
+		assert.isTrue(state.labeled_for('audiooutput'));
 	});
 
-	test('a blank list is not labeled', async () => {
+	test('a blank list is labeled for no kind', async () => {
 		media_devices.devices = BLANK;
 		const state = create_state();
 		await state.refresh();
-		assert.isFalse(state.labeled);
+		assert.isFalse(state.labeled_for('audioinput'));
+		assert.isFalse(state.labeled_for('videoinput'));
+		assert.isFalse(state.labeled_for('audiooutput'));
 	});
 
 	test('unsupported without mediaDevices', async () => {
@@ -135,12 +139,12 @@ describe('MediaDevicesState permissions', () => {
 		const stop = state.listen();
 		await flush();
 		assert.strictEqual(state.microphone_permission, 'prompt');
-		assert.isFalse(state.labeled);
+		assert.isFalse(state.labeled_for('audioinput'));
 		media_devices.devices = LABELED;
 		mic.set('granted');
 		await flush();
 		assert.strictEqual(state.microphone_permission, 'granted');
-		assert.isTrue(state.labeled);
+		assert.isTrue(state.labeled_for('audioinput'));
 		stop();
 		mic.set('denied');
 		assert.strictEqual(state.microphone_permission, 'granted', 'no longer listening');
@@ -221,7 +225,6 @@ describe('MediaDevicesState selection', () => {
 		];
 		const state = create_state({ videoinput: 'cam-b', audioinput: 'mic-gone' });
 		await state.refresh();
-		assert.isTrue(state.labeled);
 		assert.isTrue(state.labeled_for('audioinput'));
 		assert.isFalse(state.labeled_for('videoinput'));
 		assert.deepEqual(state.to_device_constraint('videoinput'), { ideal: 'cam-b' });

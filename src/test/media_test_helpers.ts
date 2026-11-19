@@ -155,7 +155,7 @@ export const dom_error = (name: string, message = name): Error =>
  * A clock whose repeats run only when the test calls `tick`, and whose
  * timeouts fire only when `advance` passes their time.
  */
-export const create_fake_clock = (): {
+export interface FakeClock {
 	repeat: (fn: () => void, ms: number) => () => void;
 	timeout: (fn: () => void, ms: number) => () => void;
 	tick: (count?: number) => void;
@@ -165,7 +165,9 @@ export const create_fake_clock = (): {
 	readonly active: number;
 	/** The timeouts waiting. */
 	readonly pending: number;
-} => {
+}
+
+export const create_fake_clock = (): FakeClock => {
 	const fns: Set<() => void> = new Set();
 	const timeouts: Map<() => void, number> = new Map();
 	let now = 0;
@@ -269,6 +271,11 @@ export class FakeDestinationNode extends FakeAudioNode {
 }
 
 export interface FakeAudioContextOptions {
+	/**
+	 * The state to start in.
+	 * @default 'suspended'
+	 */
+	state?: AudioContextState;
 	/** Adds `setSinkId`, as Chromium has. */
 	sink?: boolean;
 	/** What `resume` leaves the state as. */
@@ -276,11 +283,11 @@ export interface FakeAudioContextOptions {
 }
 
 /**
- * An `AudioContext` that starts `suspended`, as a context created without a
- * gesture does, and records its sink.
+ * An `AudioContext` that starts `suspended` unless told otherwise, as a
+ * context created without a gesture does, and records its sink.
  */
 export class FakeAudioContext extends EventTarget {
-	state: AudioContextState = 'suspended';
+	state: AudioContextState;
 	readonly destination: FakeAudioNode;
 	resumes_to: AudioContextState;
 	resume_calls = 0;
@@ -290,6 +297,7 @@ export class FakeAudioContext extends EventTarget {
 	declare setSinkId?: (sink_id: string) => Promise<void>;
 	constructor(options?: FakeAudioContextOptions) {
 		super();
+		this.state = options?.state ?? 'suspended';
 		this.destination = new FakeAudioNode(this);
 		this.resumes_to = options?.resumes_to ?? 'running';
 		if (options?.sink) {

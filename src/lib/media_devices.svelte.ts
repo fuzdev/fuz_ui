@@ -13,6 +13,8 @@
  * @module
  */
 
+import type { Result } from '@fuzdev/fuz_util/result.ts';
+
 import { to_media_access_error, type MediaAccessError } from './media_errors.ts';
 
 /** A permission's state, or `unknown` where the browser can't say. */
@@ -98,8 +100,7 @@ export interface MediaDevicesStateOptions {
 }
 
 /** What `MediaDevicesState.pick_audio_output` got. */
-export type AudioOutputPick =
-	{ ok: true; device: MediaDeviceInfo } | { ok: false; error: MediaAccessError };
+export type AudioOutputPick = Result<{ device: MediaDeviceInfo }, { error: MediaAccessError }>;
 
 /**
  * The devices on offer, the permissions, and the picks. Reads nothing until
@@ -123,14 +124,6 @@ export class MediaDevicesState {
 	readonly audio_outputs: Array<MediaDeviceInfo> = $derived(
 		this.devices.filter((d) => d.kind === 'audiooutput')
 	);
-
-	/**
-	 * Whether the list carries real ids and labels for any kind, which
-	 * browsers reveal once a permission is granted. A grant reveals only its
-	 * own kinds (the mic's reveals the audio devices, not the cameras), so a
-	 * pick is checked with `labeled_for` its kind.
-	 */
-	readonly labeled: boolean = $derived(this.devices.some((d) => d.deviceId && d.label));
 
 	microphone_permission: MediaPermissionState = $state.raw('unknown');
 	camera_permission: MediaPermissionState = $state.raw('unknown');

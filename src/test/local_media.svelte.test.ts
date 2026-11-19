@@ -17,11 +17,12 @@ import {
 	FakeTrack,
 	create_fake_clock,
 	dom_error,
-	flush
+	flush,
+	type FakeClock
 } from './media_test_helpers.ts';
 
 let media_devices: FakeMediaDevices;
-let clock: ReturnType<typeof create_fake_clock>;
+let clock: FakeClock;
 let context: FakeAudioContext;
 let deps: LocalMediaDeps;
 let probes_opened: number;
@@ -30,8 +31,7 @@ let probes_closed: number;
 beforeEach(() => {
 	media_devices = new FakeMediaDevices();
 	clock = create_fake_clock();
-	context = new FakeAudioContext();
-	context.state = 'running';
+	context = new FakeAudioContext({ state: 'running' });
 	probes_opened = 0;
 	probes_closed = 0;
 	const platform = create_local_media_deps(media_devices.as_media_devices());

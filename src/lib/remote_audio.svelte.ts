@@ -111,7 +111,10 @@ export class RemoteAudio {
 
 	/**
 	 * The context, from the first `unlock` until `close`. Share it with level
-	 * probes and anything else that belongs on the call's graph.
+	 * probes and anything else that belongs on the call's graph, reading it
+	 * each time: a context the browser closed is replaced at the next
+	 * `unlock`, so a `LocalMedia` probing on it must be rebuilt after a
+	 * close, or it reads silence.
 	 */
 	context: AudioContext | null = $state.raw(null);
 
@@ -152,10 +155,7 @@ export class RemoteAudio {
 	unlock(): Promise<void> {
 		// a context the browser closed under us can't resume: open a fresh one,
 		// keeping the streams, which `#open_context` wires into it
-		if (this.context?.state === 'closed') {
-			for (const entry of this.#entries.values()) this.#unwire(entry);
-			this.#detach_context();
-		}
+		if (this.context?.state === 'closed') this.#detach_context();
 		const context = this.context ?? this.#open_context();
 		return this.#resume(context);
 	}
@@ -299,8 +299,13 @@ export class RemoteAudio {
 		this.status = 'closed';
 	}
 
-	/** Lets go of the context and its output route, returning the context. */
+	/**
+	 * Lets go of the context, the streams' nodes in it, and its output route,
+	 * returning the context. The streams are kept, for `#open_context` to wire
+	 * into the next one.
+	 */
 	#detach_context(): AudioContext | null {
+		for (const entry of this.#entries.values()) this.#unwire(entry);
 		this.#output_generation++;
 		this.#output?.close();
 		this.#output = null;
@@ -421,7 +426,7 @@ export class RemoteAudio {
 				entry.gain.connect(output.node);
 			}
 		}
-		if (previous !== output) previous?.close();
+		previous?.close();
 		this.output_device_id = device_id;
 		this.output_route = output.route;
 		this.output_error = null;
