@@ -50,6 +50,14 @@ describe('to_media_access_error', () => {
 		assert.isNull(bare.name);
 	});
 
+	test('a name only an object inherits is unknown', () => {
+		for (const name of ['toString', 'constructor', '__proto__']) {
+			const error = to_media_access_error(dom_error(name), 'mic');
+			assert.strictEqual(error.reason, 'unknown', name);
+			assert.strictEqual(error.message, media_access_error_message('unknown', 'mic', name));
+		}
+	});
+
 	test('a refusal gets the default words', () => {
 		const error = to_media_access_error(dom_error('NotAllowedError'), 'mic');
 		assert.strictEqual(error.message, media_access_error_message('denied', 'mic'));

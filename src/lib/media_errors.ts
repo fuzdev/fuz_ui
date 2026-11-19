@@ -67,20 +67,21 @@ export interface MediaAccessError {
  */
 export const MEDIA_PLAY_REFUSED_ERROR_NAME = 'MediaPlayRefusedError';
 
-const REASONS_BY_NAME: Record<string, MediaAccessErrorReason> = {
-	NotAllowedError: 'denied',
-	PermissionDeniedError: 'denied',
-	SecurityError: 'blocked',
-	NotFoundError: 'not_found',
-	DevicesNotFoundError: 'not_found',
-	NotReadableError: 'in_use',
-	TrackStartError: 'in_use',
-	OverconstrainedError: 'overconstrained',
-	ConstraintNotSatisfiedError: 'overconstrained',
-	AbortError: 'aborted',
-	[MEDIA_PLAY_REFUSED_ERROR_NAME]: 'play_refused',
-	NotSupportedError: 'unsupported'
-};
+// a `Map`, so a name an object inherits (`toString`) isn't read as a reason
+const REASONS_BY_NAME: ReadonlyMap<string, MediaAccessErrorReason> = new Map([
+	['NotAllowedError', 'denied'],
+	['PermissionDeniedError', 'denied'],
+	['SecurityError', 'blocked'],
+	['NotFoundError', 'not_found'],
+	['DevicesNotFoundError', 'not_found'],
+	['NotReadableError', 'in_use'],
+	['TrackStartError', 'in_use'],
+	['OverconstrainedError', 'overconstrained'],
+	['ConstraintNotSatisfiedError', 'overconstrained'],
+	['AbortError', 'aborted'],
+	[MEDIA_PLAY_REFUSED_ERROR_NAME, 'play_refused'],
+	['NotSupportedError', 'unsupported']
+]);
 
 /**
  * Reads a thrown value from a media request as a `MediaAccessError`.
@@ -91,7 +92,7 @@ const REASONS_BY_NAME: Record<string, MediaAccessErrorReason> = {
 export const to_media_access_error = (error: unknown, kind: MediaAccessKind): MediaAccessError => {
 	const raw_name = (error as { name?: unknown } | null)?.name;
 	const name = typeof raw_name === 'string' ? raw_name : null;
-	const reason = (name && REASONS_BY_NAME[name]) || 'unknown';
+	const reason = REASONS_BY_NAME.get(name ?? '') ?? 'unknown';
 	const detail = reason === 'unknown' ? to_error_message(error) : undefined;
 	return { reason, kind, name, message: media_access_error_message(reason, kind, detail) };
 };
