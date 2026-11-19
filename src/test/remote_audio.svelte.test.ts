@@ -450,4 +450,155 @@ describe('RemoteAudio output', () => {
 		assert.ok(second_result.ok);
 		assert.strictEqual(audio.output_device_id, 'b');
 	});
+
+	test('a failure after a superseded change landed rolls back to the device it landed on', async () => {
+		context_options.sink = true;
+		const audio = new RemoteAudio({ deps });
+		await audio.unlock();
+		await audio.set_output('headset');
+		const context = contexts[0]!;
+		context.hold_sinks = true;
+		const first = audio.set_output('a');
+		const second = audio.set_output('gone');
+		const [to_a, to_gone] = context.sink_requests;
+		assert.ok(to_a && to_gone);
+		to_a.resolve();
+		const first_result = await first;
+		assert.ok(!first_result.ok);
+		assert.strictEqual(first_result.error.reason, 'aborted', 'superseded, though it landed');
+		to_gone.reject(dom_error('NotFoundError'));
+		const second_result = await second;
+		assert.ok(!second_result.ok);
+		assert.strictEqual(second_result.error.reason, 'not_found');
+		assert.strictEqual(context.sink_id, 'a', 'sound goes to the superseded pick');
+		assert.strictEqual(audio.output_device_id, 'a', 'rolled back to where sound goes');
+		assert.strictEqual(audio.output_route, 'context');
+		assert.strictEqual(audio.output_error?.reason, 'not_found');
+	});
+
+	test('a superseded change back to the default that landed is rolled back to', async () => {
+		context_options.sink = true;
+		const audio = new RemoteAudio({ deps });
+		await audio.unlock();
+		await audio.set_output('headset');
+		const context = contexts[0]!;
+		context.hold_sinks = true;
+		const first = audio.set_output('');
+		const second = audio.set_output('gone');
+		const [to_default, to_gone] = context.sink_requests;
+		assert.ok(to_default && to_gone);
+		to_default.resolve();
+		await first;
+		to_gone.reject(dom_error('NotFoundError'));
+		await second;
+		assert.strictEqual(context.sink_id, '');
+		assert.strictEqual(audio.output_device_id, '');
+		assert.strictEqual(audio.output_route, 'default', 'the route follows the device');
+	});
+
+	test('a context the browser closed while a change was pending keeps the pick for the next unlock', async () => {
+		context_options.sink = true;
+		const audio = new RemoteAudio({ deps });
+		await audio.unlock();
+		const context = contexts[0]!;
+		// an earlier refusal, so the kept pick is seen to clear it
+		context.refused_sinks.add('gone');
+		await audio.set_output('gone');
+		assert.isNotNull(audio.output_error);
+		context.hold_sinks = true;
+		const pending = audio.set_output('headset');
+		context.set_state('closed');
+		context.sink_requests[0]!.reject(dom_error('InvalidStateError'));
+		const result = await pending;
+		assert.isTrue(result.ok, 'kept, not refused by the dead context');
+		assert.isNull(audio.output_error);
+		assert.strictEqual(audio.output_device_id, 'headset');
+		await audio.unlock();
+		await flush();
+		assert.strictEqual(contexts.length, 2);
+		assert.strictEqual(contexts[1]!.sink_id, 'headset', 'applied to the fresh context');
+		assert.strictEqual(audio.output_route, 'context');
+	});
+});
+
+describe('RemoteAudio output, where sound plays', () => {
+	test('a refusal in the fresh context after the browser closed one rolls back to the default', async () => {
+		context_options.sink = true;
+		const audio = new RemoteAudio({ deps });
+		await audio.unlock();
+		await audio.set_output('headset');
+		contexts[0]!.set_state('closed');
+		const create = deps.create_audio_context;
+		deps.create_audio_context = () => {
+			const context = create();
+			(context as unknown as FakeAudioContext).refused_sinks.add('headset');
+			return context;
+		};
+		await audio.unlock();
+		await flush();
+		assert.strictEqual(audio.output_device_id, '', 'the fresh context plays on the default');
+		assert.strictEqual(audio.output_route, 'default');
+		assert.strictEqual(audio.output_error?.reason, 'not_found');
+	});
+
+	test('a change that lands on a context already replaced is not rolled back to', async () => {
+		context_options.sink = true;
+		const audio = new RemoteAudio({ deps });
+		await audio.unlock();
+		const old = contexts[0]!;
+		old.hold_sinks = true;
+		const pending = audio.set_output('a');
+		old.set_state('closed');
+		await audio.unlock();
+		old.sink_requests[0]!.resolve();
+		await pending;
+		contexts[1]!.refused_sinks.add('gone');
+		await audio.set_output('gone');
+		assert.strictEqual(audio.output_device_id, '');
+		assert.strictEqual(audio.output_route, 'default');
+	});
+
+	test('a superseded element route that landed is closed, not rolled back to', async () => {
+		element_sink = true;
+		const audio = new RemoteAudio({ deps, helper_elements: false });
+		await audio.unlock();
+		const held: Array<{ resolve: () => void; reject: (e: unknown) => void }> = [];
+		const create = deps.create_audio_element;
+		deps.create_audio_element = () => {
+			const element = create();
+			element.setSinkId = () =>
+				new Promise<undefined>((resolve, reject) =>
+					held.push({ resolve: () => resolve(undefined), reject })
+				);
+			return element;
+		};
+		const first = audio.set_output('a');
+		const second = audio.set_output('gone');
+		assert.strictEqual(held.length, 2);
+		held[0]!.resolve();
+		const first_result = await first;
+		assert.ok(!first_result.ok);
+		assert.strictEqual(first_result.error.reason, 'aborted');
+		held[1]!.reject(dom_error('NotFoundError'));
+		await second;
+		assert.isTrue(elements[0]!.paused, 'the superseded route closed');
+		assert.strictEqual(audio.output_device_id, '', 'still on the default');
+		assert.strictEqual(audio.output_route, 'default');
+	});
+
+	test('a superseded change that failed resolves with its own reason', async () => {
+		context_options.sink = true;
+		const audio = new RemoteAudio({ deps });
+		await audio.unlock();
+		const context = contexts[0]!;
+		context.hold_sinks = true;
+		const first = audio.set_output('gone');
+		const second = audio.set_output('b');
+		context.sink_requests[0]!.reject(dom_error('NotFoundError'));
+		const r = await first;
+		context.sink_requests[1]!.resolve();
+		await second;
+		assert.ok(!r.ok);
+		assert.strictEqual(r.error.reason, 'not_found', 'not aborted');
+	});
 });

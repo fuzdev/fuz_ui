@@ -36,6 +36,7 @@ import { create_audio_level_probe, type AudioLevelProbe } from './audio_level.sv
 import {
 	can_choose_audio_output,
 	create_audio_output,
+	supports_sink_id,
 	type AudioOutput,
 	type AudioOutputRoute
 } from './audio_output.ts';
@@ -79,6 +80,14 @@ export interface RemoteAudioOptions {
 
 /** What `RemoteAudio.set_output` got. */
 export type RemoteAudioOutputResult = Result<object, { error: MediaAccessError }>;
+
+/** An output device and the route sound takes to it. */
+interface RemoteAudioPlaying {
+	device_id: string;
+	route: AudioOutputRoute;
+}
+
+const PLAYING_DEFAULT: RemoteAudioPlaying = { device_id: '', route: 'default' };
 
 interface RemoteAudioEntry {
 	id: string;
@@ -135,6 +144,14 @@ export class RemoteAudio {
 	#volumes: SvelteMap<string, number> = new SvelteMap();
 	#muted: SvelteSet<string> = new SvelteSet();
 	#output: AudioOutput | null = null;
+	/**
+	 * Where the context's sound actually goes, which a failed change rolls
+	 * back to. Until an output lands in this context it plays on the default;
+	 * after that, on whatever landed last, a superseded change included where
+	 * the context took the sink itself, since its `setSinkId` can't be taken
+	 * back.
+	 */
+	#playing: RemoteAudioPlaying = PLAYING_DEFAULT;
 	#output_generation = 0;
 	#unlisten_context: (() => void) | null = null;
 
@@ -271,9 +288,12 @@ export class RemoteAudio {
 
 	/**
 	 * Sends the call to the output device `device_id`, the empty string for
-	 * the default. Before `unlock`, or after the browser closed the context,
-	 * it's kept and applied at the next `unlock`. A failure
-	 * keeps the output that was in effect and sets `output_error`.
+	 * the default. Before `unlock`, or once the browser closed the context
+	 * (before or during the change), it's kept and applied at the next
+	 * `unlock`. A failure sets `output_error` and leaves `output_device_id`
+	 * on the device sound still plays on, except where a superseded change
+	 * lands after the failure. A change superseded by a later one resolves
+	 * `aborted` if it landed, or with its own refusal if it didn't.
 	 */
 	async set_output(device_id: string): Promise<RemoteAudioOutputResult> {
 		const generation = ++this.#output_generation;
@@ -309,6 +329,7 @@ export class RemoteAudio {
 		this.#output_generation++;
 		this.#output?.close();
 		this.#output = null;
+		this.#playing = PLAYING_DEFAULT;
 		this.output_route = 'default';
 		this.#unlisten_context?.();
 		this.#unlisten_context = null;
@@ -398,7 +419,6 @@ export class RemoteAudio {
 		device_id: string,
 		generation: number
 	): Promise<RemoteAudioOutputResult> {
-		const previous_device_id = this.#output ? this.output_device_id : '';
 		let output: AudioOutput;
 		try {
 			output = await create_audio_output(context, device_id, {
@@ -406,19 +426,34 @@ export class RemoteAudio {
 			});
 		} catch (thrown) {
 			const error = to_media_access_error(thrown, 'output');
-			if (generation === this.#output_generation && this.context === context) {
-				this.output_device_id = previous_device_id;
-				this.output_error = error;
+			if (generation !== this.#output_generation || this.context !== context) {
+				return { ok: false, error };
 			}
+			if (context.state === 'closed') {
+				// the browser closed the context mid-change: kept for the next
+				// `unlock`, as `set_output` keeps a pick made after the close
+				this.output_device_id = device_id;
+				this.output_error = null;
+				return { ok: true };
+			}
+			this.output_device_id = this.#playing.device_id;
+			this.output_route = this.#playing.route;
+			this.output_error = error;
 			return { ok: false, error };
 		}
 		if (generation !== this.#output_generation || this.context !== context) {
-			// a later change, or a close, owns the output now
+			// a later change, or a close, owns the output now; a context that took
+			// the sink itself plays on it regardless, so a later failure rolls back
+			// to it
+			if (this.context === context && supports_sink_id(context)) {
+				this.#playing = { device_id, route: output.route };
+			}
 			output.close();
 			return { ok: false, error: to_media_access_error({ name: 'AbortError' }, 'output') };
 		}
 		const previous = this.#output;
 		this.#output = output;
+		this.#playing = { device_id, route: output.route };
 		if ((previous?.node ?? context.destination) !== output.node) {
 			for (const entry of this.#entries.values()) {
 				if (!entry.gain) continue;

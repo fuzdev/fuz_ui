@@ -282,6 +282,13 @@ export interface FakeAudioContextOptions {
 	resumes_to?: AudioContextState;
 }
 
+/** A held `setSinkId` a test settles by hand; `resolve` lands the sink. */
+export interface FakeSinkRequest {
+	sink_id: string;
+	resolve: () => void;
+	reject: (error: unknown) => void;
+}
+
 /**
  * An `AudioContext` that starts `suspended` unless told otherwise, as a
  * context created without a gesture does, and records its sink.
@@ -294,6 +301,9 @@ export class FakeAudioContext extends EventTarget {
 	sink_id = '';
 	/** Device ids `setSinkId` refuses with `NotFoundError`. */
 	refused_sinks: Set<string> = new Set();
+	/** While true, each `setSinkId` waits in `sink_requests` for the test to settle it. */
+	hold_sinks = false;
+	sink_requests: Array<FakeSinkRequest> = [];
 	declare setSinkId?: (sink_id: string) => Promise<void>;
 	constructor(options?: FakeAudioContextOptions) {
 		super();
@@ -302,7 +312,16 @@ export class FakeAudioContext extends EventTarget {
 		this.resumes_to = options?.resumes_to ?? 'running';
 		if (options?.sink) {
 			this.setSinkId = (sink_id) => {
-				// a closed context refuses, as the Web Audio spec has it
+				if (this.hold_sinks) {
+					return new Promise((resolve, reject) => {
+						const land = (): void => {
+							this.sink_id = sink_id;
+							resolve();
+						};
+						this.sink_requests.push({ sink_id, resolve: land, reject });
+					});
+				}
+				// a closed context refuses here; the spec's `setSinkId` has no closed-state step, so this models a browser that rejects
 				if (this.state === 'closed') return Promise.reject(dom_error('InvalidStateError'));
 				if (this.refused_sinks.has(sink_id)) return Promise.reject(dom_error('NotFoundError'));
 				this.sink_id = sink_id;
