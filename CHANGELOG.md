@@ -1,5 +1,14 @@
 # @fuzdev/fuz_ui
 
+## 0.231.0
+
+### Minor Changes
+
+- Update dependencies (BREAKING CHANGES) ([5c1e45f](https://github.com/fuzdev/fuz_ui/commit/5c1e45f))
+  
+  Breaking dependency changes:
+  - @fuzdev/gro: 0.238.0 → 0.239.0 (minor)
+
 ## 0.230.0
 
 ### Minor Changes
