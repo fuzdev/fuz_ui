@@ -58,6 +58,13 @@ const TYPE_KEYWORDS: ReadonlySet<string> = new Set([
 ]);
 
 /**
+ * Last names of a dotted chain that name a member every module or function
+ * has, never one declaration (`typeof mod.default`, `Foo.prototype`), so a
+ * chain ending in one never links.
+ */
+const CHAIN_MEMBER_NAMES: ReadonlySet<string> = new Set(['default', 'prototype']);
+
+/**
  * Whether `name` is a TypeScript keyword in type position, which never links
  * to a declaration of the same name.
  */
@@ -73,7 +80,9 @@ export const type_name_is_keyword = (name: string): boolean => TYPE_KEYWORDS.has
  * The scan is lexical, not a parse. It skips what plainly isn't a type
  * reference: TypeScript's keywords, string and template literals whole (so a
  * template's `${A}` doesn't link), comments, a property access's right side
- * (`ns.Name`, so `typeof a.b` links only `a`), and a property or parameter
+ * (`ns.Name`: a dotted chain links its head, or, when the head resolves
+ * nowhere, its last name, so `typeof specs.a_spec` over a namespace import
+ * links `a_spec`), and a property or parameter
  * name (`name:` and `name?:`, written with no space before the colon, unlike a
  * conditional type's `? A : B`). A name in another non-type position (a method
  * key, a binding name, a type parameter) still links when a declaration
@@ -130,9 +139,42 @@ export const to_type_text_tokens = (
 			if (is_reference && resolves(name)) {
 				flush_text();
 				tokens.push({ kind: 'name', text: name });
-			} else {
-				text += name;
+				i = end;
+				continue;
 			}
+			// a dotted chain whose head links nowhere (a namespace import,
+			// `typeof specs.a_spec`) links its last name instead, when that resolves
+			if (is_reference && next === '.' && type[end + 1] !== '.') {
+				let last_start = -1;
+				let chain_end = end;
+				while (
+					type[chain_end] === '.' &&
+					IDENTIFIER_START_MATCHER.test(type[chain_end + 1] ?? '')
+				) {
+					last_start = chain_end + 1;
+					chain_end = last_start + 1;
+					while (chain_end < type.length && IDENTIFIER_PART_MATCHER.test(type[chain_end]!)) {
+						chain_end++;
+					}
+				}
+				const last = type.slice(last_start, chain_end);
+				const after = type[chain_end];
+				if (
+					last_start !== -1 &&
+					after !== ':' &&
+					!(after === '?' && type[chain_end + 1] === ':') &&
+					!TYPE_KEYWORDS.has(last) &&
+					!CHAIN_MEMBER_NAMES.has(last) &&
+					resolves(last)
+				) {
+					text += type.slice(i, last_start);
+					flush_text();
+					tokens.push({ kind: 'name', text: last });
+					i = chain_end;
+					continue;
+				}
+			}
+			text += name;
 			i = end;
 		} else {
 			// a digit run swallows what follows it, so `2px` doesn't start a name

@@ -7,6 +7,7 @@ import type {
 } from 'svelte-docinfo/types.js';
 
 import {
+	member_is_class_constructor,
 	parameter_has_detail,
 	to_declaration_field_fragment,
 	to_default_block,
@@ -650,6 +651,14 @@ describe('to_member_chip_modifiers', () => {
 
 	test('a member with no modifiers has none', () => {
 		assert.deepEqual(to_member_chip_modifiers({ name: 'show', kind: 'variable' }), []);
+	});
+});
+
+describe('member_is_class_constructor', () => {
+	test('a class constructor is, a construct signature and other members are not', () => {
+		assert.ok(member_is_class_constructor({ name: 'constructor', kind: 'constructor' }));
+		assert.ok(!member_is_class_constructor({ name: '(construct)', kind: 'constructor' }));
+		assert.ok(!member_is_class_constructor({ name: 'constructor', kind: 'function' }));
 	});
 });
 

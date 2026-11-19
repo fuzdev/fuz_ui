@@ -227,6 +227,14 @@ export const to_function_signature_tokens = (
 };
 
 /**
+ * Whether a member is a class constructor, whose signatures render without
+ * the instance-type return svelte-docinfo gives them, as TypeScript writes
+ * them; an interface's `(construct)` signature keeps its return.
+ */
+export const member_is_class_constructor = (member: MemberJsonInput): boolean =>
+	member.kind === 'constructor' && member.name !== MEMBER_NAME_CONSTRUCT;
+
+/**
  * Composes `name?: Type = default` for a parameter's own row, or
  * `...name: Type` for a rest parameter. A destructured parameter is named by
  * its pattern.

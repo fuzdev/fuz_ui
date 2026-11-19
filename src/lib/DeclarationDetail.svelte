@@ -48,6 +48,7 @@ rendered field carries its `Declaration.field` fragment as an `id`.
 		to_declaration_field_fragment,
 		to_default_block,
 		to_function_signature_tokens,
+		member_is_class_constructor,
 		to_member_chip_modifiers,
 		to_member_signature_tokens,
 		to_parameter_signature_tokens,
@@ -300,12 +301,21 @@ rendered field carries its `Declaration.field` fragment as an `id`.
 	</ul>
 {/snippet}
 
-<!-- Every signature of an overloaded function or method, each with its own prose. -->
-{#snippet overloads_list(name: string, overloads: Array<OverloadJsonInput>, tag: HeadingTag)}
+<!-- Every signature of an overloaded function or method, each with its own prose
+	(a class constructor's without the return, `member_is_class_constructor`). -->
+{#snippet overloads_list(
+	name: string,
+	overloads: Array<OverloadJsonInput>,
+	tag: HeadingTag,
+	omit_return = false
+)}
 	{#each overloads as overload, i (i)}
 		<section>
 			{@render signature_block(
-				to_function_signature_tokens(name, overload),
+				to_function_signature_tokens(
+					name,
+					omit_return ? { ...overload, returnType: undefined } : overload
+				),
 				overload.typeSignature
 			)}
 			{#if overload.docComment}
@@ -691,7 +701,12 @@ rendered field carries its `Declaration.field` fragment as an `id`.
 							its own parameters and returns prose -->
 						<p><strong>overloads</strong></p>
 						<div class="pl_lg my_md">
-							{@render overloads_list(member.name, member.overloads, nested_tag)}
+							{@render overloads_list(
+								member.name,
+								member.overloads,
+								nested_tag,
+								member_is_class_constructor(member)
+							)}
 						</div>
 					{:else}
 						{@render callable_detail(

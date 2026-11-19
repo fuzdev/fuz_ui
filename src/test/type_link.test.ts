@@ -104,8 +104,24 @@ describe('to_type_text_tokens source text', () => {
 		assert.deepEqual(to_names('`prefix-${A}` | B', ['A', 'B']), ['B']);
 	});
 
-	test('a typeof chain links its first name only', () => {
+	test('a typeof chain links its first name when that resolves', () => {
 		assert.deepEqual(to_names('typeof a.b', ['a', 'b']), ['a']);
+	});
+
+	test('a chain whose head resolves nowhere links its last name', () => {
+		assert.deepEqual(to_tokens('typeof specs.a.b_spec | C', ['b_spec', 'C']), [
+			{ kind: 'text', text: 'typeof specs.a.' },
+			{ kind: 'name', text: 'b_spec' },
+			{ kind: 'text', text: ' | ' },
+			{ kind: 'name', text: 'C' }
+		]);
+		assert.deepEqual(to_names('ns.Middle.Last', ['Middle']), []);
+		assert.deepEqual(to_names('typeof ns.missing', ['ns2']), []);
+		// keywords and every module's or function's members never link
+		assert.deepEqual(to_names('typeof z.infer | ns.string', ['infer', 'string']), []);
+		assert.deepEqual(to_names('typeof mod.default | Foo.prototype', ['default', 'prototype']), []);
+		// a spread is not a chain
+		assert.deepEqual(to_names('[...A]', ['A']), ['A']);
 	});
 
 	test('accessor keywords never link', () => {

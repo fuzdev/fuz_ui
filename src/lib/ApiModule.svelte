@@ -118,7 +118,7 @@
 			</section>
 		{/if}
 	{:else}
-		<!-- module comment: mirrors the compact `doc_extras` form in `DeclarationDetail` -->
+		<!-- module comment: laid out like a top-level declaration's doc fields in `DeclarationDetail` (chips, then messages, since, examples, see also) -->
 		{#if module.has_module_doc}
 			<section>
 				{@render doc_chips(module)}
