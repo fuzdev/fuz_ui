@@ -1,5 +1,19 @@
 # @fuzdev/fuz_ui
 
+## 0.230.0
+
+### Minor Changes
+
+- feat: add browser media building blocks, the stateful ones taking injected deps: `MediaDevicesState` (`media_devices.svelte.ts`: devices, mic and camera permissions, device picks kept while a device is away and checked per kind with `labeled_for`, and `pick_audio_output`'s `AudioOutputPick`), `LocalMedia` (`local_media.svelte.ts`: the mic, camera, or screen, where off releases the device, a mic reads `live` only once it's heard, and `silent` after `LOCAL_MEDIA_SILENT_AFTER` with nothing heard, with `LOCAL_MEDIA_SILENT_MESSAGE` as default words), `AudioLevelState` and level probes (`audio_level.svelte.ts`), `RemoteAudio` (`remote_audio.svelte.ts`: a call's remote streams through one `AudioContext` unlocked in a click, with per-stream volume and mute, the output device, and a resume prompt state), output routing (`audio_output.ts`), and `MediaAccessError` reasons with default words (`media_errors.ts`, including `play_refused` and `MEDIA_PLAY_REFUSED_ERROR_NAME` for an autoplay refusal) ([eb80579](https://github.com/fuzdev/fuz_ui/commit/eb80579))
+- Update dependencies (BREAKING CHANGES) ([a3e441f](https://github.com/fuzdev/fuz_ui/commit/a3e441f))
+  
+  Breaking dependency changes:
+  - @fuzdev/fuz_util: 0.81.0 → 0.83.0 (minor)
+  - @fuzdev/fuz_css: 0.81.0 → 0.83.0 (minor)
+  - @fuzdev/gro: 0.229.0 → 0.238.0 (minor)
+  - @fuzdev/mdz: 0.9.0 → 0.11.0 (minor)
+  - @fuzdev/fuz_code: 0.59.0 → 0.61.0 (minor)
+
 ## 0.229.1
 
 ### Patch Changes
