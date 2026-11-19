@@ -5,9 +5,10 @@ Renders svelte-docinfo's structured `TypeJson` tree as inline code: `reference`
 nodes (and alias-carrying unions/intersections) link to API docs via
 `DeclarationLink` when the name resolves in the library — scoped to the token's
 declaring module when the analysis names one — terminal type text is
-syntax-highlighted via fuz_code's `Code`, and structural punctuation comes
-from svelte-docinfo's `typeJsonToTokens`, which owns spacing and
-parenthesization so rendering is whitespace-exact.
+syntax-highlighted via fuz_code's `Code`, with the declaration names inside it
+linked as `TypeLink` links a flat string (`link_type_json_terminals`), and
+structural punctuation comes from svelte-docinfo's `typeJsonToTokens`, which
+owns spacing and parenthesization so rendering is whitespace-exact.
 
 The structured sibling of `TypeLink`, which renders flat type strings —
 `TypeLink` delegates here when given `type_info`, and svelte-docinfo omits the
@@ -23,6 +24,7 @@ tree replaced it with a recovered name.
 
 	import DeclarationLink from './DeclarationLink.svelte';
 	import { library_context } from './library.svelte.ts';
+	import { link_type_json_terminals } from './type_link.ts';
 
 	const {
 		type_info,
@@ -36,7 +38,11 @@ tree replaced it with a recovered name.
 	const get_library = library_context.get();
 	const library = $derived(get_library());
 
-	const tokens = $derived(typeJsonToTokens(type_info));
+	const tokens = $derived(
+		link_type_json_terminals(typeJsonToTokens(type_info), (name) =>
+			library.declaration_by_name.has(name)
+		)
+	);
 
 	// a bare name renders without the code wrapper, matching the plain chip
 	// link `TypeLink` produces for whole-string matches

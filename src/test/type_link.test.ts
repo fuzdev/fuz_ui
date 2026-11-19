@@ -1,6 +1,13 @@
 import { describe, test, assert } from 'vitest';
 
-import { to_type_text_tokens, type_name_is_keyword, type TypeTextToken } from '#lib/type_link.ts';
+import type { TypeJsonToken } from 'svelte-docinfo/declaration-helpers.js';
+
+import {
+	link_type_json_terminals,
+	to_type_text_tokens,
+	type_name_is_keyword,
+	type TypeTextToken
+} from '#lib/type_link.ts';
 
 const to_tokens = (type: string, names: Array<string>): Array<TypeTextToken> =>
 	to_type_text_tokens(type, (name) => names.includes(name));
@@ -84,5 +91,82 @@ describe('to_type_text_tokens', () => {
 			const tokens = to_tokens(type, ['A', 'B', 'Base']);
 			assert.strictEqual(tokens.map((token) => token.text).join(''), type);
 		}
+	});
+});
+
+describe('to_type_text_tokens source text', () => {
+	test('comments link nothing, and an apostrophe in one opens no string', () => {
+		assert.deepEqual(to_names('{ /* A */ a: B }', ['A', 'B']), ['B']);
+		assert.deepEqual(to_names("{\n\t// don't use A\n\ta: B;\n}", ['A', 'B']), ['B']);
+	});
+
+	test('a template literal stays whole', () => {
+		assert.deepEqual(to_names('`prefix-${A}` | B', ['A', 'B']), ['B']);
+	});
+
+	test('a typeof chain links its first name only', () => {
+		assert.deepEqual(to_names('typeof a.b', ['a', 'b']), ['a']);
+	});
+
+	test('accessor keywords never link', () => {
+		assert.deepEqual(to_names('{ get a(): A }', ['get', 'A']), ['A']);
+	});
+});
+
+describe('link_type_json_terminals', () => {
+	const link = (tokens: Array<TypeJsonToken>, names: Array<string>): Array<TypeJsonToken> =>
+		link_type_json_terminals(tokens, (name) => names.includes(name));
+
+	const to_text = (tokens: Array<TypeJsonToken>): string =>
+		tokens.map((token) => (token.kind === 'name' ? token.name : token.text)).join('');
+
+	test('splits a typeof query at its name', () => {
+		assert.deepEqual(link([{ kind: 'code', text: 'typeof A' }], ['A']), [
+			{ kind: 'code', text: 'typeof ' },
+			{ kind: 'name', name: 'A' }
+		]);
+	});
+
+	test('links the types in an object type, not its property names', () => {
+		const tokens = link([{ kind: 'code', text: '{ a: B; c?: D; }' }], ['a', 'B', 'c', 'D']);
+		assert.deepEqual(
+			tokens.filter((token) => token.kind === 'name').map((token) => token.name),
+			['B', 'D']
+		);
+		assert.strictEqual(to_text(tokens), '{ a: B; c?: D; }');
+	});
+
+	test('links the parameter and return types of a function type', () => {
+		const tokens = link([{ kind: 'code', text: '(a: A) => B' }], ['a', 'A', 'B']);
+		assert.deepEqual(
+			tokens.filter((token) => token.kind === 'name').map((token) => token.name),
+			['A', 'B']
+		);
+	});
+
+	test('a whole-text name becomes one name token', () => {
+		assert.deepEqual(link([{ kind: 'code', text: 'A' }], ['A']), [{ kind: 'name', name: 'A' }]);
+	});
+
+	test('text and name tokens pass through unscanned', () => {
+		const tokens: Array<TypeJsonToken> = [
+			{ kind: 'text', text: '[A: ' },
+			{ kind: 'name', name: 'B', module: 'b.ts' },
+			{ kind: 'text', text: ']' }
+		];
+		assert.deepEqual(link(tokens, ['A', 'B']), tokens);
+	});
+
+	test('a terminal with nothing that resolves stays one token', () => {
+		const token: TypeJsonToken = { kind: 'code', text: '{ a: string; }' };
+		assert.deepEqual(link([token], ['A', 'string']), [token]);
+	});
+
+	test('literals, keywords, and property access stay unlinked', () => {
+		const tokens = link([{ kind: 'code', text: '"A" | string | E.A' }], ['A', 'E', 'string']);
+		assert.deepEqual(
+			tokens.filter((token) => token.kind === 'name').map((token) => token.name),
+			['E']
+		);
 	});
 });

@@ -1,8 +1,10 @@
 /**
- * Pure helpers behind `TypeLink`.
+ * Pure helpers behind `TypeLink` and `TypeJsonView`.
  *
  * @module
  */
+
+import type { TypeJsonToken } from 'svelte-docinfo/declaration-helpers.js';
 
 /**
  * One run of a flat type string: a `name` that resolves to a declaration, or
@@ -50,7 +52,9 @@ const TYPE_KEYWORDS: ReadonlySet<string> = new Set([
 	'new',
 	'abstract',
 	'const',
-	'import'
+	'import',
+	'get',
+	'set'
 ]);
 
 /**
@@ -61,16 +65,19 @@ export const type_name_is_keyword = (name: string): boolean => TYPE_KEYWORDS.has
 
 /**
  * Splits a flat type string into the names that resolve and the text around
- * them, for the types svelte-docinfo emits with no structured tree beside
- * them: the object and function types it leaves flat (`{ a: A; }`,
- * `(a: A) => B`). `(a: A) => B` can then link `A` and `B` independently.
+ * them, for type text svelte-docinfo emits with no structure: a flat string
+ * with no tree beside it, and a tree's terminal text (object and function
+ * types, and source text such as `typeof a` or `keyof A`).
+ * `(a: A) => B` can then link `A` and `B` independently.
  *
  * The scan is lexical, not a parse. It skips what plainly isn't a type
- * reference: TypeScript's keywords, string literal contents, a property
- * access's right side (`ns.Name`), and a property or parameter name (`name:`
- * and `name?:`, written with no space before the colon, unlike a conditional
- * type's `? A : B`). A name in another non-type position (a method key, a
- * binding name) still links when a declaration happens to share it.
+ * reference: TypeScript's keywords, string and template literals whole (so a
+ * template's `${A}` doesn't link), comments, a property access's right side
+ * (`ns.Name`, so `typeof a.b` links only `a`), and a property or parameter
+ * name (`name:` and `name?:`, written with no space before the colon, unlike a
+ * conditional type's `? A : B`). A name in another non-type position (a method
+ * key, a binding name, a type parameter) still links when a declaration
+ * happens to share it.
  *
  * @param type - the flat type string
  * @param resolves - whether a candidate name is a known declaration
@@ -92,7 +99,14 @@ export const to_type_text_tokens = (
 	let i = 0;
 	while (i < type.length) {
 		const char = type[i]!;
-		if (char === '"' || char === "'" || char === '`') {
+		if (char === '/' && (type[i + 1] === '/' || type[i + 1] === '*')) {
+			// a comment, through its line's end or its close, so neither its words
+			// link nor an apostrophe in it opens a string
+			const close = type[i + 1] === '/' ? type.indexOf('\n', i) : type.indexOf('*/', i + 2);
+			const end = close === -1 ? type.length : type[i + 1] === '/' ? close : close + 2;
+			text += type.slice(i, end);
+			i = end;
+		} else if (char === '"' || char === "'" || char === '`') {
 			// a string literal, through its closing quote
 			let end = i + 1;
 			while (end < type.length && type[end] !== char) {
@@ -133,3 +147,31 @@ export const to_type_text_tokens = (
 	flush_text();
 	return tokens;
 };
+
+/**
+ * Splits each terminal `code` token of a rendered `TypeJson` tree at the names
+ * `to_type_text_tokens` finds, so the names inside terminal text (`typeof A`,
+ * `{ a: A; }`, `(a: A) => B`) link as the same text rendered flat does. `text`
+ * tokens (punctuation, tuple labels) and `name` tokens pass through unscanned.
+ * A split name carries no `module`, so it resolves by name, as a flat string's
+ * names do.
+ *
+ * @param tokens - the tree's tokens, from svelte-docinfo's `typeJsonToTokens`
+ * @param resolves - whether a candidate name is a known declaration
+ * @returns the tokens with each linkable terminal split; their texts
+ * concatenate back to the input's
+ */
+export const link_type_json_terminals = (
+	tokens: Array<TypeJsonToken>,
+	resolves: (name: string) => boolean
+): Array<TypeJsonToken> =>
+	tokens.flatMap((token): Array<TypeJsonToken> => {
+		if (token.kind !== 'code') return [token];
+		const pieces = to_type_text_tokens(token.text, resolves);
+		if (!pieces.some((piece) => piece.kind === 'name')) return [token];
+		return pieces.map((piece): TypeJsonToken =>
+			piece.kind === 'name'
+				? { kind: 'name', name: piece.text }
+				: { kind: 'code', text: piece.text }
+		);
+	});

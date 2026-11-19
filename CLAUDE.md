@@ -251,7 +251,8 @@ API:
   have no tree)
 - `TypeJsonView` — structured `TypeJson` tree renderer: per-node linkification
   (`DeclarationLink` for resolvable `reference` nodes and alias-carrying
-  unions/intersections), syntax-highlighted terminals, punctuation from
+  unions/intersections), syntax-highlighted terminals whose declaration names
+  link as a flat string's do (`link_type_json_terminals`), punctuation from
   svelte-docinfo's `typeJsonToTokens`
 
 Library metadata:
@@ -326,7 +327,8 @@ re-strip drops the extras. See the `vite_plugin_pkg_json` tome for the pattern.
   props compose (`prop_is_composable`), which parameters earn a row (`parameter_has_detail`), and field fragments
   (`to_declaration_field_fragment`)
 - `type_link.ts` - `to_type_text_tokens`, the name scan behind `TypeLink`'s
-  flat-string linking, and `type_name_is_keyword`
+  flat-string linking, `link_type_json_terminals`, which applies it to a
+  tree's terminal text for `TypeJsonView`, and `type_name_is_keyword`
 - `library_helpers.ts` - docs URL helpers
 
 The `svelte-docinfo` imports above resolve to its `source.js` (type

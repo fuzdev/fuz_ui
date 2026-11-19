@@ -70,6 +70,48 @@ describe('TypeJsonView', () => {
 		assert.ok(container.querySelector('code.type-json-view'), 'expected the code wrapper');
 	});
 
+	test('names inside terminal text link', () => {
+		const container = mount_view(
+			{
+				kind: 'reference',
+				name: 'A',
+				typeArgs: [{ kind: 'other', text: 'typeof B' }]
+			},
+			fake_library(['A', 'B'])
+		);
+		assert.strictEqual(container.textContent, 'A<typeof B>');
+		assert.deepEqual(
+			Array.from(container.querySelectorAll('a')).map((a) => a.textContent),
+			['A', 'B']
+		);
+	});
+
+	test('names inside an object terminal link, and whitespace survives', () => {
+		const container = mount_view(
+			{
+				kind: 'union',
+				members: [
+					{ kind: 'object', text: '{ a: B; }' },
+					{ kind: 'intrinsic', text: 'null' }
+				]
+			},
+			fake_library(['a', 'B'])
+		);
+		assert.strictEqual(container.textContent, '{ a: B; } | null');
+		assert.deepEqual(
+			Array.from(container.querySelectorAll('a')).map((a) => a.textContent),
+			['B']
+		);
+	});
+
+	test('a terminal root naming a declaration renders as a bare link', () => {
+		const container = mount_view({ kind: 'function', text: 'A' }, fake_library(['A']), 'flat');
+		assert.strictEqual(container.querySelector('code.type-json-view'), null);
+		const link = container.querySelector('a');
+		assert.ok(link, 'expected a link');
+		assert.strictEqual(link.textContent, 'A');
+	});
+
 	test('a bare resolvable reference renders as a declaration link', () => {
 		const container = mount_view({ kind: 'reference', name: 'A' }, fake_library(['A']));
 		const link = container.querySelector('a');

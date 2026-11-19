@@ -4,9 +4,10 @@
 Renders a type reference, linking the parts that resolve to library declarations.
 
 With `type_info` it delegates to `TypeJsonView`, which renders the structured
-tree — reference names become `DeclarationLink`s and everything else is
-syntax-highlighted in place, so `Map<string, Tome> | null` links `Map` and
-`Tome` independently, with the flat `type` as hover text. Without it the
+tree — reference names become `DeclarationLink`s, as do the names inside its
+terminal text, and everything else is syntax-highlighted in place, so
+`Map<string, Tome> | null` links `Map` and `Tome` independently, with the flat
+`type` as hover text. Without it the
 `type` string links whole when it names a declaration outright, and otherwise
 by the names found in it (`to_type_text_tokens`), so a function type's
 `(a: Options) => Result` still links `Options` and `Result`.
