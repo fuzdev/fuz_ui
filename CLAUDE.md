@@ -307,6 +307,41 @@ predicates), `types.js` (`ModuleJson`, `DeclarationJson`, `TypeJson`, and their
 `*Input` variants), and `declaration-helpers.js` (`generateImport`,
 `getDisplayName`, `typeJsonToTokens`); see its CLAUDE.md for the full API.
 
+### Browser media
+
+Framework-light pieces for a voice or video call, with no backend involved.
+The stateful modules take a `*Deps` bundle (a `create_*_deps()` default over
+the page's globals) and touch no browser API until called, so they construct
+during SSR and unit-test in node with fakes (`src/test/media_test_helpers.ts`);
+`media_errors.ts` and `to_rms` are pure. The module TSDoc holds the browser
+reasoning.
+
+- `media_devices.svelte.ts` - `MediaDevicesState`: the device list,
+  mic/camera permissions (followed while anything `listen`s), and picks kept
+  as preferences while a device is away; `to_device_constraint` asks `exact`,
+  `ideal`, or nothing as the list allows for that kind (`labeled_for`: a mic
+  grant reveals the audio devices, not the cameras). Storage is the
+  consumer's (`initial_selection`, `on_select`)
+- `local_media.svelte.ts` - `LocalMedia`: one mic, camera, or screen; `stop`
+  stops every track (the browser's indicator goes out); a mic stays
+  `starting` until a sample above digital silence arrives, while its `track`
+  is sendable from arrival, and reads `silent` once nothing has been heard
+  for `LOCAL_MEDIA_SILENT_AFTER`
+- `audio_level.svelte.ts` - `to_rms`, level probes on a node or stream in a
+  shared context, and `AudioLevelState` for speaking indicators
+- `remote_audio.svelte.ts` - `RemoteAudio`: one `AudioContext` created and
+  resumed inside the Join click (`unlock`), each stream through its own
+  `GainNode`, a muted helper `<audio>` per stream (Chromium delivers remote
+  WebRTC audio into Web Audio only while an element holds it), `needs_resume`
+  after a suspension, the output device, and a context the browser closed
+  replaced at the next `unlock` with its streams kept
+- `audio_output.ts` - output routing: `AudioContext.setSinkId`, else an
+  element route (whose `play()` relies on the page's sticky activation),
+  else the default
+- `media_errors.ts` - `to_media_access_error`: a thrown error's `name` to a
+  reason code plus default words, including `play_refused` for an autoplay
+  refusal (`MEDIA_PLAY_REFUSED_ERROR_NAME`)
+
 ### Browser and DOM
 
 - `docs_helpers.svelte.ts` - docs navigation and linking (DocsLinks class)

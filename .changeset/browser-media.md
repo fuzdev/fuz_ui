@@ -1,0 +1,5 @@
+---
+'@fuzdev/fuz_ui': minor
+---
+
+feat: add browser media building blocks, the stateful ones taking injected deps: `MediaDevicesState` (`media_devices.svelte.ts`: devices, mic and camera permissions, device picks kept while a device is away and checked per kind with `labeled_for`, and `pick_audio_output`'s `AudioOutputPick`), `LocalMedia` (`local_media.svelte.ts`: the mic, camera, or screen, where off releases the device, a mic reads `live` only once it's heard, and `silent` after `LOCAL_MEDIA_SILENT_AFTER` with nothing heard, with `LOCAL_MEDIA_SILENT_MESSAGE` as default words), `AudioLevelState` and level probes (`audio_level.svelte.ts`), `RemoteAudio` (`remote_audio.svelte.ts`: a call's remote streams through one `AudioContext` unlocked in a click, with per-stream volume and mute, the output device, and a resume prompt state), output routing (`audio_output.ts`), and `MediaAccessError` reasons with default words (`media_errors.ts`, including `play_refused` and `MEDIA_PLAY_REFUSED_ERROR_NAME` for an autoplay refusal)
