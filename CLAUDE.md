@@ -232,10 +232,10 @@ API:
   (member, prop, parameter) under its signature after the way TypeScript
   declares it (`readonly name?: Type = default`, `name(a: A): R`,
   `now: () => number` for a function-typed property), composed from the
-  structured data so every type links. svelte-docinfo's signature fields
-  (`returnPredicate`, `thisType`, `pattern`, `property`, generic `modifiers`,
-  and the trees for heritage, constraints and `@throws` types) are read by
-  presence, so data without one keeps the flat fallback. Each rendered field carries a
+  structured data so every type links, including svelte-docinfo's signature
+  fields (`returnPredicate`, `thisType`, `pattern`, `property`, generic
+  `modifiers`, and the trees for heritage, constraints and `@throws` types),
+  which need svelte-docinfo 0.19.0 or later. Each rendered field carries a
   `Declaration.field` id (`SidebarState.toggle`,
   `SidebarState.constructor.options` for a member's parameter). Heading levels
   follow the enclosing `TomeSection`'s depth. The component comment and
@@ -247,8 +247,8 @@ API:
 - `ModuleLink` — link to a module in API docs
 - `TypeLink` — link to a type reference; renders the structured tree via
   `TypeJsonView` when given `type_info`, else matches the flat string, whole
-  or by the declaration names found inside it (heritage clauses, generic
-  constraints, and `@throws` types have no tree)
+  or by the declaration names found inside it (object and function types
+  have no tree)
 - `TypeJsonView` — structured `TypeJson` tree renderer: per-node linkification
   (`DeclarationLink` for resolvable `reference` nodes and alias-carrying
   unions/intersections), syntax-highlighted terminals, punctuation from
@@ -322,9 +322,8 @@ re-strip drops the extras. See the `vite_plugin_pkg_json` tome for the pattern.
   from `svelte-docinfo/declaration-helpers.js` to link each reference nested
   in a composite type; `TypeLink` delegates to it when given `type_info`)
 - `declaration_detail.ts` - pure helpers behind `DeclarationDetail`: signature
-  token streams (`to_member_signature_tokens` and siblings), when composing
-  one would lose something (`signature_is_composable`), which parameters earn
-  a row (`parameter_has_detail`), and field fragments
+  token streams (`to_member_signature_tokens` and siblings), which callback
+  props compose (`prop_is_composable`), which parameters earn a row (`parameter_has_detail`), and field fragments
   (`to_declaration_field_fragment`)
 - `type_link.ts` - `to_type_text_tokens`, the name scan behind `TypeLink`'s
   flat-string linking, and `type_name_is_keyword`

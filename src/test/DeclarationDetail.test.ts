@@ -87,18 +87,25 @@ describe('DeclarationDetail signature', () => {
 		);
 	});
 
-	test('a type predicate keeps the flat signature, which alone shows it', () => {
-		const container = mount_detail({
-			name: 'f',
-			kind: 'function',
-			typeSignature: '(value: object): value is A',
-			parameters: [{ name: 'value', type: 'object' }],
-			returnType: 'boolean'
-		});
-		assert.strictEqual(container.querySelector('.signature-block'), null);
-		assert.include(container.textContent, '(value: object): value is A');
-		// with no composed signature, every parameter keeps its row
-		assert.deepEqual(to_signatures(find_section(container, 'parameters')), ['value: object']);
+	test('a type predicate composes, its type linked', () => {
+		const container = mount_detail(
+			{
+				name: 'f',
+				kind: 'function',
+				typeSignature: '(value: object): value is A',
+				parameters: [{ name: 'value', type: 'object' }],
+				returnType: 'boolean',
+				returnPredicate: { parameterName: 'value', type: 'A' }
+			},
+			['A']
+		);
+		const block = container.querySelector('code.signature-block');
+		assert.ok(block, 'expected the composed signature');
+		assert.strictEqual(block.textContent, 'f(value: object): value is A');
+		assert.deepEqual(
+			Array.from(block.querySelectorAll('a')).map((a) => a.getAttribute('href')),
+			['/docs/api/x.ts#A']
+		);
 	});
 
 	test('a snippet gets a composed signature ending at its parameters', () => {
@@ -124,7 +131,12 @@ describe('DeclarationDetail signature', () => {
 					parameters: [{ name: 'a', type: 'string', description: 'the text' }],
 					returnType: 'string'
 				},
-				{ typeSignature: '(a: unknown): a is A', returnType: 'boolean' }
+				{
+					typeSignature: '(a: unknown): a is A',
+					parameters: [{ name: 'a', type: 'unknown' }],
+					returnType: 'boolean',
+					returnPredicate: { parameterName: 'a', type: 'A' }
+				}
 			]
 		});
 		const section = find_section(container, 'overloads');
@@ -134,9 +146,10 @@ describe('DeclarationDetail signature', () => {
 			'f(a: string): string'
 		);
 		assert.strictEqual(entries[0]!.querySelector('h5')?.textContent, 'a');
-		// the predicate overload keeps its flat signature
-		assert.strictEqual(entries[1]!.querySelector('.signature-block'), null);
-		assert.include(entries[1]!.textContent, '(a: unknown): a is A');
+		assert.strictEqual(
+			entries[1]!.querySelector('code.signature-block')?.textContent,
+			'f(a: unknown): a is A'
+		);
 	});
 
 	test('a composed signature states the generics, so their section is dropped', () => {
@@ -169,10 +182,13 @@ describe('DeclarationDetail signature', () => {
 			name: 'f',
 			kind: 'function',
 			typeSignature: '(a: A): R',
+			parameters: [{ name: 'a', type: 'A' }],
 			partial: true
 		});
 		assert.strictEqual(container.querySelector('.signature-block'), null);
 		assert.include(container.textContent, '(a: A): R');
+		// with no composed signature, every parameter keeps its row
+		assert.deepEqual(to_signatures(find_section(container, 'parameters')), ['a: A']);
 	});
 
 	test('a signature that only repeats the name is dropped', () => {
@@ -542,11 +558,18 @@ describe('DeclarationDetail field anchors', () => {
 });
 
 describe('DeclarationDetail flat type links', () => {
-	test('heritage links the names inside a composite type', () => {
-		const container = mount_detail({ name: 'A', kind: 'class', extends: ['Base<Options>'] }, [
-			'Base',
-			'Options'
-		]);
+	test('heritage links the names inside its tree', () => {
+		const container = mount_detail(
+			{
+				name: 'A',
+				kind: 'class',
+				extends: ['Base<Options>'],
+				extendsInfo: [
+					{ kind: 'reference', name: 'Base', typeArgs: [{ kind: 'reference', name: 'Options' }] }
+				]
+			},
+			['Base', 'Options']
+		);
 		const section = find_section(container, 'inheritance');
 		assert.include(section.textContent, 'Base<Options>');
 		assert.deepEqual(

@@ -11,11 +11,9 @@ Each field (member, prop, parameter) is headed by its signature in the form
 TypeScript declares it, `readonly name?: Type = default`, composed from the
 structured data so every type links on its own (see `declaration_detail.ts`).
 A function's signature is composed the same way, and a parameter gets a row
-of its own only when it has more to say than that signature shows. Where
-composing would lose something the data doesn't carry as a field (a type
-predicate with no `returnPredicate`, a destructured parameter with no
-`pattern`), the flat signature stays. Each rendered field carries its `Declaration.field`
-fragment as an `id`.
+of its own only when it has more to say than that signature shows. A
+callable whose extraction failed (`partial`) keeps the flat signature. Each
+rendered field carries its `Declaration.field` fragment as an `id`.
 
 @see `declaration.svelte.ts` for the `Declaration` wrapper class
 @see [svelte-docinfo](https://github.com/fuzdev/svelte-docinfo) for the analysis library
@@ -29,7 +27,12 @@ fragment as an `id`.
 		mdz_codeblock_context,
 		mdz_set_context_with_fallback
 	} from '@fuzdev/mdz/mdz_contexts.ts';
-	import type { OverloadJsonInput, ParameterJsonInput, TypeJson } from 'svelte-docinfo/types.js';
+	import type {
+		OverloadJsonInput,
+		ParameterJsonInput,
+		ThrowsJsonInput,
+		TypeJson
+	} from 'svelte-docinfo/types.js';
 
 	import type { Declaration } from './declaration.svelte.ts';
 	import TypeLink from './TypeLink.svelte';
@@ -42,7 +45,6 @@ fragment as an `id`.
 	import {
 		parameter_has_detail,
 		prop_is_composable,
-		signature_is_composable,
 		to_declaration_field_fragment,
 		to_default_block,
 		to_function_signature_tokens,
@@ -50,8 +52,6 @@ fragment as an `id`.
 		to_member_signature_tokens,
 		to_parameter_signature_tokens,
 		to_prop_signature_tokens,
-		type SignatureCallable,
-		type SignatureGenericParam,
 		type SignatureToken
 	} from './declaration_detail.ts';
 
@@ -77,19 +77,14 @@ fragment as an `id`.
 	/** A parameter of a field. */
 	const nested_tag = to_heading_tag(declaration_level + 3);
 
-	// typed for the `constraintInfo` and `defaultTypeInfo` trees, where the data has them
-	const generic_params: Array<SignatureGenericParam> = $derived(declaration.generic_params);
-
 	// functions and snippets get their signature composed from the structured
-	// fields, linking each type; a failed extraction, and a signature those
-	// fields can't fully express, keep the flat one
+	// fields, linking each type; a failed extraction keeps the flat one
 	const signature_tokens = $derived.by(() => {
 		const { kind } = declaration;
 		if ((kind !== 'function' && kind !== 'snippet') || declaration.declaration_json.partial) {
 			return undefined;
 		}
-		const callable: SignatureCallable = {
-			typeSignature: declaration.type_signature,
+		return to_function_signature_tokens(declaration.name, {
 			genericParams: declaration.generic_params,
 			parameters: declaration.parameters,
 			returnType: declaration.return_type,
@@ -97,10 +92,7 @@ fragment as an `id`.
 			returnPredicate: declaration.return_predicate,
 			thisType: declaration.this_type,
 			thisTypeInfo: declaration.this_type_info
-		};
-		return signature_is_composable(callable)
-			? to_function_signature_tokens(declaration.name, callable)
-			: undefined;
+		});
 	});
 
 	// the flat signature, where it says something the heading and a composed
@@ -160,7 +152,7 @@ fragment as an `id`.
 		since?: string;
 		examples?: Array<string>;
 		seeAlso?: Array<string>;
-		throws?: Array<{ type?: string; typeInfo?: TypeJson; description: string }>;
+		throws?: Array<ThrowsJsonInput>;
 		mutates?: Record<string, string>;
 	}
 </script>
@@ -312,14 +304,10 @@ fragment as an `id`.
 {#snippet overloads_list(name: string, overloads: Array<OverloadJsonInput>, tag: HeadingTag)}
 	{#each overloads as overload, i (i)}
 		<section>
-			{#if signature_is_composable(overload)}
-				{@render signature_block(
-					to_function_signature_tokens(name, overload),
-					overload.typeSignature
-				)}
-			{:else}
-				<Code lang="ts" content={overload.typeSignature} />
-			{/if}
+			{@render signature_block(
+				to_function_signature_tokens(name, overload),
+				overload.typeSignature
+			)}
 			{#if overload.docComment}
 				<Mdz content={overload.docComment} class="mb_md" />
 			{/if}
@@ -367,7 +355,7 @@ fragment as an `id`.
 {/snippet}
 
 <!-- A comma-separated inline list of type links (extends, implements, external types are rarely more than one).
-	`types_info` holds each entry's tree at the same index, where the data has them. -->
+	`types_info` holds each entry's tree at the same index; external types have none. -->
 {#snippet type_list(types: Array<string>, types_info?: Array<TypeJson>)}
 	{#each types as type, i (type)}
 		{#if i > 0}
@@ -611,7 +599,7 @@ fragment as an `id`.
 			<!-- plain code: `TypeLink` would link the declaration to itself -->
 			<Code lang="ts" content={declaration.display_name} inline />
 		</div>
-		{#each generic_params as generic (generic)}
+		{#each declaration.generic_params as generic (generic)}
 			<section>
 				<svelte:element this={field_tag}><code>{generic.name}</code></svelte:element>
 				{#if generic.constraint}

@@ -62,10 +62,8 @@ export const type_name_is_keyword = (name: string): boolean => TYPE_KEYWORDS.has
 /**
  * Splits a flat type string into the names that resolve and the text around
  * them, for the types svelte-docinfo emits with no structured tree beside
- * them: the object and function types it leaves flat
- * (`{ a: A; }`, `(a: A) => B`), and source text (heritage clauses, generic
- * constraints, `@throws` types) in data that carries no trees for it. `(a: A) => B` can then link `A`
- * and `B` independently.
+ * them: the object and function types it leaves flat (`{ a: A; }`,
+ * `(a: A) => B`). `(a: A) => B` can then link `A` and `B` independently.
  *
  * The scan is lexical, not a parse. It skips what plainly isn't a type
  * reference: TypeScript's keywords, string literal contents, a property

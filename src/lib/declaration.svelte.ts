@@ -7,13 +7,13 @@ import type {
 	ComponentCssPropertyJsonInput,
 	OverloadJsonInput,
 	Reactivity,
+	ReturnPredicateJsonInput,
 	TypeJson
 } from 'svelte-docinfo/types.js';
 import { generateImport, getDisplayName } from 'svelte-docinfo/declaration-helpers.js';
 import { EMPTY_ARRAY } from '@fuzdev/fuz_util/array.ts';
 
 import type { Module } from './module.svelte.ts';
-import type { SignatureReturnPredicate } from './declaration_detail.ts';
 import { url_github_file } from '@fuzdev/fuz_util/package_helpers.ts';
 
 // The `virtual:svelte-docinfo` module is serialized with svelte-docinfo's
@@ -22,10 +22,26 @@ import { url_github_file } from '@fuzdev/fuz_util/package_helpers.ts';
 // shape. Typing it as input makes TypeScript force a guard on every
 // defaulted-array read.
 //
-// Helper to access kind-specific fields on the discriminated union.
-// At runtime the field is present or undefined; TypeScript needs the cast.
-const field = <T>(decl: DeclarationJsonInput, key: string): T | undefined =>
-	(decl as Record<string, unknown>)[key] as T | undefined;
+// Helper to access kind-specific fields on the discriminated union, typed by
+// the variants that declare the key. At runtime the field is present or
+// undefined; TypeScript needs the cast.
+type DeclarationFieldKey = DeclarationJsonInput extends infer D
+	? D extends unknown
+		? keyof D
+		: never
+	: never;
+type DeclarationField<K extends DeclarationFieldKey> = DeclarationJsonInput extends infer D
+	? D extends unknown
+		? K extends keyof D
+			? Exclude<D[K], undefined>
+			: never
+		: never
+	: never;
+const field = <K extends DeclarationFieldKey>(
+	decl: DeclarationJsonInput,
+	key: K
+): DeclarationField<K> | undefined =>
+	(decl as Record<string, unknown>)[key] as DeclarationField<K> | undefined;
 
 /**
  * Rich runtime representation of an exported declaration.
@@ -131,7 +147,7 @@ export class Declaration {
 	 * is the whole story. Present on `variable` and `type` kinds only.
 	 */
 	get type_info(): TypeJson | undefined {
-		return field<TypeJson>(this.declaration_json, 'typeInfo');
+		return field(this.declaration_json, 'typeInfo');
 	}
 
 	/**
@@ -161,7 +177,7 @@ export class Declaration {
 	 * only — parameters, props, and members carry their own.
 	 */
 	get default_value(): string | undefined {
-		return field<string>(this.declaration_json, 'defaultValue');
+		return field(this.declaration_json, 'defaultValue');
 	}
 
 	get doc_comment(): string | undefined {
@@ -173,15 +189,15 @@ export class Declaration {
 	}
 
 	get parameters(): Array<ParameterJsonInput> | undefined {
-		return field<Array<ParameterJsonInput>>(this.declaration_json, 'parameters');
+		return field(this.declaration_json, 'parameters');
 	}
 
 	get props(): Array<ComponentPropJsonInput> | undefined {
-		return field<Array<ComponentPropJsonInput>>(this.declaration_json, 'props');
+		return field(this.declaration_json, 'props');
 	}
 
 	get return_type(): string | undefined {
-		return field<string>(this.declaration_json, 'returnType');
+		return field(this.declaration_json, 'returnType');
 	}
 
 	/**
@@ -189,29 +205,28 @@ export class Declaration {
 	 * is the whole story. Present on `function` kind only.
 	 */
 	get return_type_info(): TypeJson | undefined {
-		return field<TypeJson>(this.declaration_json, 'returnTypeInfo');
+		return field(this.declaration_json, 'returnTypeInfo');
 	}
 
 	/**
 	 * A function's type predicate or assertion, which `return_type` (the
-	 * checker's `boolean` or `void`) can't show. `undefined` too on data
-	 * without the field, as `this_type` is.
+	 * checker's `boolean` or `void`) can't show.
 	 */
-	get return_predicate(): SignatureReturnPredicate | undefined {
-		return field<SignatureReturnPredicate>(this.declaration_json, 'returnPredicate');
+	get return_predicate(): ReturnPredicateJsonInput | undefined {
+		return field(this.declaration_json, 'returnPredicate');
 	}
 
 	/** The type of a function's declared `this` parameter, which `parameters` leaves out. */
 	get this_type(): string | undefined {
-		return field<string>(this.declaration_json, 'thisType');
+		return field(this.declaration_json, 'thisType');
 	}
 
 	get this_type_info(): TypeJson | undefined {
-		return field<TypeJson>(this.declaration_json, 'thisTypeInfo');
+		return field(this.declaration_json, 'thisTypeInfo');
 	}
 
 	get return_description(): string | undefined {
-		return field<string>(this.declaration_json, 'returnDescription');
+		return field(this.declaration_json, 'returnDescription');
 	}
 
 	get generic_params(): NonNullable<DeclarationJsonInput['genericParams']> {
@@ -219,24 +234,21 @@ export class Declaration {
 	}
 
 	get extends_types(): Array<string> | undefined {
-		return field<Array<string>>(this.declaration_json, 'extends');
+		return field(this.declaration_json, 'extends');
 	}
 
 	get implements_types(): Array<string> | undefined {
-		return field<Array<string>>(this.declaration_json, 'implements');
+		return field(this.declaration_json, 'implements');
 	}
 
-	/**
-	 * The structured form of each `extends_types` entry, at the same index.
-	 * `undefined` on data without the field.
-	 */
+	/** The structured form of each `extends_types` entry, at the same index. */
 	get extends_types_info(): Array<TypeJson> | undefined {
-		return field<Array<TypeJson>>(this.declaration_json, 'extendsInfo');
+		return field(this.declaration_json, 'extendsInfo');
 	}
 
 	/** The structured form of each `implements_types` entry, as `extends_types_info` is. */
 	get implements_types_info(): Array<TypeJson> | undefined {
-		return field<Array<TypeJson>>(this.declaration_json, 'implementsInfo');
+		return field(this.declaration_json, 'implementsInfo');
 	}
 
 	get throws(): NonNullable<DeclarationJsonInput['throws']> {
@@ -259,7 +271,7 @@ export class Declaration {
 	 * Nested members for classes, interfaces, types, and enums.
 	 */
 	get members(): Array<MemberJsonInput> | undefined {
-		return field<Array<MemberJsonInput>>(this.declaration_json, 'members');
+		return field(this.declaration_json, 'members');
 	}
 
 	/**
@@ -271,7 +283,7 @@ export class Declaration {
 	 * Present on `component`, `type`, `interface`, and `class` kinds.
 	 */
 	get external_types(): Array<string> | undefined {
-		return field<Array<string>>(this.declaration_json, 'externalTypes');
+		return field(this.declaration_json, 'externalTypes');
 	}
 
 	/**
@@ -281,7 +293,7 @@ export class Declaration {
 	 * Present on `type` and `interface` kinds.
 	 */
 	get merged_value(): boolean | undefined {
-		return field<boolean>(this.declaration_json, 'mergedValue');
+		return field(this.declaration_json, 'mergedValue');
 	}
 
 	/**
@@ -292,10 +304,7 @@ export class Declaration {
 	 * `fallback`. Present on `component` kind only.
 	 */
 	get css_custom_properties(): Array<ComponentCssPropertyJsonInput> | undefined {
-		return field<Array<ComponentCssPropertyJsonInput>>(
-			this.declaration_json,
-			'cssCustomProperties'
-		);
+		return field(this.declaration_json, 'cssCustomProperties');
 	}
 
 	/**
@@ -303,15 +312,15 @@ export class Declaration {
 	 * Present on `component` kind only.
 	 */
 	get accepts_children(): boolean | undefined {
-		return field<boolean>(this.declaration_json, 'acceptsChildren');
+		return field(this.declaration_json, 'acceptsChildren');
 	}
 
 	/**
 	 * Function overload signatures when multiple public overloads exist.
-	 * Present on `function` and `snippet` kinds, and on function/constructor members.
+	 * Present on `function` kind, and on function/constructor members.
 	 */
 	get overloads(): Array<OverloadJsonInput> | undefined {
-		return field<Array<OverloadJsonInput>>(this.declaration_json, 'overloads');
+		return field(this.declaration_json, 'overloads');
 	}
 
 	/**
@@ -352,7 +361,7 @@ export class Declaration {
 	 * Present on `variable` kind only.
 	 */
 	get reactivity(): Reactivity | undefined {
-		return field<Reactivity>(this.declaration_json, 'reactivity');
+		return field(this.declaration_json, 'reactivity');
 	}
 
 	/**
