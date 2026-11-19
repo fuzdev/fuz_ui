@@ -38,15 +38,55 @@ export type SignatureToken =
 	| { kind: 'type'; type: string; type_info?: TypeJson }
 	| { kind: 'value'; text: string };
 
+// TODO the `Signature*` types in this module spell out fields svelte-docinfo
+// emits after 0.18.1, so the module typechecks against the release that
+// lacks them; delete them for svelte-docinfo's own types once a release with
+// the fields is the floor
+
+/**
+ * A signature's type predicate or assertion (`x is A`, `asserts x is A`,
+ * `asserts x`), which `returnType` (the checker's `boolean` or `void`) can't show.
+ */
+export interface SignatureReturnPredicate {
+	/** The narrowed parameter's name, or `this`. */
+	parameterName: string;
+	asserts?: boolean;
+	/** Absent for a bare `asserts x`. */
+	type?: string;
+	typeInfo?: TypeJson;
+}
+
+/** A generic parameter with its modifiers and the trees beside its source-text types. */
+export type SignatureGenericParam = GenericParamJsonInput & {
+	/** `const`, `in`, and `out`, as written. */
+	modifiers?: Array<string>;
+	constraintInfo?: TypeJson;
+	defaultTypeInfo?: TypeJson;
+};
+
+/** A parameter with the binding pattern a destructured one is written as. */
+export type SignatureParameter = ParameterJsonInput & {
+	/** A destructured parameter's pattern (`{ a, b = 1 }`), beside its positional `name`. */
+	pattern?: string;
+};
+
+/** What a signature declares beyond its parameters and return type. */
+export interface SignatureFacts {
+	returnPredicate?: SignatureReturnPredicate;
+	/** The type of a declared `this` parameter, which `parameters` leaves out. */
+	thisType?: string;
+	thisTypeInfo?: TypeJson;
+}
+
 /**
  * The callable fields a signature is composed from, shared by function
  * declarations, function members, and overloads.
  */
-export interface SignatureCallable {
+export interface SignatureCallable extends SignatureFacts {
 	/** The checker's flat rendering, the fallback where composing would lose something. */
 	typeSignature?: string;
-	genericParams?: Array<GenericParamJsonInput>;
-	parameters?: Array<ParameterJsonInput>;
+	genericParams?: Array<SignatureGenericParam>;
+	parameters?: Array<SignatureParameter>;
 	returnType?: string;
 	returnTypeInfo?: TypeJson;
 }
@@ -67,33 +107,49 @@ const SIGNATURE_KEYWORD_MODIFIERS: ReadonlyArray<DeclarationModifier> = [
 /** The name TypeScript gives a destructured parameter, which has none of its own. */
 const DESTRUCTURED_PARAMETER_MATCHER = /^__\d+$/;
 
-/**
- * What a flat signature can show that the structured fields can't: a type
- * predicate or assertion return (`returnType` is the checker's `boolean` or
- * `void`), a `this` parameter (absent from `parameters`), and a `const` type
- * parameter (absent from `genericParams`).
- */
-const SIGNATURE_FLAT_ONLY_MATCHERS: ReadonlyArray<RegExp> = [
-	/\): (?:asserts [\w$]+(?: is .+)?|[\w$]+ is .+)$/,
-	/^(?:<.*>)?\(this: /,
-	/^<(?:const |.*?, const )/
-];
+// What a flat signature shows that svelte-docinfo's structured fields lacked
+// through 0.18.1: a type predicate or assertion return, a `this` parameter,
+// and a `const` type parameter. Each is consulted only where the field that
+// now carries the fact is absent.
+// TODO delete with `signature_is_composable` once every supported
+// svelte-docinfo emits `returnPredicate`, `thisType`, `pattern`, and
+// generic `modifiers`
+const FLAT_PREDICATE_RETURN_MATCHER = /^(?:asserts |[\w$]+ is )/;
+const FLAT_SIGNATURE_PREDICATE_MATCHER = /\): (?:asserts [\w$]+(?: is .+)?|[\w$]+ is .+)$/;
+const FLAT_SIGNATURE_THIS_MATCHER = /^(?:<.*>)?\(this: /;
+const FLAT_SIGNATURE_CONST_MATCHER = /^<(?:const |.*?, const )/;
+
+const has_unnamed_destructured_parameter = (
+	parameters: Array<SignatureParameter> | undefined
+): boolean =>
+	!!parameters?.some(
+		(param) => param.pattern === undefined && DESTRUCTURED_PARAMETER_MATCHER.test(param.name)
+	);
 
 /**
  * Whether composing a signature from the structured fields keeps everything
- * its flat `typeSignature` shows. It doesn't for a destructured parameter
- * (structured as `__0`, with the binding pattern only in the flat text), a
- * type predicate or assertion return, a `this` parameter, or a `const` type
- * parameter; those keep the flat signature. A callable with no flat signature
- * to fall back on is composed regardless.
+ * its flat `typeSignature` shows. Four things need a field of their own: a
+ * destructured parameter (`pattern`; its `name` is only `__0`), a type
+ * predicate or assertion return (`returnPredicate`), a `this` parameter
+ * (`thisType`), and a `const` type parameter (a generic's `modifiers`). Where
+ * the flat text shows one and the data lacks its field, the flat signature
+ * stays. A callable with no flat signature to fall back on is
+ * composed regardless.
  */
 export const signature_is_composable = (callable: SignatureCallable): boolean => {
 	const { typeSignature } = callable;
 	if (!typeSignature) return true;
-	if (callable.parameters?.some((param) => DESTRUCTURED_PARAMETER_MATCHER.test(param.name))) {
+	if (has_unnamed_destructured_parameter(callable.parameters)) return false;
+	if (!callable.returnPredicate && FLAT_SIGNATURE_PREDICATE_MATCHER.test(typeSignature)) {
 		return false;
 	}
-	return !SIGNATURE_FLAT_ONLY_MATCHERS.some((matcher) => matcher.test(typeSignature));
+	if (callable.thisType === undefined && FLAT_SIGNATURE_THIS_MATCHER.test(typeSignature)) {
+		return false;
+	}
+	return !(
+		FLAT_SIGNATURE_CONST_MATCHER.test(typeSignature) &&
+		!callable.genericParams?.some((generic) => generic.modifiers?.includes('const'))
+	);
 };
 
 /** Sentinel member names svelte-docinfo gives unnamed call and construct signatures. */
@@ -145,40 +201,47 @@ const to_key_text = (name: string): string =>
 
 const push_generics = (
 	tokens: Array<SignatureToken>,
-	generic_params: Array<GenericParamJsonInput> | undefined
+	generic_params: Array<SignatureGenericParam> | undefined
 ): void => {
 	if (!generic_params?.length) return;
 	push_text(tokens, '<');
 	for (let i = 0; i < generic_params.length; i++) {
 		const generic = generic_params[i]!;
-		push_text(tokens, i > 0 ? ', ' + generic.name : generic.name);
+		if (i > 0) push_text(tokens, ', ');
+		if (generic.modifiers?.length) {
+			tokens.push({ kind: 'keyword', text: generic.modifiers.join(' ') + ' ' });
+		}
+		push_text(tokens, generic.name);
 		if (generic.constraint) {
 			tokens.push({ kind: 'keyword', text: ' extends ' });
-			push_type(tokens, generic.constraint);
+			push_type(tokens, generic.constraint, generic.constraintInfo);
 		}
 		if (generic.defaultType) {
 			push_text(tokens, ' = ');
-			push_type(tokens, generic.defaultType);
+			push_type(tokens, generic.defaultType, generic.defaultTypeInfo);
 		}
 	}
 	push_text(tokens, '>');
 };
 
 // defaults stay out of a composed parameter list: a parameter with one gets a
-// row of its own, which shows it
-const push_parameters = (
-	tokens: Array<SignatureToken>,
-	parameters: Array<ParameterJsonInput> | undefined
-): void => {
+// row of its own, which shows it. A declared `this` parameter leads the list,
+// as TypeScript writes it, and a destructured parameter shows its pattern
+const push_parameters = (tokens: Array<SignatureToken>, callable: SignatureCallable): void => {
+	const { parameters } = callable;
 	push_text(tokens, '(');
+	if (callable.thisType !== undefined) {
+		push_text(tokens, 'this: ');
+		push_type(tokens, callable.thisType, callable.thisTypeInfo);
+	}
 	if (parameters) {
 		for (let i = 0; i < parameters.length; i++) {
 			const param = parameters[i]!;
 			push_text(
 				tokens,
-				(i > 0 ? ', ' : '') +
+				(i > 0 || callable.thisType !== undefined ? ', ' : '') +
 					(param.rest ? '...' : '') +
-					param.name +
+					(param.pattern ?? param.name) +
 					(param.optional ? '?: ' : ': ')
 			);
 			push_type(tokens, param.type, param.typeInfo);
@@ -187,13 +250,37 @@ const push_parameters = (
 	push_text(tokens, ')');
 };
 
+// the return clause after its `: ` or ` => `: a type predicate or assertion
+// where the signature declares one, else the return type
+const push_return = (tokens: Array<SignatureToken>, callable: SignatureCallable): void => {
+	const predicate = callable.returnPredicate;
+	if (!predicate) {
+		if (callable.returnType) push_type(tokens, callable.returnType, callable.returnTypeInfo);
+		return;
+	}
+	if (predicate.asserts) tokens.push({ kind: 'keyword', text: 'asserts ' });
+	push_text(tokens, predicate.parameterName);
+	if (predicate.type !== undefined) {
+		tokens.push({ kind: 'keyword', text: ' is ' });
+		push_type(tokens, predicate.type, predicate.typeInfo);
+	}
+};
+
 const push_callable = (tokens: Array<SignatureToken>, callable: SignatureCallable): void => {
 	push_generics(tokens, callable.genericParams);
-	push_parameters(tokens, callable.parameters);
-	if (callable.returnType) {
+	push_parameters(tokens, callable);
+	if (callable.returnType || callable.returnPredicate) {
 		push_text(tokens, ': ');
-		push_type(tokens, callable.returnType, callable.returnTypeInfo);
+		push_return(tokens, callable);
 	}
+};
+
+// a function type, `<T>(a: A) => R`, for a callback prop and a function-typed property
+const push_function_type = (tokens: Array<SignatureToken>, callable: SignatureCallable): void => {
+	push_generics(tokens, callable.genericParams);
+	push_parameters(tokens, callable);
+	push_text(tokens, ' => ');
+	push_return(tokens, callable);
 };
 
 /**
@@ -224,12 +311,13 @@ export const to_function_signature_tokens = (
 
 /**
  * Composes `name?: Type = default` for a parameter's own row, or
- * `...name: Type` for a rest parameter.
+ * `...name: Type` for a rest parameter. A destructured parameter is named by
+ * its pattern where the data carries one.
  */
-export const to_parameter_signature_tokens = (param: ParameterJsonInput): Array<SignatureToken> => {
+export const to_parameter_signature_tokens = (param: SignatureParameter): Array<SignatureToken> => {
 	const tokens: Array<SignatureToken> = [];
 	if (param.rest) push_text(tokens, '...');
-	tokens.push({ kind: 'name', text: param.name });
+	tokens.push({ kind: 'name', text: param.pattern ?? param.name });
 	push_text(tokens, param.optional ? '?: ' : ': ');
 	push_type(tokens, param.type, param.typeInfo);
 	push_default(tokens, param.defaultValue);
@@ -255,19 +343,27 @@ const to_function_type_return = (type: string): string | undefined => {
 	return undefined;
 };
 
+/** A component prop with the signature fields a callback prop can carry. */
+export type SignatureProp = ComponentPropJsonInput &
+	SignatureFacts & { parameters?: Array<SignatureParameter> };
+
 /**
  * Whether a callback prop's type composes from its `parameters` and
- * `returnType` without losing anything: its flat type is a bare function type
- * with no destructured parameter and no type predicate return. Composed, each
- * parameter's type links and keeps the alias names the flat string expands.
+ * `returnType` without losing anything: its flat type is a bare function
+ * type, and what it shows beyond parameters and a return type (a destructured
+ * parameter, a type predicate return, a `this` parameter) the prop carries as
+ * a field.
+ * Composed, each parameter's type links and keeps the alias names the flat
+ * string expands.
  */
-export const prop_is_composable = (prop: ComponentPropJsonInput): boolean => {
+export const prop_is_composable = (prop: SignatureProp): boolean => {
 	if (prop.returnType === undefined) return false;
 	const flat_return = to_function_type_return(prop.type);
 	return (
 		flat_return !== undefined &&
-		!/^(?:asserts |[\w$]+ is )/.test(flat_return) &&
-		!prop.parameters?.some((param) => DESTRUCTURED_PARAMETER_MATCHER.test(param.name))
+		(!!prop.returnPredicate || !FLAT_PREDICATE_RETURN_MATCHER.test(flat_return)) &&
+		(prop.thisType !== undefined || !prop.type.startsWith('(this: ')) &&
+		!has_unnamed_destructured_parameter(prop.parameters)
 	);
 };
 
@@ -275,13 +371,11 @@ export const prop_is_composable = (prop: ComponentPropJsonInput): boolean => {
  * Composes `name?: Type = default` for a component prop, with a callback
  * prop's type composed as `(a: A) => R` where `prop_is_composable` allows.
  */
-export const to_prop_signature_tokens = (prop: ComponentPropJsonInput): Array<SignatureToken> => {
+export const to_prop_signature_tokens = (prop: SignatureProp): Array<SignatureToken> => {
 	const tokens: Array<SignatureToken> = [{ kind: 'name', text: to_key_text(prop.name) }];
 	push_text(tokens, prop.optional ? '?: ' : ': ');
 	if (prop_is_composable(prop)) {
-		push_parameters(tokens, prop.parameters);
-		push_text(tokens, ' => ');
-		push_type(tokens, prop.returnType!, prop.returnTypeInfo);
+		push_function_type(tokens, prop);
 	} else {
 		push_type(tokens, prop.type, prop.typeInfo);
 	}
@@ -298,13 +392,21 @@ export interface MemberSignatureOptions {
 }
 
 /**
+ * A member with the signature facts and `property`, set on a function member written as a function-typed
+ * property (`now: () => number`) and not as a method.
+ */
+export type SignatureMember = MemberJsonInput &
+	SignatureFacts & { property?: boolean; parameters?: Array<SignatureParameter> };
+
+/**
  * Composes a member's line after the way TypeScript declares it:
  * `readonly name?: Type = default` for a property, `name<T>(a: A): R` for a
  * method, `constructor(a: A)` for a class constructor, and the bare
  * `(a: A): R` or `new (a: A): R` for an unnamed call or construct signature.
- * The line follows the data, not the source text: svelte-docinfo emits a
- * function-typed property as a method, so `now: () => number` reads
- * `now(): number`, and a name that needs quotes gets single ones.
+ * A function-typed property reads `now: () => number` where the data marks it
+ * (`property`) and has one signature; unmarked, or with overloads, which
+ * the method form lists one by one, it reads `now(): number`. A name that needs quotes gets single ones,
+ * whatever the source wrote.
  *
  * The name is followed by the flat `typeSignature` instead where composing
  * would lose something: a callable whose extraction failed (`partial`), one
@@ -312,7 +414,7 @@ export interface MemberSignatureOptions {
  * carries no structured return type).
  */
 export const to_member_signature_tokens = (
-	member: MemberJsonInput,
+	member: SignatureMember,
 	options?: MemberSignatureOptions
 ): Array<SignatureToken> => {
 	const tokens: Array<SignatureToken> = [];
@@ -332,7 +434,7 @@ export const to_member_signature_tokens = (
 		} else {
 			tokens.push({ kind: 'name', text: member.name });
 			if (!flat) {
-				push_parameters(tokens, member.parameters);
+				push_parameters(tokens, member);
 			} else if (member.typeSignature) {
 				push_type(tokens, member.typeSignature);
 			}
@@ -344,7 +446,10 @@ export const to_member_signature_tokens = (
 		if (member.optional) push_text(tokens, '?');
 	}
 	if (member.kind === 'function') {
-		if (!flat) {
+		if (!flat && member.property && member.name !== MEMBER_NAME_CALL && !member.overloads?.length) {
+			push_text(tokens, ': ');
+			push_function_type(tokens, member);
+		} else if (!flat) {
 			push_callable(tokens, member);
 		} else if (member.typeSignature) {
 			push_type(tokens, member.typeSignature);

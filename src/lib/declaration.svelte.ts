@@ -13,6 +13,7 @@ import { generateImport, getDisplayName } from 'svelte-docinfo/declaration-helpe
 import { EMPTY_ARRAY } from '@fuzdev/fuz_util/array.ts';
 
 import type { Module } from './module.svelte.ts';
+import type { SignatureReturnPredicate } from './declaration_detail.ts';
 import { url_github_file } from '@fuzdev/fuz_util/package_helpers.ts';
 
 // The `virtual:svelte-docinfo` module is serialized with svelte-docinfo's
@@ -191,6 +192,24 @@ export class Declaration {
 		return field<TypeJson>(this.declaration_json, 'returnTypeInfo');
 	}
 
+	/**
+	 * A function's type predicate or assertion, which `return_type` (the
+	 * checker's `boolean` or `void`) can't show. `undefined` too on data
+	 * without the field, as `this_type` is.
+	 */
+	get return_predicate(): SignatureReturnPredicate | undefined {
+		return field<SignatureReturnPredicate>(this.declaration_json, 'returnPredicate');
+	}
+
+	/** The type of a function's declared `this` parameter, which `parameters` leaves out. */
+	get this_type(): string | undefined {
+		return field<string>(this.declaration_json, 'thisType');
+	}
+
+	get this_type_info(): TypeJson | undefined {
+		return field<TypeJson>(this.declaration_json, 'thisTypeInfo');
+	}
+
 	get return_description(): string | undefined {
 		return field<string>(this.declaration_json, 'returnDescription');
 	}
@@ -205,6 +224,19 @@ export class Declaration {
 
 	get implements_types(): Array<string> | undefined {
 		return field<Array<string>>(this.declaration_json, 'implements');
+	}
+
+	/**
+	 * The structured form of each `extends_types` entry, at the same index.
+	 * `undefined` on data without the field.
+	 */
+	get extends_types_info(): Array<TypeJson> | undefined {
+		return field<Array<TypeJson>>(this.declaration_json, 'extendsInfo');
+	}
+
+	/** The structured form of each `implements_types` entry, as `extends_types_info` is. */
+	get implements_types_info(): Array<TypeJson> | undefined {
+		return field<Array<TypeJson>>(this.declaration_json, 'implementsInfo');
 	}
 
 	get throws(): NonNullable<DeclarationJsonInput['throws']> {

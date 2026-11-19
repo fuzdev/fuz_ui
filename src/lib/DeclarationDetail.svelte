@@ -12,8 +12,9 @@ TypeScript declares it, `readonly name?: Type = default`, composed from the
 structured data so every type links on its own (see `declaration_detail.ts`).
 A function's signature is composed the same way, and a parameter gets a row
 of its own only when it has more to say than that signature shows. Where
-composing would lose something (a type predicate, a destructured parameter),
-the flat signature stays. Each rendered field carries its `Declaration.field`
+composing would lose something the data doesn't carry as a field (a type
+predicate with no `returnPredicate`, a destructured parameter with no
+`pattern`), the flat signature stays. Each rendered field carries its `Declaration.field`
 fragment as an `id`.
 
 @see `declaration.svelte.ts` for the `Declaration` wrapper class
@@ -28,7 +29,7 @@ fragment as an `id`.
 		mdz_codeblock_context,
 		mdz_set_context_with_fallback
 	} from '@fuzdev/mdz/mdz_contexts.ts';
-	import type { OverloadJsonInput, ParameterJsonInput } from 'svelte-docinfo/types.js';
+	import type { OverloadJsonInput, ParameterJsonInput, TypeJson } from 'svelte-docinfo/types.js';
 
 	import type { Declaration } from './declaration.svelte.ts';
 	import TypeLink from './TypeLink.svelte';
@@ -49,6 +50,8 @@ fragment as an `id`.
 		to_member_signature_tokens,
 		to_parameter_signature_tokens,
 		to_prop_signature_tokens,
+		type SignatureCallable,
+		type SignatureGenericParam,
 		type SignatureToken
 	} from './declaration_detail.ts';
 
@@ -74,6 +77,9 @@ fragment as an `id`.
 	/** A parameter of a field. */
 	const nested_tag = to_heading_tag(declaration_level + 3);
 
+	// typed for the `constraintInfo` and `defaultTypeInfo` trees, where the data has them
+	const generic_params: Array<SignatureGenericParam> = $derived(declaration.generic_params);
+
 	// functions and snippets get their signature composed from the structured
 	// fields, linking each type; a failed extraction, and a signature those
 	// fields can't fully express, keep the flat one
@@ -82,12 +88,15 @@ fragment as an `id`.
 		if ((kind !== 'function' && kind !== 'snippet') || declaration.declaration_json.partial) {
 			return undefined;
 		}
-		const callable = {
+		const callable: SignatureCallable = {
 			typeSignature: declaration.type_signature,
 			genericParams: declaration.generic_params,
 			parameters: declaration.parameters,
 			returnType: declaration.return_type,
-			returnTypeInfo: declaration.return_type_info
+			returnTypeInfo: declaration.return_type_info,
+			returnPredicate: declaration.return_predicate,
+			thisType: declaration.this_type,
+			thisTypeInfo: declaration.this_type_info
 		};
 		return signature_is_composable(callable)
 			? to_function_signature_tokens(declaration.name, callable)
@@ -151,7 +160,7 @@ fragment as an `id`.
 		since?: string;
 		examples?: Array<string>;
 		seeAlso?: Array<string>;
-		throws?: Array<{ type?: string; description: string }>;
+		throws?: Array<{ type?: string; typeInfo?: TypeJson; description: string }>;
 		mutates?: Record<string, string>;
 	}
 </script>
@@ -271,7 +280,8 @@ fragment as an `id`.
 		{#each throws as thrown (thrown)}
 			<li>
 				{#if thrown.type}
-					<TypeLink type={thrown.type} /> - <Mdz content={thrown.description} inline />
+					<TypeLink type={thrown.type} type_info={thrown.typeInfo} /> -
+					<Mdz content={thrown.description} inline />
 				{:else}
 					<Mdz content={thrown.description} inline />
 				{/if}
@@ -356,12 +366,13 @@ fragment as an `id`.
 	{/if}
 {/snippet}
 
-<!-- A comma-separated inline list of type links (extends, implements, external types are rarely more than one). -->
-{#snippet type_list(types: Array<string>)}
+<!-- A comma-separated inline list of type links (extends, implements, external types are rarely more than one).
+	`types_info` holds each entry's tree at the same index, where the data has them. -->
+{#snippet type_list(types: Array<string>, types_info?: Array<TypeJson>)}
 	{#each types as type, i (type)}
 		{#if i > 0}
 			,
-		{/if}<TypeLink {type} />
+		{/if}<TypeLink {type} type_info={types_info?.[i]} />
 	{/each}
 {/snippet}
 
@@ -600,19 +611,19 @@ fragment as an `id`.
 			<!-- plain code: `TypeLink` would link the declaration to itself -->
 			<Code lang="ts" content={declaration.display_name} inline />
 		</div>
-		{#each declaration.generic_params as generic (generic)}
+		{#each generic_params as generic (generic)}
 			<section>
 				<svelte:element this={field_tag}><code>{generic.name}</code></svelte:element>
 				{#if generic.constraint}
 					<div class="row gap_md">
 						<strong>constraint</strong>
-						<TypeLink type={generic.constraint} />
+						<TypeLink type={generic.constraint} type_info={generic.constraintInfo} />
 					</div>
 				{/if}
 				{#if generic.defaultType}
 					<div class="row gap_md">
 						<strong>default</strong>
-						<TypeLink type={generic.defaultType} />
+						<TypeLink type={generic.defaultType} type_info={generic.defaultTypeInfo} />
 					</div>
 				{/if}
 			</section>
@@ -627,13 +638,13 @@ fragment as an `id`.
 		{#if declaration.extends_types?.length}
 			<div class="row_wrap gap_md">
 				<strong>extends:</strong>
-				{@render type_list(declaration.extends_types)}
+				{@render type_list(declaration.extends_types, declaration.extends_types_info)}
 			</div>
 		{/if}
 		{#if declaration.implements_types?.length}
 			<div class="row_wrap gap_md">
 				<strong>implements:</strong>
-				{@render type_list(declaration.implements_types)}
+				{@render type_list(declaration.implements_types, declaration.implements_types_info)}
 			</div>
 		{/if}
 	</section>

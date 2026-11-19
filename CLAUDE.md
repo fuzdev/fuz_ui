@@ -230,8 +230,12 @@ API:
 - `ApiDeclarationList` — declaration listing within a module
 - `DeclarationDetail` — full detail view of a single declaration: each field
   (member, prop, parameter) under its signature after the way TypeScript
-  declares it (`readonly name?: Type = default`, `name(a: A): R`), composed
-  from the structured data so every type links. Each rendered field carries a
+  declares it (`readonly name?: Type = default`, `name(a: A): R`,
+  `now: () => number` for a function-typed property), composed from the
+  structured data so every type links. svelte-docinfo's signature fields
+  (`returnPredicate`, `thisType`, `pattern`, `property`, generic `modifiers`,
+  and the trees for heritage, constraints and `@throws` types) are read by
+  presence, so data without one keeps the flat fallback. Each rendered field carries a
   `Declaration.field` id (`SidebarState.toggle`,
   `SidebarState.constructor.options` for a member's parameter). Heading levels
   follow the enclosing `TomeSection`'s depth. The component comment and

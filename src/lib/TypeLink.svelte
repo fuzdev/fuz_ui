@@ -8,8 +8,8 @@ tree — reference names become `DeclarationLink`s and everything else is
 syntax-highlighted in place, so `Map<string, Tome> | null` links `Map` and
 `Tome` independently, with the flat `type` as hover text. Without it the
 `type` string links whole when it names a declaration outright, and otherwise
-by the names found in it (`to_type_text_tokens`), so a heritage clause's
-`Base<Options>` still links `Base` and `Options`.
+by the names found in it (`to_type_text_tokens`), so a function type's
+`(a: Options) => Result` still links `Options` and `Result`.
 -->
 <script lang="ts">
 	import Code from '@fuzdev/fuz_code/Code.svelte';

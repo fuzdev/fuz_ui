@@ -1,10 +1,5 @@
 import { describe, test, assert } from 'vitest';
-import type {
-	ComponentPropJsonInput,
-	MemberJsonInput,
-	ParameterJsonInput,
-	TypeJson
-} from 'svelte-docinfo/types.js';
+import type { ParameterJsonInput, TypeJson } from 'svelte-docinfo/types.js';
 
 import {
 	parameter_has_detail,
@@ -12,6 +7,9 @@ import {
 	to_declaration_field_fragment,
 	to_default_block,
 	type SignatureCallable,
+	type SignatureMember,
+	type SignatureParameter,
+	type SignatureProp,
 	to_function_signature_tokens,
 	to_member_chip_modifiers,
 	to_member_signature_tokens,
@@ -152,10 +150,178 @@ describe('signature_is_composable', () => {
 			'nothing flat to fall back on',
 			{ parameters: [{ name: '__0', type: 'Options' }], returnType: 'void' },
 			true
+		],
+		[
+			'a type predicate return the data carries',
+			{
+				typeSignature: '(value: object): value is A',
+				returnType: 'boolean',
+				returnPredicate: { parameterName: 'value', type: 'A' }
+			},
+			true
+		],
+		[
+			'a bare assertion return the data carries',
+			{
+				typeSignature: '(ok: boolean): asserts ok',
+				returnType: 'void',
+				returnPredicate: { parameterName: 'ok', asserts: true }
+			},
+			true
+		],
+		[
+			'a destructured parameter with its pattern',
+			{
+				typeSignature: '({ delay }: Options): void',
+				parameters: [{ name: '__0', pattern: '{ delay }', type: 'Options' }]
+			},
+			true
+		],
+		[
+			'one destructured parameter without a pattern among those with',
+			{
+				typeSignature: '({ a }: A, [b]: B): void',
+				parameters: [
+					{ name: '__0', pattern: '{ a }', type: 'A' },
+					{ name: '__1', type: 'B' }
+				]
+			},
+			false
+		],
+		[
+			'a this parameter the data carries',
+			{ typeSignature: '(this: A, a: number): void', thisType: 'A' },
+			true
+		],
+		[
+			'a const type parameter the data carries',
+			{
+				typeSignature: '<const T extends A>(a: T): T',
+				genericParams: [{ name: 'T', modifiers: ['const'], constraint: 'A' }]
+			},
+			true
+		],
+		[
+			'a const type parameter the data lacks, beside one with other modifiers',
+			{
+				typeSignature: '<const T, in U>(a: T): T',
+				genericParams: [{ name: 'T' }, { name: 'U', modifiers: ['in'] }]
+			},
+			false
 		]
 	];
 	test.each(cases)('%s', (_label, callable, expected) => {
 		assert.strictEqual(signature_is_composable(callable), expected);
+	});
+});
+
+describe('signature facts', () => {
+	const cases: Array<[label: string, callable: SignatureCallable, expected: string]> = [
+		[
+			'a type predicate return',
+			{
+				parameters: [{ name: 'x', type: 'unknown' }],
+				returnType: 'boolean',
+				returnPredicate: { parameterName: 'x', type: 'A' }
+			},
+			'fn(x: unknown): x is A'
+		],
+		[
+			'an assertion return',
+			{
+				parameters: [{ name: 'x', type: 'unknown' }],
+				returnType: 'void',
+				returnPredicate: { parameterName: 'x', asserts: true, type: 'A' }
+			},
+			'fn(x: unknown): asserts x is A'
+		],
+		[
+			'a bare assertion return',
+			{
+				parameters: [{ name: 'x', type: 'unknown' }],
+				returnType: 'void',
+				returnPredicate: { parameterName: 'x', asserts: true }
+			},
+			'fn(x: unknown): asserts x'
+		],
+		[
+			'a this predicate',
+			{ returnType: 'boolean', returnPredicate: { parameterName: 'this', type: 'A' } },
+			'fn(): this is A'
+		],
+		[
+			'a this parameter leads the list',
+			{ thisType: 'A', parameters: [{ name: 'a', type: 'number' }], returnType: 'void' },
+			'fn(this: A, a: number): void'
+		],
+		['a this parameter alone', { thisType: 'A', returnType: 'void' }, 'fn(this: A): void'],
+		[
+			'destructured parameters show their patterns',
+			{
+				parameters: [
+					{ name: '__0', pattern: '{ a, b = 1 }', type: 'A' },
+					{ name: '__1', pattern: '[c]', type: 'B', optional: true }
+				],
+				returnType: 'void'
+			},
+			'fn({ a, b = 1 }: A, [c]?: B): void'
+		],
+		[
+			'generic modifiers',
+			{
+				genericParams: [
+					{ name: 'T', modifiers: ['const'], constraint: 'A' },
+					{ name: 'U', modifiers: ['in', 'out'] }
+				],
+				returnType: 'void'
+			},
+			'fn<const T extends A, in out U>(): void'
+		]
+	];
+	test.each(cases)('%s', (_label, callable, expected) => {
+		assert.strictEqual(to_line(to_function_signature_tokens('fn', callable)), expected);
+	});
+
+	test('a predicate type and a this type keep their trees', () => {
+		const tokens = to_function_signature_tokens('fn', {
+			thisType: 'A',
+			thisTypeInfo: tree,
+			returnType: 'boolean',
+			returnPredicate: { parameterName: 'this', type: 'A', typeInfo: tree }
+		});
+		assert.deepStrictEqual(
+			tokens.filter((token) => token.kind === 'type'),
+			[
+				{ kind: 'type', type: 'A', type_info: tree },
+				{ kind: 'type', type: 'A', type_info: tree }
+			]
+		);
+	});
+
+	test('a constraint and a default keep their trees', () => {
+		const tokens = to_function_signature_tokens('fn', {
+			genericParams: [
+				{
+					name: 'T',
+					constraint: 'A',
+					constraintInfo: tree,
+					defaultType: 'A',
+					defaultTypeInfo: tree
+				}
+			]
+		});
+		assert.deepStrictEqual(
+			tokens.filter((token) => token.kind === 'type'),
+			[
+				{ kind: 'type', type: 'A', type_info: tree },
+				{ kind: 'type', type: 'A', type_info: tree }
+			]
+		);
+	});
+
+	test("a destructured parameter's row is named by its pattern", () => {
+		const param: SignatureParameter = { name: '__0', pattern: '{ a }', type: 'A' };
+		assert.strictEqual(to_line(to_parameter_signature_tokens(param)), '{ a }: A');
 	});
 });
 
@@ -192,7 +358,40 @@ describe('to_parameter_signature_tokens', () => {
 });
 
 describe('to_prop_signature_tokens', () => {
-	const cases: Array<[label: string, prop: ComponentPropJsonInput, expected: string]> = [
+	const cases: Array<[label: string, prop: SignatureProp, expected: string]> = [
+		[
+			'a type guard callback the data carries',
+			{
+				name: 'guard',
+				type: '(x: unknown) => x is A',
+				parameters: [{ name: 'x', type: 'unknown' }],
+				returnType: 'boolean',
+				returnPredicate: { parameterName: 'x', type: 'A', typeInfo: tree }
+			},
+			'guard: (x: unknown) => x is A'
+		],
+		[
+			'a callback with a this parameter the data lacks keeps its flat type',
+			{
+				name: 'onpick',
+				type: '(this: A, b: B) => void',
+				parameters: [{ name: 'b', type: 'B' }],
+				returnType: 'void'
+			},
+			'onpick: (this: A, b: B) => void'
+		],
+		[
+			'a callback with a this parameter and a destructured one',
+			{
+				name: 'onpick',
+				type: '(this: A, { a }: A) => void',
+				optional: true,
+				parameters: [{ name: '__1', pattern: '{ a }', type: 'A' }],
+				returnType: 'void',
+				thisType: 'A'
+			},
+			'onpick?: (this: A, { a }: A) => void'
+		],
 		['a required prop', { name: 'children', type: 'Snippet' }, 'children: Snippet'],
 		[
 			'an optional prop with a default',
@@ -261,11 +460,78 @@ describe('to_prop_signature_tokens', () => {
 });
 
 describe('to_member_signature_tokens', () => {
-	const cases: Array<[label: string, member: MemberJsonInput, expected: string]> = [
+	const cases: Array<[label: string, member: SignatureMember, expected: string]> = [
 		[
 			'a property',
 			{ name: 'id', kind: 'variable', typeSignature: 'string | null' },
 			'id: string | null'
+		],
+		[
+			'a function-typed property the data marks',
+			{
+				name: 'now',
+				kind: 'function',
+				property: true,
+				typeSignature: '(): number',
+				modifiers: ['readonly'],
+				returnType: 'number'
+			},
+			'readonly now: () => number'
+		],
+		[
+			'an optional function-typed property with a default',
+			{
+				name: 'enabled',
+				kind: 'function',
+				property: true,
+				optional: true,
+				typeSignature: '(a: A): boolean',
+				parameters: [{ name: 'a', type: 'A' }],
+				returnType: 'boolean',
+				defaultValue: '() => true'
+			},
+			'enabled?: (a: A) => boolean = () => true'
+		],
+		[
+			'a generic function-typed property with a predicate',
+			{
+				name: 'guard',
+				kind: 'function',
+				property: true,
+				typeSignature: '<T>(x: T): x is T',
+				genericParams: [{ name: 'T' }],
+				parameters: [{ name: 'x', type: 'T' }],
+				returnType: 'boolean',
+				returnPredicate: { parameterName: 'x', type: 'T' }
+			},
+			'guard: <T>(x: T) => x is T'
+		],
+		[
+			'an overloaded function-typed property keeps the method form its overloads list in',
+			{
+				name: 'a',
+				kind: 'function',
+				property: true,
+				typeSignature: '(a: string): string',
+				parameters: [{ name: 'a', type: 'string' }],
+				returnType: 'string',
+				overloads: [
+					{ typeSignature: '(a: string): string', returnType: 'string' },
+					{ typeSignature: '(a: number): number', returnType: 'number' }
+				]
+			},
+			'a(a: string): string'
+		],
+		[
+			'a function-typed property the fields cannot express keeps the flat signature',
+			{
+				name: 'guard',
+				kind: 'function',
+				property: true,
+				typeSignature: '(x: unknown): x is A',
+				returnType: 'boolean'
+			},
+			'guard(x: unknown): x is A'
 		],
 		[
 			'an optional property with a default',
