@@ -51,6 +51,8 @@ rendered field carries its `Declaration.field` fragment as an `id`.
 		member_is_class_constructor,
 		to_member_chip_modifiers,
 		to_member_signature_tokens,
+		to_parameter_doc_name,
+		to_parameter_fragment_name,
 		to_parameter_signature_tokens,
 		to_prop_signature_tokens,
 		type SignatureToken
@@ -232,7 +234,7 @@ rendered field carries its `Declaration.field` fragment as an `id`.
 			<ul>
 				{#each Object.entries(param.propertyDescriptions) as [path, description] (path)}
 					<li>
-						<code>{param.name}{path.startsWith('[') ? '' : '.'}{path}</code
+						<code>{to_parameter_doc_name(param)}{path.startsWith('[') ? '' : '.'}{path}</code
 						>{#if description}{' '}— <Mdz content={description} inline />{/if}
 					</li>
 				{/each}
@@ -257,7 +259,11 @@ rendered field carries its `Declaration.field` fragment as an `id`.
 					param,
 					tag,
 					fragment_path &&
-						to_declaration_field_fragment(declaration.name, ...fragment_path, param.name)
+						to_declaration_field_fragment(
+							declaration.name,
+							...fragment_path,
+							to_parameter_fragment_name(param, parameters ?? [])
+						)
 				)}
 			{/each}
 		</div>
@@ -483,7 +489,10 @@ rendered field carries its `Declaration.field` fragment as an `id`.
 			{@render param_field(
 				param,
 				field_tag,
-				to_declaration_field_fragment(declaration.name, param.name)
+				to_declaration_field_fragment(
+					declaration.name,
+					to_parameter_fragment_name(param, declaration.parameters ?? [])
+				)
 			)}
 		{/each}
 	</section>

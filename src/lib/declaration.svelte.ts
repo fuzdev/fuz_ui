@@ -111,7 +111,12 @@ export class Declaration {
 		return (this.#import_statement ??= generateImport(
 			this.declaration_json as DeclarationJson,
 			this.module_path,
-			this.library.pkg_json.name
+			this.library.pkg_json.name,
+			{
+				specifier: exports_source_extension(this.library.pkg_json.exports, this.module_path)
+					? 'source'
+					: 'dist'
+			}
 		));
 	}
 
@@ -414,3 +419,15 @@ export class Declaration {
 		this.declaration_json = declaration_json;
 	}
 }
+
+/**
+ * Whether a package's `exports` map a module's own extension (`"./*.ts"` for
+ * `foo.ts`), so an import can name the source file, as packages that follow
+ * "imports name the real file" export it.
+ */
+const exports_source_extension = (exports: unknown, module_path: string): boolean => {
+	const extension = /\.[^./]+$/.exec(module_path)?.[0];
+	if (extension === undefined || typeof exports !== 'object' || exports === null) return false;
+	// a `null` entry blocks the subpath
+	return (exports as Record<string, unknown>)[`./*${extension}`] != null;
+};

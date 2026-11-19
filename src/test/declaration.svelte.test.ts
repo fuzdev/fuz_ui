@@ -137,3 +137,34 @@ describe('css_custom_properties', () => {
 		assert.strictEqual(declaration.css_custom_properties, css_custom_properties);
 	});
 });
+
+describe('import_statement', () => {
+	const create = (path: string, exports: unknown): Declaration =>
+		new Declaration(
+			{ path, library: { pkg_json: { name: '@pkg/lib', exports } } } as unknown as Module,
+			{ name: 'Foo', kind: 'type' } as unknown as DeclarationJsonInput
+		);
+
+	test("names the source file when the package's exports map its extension", () => {
+		assert.strictEqual(
+			create('foo.ts', { './*.ts': { default: './dist/*.js' } }).import_statement,
+			"import type {Foo} from '@pkg/lib/foo.ts';"
+		);
+	});
+
+	test('names the shipped file otherwise', () => {
+		assert.strictEqual(
+			create('foo.ts', { './*.js': { default: './dist/*.js' } }).import_statement,
+			"import type {Foo} from '@pkg/lib/foo.js';"
+		);
+		assert.strictEqual(
+			create('foo.ts', undefined).import_statement,
+			"import type {Foo} from '@pkg/lib/foo.js';"
+		);
+		// a `null` entry blocks the subpath
+		assert.strictEqual(
+			create('foo.ts', { './*.ts': null, './*.js': './dist/*.js' }).import_statement,
+			"import type {Foo} from '@pkg/lib/foo.js';"
+		);
+	});
+});

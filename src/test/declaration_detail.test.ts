@@ -9,6 +9,8 @@ import type {
 import {
 	member_is_class_constructor,
 	parameter_has_detail,
+	to_parameter_doc_name,
+	to_parameter_fragment_name,
 	to_declaration_field_fragment,
 	to_default_block,
 	type SignatureCallable,
@@ -651,6 +653,48 @@ describe('to_member_chip_modifiers', () => {
 
 	test('a member with no modifiers has none', () => {
 		assert.deepEqual(to_member_chip_modifiers({ name: 'show', kind: 'variable' }), []);
+	});
+});
+
+describe('a property with a named function type', () => {
+	test('renders its tree, the expanded signature as the type text', () => {
+		const tokens = to_member_signature_tokens({
+			name: 'handler',
+			kind: 'function',
+			property: true,
+			typeSignature: '(e: Event): void',
+			parameters: [{ name: 'e', type: 'Event' }],
+			returnType: 'void',
+			typeInfo: { kind: 'reference', name: 'Handler' }
+		});
+		assert.deepEqual(tokens.at(-1), {
+			kind: 'type',
+			type: '(e: Event) => void',
+			type_info: { kind: 'reference', name: 'Handler' }
+		});
+	});
+});
+
+describe('to_parameter_doc_name', () => {
+	test("the tag's name, else the pattern, else the parameter's own", () => {
+		assert.strictEqual(
+			to_parameter_doc_name({ name: '__0', pattern: '{ a }', docName: 'options', type: 'O' }),
+			'options'
+		);
+		assert.strictEqual(
+			to_parameter_doc_name({ name: '__0', pattern: '{ a }', type: 'O' }),
+			'{ a }'
+		);
+		assert.strictEqual(to_parameter_doc_name({ name: 'a', type: 'A' }), 'a');
+	});
+});
+
+describe('to_parameter_fragment_name', () => {
+	test("a docName naming a sibling parameter gives way to the parameter's own", () => {
+		const destructured = { name: '__0', pattern: '{ a }', docName: 'options', type: 'O' };
+		assert.strictEqual(to_parameter_fragment_name(destructured, [destructured]), 'options');
+		const sibling = { name: 'options', type: 'X' };
+		assert.strictEqual(to_parameter_fragment_name(destructured, [destructured, sibling]), '__0');
 	});
 });
 

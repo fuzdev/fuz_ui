@@ -309,9 +309,10 @@ export interface MemberSignatureOptions {
  * method, `constructor(a: A)` for a class constructor, and the bare
  * `(a: A): R` or `new (a: A): R` for an unnamed call or construct signature.
  * A function-typed property reads `now: () => number` where the data marks it
- * (`property`) and has one signature; unmarked, or with overloads, which
- * the method form lists one by one, it reads `now(): number`. A name that needs quotes gets single ones,
- * whatever the source wrote.
+ * (`property`) and has one signature, or `handler: Handler` where it's written
+ * with a named function type (its `typeInfo`); unmarked, or with overloads,
+ * which the method form lists one by one, it reads `now(): number`. A name
+ * that needs quotes gets single ones, whatever the source wrote.
  *
  * The name is followed by the flat `typeSignature` instead where composing
  * would lose something: a callable whose extraction failed (`partial`), and
@@ -352,7 +353,19 @@ export const to_member_signature_tokens = (
 	if (member.kind === 'function') {
 		if (!flat && member.property && member.name !== MEMBER_NAME_CALL && !member.overloads?.length) {
 			push_text(tokens, ': ');
-			push_function_type(tokens, member);
+			// a property written with a named function type reads by that name
+			// (`handler: Handler`), the function type it expands to its hover text
+			if (member.typeInfo) {
+				const expanded: Array<SignatureToken> = [];
+				push_function_type(expanded, member);
+				push_type(
+					tokens,
+					expanded.map((token) => (token.kind === 'type' ? token.type : token.text)).join(''),
+					member.typeInfo
+				);
+			} else {
+				push_function_type(tokens, member);
+			}
 		} else if (!flat) {
 			push_callable(tokens, member);
 		} else if (member.typeSignature) {
@@ -372,6 +385,27 @@ export const to_member_signature_tokens = (
  */
 export const to_member_chip_modifiers = (member: MemberJsonInput): Array<string> =>
 	member.modifiers?.filter((modifier) => !SIGNATURE_KEYWORD_MODIFIERS.includes(modifier)) ?? [];
+
+/**
+ * The name a parameter's documentation knows it by: its own, or for a
+ * destructured parameter the `@param` tag's (`docName`), falling back to its
+ * pattern, never TypeScript's positional `__0`.
+ */
+export const to_parameter_doc_name = (param: ParameterJsonInput): string =>
+	param.docName ?? param.pattern ?? param.name;
+
+/**
+ * The name a parameter's URL fragment uses: its `docName` where that names no
+ * other parameter of the signature (a tag misplaced by position can give a
+ * destructured parameter a sibling's name), else its own.
+ */
+export const to_parameter_fragment_name = (
+	param: ParameterJsonInput,
+	parameters: ReadonlyArray<ParameterJsonInput>
+): string =>
+	param.docName !== undefined && !parameters.some((other) => other.name === param.docName)
+		? param.docName
+		: param.name;
 
 /**
  * Whether a parameter says more than a composed signature already shows: a
