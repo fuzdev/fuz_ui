@@ -67,6 +67,25 @@ describe('TypeLink', () => {
 		);
 	});
 
+	test('a keyword type never links, even when the library exports the name', () => {
+		const container = mount_link({ type: 'string' }, fake_library(['string']));
+		assert.strictEqual(container.querySelector('a'), null);
+		assert.strictEqual(container.querySelector('code')?.textContent, 'string');
+	});
+
+	test('an absent tree links the names found inside a composite string', () => {
+		const container = mount_link({ type: 'Map<string, A>' }, fake_library(['A']));
+		const wrapper = container.querySelector('code.type-link');
+		assert.ok(wrapper, 'expected the one code wrapper');
+		// whitespace-exact: the tokens render adjacent
+		assert.strictEqual(wrapper.textContent, 'Map<string, A>');
+		const links = Array.from(wrapper.querySelectorAll('a'));
+		assert.deepEqual(
+			links.map((a) => a.getAttribute('href')),
+			['/docs/api/x.ts#A']
+		);
+	});
+
 	test('an absent tree with an unresolvable string falls through to inline code', () => {
 		const container = mount_link({ type: 'Map<string, A>' });
 		assert.strictEqual(container.querySelector('a'), null);

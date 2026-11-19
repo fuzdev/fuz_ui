@@ -560,7 +560,8 @@ fragment as an `id`.
 	<section>
 		<div class="row gap_md">
 			<h4>generics</h4>
-			<TypeLink type={declaration.display_name} />
+			<!-- plain code: `TypeLink` would link the declaration to itself -->
+			<Code lang="ts" content={declaration.display_name} inline />
 		</div>
 		{#each declaration.generic_params as generic (generic)}
 			<section>

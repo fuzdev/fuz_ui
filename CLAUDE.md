@@ -234,8 +234,9 @@ API:
   declaration's own fragment, so a field is `hash="Name.field"`
 - `ModuleLink` — link to a module in API docs
 - `TypeLink` — link to a type reference; renders the structured tree via
-  `TypeJsonView` when given `type_info`, else whole-string match on the flat
-  string
+  `TypeJsonView` when given `type_info`, else matches the flat string, whole
+  or by the declaration names found inside it (heritage clauses, generic
+  constraints, and `@throws` types have no tree)
 - `TypeJsonView` — structured `TypeJson` tree renderer: per-node linkification
   (`DeclarationLink` for resolvable `reference` nodes and alias-carrying
   unions/intersections), syntax-highlighted terminals, punctuation from
@@ -313,6 +314,8 @@ re-strip drops the extras. See the `vite_plugin_pkg_json` tome for the pattern.
   one would lose something (`signature_is_composable`), which parameters earn
   a row (`parameter_has_detail`), and field fragments
   (`to_declaration_field_fragment`)
+- `type_link.ts` - `to_type_text_tokens`, the name scan behind `TypeLink`'s
+  flat-string linking, and `type_name_is_keyword`
 - `library_helpers.ts` - docs URL helpers
 
 The `svelte-docinfo` imports above resolve to its `source.js` (type

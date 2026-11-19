@@ -409,7 +409,20 @@ describe('DeclarationDetail field anchors', () => {
 	});
 });
 
-describe('DeclarationDetail throws', () => {
+describe('DeclarationDetail flat type links', () => {
+	test('heritage links the names inside a composite type', () => {
+		const container = mount_detail({ name: 'A', kind: 'class', extends: ['Base<Options>'] }, [
+			'Base',
+			'Options'
+		]);
+		const section = find_section(container, 'inheritance');
+		assert.include(section.textContent, 'Base<Options>');
+		assert.deepEqual(
+			Array.from(section.querySelectorAll('a')).map((a) => a.textContent),
+			['Base', 'Options']
+		);
+	});
+
 	test('a throws type links when it resolves', () => {
 		const container = mount_detail(
 			{ name: 'f', kind: 'function', throws: [{ type: 'AError', description: 'when it fails' }] },
