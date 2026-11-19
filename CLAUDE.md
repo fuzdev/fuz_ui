@@ -203,7 +203,9 @@ Docs layout:
 - `DocsFooter` — footer with library info and breadcrumb
 - `DocsSearch` — search input for filtering modules and declarations
 - `DocsMenu` — navigation menu for tomes
-- `DocsLink` — docs navigation link; also mdz's injected inline-code renderer
+- `DocsLink` — docs navigation link; also mdz's injected inline-code renderer.
+  Resolves a declaration name, a module path, or a declaration's field
+  (`` `SidebarState.toggle` ``, `` `SidebarState.toggle()` ``)
 - `DocsList` — list component for docs navigation
 - `DocsPageLinks` — links section within a docs page
 - `DocsMenuHeader` — header within the docs navigation menu
@@ -227,11 +229,13 @@ API:
   declares it (`readonly name?: Type = default`, `name(a: A): R`), composed
   from the structured data so every type links. Each rendered field carries a
   `Declaration.field` id (`SidebarState.toggle`,
-  `SidebarState.constructor.options` for a member's parameter). The component
-  comment and `declaration_detail.ts` hold the rules (which parameters get a
-  row, where the flat signature stays)
-- `DeclarationLink` — link to a declaration in API docs; `hash` replaces the
-  declaration's own fragment, so a field is `hash="Name.field"`
+  `SidebarState.constructor.options` for a member's parameter). Heading levels
+  follow the enclosing `TomeSection`'s depth. The component comment and
+  `declaration_detail.ts` hold the rules (which parameters get a row, where
+  the flat signature stays)
+- `DeclarationLink` — link to a declaration in API docs; `field` links one of
+  its fields' anchors (`field="toggle"`), and `hash` replaces the
+  declaration's own fragment outright
 - `ModuleLink` — link to a module in API docs
 - `TypeLink` — link to a type reference; renders the structured tree via
   `TypeJsonView` when given `type_info`, else matches the flat string, whole
@@ -363,7 +367,8 @@ reasoning.
 - `docs_helpers.svelte.ts` - docs navigation and linking (DocsLinks class)
 - `autofocus.svelte.ts` - Svelte 5 attachment for focusing elements on mount
 - `intersect.svelte.ts` - Svelte 5 attachment for IntersectionObserver
-- `helpers.ts` - general utilities (`render_value_to_string`)
+- `helpers.ts` - general utilities (`render_value_to_string`,
+  `dedent_continuation_lines`)
 
 ## mdz rendering
 

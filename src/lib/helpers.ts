@@ -10,18 +10,19 @@ export const render_value_to_string = (value: unknown): string => {
 };
 
 /**
- * Strips the whitespace prefix that a CSS custom property's multi-line
- * `fallback` shares across its continuation lines, so a value broken over
- * several stylesheet lines renders without the stylesheet's indentation.
- * Line endings normalize to `\n`, and whitespace-only lines become empty.
+ * Strips the whitespace prefix that a multi-line source excerpt shares across
+ * its continuation lines, so a value broken over several source lines (a CSS
+ * custom property's `fallback`, a default's initializer) renders without its
+ * file's indentation. Line endings normalize to `\n`, and whitespace-only
+ * lines become empty.
  *
- * @param fallback - the verbatim fallback source text
- * @returns the fallback with its continuation lines dedented
+ * @param text - the verbatim source text, its first line already trimmed
+ * @returns the text with its continuation lines dedented
  */
-export const dedent_css_fallback = (fallback: string): string => {
-	const lines = fallback.split(/\r?\n/);
-	if (lines.length === 1) return fallback;
-	// svelte-docinfo trims the fallback, so the first line's original column is
+export const dedent_continuation_lines = (text: string): string => {
+	const lines = text.split(/\r?\n/);
+	if (lines.length === 1) return text;
+	// svelte-docinfo trims the excerpt, so the first line's original column is
 	// lost — it stays as-is, and only the continuation lines are compared
 	let prefix: string | undefined;
 	for (let i = 1; i < lines.length; i++) {

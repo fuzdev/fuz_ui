@@ -8,6 +8,7 @@
 	import { library_context } from './library.svelte.ts';
 	import type { Declaration } from './declaration.svelte.ts';
 	import type { Module } from './module.svelte.ts';
+	import { to_declaration_field_fragment } from './declaration_detail.ts';
 
 	const {
 		reference,
@@ -39,9 +40,37 @@
 	// Try to find as declaration first, then module
 	const declaration = $derived(library.declaration_by_name.get(reference));
 	const module = $derived(declaration ? declaration.module : library.module_by_path.get(reference));
+
+	// then as a field of a declaration: `Name.field`, or `Name.method()` as
+	// prose writes a call. Only a field the docs always render an anchor for
+	// links, so the link never lands nowhere.
+	const field_reference = $derived.by(() => {
+		if (declaration || module) return undefined;
+		const dot = reference.indexOf('.');
+		if (dot <= 0) return undefined;
+		const owner = library.declaration_by_name.get(reference.slice(0, dot));
+		if (!owner) return undefined;
+		const field = reference.slice(dot + 1).replace(/\(\)$/, '');
+		return owner.has_field(field) && to_declaration_field_fragment(owner.name, field)
+			? { owner, field }
+			: undefined;
+	});
 </script>
 
-{#if declaration}
+{#if field_reference}
+	<DeclarationLink
+		{...rest}
+		{...a_attrs}
+		name={field_reference.owner.name}
+		field={field_reference.field}
+	>
+		{#if children_prop}
+			{@render children_prop(field_reference.owner, undefined)}
+		{:else}
+			{display_text ?? reference}
+		{/if}
+	</DeclarationLink>
+{:else if declaration}
 	<DeclarationLink {...rest} {...a_attrs} name={reference} {hash}>
 		{@render children()}
 	</DeclarationLink>

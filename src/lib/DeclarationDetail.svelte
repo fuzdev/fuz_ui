@@ -28,7 +28,7 @@ fragment as an `id`.
 		mdz_codeblock_context,
 		mdz_set_context_with_fallback
 	} from '@fuzdev/mdz/mdz_contexts.ts';
-	import type { ParameterJsonInput } from 'svelte-docinfo/types.js';
+	import type { OverloadJsonInput, ParameterJsonInput } from 'svelte-docinfo/types.js';
 
 	import type { Declaration } from './declaration.svelte.ts';
 	import TypeLink from './TypeLink.svelte';
@@ -36,11 +36,14 @@ fragment as an `id`.
 	import ModuleLink from './ModuleLink.svelte';
 	import DocsLink from './DocsLink.svelte';
 	import Hashlink from './Hashlink.svelte';
-	import { dedent_css_fallback } from './helpers.ts';
+	import { section_depth_context } from './TomeSection.svelte';
+	import { dedent_continuation_lines } from './helpers.ts';
 	import {
 		parameter_has_detail,
+		prop_is_composable,
 		signature_is_composable,
 		to_declaration_field_fragment,
+		to_default_block,
 		to_function_signature_tokens,
 		to_member_chip_modifiers,
 		to_member_signature_tokens,
@@ -51,12 +54,25 @@ fragment as an `id`.
 
 	const { declaration }: { declaration: Declaration } = $props();
 
-	// a signature's name renders through `svelte:element`, so declare the tags
-	// for fuz_css extraction
-	// @fuz-elements h5 h6 strong
+	// headings render through `svelte:element`, so declare the tags for
+	// fuz_css extraction
+	// @fuz-elements h3 h4 h5 h6 strong
 
-	/** Heading level of a field's name: `h5` for a declaration's fields, `h6` for a field's own parameters. */
-	type FieldTag = 'h5' | 'h6';
+	type HeadingTag = 'h3' | 'h4' | 'h5' | 'h6';
+
+	const to_heading_tag = (level: number): HeadingTag => `h${Math.min(level, 6)}` as HeadingTag;
+
+	// heading levels follow the enclosing `TomeSection`, whose header is the
+	// declaration's own heading (`h2` at depth 1, `h3` at 2, `h4` deeper, as
+	// `TomeSectionHeader` picks); outside any section they match a module page
+	const section_depth = section_depth_context.get();
+	const declaration_level = section_depth === 0 ? 3 : Math.min(section_depth + 1, 4);
+	/** A section label (`parameters`, `members`). */
+	const label_tag = to_heading_tag(declaration_level + 1);
+	/** A field's name. */
+	const field_tag = to_heading_tag(declaration_level + 2);
+	/** A parameter of a field. */
+	const nested_tag = to_heading_tag(declaration_level + 3);
 
 	// functions and snippets get their signature composed from the structured
 	// fields, linking each type; a failed extraction, and a signature those
@@ -143,7 +159,7 @@ fragment as an `id`.
 <!-- A signature's tokens, adjacent: spacing lives in the token text, and Svelte
 	trims the block-boundary whitespace here (locked by the `DeclarationDetail`
 	render tests, where `textContent` equality would catch a stray space). -->
-{#snippet signature(tokens: Array<SignatureToken>, name_tag: FieldTag | 'strong')}
+{#snippet signature(tokens: Array<SignatureToken>, name_tag: HeadingTag | 'strong')}
 	{#each tokens as token, i (i)}
 		{#if token.kind === 'keyword'}
 			<span class="text_70">{token.text}</span>
@@ -169,7 +185,7 @@ fragment as an `id`.
 <!-- A field's heading line: its signature, any chips, and the hashlink to its `id`. -->
 {#snippet field_header(
 	tokens: Array<SignatureToken>,
-	tag: FieldTag,
+	tag: HeadingTag,
 	fragment: string | undefined,
 	chips?: Array<string>,
 	title?: string
@@ -186,15 +202,27 @@ fragment as an `id`.
 			{/if}
 		</div>
 		{#if fragment}
-			<Hashlink {fragment} />
+			<Hashlink {fragment} aria-label="link to {fragment}" />
 		{/if}
 	</div>
 {/snippet}
 
+<!-- A default that spans lines, which the signature line leaves out. -->
+{#snippet default_block(default_value: string | undefined)}
+	{@const block = to_default_block(default_value)}
+	{#if block !== undefined}
+		<div class="row gap_md mb_md">
+			<strong>default</strong>
+			<Code lang="ts" content={block} />
+		</div>
+	{/if}
+{/snippet}
+
 <!-- A parameter's own row: signature, description, and documented properties. -->
-{#snippet param_field(param: ParameterJsonInput, tag: FieldTag, fragment: string | undefined)}
+{#snippet param_field(param: ParameterJsonInput, tag: HeadingTag, fragment: string | undefined)}
 	<section>
 		{@render field_header(to_parameter_signature_tokens(param), tag, fragment)}
+		{@render default_block(param.defaultValue)}
 		{#if param.description}
 			<Mdz content={param.description} class="mb_md" />
 		{/if}
@@ -216,7 +244,7 @@ fragment as an `id`.
 {#snippet callable_detail(
 	parameters: Array<ParameterJsonInput> | undefined,
 	return_description: string | undefined,
-	tag: FieldTag,
+	tag: HeadingTag,
 	fragment_path?: Array<string>
 )}
 	{@const parameters_with_detail = parameters?.filter(parameter_has_detail)}
@@ -243,9 +271,9 @@ fragment as an `id`.
 		{#each throws as thrown (thrown)}
 			<li>
 				{#if thrown.type}
-					<TypeLink type={thrown.type} /> - {thrown.description}
+					<TypeLink type={thrown.type} /> - <Mdz content={thrown.description} inline />
 				{:else}
-					{thrown.description}
+					<Mdz content={thrown.description} inline />
 				{/if}
 			</li>
 		{/each}
@@ -256,7 +284,7 @@ fragment as an `id`.
 	<ul>
 		{#each Object.entries(mutates) as [target, description] (target)}
 			<li>
-				<code>{target}</code>{#if description}{' '}— {description}{/if}
+				<code>{target}</code>{#if description}{' '}— <Mdz content={description} inline />{/if}
 			</li>
 		{/each}
 	</ul>
@@ -268,6 +296,26 @@ fragment as an `id`.
 			<li><Mdz content={mdz_from_tsdoc(ref)} /></li>
 		{/each}
 	</ul>
+{/snippet}
+
+<!-- Every signature of an overloaded function or method, each with its own prose. -->
+{#snippet overloads_list(name: string, overloads: Array<OverloadJsonInput>, tag: HeadingTag)}
+	{#each overloads as overload, i (i)}
+		<section>
+			{#if signature_is_composable(overload)}
+				{@render signature_block(
+					to_function_signature_tokens(name, overload),
+					overload.typeSignature
+				)}
+			{:else}
+				<Code lang="ts" content={overload.typeSignature} />
+			{/if}
+			{#if overload.docComment}
+				<Mdz content={overload.docComment} class="mb_md" />
+			{/if}
+			{@render callable_detail(overload.parameters, overload.returnDescription, tag)}
+		</section>
+	{/each}
 {/snippet}
 
 <!-- Compact prose metadata for props and members (deprecated, internal, since, examples, see also, throws, mutates). -->
@@ -421,11 +469,11 @@ fragment as an `id`.
 <!-- parameters -->
 {#if parameters_shown?.length}
 	<section>
-		<h4>parameters</h4>
+		<svelte:element this={label_tag}>parameters</svelte:element>
 		{#each parameters_shown as param (param)}
 			{@render param_field(
 				param,
-				'h5',
+				field_tag,
 				to_declaration_field_fragment(declaration.name, param.name)
 			)}
 		{/each}
@@ -435,7 +483,7 @@ fragment as an `id`.
 <!-- returns: the type is in the signature, so only the `@returns` prose -->
 {#if declaration.return_description}
 	<section>
-		<h4>returns</h4>
+		<svelte:element this={label_tag}>returns</svelte:element>
 		<Mdz content={declaration.return_description} />
 	</section>
 {/if}
@@ -443,20 +491,23 @@ fragment as an `id`.
 <!-- component props (for Svelte components) -->
 {#if declaration.props?.length}
 	<section>
-		<h4>props</h4>
+		<svelte:element this={label_tag}>props</svelte:element>
 		{#each declaration.props as prop (prop)}
 			<section>
 				{@render field_header(
 					to_prop_signature_tokens(prop),
-					'h5',
+					field_tag,
 					to_declaration_field_fragment(declaration.name, prop.name),
-					prop.bindable ? ['bindable'] : undefined
+					prop.bindable ? ['bindable'] : undefined,
+					// the checker's flat type, where the composed callback replaced it
+					prop_is_composable(prop) ? prop.type : undefined
 				)}
+				{@render default_block(prop.defaultValue)}
 				{#if prop.description}
 					<Mdz content={prop.description} class="mb_md" />
 				{/if}
 				<!-- a snippet's or callback's parameters -->
-				{@render callable_detail(prop.parameters, undefined, 'h6', [prop.name])}
+				{@render callable_detail(prop.parameters, undefined, nested_tag, [prop.name])}
 				{@render doc_extras(prop)}
 			</section>
 		{/each}
@@ -470,7 +521,7 @@ fragment as an `id`.
 	the list mixes both -->
 {#if declaration.css_custom_properties?.length}
 	<section>
-		<h4>CSS custom properties</h4>
+		<svelte:element this={label_tag}>CSS custom properties</svelte:element>
 		{#if css_property_chips_shown}
 			<p>
 				Properties marked <span class="chip">inferred</span> are found by their <code>var()</code>
@@ -481,7 +532,7 @@ fragment as an `id`.
 			<section>
 				{@render field_header(
 					[{ kind: 'name', text: css_property.name }],
-					'h5',
+					field_tag,
 					to_declaration_field_fragment(declaration.name, css_property.name),
 					css_property_chips_shown && !css_property.documented ? ['inferred'] : undefined
 				)}
@@ -497,7 +548,7 @@ fragment as an `id`.
 				{#if css_property.default !== undefined}
 					<div class="row gap_md">
 						<strong>default</strong>
-						<Code lang="css" content={dedent_css_fallback(css_property.default)} wrap />
+						<Code lang="css" content={dedent_continuation_lines(css_property.default)} wrap />
 					</div>
 				{/if}
 				{#if css_property.fallback !== undefined &&
@@ -507,7 +558,7 @@ fragment as an `id`.
 					<div class="row gap_md">
 						<strong>fallback</strong>
 						{#if css_property.fallback}
-							<Code lang="css" content={dedent_css_fallback(css_property.fallback)} wrap />
+							<Code lang="css" content={dedent_continuation_lines(css_property.fallback)} wrap />
 						{:else}
 							<!-- `var(--a,)`, a fallback of nothing -->
 							<span>empty</span>
@@ -522,24 +573,9 @@ fragment as an `id`.
 <!-- overloads -->
 {#if declaration.overloads?.length}
 	<section>
-		<h4>overloads</h4>
-		{#each declaration.overloads as overload, i (i)}
-			<section>
-				{#if signature_is_composable(overload)}
-					{@render signature_block(
-						to_function_signature_tokens(declaration.name, overload),
-						overload.typeSignature
-					)}
-				{:else}
-					<Code lang="ts" content={overload.typeSignature} />
-				{/if}
-				{#if overload.docComment}
-					<Mdz content={overload.docComment} class="mb_md" />
-				{/if}
-				<!-- an overload's parameters sit directly under the `overloads` label -->
-				{@render callable_detail(overload.parameters, overload.returnDescription, 'h5')}
-			</section>
-		{/each}
+		<svelte:element this={label_tag}>overloads</svelte:element>
+		<!-- an overload's parameters sit directly under the `overloads` label -->
+		{@render overloads_list(declaration.name, declaration.overloads, field_tag)}
 	</section>
 {/if}
 
@@ -548,24 +584,25 @@ fragment as an `id`.
 	its `$props()` destructuring names is documented anyway -->
 {#if external_types_not_inherited}
 	<section>
-		<h4>external types</h4>
+		<svelte:element this={label_tag}>external types</svelte:element>
 		<div class="row_wrap gap_md">
 			{@render type_list(external_types_not_inherited)}
 		</div>
 	</section>
 {/if}
 
-<!-- generics -->
-{#if declaration.generic_params.length}
+<!-- generics, unless a composed signature already states them with their
+	constraints and defaults -->
+{#if declaration.generic_params.length && !signature_tokens}
 	<section>
 		<div class="row gap_md">
-			<h4>generics</h4>
+			<svelte:element this={label_tag}>generics</svelte:element>
 			<!-- plain code: `TypeLink` would link the declaration to itself -->
 			<Code lang="ts" content={declaration.display_name} inline />
 		</div>
 		{#each declaration.generic_params as generic (generic)}
 			<section>
-				<h5><code>{generic.name}</code></h5>
+				<svelte:element this={field_tag}><code>{generic.name}</code></svelte:element>
 				{#if generic.constraint}
 					<div class="row gap_md">
 						<strong>constraint</strong>
@@ -586,7 +623,7 @@ fragment as an `id`.
 <!-- Extends/Implements -->
 {#if declaration.extends_types?.length || declaration.implements_types?.length}
 	<section>
-		<h4>inheritance</h4>
+		<svelte:element this={label_tag}>inheritance</svelte:element>
 		{#if declaration.extends_types?.length}
 			<div class="row_wrap gap_md">
 				<strong>extends:</strong>
@@ -605,7 +642,7 @@ fragment as an `id`.
 <!-- throws -->
 {#if declaration.throws.length}
 	<section>
-		<h4>throws</h4>
+		<svelte:element this={label_tag}>throws</svelte:element>
 		{@render throws_list(declaration.throws)}
 	</section>
 {/if}
@@ -613,7 +650,7 @@ fragment as an `id`.
 <!-- mutates -->
 {#if declaration.mutates && Object.keys(declaration.mutates).length}
 	<section>
-		<h4>mutates</h4>
+		<svelte:element this={label_tag}>mutates</svelte:element>
 		{@render mutates_list(declaration.mutates)}
 	</section>
 {/if}
@@ -621,7 +658,7 @@ fragment as an `id`.
 <!-- since -->
 {#if declaration.since}
 	<section>
-		<h4>since</h4>
+		<svelte:element this={label_tag}>since</svelte:element>
 		<p>{declaration.since}</p>
 	</section>
 {/if}
@@ -629,13 +666,13 @@ fragment as an `id`.
 <!-- members (classes, interfaces, types, enums) -->
 {#if declaration.members?.length}
 	<section>
-		<h4>members</h4>
+		<svelte:element this={label_tag}>members</svelte:element>
 		{#each declaration.members as member (member)}
 			{@const chip_modifiers = to_member_chip_modifiers(member)}
 			<section>
 				{@render field_header(
 					to_member_signature_tokens(member, { omit_type: declaration.kind === 'enum' }),
-					'h5',
+					field_tag,
 					to_declaration_field_fragment(declaration.name, member.name),
 					member.kind === 'variable' && member.reactivity
 						? chip_modifiers.concat(member.reactivity)
@@ -643,16 +680,28 @@ fragment as an `id`.
 					// the checker's flat signature, where the composed one replaced it
 					member.kind === 'variable' ? undefined : member.typeSignature
 				)}
+				{#if member.kind !== 'constructor'}
+					{@render default_block(member.defaultValue)}
+				{/if}
 				{#if member.docComment}
 					<Mdz content={member.docComment} class="mb_md" />
 				{/if}
 				{#if member.kind !== 'variable'}
-					{@render callable_detail(
-						member.parameters,
-						member.kind === 'function' ? member.returnDescription : undefined,
-						'h6',
-						[member.name]
-					)}
+					{#if member.overloads?.length}
+						<!-- the header shows the first signature; each overload carries
+							its own parameters and returns prose -->
+						<p><strong>overloads</strong></p>
+						<div class="pl_lg my_md">
+							{@render overloads_list(member.name, member.overloads, nested_tag)}
+						</div>
+					{:else}
+						{@render callable_detail(
+							member.parameters,
+							member.kind === 'function' ? member.returnDescription : undefined,
+							nested_tag,
+							[member.name]
+						)}
+					{/if}
 				{/if}
 				{@render doc_extras(member)}
 			</section>
@@ -663,7 +712,7 @@ fragment as an `id`.
 <!-- examples -->
 {#if declaration.examples.length}
 	<section>
-		<h4>examples</h4>
+		<svelte:element this={label_tag}>examples</svelte:element>
 		{#each declaration.examples as example (example)}
 			<Mdz content={example} />
 		{/each}
@@ -673,7 +722,7 @@ fragment as an `id`.
 <!-- see also -->
 {#if declaration.see_also.length}
 	<section>
-		<h4>see also</h4>
+		<svelte:element this={label_tag}>see also</svelte:element>
 		{@render see_also_list(declaration.see_also)}
 	</section>
 {/if}
@@ -699,6 +748,13 @@ fragment as an `id`.
 		flex-shrink: 0;
 		font-size: inherit;
 	}
+	/* a field reached by its fragment: the tint spreads past the text without
+	   moving it */
+	.field-header:has(:global(:target)) {
+		background-color: var(--ink_05);
+		box-shadow: 0 0 0 var(--space_xs) var(--ink_05);
+		border-radius: var(--border_radius_xs);
+	}
 	/* flows inline with the chips after it */
 	.field-signature {
 		display: inline;
@@ -713,6 +769,13 @@ fragment as an `id`.
 		display: inline;
 		background: transparent;
 		padding: 0;
+	}
+	/* a linked type is a plain link here, not a chip, so the line keeps
+	   TypeScript's own spacing */
+	.declaration-signature :global(a.chip) {
+		padding: 0;
+		background: transparent;
+		font-weight: inherit;
 	}
 	.signature-block {
 		display: block;

@@ -10,6 +10,7 @@ import {
 	parameter_has_detail,
 	signature_is_composable,
 	to_declaration_field_fragment,
+	to_default_block,
 	type SignatureCallable,
 	to_function_signature_tokens,
 	to_member_chip_modifiers,
@@ -87,6 +88,14 @@ describe('to_function_signature_tokens', () => {
 		assert.deepInclude(tokens, { kind: 'keyword', text: ' extends ' });
 	});
 
+	test('the unnamed-signature sentinels render as TypeScript writes them', () => {
+		const callable = { parameters: [{ name: 'a', type: 'A' }], returnType: 'R' };
+		assert.strictEqual(to_line(to_function_signature_tokens('(call)', callable)), '(a: A): R');
+		const construct = to_function_signature_tokens('(construct)', callable);
+		assert.strictEqual(to_line(construct), 'new (a: A): R');
+		assert.deepEqual(construct[0], { kind: 'keyword', text: 'new ' });
+	});
+
 	test('types carry their structured tree when there is one', () => {
 		const tokens = to_function_signature_tokens('f', {
 			parameters: [{ name: 'a', type: 'A', typeInfo: tree }],
@@ -159,6 +168,11 @@ describe('to_parameter_signature_tokens', () => {
 			'a default',
 			{ name: 'a', type: 'number', optional: true, defaultValue: '100' },
 			'a?: number = 100'
+		],
+		[
+			'a default that spans lines stays out of the line',
+			{ name: 'a', type: 'A', optional: true, defaultValue: 'new A({\n\tb: 1\n})' },
+			'a?: A'
 		]
 	];
 	test.each(cases)('%s', (_label, param, expected) => {
@@ -184,6 +198,61 @@ describe('to_prop_signature_tokens', () => {
 			'an optional prop with a default',
 			{ name: 'status', type: 'AlertStatus', optional: true, defaultValue: "'inform'" },
 			"status?: AlertStatus = 'inform'"
+		],
+		['a name that needs quotes', { name: 'aria-label', type: 'string' }, "'aria-label': string"],
+		[
+			'a callback is composed from its parameters and return type',
+			{
+				name: 'load',
+				type: '(themes?: { name: string; }[], key?: string) => { name: string; }',
+				optional: true,
+				parameters: [
+					{ name: 'themes', type: 'Theme[]', optional: true },
+					{ name: 'key', type: 'string', optional: true }
+				],
+				returnType: 'Theme',
+				defaultValue: 'default_load'
+			},
+			'load?: (themes?: Theme[], key?: string) => Theme = default_load'
+		],
+		[
+			'a callback with no parameters',
+			{ name: 'onclose', type: '() => void', returnType: 'void' },
+			'onclose: () => void'
+		],
+		[
+			'a callback in a union keeps its flat type',
+			{
+				name: 'onpick',
+				type: '((value: string) => void) | null',
+				parameters: [{ name: 'value', type: 'string' }],
+				returnType: 'void'
+			},
+			'onpick: ((value: string) => void) | null'
+		],
+		[
+			'a callback in an intersection keeps its flat type',
+			{ name: 'onclick', type: 'Handler<HTMLElement> & (() => void)', returnType: 'void' },
+			'onclick: Handler<HTMLElement> & (() => void)'
+		],
+		[
+			'a type guard callback keeps its flat type',
+			{
+				name: 'guard',
+				type: '(x: unknown) => x is A',
+				parameters: [{ name: 'x', type: 'unknown' }],
+				returnType: 'boolean'
+			},
+			'guard: (x: unknown) => x is A'
+		],
+		[
+			'a snippet is not a callback',
+			{
+				name: 'row',
+				type: 'Snippet<[text: string]>',
+				parameters: [{ name: 'text', type: 'string' }]
+			},
+			'row: Snippet<[text: string]>'
 		]
 	];
 	test.each(cases)('%s', (_label, prop, expected) => {
@@ -233,6 +302,26 @@ describe('to_member_signature_tokens', () => {
 			'accessor modifiers stay out of the line',
 			{ name: 'show', kind: 'variable', typeSignature: 'boolean', modifiers: ['getter', 'setter'] },
 			'show: boolean'
+		],
+		[
+			'a name that is not an identifier is quoted',
+			{ name: 'default-src', kind: 'variable', typeSignature: 'string', optional: true },
+			"'default-src'?: string"
+		],
+		[
+			'a quote inside a name is escaped',
+			{ name: "it's", kind: 'variable', typeSignature: 'string' },
+			"'it\\'s': string"
+		],
+		[
+			'a numeric key stays bare',
+			{ name: '0', kind: 'variable', typeSignature: 'string' },
+			'0: string'
+		],
+		[
+			'a dollar name is an identifier',
+			{ name: '$state', kind: 'variable', typeSignature: 'string' },
+			'$state: string'
 		],
 		[
 			'an index signature',
@@ -400,6 +489,17 @@ describe('to_member_chip_modifiers', () => {
 
 	test('a member with no modifiers has none', () => {
 		assert.deepEqual(to_member_chip_modifiers({ name: 'show', kind: 'variable' }), []);
+	});
+});
+
+describe('to_default_block', () => {
+	const cases: Array<[label: string, value: string | undefined, expected: string | undefined]> = [
+		['no default', undefined, undefined],
+		['a single-line default', "'inform'", undefined],
+		['a default that spans lines, dedented', 'new A({\n\t\tb: 1\n\t})', 'new A({\n\tb: 1\n})']
+	];
+	test.each(cases)('%s', (_label, value, expected) => {
+		assert.strictEqual(to_default_block(value), expected);
 	});
 });
 

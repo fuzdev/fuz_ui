@@ -9,6 +9,7 @@
 	const {
 		name,
 		module_path,
+		field,
 		hash,
 		full = false,
 		children,
@@ -24,8 +25,14 @@
 		 */
 		module_path?: string;
 		/**
+		 * A field of the declaration to link to — a member, prop, or CSS custom
+		 * property by name (`toggle`), or a parameter of one by dotted path
+		 * (`constructor.options`). Links its `Name.field` anchor.
+		 */
+		field?: string;
+		/**
 		 * URL fragment, with or without the `#`, replacing the declaration's own
-		 * (its name) — a field of the declaration is `Name.field`.
+		 * (its name). Wins over `field`.
 		 */
 		hash?: string;
 		/**
@@ -49,9 +56,16 @@
 	// the site-local path if `homepage_url` is unavailable.
 	const url_api = $derived((full && declaration?.url_api_full) || declaration?.url_api);
 
-	// the declaration's url already ends in its own fragment, which `hash` replaces
+	// the declaration's url already ends in its own fragment, which a `hash`
+	// replaces and a `field` extends
 	const href = $derived(
-		hash && url_api ? url_api.replace(/#.*$/, '') + ensure_start(hash, '#') : url_api
+		!url_api
+			? url_api
+			: hash
+				? url_api.replace(/#.*$/, '') + ensure_start(hash, '#')
+				: field
+					? url_api + '.' + field
+					: url_api
 	);
 
 	const contextmenu_entries = $derived(

@@ -29,7 +29,8 @@
 						class={[
 							'menuitem',
 							{
-								selected: item.fragment === hash,
+								// a field's fragment (`Name.field`) selects the declaration it belongs to
+								selected: item.fragment === hash || hash.startsWith(item.fragment + '.'),
 								highlighted: docs_links.fragments_onscreen.has(item.fragment)
 							}
 						]}

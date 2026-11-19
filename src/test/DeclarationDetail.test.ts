@@ -23,7 +23,11 @@ afterEach(async () => {
 // `import_statement` reads the module's path and the library's package name;
 // nothing else rendered here touches the module, and `ModuleLink` resolves
 // against the fake library, finding nothing unless `names` supplies declarations
-const mount_detail = (json: Record<string, unknown>, names: Array<string> = []): HTMLElement => {
+const mount_detail = (
+	json: Record<string, unknown>,
+	names: Array<string> = [],
+	depth?: number
+): HTMLElement => {
 	const module = { path: 'A.svelte', library: { pkg_json: { name: 'pkg' } } };
 	const declaration = new Declaration(
 		module as unknown as Module,
@@ -31,7 +35,8 @@ const mount_detail = (json: Record<string, unknown>, names: Array<string> = []):
 	);
 	mounted = mount_component(DeclarationDetailHarness as any, {
 		declaration,
-		library: fake_library(names)
+		library: fake_library(names),
+		depth
 	});
 	flushSync();
 	return mounted.container;
@@ -132,6 +137,31 @@ describe('DeclarationDetail signature', () => {
 		// the predicate overload keeps its flat signature
 		assert.strictEqual(entries[1]!.querySelector('.signature-block'), null);
 		assert.include(entries[1]!.textContent, '(a: unknown): a is A');
+	});
+
+	test('a composed signature states the generics, so their section is dropped', () => {
+		const container = mount_detail({
+			name: 'f',
+			kind: 'function',
+			genericParams: [{ name: 'T', constraint: 'A' }],
+			parameters: [{ name: 'a', type: 'T' }],
+			returnType: 'T'
+		});
+		assert.strictEqual(
+			container.querySelector('code.signature-block')?.textContent,
+			'f<T extends A>(a: T): T'
+		);
+		assert.notInclude(to_labels(container), 'generics');
+	});
+
+	test('a declaration with no composed signature keeps its generics section', () => {
+		const container = mount_detail({
+			name: 'A',
+			kind: 'class',
+			genericParams: [{ name: 'T', constraint: 'B' }]
+		});
+		assert.include(to_labels(container), 'generics');
+		assert.include(container.textContent, 'constraint');
 	});
 
 	test('a function whose extraction failed keeps the flat signature', () => {
@@ -314,6 +344,75 @@ describe('DeclarationDetail fields', () => {
 		assert.strictEqual(returns_label?.parentElement?.tagName, 'DIV');
 	});
 
+	test('a method lists each of its overloads beneath the first signature', () => {
+		const container = mount_detail({
+			name: 'A',
+			kind: 'interface',
+			members: [
+				{
+					name: 'send',
+					kind: 'function',
+					parameters: [{ name: 'a', type: 'string', description: 'the text' }],
+					returnType: 'void',
+					overloads: [
+						{
+							typeSignature: '(a: string): void',
+							parameters: [{ name: 'a', type: 'string', description: 'the text' }],
+							returnType: 'void'
+						},
+						{
+							typeSignature: '(a: number, b: number): void',
+							parameters: [
+								{ name: 'a', type: 'number' },
+								{ name: 'b', type: 'number' }
+							],
+							returnType: 'void',
+							docComment: 'The numeric form.'
+						}
+					]
+				}
+			]
+		});
+		const entry = find_section(container, 'members').querySelector(':scope > section')!;
+		assert.deepEqual(
+			Array.from(entry.querySelectorAll('code.signature-block')).map((el) => el.textContent),
+			['send(a: string): void', 'send(a: number, b: number): void']
+		);
+		assert.include(entry.textContent, 'The numeric form.');
+		// the first signature's parameter row renders once, under its overload
+		assert.strictEqual(entry.querySelectorAll('h6').length, 1);
+	});
+
+	test('a default that spans lines drops to a dedented block', () => {
+		const container = mount_detail({
+			name: 'A',
+			kind: 'component',
+			props: [
+				{
+					name: 'state',
+					type: 'State',
+					optional: true,
+					defaultValue: 'new State({\n\t\ta: 1\n\t})'
+				}
+			]
+		});
+		const section = find_section(container, 'props');
+		assert.deepEqual(to_signatures(section), ['state?: State']);
+		const block = section.querySelector(':scope > section code[data-lang="ts"]:not(.inline)');
+		assert.strictEqual(block?.textContent, 'new State({\n\ta: 1\n})');
+	});
+
+	test('a name that is not an identifier is quoted', () => {
+		const container = mount_detail({
+			name: 'A',
+			kind: 'interface',
+			members: [{ name: 'default-src', kind: 'variable', typeSignature: 'string', optional: true }]
+		});
+		assert.deepEqual(to_signatures(find_section(container, 'members')), ["'default-src'?: string"]);
+		// the anchor keeps the bare name
+		assert.ok(container.querySelector('[id="A.default-src"]'));
+	});
+
 	test('an enum value is headed by its name alone', () => {
 		const container = mount_detail({
 			name: 'A',
@@ -352,6 +451,33 @@ describe('DeclarationDetail fields', () => {
 	});
 });
 
+describe('DeclarationDetail heading levels', () => {
+	const json = {
+		name: 'A',
+		kind: 'class',
+		members: [
+			{
+				name: 'toggle',
+				kind: 'function',
+				parameters: [{ name: 'event', type: 'Event', description: 'the trigger' }],
+				returnType: 'void'
+			}
+		]
+	};
+	const to_tags = (container: HTMLElement): Array<string> =>
+		Array.from(container.querySelectorAll('h1, h2, h3, h4, h5, h6')).map((h) => h.tagName);
+
+	const cases: Array<[label: string, depth: number | undefined, expected: Array<string>]> = [
+		['outside any section, as on a module page', undefined, ['H4', 'H5', 'H6']],
+		['under an h2 declaration heading', 1, ['H3', 'H4', 'H5']],
+		['under an h3 declaration heading', 2, ['H4', 'H5', 'H6']],
+		['deeper, clamped at h6', 3, ['H5', 'H6', 'H6']]
+	];
+	test.each(cases)('%s', (_label, depth, expected) => {
+		assert.deepEqual(to_tags(mount_detail(json, [], depth)), expected);
+	});
+});
+
 describe('DeclarationDetail field anchors', () => {
 	const to_ids = (container: HTMLElement): Array<string> =>
 		Array.from(container.querySelectorAll('[id]')).map((el) => el.id);
@@ -371,9 +497,15 @@ describe('DeclarationDetail field anchors', () => {
 			]
 		});
 		assert.deepEqual(to_ids(container), ['A.id', 'A.toggle', 'A.toggle.event']);
+		const hashlinks = Array.from(container.querySelectorAll('a.hashlink'));
 		assert.deepEqual(
-			Array.from(container.querySelectorAll('a.hashlink')).map((a) => a.getAttribute('href')),
+			hashlinks.map((a) => a.getAttribute('href')),
 			['#A.id', '#A.toggle', '#A.toggle.event']
+		);
+		// each names its target, so they aren't one repeated label
+		assert.deepEqual(
+			hashlinks.map((a) => a.getAttribute('aria-label')),
+			['link to A.id', 'link to A.toggle', 'link to A.toggle.event']
 		);
 	});
 
@@ -431,6 +563,22 @@ describe('DeclarationDetail flat type links', () => {
 		const section = find_section(container, 'throws');
 		assert.strictEqual(section.querySelector('a')?.getAttribute('href'), '/docs/api/x.ts#AError');
 		assert.include(section.textContent, 'when it fails');
+	});
+
+	test('throws and mutates descriptions render as mdz', () => {
+		const container = mount_detail({
+			name: 'f',
+			kind: 'function',
+			throws: [{ description: 'when `a` is empty' }],
+			mutates: { items: 'appends to `items`' }
+		});
+		// inline code, not literal backticks
+		assert.strictEqual(
+			find_section(container, 'throws').querySelector('li code')?.textContent,
+			'a'
+		);
+		assert.notInclude(find_section(container, 'throws').textContent, '`');
+		assert.notInclude(find_section(container, 'mutates').textContent, '`');
 	});
 });
 

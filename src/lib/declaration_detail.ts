@@ -19,6 +19,8 @@ import type {
 	TypeJson
 } from 'svelte-docinfo/types.js';
 
+import { dedent_continuation_lines } from './helpers.ts';
+
 /**
  * One piece of a rendered signature line. Spacing lives in the token text, so
  * a renderer emits the tokens adjacent with nothing between them.
@@ -111,11 +113,35 @@ const push_type = (tokens: Array<SignatureToken>, type: string, type_info?: Type
 	tokens.push(type_info ? { kind: 'type', type, type_info } : { kind: 'type', type });
 };
 
+// a default that spans lines can't sit in a signature line; `to_default_block`
+// hands it to the renderer as a block instead
 const push_default = (tokens: Array<SignatureToken>, default_value: string | undefined): void => {
-	if (default_value === undefined) return;
+	if (default_value === undefined || default_value.includes('\n')) return;
 	push_text(tokens, ' = ');
 	tokens.push({ kind: 'value', text: default_value });
 };
+
+/**
+ * A default that spans lines, dedented for a block of its own beneath the
+ * signature, which carries only single-line defaults.
+ *
+ * @returns `undefined` for an absent or single-line default
+ */
+export const to_default_block = (default_value: string | undefined): string | undefined =>
+	default_value?.includes('\n') ? dedent_continuation_lines(default_value) : undefined;
+
+const IDENTIFIER_MATCHER = /^[\p{ID_Start}_$][\p{ID_Continue}$]*$/u;
+
+/**
+ * A member's or prop's name as TypeScript writes it as a key: quoted unless
+ * it's an identifier, a number, or a bracketed form (an index signature, a
+ * computed name). The source's own quote style isn't in the data, so single
+ * quotes.
+ */
+const to_key_text = (name: string): string =>
+	IDENTIFIER_MATCHER.test(name) || /^\d+$/.test(name) || name.startsWith('[')
+		? name
+		: `'${name.replace(/[\\']/g, '\\$&')}'`;
 
 const push_generics = (
 	tokens: Array<SignatureToken>,
@@ -171,18 +197,27 @@ const push_callable = (tokens: Array<SignatureToken>, callable: SignatureCallabl
 };
 
 /**
- * Composes `name<T>(a: A, b?: B): R` for a function declaration or one of its
- * overloads. A callable with no `returnType` (a snippet) ends at the
- * parameter list.
+ * Composes `name<T>(a: A, b?: B): R` for a function declaration, a method, or
+ * one of their overloads. A callable with no `returnType` (a snippet, a
+ * constructor) ends at the parameter list. The unnamed-signature sentinels
+ * render as TypeScript writes them: `(call)` as the bare `(a: A): R`,
+ * `(construct)` as `new (a: A): R`.
  *
  * Composes unconditionally: callers check `signature_is_composable` first and
  * keep the flat signature where it says more.
+ *
+ * @param name - the declaration's or member's name
  */
 export const to_function_signature_tokens = (
 	name: string,
 	callable: SignatureCallable
 ): Array<SignatureToken> => {
-	const tokens: Array<SignatureToken> = [{ kind: 'name', text: name }];
+	const tokens: Array<SignatureToken> = [];
+	if (name === MEMBER_NAME_CONSTRUCT) {
+		tokens.push({ kind: 'keyword', text: 'new ' });
+	} else if (name !== MEMBER_NAME_CALL) {
+		tokens.push({ kind: 'name', text: name });
+	}
 	push_callable(tokens, callable);
 	return tokens;
 };
@@ -202,12 +237,54 @@ export const to_parameter_signature_tokens = (param: ParameterJsonInput): Array<
 };
 
 /**
- * Composes `name?: Type = default` for a component prop.
+ * The return clause of a bare function type, `(…) => R` — `undefined` for
+ * anything else: a function type inside a union or intersection
+ * (`((a: A) => R) | null`), a generic one, or no function at all.
+ */
+const to_function_type_return = (type: string): string | undefined => {
+	if (type[0] !== '(') return undefined;
+	let depth = 0;
+	for (let i = 0; i < type.length; i++) {
+		const char = type[i];
+		if (char === '(') {
+			depth++;
+		} else if (char === ')' && --depth === 0) {
+			return type.startsWith(' => ', i + 1) ? type.slice(i + 5) : undefined;
+		}
+	}
+	return undefined;
+};
+
+/**
+ * Whether a callback prop's type composes from its `parameters` and
+ * `returnType` without losing anything: its flat type is a bare function type
+ * with no destructured parameter and no type predicate return. Composed, each
+ * parameter's type links and keeps the alias names the flat string expands.
+ */
+export const prop_is_composable = (prop: ComponentPropJsonInput): boolean => {
+	if (prop.returnType === undefined) return false;
+	const flat_return = to_function_type_return(prop.type);
+	return (
+		flat_return !== undefined &&
+		!/^(?:asserts |[\w$]+ is )/.test(flat_return) &&
+		!prop.parameters?.some((param) => DESTRUCTURED_PARAMETER_MATCHER.test(param.name))
+	);
+};
+
+/**
+ * Composes `name?: Type = default` for a component prop, with a callback
+ * prop's type composed as `(a: A) => R` where `prop_is_composable` allows.
  */
 export const to_prop_signature_tokens = (prop: ComponentPropJsonInput): Array<SignatureToken> => {
-	const tokens: Array<SignatureToken> = [{ kind: 'name', text: prop.name }];
+	const tokens: Array<SignatureToken> = [{ kind: 'name', text: to_key_text(prop.name) }];
 	push_text(tokens, prop.optional ? '?: ' : ': ');
-	push_type(tokens, prop.type, prop.typeInfo);
+	if (prop_is_composable(prop)) {
+		push_parameters(tokens, prop.parameters);
+		push_text(tokens, ' => ');
+		push_type(tokens, prop.returnType!, prop.returnTypeInfo);
+	} else {
+		push_type(tokens, prop.type, prop.typeInfo);
+	}
 	push_default(tokens, prop.defaultValue);
 	return tokens;
 };
@@ -227,7 +304,7 @@ export interface MemberSignatureOptions {
  * `(a: A): R` or `new (a: A): R` for an unnamed call or construct signature.
  * The line follows the data, not the source text: svelte-docinfo emits a
  * function-typed property as a method, so `now: () => number` reads
- * `now(): number`, and a quoted name prints without its quotes.
+ * `now(): number`, and a name that needs quotes gets single ones.
  *
  * The name is followed by the flat `typeSignature` instead where composing
  * would lose something: a callable whose extraction failed (`partial`), one
@@ -263,7 +340,7 @@ export const to_member_signature_tokens = (
 		return tokens;
 	}
 	if (member.name !== MEMBER_NAME_CALL) {
-		tokens.push({ kind: 'name', text: member.name });
+		tokens.push({ kind: 'name', text: to_key_text(member.name) });
 		if (member.optional) push_text(tokens, '?');
 	}
 	if (member.kind === 'function') {

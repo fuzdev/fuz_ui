@@ -323,6 +323,19 @@ export class Declaration {
 		return field<Reactivity>(this.declaration_json, 'reactivity');
 	}
 
+	/**
+	 * Whether `name` is one of this declaration's members, props, or CSS
+	 * custom properties — the fields `DeclarationDetail` always renders, each
+	 * under its `Declaration.field` anchor.
+	 */
+	has_field(name: string): boolean {
+		return !!(
+			this.members?.some((member) => member.name === name) ||
+			this.props?.some((prop) => prop.name === name) ||
+			this.css_custom_properties?.some((css_property) => css_property.name === name)
+		);
+	}
+
 	get has_examples(): boolean {
 		return this.examples.length > 0;
 	}
