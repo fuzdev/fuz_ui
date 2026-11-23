@@ -1,1 +1,0 @@
-export{t as component}from"../chunks/DTuYrOs4.js";
