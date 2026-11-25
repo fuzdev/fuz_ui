@@ -1,1 +1,0 @@
-export{t as component}from"../chunks/DX10-4_k.js";

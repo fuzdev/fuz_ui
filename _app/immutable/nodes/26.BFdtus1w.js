@@ -1,0 +1,1 @@
+export{t as component}from"../chunks/Dol3H25x.js";

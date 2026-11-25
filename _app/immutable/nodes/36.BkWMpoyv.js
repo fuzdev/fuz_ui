@@ -1,0 +1,1 @@
+export{t as component}from"../chunks/CkN_NGe0.js";
