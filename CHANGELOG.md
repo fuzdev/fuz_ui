@@ -1,5 +1,17 @@
 # @fuzdev/fuz_ui
 
+## 0.233.0
+
+### Minor Changes
+
+- break: `Card` replaces `--icon_margin` with `--icon_gap_inline` (beside the icon, for `start` and `end`) and `--icon_gap_block` (above or below it, for `top` and `bottom`), applied as the card's flex `gap`; it widens its inline padding and the inline icon gap, and a string icon's box is as tall as its size, matching a snippet's ([643699b](https://github.com/fuzdev/fuz_ui/commit/643699b))
+
+### Patch Changes
+
+- fix: `Docs` stacks its primary nav above the wide sidebar so the scrolled shadow shows across it, through `DocsPrimaryNav`'s new `--docs_primary_nav_z_index` (default `10`) ([9f7700d](https://github.com/fuzdev/fuz_ui/commit/9f7700d))
+- feat: `Hashlink` takes `--hashlink_opacity` and `--hashlink_font_size` and no longer shrinks in a flex row, so a parent reveals it on hover with `.parent:hover { --hashlink_opacity: 1; }` instead of `:global(.hashlink)` ([4b348c2](https://github.com/fuzdev/fuz_ui/commit/4b348c2))
+- fix: `HueInput` fills its hue strip's side insets with the gradient's endpoint color again, so the strip reads edge to edge ([545c08f](https://github.com/fuzdev/fuz_ui/commit/545c08f))
+
 ## 0.232.0
 
 ### Minor Changes
