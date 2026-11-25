@@ -197,9 +197,8 @@ detection, i.e. how the menu opens. Holds no gesture state of its own; the
 		   inert under `ContextmenuRoot`, which never renders on iOS Safari. */
 		-webkit-touch-callout: initial !important;
 	}
-	/* TODO hacky */
-	.contextmenu,
-	.contextmenu :global(menu.pane) {
+	/* sync with `ContextmenuSubmenu`'s pane */
+	.contextmenu {
 		border: var(--contextmenu_border_width, var(--border_width))
 			var(--contextmenu_border_style, var(--border_style))
 			var(--contextmenu_border_color, var(--border_color));

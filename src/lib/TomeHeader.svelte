@@ -51,8 +51,7 @@
 		justify-content: space-between;
 		margin-top: var(--space_xl4);
 	}
-	/* TODO @many how can this be done composably? currently using `:global` at usage site - ideally we'd continue to use :hover instead of JS */
-	.tome-header:hover :global(.hashlink) {
-		opacity: 1;
+	.tome-header:hover {
+		--hashlink_opacity: 1;
 	}
 </style>

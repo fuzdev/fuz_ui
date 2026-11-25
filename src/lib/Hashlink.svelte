@@ -1,3 +1,9 @@
+<!--
+@component
+
+@cssprop --hashlink_opacity - opacity at rest, `0` by default; a parent reveals the link on its own hover with `.parent:hover { --hashlink_opacity: 1; }` (it shows on focus and narrow screens regardless), and the parent should be `position: relative` to anchor the scroll target
+@cssprop --hashlink_font_size - font size, `--font_size_lg` by default; `1em` sizes it with its row
+-->
 <script lang="ts">
 	import type { SvelteHTMLElements } from 'svelte/elements';
 
@@ -10,14 +16,12 @@
 <span class="hashlink-scroll-target" id={fragment} aria-hidden="true"></span>
 
 <style>
-	/* TODO @many how can this be done generically so it's composable? currently using `:global` at usage site - ideally we'd continue to use :hover instead of JS */
-	/* .some_parent:hover :global(.hashlink) { opacity: 1; } .some_parent { position: relative; } */
-
 	.hashlink {
-		font-size: var(--font_size_lg);
+		flex-shrink: 0;
+		font-size: var(--hashlink_font_size, var(--font_size_lg));
 		padding: 0 var(--space_sm);
 		margin-left: var(--space_sm);
-		opacity: 0;
+		opacity: var(--hashlink_opacity, 0);
 		transition: opacity var(--duration_2);
 	}
 

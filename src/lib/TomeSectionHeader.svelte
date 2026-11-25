@@ -82,8 +82,7 @@
 		align-items: center;
 		justify-content: space-between;
 	}
-	/* TODO @many how can this be done composably? currently using `:global` at usage site - ideally we'd continue to use :hover instead of JS */
-	.tome-section-header:hover :global(.hashlink) {
-		opacity: 1;
+	.tome-section-header:hover {
+		--hashlink_opacity: 1;
 	}
 </style>

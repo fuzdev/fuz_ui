@@ -762,14 +762,11 @@ rendered field carries its `Declaration.field` fragment as an `id`.
 		position: relative;
 		display: flex;
 		align-items: flex-start;
+		/* sized with the row, so a row with one is no taller than a row without */
+		--hashlink_font_size: 1em;
 	}
-	.field-header:hover :global(.hashlink) {
-		opacity: 1;
-	}
-	/* sized with the row, so a row with one is no taller than a row without */
-	.field-header :global(.hashlink) {
-		flex-shrink: 0;
-		font-size: inherit;
+	.field-header:hover {
+		--hashlink_opacity: 1;
 	}
 	/* a field reached by its fragment: the tint spreads past the text without
 	   moving it */

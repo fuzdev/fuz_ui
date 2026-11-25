@@ -124,5 +124,10 @@
 		top: 0;
 		max-width: var(--contextmenu_width);
 		width: 100%;
+		/* sync with `ContextmenuMenu`'s pane */
+		border: var(--contextmenu_border_width, var(--border_width))
+			var(--contextmenu_border_style, var(--border_style))
+			var(--contextmenu_border_color, var(--border_color));
+		border-radius: var(--contextmenu_border_radius, var(--border_radius_xs));
 	}
 </style>
