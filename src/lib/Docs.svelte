@@ -273,6 +273,15 @@
 		);
 	}
 
+	/* wide, the sidebar hangs below the primary nav, so the nav stacks above it
+	   to keep its scrolled shadow showing; narrow, the sidebar and its scrim
+	   overlay the nav. Sync with `SIDEBAR_NARROW_QUERY_DEFAULT`. */
+	@media (width > 800px) {
+		.docs {
+			--docs_primary_nav_z_index: calc(var(--sidebar_z_index, 200) + 1);
+		}
+	}
+
 	/* the page links move from their column into the sidebar */
 	@media (max-width: 1000px) {
 		.docs.nested,

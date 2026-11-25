@@ -1,3 +1,8 @@
+<!--
+@component
+
+@cssprop --docs_primary_nav_z_index - stacking of the sticky nav, `10` by default
+-->
 <script lang="ts">
 	import type { Snippet } from 'svelte';
 	import { scrollY } from 'svelte/reactivity/window';
@@ -29,7 +34,7 @@
 	.docs-primary-nav {
 		position: sticky;
 		top: 0;
-		z-index: 10;
+		z-index: var(--docs_primary_nav_z_index, 10);
 		background-color: var(--shade_00);
 		height: var(--docs_primary_nav_height);
 		transition: box-shadow var(--duration_2);
