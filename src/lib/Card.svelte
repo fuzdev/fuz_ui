@@ -4,6 +4,9 @@
 @cssprop --card_width - width of the card
 @cssprop --border_radius - corner radius of the card
 @cssprop --shadow - box shadow of a linked card in every state, replacing its default inset shadows
+@cssprop --icon_size - size of the icon
+@cssprop --icon_gap_inline - space between the icon and the content for `start` and `end`
+@cssprop --icon_gap_block - space between the icon and the content for `top` and `bottom`
 -->
 <script lang="ts">
 	import { page } from '$app/state';
@@ -104,11 +107,14 @@
 <style>
 	.card {
 		--icon_size: var(--icon_size_lg);
-		--icon_margin: var(--space_lg);
+		--icon_gap_inline: var(--space_xl2);
+		--icon_gap_block: var(--space_lg);
 		display: flex;
+		/* only one axis applies per layout: column-gap for `start`/`end`, row-gap for `top`/`bottom` */
+		gap: var(--icon_gap_block) var(--icon_gap_inline);
 		font-size: var(--font_size_xl2);
 		align-items: center;
-		padding: var(--space_lg);
+		padding: var(--space_lg) var(--space_xl2);
 		width: var(--card_width);
 		background-color: var(--ink_10);
 		border-radius: var(--border_radius, var(--border_radius_md));
@@ -159,34 +165,26 @@
 	.end:has(> .icon) .content {
 		padding-inline-start: var(--space_sm);
 	}
+	/* `line-height: 1` keeps a glyph's box as tall as its size, matching a snippet's */
 	.icon {
-		font-size: var(--icon_size, var(--icon_size_md));
+		font-size: var(--icon_size);
+		line-height: 1;
 		text-align: center;
 		display: flex;
 		justify-content: center;
-	}
-	.start .icon {
-		margin-inline-end: var(--icon_margin);
-	}
-	.end .icon {
-		margin-inline-start: var(--icon_margin);
-	}
-	.top .icon {
-		margin-bottom: var(--icon_margin);
-	}
-	.bottom .icon {
-		margin-top: var(--icon_margin);
 	}
 	@media (max-width: 460px) {
 		.card {
 			font-size: var(--font_size_xl);
 		}
 	}
-	/* the icon's size and margin come from the variables, whichever side it is on */
+	/* the icon's size and gaps come from the variables, whichever side it is on */
 	@media (max-width: 380px) {
 		.card {
 			--icon_size: var(--icon_size_md);
-			--icon_margin: var(--space_sm);
+			--icon_gap_inline: var(--space_md);
+			--icon_gap_block: var(--space_sm);
+			padding-inline: var(--space_lg);
 			font-size: var(--font_size_lg);
 		}
 	}

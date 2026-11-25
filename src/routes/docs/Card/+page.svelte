@@ -154,7 +154,8 @@
 			A card is as wide as <code>--card_width</code>, or as its container when that is unset. Its
 			text is <code>--font_size_xl2</code>, stepping down on narrow screens, and a
 			<code>font-size</code> in <code>style</code> overrides it. The icon is
-			<code>--icon_size</code> with <code>--icon_margin</code> between it and the content:
+			<code>--icon_size</code>, with <code>--icon_gap_inline</code> between it and the content
+			beside it and <code>--icon_gap_block</code> above or below it:
 		</p>
 		<Code
 			content={`<Card icon="📖" style="--card_width: 100%; --icon_size: var(--icon_size_md)">
