@@ -77,7 +77,10 @@
 		border-top-right-radius: var(--border_radius, var(--border_radius_md));
 	}
 	.minimap-wrapper {
+		/* inset the strip to line up with the range input's padded track, and fill the inset
+			with the gradient's endpoint color (hue 0 = 360) so the strip reads edge to edge */
 		padding: 0 var(--input_padding_x);
+		background: oklch(0.6 0.13 0);
 	}
 	.minimap {
 		/* sweep the OKLCH hue circle at constant lightness/chroma so the strip
