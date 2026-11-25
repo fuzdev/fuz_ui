@@ -8,6 +8,7 @@ import Details from './Details/+page.svelte';
 import Dialog from './Dialog/+page.svelte';
 import Teleport from './Teleport/+page.svelte';
 import Alert from './Alert/+page.svelte';
+import AppShell from './AppShell/+page.svelte';
 import Docs from './Docs/+page.svelte';
 import Library from './Library/+page.svelte';
 import Contextmenu from './Contextmenu/+page.svelte';
@@ -105,6 +106,20 @@ export const tomes: Array<Tome> = [
 		related_declarations: ['Alert']
 	},
 	{
+		slug: 'AppShell',
+		category: 'components',
+		Component: AppShell,
+		related_tomes: ['Docs'],
+		related_modules: ['sidebar_state.svelte.ts'],
+		related_declarations: [
+			'AppShell',
+			'SidebarState',
+			'sidebar_state_context',
+			'MenuLink',
+			'ColumnLayout'
+		]
+	},
+	{
 		slug: 'Breadcrumb',
 		category: 'components',
 		Component: Breadcrumb,
@@ -156,7 +171,7 @@ export const tomes: Array<Tome> = [
 		slug: 'Docs',
 		category: 'components',
 		Component: Docs,
-		related_tomes: ['Library', 'LibrarySummary'],
+		related_tomes: ['AppShell', 'Library', 'LibrarySummary'],
 		related_modules: [],
 		related_declarations: ['Docs']
 	},
